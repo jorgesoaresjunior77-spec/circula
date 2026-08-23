@@ -1144,3 +1144,198 @@
 .challenge-day--locked {
   opacity: 0.4;
 }
+
+/*
+ * Passe de densidade para desktop: reduz espaçamentos, alturas de card e de
+ * botão para mostrar mais conteúdo sem rolar. Mobile (abaixo de 1024px)
+ * permanece exatamente como estava, com alvos de toque confortáveis.
+ */
+@media (min-width: 1024px) {
+  .dashboard {
+    gap: 18px;
+    column-gap: 22px;
+    row-gap: 18px;
+  }
+
+  .dashboard-header button {
+    padding: 6px 12px;
+  }
+
+  .community-area {
+    gap: 14px;
+  }
+
+  .community-grid {
+    gap: 12px;
+  }
+
+  .section-label {
+    margin: 0 0 -6px 4px;
+  }
+
+  .community-block {
+    gap: 8px;
+    padding-bottom: 14px;
+  }
+
+  .community-card {
+    padding: 16px 18px;
+    gap: 6px;
+    border-radius: 14px;
+
+    h2 {
+      font-size: 18px;
+    }
+
+    form {
+      gap: 3px;
+      margin-top: 6px;
+
+      & > button[type='submit'],
+      & > button[type='button']:not(.auth-link) {
+        margin-top: 10px;
+        padding: 9px;
+      }
+    }
+
+    label {
+      margin-top: 6px;
+    }
+
+    input,
+    textarea {
+      padding: 8px 10px;
+    }
+
+    > button[type='button']:not(.auth-link) {
+      margin-top: 10px;
+      padding: 9px;
+    }
+  }
+
+  .profile-header {
+    gap: 10px;
+
+    h2 {
+      font-size: 17px;
+    }
+  }
+
+  .community-card-header {
+    gap: 10px;
+  }
+
+  .community-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    font-size: 16px;
+  }
+
+  .profile-avatar {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    font-size: 18px;
+  }
+
+  .member-list li {
+    padding: 8px 12px;
+  }
+
+  .member-list ul {
+    gap: 4px;
+  }
+
+  .feed {
+    gap: 12px;
+  }
+
+  .feed-list {
+    gap: 10px;
+  }
+
+  .post-card {
+    padding: 14px 16px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  .post-avatar {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    font-size: 14px;
+  }
+
+  .post-author {
+    font-size: 14px;
+  }
+
+  .comment-avatar {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    font-size: 12px;
+  }
+
+  .comment-list {
+    gap: 8px;
+  }
+
+  .auth-card button:not(.auth-link),
+  .community-card > button[type='button']:not(.auth-link) {
+    margin-top: 10px;
+    padding: 9px;
+  }
+
+  .comment-form button {
+    padding: 7px 12px;
+  }
+
+  .question-item {
+    padding: 9px 12px;
+  }
+
+  .question-list,
+  .challenge-manager {
+    gap: 8px;
+  }
+
+  .question-item-actions button,
+  .challenge-item-actions button,
+  .challenge-form-actions button {
+    padding: 5px 10px;
+  }
+
+  .challenge-block {
+    padding-top: 9px;
+  }
+
+  .challenge-card > button {
+    padding: 8px 16px;
+    margin-top: 3px;
+  }
+
+  .brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+  }
+}
+
+/* Telas bem largas: aproveita a largura extra em vez de deixar sobra de branco. */
+@media (min-width: 1440px) {
+  #root {
+    width: 1320px;
+  }
+
+  .dashboard {
+    max-width: 1240px;
+    grid-template-columns: 360px 1fr;
+  }
+
+  .community-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
