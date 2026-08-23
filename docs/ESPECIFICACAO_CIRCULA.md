@@ -592,3 +592,25 @@ A pasta `identidadevisual/` passou a conter os arquivos originais organizados da
 - O layout foi adaptado para desktop, notebook, tablet e mobile.
 
 A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo apenas referência estética e de organização, não uma especificação de funcionalidades.
+
+## Etapa concluída: FASE 2a — Posts + Feed
+
+- `posts` implementados.
+- `Feed` implementado.
+- `PostComposer` implementado.
+- `PostCard` implementado.
+- Professional pode publicar.
+- Member pode publicar.
+- Master pode visualizar, mas não publicar.
+- Autoria exibida corretamente.
+- Avatar e nome utilizados no post.
+- Posts aparecem do mais recente para o mais antigo.
+- Feed não aparece em "Descobrir comunidades".
+- Proteção por RLS validada.
+- Acesso sem sessão bloqueado.
+- Testes reais com Professional, Member e Master realizados.
+- Responsividade testada nas larguras de 320px a 1440px.
+- Console sem erros.
+- `npm run build` passou.
+
+**Limitação registrada:** o teste negativo de isolamento entre duas comunidades ainda não foi realizado ao vivo porque existe apenas uma comunidade real no banco. A proteção está implementada por RLS usando `is_community_member()`, `owns_community()` e `is_master()`, já validadas anteriormente. O teste entre comunidades será realizado quando existir uma segunda comunidade real.

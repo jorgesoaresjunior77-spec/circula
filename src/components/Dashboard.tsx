@@ -8,6 +8,7 @@ import { MemberList } from './MemberList'
 import { AddMemberForm } from './AddMemberForm'
 import { MyProfile } from './MyProfile'
 import { ProfileCard } from './ProfileCard'
+import { Feed } from './Feed'
 
 interface DashboardProps {
   profile: Profile | null
@@ -66,7 +67,7 @@ export function Dashboard({
 
             {!loading && error && <p className="auth-error">{error}</p>}
 
-            {!loading && !error && profile?.role === 'professional' && (
+            {!loading && !error && profile && profile.role === 'professional' && (
               <>
                 <p className="section-label">Minha comunidade</p>
                 {communities.length === 0 ? (
@@ -78,6 +79,7 @@ export function Dashboard({
                       memberCount={memberCounts[communities[0].id]}
                       badge="Você é a anfitriã desta comunidade"
                     />
+                    <Feed communityId={communities[0].id} authorId={profile.id} canPost />
                     <AddMemberForm onAdd={(email) => addMember(communities[0].id, email)} />
                     <MemberList
                       members={communities[0].community_members}
@@ -88,7 +90,7 @@ export function Dashboard({
               </>
             )}
 
-            {!loading && !error && profile?.role === 'master' && (
+            {!loading && !error && profile && profile.role === 'master' && (
               <>
                 <p className="section-label">Comunidades</p>
                 {communities.length === 0 ? (
@@ -101,6 +103,7 @@ export function Dashboard({
                           community={community}
                           memberCount={memberCounts[community.id]}
                         />
+                        <Feed communityId={community.id} authorId={profile.id} canPost={false} />
                         <MemberList
                           members={community.community_members}
                           onSelectMember={setViewingProfileId}
@@ -112,7 +115,7 @@ export function Dashboard({
               </>
             )}
 
-            {!loading && !error && profile?.role === 'member' && (
+            {!loading && !error && profile && profile.role === 'member' && (
               <>
                 <p className="section-label">Minha comunidade</p>
                 {myCommunities.length === 0 ? (
@@ -120,12 +123,14 @@ export function Dashboard({
                 ) : (
                   <div className="community-grid">
                     {myCommunities.map((community) => (
-                      <CommunityView
-                        key={community.id}
-                        community={community}
-                        memberCount={memberCounts[community.id]}
-                        badge="Você participa desta comunidade"
-                      />
+                      <div key={community.id} className="community-block">
+                        <CommunityView
+                          community={community}
+                          memberCount={memberCounts[community.id]}
+                          badge="Você participa desta comunidade"
+                        />
+                        <Feed communityId={community.id} authorId={profile.id} canPost />
+                      </div>
                     ))}
                   </div>
                 )}
