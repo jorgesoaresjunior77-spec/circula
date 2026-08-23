@@ -682,3 +682,21 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - `npm run build` passou.
 
 **Limitação registrada:** o teste negativo de isolamento de desafios entre duas comunidades não foi realizado ao vivo, pelo mesmo motivo já registrado nas fases anteriores — existe apenas uma comunidade real no banco. A área de comentários do desafio (Parte B) e o restante dos recursos de "Desafios Coletivos" descritos na seção 7 além das contagens (como notificações) ficam para uma subetapa futura.
+
+## Etapa concluída: FASE 3 — Desafios (Parte B: comentários)
+
+- `challenge_comments` implementada, com RLS, policies e GRANTs verificados por leitura no catálogo do Postgres, com o próprio usuário rodando as consultas.
+- Policy de leitura reaproveita `can_view_challenge(challenge_id)`; policy de escrita exige `author_id = auth.uid()` e `can_participate_in_challenge(challenge_id)` — qualquer membro da comunidade que possa ver o desafio pode comentar, mesmo sem ter entrado no desafio.
+- `useChallenges` estendido com `commentCounts`, `commentsByChallenge`, `fetchComments` e `addComment`, no mesmo padrão já usado para comentários de post.
+- `ChallengeCard` ganhou um bloco de comentários inline: botão com contagem (💬), abertura/fechamento e carregamento lazy (os comentários só são buscados no banco na primeira vez que a seção é aberta).
+- `CommentList` e `CommentForm` (já existentes, dos comentários de post) foram reaproveitados diretamente — nenhum componente visual novo foi criado. `CommentList` foi generalizado para aceitar qualquer comentário no mesmo formato, sem alterar sua aparência ou comportamento.
+- Professional cria, edita, ativa/desativa e exclui desafios da própria comunidade, e também comenta como qualquer participante.
+- Member vê os desafios ativos e comenta livremente, mesmo sem ter entrado no desafio.
+- Master visualiza os comentários existentes, mas não recebe o formulário de comentário — confirmado na árvore de acessibilidade da página, não apenas visualmente.
+- Comentário publicado aparece na lista sem reload, com autoria correta; a contagem (💬) é atualizada sem reload e persiste após recarregar a página.
+- Testes reais com Professional (Marluce) e Member realizados no navegador: comentar, ver contagem atualizar sem reload, recarregar a página e confirmar persistência.
+- Responsividade testada de 320px a 1440px. A largura de 320px foi validada via iframe same-origin (o redimensionamento real da janela não funcionou neste ambiente), confirmando por medição direta do DOM que não há overflow horizontal e que o botão de comentar tem altura confortável para toque.
+- Console sem erros da aplicação em nenhuma das três sessões testadas (Professional, Member, Master).
+- `npm run build` passou.
+
+**Limitações registradas:** a tentativa de confirmar por probe de API que o Master é bloqueado pela RLS ao tentar inserir um comentário (contornando a interface) não pôde ser executada, pois o ambiente de automação bloqueou essa chamada. A proteção de RLS em si já havia sido validada diretamente no banco antes da implementação, e a interface não disponibiliza o formulário de comentário ao Master. Também permanece a limitação já conhecida de todas as fases anteriores: existe apenas uma comunidade real no banco, então o isolamento de comentários de desafio entre duas comunidades não pôde ser testado ao vivo.

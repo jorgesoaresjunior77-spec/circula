@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { useChallengeProgress } from '../hooks/useChallengeProgress'
-import type { ChallengeWithActivities, JoinChallengeResult } from '../types/challenge'
+import type {
+  ChallengeComment,
+  ChallengeCommentResult,
+  ChallengeWithActivities,
+  JoinChallengeResult,
+} from '../types/challenge'
+import { CommentList } from './CommentList'
+import { CommentForm } from './CommentForm'
 
 interface ChallengeCardProps {
   challenge: ChallengeWithActivities
@@ -10,8 +17,12 @@ interface ChallengeCardProps {
   isParticipating: boolean
   canParticipate: boolean
   profileId: string | null
+  commentCount: number
+  comments: ChallengeComment[] | undefined
   onJoin: () => Promise<JoinChallengeResult>
   onProgressChange?: () => void
+  onOpenComments: () => Promise<ChallengeCommentResult>
+  onAddComment: (content: string) => Promise<ChallengeCommentResult>
 }
 
 export function ChallengeCard({
@@ -22,11 +33,17 @@ export function ChallengeCard({
   isParticipating,
   canParticipate,
   profileId,
+  commentCount,
+  comments,
   onJoin,
   onProgressChange,
+  onOpenComments,
+  onAddComment,
 }: ChallengeCardProps) {
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState<string | null>(null)
+  const [commentsOpen, setCommentsOpen] = useState(false)
+  const [loadingComments, setLoadingComments] = useState(false)
 
   const trackProgress = canParticipate && isParticipating
   const { completedDays, toggleDay, loading: progressLoading } = useChallengeProgress(
@@ -54,6 +71,17 @@ export function ChallengeCard({
   async function handleToggle(dayNumber: number) {
     const { error } = await toggleDay(dayNumber, currentDay)
     if (!error) onProgressChange?.()
+  }
+
+  async function handleToggleComments() {
+    const nextOpen = !commentsOpen
+    setCommentsOpen(nextOpen)
+
+    if (nextOpen && comments === undefined) {
+      setLoadingComments(true)
+      await onOpenComments()
+      setLoadingComments(false)
+    }
   }
 
   return (
@@ -106,6 +134,22 @@ export function ChallengeCard({
               </button>
             )
           })}
+        </div>
+      )}
+
+      <div>
+        <button type="button" className="post-comment-toggle" onClick={handleToggleComments}>
+          💬 {commentCount}
+        </button>
+      </div>
+
+      {commentsOpen && (
+        <div className="post-comments">
+          {loadingComments && <p>Carregando comentários...</p>}
+
+          {!loadingComments && <CommentList comments={comments ?? []} />}
+
+          {canParticipate && <CommentForm onSubmit={onAddComment} />}
         </div>
       )}
     </article>

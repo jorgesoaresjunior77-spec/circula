@@ -34,6 +34,22 @@ export interface ChallengeProgressEntry {
   completed_at: string
 }
 
+export interface ChallengeCommentAuthor {
+  id: string
+  full_name: string | null
+  avatar_url: string | null
+}
+
+export interface ChallengeComment {
+  id: string
+  challenge_id: string
+  author_id: string
+  content: string
+  created_at: string
+  author: ChallengeCommentAuthor | null
+}
+
 export type ChallengeResult = { error: string | null }
 export type JoinChallengeResult = { error: string | null }
 export type ToggleProgressResult = { error: string | null }
+export type ChallengeCommentResult = { error: string | null }

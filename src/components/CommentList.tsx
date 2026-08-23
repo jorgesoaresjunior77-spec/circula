@@ -1,8 +1,14 @@
 import { formatRelativeTime } from '../lib/formatRelativeTime'
-import type { Comment } from '../types/post'
+
+export interface CommentLike {
+  id: string
+  content: string
+  created_at: string
+  author: { id: string; full_name: string | null; avatar_url: string | null } | null
+}
 
 interface CommentListProps {
-  comments: Comment[]
+  comments: CommentLike[]
 }
 
 export function CommentList({ comments }: CommentListProps) {

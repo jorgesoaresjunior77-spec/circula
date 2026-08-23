@@ -22,6 +22,8 @@ export function ChallengeManager({
     todayCompletedCounts,
     currentDays,
     myParticipation,
+    commentCounts,
+    commentsByChallenge,
     loading,
     error,
     createChallenge,
@@ -30,6 +32,8 @@ export function ChallengeManager({
     deleteChallenge,
     joinChallenge,
     refreshCounts,
+    fetchComments,
+    addComment,
   } = useChallenges(communityId, profileId)
 
   const [title, setTitle] = useState('')
@@ -219,8 +223,12 @@ export function ChallengeManager({
                   isParticipating={myParticipation.has(challenge.id)}
                   canParticipate={canParticipate}
                   profileId={profileId}
+                  commentCount={commentCounts[challenge.id] ?? 0}
+                  comments={commentsByChallenge[challenge.id]}
                   onJoin={() => joinChallenge(challenge.id, profileId)}
                   onProgressChange={() => refreshCounts(challenge.id)}
+                  onOpenComments={() => fetchComments(challenge.id)}
+                  onAddComment={(content) => addComment(challenge.id, profileId, content)}
                 />
 
                 {canManage && (

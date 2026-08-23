@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type {
+  ChallengeComment,
+  ChallengeCommentResult,
   ChallengeResult,
   ChallengeWithActivities,
   JoinChallengeResult,
@@ -9,14 +11,34 @@ import type {
 const CHALLENGE_SELECT =
   'id,community_id,title,description,is_active,created_by,created_at,activities:challenge_activities(id,challenge_id,day_number,content)'
 
+const CHALLENGE_COMMENT_SELECT =
+  'id,challenge_id,author_id,content,created_at,author:profiles(id,full_name,avatar_url)'
+
 export function useChallenges(communityId: string | null, viewerId: string | null) {
   const [challenges, setChallenges] = useState<ChallengeWithActivities[]>([])
   const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({})
   const [todayCompletedCounts, setTodayCompletedCounts] = useState<Record<string, number>>({})
   const [currentDays, setCurrentDays] = useState<Record<string, number>>({})
   const [myParticipation, setMyParticipation] = useState<Set<string>>(new Set())
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
+  const [commentsByChallenge, setCommentsByChallenge] = useState<Record<string, ChallengeComment[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const fetchCommentCounts = useCallback(async (challengeIds: string[]) => {
+    if (challengeIds.length === 0) return
+
+    const { data } = await supabase
+      .from('challenge_comments')
+      .select('challenge_id')
+      .in('challenge_id', challengeIds)
+
+    const counts: Record<string, number> = {}
+    for (const row of data ?? []) {
+      counts[row.challenge_id] = (counts[row.challenge_id] ?? 0) + 1
+    }
+    setCommentCounts((prev) => ({ ...prev, ...counts }))
+  }, [])
 
   const fetchCounts = useCallback(async (challengeIds: string[]) => {
     if (challengeIds.length === 0) return
@@ -60,6 +82,8 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
       setTodayCompletedCounts({})
       setCurrentDays({})
       setMyParticipation(new Set())
+      setCommentCounts({})
+      setCommentsByChallenge({})
       setLoading(false)
       return
     }
@@ -87,7 +111,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     setChallenges(list)
 
     const ids = list.map((challenge) => challenge.id)
-    await fetchCounts(ids)
+    await Promise.all([fetchCounts(ids), fetchCommentCounts(ids)])
 
     if (viewerId && ids.length > 0) {
       const { data: participantRows } = await supabase
@@ -102,7 +126,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     }
 
     setLoading(false)
-  }, [communityId, viewerId, fetchCounts])
+  }, [communityId, viewerId, fetchCounts, fetchCommentCounts])
 
   useEffect(() => {
     fetchChallenges()
@@ -238,12 +262,52 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     await fetchCounts([challengeId])
   }
 
+  async function fetchComments(challengeId: string): Promise<ChallengeCommentResult> {
+    const { data, error: fetchError } = await supabase
+      .from('challenge_comments')
+      .select(CHALLENGE_COMMENT_SELECT)
+      .eq('challenge_id', challengeId)
+      .order('created_at', { ascending: true })
+
+    if (fetchError) {
+      return { error: fetchError.message }
+    }
+
+    setCommentsByChallenge((prev) => ({
+      ...prev,
+      [challengeId]: (data as unknown as ChallengeComment[]) ?? [],
+    }))
+    return { error: null }
+  }
+
+  async function addComment(
+    challengeId: string,
+    authorId: string,
+    content: string,
+  ): Promise<ChallengeCommentResult> {
+    const { error: insertError } = await supabase.from('challenge_comments').insert({
+      challenge_id: challengeId,
+      author_id: authorId,
+      content,
+    })
+
+    if (insertError) {
+      return { error: insertError.message }
+    }
+
+    setCommentCounts((prev) => ({ ...prev, [challengeId]: (prev[challengeId] ?? 0) + 1 }))
+    await fetchComments(challengeId)
+    return { error: null }
+  }
+
   return {
     challenges,
     participantCounts,
     todayCompletedCounts,
     currentDays,
     myParticipation,
+    commentCounts,
+    commentsByChallenge,
     loading,
     error,
     createChallenge,
@@ -253,6 +317,8 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     joinChallenge,
     leaveChallenge,
     refreshCounts,
+    fetchComments,
+    addComment,
     refresh: fetchChallenges,
   }
 }
