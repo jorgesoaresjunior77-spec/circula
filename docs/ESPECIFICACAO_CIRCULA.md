@@ -614,3 +614,25 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - `npm run build` passou.
 
 **Limitação registrada:** o teste negativo de isolamento entre duas comunidades ainda não foi realizado ao vivo porque existe apenas uma comunidade real no banco. A proteção está implementada por RLS usando `is_community_member()`, `owns_community()` e `is_master()`, já validadas anteriormente. O teste entre comunidades será realizado quando existir uma segunda comunidade real.
+
+## Etapa concluída: FASE 2b — Comentários + Reações
+
+- `post_comments` implementados.
+- `post_reactions` implementados.
+- `CommentList` implementado.
+- `CommentForm` implementado.
+- `PostCard` atualizado com reação e comentários inline.
+- Professional pode comentar e reagir.
+- Member pode comentar e reagir.
+- Master pode visualizar comentários e reações, mas não comentar nem reagir.
+- Contagem de comentários e reações funcionando.
+- Retirada da própria reação funcionando (toggle).
+- Atualização da interface sem reload.
+- Comentários abrem inline dentro do `PostCard` (sem nova rota).
+- RLS validada com probes reais (Master bloqueado com 403 "row-level security policy", grants confirmados corretos).
+- Testes reais com Professional (Marluce), Member e Master realizados.
+- Responsividade testada de 320px a 1440px, sem scroll horizontal.
+- Console sem erros.
+- `npm run build` passou.
+
+**Limitação registrada:** o teste negativo de isolamento entre duas comunidades para comentários e reações não foi realizado ao vivo, pelo mesmo motivo já registrado na FASE 2a — existe apenas uma comunidade real no banco. A proteção herda a mesma base de RLS (`can_view_post()` e `can_participate_in_post()`, construídas sobre `is_community_member()`, `owns_community()` e `is_master()`, já validadas anteriormente). O teste entre comunidades será realizado quando existir uma segunda comunidade real.

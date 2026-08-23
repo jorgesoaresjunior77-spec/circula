@@ -9,7 +9,19 @@ interface FeedProps {
 }
 
 export function Feed({ communityId, authorId, canPost }: FeedProps) {
-  const { posts, loading, error, createPost } = usePosts(communityId)
+  const {
+    posts,
+    loading,
+    error,
+    createPost,
+    reactionCounts,
+    reactedPostIds,
+    commentCounts,
+    commentsByPost,
+    toggleReaction,
+    fetchComments,
+    addComment,
+  } = usePosts(communityId, authorId)
 
   return (
     <div className="feed">
@@ -26,7 +38,18 @@ export function Feed({ communityId, authorId, canPost }: FeedProps) {
       {!loading && !error && posts.length > 0 && (
         <div className="feed-list">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard
+              key={post.id}
+              post={post}
+              reactionCount={reactionCounts[post.id] ?? 0}
+              hasReacted={reactedPostIds.has(post.id)}
+              commentCount={commentCounts[post.id] ?? 0}
+              comments={commentsByPost[post.id]}
+              canInteract={canPost}
+              onToggleReaction={() => toggleReaction(post.id, authorId)}
+              onOpenComments={() => fetchComments(post.id)}
+              onAddComment={(content) => addComment(post.id, authorId, content)}
+            />
           ))}
         </div>
       )}
