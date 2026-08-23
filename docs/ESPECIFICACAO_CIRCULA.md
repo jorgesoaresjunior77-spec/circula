@@ -658,3 +658,27 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - `npm run build` passou.
 
 **Limitação registrada:** o teste negativo de isolamento do banco de perguntas entre duas comunidades não foi realizado ao vivo, pelo mesmo motivo já registrado nas fases anteriores — existe apenas uma comunidade real no banco. A proteção reaproveita o mesmo padrão de RLS (`owns_community()`/`is_master()`) já validado, mas o teste cruzado real fica pendente para quando existir uma segunda comunidade.
+
+## Etapa concluída: FASE 3 — Desafios (Parte A: mecanismo + números coletivos)
+
+- `community_challenges`, `challenge_activities`, `challenge_participants` e `challenge_progress` implementadas, com RLS, policies e GRANTs verificados por leitura no catálogo do Postgres.
+- Funções `can_view_challenge`, `can_participate_in_challenge`, `challenge_current_day`, `challenge_participant_count` e `challenge_today_completed_count` implementadas e verificadas.
+- `useChallenges` implementado (listar, criar, editar, ativar/desativar, excluir, entrar, sair, contagens coletivas).
+- `useChallengeProgress` implementado (progresso da própria participante, marcar/desmarcar, respeitando o dia liberado).
+- `ChallengeManager` implementado (administração para Professional; leitura para Master; ausente para Member).
+- `ChallengeCard` implementado (título, descrição, "Dia X de Y", atividade do dia, contagens coletivas, participar, checklist de dias liberados/bloqueados com toggle "Concluído").
+- Calendário compartilhado por toda a comunidade: Dia 1 = data de criação do desafio, dias seguintes liberados automaticamente conforme o tempo passa, calculado por `challenge_current_day` tanto no cliente quanto no banco.
+- Professional cria, edita, ativa/desativa e exclui desafios da própria comunidade, e também participa como qualquer membro.
+- Member vê os desafios ativos, entra, acompanha o próprio progresso e as contagens coletivas; não administra.
+- Master visualiza os desafios e as contagens coletivas; não participa, não marca progresso, não administra.
+- Nenhuma lista nominal de quem concluiu é exibida — apenas contagens agregadas vindas das funções do banco.
+- Dias futuros bloqueados tanto na interface (botões desabilitados) quanto no banco (RLS validada com probe real: tentativa de marcar um dia futuro retornou `403 row-level security policy`, nenhuma linha criada).
+- Privacidade entre participantes validada com probes reais: como Member, uma consulta a `challenge_progress` sem filtro retornou apenas a própria linha; uma tentativa de inserir progresso em nome de outra participante retornou `403`.
+- Probes adicionais confirmaram que Member e Master não conseguem criar desafios via API mesmo contornando a interface (`403` em ambos os casos).
+- Desafio fica em seção própria da comunidade ("Desafios da comunidade"), sem virar publicação no feed.
+- Testes reais com Professional (Marluce), Member e Master realizados no navegador: criar, editar, ativar/desativar, excluir, entrar, marcar/desmarcar progresso, contagens coletivas corretas.
+- Responsividade testada de 320px a 1440px, sem scroll horizontal, incluindo o checklist de dias e o formulário de criação com múltiplas atividades.
+- Console sem erros.
+- `npm run build` passou.
+
+**Limitação registrada:** o teste negativo de isolamento de desafios entre duas comunidades não foi realizado ao vivo, pelo mesmo motivo já registrado nas fases anteriores — existe apenas uma comunidade real no banco. A área de comentários do desafio (Parte B) e o restante dos recursos de "Desafios Coletivos" descritos na seção 7 além das contagens (como notificações) ficam para uma subetapa futura.

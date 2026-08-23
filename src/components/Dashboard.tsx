@@ -10,6 +10,7 @@ import { MyProfile } from './MyProfile'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
 import { QuestionBankManager } from './QuestionBankManager'
+import { ChallengeManager } from './ChallengeManager'
 
 interface DashboardProps {
   profile: Profile | null
@@ -93,6 +94,12 @@ export function Dashboard({
                       canManage
                       onPublished={() => setFeedRefreshToken((token) => token + 1)}
                     />
+                    <ChallengeManager
+                      communityId={communities[0].id}
+                      profileId={profile.id}
+                      canManage
+                      canParticipate
+                    />
                     <AddMemberForm onAdd={(email) => addMember(communities[0].id, email)} />
                     <MemberList
                       members={communities[0].community_members}
@@ -122,6 +129,12 @@ export function Dashboard({
                           authorId={profile.id}
                           canManage={false}
                         />
+                        <ChallengeManager
+                          communityId={community.id}
+                          profileId={profile.id}
+                          canManage={false}
+                          canParticipate={false}
+                        />
                         <MemberList
                           members={community.community_members}
                           onSelectMember={setViewingProfileId}
@@ -148,6 +161,12 @@ export function Dashboard({
                           badge="Você participa desta comunidade"
                         />
                         <Feed communityId={community.id} authorId={profile.id} canPost />
+                        <ChallengeManager
+                          communityId={community.id}
+                          profileId={profile.id}
+                          canManage={false}
+                          canParticipate
+                        />
                       </div>
                     ))}
                   </div>
