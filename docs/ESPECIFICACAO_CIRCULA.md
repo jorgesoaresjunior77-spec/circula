@@ -636,3 +636,25 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - `npm run build` passou.
 
 **Limitação registrada:** o teste negativo de isolamento entre duas comunidades para comentários e reações não foi realizado ao vivo, pelo mesmo motivo já registrado na FASE 2a — existe apenas uma comunidade real no banco. A proteção herda a mesma base de RLS (`can_view_post()` e `can_participate_in_post()`, construídas sobre `is_community_member()`, `owns_community()` e `is_master()`, já validadas anteriormente). O teste entre comunidades será realizado quando existir uma segunda comunidade real.
+
+## Etapa concluída: FASE 3 — Pergunta do Dia
+
+- `community_questions` implementada (RLS, policies e GRANTs verificados por leitura no catálogo do Postgres, com o próprio usuário rodando as consultas).
+- `posts` estendida com `post_type` e `question_id`, preservando o histórico mesmo se a pergunta original for editada ou excluída (conteúdo copiado no momento da publicação).
+- Função `publish_daily_question(uuid)` (existência e `GRANT EXECUTE` para `authenticated` confirmados por leitura no catálogo).
+- `useQuestions` implementado (criar, editar, ativar/desativar, excluir, publicar).
+- `QuestionBankManager` implementado.
+- `PostCard` atualizado com o selo "PERGUNTA DO DIA" para publicações desse tipo, mantendo comentários e reações normalmente.
+- Professional administra o banco de perguntas da própria comunidade: cria, edita, ativa, desativa, exclui e publica a pergunta do dia manualmente pelo botão "Publicar pergunta do dia agora".
+- Member visualiza a pergunta do dia no feed (com o selo) e pode comentar e reagir normalmente; não tem acesso ao banco de perguntas (nem na interface, nem por RLS — validado com probe real: `select` como Member retornou `200` com `0` linhas).
+- Master visualiza o banco de perguntas da comunidade (somente leitura, sem os controles de criar/editar/publicar) e visualiza a pergunta publicada no feed; continua sem poder comentar ou reagir (botões desabilitados, sem formulário de comentário).
+- Publicar sem nenhuma pergunta ativa é bloqueado no cliente (botão desabilitado) antes mesmo de chegar ao banco.
+- Excluir a pergunta que originou uma publicação foi testado ao vivo: o post no feed manteve o selo e o texto original intactos.
+- Nenhuma nova rota ou tela foi criada — a pergunta do dia aparece inline no feed já existente.
+- Agendamento automático não foi implementado nesta etapa, conforme combinado; a publicação continua manual.
+- Testes reais com Professional (Marluce), Member e Master realizados no navegador.
+- Responsividade testada de 320px a 1440px, sem scroll horizontal, incluindo o painel de administração com múltiplos botões (quebra em `flex-wrap`, sem overflow).
+- Console sem erros.
+- `npm run build` passou.
+
+**Limitação registrada:** o teste negativo de isolamento do banco de perguntas entre duas comunidades não foi realizado ao vivo, pelo mesmo motivo já registrado nas fases anteriores — existe apenas uma comunidade real no banco. A proteção reaproveita o mesmo padrão de RLS (`owns_community()`/`is_master()`) já validado, mas o teste cruzado real fica pendente para quando existir uma segunda comunidade.

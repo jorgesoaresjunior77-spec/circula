@@ -9,12 +9,16 @@ import type {
 } from '../types/post'
 
 const POST_SELECT =
-  'id,community_id,author_id,content,created_at,author:profiles(id,full_name,avatar_url)'
+  'id,community_id,author_id,content,created_at,post_type,question_id,author:profiles(id,full_name,avatar_url)'
 
 const COMMENT_SELECT =
   'id,post_id,author_id,content,created_at,author:profiles(id,full_name,avatar_url)'
 
-export function usePosts(communityId: string | null, viewerId: string | null) {
+export function usePosts(
+  communityId: string | null,
+  viewerId: string | null,
+  refreshToken?: number,
+) {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -89,7 +93,7 @@ export function usePosts(communityId: string | null, viewerId: string | null) {
 
   useEffect(() => {
     fetchPosts()
-  }, [fetchPosts])
+  }, [fetchPosts, refreshToken])
 
   async function createPost(authorId: string, content: string): Promise<CreatePostResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }

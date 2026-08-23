@@ -6,9 +6,10 @@ interface FeedProps {
   communityId: string
   authorId: string
   canPost: boolean
+  refreshToken?: number
 }
 
-export function Feed({ communityId, authorId, canPost }: FeedProps) {
+export function Feed({ communityId, authorId, canPost, refreshToken }: FeedProps) {
   const {
     posts,
     loading,
@@ -21,7 +22,7 @@ export function Feed({ communityId, authorId, canPost }: FeedProps) {
     toggleReaction,
     fetchComments,
     addComment,
-  } = usePosts(communityId, authorId)
+  } = usePosts(communityId, authorId, refreshToken)
 
   return (
     <div className="feed">

@@ -4,12 +4,16 @@ export interface PostAuthor {
   avatar_url: string | null
 }
 
+export type PostType = 'standard' | 'daily_question'
+
 export interface Post {
   id: string
   community_id: string
   author_id: string
   content: string
   created_at: string
+  post_type: PostType
+  question_id: string | null
   author: PostAuthor | null
 }
 

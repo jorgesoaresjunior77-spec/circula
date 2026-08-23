@@ -50,8 +50,10 @@ export function PostCard({
     setReacting(false)
   }
 
+  const isDailyQuestion = post.post_type === 'daily_question'
+
   return (
-    <article className="post-card">
+    <article className={`post-card${isDailyQuestion ? ' post-card--question' : ''}`}>
       <div className="post-card-header">
         <div className="post-avatar" aria-hidden="true">
           {post.author?.avatar_url ? (
@@ -65,6 +67,8 @@ export function PostCard({
           <p className="post-time">{formatRelativeTime(post.created_at)}</p>
         </div>
       </div>
+
+      {isDailyQuestion && <span className="post-badge">Pergunta do dia</span>}
 
       <p className="post-content">{post.content}</p>
 

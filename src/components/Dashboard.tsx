@@ -9,6 +9,7 @@ import { AddMemberForm } from './AddMemberForm'
 import { MyProfile } from './MyProfile'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
+import { QuestionBankManager } from './QuestionBankManager'
 
 interface DashboardProps {
   profile: Profile | null
@@ -28,6 +29,7 @@ export function Dashboard({
   const { communities, memberCounts, loading, error, createCommunity, addMember, joinCommunity } =
     useCommunity(profile)
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
+  const [feedRefreshToken, setFeedRefreshToken] = useState(0)
 
   const myCommunities = communities.filter((community) =>
     community.community_members.some((member) => member.profile?.id === profile?.id),
@@ -79,7 +81,18 @@ export function Dashboard({
                       memberCount={memberCounts[communities[0].id]}
                       badge="Você é a anfitriã desta comunidade"
                     />
-                    <Feed communityId={communities[0].id} authorId={profile.id} canPost />
+                    <Feed
+                      communityId={communities[0].id}
+                      authorId={profile.id}
+                      canPost
+                      refreshToken={feedRefreshToken}
+                    />
+                    <QuestionBankManager
+                      communityId={communities[0].id}
+                      authorId={profile.id}
+                      canManage
+                      onPublished={() => setFeedRefreshToken((token) => token + 1)}
+                    />
                     <AddMemberForm onAdd={(email) => addMember(communities[0].id, email)} />
                     <MemberList
                       members={communities[0].community_members}
@@ -104,6 +117,11 @@ export function Dashboard({
                           memberCount={memberCounts[community.id]}
                         />
                         <Feed communityId={community.id} authorId={profile.id} canPost={false} />
+                        <QuestionBankManager
+                          communityId={community.id}
+                          authorId={profile.id}
+                          canManage={false}
+                        />
                         <MemberList
                           members={community.community_members}
                           onSelectMember={setViewingProfileId}
