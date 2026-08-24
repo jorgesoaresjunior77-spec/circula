@@ -1145,6 +1145,89 @@
   opacity: 0.4;
 }
 
+.circle-manager {
+  gap: 16px;
+}
+
+.circle-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.circle-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.circle-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+
+  &:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.circle-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  input {
+    font: inherit;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-h);
+  }
+}
+
+.circle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  h3 {
+    margin: 0;
+    font-size: 17px;
+  }
+}
+
+.circle-card > button {
+  font: inherit;
+  width: auto;
+  margin: 4px 0 0;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  cursor: pointer;
+  align-self: flex-start;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.circle-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
 /*
  * Passe de densidade para desktop: reduz espaçamentos, alturas de card e de
  * botão para mostrar mais conteúdo sem rolar. Mobile (abaixo de 1024px)
@@ -1313,6 +1396,19 @@
   }
 
   .challenge-card > button {
+    padding: 8px 16px;
+    margin-top: 3px;
+  }
+
+  .circle-manager {
+    gap: 8px;
+  }
+
+  .circle-block {
+    padding-top: 9px;
+  }
+
+  .circle-card > button {
     padding: 8px 16px;
     margin-top: 3px;
   }

@@ -700,3 +700,24 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - `npm run build` passou.
 
 **Limitações registradas:** a tentativa de confirmar por probe de API que o Master é bloqueado pela RLS ao tentar inserir um comentário (contornando a interface) não pôde ser executada, pois o ambiente de automação bloqueou essa chamada. A proteção de RLS em si já havia sido validada diretamente no banco antes da implementação, e a interface não disponibiliza o formulário de comentário ao Master. Também permanece a limitação já conhecida de todas as fases anteriores: existe apenas uma comunidade real no banco, então o isolamento de comentários de desafio entre duas comunidades não pôde ser testado ao vivo.
+
+## Etapa concluída: FASE 3 — Círculos de Interesse
+
+- `community_circles` e `circle_members` implementadas, com RLS, policies, funções e GRANTs verificados por leitura no catálogo do Postgres, com o próprio usuário rodando as consultas.
+- Círculo tem somente nome, comunidade, criador e data de criação — sem descrição, sem status ativo/inativo, conforme decidido explicitamente (nenhuma funcionalidade além do que está na Seção 8 da especificação).
+- `can_view_circle(uuid)` e `circle_member_count(uuid)` criadas e verificadas (probes com UUID inexistente retornaram `false` e `0`, como esperado).
+- `useCircles` implementado (listar com participantes aninhados, criar, renomear, excluir, entrar, sair).
+- `CircleCard` implementado: nome do círculo, contagem de participantes, lista de participantes (reaproveitando o componente visual de tag/pill já usado em interesses de perfil), botão único que alterna "Participar"/"Sair".
+- `CircleManager` implementado (administração para Professional; leitura para Master; ausente o formulário de criação para Member, que só participa).
+- Professional cria, renomeia e exclui círculos da própria comunidade, e também participa como qualquer membro.
+- Member vê os círculos, entra e sai livremente, sem aprovação da dona — autosserviço puro, igual ao padrão já usado em comunidades descobríveis e em desafios.
+- A Professional **não** tem nenhum controle para adicionar ou remover manualmente uma participante de um círculo — só a própria pessoa controla sua entrada/saída, conforme decidido.
+- Master visualiza os círculos e a lista de participantes, mas não tem formulário de criar, não tem botão de participar/sair, e não tem "Renomear"/"Excluir" — confirmado na interface (Master não recebe nenhum desses controles).
+- Círculos não têm feed, posts, comentários ou chat próprios — ficam em seção própria da comunidade ("Círculos da comunidade"), sem nenhuma relação com o feed existente.
+- Nenhum sistema visual novo foi criado: o card reaproveita a família de classes já usada em Desafios (`.challenge-item-actions`, `.challenge-save-button`, `.challenge-delete-button`) e a lista de participantes reaproveita as pills de `.interest-tag` já usadas na edição de perfil.
+- Testes reais com Professional (Marluce), Member e Master realizados no navegador: criar círculo, participar, ver contagem e lista atualizarem sem reload, renomear, recarregar a página e confirmar persistência, sair do círculo.
+- Responsividade testada de 320px a 1440px (sem overflow horizontal, confirmado por medição direta do DOM), respeitando a densidade visual compacta já aplicada no desktop e a experiência confortável já preservada no mobile.
+- Console sem erros da aplicação em nenhum dos três papéis testados.
+- `npm run build` passou.
+
+**Limitações registradas:** a mesma de todas as fases anteriores — existe apenas uma comunidade real no banco, então o isolamento de círculos entre duas comunidades não pôde ser testado ao vivo. Adicionalmente, só existem duas contas reais participando da comunidade (Marluce e um Member de teste), então o cenário de múltiplas mulheres em múltiplos círculos diferentes foi validado no mecanismo, mas não em escala.
