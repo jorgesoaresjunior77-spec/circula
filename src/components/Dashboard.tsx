@@ -12,6 +12,7 @@ import { Feed } from './Feed'
 import { QuestionBankManager } from './QuestionBankManager'
 import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
+import { CheckinManager } from './CheckinManager'
 
 interface DashboardProps {
   profile: Profile | null
@@ -107,6 +108,13 @@ export function Dashboard({
                       canManage
                       canParticipate
                     />
+                    <CheckinManager
+                      communityId={communities[0].id}
+                      profileId={profile.id}
+                      canManage
+                      canParticipate
+                      onShared={() => setFeedRefreshToken((token) => token + 1)}
+                    />
                     <AddMemberForm onAdd={(email) => addMember(communities[0].id, email)} />
                     <MemberList
                       members={communities[0].community_members}
@@ -148,6 +156,12 @@ export function Dashboard({
                           canManage={false}
                           canParticipate={false}
                         />
+                        <CheckinManager
+                          communityId={community.id}
+                          profileId={profile.id}
+                          canManage={false}
+                          canParticipate={false}
+                        />
                         <MemberList
                           members={community.community_members}
                           onSelectMember={setViewingProfileId}
@@ -173,7 +187,12 @@ export function Dashboard({
                           memberCount={memberCounts[community.id]}
                           badge="Você participa desta comunidade"
                         />
-                        <Feed communityId={community.id} authorId={profile.id} canPost />
+                        <Feed
+                          communityId={community.id}
+                          authorId={profile.id}
+                          canPost
+                          refreshToken={feedRefreshToken}
+                        />
                         <ChallengeManager
                           communityId={community.id}
                           profileId={profile.id}
@@ -185,6 +204,13 @@ export function Dashboard({
                           profileId={profile.id}
                           canManage={false}
                           canParticipate
+                        />
+                        <CheckinManager
+                          communityId={community.id}
+                          profileId={profile.id}
+                          canManage={false}
+                          canParticipate
+                          onShared={() => setFeedRefreshToken((token) => token + 1)}
                         />
                       </div>
                     ))}

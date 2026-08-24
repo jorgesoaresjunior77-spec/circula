@@ -4,7 +4,7 @@ export interface PostAuthor {
   avatar_url: string | null
 }
 
-export type PostType = 'standard' | 'daily_question'
+export type PostType = 'standard' | 'daily_question' | 'checkin_share'
 
 export interface Post {
   id: string

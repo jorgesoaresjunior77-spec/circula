@@ -721,3 +721,24 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - `npm run build` passou.
 
 **Limitações registradas:** a mesma de todas as fases anteriores — existe apenas uma comunidade real no banco, então o isolamento de círculos entre duas comunidades não pôde ser testado ao vivo. Adicionalmente, só existem duas contas reais participando da comunidade (Marluce e um Member de teste), então o cenário de múltiplas mulheres em múltiplos círculos diferentes foi validado no mecanismo, mas não em escala.
+
+## Etapa concluída: FASE 3 — Check-ins
+
+- `community_checkins` (banco reutilizável de check-ins), `checkin_instances` (check-in publicado) e `checkin_responses` (resposta individual e privada) implementadas, com RLS, policies, função e GRANTs verificados por leitura no catálogo do Postgres, com o próprio usuário rodando as consultas.
+- `posts.post_type` estendido para aceitar `checkin_share`, preservando `standard` e `daily_question` — nenhuma outra tabela existente foi alterada.
+- `publish_checkin(uuid)` criada (`security definer`, escolhe aleatoriamente um check-in ativo da comunidade e publica uma instância), verificada por catálogo (existência e `GRANT EXECUTE` para `authenticated`), sem ser executada durante a verificação.
+- Achado durante a verificação: `anon` possui GRANTs de `REFERENCES`, `TRIGGER` e `TRUNCATE` nas tabelas novas (e também em `community_circles`, confirmando ser um padrão estrutural do projeto, não algo introduzido pelos Check-ins) — sem `SELECT`/`INSERT`/`UPDATE`/`DELETE`, portanto sem risco de leitura ou escrita anônima.
+- `useCheckins` implementado (banco: criar/editar/ativar/desativar/excluir; publicar; responder; compartilhar).
+- `CheckinResponseForm` implementado: seletor de humor (😊🙂😐😔), pergunta de compartilhamento (Sim/Agora não), campo de texto opcional só revelado após "Sim", botão "Compartilhar" desabilitado enquanto o texto estiver vazio.
+- `CheckinManager` implementado: administração do banco e publicação para Professional; lista de check-ins publicados para todos; roster de humores individuais (nome + emoji) visível somente para a Professional.
+- `PostCard` atualizado com o selo "Check-in" para publicações de compartilhamento, mantendo comentários e reações normalmente (reaproveitamento total da infraestrutura de posts já existente, sem nenhuma coluna nova).
+- Professional cadastra, edita, ativa/desativa e exclui check-ins da própria comunidade, publica manualmente, responde ao próprio check-in como qualquer participante, e visualiza o humor individual de cada participante que respondeu.
+- Member vê os check-ins publicados, responde uma vez por check-in (humor obrigatório, compartilhamento opcional), e só vê o próprio humor — nunca o de outra participante.
+- Master visualiza os check-ins publicados (só o texto do evento), mas não tem banco, não tem seletor de humor, não tem botão de resposta e não visualiza nenhum humor individual — confirmado na interface.
+- Testado ao vivo: escolher "Sim" e deixar o texto vazio mantém o botão "Compartilhar" desabilitado e não publica nada (clique sem efeito); escolher "Sim" com texto preenchido cria o post no feed com o selo "Check-in", reação e comentário funcionando normalmente; escolher "Agora não" registra a resposta sem criar nenhuma publicação.
+- Testes reais com Professional (Marluce) e Member realizados no navegador, em dois check-ins publicados diferentes, cobrindo os três caminhos de resposta (Agora não / Sim com texto / Sim sem texto).
+- Responsividade testada de 320px a 1440px (sem overflow horizontal, confirmado por medição direta do DOM).
+- Console sem erros da aplicação em nenhum dos três papéis testados.
+- `npm run build` passou.
+
+**Limitações registradas:** a mesma de todas as fases anteriores — existe apenas uma comunidade real no banco, então o isolamento de check-ins entre duas comunidades não pôde ser testado ao vivo. O probe de API para confirmar por bypass de interface que o Master é bloqueado pela RLS ao tentar ler `checkin_responses.mood` não foi executado (mesma limitação do ambiente já registrada nas fases anteriores); a proteção foi validada diretamente no banco antes da implementação, e a interface do Master não oferece nenhum controle de resposta nem exibe roster de humor.

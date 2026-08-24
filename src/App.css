@@ -1228,6 +1228,145 @@
   color: var(--text);
 }
 
+.checkin-manager {
+  gap: 16px;
+}
+
+.checkin-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.checkin-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+
+  &:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.checkin-prompt {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.checkin-mood-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkin-mood-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkin-mood-button {
+  font-size: 26px;
+  line-height: 1;
+  padding: 8px 14px;
+  margin: 0;
+  width: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--social-bg);
+  }
+}
+
+.checkin-share-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  textarea {
+    font: inherit;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-h);
+    resize: vertical;
+  }
+
+  > button {
+    font: inherit;
+    width: auto;
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    cursor: pointer;
+    align-self: flex-start;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.checkin-share-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  button:not(.auth-link) {
+    font: inherit;
+    width: auto;
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+  }
+}
+
+.checkin-answered {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.checkin-roster {
+  margin-top: 2px;
+}
+
+.checkin-roster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
 /*
  * Passe de densidade para desktop: reduz espaçamentos, alturas de card e de
  * botão para mostrar mais conteúdo sem rolar. Mobile (abaixo de 1024px)
@@ -1411,6 +1550,19 @@
   .circle-card > button {
     padding: 8px 16px;
     margin-top: 3px;
+  }
+
+  .checkin-manager {
+    gap: 8px;
+  }
+
+  .checkin-block {
+    padding-top: 9px;
+  }
+
+  .checkin-mood-button {
+    font-size: 22px;
+    padding: 6px 11px;
   }
 
   .brand-icon {
