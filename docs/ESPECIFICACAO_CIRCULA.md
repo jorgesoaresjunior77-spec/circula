@@ -741,4 +741,26 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 - Console sem erros da aplicação em nenhum dos três papéis testados.
 - `npm run build` passou.
 
+## Etapa concluída: FASE 3 — Comandos de Engajamento
+
+- `community_engagement_commands` (banco de comandos reutilizáveis: título + texto) implementada, com RLS, policies e GRANTs verificados por leitura no catálogo do Postgres, com o próprio usuário rodando as consultas.
+- `posts.post_type` estendido para aceitar `engagement_command`, preservando `standard`, `daily_question` e `checkin_share`; `posts` ganhou as colunas `title` e `engagement_command_id` (ambas nulas, usadas só por este tipo de post) — nenhuma outra tabela existente foi alterada.
+- `publish_engagement_command(uuid)` criada (`security definer`, `search_path` fixado em `public`, escolhe aleatoriamente um comando ativo da comunidade e publica um post com o selo, retornando o UUID do post criado), verificada por catálogo (existência, assinatura, tipo de retorno, `security definer`, `search_path` e `GRANT EXECUTE` para `authenticated`).
+- Achado durante o desenvolvimento: uma tentativa anterior já havia criado a tabela, as colunas e uma versão da função `publish_engagement_command` com um tipo de retorno diferente; o Postgres rejeita `CREATE OR REPLACE FUNCTION` quando o tipo de retorno muda (`42P13`), então a correção precisou de `DROP FUNCTION` explícito antes de recriar. Todo o restante do schema (tabela, colunas, RLS, policies, GRANTs) já estava aplicado corretamente dessa tentativa anterior.
+- `useEngagementCommands` implementado (listar, criar, editar, ativar/desativar, excluir, publicar) — mesmo padrão de `useQuestions`/`useCheckins`.
+- `EngagementCommandManager` implementado: administração e publicação para Professional; leitura somente (banco de comandos com badge "Ativo"/"Inativo", sem formulário nem botões de ação) para Master; ausente para Member, que só vê o comando publicado no feed.
+- `PostCard` atualizado com o selo "COMANDO DA COMUNIDADE" e o título do comando em destaque acima do texto, mantendo comentários e reações normalmente (reaproveitamento total da infraestrutura de posts já existente).
+- Sem agendamento automático, sem IA, sem resposta estruturada e sem tela separada — publicação 100% manual (botão "Publicar comando agora"), igual ao padrão já usado em Pergunta do Dia e Check-ins.
+- Professional cadastra, edita, ativa/desativa, exclui e publica comandos da própria comunidade, e também comenta/reage ao comando publicado como qualquer participante.
+- Member vê o comando publicado no feed e comenta/reage normalmente; não tem acesso ao banco administrativo de comandos.
+- Master visualiza o banco de comandos (somente leitura) e o post publicado no feed, mas não comenta nem reage — confirmado na interface (o Feed já nega comentário/reação a quem não pode postar, reaproveitando a regra existente, sem necessidade de alteração).
+- Testado ao vivo com Professional (Marluce): criar, editar título/texto, desativar (botão de publicar fica bloqueado sem comando ativo), reativar, publicar (post aparece no feed sem reload, com selo e título), reagir, comentar, excluir um comando descartável criado só para esse teste.
+- Testado ao vivo com Member: o comando publicado aparece no feed com o selo correto, sem o gerenciador de comandos na tela.
+- Testado ao vivo com Master: banco de comandos visível em modo leitura (sem formulário/botões); clique no coração e no ícone de comentário do post publicado não altera a contagem nem abre formulário de novo comentário.
+- Persistência confirmada após recarregar a página (post, reação e comentário mantidos).
+- Console sem erros da aplicação em nenhum dos três papéis testados.
+- `npm run build` passou.
+
+**Limitação registrada:** desta vez não foi possível validar visualmente a responsividade de 320px a 1440px — o redimensionamento real da janela não teve efeito neste ambiente (`window.innerWidth` permaneceu em 1366px mesmo após a chamada de resize, diferente de etapas anteriores em que um workaround via iframe same-origin funcionou). A tela reaproveita integralmente classes CSS já responsivas (`.post-card`, `.question-bank`, `.question-item` etc.) e a única regra nova (`.post-title`) não usa larguras fixas, mas isso não substitui uma verificação visual real — fica pendente para quando o ambiente permitir. Mantém-se também a limitação já conhecida das fases anteriores: existe apenas uma comunidade real no banco, então o isolamento de comandos entre duas comunidades não pôde ser testado ao vivo.
+
 **Limitações registradas:** a mesma de todas as fases anteriores — existe apenas uma comunidade real no banco, então o isolamento de check-ins entre duas comunidades não pôde ser testado ao vivo. O probe de API para confirmar por bypass de interface que o Master é bloqueado pela RLS ao tentar ler `checkin_responses.mood` não foi executado (mesma limitação do ambiente já registrada nas fases anteriores); a proteção foi validada diretamente no banco antes da implementação, e a interface do Master não oferece nenhum controle de resposta nem exibe roster de humor.

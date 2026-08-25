@@ -571,6 +571,13 @@
   color: var(--text);
 }
 
+.post-title {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .post-content {
   margin: 0;
   color: var(--text-h);

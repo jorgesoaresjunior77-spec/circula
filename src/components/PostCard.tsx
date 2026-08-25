@@ -52,13 +52,11 @@ export function PostCard({
 
   const isDailyQuestion = post.post_type === 'daily_question'
   const isCheckinShare = post.post_type === 'checkin_share'
+  const isEngagementCommand = post.post_type === 'engagement_command'
+  const isHighlighted = isDailyQuestion || isCheckinShare || isEngagementCommand
 
   return (
-    <article
-      className={`post-card${isDailyQuestion ? ' post-card--question' : ''}${
-        isCheckinShare ? ' post-card--question' : ''
-      }`}
-    >
+    <article className={`post-card${isHighlighted ? ' post-card--question' : ''}`}>
       <div className="post-card-header">
         <div className="post-avatar" aria-hidden="true">
           {post.author?.avatar_url ? (
@@ -75,7 +73,9 @@ export function PostCard({
 
       {isDailyQuestion && <span className="post-badge">Pergunta do dia</span>}
       {isCheckinShare && <span className="post-badge">Check-in</span>}
+      {isEngagementCommand && <span className="post-badge">Comando da comunidade</span>}
 
+      {isEngagementCommand && post.title && <p className="post-title">{post.title}</p>}
       <p className="post-content">{post.content}</p>
 
       <div className="post-actions">

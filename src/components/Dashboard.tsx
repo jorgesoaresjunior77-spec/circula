@@ -13,6 +13,7 @@ import { QuestionBankManager } from './QuestionBankManager'
 import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
+import { EngagementCommandManager } from './EngagementCommandManager'
 
 interface DashboardProps {
   profile: Profile | null
@@ -115,6 +116,12 @@ export function Dashboard({
                       canParticipate
                       onShared={() => setFeedRefreshToken((token) => token + 1)}
                     />
+                    <EngagementCommandManager
+                      communityId={communities[0].id}
+                      authorId={profile.id}
+                      canManage
+                      onPublished={() => setFeedRefreshToken((token) => token + 1)}
+                    />
                     <AddMemberForm onAdd={(email) => addMember(communities[0].id, email)} />
                     <MemberList
                       members={communities[0].community_members}
@@ -161,6 +168,11 @@ export function Dashboard({
                           profileId={profile.id}
                           canManage={false}
                           canParticipate={false}
+                        />
+                        <EngagementCommandManager
+                          communityId={community.id}
+                          authorId={profile.id}
+                          canManage={false}
                         />
                         <MemberList
                           members={community.community_members}

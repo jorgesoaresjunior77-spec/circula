@@ -9,7 +9,7 @@ import type {
 } from '../types/post'
 
 const POST_SELECT =
-  'id,community_id,author_id,content,created_at,post_type,question_id,author:profiles(id,full_name,avatar_url)'
+  'id,community_id,author_id,content,created_at,post_type,question_id,title,engagement_command_id,author:profiles(id,full_name,avatar_url)'
 
 const COMMENT_SELECT =
   'id,post_id,author_id,content,created_at,author:profiles(id,full_name,avatar_url)'
