@@ -765,6 +765,36 @@ A referência visual do dashboard (`identidadevisual/Painel.png`) continua sendo
 
 **Limitações registradas:** a mesma de todas as fases anteriores — existe apenas uma comunidade real no banco, então o isolamento de check-ins entre duas comunidades não pôde ser testado ao vivo. O probe de API para confirmar por bypass de interface que o Master é bloqueado pela RLS ao tentar ler `checkin_responses.mood` não foi executado (mesma limitação do ambiente já registrada nas fases anteriores); a proteção foi validada diretamente no banco antes da implementação, e a interface do Master não oferece nenhum controle de resposta nem exibe roster de humor.
 
+## Etapa concluída: Nova identidade visual — "leveza botânica"
+
+Mudança puramente visual, sem tocar em banco, RLS, Auth, hooks, tipos ou lógica de nenhum componente. Objetivo: transformar a estética de "vinho/rosa saturado" para uma paleta clara, botânica e pastel (branco quente, areia, oliva, folha, rosé, palha), mantendo logo e nome "Círcula" intocados.
+
+**Descoberta antes de alterar:** todas as cores do app já eram centralizadas em `src/index.css` (`:root`), e `src/App.css` não tinha nenhum valor de cor solto — só 3 blocos repetidos de vermelho de exclusão (`#d0244b`) e um `color: #fff` fixo. Isso permitiu aplicar a nova identidade quase inteiramente por remapeamento de tokens, sem reescrever componentes.
+
+**Tokens remapeados em `src/index.css` (tema claro):**
+- `--page-bg`: branco quente `#FEFDFC`
+- `--bg`: bege quase branco `#FAF8F2` (cards de post, formulários)
+- `--social-bg`: areia muito clara `#F6F2E9` (era a maior área rosa da interface — agora é a segunda maior área clara, como pedido)
+- `--text-h`: `#3F403D` (texto principal) / `--text`: `#777873` (texto secundário)
+- `--accent`: oliva pastel `#DDE2CF` (fundo de botão principal) / `--accent-contrast`: `#3F403D` (era branco — trocado para grafite, porque um fundo pastel claro exige texto escuro para contraste)
+- `--accent-bg` / `--accent-border`: tons derivados do oliva, para realces e bordas suaves
+- `--sage` / `--sage-text`: folha muito suave `#E1E9DE` / grafite-esverdeado `#4B5A47` (selo de anfitriã/participante, status "Ativa")
+- **Tokens novos:** `--accent-rose` (rosé pastel `#F4E7E5`, usado nos selos de destaque do feed — Pergunta do Dia, Check-in, Comando da Comunidade) e `--danger`/`--danger-border`/`--danger-bg` (terracota suave `#B5615A`, substituindo o vermelho saturado `#d0244b` nos botões "Excluir")
+- `--shadow`: suavizada de `rgba(91,46,63,0.12)` para `rgba(63,64,61,0.06)` — sombras bem mais discretas
+
+**Achado e correção durante a implementação:** o token `--accent` era usado no app tanto como *fundo* (botões) quanto como *cor de texto* (rótulos de seção, links, avatares com iniciais, badge de participante). Ao virar um pastel claro, os usos como texto ficaram com contraste ruim (ex.: o título "ENGAJAMENTO" quase ilegível). Corrigido substituindo todo `color: var(--accent)` (texto) por `color: var(--sage-text)` (grafite-esverdeado escuro), mantendo `background: var(--accent)` intocado — validado depois via `getComputedStyle` no navegador, não só visualmente.
+- `.community-badge` tinha `color: #fff` fixo sobre `background: var(--sage)` — corrigido para `color: var(--sage-text)`, pelo mesmo motivo (fundo virou claro, texto branco ficaria ilegível).
+
+**Fora do escopo desta etapa, por decisão explícita:**
+- Elementos decorativos botânicos (folhas, ramos, ilustrações lineares) **não foram adicionados** — a instrução os marcava como opcionais ("podem aparecer"), e adicionar novos assets/SVGs exigiria tocar em JSX de componentes, o que foi evitado para manter o escopo mínimo.
+- **Dark mode não foi alterado** — o bloco `@media (prefers-color-scheme: dark)` em `index.css` continua com a paleta anterior (vinho escuro), intacto. Os tokens novos (`--accent-rose`, `--danger*`) não têm override específico no tema escuro e herdam o valor do tema claro se o navegador estiver em modo escuro — comportamento aceitável, não corrigido nesta etapa por estar fora do pedido.
+
+**Verificação de contraste:** validada por leitura direta de `getComputedStyle` no navegador (não só inspeção visual) em: botão principal (`rgb(221,226,207)` fundo / `rgb(63,64,61)` texto), selo de post (`rgb(244,231,229)` / `rgb(63,64,61)`), botão excluir (`rgb(181,97,90)` sobre fundo transparente), aba ativa do painel e selo de comunidade — todos com contraste adequado.
+
+**Testado ao vivo:** Professional (Marluce) — feed, Perguntas, Desafios, Círculos, Check-ins, Comandos, as 3 abas do `ProfessionalPanel` (incluindo as métricas); Member — feed e participação, sem nenhum elemento administrativo; Master — visão somente-leitura, sem regressão. Tela de login e recuperação de senha também verificadas (logo e nome "Círcula" preservados exatamente como estavam). Console sem erros de aplicação nos três papéis (só ruído de extensão do Chrome, já registrado em etapas anteriores como não relacionado ao app). `npm run build` passou.
+
+**Limitação registrada:** responsividade 320–1440px não verificada visualmente nesta etapa (mesma limitação de ambiente das duas etapas anteriores da FASE 4) — nenhuma largura fixa foi introduzida, e toda a mudança foi só de cor/sombra/token, então o risco de quebra é baixo, mas a confirmação visual real fica pendente.
+
 ## Etapa concluída: FASE 4 — Painel da Professional (item 1: estrutura + organização do conteúdo)
 
 - `ProfessionalPanel` criado: container com navegação por abas (Conteúdo / Comunidade / Assinaturas), controlada por estado local (sem router, sem mudança de URL).

@@ -73,7 +73,7 @@
 }
 
 .auth-error {
-  color: #d0244b;
+  color: var(--danger);
   font-size: 14px;
   margin: 4px 0 0;
 }
@@ -96,26 +96,28 @@
 }
 
 .brand-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
   object-fit: cover;
   box-shadow: var(--shadow);
+  filter: var(--brand-filter);
 }
 
 .brand-logo {
   display: block;
   width: 100%;
-  max-width: 220px;
+  max-width: 190px;
   height: auto;
   margin: 0 auto 4px;
+  filter: var(--brand-filter);
 
   @media (min-width: 480px) {
-    max-width: 260px;
+    max-width: 225px;
   }
 
   @media (min-width: 1024px) {
-    max-width: 300px;
+    max-width: 260px;
   }
 }
 
@@ -125,7 +127,7 @@
   padding: 6px 0;
   border: none;
   background: none;
-  color: var(--accent);
+  color: var(--sage-text);
   font-size: 14px;
   text-align: left;
   text-decoration: underline;
@@ -220,7 +222,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--sage-text);
   margin: 0 0 -8px 4px;
 }
 
@@ -357,7 +359,7 @@
   cursor: pointer;
 
   &:hover {
-    color: var(--accent);
+    color: var(--sage-text);
   }
 }
 
@@ -398,14 +400,14 @@
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--sage);
-  color: #fff;
+  color: var(--sage-text);
   font-size: 12px;
   font-weight: 500;
 
   &.community-badge--outline {
     background: none;
     border: 1px solid var(--accent-border);
-    color: var(--accent);
+    color: var(--sage-text);
   }
 }
 
@@ -422,7 +424,7 @@
   border-radius: 50%;
   overflow: hidden;
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--sage-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -449,7 +451,7 @@
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--sage-text);
   font-size: 13px;
 
   button {
@@ -544,7 +546,7 @@
   border-radius: 50%;
   overflow: hidden;
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--sage-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,7 +612,7 @@
   width: auto;
 
   &:hover:not(:disabled) {
-    color: var(--accent);
+    color: var(--sage-text);
   }
 
   &:disabled {
@@ -620,7 +622,7 @@
 }
 
 .post-reaction--active {
-  color: var(--accent);
+  color: var(--sage-text);
   font-weight: 600;
 }
 
@@ -660,7 +662,7 @@
   border-radius: 50%;
   overflow: hidden;
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--sage-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -804,7 +806,7 @@
 
   &:hover:not(:disabled) {
     background: var(--bg);
-    color: var(--accent);
+    color: var(--sage-text);
   }
 
   &:disabled {
@@ -826,12 +828,12 @@
 }
 
 .question-item-actions button.question-delete-button {
-  border-color: rgba(208, 36, 75, 0.35);
-  color: #d0244b;
+  border-color: var(--danger-border);
+  color: var(--danger);
 
   &:hover:not(:disabled) {
-    background: rgba(208, 36, 75, 0.08);
-    color: #d0244b;
+    background: var(--danger-bg);
+    color: var(--danger);
   }
 }
 
@@ -872,8 +874,8 @@
   align-items: center;
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--accent-rose);
+  color: var(--text-h);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -907,7 +909,7 @@
   cursor: pointer;
 
   &:hover {
-    color: var(--accent);
+    color: var(--sage-text);
   }
 }
 
@@ -977,7 +979,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--sage-text);
 }
 
 .metrics-period {
@@ -1031,18 +1033,18 @@
 
     &:hover {
       background: var(--social-bg);
-      color: var(--accent);
+      color: var(--sage-text);
     }
   }
 }
 
 .challenge-form-actions button.challenge-remove-day {
-  border-color: rgba(208, 36, 75, 0.35);
-  color: #d0244b;
+  border-color: var(--danger-border);
+  color: var(--danger);
 
   &:hover {
-    background: rgba(208, 36, 75, 0.08);
-    color: #d0244b;
+    background: var(--danger-bg);
+    color: var(--danger);
   }
 }
 
@@ -1112,7 +1114,7 @@
 
   &:hover:not(:disabled) {
     background: var(--bg);
-    color: var(--accent);
+    color: var(--sage-text);
   }
 
   &:disabled {
@@ -1134,12 +1136,12 @@
 }
 
 .challenge-item-actions button.challenge-delete-button {
-  border-color: rgba(208, 36, 75, 0.35);
-  color: #d0244b;
+  border-color: var(--danger-border);
+  color: var(--danger);
 
   &:hover:not(:disabled) {
-    background: rgba(208, 36, 75, 0.08);
-    color: #d0244b;
+    background: var(--danger-bg);
+    color: var(--danger);
   }
 }
 
@@ -1195,7 +1197,7 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--sage-text);
 }
 
 .challenge-today-activity {
@@ -1675,9 +1677,9 @@
   }
 
   .brand-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
+    width: 41px;
+    height: 41px;
+    border-radius: 11px;
   }
 }
 

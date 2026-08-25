@@ -1,19 +1,24 @@
 :root {
-  --text: rgba(91, 46, 63, 0.72);
-  --text-h: #5b2e3f;
-  --bg: #f7efea;
-  --border: rgba(91, 46, 63, 0.14);
-  --code-bg: #f0e2da;
-  --accent: #b76a7a;
-  --accent-contrast: #fff;
-  --accent-bg: rgba(183, 106, 122, 0.12);
-  --accent-border: rgba(183, 106, 122, 0.45);
-  --social-bg: rgba(232, 177, 187, 0.28);
-  --sage: #a7b89a;
-  --sage-text: #5c6b52;
+  --text: #777873;
+  --text-h: #3f403d;
+  --bg: #faf8f2;
+  --border: rgba(63, 64, 61, 0.14);
+  --code-bg: #f5eedb;
+  --accent: #dde2cf;
+  --accent-contrast: #3f403d;
+  --accent-bg: rgba(221, 226, 207, 0.45);
+  --accent-border: rgba(174, 186, 152, 0.55);
+  --accent-rose: #f4e7e5;
+  --social-bg: #f6f2e9;
+  --sage: #e1e9de;
+  --sage-text: #4b5a47;
+  --danger: #b5615a;
+  --danger-border: rgba(181, 97, 90, 0.35);
+  --danger-bg: rgba(181, 97, 90, 0.08);
   --shadow:
-    rgba(91, 46, 63, 0.12) 0 10px 15px -3px, rgba(91, 46, 63, 0.08) 0 4px 6px -2px;
-  --page-bg: #ffffff;
+    rgba(63, 64, 61, 0.06) 0 8px 20px -6px, rgba(63, 64, 61, 0.04) 0 2px 6px -2px;
+  --page-bg: #fefdfc;
+  --brand-filter: hue-rotate(85deg) saturate(32%) brightness(1.12) contrast(0.96);
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
