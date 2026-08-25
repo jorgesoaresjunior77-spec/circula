@@ -4,6 +4,7 @@ import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
+import { CommunityMetricsPanel } from './CommunityMetricsPanel'
 
 type PanelTab = 'conteudo' | 'comunidade' | 'assinaturas'
 
@@ -82,7 +83,7 @@ export function ProfessionalPanel({ communityId, profileId, onFeedRefresh }: Pro
 
       {activeTab === 'comunidade' && (
         <div className="panel-tab-content">
-          <p className="panel-placeholder">Métricas da comunidade em breve.</p>
+          <CommunityMetricsPanel communityId={communityId} />
         </div>
       )}
 
