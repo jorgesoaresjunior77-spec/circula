@@ -14,6 +14,7 @@ import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
+import { ProfessionalPanel } from './ProfessionalPanel'
 
 interface DashboardProps {
   profile: Profile | null
@@ -91,36 +92,10 @@ export function Dashboard({
                       canPost
                       refreshToken={feedRefreshToken}
                     />
-                    <QuestionBankManager
-                      communityId={communities[0].id}
-                      authorId={profile.id}
-                      canManage
-                      onPublished={() => setFeedRefreshToken((token) => token + 1)}
-                    />
-                    <ChallengeManager
+                    <ProfessionalPanel
                       communityId={communities[0].id}
                       profileId={profile.id}
-                      canManage
-                      canParticipate
-                    />
-                    <CircleManager
-                      communityId={communities[0].id}
-                      profileId={profile.id}
-                      canManage
-                      canParticipate
-                    />
-                    <CheckinManager
-                      communityId={communities[0].id}
-                      profileId={profile.id}
-                      canManage
-                      canParticipate
-                      onShared={() => setFeedRefreshToken((token) => token + 1)}
-                    />
-                    <EngagementCommandManager
-                      communityId={communities[0].id}
-                      authorId={profile.id}
-                      canManage
-                      onPublished={() => setFeedRefreshToken((token) => token + 1)}
+                      onFeedRefresh={() => setFeedRefreshToken((token) => token + 1)}
                     />
                     <AddMemberForm onAdd={(email) => addMember(communities[0].id, email)} />
                     <MemberList

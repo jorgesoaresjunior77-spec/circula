@@ -884,6 +884,55 @@
   gap: 16px;
 }
 
+.professional-panel {
+  gap: 16px;
+}
+
+.panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel-tab {
+  font: inherit;
+  font-size: 14px;
+  width: auto;
+  padding: 8px 16px;
+  margin: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-h);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+.panel-tab--active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+
+  &:hover {
+    color: var(--accent-contrast);
+  }
+}
+
+.panel-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel-placeholder {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
 .challenge-form {
   display: flex;
   flex-direction: column;
