@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useChallenges } from '../hooks/useChallenges'
 import { ChallengeCard } from './ChallengeCard'
+import { EmptyState } from './EmptyState'
 
 interface ChallengeManagerProps {
   communityId: string
@@ -112,7 +113,7 @@ export function ChallengeManager({
     !canManage && canParticipate ? challenges.filter((challenge) => challenge.is_active) : challenges
 
   return (
-    <section className="community-card challenge-manager">
+    <section className="community-card community-card--quiet challenge-manager">
       <h3>Desafios da comunidade</h3>
 
       {canManage && (
@@ -173,7 +174,7 @@ export function ChallengeManager({
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && visibleChallenges.length === 0 && (
-        <p className="challenge-empty">Nenhum desafio cadastrado ainda.</p>
+        <EmptyState message="Nenhum desafio cadastrado ainda." />
       )}
 
       {!loading &&

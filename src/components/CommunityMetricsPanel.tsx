@@ -55,7 +55,9 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
               <button
                 key={option.value}
                 type="button"
-                className={`panel-tab${periodDays === option.value ? ' panel-tab--active' : ''}`}
+                className={`metrics-period-button${
+                  periodDays === option.value ? ' metrics-period-button--active' : ''
+                }`}
                 onClick={() => setPeriodDays(option.value)}
               >
                 {option.label}

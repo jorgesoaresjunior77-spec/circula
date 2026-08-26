@@ -18,7 +18,7 @@ export function ProfessionalPanel({ communityId, profileId, onFeedRefresh }: Pro
   const [activeTab, setActiveTab] = useState<PanelTab>('conteudo')
 
   return (
-    <section className="community-card professional-panel">
+    <section className="community-card community-card--quiet professional-panel">
       <h3>Painel da comunidade</h3>
 
       <div className="panel-tabs">

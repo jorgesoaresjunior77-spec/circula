@@ -1,33 +1,71 @@
 :root {
-  --text: #777873;
-  --text-h: #3f403d;
-  --bg: #faf8f2;
-  --border: rgba(63, 64, 61, 0.14);
+  /* Superfícies — branco e areia dominam a interface */
+  --white: #ffffff;
+  --page-bg: #fefdfb;
+  --sand: #f6f1e6;
+  --sand-deep: #efe6d2;
+  --beige: #faf6ec;
+
+  /* Texto e bordas */
+  --graphite: #3f403d;
+  --graphite-soft: #75766e;
+  --border: rgba(63, 64, 61, 0.12);
+  --border-soft: rgba(63, 64, 61, 0.07);
   --code-bg: #f5eedb;
-  --accent: #dde2cf;
-  --accent-contrast: #3f403d;
-  --accent-bg: rgba(221, 226, 207, 0.45);
-  --accent-border: rgba(174, 186, 152, 0.55);
-  --accent-rose: #f4e7e5;
-  --social-bg: #f6f2e9;
-  --sage: #e1e9de;
-  --sage-text: #4b5a47;
+
+  /* Oliva pastel — ação primária, estados ativos */
+  --olive-soft: #dde2cf;
+  --olive: #aebd95;
+  --olive-text: #46512e;
+  --olive-bg: rgba(174, 189, 149, 0.16);
+  --olive-border: rgba(174, 189, 149, 0.55);
+
+  /* Folha suave — check-in, participação, confirmação */
+  --leaf-soft: #e1e9de;
+  --leaf-text: #4b5a47;
+
+  /* Rosé muito suave — pergunta do dia */
+  --rose-soft: #f4e7e5;
+  --rose-text: #93615d;
+
+  /* Palha — comando da comunidade, destaques pontuais */
+  --straw-soft: #f1e6c8;
+  --straw-text: #7a6533;
+
   --danger: #b5615a;
   --danger-border: rgba(181, 97, 90, 0.35);
   --danger-bg: rgba(181, 97, 90, 0.08);
-  --shadow:
-    rgba(63, 64, 61, 0.06) 0 8px 20px -6px, rgba(63, 64, 61, 0.04) 0 2px 6px -2px;
-  --page-bg: #fefdfc;
+
+  --shadow-sm:
+    rgba(63, 64, 61, 0.05) 0 2px 8px -2px, rgba(63, 64, 61, 0.03) 0 1px 2px;
+  --shadow-md:
+    rgba(63, 64, 61, 0.08) 0 14px 28px -10px, rgba(63, 64, 61, 0.05) 0 3px 8px -2px;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 40px;
+
   --brand-filter: hue-rotate(85deg) saturate(32%) brightness(1.12) contrast(0.96);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: var(--font-body);
+  --heading: var(--font-display);
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 16px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/150% var(--font-body);
+  letter-spacing: 0.1px;
   color-scheme: light dark;
-  color: var(--text);
+  color: var(--graphite-soft);
   background: var(--page-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -41,21 +79,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: rgba(247, 239, 234, 0.75);
-    --text-h: #f7efea;
-    --bg: #3d2029;
+    --graphite-soft: rgba(247, 239, 234, 0.75);
+    --graphite: #f7efea;
+    --beige: #3d2029;
+    --sand: rgba(232, 177, 187, 0.12);
     --border: rgba(247, 239, 234, 0.16);
     --code-bg: #4a2732;
-    --accent: #e8b1bb;
-    --accent-contrast: #3d2029;
-    --accent-bg: rgba(232, 177, 187, 0.18);
-    --accent-border: rgba(232, 177, 187, 0.5);
-    --social-bg: rgba(232, 177, 187, 0.12);
-    --sage: #a7b89a;
-    --sage-text: #c3d0ba;
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-    --page-bg: var(--bg);
+    --olive-soft: #e8b1bb;
+    --olive: #e8b1bb;
+    --olive-text: #3d2029;
+    --olive-bg: rgba(232, 177, 187, 0.18);
+    --olive-border: rgba(232, 177, 187, 0.5);
+    --leaf-soft: #a7b89a;
+    --leaf-text: #c3d0ba;
+    --shadow-sm: rgba(0, 0, 0, 0.35) 0 8px 16px -6px;
+    --shadow-md: rgba(0, 0, 0, 0.4) 0 12px 20px -6px, rgba(0, 0, 0, 0.25) 0 4px 8px -2px;
+    --page-bg: var(--beige);
   }
 
   #social .button-icon {
@@ -98,15 +137,16 @@ body {
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
+h2,
+h3 {
+  font-family: var(--font-display);
   font-weight: 500;
-  color: var(--text-h);
+  color: var(--graphite);
 }
 
 h1 {
   font-size: 30px;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.3px;
   margin: 16px 0;
   @media (min-width: 1024px) {
     font-size: 24px;
@@ -114,13 +154,17 @@ h1 {
   }
 }
 h2 {
-  font-size: 19px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
+  font-size: 21px;
+  line-height: 120%;
+  letter-spacing: -0.2px;
   margin: 0 0 6px;
   @media (min-width: 1024px) {
-    font-size: 17px;
+    font-size: 18px;
   }
+}
+h3 {
+  font-size: 17px;
+  letter-spacing: -0.1px;
 }
 p {
   margin: 0;
@@ -131,7 +175,7 @@ code,
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
-  color: var(--text-h);
+  color: var(--graphite);
 }
 
 code {

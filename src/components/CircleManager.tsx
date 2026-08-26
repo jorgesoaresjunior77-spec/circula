@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useCircles } from '../hooks/useCircles'
 import { CircleCard } from './CircleCard'
+import { EmptyState } from './EmptyState'
 
 interface CircleManagerProps {
   communityId: string
@@ -63,7 +64,7 @@ export function CircleManager({
   }
 
   return (
-    <section className="community-card circle-manager">
+    <section className="community-card community-card--quiet circle-manager">
       <h3>Círculos da comunidade</h3>
 
       {canManage && (
@@ -91,7 +92,7 @@ export function CircleManager({
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && circles.length === 0 && (
-        <p className="circle-empty">Nenhum círculo cadastrado ainda.</p>
+        <EmptyState message="Nenhum círculo cadastrado ainda." />
       )}
 
       {!loading &&

@@ -62,13 +62,18 @@ export function Dashboard({
       </header>
 
       {viewingProfileId ? (
-        <ProfileCard profileId={viewingProfileId} onClose={() => setViewingProfileId(null)} />
+        <div className="dashboard-main-solo">
+          <ProfileCard profileId={viewingProfileId} onClose={() => setViewingProfileId(null)} />
+        </div>
       ) : (
         <>
-          {profile && (
-            <MyProfile profile={profile} onUpdate={onUpdateProfile} onUploadAvatar={onUploadAvatar} />
-          )}
+          <div className="dashboard-rail">
+            {profile && (
+              <MyProfile profile={profile} onUpdate={onUpdateProfile} onUploadAvatar={onUploadAvatar} />
+            )}
+          </div>
 
+          <div className="dashboard-main">
           <div className="community-area">
             {loading && <p>Carregando comunidade...</p>}
 
@@ -221,6 +226,7 @@ export function Dashboard({
                 )}
               </>
             )}
+          </div>
           </div>
         </>
       )}

@@ -1,6 +1,7 @@
 import { usePosts } from '../hooks/usePosts'
 import { PostComposer } from './PostComposer'
 import { PostCard } from './PostCard'
+import { EmptyState } from './EmptyState'
 
 interface FeedProps {
   communityId: string
@@ -33,7 +34,7 @@ export function Feed({ communityId, authorId, canPost, refreshToken }: FeedProps
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && posts.length === 0 && (
-        <p className="feed-empty">Ainda não há publicações nesta comunidade.</p>
+        <EmptyState message="Ainda não há publicações nesta comunidade. Seja a primeira a compartilhar algo." />
       )}
 
       {!loading && !error && posts.length > 0 && (

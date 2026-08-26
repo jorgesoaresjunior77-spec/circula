@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useEngagementCommands } from '../hooks/useEngagementCommands'
+import { EmptyState } from './EmptyState'
 
 interface EngagementCommandManagerProps {
   communityId: string
@@ -99,7 +100,7 @@ export function EngagementCommandManager({
   }
 
   return (
-    <section className="community-card question-bank">
+    <section className="community-card community-card--quiet question-bank">
       <h3>Comandos de engajamento</h3>
 
       {canManage && (
@@ -152,7 +153,7 @@ export function EngagementCommandManager({
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && commands.length === 0 && (
-        <p className="question-empty">Nenhum comando cadastrado ainda.</p>
+        <EmptyState message="Nenhum comando cadastrado ainda." />
       )}
 
       {!loading && !error && commands.length > 0 && (

@@ -8,6 +8,7 @@ import type {
 } from '../types/challenge'
 import { CommentList } from './CommentList'
 import { CommentForm } from './CommentForm'
+import { CommentIcon, LeafDayMark } from './icons'
 
 interface ChallengeCardProps {
   challenge: ChallengeWithActivities
@@ -112,25 +113,33 @@ export function ChallengeCard({
       )}
 
       {canParticipate && isParticipating && (
-        <div className="challenge-days">
+        <div className="challenge-day-track">
           {challenge.activities.map((activity) => {
             const unlocked = activity.day_number <= currentDay
             const completed = completedDays.has(activity.day_number)
             const isToday = activity.day_number === currentDay
+            const markState: 'locked' | 'completed' | 'today' = !unlocked
+              ? 'locked'
+              : completed
+                ? 'completed'
+                : 'today'
 
             return (
               <button
                 key={activity.id}
                 type="button"
-                className={`challenge-day${completed ? ' challenge-day--completed' : ''}${
-                  !unlocked ? ' challenge-day--locked' : ''
-                }${isToday ? ' challenge-day--today' : ''}`}
+                className={`challenge-day-mark${completed ? ' challenge-day-mark--completed' : ''}${
+                  !unlocked ? ' challenge-day-mark--locked' : ''
+                }${isToday ? ' challenge-day-mark--today' : ''}`}
                 disabled={!unlocked || progressLoading}
                 onClick={() => handleToggle(activity.day_number)}
                 title={unlocked ? activity.content : 'Ainda não liberado'}
               >
-                Dia {activity.day_number}
-                {completed ? ' ✓' : ''}
+                <LeafDayMark state={markState} />
+                <span className="challenge-day-mark-label">
+                  {activity.day_number}
+                  {completed ? ' ✓' : ''}
+                </span>
               </button>
             )
           })}
@@ -139,7 +148,7 @@ export function ChallengeCard({
 
       <div>
         <button type="button" className="post-comment-toggle" onClick={handleToggleComments}>
-          💬 {commentCount}
+          <CommentIcon /> {commentCount}
         </button>
       </div>
 

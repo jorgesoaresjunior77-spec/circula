@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useQuestions } from '../hooks/useQuestions'
+import { EmptyState } from './EmptyState'
 
 interface QuestionBankManagerProps {
   communityId: string
@@ -95,7 +96,7 @@ export function QuestionBankManager({
   }
 
   return (
-    <section className="community-card question-bank">
+    <section className="community-card community-card--quiet question-bank">
       <h3>Perguntas da comunidade</h3>
 
       {canManage && (
@@ -139,7 +140,7 @@ export function QuestionBankManager({
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && questions.length === 0 && (
-        <p className="question-empty">Nenhuma pergunta cadastrada ainda.</p>
+        <EmptyState message="Nenhuma pergunta cadastrada ainda." />
       )}
 
       {!loading && !error && questions.length > 0 && (

@@ -3,6 +3,7 @@ import { formatRelativeTime } from '../lib/formatRelativeTime'
 import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '../types/post'
 import { CommentList } from './CommentList'
 import { CommentForm } from './CommentForm'
+import { HeartIcon, CommentIcon } from './icons'
 
 interface PostCardProps {
   post: Post
@@ -53,10 +54,16 @@ export function PostCard({
   const isDailyQuestion = post.post_type === 'daily_question'
   const isCheckinShare = post.post_type === 'checkin_share'
   const isEngagementCommand = post.post_type === 'engagement_command'
-  const isHighlighted = isDailyQuestion || isCheckinShare || isEngagementCommand
+  const cardVariant = isDailyQuestion
+    ? ' post-card--question'
+    : isCheckinShare
+      ? ' post-card--checkin'
+      : isEngagementCommand
+        ? ' post-card--command'
+        : ''
 
   return (
-    <article className={`post-card${isHighlighted ? ' post-card--question' : ''}`}>
+    <article className={`post-card${cardVariant}`}>
       <div className="post-card-header">
         <div className="post-avatar" aria-hidden="true">
           {post.author?.avatar_url ? (
@@ -72,8 +79,10 @@ export function PostCard({
       </div>
 
       {isDailyQuestion && <span className="post-badge">Pergunta do dia</span>}
-      {isCheckinShare && <span className="post-badge">Check-in</span>}
-      {isEngagementCommand && <span className="post-badge">Comando da comunidade</span>}
+      {isCheckinShare && <span className="post-badge post-badge--checkin">Check-in</span>}
+      {isEngagementCommand && (
+        <span className="post-badge post-badge--command">Comando da comunidade</span>
+      )}
 
       {isEngagementCommand && post.title && <p className="post-title">{post.title}</p>}
       <p className="post-content">{post.content}</p>
@@ -85,11 +94,11 @@ export function PostCard({
           onClick={handleToggleReaction}
           disabled={!canInteract || reacting}
         >
-          {hasReacted ? '❤️' : '♡'} {reactionCount}
+          <HeartIcon /> {reactionCount}
         </button>
 
         <button type="button" className="post-comment-toggle" onClick={handleToggleComments}>
-          💬 {commentCount}
+          <CommentIcon /> {commentCount}
         </button>
       </div>
 

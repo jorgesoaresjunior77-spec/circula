@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useCheckins } from '../hooks/useCheckins'
 import { CheckinResponseForm } from './CheckinResponseForm'
+import { EmptyState } from './EmptyState'
 import type { CheckinMood } from '../types/checkin'
 
 const MOOD_EMOJI: Record<CheckinMood, string> = {
@@ -115,7 +116,7 @@ export function CheckinManager({
   }
 
   return (
-    <section className="community-card checkin-manager">
+    <section className="community-card community-card--quiet checkin-manager">
       <h3>Check-ins da comunidade</h3>
 
       {canManage && (
@@ -225,7 +226,7 @@ export function CheckinManager({
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && instances.length === 0 && (
-        <p className="checkin-empty">Nenhum check-in publicado ainda.</p>
+        <EmptyState message="Nenhum check-in publicado ainda." />
       )}
 
       {!loading &&
