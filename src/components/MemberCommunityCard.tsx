@@ -8,6 +8,7 @@ import { Feed } from './Feed'
 import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
+import { ProductManager } from './ProductManager'
 
 interface MemberCommunityCardProps {
   community: CommunityWithMembers
@@ -71,6 +72,12 @@ export function MemberCommunityCard({
         canManage={false}
         canParticipate
         onShared={onFeedRefresh}
+      />
+      <ProductManager
+        communityId={community.id}
+        profileId={profile.id}
+        canManage={false}
+        canBuy
       />
     </div>
   )

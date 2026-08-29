@@ -5,9 +5,10 @@ import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
+import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
 
-type PanelTab = 'conteudo' | 'comunidade' | 'assinaturas'
+type PanelTab = 'conteudo' | 'produtos' | 'comunidade' | 'assinaturas'
 
 interface ProfessionalPanelProps {
   communityId: string
@@ -29,6 +30,13 @@ export function ProfessionalPanel({ communityId, profileId, onFeedRefresh }: Pro
           onClick={() => setActiveTab('conteudo')}
         >
           Conteúdo
+        </button>
+        <button
+          type="button"
+          className={`panel-tab${activeTab === 'produtos' ? ' panel-tab--active' : ''}`}
+          onClick={() => setActiveTab('produtos')}
+        >
+          Produtos
         </button>
         <button
           type="button"
@@ -79,6 +87,12 @@ export function ProfessionalPanel({ communityId, profileId, onFeedRefresh }: Pro
             canManage
             onPublished={onFeedRefresh}
           />
+        </div>
+      )}
+
+      {activeTab === 'produtos' && (
+        <div className="panel-tab-content">
+          <ProductManager communityId={communityId} profileId={profileId} canManage />
         </div>
       )}
 

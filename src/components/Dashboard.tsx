@@ -14,6 +14,7 @@ import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
+import { ProductManager } from './ProductManager'
 import { ProfessionalPanel } from './ProfessionalPanel'
 import { MemberCommunityCard } from './MemberCommunityCard'
 
@@ -153,6 +154,11 @@ export function Dashboard({
                         <EngagementCommandManager
                           communityId={community.id}
                           authorId={profile.id}
+                          canManage={false}
+                        />
+                        <ProductManager
+                          communityId={community.id}
+                          profileId={profile.id}
                           canManage={false}
                         />
                         <MemberList
