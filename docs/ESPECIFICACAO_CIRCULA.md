@@ -34,7 +34,7 @@ Primeira comunidade:
 
 Criadora: Nutricionista Marluce
 
-Mensalidade: R$ 19,90/mês
+Mensalidade: R$ 14,90/mês
 
 As mulheres pagam uma assinatura recorrente para participar da comunidade.
 
@@ -346,7 +346,7 @@ A profissional terá um painel para administrar sua comunidade.
 
 A comunidade poderá ter assinatura.
 
-Exemplo: Fluir e Florescer — R$ 19,90/mês, cobrança recorrente no cartão.
+Exemplo: Fluir e Florescer — R$ 14,90/mês, cobrança recorrente no cartão.
 
 A profissional também poderá vender dentro da comunidade: cursos, ebooks, workshops, eventos,
 programas, aulas, consultas, produtos físicos, outros produtos permitidos pela plataforma.
@@ -831,3 +831,22 @@ Mudança puramente visual, sem tocar em banco, RLS, Auth, hooks, tipos ou lógic
 - `npm run build` passou.
 
 **Limitações registradas:** (1) responsividade 320–1440px não verificada visualmente nesta etapa — mesma limitação de ambiente já registrada nas duas etapas anteriores da FASE 4; os blocos de métrica usam `flex-wrap: wrap` pensando em telas estreitas, mas isso não foi confirmado. (2) Não foi feito um probe de API para confirmar por bypass de interface que Member recebe `not_authorized` ao chamar `community_metrics` diretamente — a autorização foi validada por leitura de código (mesmo padrão de `is_master()`/`owns_community()` já comprovado em todas as funções anteriores do projeto), não por execução real como Member. (3) Com apenas 2 membros reais na única comunidade existente, o cenário de "Inativas > 0" não pôde ser observado ao vivo — a lógica foi revisada, mas o valor real só será visto quando existir uma Member sem atividade há mais de 30 dias.
+
+## Etapa em andamento: FASE 4 — Billing / Assinaturas (Asaas)
+
+**Status:** camada implementada no código, ainda **não commitada** e ainda **não validada de ponta a ponta** (Edge Functions não deployadas, secrets Asaas não configuradas). Nenhuma cobrança real — o `_shared/asaas.ts` bloqueia qualquer chamada cuja chave não seja de Sandbox (`$aact_hmlg_`).
+
+**Planos (`billing_plans`):**
+- `platform` — `professional_monthly` R$ 59,90/mês · `professional_semiannual` R$ 299,90/sem · `professional_annual` R$ 499,90/ano.
+- `community` — **`member_monthly` R$ 14,90/mês (1490 centavos) — preço definitivo** · `member_semiannual` R$ 74,90/sem · `member_annual` R$ 119,90/ano.
+- As linhas vivem em `supabase/seed.sql` (não aplicado por `db push`) e no remoto. O `seed.sql` usa `on conflict (code) do nothing`, então **não** corrige preço de linha já existente. Para reconciliar o valor de `member_monthly` no remoto existe a migration idempotente `20260828120000_fix_member_monthly_price.sql` (`update ... where code = 'member_monthly' and price_cents <> 1490`), que não insere plano nenhum e é no-op se o valor já estiver correto.
+
+**Fluxo de cobrança (origem única do valor):** o preço **nunca** é hard-coded no código — tanto o valor exibido na UI quanto o `value` enviado à Asaas derivam de `billing_plans.price_cents` em tempo de execução (`useBillingPlans` → `SubscriptionPanel`; `asaas-create-subscription` lê o plano por `code` e envia `price_cents / 100` + `billing_cycle`). Corrigir o preço = corrigir a linha em `billing_plans`.
+
+**Implementado:**
+- Trigger `create_community_trial` (baseline): ao entrar numa comunidade, cria `subscriptions` `subject='community'`, `status='trial'`, 21 dias, `plan_id` = `member_monthly`.
+- Migration `20260825221926_billing_customer_data.sql`: CPF/CNPJ do cliente, com RLS.
+- Edge Functions: `asaas-create-subscription`, `asaas-cancel-subscription`, `asaas-webhook` (idempotência via `webhook_events`, grava `payment_charges`, reativa/`past_due` conforme evento), `billing-daily-sweep` (bloqueia trial/past_due/cancelado vencidos + notificações D-3/D-2/D-1/D-0). `config.toml`: `[functions.asaas-webhook] verify_jwt = false`.
+- Frontend: `types/billing.ts`, `hooks/useBillingPlans.ts`, `hooks/useSubscription.ts`, `hooks/usePlatformAccessBlocked.ts`, `hooks/useCommunityAccessBlocked.ts`, `components/SubscriptionPanel.tsx`, `AccessBlockedScreen.tsx`, `CommunityAccessBlockedCard.tsx`, `CommunitySubscriptionCard.tsx`, `MemberCommunityCard.tsx`; ligados em `App.tsx`, `Dashboard.tsx` e `ProfessionalPanel.tsx` (aba "Assinaturas" deixou de ser placeholder). O preço na UI é formatado em pt-BR via `Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })` → "R$ 14,90".
+
+**Pendente:** commit da camada; deploy das Edge Functions; configuração das secrets Asaas (Sandbox) e do `ASAAS_WEBHOOK_TOKEN`; aplicar a migration de preço no remoto (`db push`); validação de ponta a ponta do checkout, do webhook e do bloqueio pós-trial.

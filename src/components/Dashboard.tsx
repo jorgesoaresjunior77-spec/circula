@@ -15,6 +15,7 @@ import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
 import { ProfessionalPanel } from './ProfessionalPanel'
+import { MemberCommunityCard } from './MemberCommunityCard'
 
 interface DashboardProps {
   profile: Profile | null
@@ -173,38 +174,14 @@ export function Dashboard({
                 ) : (
                   <div className="community-grid">
                     {myCommunities.map((community) => (
-                      <div key={community.id} className="community-block">
-                        <CommunityView
-                          community={community}
-                          memberCount={memberCounts[community.id]}
-                          badge="Você participa desta comunidade"
-                        />
-                        <Feed
-                          communityId={community.id}
-                          authorId={profile.id}
-                          canPost
-                          refreshToken={feedRefreshToken}
-                        />
-                        <ChallengeManager
-                          communityId={community.id}
-                          profileId={profile.id}
-                          canManage={false}
-                          canParticipate
-                        />
-                        <CircleManager
-                          communityId={community.id}
-                          profileId={profile.id}
-                          canManage={false}
-                          canParticipate
-                        />
-                        <CheckinManager
-                          communityId={community.id}
-                          profileId={profile.id}
-                          canManage={false}
-                          canParticipate
-                          onShared={() => setFeedRefreshToken((token) => token + 1)}
-                        />
-                      </div>
+                      <MemberCommunityCard
+                        key={community.id}
+                        community={community}
+                        profile={profile}
+                        memberCount={memberCounts[community.id]}
+                        feedRefreshToken={feedRefreshToken}
+                        onFeedRefresh={() => setFeedRefreshToken((token) => token + 1)}
+                      />
                     ))}
                   </div>
                 )}

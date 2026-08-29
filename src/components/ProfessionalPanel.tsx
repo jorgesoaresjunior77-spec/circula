@@ -5,6 +5,7 @@ import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
+import { SubscriptionPanel } from './SubscriptionPanel'
 
 type PanelTab = 'conteudo' | 'comunidade' | 'assinaturas'
 
@@ -87,11 +88,7 @@ export function ProfessionalPanel({ communityId, profileId, onFeedRefresh }: Pro
         </div>
       )}
 
-      {activeTab === 'assinaturas' && (
-        <div className="panel-tab-content">
-          <p className="panel-placeholder">Assinaturas em breve.</p>
-        </div>
-      )}
+      {activeTab === 'assinaturas' && <SubscriptionPanel subject="platform" />}
     </section>
   )
 }
