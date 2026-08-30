@@ -10,6 +10,9 @@ import { CommentList } from './CommentList'
 import { CommentForm } from './CommentForm'
 import { CommentIcon, LeafDayMark } from './icons'
 
+const RING_RADIUS = 20
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
+
 interface ChallengeCardProps {
   challenge: ChallengeWithActivities
   currentDay: number
@@ -56,6 +59,14 @@ export function ChallengeCard({
   const displayDay = Math.min(currentDay, Math.max(duration, 1))
   const todayActivity = challenge.activities.find((activity) => activity.day_number === currentDay)
 
+  // Anel só quando há dados reais de progresso (participante + dias
+  // carregados). Sem dados suficientes, nenhum percentual é exibido.
+  const completedInRange = Math.min(completedDays.size, duration)
+  const progressPercent =
+    trackProgress && duration > 0 && !progressLoading
+      ? Math.round((completedInRange / duration) * 100)
+      : null
+
   async function handleJoin() {
     setJoining(true)
     setJoinError(null)
@@ -87,15 +98,44 @@ export function ChallengeCard({
 
   return (
     <article className="challenge-card">
-      <h3>{challenge.title}</h3>
+      <div className="challenge-card-head">
+        <div className="challenge-card-heading">
+          <h3>{challenge.title}</h3>
+          {challenge.description && (
+            <p className="challenge-description">{challenge.description}</p>
+          )}
+        </div>
 
-      {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+        {progressPercent !== null && (
+          <div
+            className="challenge-ring"
+            role="img"
+            aria-label={`Progresso: ${progressPercent}% de ${duration} dias`}
+          >
+            <svg className="challenge-ring-svg" viewBox="0 0 44 44" aria-hidden="true">
+              <circle className="challenge-ring-track" cx="22" cy="22" r={RING_RADIUS} />
+              <circle
+                className="challenge-ring-fill"
+                cx="22"
+                cy="22"
+                r={RING_RADIUS}
+                style={{
+                  strokeDasharray: RING_CIRCUMFERENCE,
+                  strokeDashoffset: RING_CIRCUMFERENCE * (1 - progressPercent / 100),
+                }}
+              />
+            </svg>
+            <span className="challenge-ring-value">{progressPercent}%</span>
+          </div>
+        )}
+      </div>
 
-      <p className="challenge-day-indicator">
-        Dia {displayDay} de {duration}
-      </p>
-
-      {todayActivity && <p className="challenge-today-activity">{todayActivity.content}</p>}
+      <div className="challenge-progress">
+        <p className="challenge-day-indicator">
+          Dia <span className="challenge-day-current">{displayDay}</span> de {duration}
+        </p>
+        {todayActivity && <p className="challenge-today-activity">{todayActivity.content}</p>}
+      </div>
 
       <p className="challenge-stats">
         {participantCount} {participantCount === 1 ? 'mulher participando' : 'mulheres participando'}
@@ -113,40 +153,43 @@ export function ChallengeCard({
       )}
 
       {canParticipate && isParticipating && (
-        <div className="challenge-day-track">
-          {challenge.activities.map((activity) => {
-            const unlocked = activity.day_number <= currentDay
-            const completed = completedDays.has(activity.day_number)
-            const isToday = activity.day_number === currentDay
-            const markState: 'locked' | 'completed' | 'today' = !unlocked
-              ? 'locked'
-              : completed
-                ? 'completed'
-                : 'today'
+        <div className="challenge-track">
+          <p className="challenge-track-label">Sua trilha</p>
+          <div className="challenge-day-track">
+            {challenge.activities.map((activity) => {
+              const unlocked = activity.day_number <= currentDay
+              const completed = completedDays.has(activity.day_number)
+              const isToday = activity.day_number === currentDay
+              const markState: 'locked' | 'completed' | 'today' = !unlocked
+                ? 'locked'
+                : completed
+                  ? 'completed'
+                  : 'today'
 
-            return (
-              <button
-                key={activity.id}
-                type="button"
-                className={`challenge-day-mark${completed ? ' challenge-day-mark--completed' : ''}${
-                  !unlocked ? ' challenge-day-mark--locked' : ''
-                }${isToday ? ' challenge-day-mark--today' : ''}`}
-                disabled={!unlocked || progressLoading}
-                onClick={() => handleToggle(activity.day_number)}
-                title={unlocked ? activity.content : 'Ainda não liberado'}
-              >
-                <LeafDayMark state={markState} />
-                <span className="challenge-day-mark-label">
-                  {activity.day_number}
-                  {completed ? ' ✓' : ''}
-                </span>
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={activity.id}
+                  type="button"
+                  className={`challenge-day-mark${completed ? ' challenge-day-mark--completed' : ''}${
+                    !unlocked ? ' challenge-day-mark--locked' : ''
+                  }${isToday ? ' challenge-day-mark--today' : ''}`}
+                  disabled={!unlocked || progressLoading}
+                  onClick={() => handleToggle(activity.day_number)}
+                  title={unlocked ? activity.content : 'Ainda não liberado'}
+                >
+                  <LeafDayMark state={markState} />
+                  <span className="challenge-day-mark-label">
+                    {activity.day_number}
+                    {completed ? ' ✓' : ''}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 
-      <div>
+      <div className="challenge-card-footer">
         <button type="button" className="post-comment-toggle" onClick={handleToggleComments}>
           <CommentIcon /> {commentCount}
         </button>

@@ -1,3 +1,234 @@
+/* ===== Sistema de botões e campos ====================================
+   Fonte única de aparência para controles. Os seletores por contexto
+   (auth, cards, listas de conteúdo, check-in, métricas...) foram
+   realinhados a este sistema mais abaixo, sem tocar em nenhum
+   componente React. As classes .btn* / .field ficam disponíveis para
+   adoção direta na marcação em etapas futuras. */
+
+:root {
+  --btn-primary-bg: #9a5460;
+  --btn-primary-bg-hover: #ab5f70;
+  --btn-primary-bg-active: #83454f;
+  --btn-primary-on: #ffffff;
+  --btn-sheen: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0) 44%
+  );
+  --field-bg: var(--white);
+  --field-focus-ring: 0 0 0 3px var(--cta-ring);
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%23726860' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --btn-primary-bg: #e0a8b2;
+    --btn-primary-bg-hover: #ecbcc3;
+    --btn-primary-bg-active: #cf94a0;
+    --btn-primary-on: #2a1e21;
+    --btn-sheen: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0) 44%
+    );
+    --field-bg: #2b2024;
+    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%23c7b8b2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+}
+
+/* --- Base compartilhada --------------------------------------------- */
+.btn {
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--graphite);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+  }
+}
+
+/* --- Primário: a ação principal de um bloco (um por vez) ----------- */
+.btn-primary {
+  border-color: var(--btn-primary-bg-active);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--btn-primary-bg-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--btn-primary-bg-active);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(1px);
+}
+
+/* --- Secundário: ação de apoio, contorno discreto ----------------- */
+.btn-secondary {
+  border-color: var(--border);
+  background-color: var(--white);
+  color: var(--graphite);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover:not(:disabled):not([aria-disabled='true']) {
+  border-color: var(--olive-border);
+  background-color: var(--surface);
+  color: var(--olive-text);
+}
+
+.btn-secondary:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(1px);
+}
+
+/* --- Fantasma: ação terciária, peso mínimo ----------------------- */
+.btn-ghost {
+  min-height: 0;
+  padding: 6px 8px;
+  color: var(--olive-text);
+  text-decoration: underline;
+  text-decoration-color: var(--olive-border);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--graphite);
+  text-decoration-color: currentColor;
+}
+
+/* --- Perigo: ação destrutiva ----------------------------------- */
+.btn-danger {
+  border-color: var(--danger-border);
+  background-color: var(--white);
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--danger-bg);
+  border-color: var(--danger);
+}
+
+.btn-danger:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(1px);
+}
+
+/* --- Campo: input, textarea, select --------------------------- */
+.field {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--field-bg);
+  color: var(--graphite);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.field::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.65;
+}
+
+.field:focus,
+.field:focus-visible {
+  outline: none;
+  border-color: var(--olive);
+  box-shadow: var(--field-focus-ring);
+}
+
+.field[aria-invalid='true'] {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-bg);
+}
+
+.field--select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 38px;
+}
+
+/* Mensagens auxiliares de campo (disponível para uso futuro) */
+.field-error,
+.field-success {
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.field-error {
+  color: var(--danger);
+}
+.field-success {
+  color: var(--leaf-text);
+}
+
+/* --- Área de toque confortável no mobile ----------------------- */
+@media (pointer: coarse) {
+  .auth-card button:not(.auth-link),
+  .community-card form > button:not(.auth-link),
+  .community-card > button[type='button']:not(.auth-link),
+  .comment-form button,
+  .challenge-card > button,
+  .circle-card > button,
+  .checkin-share-prompt > button,
+  .checkin-share-choice button:not(.auth-link),
+  .question-item-actions button,
+  .challenge-item-actions button,
+  .challenge-form-actions button,
+  .interest-input-row button,
+  .metrics-period-button {
+    min-height: 44px;
+  }
+}
+
 /* ===== Autenticação (login, recuperação de senha) ===== */
 
 .auth-card {
@@ -39,44 +270,75 @@
 }
 
 .auth-card input {
+  /* aparência de campo — ver "Sistema de botões e campos" no topo */
   font: inherit;
-  padding: 11px 13px;
+  padding: 11px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--beige);
+  background-color: var(--field-bg);
   color: var(--graphite);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
 
+  &::placeholder {
+    color: var(--graphite-soft);
+    opacity: 0.65;
+  }
+
+  &:focus,
   &:focus-visible {
     outline: none;
-    border-color: var(--olive-border);
-    box-shadow: 0 0 0 3px var(--olive-bg);
+    border-color: var(--olive);
+    box-shadow: var(--field-focus-ring);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-bg);
   }
 }
 
 .auth-card button:not(.auth-link) {
+  /* variação de .btn-primary — largura total no formulário de auth */
   font: inherit;
   font-weight: 600;
+  letter-spacing: 0.005em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   margin-top: var(--space-4);
   padding: 12px;
+  border: 1px solid var(--btn-primary-bg-active);
   border-radius: var(--radius-pill);
-  border: 1px solid var(--olive-border);
-  color: var(--graphite);
-  background: var(--olive);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: opacity 0.2s, box-shadow 0.2s, transform 0.1s;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
 
   &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg-hover);
     box-shadow: var(--shadow-md);
   }
   &:active:not(:disabled) {
+    background-color: var(--btn-primary-bg-active);
+    box-shadow: var(--shadow-sm);
     transform: translateY(1px);
   }
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
   &:focus-visible {
     outline: 2px solid var(--olive);
@@ -134,20 +396,35 @@
 }
 
 .auth-link {
+  /* variação de .btn-ghost — link de ação terciária, alinhado à esquerda */
   display: inline-block;
   margin-top: var(--space-2);
-  padding: 6px 0;
+  padding: 9px 2px;
   border: none;
+  border-radius: var(--radius-sm);
   background: none;
-  color: var(--leaf-text);
+  color: var(--olive-text);
+  font: inherit;
   font-size: 14px;
+  font-weight: 500;
   text-align: left;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-color: var(--olive-border);
+  text-underline-offset: 3px;
   cursor: pointer;
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease;
 
   &:hover {
-    opacity: 0.75;
+    color: var(--graphite);
+    text-decoration-color: currentColor;
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
   }
 }
 
@@ -180,38 +457,158 @@
   }
 }
 
+/* ===== Header + lockup da marca =====================================
+   Masthead leve e editorial: à esquerda a marca (ícone-pastilha +
+   "Círcula" em Fraunces + tagline secundária); à direita a área da
+   usuária (avatar + saudação + "Sair"). Sem navegação — Etapa 7. */
+
 .dashboard-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  flex-wrap: wrap; /* área da usuária quebra abaixo antes de estourar */
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-soft);
 
   @media (min-width: 1024px) {
     grid-column: 1 / -1;
   }
+}
 
-  h1 {
-    margin: 0 0 4px;
+/* --- Marca ------------------------------------------------------- */
+.dashboard-header .brand {
+  justify-content: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.dashboard-header .brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+}
+
+.brand-lockup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.brand-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--graphite);
+
+  @media (min-width: 1024px) {
+    font-size: 24px;
   }
+}
 
-  p {
-    margin: 0;
+.brand-tagline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--graphite-soft);
+}
+
+/* --- Área da usuária ------------------------------------------- */
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.dashboard-user-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--olive-bg);
+  color: var(--olive-text);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 0 0 1px var(--border-soft);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
+}
 
-  button {
-    font: inherit;
-    padding: 8px 16px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    background: var(--white);
+.dashboard-user-name {
+  display: none;
+  font-size: 14px;
+  color: var(--graphite-soft);
+  white-space: nowrap;
+  max-width: 42vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  strong {
     color: var(--graphite);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    font-weight: 600;
+  }
 
-    &:hover {
-      background: var(--sand);
-      border-color: var(--olive-border);
-    }
+  @media (min-width: 600px) {
+    display: block;
+  }
+}
+
+/* "Sair" — secundário compacto; função inalterada (onSignOut). */
+.dashboard-header button {
+  font: inherit;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--olive-border);
+    background-color: var(--surface);
+    color: var(--olive-text);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+@media (pointer: coarse) {
+  .dashboard-header button {
+    min-height: 44px;
   }
 }
 
@@ -267,7 +664,7 @@
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--olive-text);
-  margin: 0 0 -6px 4px;
+  margin: 0 0 0 4px;
 }
 
 .community-block {
@@ -283,16 +680,86 @@
   }
 }
 
-/* ===== Cards ===== */
+/* ===== Sistema de cards ============================================
+   Vocabulário único de superfície. .card é a base; as variantes
+   ajustam a ênfase. Os cartões existentes (.community-card, .post-card,
+   .challenge-card, .circle-card) foram mapeados para este sistema logo
+   abaixo — sem mudança em componentes. Um único raio, uma família de
+   sombra e uma escala de padding, para tudo parecer o mesmo produto. */
 
-.community-card {
+:root {
+  --card-radius: 22px; /* sofisticado, não infantil */
+  --card-radius-sm: 14px; /* itens de lista */
+  --card-radius-lg: 28px; /* hero (Etapa 4) */
+  --card-pad: var(--space-5); /* 20 — mobile */
+  --card-pad-md: 24px; /* tablet */
+  --card-pad-lg: var(--space-6); /* 28 — desktop arejado */
+}
+
+.card {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--card-pad);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+
+/* Hero: o cartão âncora de uma tela. Aplicado de fato na Etapa 4. */
+.card--hero {
+  gap: var(--space-4);
+  padding: var(--card-pad-lg);
+  border-radius: var(--card-radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Quiet: ferramenta administrativa, calma, sem elevação. */
+.card--quiet {
+  background-color: var(--surface);
+  border-color: var(--border-soft);
+  box-shadow: none;
+}
+
+/* List: linha/tile discreto, recuado na superfície. Adotado na Etapa 5. */
+.card--list {
   gap: var(--space-2);
-  padding: 22px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  background: var(--beige);
+  padding: var(--space-4);
+  border-color: transparent;
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface-sunken);
+  box-shadow: none;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: var(--card-pad-md);
+  }
+  .card--list {
+    padding: var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    gap: var(--space-4);
+    padding: var(--card-pad-lg);
+  }
+}
+
+/* ===== Cards mapeados ============================================= */
+
+.community-card {
+  /* mapeado para .card */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--card-pad);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
   box-shadow: var(--shadow-sm);
   text-align: left;
 
@@ -300,30 +767,18 @@
     margin: 0;
   }
 
+  /* Comunidade em foco / anfitriã. O Hero completo é a Etapa 4; aqui
+     só a borda de acento e um véu rosé chapado sobre a superfície —
+     sem o antigo "orbe" decorativo. */
   &.community-card--highlight {
-    position: relative;
     border-color: var(--olive-border);
-    background: linear-gradient(165deg, var(--olive-bg) 0%, var(--beige) 55%);
-    overflow: hidden;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--olive-soft) 0%, transparent 70%);
-      opacity: 0.6;
-      pointer-events: none;
-    }
+    background-image: linear-gradient(var(--olive-bg), var(--olive-bg));
   }
 
   /* Cards administrativos (bancos de conteúdo, painéis): mais quietos — a
      comunidade é o produto, a ferramenta de administração não deve competir. */
   &.community-card--quiet {
-    background: var(--white);
+    background-image: none;
     box-shadow: none;
     border-color: var(--border-soft);
   }
@@ -342,21 +797,45 @@
   }
 
   input,
-  textarea {
+  textarea,
+  select {
     font: inherit;
-    padding: 10px 13px;
+    padding: 11px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--white);
+    background-color: var(--field-bg);
     color: var(--graphite);
     resize: vertical;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
 
+    &::placeholder {
+      color: var(--graphite-soft);
+      opacity: 0.65;
+    }
+
+    &:focus,
     &:focus-visible {
       outline: none;
-      border-color: var(--olive-border);
-      box-shadow: 0 0 0 3px var(--olive-bg);
+      border-color: var(--olive);
+      box-shadow: var(--field-focus-ring);
     }
+
+    &[aria-invalid='true'] {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px var(--danger-bg);
+    }
+  }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: var(--select-chevron);
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 38px;
   }
 }
 
@@ -365,26 +844,48 @@
 .community-card form > button[type='submit'],
 .community-card form > button[type='button']:not(.auth-link),
 .community-card > button[type='button']:not(.auth-link) {
+  /* variação de .btn-primary — largura total dentro do card */
   font: inherit;
   font-weight: 600;
+  letter-spacing: 0.005em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   margin-top: var(--space-4);
   padding: 12px;
+  border: 1px solid var(--btn-primary-bg-active);
   border-radius: var(--radius-pill);
-  border: 1px solid var(--olive-border);
-  color: var(--graphite);
-  background: var(--olive);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: opacity 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
 
   &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg-hover);
     box-shadow: var(--shadow-md);
   }
+  &:active:not(:disabled) {
+    background-color: var(--btn-primary-bg-active);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(1px);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
+    transform: none;
   }
 }
 
@@ -409,7 +910,9 @@
   }
 
   li {
-    padding: 12px 14px;
+    /* O padding foi para o botão interno, para que toda a área da linha
+       (não só o texto) seja o alvo de toque. */
+    padding: 0;
     border-radius: var(--radius-sm);
     background: var(--sand);
   }
@@ -417,9 +920,11 @@
 
 .member-list-item {
   font: inherit;
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 0;
+  min-height: 40px;
+  padding: 8px 14px;
   border: none;
   background: none;
   color: var(--graphite);
@@ -490,6 +995,276 @@
   margin-top: 4px;
 }
 
+/* ===== Hero da comunidade =========================================
+   O CommunityView vira o cartão-âncora da página: capa botânica em
+   CSS (sem imagem externa), nome em Fraunces, descrição rotulada e
+   uma faixa de até 3 indicadores reais (membros / novas no mês / ano
+   de fundação — todos derivados de props e dados já carregados). */
+
+:root {
+  --hero-botanical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='150' viewBox='0 0 260 150' fill='none'%3E%3Cpath d='M250 150 C 246 96 214 52 150 20' stroke='%23ab5f70' stroke-opacity='0.4' stroke-width='2' stroke-linecap='round'/%3E%3Cellipse cx='230' cy='120' rx='19' ry='9' transform='rotate(-24 230 120)' fill='%23ab5f70' fill-opacity='0.3'/%3E%3Cellipse cx='210' cy='92' rx='20' ry='9' transform='rotate(-30 210 92)' fill='%23ab5f70' fill-opacity='0.26'/%3E%3Cellipse cx='188' cy='66' rx='20' ry='9' transform='rotate(-36 188 66)' fill='%23ab5f70' fill-opacity='0.3'/%3E%3Cellipse cx='168' cy='44' rx='17' ry='8' transform='rotate(-42 168 44)' fill='%23ab5f70' fill-opacity='0.24'/%3E%3Cellipse cx='152' cy='26' rx='14' ry='7' transform='rotate(-48 152 26)' fill='%23ab5f70' fill-opacity='0.3'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hero-botanical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='150' viewBox='0 0 260 150' fill='none'%3E%3Cpath d='M250 150 C 246 96 214 52 150 20' stroke='%23e0a8b2' stroke-opacity='0.45' stroke-width='2' stroke-linecap='round'/%3E%3Cellipse cx='230' cy='120' rx='19' ry='9' transform='rotate(-24 230 120)' fill='%23e0a8b2' fill-opacity='0.32'/%3E%3Cellipse cx='210' cy='92' rx='20' ry='9' transform='rotate(-30 210 92)' fill='%23e0a8b2' fill-opacity='0.28'/%3E%3Cellipse cx='188' cy='66' rx='20' ry='9' transform='rotate(-36 188 66)' fill='%23e0a8b2' fill-opacity='0.32'/%3E%3Cellipse cx='168' cy='44' rx='17' ry='8' transform='rotate(-42 168 44)' fill='%23e0a8b2' fill-opacity='0.26'/%3E%3Cellipse cx='152' cy='26' rx='14' ry='7' transform='rotate(-48 152 26)' fill='%23e0a8b2' fill-opacity='0.32'/%3E%3C/svg%3E");
+  }
+}
+
+/* Casco: herda .card via .community-card, mas sem padding (a capa
+   sangra até a borda) e com mais elevação. Especificidade dupla para
+   vencer o "density pass" de .community-card no desktop. */
+.community-card.community-hero {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--card-radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.community-hero-cover {
+  height: 96px;
+  background-color: var(--rose-50);
+  background-image:
+    linear-gradient(112deg, var(--rose-100) 0%, var(--rose-50) 70%),
+    var(--hero-botanical);
+  background-repeat: no-repeat, no-repeat;
+  background-position:
+    center,
+    right -8px bottom -14px;
+  background-size:
+    cover,
+    260px auto;
+  box-shadow: inset 0 -1px 0 var(--border-soft);
+
+  @media (min-width: 768px) {
+    height: 120px;
+  }
+
+  @media (min-width: 1024px) {
+    height: 132px;
+  }
+}
+
+.community-hero-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--card-pad);
+
+  @media (min-width: 768px) {
+    padding: var(--card-pad-md);
+  }
+
+  @media (min-width: 1024px) {
+    gap: var(--space-5);
+    padding: var(--card-pad-lg);
+  }
+}
+
+.community-hero-headline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.community-hero .community-avatar {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  font-size: 22px;
+  box-shadow:
+    0 0 0 3px var(--surface),
+    var(--shadow-sm);
+}
+
+.community-hero-titles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+
+  .community-badge {
+    margin-top: 0;
+  }
+}
+
+.community-hero-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--graphite);
+
+  @media (min-width: 768px) {
+    font-size: 30px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 33px;
+  }
+}
+
+.community-hero-about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.community-hero-about-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--olive-text);
+}
+
+.community-hero-description {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--graphite);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Faixa de indicadores reais */
+.community-hero-stats {
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.community-hero-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: var(--space-3) var(--space-3);
+  text-align: center;
+
+  & + & {
+    border-left: 1px solid var(--border-soft);
+  }
+}
+
+.community-hero-stat-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--graphite);
+
+  @media (min-width: 1024px) {
+    font-size: 25px;
+  }
+}
+
+.community-hero-stat-label {
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: var(--graphite-soft);
+}
+
+.community-hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+/* "Entrar" — o casco não é mais filho direto de .community-card, então
+   reaplica a variação de .btn-primary aqui. */
+.community-hero-actions button:not(.auth-link) {
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 24px;
+  border: 1px solid var(--btn-primary-bg-active);
+  border-radius: var(--radius-pill);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg-hover);
+    box-shadow: var(--shadow-md);
+  }
+  &:active:not(:disabled) {
+    background-color: var(--btn-primary-bg-active);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(1px);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .community-hero-actions button:not(.auth-link) {
+    min-height: 44px;
+  }
+}
+
+/* Quando o hero aparece dentro de uma grade estreita (papéis master /
+   descobrir), reduz a capa e empilha a faixa de indicadores para não
+   estourar a coluna. */
+@media (min-width: 640px) {
+  .community-grid .community-hero .community-hero-cover {
+    height: 68px;
+    background-size:
+      cover,
+      180px auto;
+  }
+
+  .community-grid .community-hero .community-hero-name {
+    font-size: 21px;
+  }
+
+  .community-grid .community-hero .community-hero-stats {
+    flex-direction: column;
+  }
+
+  .community-grid .community-hero .community-hero-stat {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-2);
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+
+    & + & {
+      border-left: none;
+      border-top: 1px solid var(--border-soft);
+    }
+  }
+}
+
 .profile-avatar {
   width: 56px;
   height: 56px;
@@ -551,17 +1326,43 @@
   }
 
   button {
+    /* variação de .btn-secondary */
     font: inherit;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 9px 15px;
     border-radius: var(--radius-pill);
     border: 1px solid var(--border);
-    background: none;
+    background-color: var(--white);
     color: var(--graphite);
-    cursor: pointer;
+    box-shadow: var(--shadow-sm);
     white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.2s ease,
+      transform 0.1s ease;
 
-    &:hover {
-      background: var(--sand);
+    &:hover:not(:disabled) {
+      border-color: var(--olive-border);
+      background-color: var(--surface);
+      color: var(--olive-text);
+    }
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--olive);
+      outline-offset: 2px;
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
     }
   }
 }
@@ -602,9 +1403,10 @@
 }
 
 .post-composer {
+  /* mesmo casco de .community-card, com contorno tracejado de "campo" */
   border-style: dashed;
   border-color: var(--border);
-  background: var(--white);
+  background-color: var(--surface);
 }
 
 .post-composer textarea {
@@ -618,13 +1420,14 @@
 }
 
 .post-card {
+  /* mapeado para .card */
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 18px 20px;
-  border-radius: var(--radius-md);
+  padding: var(--card-pad);
   border: 1px solid var(--border-soft);
-  background: var(--white);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
   box-shadow: var(--shadow-sm);
   text-align: left;
 }
@@ -806,32 +1609,76 @@
   gap: var(--space-2);
 
   input {
+    /* variação de .field — cresce na linha ao lado do botão */
     flex: 1 1 160px;
     min-width: 0;
     font: inherit;
-    padding: 9px 13px;
+    padding: 11px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--sand);
+    background-color: var(--field-bg);
     color: var(--graphite);
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+
+    &::placeholder {
+      color: var(--graphite-soft);
+      opacity: 0.65;
+    }
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--olive);
+      box-shadow: var(--field-focus-ring);
+    }
   }
 
   button {
+    /* variação de .btn-primary — inline ao lado do campo */
     font: inherit;
     font-weight: 600;
+    letter-spacing: 0.005em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: auto;
     margin: 0;
     padding: 9px 16px;
+    border: 1px solid var(--btn-primary-bg-active);
     border-radius: var(--radius-pill);
-    border: 1px solid var(--olive-border);
-    color: var(--graphite);
-    background: var(--olive);
-    cursor: pointer;
+    background-color: var(--btn-primary-bg);
+    background-image: var(--btn-sheen);
+    color: var(--btn-primary-on);
+    box-shadow: var(--shadow-sm);
     white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.2s ease,
+      transform 0.1s ease;
 
+    &:hover:not(:disabled) {
+      background-color: var(--btn-primary-bg-hover);
+      box-shadow: var(--shadow-md);
+    }
+    &:active:not(:disabled) {
+      background-color: var(--btn-primary-bg-active);
+      box-shadow: var(--shadow-sm);
+      transform: translateY(1px);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--olive);
+      outline-offset: 2px;
+    }
     &:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
     }
   }
 
@@ -891,13 +1738,29 @@
 
   textarea,
   input {
+    /* variação de .field */
     font: inherit;
-    padding: 8px 12px;
+    padding: 11px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--white);
+    background-color: var(--field-bg);
     color: var(--graphite);
     resize: vertical;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+
+    &::placeholder {
+      color: var(--graphite-soft);
+      opacity: 0.65;
+    }
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--olive);
+      box-shadow: var(--field-focus-ring);
+    }
   }
 }
 
@@ -925,74 +1788,106 @@
 .question-item-actions button,
 .challenge-item-actions button,
 .challenge-form-actions button {
+  /* variação compacta de .btn-secondary */
   font: inherit;
   font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: auto;
-  padding: 7px 13px;
+  padding: 7px 14px;
   margin: 0;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: var(--white);
+  background-color: var(--white);
   color: var(--graphite);
-  cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
 
   &:hover:not(:disabled) {
-    background: var(--sand);
+    background-color: var(--surface);
     color: var(--olive-text);
     border-color: var(--olive-border);
   }
 
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: none;
   }
 }
 
 .question-item-actions button.question-save-button,
 .challenge-item-actions button.challenge-save-button {
-  border-color: var(--olive-border);
-  background: var(--olive);
-  color: var(--graphite);
+  /* variação compacta de .btn-primary */
+  border-color: var(--btn-primary-bg-active);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
   font-weight: 600;
 
   &:hover:not(:disabled) {
-    background: var(--olive);
-    color: var(--graphite);
-    box-shadow: var(--shadow-sm);
+    background-color: var(--btn-primary-bg-hover);
+    color: var(--btn-primary-on);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--btn-primary-bg-active);
+    transform: translateY(1px);
   }
 }
 
 .question-item-actions button.question-delete-button,
 .challenge-item-actions button.challenge-delete-button,
 .challenge-form-actions button.challenge-remove-day {
+  /* variação compacta de .btn-danger */
   border-color: var(--danger-border);
   color: var(--danger);
-  background: var(--white);
+  background-color: var(--white);
+  background-image: none;
 
   &:hover:not(:disabled) {
-    background: var(--danger-bg);
+    background-color: var(--danger-bg);
     color: var(--danger);
-    border-color: var(--danger-border);
+    border-color: var(--danger);
   }
 }
 
 /* Selo por tipo de conteúdo — cada tipo de publicação especial ganha o
-   próprio tom suave, para o feed ficar fácil de escanear. */
+   próprio tom suave (chapado sobre a superfície), para o feed ficar
+   fácil de escanear sem competir com o hero. */
 .post-card--question {
   border-color: var(--rose-soft);
-  background: linear-gradient(165deg, var(--rose-soft) 0%, var(--white) 60%);
+  background-image: linear-gradient(var(--rose-soft), var(--rose-soft));
 }
 
 .post-card--checkin {
   border-color: var(--leaf-soft);
-  background: linear-gradient(165deg, var(--leaf-soft) 0%, var(--white) 60%);
+  background-image: linear-gradient(var(--leaf-soft), var(--leaf-soft));
 }
 
 .post-card--command {
   border-color: var(--straw-soft);
-  background: linear-gradient(165deg, var(--straw-soft) 0%, var(--white) 60%);
+  background-image: linear-gradient(var(--straw-soft), var(--straw-soft));
 }
 
 .post-badge {
@@ -1132,28 +2027,41 @@
 }
 
 .metrics-period-button {
+  /* variação compacta de .btn-secondary — grupo segmentado */
   font: inherit;
   font-size: 13px;
+  font-weight: 600;
   width: auto;
-  padding: 6px 14px;
+  padding: 7px 14px;
   margin: 0;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: var(--white);
+  background-color: var(--white);
   color: var(--graphite);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: var(--olive-border);
+    color: var(--olive-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
   }
 }
 
 .metrics-period-button--active {
   border-color: var(--olive-border);
-  background: var(--olive-bg);
+  background-color: var(--olive-bg);
   color: var(--olive-text);
-  font-weight: 600;
+  box-shadow: none;
 }
 
 /* ===== Desafios ===== */
@@ -1189,8 +2097,7 @@
   color: var(--graphite-soft);
 }
 
-.challenge-block,
-.circle-block,
+/* Check-ins seguem com divisória em fio — a Etapa 5 não os cobre. */
 .checkin-block {
   display: flex;
   flex-direction: column;
@@ -1204,6 +2111,24 @@
   }
 }
 
+/* Desafio e Círculo: cada bloco é um card completo — abriga o conteúdo
+   E as ações/formulários irmãos numa só composição, sem fragmentar. */
+.challenge-block,
+.circle-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+
+  @media (min-width: 768px) {
+    padding: var(--space-5);
+  }
+}
+
 .challenge-edit-form,
 .circle-edit-form {
   display: flex;
@@ -1212,13 +2137,29 @@
 
   textarea,
   input {
+    /* variação de .field */
     font: inherit;
-    padding: 8px 12px;
+    padding: 11px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--white);
+    background-color: var(--field-bg);
     color: var(--graphite);
     resize: vertical;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+
+    &::placeholder {
+      color: var(--graphite-soft);
+      opacity: 0.65;
+    }
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--olive);
+      box-shadow: var(--field-focus-ring);
+    }
   }
 }
 
@@ -1231,37 +2172,214 @@
 
 .challenge-card,
 .circle-card {
+  /* Conteúdo do card. O casco completo agora é .challenge-block /
+     .circle-block (que também abriga ações e formulários). Aqui só a
+     composição interna: título > descrição > progresso > ações. */
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-3);
 
   h3 {
     margin: 0;
   }
 }
 
+/* --- Desafio: cabeçalho + anel de progresso real ---------------- */
+.challenge-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.challenge-card-heading {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.challenge-ring {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+}
+
+.challenge-ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.challenge-ring-track {
+  fill: none;
+  stroke: var(--rose-100);
+  stroke-width: 4;
+}
+
+.challenge-ring-fill {
+  fill: none;
+  stroke: var(--olive);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.45s ease;
+}
+
+.challenge-ring-value {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--olive-text);
+}
+
+/* --- Desafio: "Dia X de Y" + atividade de hoje, em evidência --- */
+.challenge-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3);
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface-sunken);
+}
+
+/* --- Desafio: trilha de dias, elevada ------------------------- */
+.challenge-track {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.challenge-track-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--olive-text);
+}
+
+.challenge-card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-soft);
+}
+
+/* --- Círculo: linha limpa com pilha de avatares reais --------- */
+.circle-card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.circle-card-titles {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  h3 {
+    font-size: 16px;
+  }
+}
+
+.circle-avatars {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.circle-avatar {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--olive-bg);
+  color: var(--olive-text);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 0 0 2px var(--surface);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  & + & {
+    margin-left: -10px;
+  }
+}
+
+.circle-avatar--more {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
 .challenge-card > button,
 .circle-card > button {
+  /* variação de .btn-primary — inline, alinhado à esquerda no card */
   font: inherit;
   font-weight: 600;
+  letter-spacing: 0.005em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: auto;
   margin: 4px 0 0;
   padding: 10px 22px;
+  border: 1px solid var(--btn-primary-bg-active);
   border-radius: var(--radius-pill);
-  border: 1px solid var(--olive-border);
-  background: var(--olive);
-  color: var(--graphite);
-  cursor: pointer;
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
+  box-shadow: var(--shadow-sm);
   align-self: flex-start;
-  transition: box-shadow 0.15s;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
 
   &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg-hover);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--btn-primary-bg-active);
     box-shadow: var(--shadow-sm);
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
   }
 
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 }
 
@@ -1273,11 +2391,16 @@
 
 .challenge-day-indicator {
   margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--olive-text);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--graphite-soft);
+}
+
+.challenge-day-current {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--graphite);
 }
 
 .challenge-today-activity {
@@ -1307,19 +2430,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
   width: auto;
-  padding: 6px 8px;
+  min-width: 42px;
+  padding: 7px 6px;
   margin: 0;
-  border: none;
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-sm);
-  background: none;
+  background-color: var(--surface);
   color: var(--graphite-soft);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
 
   &:hover:not(:disabled) {
-    background: var(--sand);
+    border-color: var(--olive-border);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -1332,19 +2470,33 @@
   letter-spacing: 0.02em;
 }
 
-.challenge-day-mark--today {
-  color: var(--olive-text);
-  background: var(--olive-bg);
-  font-weight: 600;
+@media (pointer: coarse) {
+  .challenge-day-mark {
+    min-height: 44px;
+  }
 }
 
+/* Estados: pendente (base), concluído (folha cheia), bloqueado (fio
+   tracejado esmaecido), atual (anel de acento — sobrevive a qualquer
+   fundo, então "hoje" continua lendo como hoje mesmo se concluído). */
 .challenge-day-mark--completed {
   color: var(--leaf-text);
+  border-color: var(--leaf-soft);
+  background-color: var(--leaf-soft);
 }
 
 .challenge-day-mark--locked {
   color: var(--graphite-soft);
+  border-style: dashed;
+  background-color: transparent;
   opacity: 0.55;
+}
+
+.challenge-day-mark--today {
+  color: var(--olive-text);
+  border-color: var(--olive);
+  box-shadow: 0 0 0 1px var(--olive);
+  font-weight: 600;
 }
 
 /* ===== Círculos ===== */
@@ -1363,6 +2515,189 @@
   margin: 0;
   font-size: 13px;
   color: var(--graphite-soft);
+}
+
+/* ===== Produtos / Store ==========================================
+   Cada produto é apresentado como card premium (imagem/placeholder,
+   chips reais de tipo/status, título, descrição limitada, preço em
+   evidência, CTA .btn). O painel administrativo (canManage) mantém a
+   lista de gestão; a vitrine (canBuy) ganha grade. Só campos reais
+   do objeto Product são exibidos. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background-color: var(--surface);
+  color: var(--graphite);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.chip--muted {
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+  box-shadow: none;
+}
+
+/* Lista: gestão = coluna; vitrine = grade responsiva. */
+.product-list {
+  gap: var(--space-4);
+}
+
+.product-manager--storefront .product-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (min-width: 560px) {
+  .product-manager--storefront .product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+/* Item da lista de produtos: sem a pílula recuada de .question-item —
+   o próprio .product-card é o card. Em gestão, agrupa o card + a
+   barra de ações administrativas. */
+.product-item {
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+
+.product-card-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background-color: var(--rose-50);
+}
+
+.product-card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background-color: var(--rose-50);
+  background-image: var(--hero-botanical);
+  background-repeat: no-repeat;
+  background-position: right -14px bottom -18px;
+  background-size: 200px auto;
+
+  span {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: 44px;
+    line-height: 1;
+    color: var(--olive);
+    opacity: 0.45;
+  }
+}
+
+.product-card-chips {
+  position: absolute;
+  inset: var(--space-2) var(--space-2) auto var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.product-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.product-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--graphite);
+  overflow-wrap: break-word;
+}
+
+.product-card-description {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--graphite-soft);
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.product-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-size: 12px;
+  color: var(--graphite-soft);
+
+  & > span + span::before {
+    content: "·";
+    margin-right: 8px;
+    color: var(--border);
+  }
+}
+
+.product-card-price {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 21px;
+  line-height: 1;
+  color: var(--graphite);
+}
+
+.product-card-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+
+  > .btn-primary {
+    width: 100%;
+  }
+}
+
+.product-card-owned {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--leaf-text);
 }
 
 /* ===== Check-ins ===== */
@@ -1415,35 +2750,78 @@
   gap: 6px;
 
   textarea {
+    /* variação de .field */
     font: inherit;
-    padding: 8px 12px;
+    padding: 11px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--white);
+    background-color: var(--field-bg);
     color: var(--graphite);
     resize: vertical;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+
+    &::placeholder {
+      color: var(--graphite-soft);
+      opacity: 0.65;
+    }
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--olive);
+      box-shadow: var(--field-focus-ring);
+    }
   }
 
   > button {
+    /* variação de .btn-primary — inline, alinhado à esquerda */
     font: inherit;
     font-weight: 600;
+    letter-spacing: 0.005em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: auto;
     margin: 0;
     padding: 9px 16px;
+    border: 1px solid var(--btn-primary-bg-active);
     border-radius: var(--radius-pill);
-    border: 1px solid var(--olive-border);
-    background: var(--olive);
-    color: var(--graphite);
-    cursor: pointer;
+    background-color: var(--btn-primary-bg);
+    background-image: var(--btn-sheen);
+    color: var(--btn-primary-on);
+    box-shadow: var(--shadow-sm);
     align-self: flex-start;
+    cursor: pointer;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.2s ease,
+      transform 0.1s ease;
 
     &:hover:not(:disabled) {
+      background-color: var(--btn-primary-bg-hover);
+      box-shadow: var(--shadow-md);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--btn-primary-bg-active);
       box-shadow: var(--shadow-sm);
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--olive);
+      outline-offset: 2px;
     }
 
     &:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
     }
   }
 }
@@ -1454,19 +2832,44 @@
   gap: var(--space-4);
 
   button:not(.auth-link) {
+    /* variação de .btn-primary — inline */
     font: inherit;
     font-weight: 600;
+    letter-spacing: 0.005em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: auto;
     margin: 0;
     padding: 9px 16px;
+    border: 1px solid var(--btn-primary-bg-active);
     border-radius: var(--radius-pill);
-    border: 1px solid var(--olive-border);
-    background: var(--olive);
-    color: var(--graphite);
+    background-color: var(--btn-primary-bg);
+    background-image: var(--btn-sheen);
+    color: var(--btn-primary-on);
+    box-shadow: var(--shadow-sm);
     cursor: pointer;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.2s ease,
+      transform 0.1s ease;
 
     &:hover:not(:disabled) {
+      background-color: var(--btn-primary-bg-hover);
+      box-shadow: var(--shadow-md);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--btn-primary-bg-active);
       box-shadow: var(--shadow-sm);
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--olive);
+      outline-offset: 2px;
     }
   }
 }
@@ -1492,10 +2895,46 @@
   color: var(--graphite);
 }
 
+/* ===== Etapa 8 — piso de área de toque ============================
+   Todo controle acionável tem ao menos 40px de altura. O reforço para
+   44px em pointer: coarse (definido nas Etapas 1/3/5) continua valendo
+   e é estendido aqui para os controles que faltavam. */
+.auth-card button:not(.auth-link),
+.community-card form > button[type='submit'],
+.community-card form > button[type='button']:not(.auth-link),
+.community-card > button[type='button']:not(.auth-link),
+.comment-form button,
+.challenge-card > button,
+.circle-card > button,
+.checkin-share-prompt > button,
+.checkin-share-choice button:not(.auth-link),
+.question-item-actions button,
+.challenge-item-actions button,
+.challenge-form-actions button,
+.interest-input-row button,
+.metrics-period-button,
+.checkin-mood-button,
+.panel-tab,
+.post-reaction,
+.post-comment-toggle {
+  min-height: 40px;
+}
+
+@media (pointer: coarse) {
+  .checkin-mood-button,
+  .panel-tab,
+  .post-reaction,
+  .post-comment-toggle,
+  .member-list-item {
+    min-height: 44px;
+  }
+}
+
 /*
- * Passe de densidade para desktop: reduz espaçamentos, alturas de card e de
- * botão para mostrar mais conteúdo sem rolar. Mobile (abaixo de 1024px)
- * permanece exatamente como estava, com alvos de toque confortáveis.
+ * Passe de densidade para desktop: ajustes finos de espaçamento no
+ * grid e nos avatares. As compressões excessivas de padding/gap de
+ * cards, formulários e botões foram removidas na Etapa 8 — o desktop
+ * agora usa os mesmos tokens --space-* / --card-* do mobile.
  */
 @media (min-width: 1024px) {
   .dashboard {
@@ -1504,69 +2943,41 @@
     row-gap: var(--space-5);
   }
 
-  .dashboard-header button {
-    padding: 7px 14px;
-  }
-
   .dashboard-rail,
   .dashboard-main {
     gap: var(--space-4);
   }
 
   .community-area {
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
 
   .community-grid {
-    gap: var(--space-2);
-  }
-
-  .section-label {
-    margin: 0 0 -4px 4px;
+    gap: var(--space-4);
   }
 
   .community-block {
-    gap: 8px;
-    padding-bottom: 14px;
+    gap: var(--space-3);
+    padding-bottom: var(--space-4);
   }
 
   .community-card {
-    padding: 17px 19px;
-    gap: 6px;
-    border-radius: var(--radius-md);
+    /* desktop mais arejado — mesmos tokens do mobile */
+    padding: var(--card-pad-lg);
+    gap: var(--space-4);
+    border-radius: var(--card-radius);
 
     h2 {
       font-size: 18px;
     }
-
-    form {
-      gap: 3px;
-      margin-top: 6px;
-    }
-
-    label {
-      margin-top: 6px;
-    }
-
-    input,
-    textarea {
-      padding: 8px 10px;
-    }
-  }
-
-  .community-card form > button[type='submit'],
-  .community-card form > button[type='button']:not(.auth-link),
-  .community-card > button[type='button']:not(.auth-link) {
-    margin-top: 10px;
-    padding: 9px;
   }
 
   .profile-header {
-    gap: 10px;
+    gap: var(--space-3);
   }
 
   .community-card-header {
-    gap: 10px;
+    gap: var(--space-3);
   }
 
   .community-avatar {
@@ -1583,10 +2994,6 @@
     font-size: 18px;
   }
 
-  .member-list li {
-    padding: 8px 12px;
-  }
-
   .member-list ul {
     gap: 4px;
   }
@@ -1596,13 +3003,14 @@
   }
 
   .feed-list {
-    gap: var(--space-2);
+    gap: var(--space-3);
   }
 
   .post-card {
-    padding: 14px 16px;
-    gap: var(--space-2);
-    border-radius: var(--radius-sm);
+    /* desktop mais arejado, mesmo raio do restante do sistema */
+    padding: var(--card-pad);
+    gap: var(--space-3);
+    border-radius: var(--card-radius);
   }
 
   .post-avatar {
@@ -1627,45 +3035,10 @@
     gap: 8px;
   }
 
-  .auth-card button:not(.auth-link) {
-    margin-top: 10px;
-    padding: 9px;
-  }
-
-  .comment-form button {
-    padding: 7px 12px;
-  }
-
-  .question-item {
-    padding: 9px 12px;
-  }
-
-  .question-list,
-  .challenge-manager {
-    gap: 8px;
-  }
-
-  .question-item-actions button,
-  .challenge-item-actions button,
-  .challenge-form-actions button {
-    padding: 5px 11px;
-  }
-
-  .challenge-block,
-  .circle-block,
-  .checkin-block {
-    padding-top: 9px;
-  }
-
-  .challenge-card > button,
-  .circle-card > button {
-    padding: 8px 18px;
-    margin-top: 3px;
-  }
-
-  .circle-manager,
-  .checkin-manager {
-    gap: 8px;
+  /* Desafios e Círculos: blocos agora são cards — respiro pleno. */
+  .challenge-manager,
+  .circle-manager {
+    gap: var(--space-4);
   }
 
   .checkin-mood-button {

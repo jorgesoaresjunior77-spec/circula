@@ -49,18 +49,29 @@ export function Dashboard({
   return (
     <section className="dashboard">
       <header className="dashboard-header">
-        <div>
-          <div className="brand">
-            <img src={circulaIcon} alt="" className="brand-icon" />
-            <h1>Círcula</h1>
+        <div className="brand">
+          <img src={circulaIcon} alt="" className="brand-icon" />
+          <div className="brand-lockup">
+            <h1 className="brand-name">Círcula</h1>
+            <p className="brand-tagline">Conectando Mulheres</p>
           </div>
-          <p>
-            Olá, <strong>{profile?.full_name ?? 'usuária'}</strong>
-          </p>
         </div>
-        <button type="button" onClick={onSignOut}>
-          Sair
-        </button>
+
+        <div className="dashboard-user">
+          <span className="dashboard-user-avatar" aria-hidden="true">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" />
+            ) : (
+              <span>{(profile?.full_name ?? 'U').charAt(0).toUpperCase()}</span>
+            )}
+          </span>
+          <span className="dashboard-user-name">
+            Olá, <strong>{profile?.full_name ?? 'usuária'}</strong>
+          </span>
+          <button type="button" onClick={onSignOut}>
+            Sair
+          </button>
+        </div>
       </header>
 
       {viewingProfileId ? (

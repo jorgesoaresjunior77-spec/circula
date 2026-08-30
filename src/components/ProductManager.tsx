@@ -374,7 +374,11 @@ export function ProductManager({
   }
 
   return (
-    <section className="community-card community-card--quiet question-bank">
+    <section
+      className={`community-card community-card--quiet question-bank product-manager${
+        showBuy ? ' product-manager--storefront' : ''
+      }`}
+    >
       <h3>Produtos da comunidade</h3>
 
       {canManage && (
@@ -408,9 +412,9 @@ export function ProductManager({
       )}
 
       {!loading && !error && products.length > 0 && (
-        <ul className="question-list">
+        <ul className="question-list product-list">
           {products.map((product) => (
-            <li key={product.id} className="question-item">
+            <li key={product.id} className="question-item product-item">
               {canManage && editingId === product.id ? (
                 <form
                   className="question-edit-form"

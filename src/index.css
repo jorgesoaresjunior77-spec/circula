@@ -3,14 +3,26 @@
      Círcula — Pérola & Rosa
      Superfícies em porcelana morna; um único acento rosé
      (a família dos "cores do logo") carrega toda a personalidade.
+
+     Etapa 0 — Fundação de tokens:
+       · rampa de rosas coerente com o logotipo
+       · gradientes de CTA (consumidos a partir da Etapa 1)
+       · superfícies de card mais claras, quase porcelana branca
+       · sombras mais suaves, profundas e difusas
+       · escala tipográfica que não encolhe no desktop
+       · Fraunces em peso leve + itálico para títulos e destaques
      ============================================================ */
 
   /* Superfícies — porcelana e concha dominam a interface */
   --white: #ffffff;
-  --page-bg: #fbf7f1;
+  --page-bg: #f6efe5;
   --sand: #f4ece1;
   --sand-deep: #ece1d2;
-  --beige: #f8f2e9;
+  --beige: #fdfbf7;
+
+  /* Aliases semânticos de superfície (para as próximas etapas) */
+  --surface: var(--beige);
+  --surface-sunken: var(--sand);
 
   /* Texto e bordas — tinta quente, nunca cinza neutro */
   --graphite: #453e38;
@@ -19,12 +31,28 @@
   --border-soft: rgba(69, 62, 56, 0.06);
   --code-bg: #f1e7d8;
 
-  /* Acento rosé — ação primária, estados ativos, links */
-  --olive-soft: #ead2cf;
-  --olive: #a65e68;
+  /* ---- Rampa de rosas — "cores do logo" ----------------------
+     Do nude perolado ao malva profundo. Tons claros para fundos e
+     tinta suave; médios e escuros para ação, estados ativos e texto.
+     Nomes -50..-800 são novos e aditivos: nada existente depende deles. */
+  --rose-50: #faf2ec;
+  --rose-100: #f4e2d8;
+  --rose-200: #eacabb;
+  --rose-300: #dcaa97;
+  --rose-400: #cd8c81; /* terracota morna */
+  --rose-500: #c17f89; /* rosa poeira — acento vivo */
+  --rose-600: #ab5f70; /* malva — ação primária */
+  --rose-700: #8c4c53; /* rosa profundo — texto sobre claro */
+  --rose-800: #6d3c42;
+
+  /* Acento rosé — ação primária, estados ativos, links.
+     Nomes mantidos por compatibilidade; valores realinhados à rampa
+     (antes puxavam para o tijolo amarronzado, agora rosa poeira/malva). */
+  --olive-soft: #eedad3;
+  --olive: #ab5f70;
   --olive-text: #8c4c53;
-  --olive-bg: rgba(166, 94, 104, 0.13);
-  --olive-border: rgba(166, 94, 104, 0.4);
+  --olive-bg: rgba(171, 95, 112, 0.12);
+  --olive-border: rgba(171, 95, 112, 0.38);
 
   /* Rosé neutro morno — check-in, participação, confirmação */
   --leaf-soft: #efe0d6;
@@ -42,16 +70,34 @@
   --danger-border: rgba(169, 86, 74, 0.34);
   --danger-bg: rgba(169, 86, 74, 0.09);
 
-  /* Sombras — flutuação suave e difusa, tingida de morno */
+  /* ---- Gradientes de CTA -------------------------------------
+     Luz de pêssego escorrendo para rosa poeira, como nos mockups.
+     Ainda não aplicados a nenhum componente — a Etapa 1 os consome. */
+  --cta-gradient: linear-gradient(135deg, #eab99f 0%, #dd9ca0 52%, #c67f8e 100%);
+  --cta-gradient-hover: linear-gradient(135deg, #e7b096 0%, #d78f96 52%, #bd7484 100%);
+  --cta-on: #ffffff; /* texto claro sobre o gradiente */
+  --cta-on-ink: #5a3138; /* alternativa em tinta profunda para trechos claros */
+  --cta-ring: rgba(171, 95, 112, 0.34); /* halo de foco do CTA */
+
+  /* Sombras — flutuação suave, profunda e difusa, tingida de morno.
+     Camadas curtas + longas dão o efeito "porcelana pousada". */
   --shadow-sm:
-    rgba(74, 61, 54, 0.06) 0 4px 16px -6px, rgba(74, 61, 54, 0.04) 0 1px 3px;
+    rgba(70, 58, 52, 0.04) 0 2px 8px -2px,
+    rgba(70, 58, 52, 0.05) 0 8px 24px -10px;
   --shadow-md:
-    rgba(74, 61, 54, 0.1) 0 20px 44px -18px, rgba(74, 61, 54, 0.05) 0 4px 12px -4px;
+    rgba(70, 58, 52, 0.05) 0 4px 14px -4px,
+    rgba(70, 58, 52, 0.07) 0 18px 44px -14px,
+    rgba(70, 58, 52, 0.04) 0 44px 90px -36px;
+  --shadow-lg:
+    rgba(70, 58, 52, 0.06) 0 8px 24px -6px,
+    rgba(70, 58, 52, 0.09) 0 32px 70px -18px,
+    rgba(70, 58, 52, 0.05) 0 64px 120px -48px;
 
   /* Cantos generosos, como as telas de referência */
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 26px;
+  --radius-xl: 32px;
   --radius-pill: 999px;
 
   --space-1: 4px;
@@ -61,28 +107,31 @@
   --space-5: 20px;
   --space-6: 28px;
   --space-7: 40px;
+  --space-8: 56px;
 
   --brand-filter: none;
 
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
   --sans: var(--font-body);
   --heading: var(--font-display);
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 16px/150% var(--font-body);
+  /* Pesos de exibição — Fraunces respira melhor em peso leve nos
+     tamanhos grandes; textos funcionais seguem em Figtree, sem mudança. */
+  --display-weight: 400;
+  --display-weight-strong: 500;
+
+  font: 16px/1.5 var(--font-body);
   letter-spacing: normal;
   color-scheme: light dark;
   color: var(--graphite-soft);
   background: var(--page-bg);
   font-synthesis: none;
+  font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (min-width: 1024px) {
-    font-size: 15px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -95,6 +144,22 @@
     --border: rgba(245, 236, 230, 0.14);
     --border-soft: rgba(245, 236, 230, 0.08);
     --code-bg: #3a262d;
+
+    --surface: #2b2024;
+    --surface-sunken: rgba(224, 168, 178, 0.1);
+
+    /* Rampa de rosas — no escuro os tons claros viram véus translúcidos
+       e os médios clareiam para manter contraste sobre a porcelana escura. */
+    --rose-50: rgba(224, 168, 178, 0.1);
+    --rose-100: rgba(224, 168, 178, 0.16);
+    --rose-200: rgba(224, 168, 178, 0.24);
+    --rose-300: #d9a4ac;
+    --rose-400: #e0a8b2;
+    --rose-500: #e6b1ba;
+    --rose-600: #ecbcc3;
+    --rose-700: #f2dfe0;
+    --rose-800: #f7ece9;
+
     --olive-soft: rgba(224, 168, 178, 0.22);
     --olive: #e0a8b2;
     --olive-text: #f2dfe0;
@@ -106,9 +171,26 @@
     --rose-text: #f2dfe0;
     --straw-soft: rgba(214, 190, 150, 0.14);
     --straw-text: rgba(245, 236, 230, 0.72);
-    --shadow-sm: rgba(0, 0, 0, 0.35) 0 8px 16px -6px;
-    --shadow-md: rgba(0, 0, 0, 0.42) 0 16px 30px -10px, rgba(0, 0, 0, 0.26) 0 4px 10px -3px;
-    --page-bg: var(--beige);
+
+    --cta-gradient: linear-gradient(135deg, #cd949b 0%, #bd7b86 55%, #a5636f 100%);
+    --cta-gradient-hover: linear-gradient(135deg, #d7a1a7 0%, #c78791 55%, #b06f7b 100%);
+    --cta-on: #2a1e21;
+    --cta-on-ink: #f7e9e6;
+    --cta-ring: rgba(224, 168, 178, 0.45);
+
+    --shadow-sm:
+      rgba(0, 0, 0, 0.32) 0 2px 10px -3px,
+      rgba(0, 0, 0, 0.34) 0 10px 28px -12px;
+    --shadow-md:
+      rgba(0, 0, 0, 0.36) 0 6px 18px -6px,
+      rgba(0, 0, 0, 0.4) 0 20px 44px -14px,
+      rgba(0, 0, 0, 0.28) 0 48px 90px -40px;
+    --shadow-lg:
+      rgba(0, 0, 0, 0.4) 0 10px 28px -8px,
+      rgba(0, 0, 0, 0.46) 0 36px 76px -20px,
+      rgba(0, 0, 0, 0.3) 0 72px 130px -50px;
+
+    --page-bg: #1c1418;
   }
 
   #social .button-icon {
@@ -121,11 +203,19 @@
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  /* Rede de segurança contra estouro horizontal em telas estreitas.
+     `clip` não cria contexto de rolagem e não quebra `position: sticky`. */
+  overflow-x: clip;
+
+  /* Moldura lateral só quando a coluna realmente descola das bordas da
+     viewport — no mobile/tablet ela ficava encostada como um fio solto. */
+  @media (min-width: 1127px) {
+    border-inline: 1px solid var(--border);
+  }
 }
 
 #center {
@@ -154,32 +244,44 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: var(--display-weight-strong);
+  font-optical-sizing: auto;
   color: var(--graphite);
 }
 
 h1 {
   font-size: 30px;
-  letter-spacing: -0.3px;
+  font-weight: var(--display-weight); /* leve nos tamanhos grandes */
+  line-height: 1.15;
+  letter-spacing: -0.4px;
   margin: 16px 0;
+
   @media (min-width: 1024px) {
-    font-size: 24px;
-    margin: 8px 0;
+    font-size: 33px; /* cresce no desktop em vez de encolher */
+    margin: 10px 0;
   }
 }
+
 h2 {
   font-size: 21px;
-  line-height: 120%;
+  line-height: 1.2;
   letter-spacing: -0.2px;
   margin: 0 0 6px;
+
+  @media (min-width: 1024px) {
+    font-size: 22px;
+  }
+}
+
+h3 {
+  font-size: 17px;
+  letter-spacing: -0.1px;
+
   @media (min-width: 1024px) {
     font-size: 18px;
   }
 }
-h3 {
-  font-size: 17px;
-  letter-spacing: -0.1px;
-}
+
 p {
   margin: 0;
 }

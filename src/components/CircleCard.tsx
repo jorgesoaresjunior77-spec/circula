@@ -9,6 +9,8 @@ interface CircleCardProps {
   onLeave: () => Promise<JoinCircleResult>
 }
 
+const AVATAR_LIMIT = 4
+
 export function CircleCard({
   circle,
   isParticipating,
@@ -32,34 +34,46 @@ export function CircleCard({
     }
   }
 
+  const memberCount = circle.members.length
+  const shownAvatars = circle.members.slice(0, AVATAR_LIMIT)
+  const extraCount = memberCount - shownAvatars.length
+
   return (
     <article className="circle-card">
-      <h3>{circle.name}</h3>
+      <div className="circle-card-row">
+        {memberCount > 0 && (
+          <div className="circle-avatars" aria-hidden="true">
+            {shownAvatars.map((member) => (
+              <span key={member.id} className="circle-avatar">
+                {member.profile?.avatar_url ? (
+                  <img src={member.profile.avatar_url} alt="" />
+                ) : (
+                  <span>{(member.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
+                )}
+              </span>
+            ))}
+            {extraCount > 0 && (
+              <span className="circle-avatar circle-avatar--more">+{extraCount}</span>
+            )}
+          </div>
+        )}
 
-      <p className="circle-meta">
-        {circle.members.length === 1
-          ? '1 mulher neste círculo'
-          : `${circle.members.length} mulheres neste círculo`}
-      </p>
-
-      {circle.members.length > 0 && (
-        <div className="interest-tags">
-          {circle.members.map((member) => (
-            <span key={member.id} className="interest-tag">
-              {member.profile?.full_name ?? 'Participante'}
-            </span>
-          ))}
+        <div className="circle-card-titles">
+          <h3>{circle.name}</h3>
+          <p className="circle-meta">
+            {memberCount === 1
+              ? '1 mulher neste círculo'
+              : `${memberCount} mulheres neste círculo`}
+          </p>
         </div>
-      )}
+      </div>
 
       {canParticipate && (
-        <>
-          <button type="button" onClick={handleToggle} disabled={working}>
-            {working ? 'Aguarde...' : isParticipating ? 'Sair' : 'Participar'}
-          </button>
-          {actionError && <p className="auth-error">{actionError}</p>}
-        </>
+        <button type="button" onClick={handleToggle} disabled={working}>
+          {working ? 'Aguarde...' : isParticipating ? 'Sair' : 'Participar'}
+        </button>
       )}
+      {canParticipate && actionError && <p className="auth-error">{actionError}</p>}
     </article>
   )
 }
