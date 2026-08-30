@@ -1,49 +1,57 @@
 :root {
-  /* Superfícies — branco e areia dominam a interface */
+  /* ============================================================
+     Círcula — Pérola & Rosa
+     Superfícies em porcelana morna; um único acento rosé
+     (a família dos "cores do logo") carrega toda a personalidade.
+     ============================================================ */
+
+  /* Superfícies — porcelana e concha dominam a interface */
   --white: #ffffff;
-  --page-bg: #fefdfb;
-  --sand: #f6f1e6;
-  --sand-deep: #efe6d2;
-  --beige: #faf6ec;
+  --page-bg: #fbf7f1;
+  --sand: #f4ece1;
+  --sand-deep: #ece1d2;
+  --beige: #f8f2e9;
 
-  /* Texto e bordas */
-  --graphite: #3f403d;
-  --graphite-soft: #75766e;
-  --border: rgba(63, 64, 61, 0.12);
-  --border-soft: rgba(63, 64, 61, 0.07);
-  --code-bg: #f5eedb;
+  /* Texto e bordas — tinta quente, nunca cinza neutro */
+  --graphite: #453e38;
+  --graphite-soft: #726860;
+  --border: rgba(69, 62, 56, 0.11);
+  --border-soft: rgba(69, 62, 56, 0.06);
+  --code-bg: #f1e7d8;
 
-  /* Oliva pastel — ação primária, estados ativos */
-  --olive-soft: #dde2cf;
-  --olive: #aebd95;
-  --olive-text: #46512e;
-  --olive-bg: rgba(174, 189, 149, 0.16);
-  --olive-border: rgba(174, 189, 149, 0.55);
+  /* Acento rosé — ação primária, estados ativos, links */
+  --olive-soft: #ead2cf;
+  --olive: #a65e68;
+  --olive-text: #8c4c53;
+  --olive-bg: rgba(166, 94, 104, 0.13);
+  --olive-border: rgba(166, 94, 104, 0.4);
 
-  /* Folha suave — check-in, participação, confirmação */
-  --leaf-soft: #e1e9de;
-  --leaf-text: #4b5a47;
+  /* Rosé neutro morno — check-in, participação, confirmação */
+  --leaf-soft: #efe0d6;
+  --leaf-text: #7c6a5b;
 
-  /* Rosé muito suave — pergunta do dia */
-  --rose-soft: #f4e7e5;
-  --rose-text: #93615d;
+  /* Rosé claro — pergunta do dia */
+  --rose-soft: #f4e4de;
+  --rose-text: #8c4c53;
 
-  /* Palha — comando da comunidade, destaques pontuais */
-  --straw-soft: #f1e6c8;
-  --straw-text: #7a6533;
+  /* Pérola quente — comando da comunidade, destaques pontuais */
+  --straw-soft: #f1e6d6;
+  --straw-text: #7a6a54;
 
-  --danger: #b5615a;
-  --danger-border: rgba(181, 97, 90, 0.35);
-  --danger-bg: rgba(181, 97, 90, 0.08);
+  --danger: #a9564a;
+  --danger-border: rgba(169, 86, 74, 0.34);
+  --danger-bg: rgba(169, 86, 74, 0.09);
 
+  /* Sombras — flutuação suave e difusa, tingida de morno */
   --shadow-sm:
-    rgba(63, 64, 61, 0.05) 0 2px 8px -2px, rgba(63, 64, 61, 0.03) 0 1px 2px;
+    rgba(74, 61, 54, 0.06) 0 4px 16px -6px, rgba(74, 61, 54, 0.04) 0 1px 3px;
   --shadow-md:
-    rgba(63, 64, 61, 0.08) 0 14px 28px -10px, rgba(63, 64, 61, 0.05) 0 3px 8px -2px;
+    rgba(74, 61, 54, 0.1) 0 20px 44px -18px, rgba(74, 61, 54, 0.05) 0 4px 12px -4px;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
+  /* Cantos generosos, como as telas de referência */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
   --radius-pill: 999px;
 
   --space-1: 4px;
@@ -63,7 +71,7 @@
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/150% var(--font-body);
-  letter-spacing: 0.1px;
+  letter-spacing: normal;
   color-scheme: light dark;
   color: var(--graphite-soft);
   background: var(--page-bg);
@@ -79,21 +87,27 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --graphite-soft: rgba(247, 239, 234, 0.75);
-    --graphite: #f7efea;
-    --beige: #3d2029;
-    --sand: rgba(232, 177, 187, 0.12);
-    --border: rgba(247, 239, 234, 0.16);
-    --code-bg: #4a2732;
-    --olive-soft: #e8b1bb;
-    --olive: #e8b1bb;
-    --olive-text: #3d2029;
-    --olive-bg: rgba(232, 177, 187, 0.18);
-    --olive-border: rgba(232, 177, 187, 0.5);
-    --leaf-soft: #a7b89a;
-    --leaf-text: #c3d0ba;
+    --graphite-soft: rgba(245, 236, 230, 0.74);
+    --graphite: #f6ece5;
+    --beige: #241b1f;
+    --sand: rgba(210, 150, 160, 0.1);
+    --sand-deep: rgba(210, 150, 160, 0.14);
+    --border: rgba(245, 236, 230, 0.14);
+    --border-soft: rgba(245, 236, 230, 0.08);
+    --code-bg: #3a262d;
+    --olive-soft: rgba(224, 168, 178, 0.22);
+    --olive: #e0a8b2;
+    --olive-text: #f2dfe0;
+    --olive-bg: rgba(224, 168, 178, 0.16);
+    --olive-border: rgba(224, 168, 178, 0.42);
+    --leaf-soft: rgba(224, 168, 178, 0.14);
+    --leaf-text: rgba(245, 236, 230, 0.72);
+    --rose-soft: rgba(224, 168, 178, 0.16);
+    --rose-text: #f2dfe0;
+    --straw-soft: rgba(214, 190, 150, 0.14);
+    --straw-text: rgba(245, 236, 230, 0.72);
     --shadow-sm: rgba(0, 0, 0, 0.35) 0 8px 16px -6px;
-    --shadow-md: rgba(0, 0, 0, 0.4) 0 12px 20px -6px, rgba(0, 0, 0, 0.25) 0 4px 8px -2px;
+    --shadow-md: rgba(0, 0, 0, 0.42) 0 16px 30px -10px, rgba(0, 0, 0, 0.26) 0 4px 10px -3px;
     --page-bg: var(--beige);
   }
 
