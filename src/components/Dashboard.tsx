@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import circulaIcon from '../assets/circula-icon.png'
+import circulaIcon from '../assets/circula-icon.jpg'
 import type { Profile } from '../types/profile'
 import { useCommunity } from '../hooks/useCommunity'
 import { CreateCommunityForm } from './CreateCommunityForm'

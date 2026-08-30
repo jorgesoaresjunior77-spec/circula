@@ -54,7 +54,7 @@
   --space-6: 28px;
   --space-7: 40px;
 
-  --brand-filter: hue-rotate(85deg) saturate(32%) brightness(1.12) contrast(0.96);
+  --brand-filter: none;
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;

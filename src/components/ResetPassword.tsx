@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import circulaIcon from '../assets/circula-icon.png'
+import circulaIcon from '../assets/circula-icon.jpg'
 
 export function ResetPassword() {
   const [newPassword, setNewPassword] = useState('')
