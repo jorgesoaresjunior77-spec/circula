@@ -4,7 +4,7 @@ import type { Profile } from '../types/profile'
 import type { AddMemberResult, CommunityWithMembers, JoinResult } from '../types/community'
 
 const COMMUNITY_SELECT =
-  'id,name,slug,description,owner_id,is_discoverable,created_at,community_members(id,status,joined_at,profile:profiles(id,full_name,avatar_url))'
+  'id,name,slug,description,cover_image_url,owner_id,is_discoverable,created_at,community_members(id,status,joined_at,profile:profiles(id,full_name,avatar_url))'
 
 export function useCommunity(profile: Profile | null) {
   const [communities, setCommunities] = useState<CommunityWithMembers[]>([])
@@ -68,6 +68,7 @@ export function useCommunity(profile: Profile | null) {
     name: string
     slug: string
     description: string
+    cover_image_url?: string | null
   }) {
     if (!profile) return { error: 'Sem sessão ativa.' }
 
@@ -77,6 +78,7 @@ export function useCommunity(profile: Profile | null) {
         name: input.name,
         slug: input.slug,
         description: input.description || null,
+        cover_image_url: input.cover_image_url?.trim() || null,
         owner_id: profile.id,
       })
       .select('id')
@@ -153,6 +155,20 @@ export function useCommunity(profile: Profile | null) {
     return { status: 'success' }
   }
 
+  async function setCommunityCover(communityId: string, coverImageUrl: string | null) {
+    const value = coverImageUrl?.trim() ? coverImageUrl.trim() : null
+
+    const { error: updateError } = await supabase
+      .from('communities')
+      .update({ cover_image_url: value })
+      .eq('id', communityId)
+
+    if (updateError) return { error: updateError.message }
+
+    await fetchCommunities()
+    return { error: null }
+  }
+
   return {
     communities,
     memberCounts,
@@ -161,6 +177,7 @@ export function useCommunity(profile: Profile | null) {
     createCommunity,
     addMember,
     joinCommunity,
+    setCommunityCover,
     refresh: fetchCommunities,
   }
 }

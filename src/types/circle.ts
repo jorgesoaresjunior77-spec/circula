@@ -2,6 +2,7 @@ export interface Circle {
   id: string
   community_id: string
   name: string
+  cover_image_url: string | null
   created_by: string
   created_at: string
 }

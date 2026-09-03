@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-import type { Profile } from '../types/profile'
+import type { Profile, ProfileUpdateInput } from '../types/profile'
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
@@ -44,7 +44,7 @@ export function useAuth() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, role, full_name, avatar_url, interests')
+      .select('id, role, full_name, avatar_url, interests, bio, city')
       .eq('id', session.user.id)
       .single()
 
@@ -67,7 +67,7 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  async function updateProfile(input: { full_name?: string | null; interests?: string[] }) {
+  async function updateProfile(input: ProfileUpdateInput) {
     if (!session) return { error: 'Sem sessão ativa.' }
 
     const { error } = await supabase.from('profiles').update(input).eq('id', session.user.id)

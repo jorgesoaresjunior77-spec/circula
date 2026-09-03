@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
-import type { Profile } from '../types/profile'
+import type { Profile, ProfileUpdateInput } from '../types/profile'
 
 interface MyProfileProps {
   profile: Profile
-  onUpdate: (input: { full_name?: string | null; interests?: string[] }) => Promise<{
-    error: string | null
-  }>
+  onUpdate: (input: ProfileUpdateInput) => Promise<{ error: string | null }>
   onUploadAvatar: (file: File) => Promise<{ error: string | null }>
 }
 
 export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
+  const [bio, setBio] = useState(profile.bio ?? '')
+  const [city, setCity] = useState(profile.city ?? '')
   const [interests, setInterests] = useState<string[]>(profile.interests)
   const [interestDraft, setInterestDraft] = useState('')
   const [saving, setSaving] = useState(false)
@@ -23,6 +23,8 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
 
   function startEditing() {
     setFullName(profile.full_name ?? '')
+    setBio(profile.bio ?? '')
+    setCity(profile.city ?? '')
     setInterests(profile.interests)
     setInterestDraft('')
     setMessage(null)
@@ -47,6 +49,8 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
 
     const { error } = await onUpdate({
       full_name: fullName.trim() ? fullName.trim() : null,
+      bio: bio.trim() ? bio.trim() : null,
+      city: city.trim() ? city.trim() : null,
       interests,
     })
 
@@ -93,6 +97,7 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
         </div>
         <div>
           <h2>{profile.full_name ?? 'Seu perfil'}</h2>
+          {profile.city && <p className="profile-city">{profile.city}</p>}
           <label className="auth-link">
             {uploading ? 'Enviando...' : 'Trocar foto'}
             <input
@@ -108,6 +113,8 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
 
       {!editing ? (
         <>
+          {profile.bio && <p className="profile-bio">{profile.bio}</p>}
+
           {profile.interests.length > 0 && (
             <div className="interest-tags">
               {profile.interests.map((interest) => (
@@ -136,6 +143,24 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
             type="text"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
+          />
+
+          <label htmlFor="profile-city">Cidade</label>
+          <input
+            id="profile-city"
+            type="text"
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
+            placeholder="Ex: Belo Horizonte"
+          />
+
+          <label htmlFor="profile-bio">Sobre você</label>
+          <textarea
+            id="profile-bio"
+            value={bio}
+            onChange={(event) => setBio(event.target.value)}
+            rows={4}
+            placeholder="Uma apresentação curta para as outras mulheres."
           />
 
           <label htmlFor="profile-interest">Interesses</label>

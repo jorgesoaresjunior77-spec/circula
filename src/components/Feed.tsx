@@ -8,14 +8,26 @@ interface FeedProps {
   authorId: string
   canPost: boolean
   refreshToken?: number
+  /** Quando definido, o feed é de um círculo (não da comunidade). */
+  circleId?: string
+  /** Nome do círculo — mostrado no compositor quando circleId existe. */
+  circleName?: string
 }
 
-export function Feed({ communityId, authorId, canPost, refreshToken }: FeedProps) {
+export function Feed({
+  communityId,
+  authorId,
+  canPost,
+  refreshToken,
+  circleId,
+  circleName,
+}: FeedProps) {
   const {
     posts,
     loading,
     error,
     createPost,
+    uploadPostImage,
     reactionCounts,
     reactedPostIds,
     commentCounts,
@@ -23,19 +35,33 @@ export function Feed({ communityId, authorId, canPost, refreshToken }: FeedProps
     toggleReaction,
     fetchComments,
     addComment,
-  } = usePosts(communityId, authorId, refreshToken)
+  } = usePosts(communityId, authorId, refreshToken, circleId ?? null)
+
+  const emptyMessage = circleId
+    ? 'Ainda não há publicações neste círculo. Seja a primeira a compartilhar algo.'
+    : 'Ainda não há publicações nesta comunidade. Seja a primeira a compartilhar algo.'
 
   return (
     <div className="feed">
-      {canPost && <PostComposer onPublish={(content) => createPost(authorId, content)} />}
+      {canPost && (
+        <PostComposer
+          onPublish={(content, imageUrl) => createPost(authorId, content, imageUrl)}
+          onUploadImage={uploadPostImage}
+          contextLabel={
+            circleId
+              ? circleName
+                ? `Publicando no círculo ${circleName}`
+                : 'Publicando neste círculo'
+              : undefined
+          }
+        />
+      )}
 
       {loading && <p>Carregando publicações...</p>}
 
       {!loading && error && <p className="auth-error">{error}</p>}
 
-      {!loading && !error && posts.length === 0 && (
-        <EmptyState message="Ainda não há publicações nesta comunidade. Seja a primeira a compartilhar algo." />
-      )}
+      {!loading && !error && posts.length === 0 && <EmptyState message={emptyMessage} />}
 
       {!loading && !error && posts.length > 0 && (
         <div className="feed-list">

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useChallengeProgress } from '../hooks/useChallengeProgress'
+import { formatChallengePeriod, formatStartCountdown } from '../lib/challengePeriod'
 import type {
   ChallengeComment,
   ChallengeCommentResult,
@@ -19,12 +20,16 @@ interface ChallengeCardProps {
   participantCount: number
   todayCompletedCount: number
   isParticipating: boolean
+  /** A viewer ja concluiu o desafio inteiro (linha em challenge_completions). */
+  isCompleted?: boolean
   canParticipate: boolean
   profileId: string | null
   commentCount: number
   comments: ChallengeComment[] | undefined
   onJoin: () => Promise<JoinChallengeResult>
   onProgressChange?: () => void
+  /** Chamado quando o estado de conclusao pode ter mudado (marcar/desmarcar dia). */
+  onCompletionChange?: () => void
   onOpenComments: () => Promise<ChallengeCommentResult>
   onAddComment: (content: string) => Promise<ChallengeCommentResult>
 }
@@ -35,32 +40,47 @@ export function ChallengeCard({
   participantCount,
   todayCompletedCount,
   isParticipating,
+  isCompleted = false,
   canParticipate,
   profileId,
   commentCount,
   comments,
   onJoin,
   onProgressChange,
+  onCompletionChange,
   onOpenComments,
   onAddComment,
 }: ChallengeCardProps) {
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState<string | null>(null)
+  const [toggleError, setToggleError] = useState<string | null>(null)
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
 
+  const duration = challenge.activities.length
   const trackProgress = canParticipate && isParticipating
-  const { completedDays, toggleDay, loading: progressLoading } = useChallengeProgress(
+  const {
+    completedDays,
+    completed,
+    allDaysDone,
+    toggleDay,
+    loading: progressLoading,
+  } = useChallengeProgress(
     trackProgress ? challenge.id : null,
     trackProgress ? profileId : null,
+    duration,
+    isCompleted,
   )
 
-  const duration = challenge.activities.length
-  const displayDay = Math.min(currentDay, Math.max(duration, 1))
+  const notStarted = currentDay <= 0
+  const displayDay = notStarted ? 0 : Math.min(currentDay, Math.max(duration, 1))
   const todayActivity = challenge.activities.find((activity) => activity.day_number === currentDay)
+  const todayDone = completedDays.has(currentDay)
+  const period = formatChallengePeriod(challenge.starts_on, challenge.ends_on)
+  const isDone = completed || allDaysDone
 
-  // Anel só quando há dados reais de progresso (participante + dias
-  // carregados). Sem dados suficientes, nenhum percentual é exibido.
+  // Anel so quando ha dados reais de progresso (participante + dias
+  // carregados). Sem dados suficientes, nenhum percentual e exibido.
   const completedInRange = Math.min(completedDays.size, duration)
   const progressPercent =
     trackProgress && duration > 0 && !progressLoading
@@ -76,13 +96,19 @@ export function ChallengeCard({
     setJoining(false)
 
     if (error) {
-      setJoinError('Não foi possível entrar no desafio agora. Tente novamente.')
+      setJoinError('Nao foi possivel entrar no desafio agora. Tente novamente.')
     }
   }
 
   async function handleToggle(dayNumber: number) {
+    setToggleError(null)
     const { error } = await toggleDay(dayNumber, currentDay)
-    if (!error) onProgressChange?.()
+    if (error) {
+      setToggleError(error)
+      return
+    }
+    onProgressChange?.()
+    onCompletionChange?.()
   }
 
   async function handleToggleComments() {
@@ -98,9 +124,14 @@ export function ChallengeCard({
 
   return (
     <article className="challenge-card">
+      {challenge.cover_image_url && (
+        <img className="challenge-cover" src={challenge.cover_image_url} alt="" />
+      )}
+
       <div className="challenge-card-head">
         <div className="challenge-card-heading">
           <h3>{challenge.title}</h3>
+          {period && <p className="challenge-period">{period}</p>}
           {challenge.description && (
             <p className="challenge-description">{challenge.description}</p>
           )}
@@ -131,10 +162,18 @@ export function ChallengeCard({
       </div>
 
       <div className="challenge-progress">
-        <p className="challenge-day-indicator">
-          Dia <span className="challenge-day-current">{displayDay}</span> de {duration}
-        </p>
-        {todayActivity && <p className="challenge-today-activity">{todayActivity.content}</p>}
+        {notStarted ? (
+          <p className="challenge-day-indicator">
+            Começa {formatStartCountdown(challenge.starts_on)}
+          </p>
+        ) : (
+          <>
+            <p className="challenge-day-indicator">
+              Dia <span className="challenge-day-current">{displayDay}</span> de {duration}
+            </p>
+            {todayActivity && <p className="challenge-today-activity">{todayActivity.content}</p>}
+          </>
+        )}
       </div>
 
       <p className="challenge-stats">
@@ -152,17 +191,36 @@ export function ChallengeCard({
         </>
       )}
 
-      {canParticipate && isParticipating && (
+      {trackProgress && (
         <div className="challenge-track">
+          {isDone ? (
+            <p className="challenge-completed-badge">Desafio concluído 🎉</p>
+          ) : notStarted ? (
+            <p className="challenge-notstarted">
+              O primeiro dia libera {formatStartCountdown(challenge.starts_on)}.
+            </p>
+          ) : todayActivity ? (
+            <button
+              type="button"
+              className="challenge-complete-day"
+              onClick={() => handleToggle(currentDay)}
+              disabled={progressLoading}
+            >
+              {todayDone ? `Dia ${displayDay} concluído ✓ — desfazer` : `Concluir o dia ${displayDay}`}
+            </button>
+          ) : null}
+
+          {toggleError && <p className="auth-error">{toggleError}</p>}
+
           <p className="challenge-track-label">Sua trilha</p>
           <div className="challenge-day-track">
             {challenge.activities.map((activity) => {
-              const unlocked = activity.day_number <= currentDay
-              const completed = completedDays.has(activity.day_number)
+              const unlocked = !notStarted && activity.day_number <= currentDay
+              const dayCompleted = completedDays.has(activity.day_number)
               const isToday = activity.day_number === currentDay
               const markState: 'locked' | 'completed' | 'today' = !unlocked
                 ? 'locked'
-                : completed
+                : dayCompleted
                   ? 'completed'
                   : 'today'
 
@@ -170,7 +228,7 @@ export function ChallengeCard({
                 <button
                   key={activity.id}
                   type="button"
-                  className={`challenge-day-mark${completed ? ' challenge-day-mark--completed' : ''}${
+                  className={`challenge-day-mark${dayCompleted ? ' challenge-day-mark--completed' : ''}${
                     !unlocked ? ' challenge-day-mark--locked' : ''
                   }${isToday ? ' challenge-day-mark--today' : ''}`}
                   disabled={!unlocked || progressLoading}
@@ -180,7 +238,7 @@ export function ChallengeCard({
                   <LeafDayMark state={markState} />
                   <span className="challenge-day-mark-label">
                     {activity.day_number}
-                    {completed ? ' ✓' : ''}
+                    {dayCompleted ? ' ✓' : ''}
                   </span>
                 </button>
               )

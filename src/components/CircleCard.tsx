@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { CircleWithMembers, JoinCircleResult } from '../types/circle'
+import { ChevronRightIcon } from './icons'
 
 interface CircleCardProps {
   circle: CircleWithMembers
@@ -7,6 +8,8 @@ interface CircleCardProps {
   canParticipate: boolean
   onJoin: () => Promise<JoinCircleResult>
   onLeave: () => Promise<JoinCircleResult>
+  /** Quando definido, mostra uma ação real de abrir o detalhe do círculo. */
+  onOpen?: () => void
 }
 
 const AVATAR_LIMIT = 4
@@ -17,6 +20,7 @@ export function CircleCard({
   canParticipate,
   onJoin,
   onLeave,
+  onOpen,
 }: CircleCardProps) {
   const [working, setWorking] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -41,21 +45,27 @@ export function CircleCard({
   return (
     <article className="circle-card">
       <div className="circle-card-row">
-        {memberCount > 0 && (
-          <div className="circle-avatars" aria-hidden="true">
-            {shownAvatars.map((member) => (
-              <span key={member.id} className="circle-avatar">
-                {member.profile?.avatar_url ? (
-                  <img src={member.profile.avatar_url} alt="" />
-                ) : (
-                  <span>{(member.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
-                )}
-              </span>
-            ))}
-            {extraCount > 0 && (
-              <span className="circle-avatar circle-avatar--more">+{extraCount}</span>
-            )}
-          </div>
+        {circle.cover_image_url ? (
+          <span className="circle-card-cover" aria-hidden="true">
+            <img src={circle.cover_image_url} alt="" />
+          </span>
+        ) : (
+          memberCount > 0 && (
+            <div className="circle-avatars" aria-hidden="true">
+              {shownAvatars.map((member) => (
+                <span key={member.id} className="circle-avatar">
+                  {member.profile?.avatar_url ? (
+                    <img src={member.profile.avatar_url} alt="" />
+                  ) : (
+                    <span>{(member.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
+                  )}
+                </span>
+              ))}
+              {extraCount > 0 && (
+                <span className="circle-avatar circle-avatar--more">+{extraCount}</span>
+              )}
+            </div>
+          )
         )}
 
         <div className="circle-card-titles">
@@ -66,6 +76,17 @@ export function CircleCard({
               : `${memberCount} mulheres neste círculo`}
           </p>
         </div>
+
+        {onOpen && (
+          <button
+            type="button"
+            className="circle-card-open"
+            onClick={onOpen}
+            aria-label={`Abrir círculo ${circle.name}`}
+          >
+            <ChevronRightIcon />
+          </button>
+        )}
       </div>
 
       {canParticipate && (

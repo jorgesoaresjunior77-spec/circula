@@ -6,6 +6,7 @@ interface CreateCommunityFormProps {
     name: string
     slug: string
     description: string
+    cover_image_url?: string | null
   }) => Promise<{ error: string | null }>
 }
 
@@ -22,6 +23,7 @@ function slugify(value: string) {
 export function CreateCommunityForm({ onCreate }: CreateCommunityFormProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [coverImageUrl, setCoverImageUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,6 +36,7 @@ export function CreateCommunityForm({ onCreate }: CreateCommunityFormProps) {
       name,
       slug: slugify(name),
       description,
+      cover_image_url: coverImageUrl,
     })
 
     setLoading(false)
@@ -70,6 +73,15 @@ export function CreateCommunityForm({ onCreate }: CreateCommunityFormProps) {
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           rows={3}
+        />
+
+        <label htmlFor="community-cover">URL da imagem de capa (opcional)</label>
+        <input
+          id="community-cover"
+          type="url"
+          value={coverImageUrl}
+          onChange={(event) => setCoverImageUrl(event.target.value)}
+          placeholder="https://..."
         />
 
         {error && <p className="auth-error">{error}</p>}

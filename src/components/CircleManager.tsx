@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useCircles } from '../hooks/useCircles'
 import { CircleCard } from './CircleCard'
+import { CoverImageInput } from './CoverImageInput'
 import { EmptyState } from './EmptyState'
 
 interface CircleManagerProps {
@@ -21,11 +22,13 @@ export function CircleManager({
     useCircles(communityId)
 
   const [name, setName] = useState('')
+  const [coverImageUrl, setCoverImageUrl] = useState('')
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [editCoverImageUrl, setEditCoverImageUrl] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
 
   async function handleCreate(event: FormEvent) {
@@ -33,7 +36,7 @@ export function CircleManager({
     setCreating(true)
     setCreateError(null)
 
-    const { error: createErr } = await createCircle(profileId, name)
+    const { error: createErr } = await createCircle(profileId, name, coverImageUrl)
 
     setCreating(false)
 
@@ -43,18 +46,20 @@ export function CircleManager({
     }
 
     setName('')
+    setCoverImageUrl('')
   }
 
-  function startEdit(id: string, currentName: string) {
+  function startEdit(id: string, currentName: string, currentCover: string | null) {
     setEditingId(id)
     setEditName(currentName)
+    setEditCoverImageUrl(currentCover ?? '')
   }
 
   async function handleSaveEdit(event: FormEvent, id: string) {
     event.preventDefault()
     setSavingEdit(true)
 
-    const { error: updateErr } = await renameCircle(id, editName)
+    const { error: updateErr } = await renameCircle(id, editName, editCoverImageUrl)
 
     setSavingEdit(false)
 
@@ -77,6 +82,13 @@ export function CircleManager({
             onChange={(event) => setName(event.target.value)}
             placeholder="Ex.: Mães"
             required
+          />
+
+          <CoverImageInput
+            id="circle-cover"
+            uid={profileId}
+            value={coverImageUrl}
+            onChange={setCoverImageUrl}
           />
 
           {createError && <p className="auth-error">{createError}</p>}
@@ -109,6 +121,12 @@ export function CircleManager({
                   onChange={(event) => setEditName(event.target.value)}
                   required
                 />
+                <CoverImageInput
+                  id={`edit-circle-cover-${circle.id}`}
+                  uid={profileId}
+                  value={editCoverImageUrl}
+                  onChange={setEditCoverImageUrl}
+                />
                 <div className="challenge-item-actions">
                   <button type="button" className="auth-link" onClick={() => setEditingId(null)}>
                     Cancelar
@@ -134,8 +152,11 @@ export function CircleManager({
 
                 {canManage && (
                   <div className="challenge-item-actions">
-                    <button type="button" onClick={() => startEdit(circle.id, circle.name)}>
-                      Renomear
+                    <button
+                      type="button"
+                      onClick={() => startEdit(circle.id, circle.name, circle.cover_image_url)}
+                    >
+                      Editar
                     </button>
                     <button
                       type="button"

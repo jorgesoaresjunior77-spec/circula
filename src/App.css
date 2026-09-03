@@ -437,23 +437,36 @@
   width: 100%;
   max-width: 480px;
   text-align: left;
+  /* espaço para a barra inferior fixa + o "+" elevado, no mobile
+     (+ área segura iOS) */
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 
   @media (min-width: 768px) {
     max-width: 640px;
   }
 
   @media (min-width: 1024px) {
-    max-width: 960px;
+    max-width: 1000px;
     display: grid;
-    grid-template-columns: 300px 1fr;
-    column-gap: var(--space-6);
+    /* Fase 1 — coluna 1 passa a comportar o menu com ícone + nome. */
+    grid-template-columns: 216px minmax(0, 1fr);
+    column-gap: var(--space-5);
     row-gap: var(--space-5);
     align-items: start;
+    padding-bottom: 0;
   }
 
   @media (min-width: 1280px) {
-    max-width: 1080px;
-    grid-template-columns: 340px 1fr;
+    max-width: 1140px;
+    grid-template-columns: 216px minmax(0, 1fr);
+  }
+
+  /* Fase 1 — trilho direito só na Home de member/professional (>= 1280px). */
+  &.dashboard--rail {
+    @media (min-width: 1280px) {
+      max-width: 1340px;
+      grid-template-columns: 216px minmax(0, 1fr) 300px;
+    }
   }
 }
 
@@ -613,14 +626,19 @@
 }
 
 .dashboard-rail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  min-width: 0;
+  /* Fase 1 — trilho aparece só a partir de 1280px; abaixo disso a Home
+     segue em coluna única e nada do trilho é renderizado visualmente. */
+  display: none;
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1280px) {
+    grid-column: 3;
+    align-self: start;
     position: sticky;
     top: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
   }
 }
 
@@ -630,11 +648,413 @@
   flex-direction: column;
   gap: var(--space-5);
   min-width: 0;
+
+  @media (min-width: 1024px) {
+    grid-column: 2;
+  }
 }
 
-.dashboard-main-solo {
-  @media (min-width: 1024px) {
-    grid-column: 1 / -1;
+/* ===== Trilho direito da Home (Fase 1) ===========================
+   Cartões só apresentacionais: resumo da comunidade em foco + atalhos
+   grandes. Só tokens Pérola & Rosa já existentes; nenhuma cor nova. */
+
+.rail-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.rail-card--quiet {
+  background-color: var(--surface-sunken);
+  box-shadow: none;
+}
+
+.rail-card-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--olive-text);
+}
+
+.rail-community {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--graphite);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--surface-sunken);
+    border-color: var(--olive-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.rail-community-cover {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.rail-community-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.rail-community-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rail-community-meta {
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.rail-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rail-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--graphite);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--graphite-soft);
+  }
+
+  &:hover {
+    background-color: var(--surface-sunken);
+    border-color: var(--olive-border);
+    color: var(--olive-text);
+
+    svg {
+      color: var(--olive-text);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.rail-link-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rail-link-badge {
+  flex: 0 0 auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+
+.rail-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--graphite-soft);
+
+  svg {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: var(--olive-text);
+  }
+}
+
+/* ===== Navegação primária (Etapa 7) ===============================
+   Um componente <PrimaryNav> renderiza os dois elementos; o CSS
+   alterna: rail compacto só-ícone no desktop (coluna 1 do grid
+   .dashboard, sticky) e barra inferior fixa com "+" central no
+   mobile. Pérola & Rosa, discreta. */
+
+.sidebar {
+  display: none;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background-color: var(--surface);
+  border-top: 1px solid var(--border-soft);
+  box-shadow: 0 -10px 28px -18px rgba(70, 58, 52, 0.3);
+}
+
+.bottom-nav-side {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 2px;
+}
+
+.bottom-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 2px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+
+  span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    color: var(--olive-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: -2px;
+  }
+}
+
+.bottom-nav-item--active {
+  color: var(--olive-text);
+  background-color: var(--olive-bg);
+}
+
+/* "+" central — ação real: leva para o Início (feed). */
+.bottom-nav-fab {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  margin: 0 8px;
+  align-self: center;
+  transform: translateY(-10px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--btn-primary-bg-active);
+  border-radius: var(--radius-pill);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+
+  &:hover {
+    background-color: var(--btn-primary-bg-hover);
+  }
+
+  &:active {
+    transform: translateY(-8px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bottom-nav {
+    display: none;
+  }
+
+  .sidebar {
+    display: block;
+    grid-column: 1;
+    align-self: start;
+    position: sticky;
+    top: var(--space-5);
+  }
+
+  .sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Fase 1 — menu lateral simples e muito visível: ícone + nome, alvo
+     de toque generoso, texto grande e legível para todas as idades. */
+  .sidebar-item {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--graphite);
+    font: inherit;
+    font-size: 15.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--surface-sunken);
+      color: var(--graphite);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--olive);
+      outline-offset: 2px;
+    }
+  }
+
+  .sidebar-item .nav-icon-wrap {
+    flex: 0 0 auto;
+    color: var(--graphite-soft);
+  }
+
+  .sidebar-item .nav-badge {
+    right: -6px;
+    top: -4px;
+  }
+
+  /* rótulo agora visível ao lado do ícone (era sr-only no rail antigo) */
+  .sidebar-label {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sidebar-item--active {
+    background-color: var(--olive-bg);
+    border-color: var(--olive-border);
+    color: var(--olive-text);
+
+    .nav-icon-wrap {
+      color: var(--olive-text);
+    }
+
+    &:hover {
+      background-color: var(--olive-bg);
+      color: var(--olive-text);
+    }
   }
 }
 
@@ -659,9 +1079,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--olive-text);
   margin: 0 0 0 4px;
@@ -1023,6 +1443,7 @@
 }
 
 .community-hero-cover {
+  position: relative;
   height: 96px;
   background-color: var(--rose-50);
   background-image:
@@ -1043,6 +1464,78 @@
 
   @media (min-width: 1024px) {
     height: 132px;
+  }
+}
+
+/* Foto de capa real — cobre o fallback botânico quando houver URL. */
+.community-hero-cover-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Controle discreto de capa (só para a anfitriã). */
+.community-hero-cover-control {
+  display: flex;
+  flex-direction: column;
+}
+
+.community-hero-cover-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface-sunken);
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--graphite);
+  }
+
+  input {
+    font: inherit;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background-color: var(--field-bg);
+    color: var(--graphite);
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--olive);
+      box-shadow: var(--field-focus-ring);
+    }
+  }
+}
+
+.community-hero-cover-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  button[type='submit'] {
+    font: inherit;
+    font-weight: 600;
+    margin-left: auto;
+    min-height: 40px;
+    padding: 8px 18px;
+    border: 1px solid var(--btn-primary-bg-active);
+    border-radius: var(--radius-pill);
+    background-color: var(--btn-primary-bg);
+    background-image: var(--btn-sheen);
+    color: var(--btn-primary-on);
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -1411,6 +1904,36 @@
 
 .post-composer textarea {
   resize: vertical;
+}
+
+.post-composer-actions {
+  display: flex;
+}
+
+.post-composer-image {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  img {
+    display: block;
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    border-radius: var(--card-radius-sm);
+    background-color: var(--surface-sunken);
+  }
+}
+
+/* Foto anexada ao post — depois do texto, antes das ações. */
+.post-image {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface-sunken);
 }
 
 .feed-list {
@@ -2090,6 +2613,1145 @@
   }
 }
 
+/* Fase 6 — pontos (so configuracao; a pontuacao real vem depois). */
+.challenge-points-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.challenge-points-field {
+  display: flex;
+  flex: 1 1 140px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.challenge-field-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+  font-style: italic;
+}
+
+/* Fase 6 — capa do desafio. Sangra ate a borda do card branco. */
+.challenge-cover {
+  display: block;
+  width: calc(100% + 2 * var(--space-4));
+  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0;
+  height: 168px;
+  object-fit: cover;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+
+  @media (min-width: 768px) {
+    width: calc(100% + 2 * var(--space-5));
+    margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
+  }
+}
+
+/* Fase 6 — periodo do desafio ("3 de set – 9 de set"). */
+.challenge-period {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--olive-text);
+}
+
+/* Fase 6 — desafio ainda nao comecou. */
+.challenge-notstarted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* Fase 6 — botao "Concluir o dia": acao clara, azul do rodape do logo. */
+.challenge-complete-day {
+  align-self: flex-start;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--help-accent);
+  color: var(--help-on);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--help-accent-strong);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+/* Fase 6 — selo de desafio concluido. */
+.challenge-completed-badge {
+  align-self: flex-start;
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background-color: var(--olive-bg);
+  border: 1px solid var(--olive-border);
+  color: var(--olive-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ===== Fase 7 — Pontos ===== */
+
+.points-widget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+
+  @media (min-width: 768px) {
+    padding: var(--space-5);
+  }
+}
+
+.points-widget-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.points-widget-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.points-widget-title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.points-widget-sub {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.points-widget-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.points-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.points-balance-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--olive-text);
+}
+
+.points-balance--muted .points-balance-value {
+  color: var(--graphite);
+}
+
+.points-balance-label {
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.points-widget-recent {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: 13px;
+    color: var(--graphite);
+  }
+}
+
+.points-widget-empty,
+.points-panel-msg {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.points-entry-amount {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--olive-text);
+}
+
+.points-widget-toggle {
+  align-self: flex-start;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--help-accent);
+  color: var(--help-on);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--help-accent-strong);
+  }
+}
+
+.points-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.points-entry {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface-sunken);
+}
+
+.points-entry-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.points-entry-reason {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.points-entry-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.points-entry-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+/* Painel da Nutri */
+.points-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.points-reason-breakdown,
+.points-member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.points-reason-breakdown li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.points-config-form,
+.points-award-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.points-config-form {
+  flex-flow: row wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.points-member-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.points-member-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface);
+  font: inherit;
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.points-member-ledger {
+  padding-left: var(--space-3);
+}
+
+/* ===== Fase 8 — Painel Professional completo ===== */
+
+/* Home do painel */
+.panel-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-dashboard-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.panel-dashboard-kpi {
+  flex: 1 1 140px;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--olive-bg);
+  }
+}
+
+.panel-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel-dashboard-block {
+  gap: var(--space-2);
+}
+
+.panel-dashboard-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+.panel-dashboard-line {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.panel-dashboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: 13px;
+    color: var(--graphite);
+  }
+}
+
+.panel-dashboard-muted {
+  flex-shrink: 0;
+  color: var(--graphite-soft);
+  font-size: 12px;
+}
+
+.panel-dashboard-clip {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Participantes */
+.participants-panel,
+.moderation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.participant-avatar {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-size: 22px;
+  font-weight: 700;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.participant-body {
+  flex: 1 1 160px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.participant-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.participant-since,
+.participant-activity {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.participant-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.participant-figure {
+  font-size: 12px;
+  color: var(--graphite-soft);
+
+  strong {
+    display: block;
+    font-size: 17px;
+    color: var(--olive-text);
+  }
+}
+
+/* Moderação de publicações */
+.moderation-post {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.moderation-post--hidden {
+  opacity: 0.72;
+  border-style: dashed;
+}
+
+.moderation-post-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.moderation-post-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-weight: 700;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.moderation-post-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.moderation-post-author {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.moderation-post-time {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.moderation-post-state {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.moderation-post-state--hidden {
+  background-color: var(--sand-deep);
+  color: var(--graphite-soft);
+}
+
+.moderation-post-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.moderation-post-content {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite);
+  white-space: pre-wrap;
+}
+
+.moderation-post-image {
+  border-radius: var(--card-radius-sm);
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.moderation-post-stats {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.moderation-post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-soft);
+}
+
+.moderation-post-actions button {
+  width: auto;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--graphite);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.moderation-post-actions .moderation-post-remove {
+  border-color: transparent;
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+/* ===== Fase 9 — Painel Master (visão de plataforma) ===== */
+
+.master-panel {
+  gap: var(--space-4);
+}
+
+.master-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.master-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.master-tile-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+.master-generated {
+  margin: 0;
+  font-size: 11px;
+  color: var(--graphite-soft);
+  font-style: italic;
+}
+
+.master-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.master-community-card,
+.master-pro-card {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+
+  @media (min-width: 768px) {
+    padding: var(--space-5);
+  }
+}
+
+.master-community-cover {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--card-radius-sm);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background-color: var(--rose-100);
+  color: var(--olive-text);
+  font-size: 22px;
+  font-weight: 700;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.master-pro-avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-size: 20px;
+  font-weight: 700;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.master-community-body,
+.master-pro-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.master-community-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.master-community-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.master-community-owner,
+.master-community-activity {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.master-status-pill {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.master-status-pill--off {
+  background-color: var(--sand-deep);
+  color: var(--graphite-soft);
+}
+
+.master-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: 4px;
+}
+
+.master-figure {
+  font-size: 11px;
+  color: var(--graphite-soft);
+
+  strong {
+    color: var(--olive-text);
+    font-size: 15px;
+  }
+}
+
+/* ===== Fase 10 — Home consolidada + Conquistas ===== */
+
+/* --- Cabeçalho da comunidade --- */
+.home-community-header {
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-community-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 2;
+  background: linear-gradient(120deg, var(--rose-100), var(--rose-50));
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.home-community-cover-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, var(--rose-200), var(--rose-50));
+}
+
+.home-community-logo {
+  position: absolute;
+  left: var(--space-4);
+  bottom: -22px;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  object-fit: cover;
+  border: 3px solid var(--surface);
+  box-shadow: var(--shadow-sm);
+  filter: var(--brand-filter);
+}
+
+.home-community-info {
+  padding: 28px var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.home-community-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.home-community-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--graphite);
+}
+
+.home-community-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.home-community-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-community-owner-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--olive-bg);
+  color: var(--olive-text);
+  font-size: 13px;
+  font-weight: 700;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.home-community-count {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--olive-bg);
+  color: var(--olive-text);
+  font-weight: 600;
+}
+
+/* --- Conquistas --- */
+.achievements-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--olive-text);
+}
+
+.achievements-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.achievement-badge-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.achievement-next {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.achievement-next-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.achievement-next-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--rose-100);
+  overflow: hidden;
+}
+
+.achievement-next-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--help-accent);
+  transition: width 0.4s ease;
+}
+
+.achievement-next-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+/* --- Faixa de receitas na Home (RecipeCard) --- */
+.home-recipe-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* --- Copy acolhedora do Pedido de ajuda --- */
+.help-section-note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--card-radius-sm);
+  background: var(--rose-soft);
+  color: var(--graphite);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* --- Trilho direito: resumo Fase 10 --- */
+.rail-summary {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.rail-summary-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.rail-summary-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--olive-text);
+}
+
+.rail-summary-label {
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+.rail-next-event {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+  color: var(--graphite);
+  cursor: pointer;
+  text-align: left;
+}
+
+.rail-next-event-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.rail-next-event-title {
+  font-weight: 600;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rail-next-event-date {
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+/* --- Fase 10 — fotos maiores SÓ nos contextos da Home (não no Feed) --- */
+.home .post-avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+}
+
+.home .joy-card-avatar {
+  width: 44px;
+  height: 44px;
+}
+
+.dashboard-header .dashboard-user-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+}
+
+/* --- Fase 10 — humor interativo: o emoji ganha vida --- */
+.mood-option-face {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mood-option:hover:not(:disabled) .mood-option-face,
+.mood-option:focus-visible .mood-option-face {
+  transform: scale(1.18) rotate(-4deg);
+}
+
+.mood-option:active:not(:disabled) .mood-option-face {
+  transform: scale(1.1);
+}
+
+.mood-option--on .mood-option-face {
+  animation: moodPop 0.34s ease;
+  transform: scale(1.12);
+}
+
+@keyframes moodPop {
+  0% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.32) rotate(3deg);
+  }
+  100% {
+    transform: scale(1.12);
+  }
+}
+
+/* Toque: sem hover, o feedback vem do :active + da seleção. */
+@media (hover: none) {
+  .mood-option:active:not(:disabled) .mood-option-face {
+    transform: scale(1.22);
+  }
+}
+
+/* --- Fase 10 — círculo do logo: vem levemente para frente no hover --- */
+.brand-icon,
+.brand-logo {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.brand-icon:hover,
+.brand-logo:hover {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (hover: none) {
+  .brand-icon:active,
+  .brand-logo:active {
+    transform: scale(1.04);
+  }
+}
+
+/* --- Fase 10 — respeitar quem prefere menos movimento --- */
+@media (prefers-reduced-motion: reduce) {
+  .mood-option-face,
+  .mood-option--on .mood-option-face,
+  .brand-icon,
+  .brand-logo,
+  .achievement-next-fill {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
+}
+
 .checkin-empty,
 .question-empty {
   margin: 0;
@@ -2289,6 +3951,23 @@
 
   h3 {
     font-size: 16px;
+  }
+}
+
+/* Foto do círculo (quando houver) — substitui a pilha de avatares. */
+.circle-card-cover {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--border-soft);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
@@ -2512,6 +4191,170 @@
 }
 
 .circle-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Círculos como entidade navegável (Fase 2) ------------------- */
+
+/* Chevron real de "abrir círculo" — só aparece quando há ação. */
+.circle-card-open {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    color: var(--olive-text);
+    background-color: var(--surface-sunken);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.post-composer-context {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--olive-text);
+}
+
+.community-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Lista de círculos */
+.circle-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.circle-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.circle-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.circle-list-filter {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: var(--olive-border);
+    color: var(--olive-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.circle-list-filter--active {
+  border-color: var(--olive-border);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.circle-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Detalhe de círculo */
+.circle-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.circle-detail-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 6px 4px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--olive-text);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--graphite);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.circle-detail-context {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--olive-text);
+}
+
+.circle-detail-meta {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite-soft);
+}
+
+.circle-detail-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.circle-detail-hint {
   margin: 0;
   font-size: 13px;
   color: var(--graphite-soft);
@@ -3061,10 +4904,2584 @@
 
   .dashboard {
     max-width: 1240px;
-    grid-template-columns: 360px 1fr;
+    grid-template-columns: 76px 1fr;
   }
 
   .community-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
+}
+
+/* ===== FASE 2 · ITEM 2 — "Seu Círcula de hoje" =====================
+   Composição guiada pelas referências identidadevisual/ExemplosPainel/
+   (phone 1 da imagem 1 e painel central da imagem 2): saudação leve em
+   Figtree, resumo num card rosé com grade de 3 tiles (chip de ícone +
+   número sans-bold + rótulo curto), seções com título em caixa normal
+   e link "Ver todos", círculos em carrossel horizontal com capa no
+   topo, atividade em cartões brancos flutuantes. Coluna única em todas
+   as larguras (fiel ao phone e ao painel central). Só tokens Pérola &
+   Rosa; min-width:0 / overflow contido para não estourar em 320px. */
+
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  min-width: 0;
+  text-align: left;
+}
+
+/* --- Saudação ------------------------------------------------------ */
+.home-greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.home-greeting-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--graphite);
+}
+
+.home-greeting-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Resumo do dia ---------------------------------------------- */
+.home-summary-card {
+  padding: var(--space-4);
+  border-radius: var(--card-radius);
+  background-color: var(--rose-50);
+  border: 1px solid var(--rose-100);
+}
+
+.home-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-2);
+}
+
+.home-stat {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 6px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.home-stat:hover {
+  background-color: var(--rose-100);
+}
+
+.home-stat:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 2px;
+}
+
+.home-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background-color: var(--white);
+  color: var(--rose-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-stat-value {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--graphite);
+}
+
+.home-stat-label {
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--graphite-soft);
+}
+
+/* --- Seções ---------------------------------------------------- */
+.home-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.home-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.home-section-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--graphite);
+}
+
+.home-section-link {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--rose-700);
+  cursor: pointer;
+}
+
+.home-section-link:hover {
+  text-decoration: underline;
+}
+
+.home-muted {
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: 13.5px;
+  color: var(--graphite-soft);
+}
+
+/* --- A4: pilha de cards reaproveitados (posts, eventos, conteúdos) --- */
+.home-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* --- Atividade recente --------------------------------------- */
+.home-activity {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.home-activity-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-activity-avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background-color: var(--rose-100);
+  color: var(--rose-700);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.home-activity-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-activity-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--graphite);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-activity-time {
+  flex: none;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+/* --- Seus círculos: carrossel horizontal --------------------- */
+.home-circle-row {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.home-circle-tile {
+  flex: 0 0 auto;
+  width: 132px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+.home-circle-tile:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 2px;
+  border-radius: var(--card-radius-sm);
+}
+
+.home-circle-cover {
+  position: relative;
+  display: block;
+  width: 132px;
+  height: 92px;
+  overflow: hidden;
+  border-radius: var(--card-radius-sm);
+  background-image: var(--cta-gradient);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-circle-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-circle-cover-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--white);
+}
+
+.home-circle-name {
+  max-width: 132px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--graphite);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-circle-meta {
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+/* --- Atalhos --------------------------------------------------- */
+.home-shortcuts-section {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
+}
+
+.home-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.home-chip {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background-color: var(--white);
+  color: var(--graphite);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.home-chip:hover {
+  border-color: var(--rose-300);
+  color: var(--rose-700);
+}
+
+.home-chip:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  .home {
+    gap: var(--space-6);
+  }
+
+  .home-greeting-title {
+    font-size: 24px;
+  }
+
+  .home-summary-card {
+    padding: var(--space-5);
+  }
+}
+
+/* =====================================================================
+   EVENTOS — Módulo "plataforma completa" nº 1
+   Reaproveita tokens já existentes (--surface, --border, --space-*,
+   --olive*, --shadow-sm, --radius-*). Nenhuma cor nova.
+   ===================================================================== */
+
+.event-list,
+.event-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.event-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.event-card--muted {
+  opacity: 0.72;
+}
+
+.event-card-cover {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background-color: var(--surface-sunken);
+}
+
+.event-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.event-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.event-card-when {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--olive-text);
+  text-transform: capitalize;
+}
+
+.event-card-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
+.event-card-tag--cancel {
+  background-color: var(--rose-100);
+  color: var(--graphite);
+}
+
+.event-card-title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.event-card-desc {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite-soft);
+  white-space: pre-wrap;
+}
+
+.event-card-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.event-card-people {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.event-card-count {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--olive-text);
+  cursor: pointer;
+}
+
+.event-avatars {
+  display: flex;
+}
+
+.event-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-left: -6px;
+  border: 2px solid var(--surface);
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-size: 11px;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.event-avatar:first-child {
+  margin-left: 0;
+}
+
+.event-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-avatar--more {
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
+.event-participant-list {
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.event-rsvp-button {
+  align-self: flex-start;
+  min-height: 40px;
+}
+
+.event-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.event-block-when {
+  font-size: 12px;
+  color: var(--graphite-soft);
+  text-transform: capitalize;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.event-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.event-form-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 160px;
+}
+
+.event-form-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0;
+  font-size: 14px;
+}
+
+.event-form-check input {
+  width: auto;
+}
+
+/* =====================================================================
+   BIBLIOTECA / CONTEÚDOS — Módulo "plataforma completa" nº 2
+   Só tokens já existentes. Nenhuma cor nova.
+   ===================================================================== */
+
+.content-library,
+.content-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.content-library-items,
+.content-manager .content-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.content-search {
+  width: 100%;
+}
+
+.content-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.content-card-cover {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background-color: var(--surface-sunken);
+}
+
+.content-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.content-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.content-card-type {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.content-card-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
+.content-card-title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.content-card-summary {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.content-card-meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.content-card-full {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--graphite);
+  white-space: pre-wrap;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-2);
+}
+
+.content-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.content-card-read {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.content-card-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite-soft);
+  cursor: pointer;
+}
+
+.content-card-like--on {
+  border-color: var(--olive-border);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.content-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* =====================================================================
+   PERFIL RICO — Módulo "plataforma completa" nº 3
+   ===================================================================== */
+
+.profile-city {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.profile-bio {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--graphite);
+  white-space: pre-wrap;
+}
+
+.profile-overview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.profile-overview-item {
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.profile-overview-item strong {
+  color: var(--graphite);
+}
+
+/* =====================================================================
+   NOTIFICAÇÕES SOCIAIS — Módulo "plataforma completa" nº 4
+   Sino no header + painel dropdown. Só tokens existentes (Pérola & Rosa).
+   ===================================================================== */
+
+.notification-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notification-bell-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface);
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.notification-bell-button:hover {
+  border-color: var(--olive-border);
+  color: var(--olive-text);
+}
+
+.notification-bell-button:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 2px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background-color: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.notification-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: min(340px, calc(100vw - 32px));
+  max-height: min(460px, 70vh);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.notification-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  background-color: var(--surface);
+}
+
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-empty {
+  margin: 0;
+  padding: var(--space-4) var(--space-3);
+  font-size: 14px;
+  color: var(--graphite-soft);
+  text-align: center;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.notification-item:hover {
+  background-color: var(--surface-sunken);
+}
+
+.notification-item--unread {
+  background-color: var(--rose-50);
+}
+
+.notification-avatar {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.notification-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notification-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.notification-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.notification-text {
+  font-size: 13px;
+  color: var(--graphite-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-time {
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+.notification-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background-color: var(--danger);
+}
+
+/* =====================================================================
+   MENSAGENS / DMs — Módulo "plataforma completa" nº 5
+   Só tokens já existentes (Pérola & Rosa). Nenhuma cor nova.
+   ===================================================================== */
+
+/* Badge de contagem na navegação (mensagens não lidas) */
+.nav-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background-color: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.messages {
+  display: flex;
+  gap: var(--space-3);
+  align-items: stretch;
+  min-height: 60vh;
+}
+
+.messages-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.messages-pane--list {
+  flex: 0 0 300px;
+  max-width: 300px;
+}
+
+.messages-pane--detail {
+  flex: 1 1 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  overflow: hidden;
+}
+
+.messages-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--space-5);
+  text-align: center;
+}
+
+/* ---- lista de conversas ---- */
+.conversation-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.conversation-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.conversation-new-button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 1px solid var(--olive-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  cursor: pointer;
+}
+
+.conversation-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conversation-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.conversation-row:hover {
+  background-color: var(--surface-sunken);
+}
+
+.conversation-row--active {
+  background-color: var(--olive-bg);
+  border-color: var(--olive-border);
+}
+
+.conversation-avatar {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.conversation-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.conversation-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.conversation-row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.conversation-row-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--graphite);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation-row-time {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--graphite-soft);
+}
+
+.conversation-row-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.conversation-row-text {
+  font-size: 13px;
+  color: var(--graphite-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+}
+
+.conversation-row-text--unread {
+  color: var(--graphite);
+  font-weight: 600;
+}
+
+.conversation-unread {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background-color: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* ---- thread ---- */
+.conversation-view,
+.new-conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 60vh;
+}
+
+.conversation-view-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.conversation-back {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+}
+
+.conversation-view-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--graphite);
+}
+
+.conversation-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.conversation-empty {
+  margin: auto;
+  font-size: 14px;
+  color: var(--graphite-soft);
+  text-align: center;
+}
+
+.message-bubble {
+  align-self: flex-start;
+  max-width: 78%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-sunken);
+}
+
+.message-bubble--mine {
+  align-self: flex-end;
+  background-color: var(--olive-bg);
+}
+
+.message-bubble-body {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--graphite);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-bubble-meta {
+  font-size: 10.5px;
+  color: var(--graphite-soft);
+  align-self: flex-end;
+}
+
+.message-bubble-read {
+  color: var(--olive-text);
+  font-weight: 600;
+}
+
+/* ---- composer ---- */
+.message-composer {
+  border-top: 1px solid var(--border);
+  padding: var(--space-3);
+}
+
+.message-composer-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+
+.message-composer-input {
+  flex: 1 1 auto;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 14px;
+  background-color: var(--surface);
+  color: var(--graphite);
+}
+
+.message-composer-send {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.message-composer-send:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---- nova conversa ---- */
+.new-conversation-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.new-conversation-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-message-button {
+  align-self: flex-start;
+}
+
+/* ---- responsivo: um painel por vez no mobile ---- */
+@media (max-width: 860px) {
+  .messages {
+    min-height: 66vh;
+  }
+
+  .messages-pane--list {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+
+  .messages--thread .messages-pane--list,
+  .messages--new .messages-pane--list {
+    display: none;
+  }
+
+  .messages--list .messages-pane--detail {
+    display: none;
+  }
+
+  .conversation-back {
+    display: inline-flex;
+  }
+}
+
+/* ============================================================
+   CoverImageInput (A2) — upload direto de capas.
+   Só tokens já existentes; nenhuma cor/raio novo.
+   ============================================================ */
+.cover-image-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* O projeto não tem reset global de box-sizing (content-box). Escopo
+   local para o frame width:100% + borda não estourar o container. */
+.cover-image-input,
+.cover-image-input * {
+  box-sizing: border-box;
+}
+
+.cover-image-input-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.cover-image-input-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 220px;
+  overflow: hidden;
+  border-radius: var(--card-radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface-sunken);
+}
+
+.cover-image-input-frame[data-empty='true'] {
+  border-style: dashed;
+}
+
+.cover-image-input-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-image-input-placeholder {
+  padding: 0 var(--space-4);
+  font-size: 13px;
+  text-align: center;
+  color: var(--graphite-soft);
+}
+
+.cover-image-input-status {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.cover-image-input-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.cover-image-input-pick {
+  font: inherit;
+  font-weight: 600;
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface);
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.cover-image-input-pick:disabled,
+.cover-image-input-actions .auth-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cover-image-input-file {
+  display: none;
+}
+
+.community-hero-cover-saving {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--graphite-soft);
+}
+
+/* ============================================================
+   Módulo 7 — SALVOS. Botão de salvar (mesmo molde visual de
+   .content-card-like), reaproveitado em ContentCard/EventCard/
+   PostCard, e a tela de destino "Salvos". Só tokens existentes.
+   ============================================================ */
+.save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite-soft);
+  cursor: pointer;
+}
+
+.save-button--on {
+  --bookmark-fill-opacity: 1;
+  border-color: var(--olive-border);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* EventCard: RSVP + Salvar lado a lado, sem mudar o restante do card. */
+.event-card-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Destino Salvos */
+.saved-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.saved-items-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.saved-items-group-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+.saved-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* =====================================================================
+   RECEITAS — Fase 2
+   Área própria de receitas (extensão visual de community_content).
+   Só tokens Pérola & Rosa já existentes. Mobile-first, foto grande,
+   título claro, botões e alvos de toque generosos. Sem cor nova.
+   ===================================================================== */
+
+.recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.recipe-list-status {
+  margin: 0;
+  color: var(--graphite-soft);
+}
+
+/* --- Filtro por categoria: botões grandes, fáceis de tocar ---------- */
+.recipe-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.recipe-filter {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: var(--olive-border);
+    color: var(--olive-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.recipe-filter--active {
+  border-color: var(--olive-border);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+/* --- Grade de cards: adapta ao espaço, sem overflow em 320px -------- */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-4);
+}
+
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.1s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--olive-border);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.recipe-card-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--surface-sunken);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.recipe-card-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--olive-text);
+  opacity: 0.55;
+}
+
+.recipe-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  min-width: 0;
+}
+
+.recipe-card-category {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.recipe-card-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--graphite);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recipe-card-flag {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
+/* --- Visualização completa: legibilidade em primeiro lugar --------- */
+.recipe-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  max-width: 720px;
+}
+
+.recipe-view-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 8px 16px 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: var(--olive-border);
+    color: var(--olive-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
+
+.recipe-view-cover {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-sunken);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.recipe-view-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--olive-text);
+  opacity: 0.5;
+}
+
+.recipe-view-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.recipe-view-category {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.recipe-view-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.25;
+
+  @media (min-width: 768px) {
+    font-size: 28px;
+  }
+}
+
+.recipe-view-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.recipe-view-summary {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--graphite);
+}
+
+.recipe-view-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.recipe-view-section-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.recipe-view-ingredients {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+
+  li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0.65em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--olive);
+  }
+}
+
+.recipe-view-steps {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--graphite);
+  white-space: pre-wrap;
+}
+
+/* --- Gerenciador da anfitriã ------------------------------------- */
+.recipe-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.recipe-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.recipe-manager-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.recipe-manager-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* =====================================================================
+   COMO VOCÊ ESTÁ HOJE? — Fase 3 (humor diário)
+   Acolhedor, nunca clínico. Rostos grandes e fáceis de tocar; mensagem
+   positiva num quadro rosé suave. Só tokens já existentes.
+   ===================================================================== */
+
+.mood-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.mood-card-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.mood-card-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.mood-card-status {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.mood-card-softnote {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.mood-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.mood-option {
+  flex: 1 1 84px;
+  min-width: 84px;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+  color: var(--graphite);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--olive-border);
+    background-color: var(--surface-sunken);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.mood-option--on {
+  border-color: var(--olive-border);
+  background-color: var(--olive-bg);
+}
+
+.mood-option-face {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.mood-option-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--graphite);
+}
+
+.mood-message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--rose-soft);
+}
+
+.mood-message-tag {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--rose-text);
+}
+
+.mood-message-text {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+}
+
+/* --- Gerenciador de mensagens (painel da Nutri) ---------------- */
+.mood-message-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mood-mgr-intro {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.mood-mgr-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-soft);
+}
+
+.mood-mgr-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.mood-mgr-flag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
+/* --- Bloco agregado na aba Métricas -------------------------- */
+.mood-metric-tile {
+  align-items: center;
+}
+
+.mood-metric-face {
+  margin: 0 0 2px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* =====================================================================
+   MOMENTO DE ALEGRIA — Fase 4
+   Alegre, acolhedor, positivo — nunca "diário triste". Acento de brilho
+   (rosé/palha), texto grande, um botão claro. Só tokens já existentes.
+   ===================================================================== */
+
+.joy-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* --- Compositor --------------------------------------------------- */
+.joy-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--olive-border);
+  border-radius: var(--radius-lg);
+  background-image: linear-gradient(var(--rose-soft), var(--rose-soft));
+}
+
+.joy-composer-invite {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--graphite);
+
+  svg {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: var(--rose-text);
+  }
+}
+
+.joy-composer-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--graphite);
+  margin-top: var(--space-1);
+}
+
+.joy-composer-text {
+  font: inherit;
+  font-size: 15.5px;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--white);
+  color: var(--graphite);
+  resize: vertical;
+
+  &::placeholder {
+    color: var(--graphite-soft);
+    opacity: 0.7;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: var(--olive);
+    box-shadow: var(--field-focus-ring);
+  }
+}
+
+.joy-composer-submit {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  min-height: 48px;
+  margin-top: var(--space-2);
+  padding: 12px 16px;
+  border: 1px solid var(--btn-primary-bg-active);
+  border-radius: var(--radius-pill);
+  background-color: var(--btn-primary-bg);
+  background-image: var(--btn-sheen);
+  color: var(--btn-primary-on);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg-hover);
+    box-shadow: var(--shadow-md);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* --- Lista e cards --------------------------------------------- */
+.joy-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.joy-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.joy-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.joy-card-avatar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.joy-card-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.joy-card-author {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--graphite);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.joy-card-time {
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.joy-card-mark {
+  flex: 0 0 auto;
+  color: var(--rose-text);
+}
+
+.joy-card-body {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+  white-space: pre-wrap;
+}
+
+.joy-card-image {
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background-color: var(--surface-sunken);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: cover;
+  }
+}
+
+.joy-card-actions {
+  margin-top: var(--space-1);
+}
+
+/* =====================================================================
+   PEDIDO DE AJUDA — Fase 5
+   Muito visivel na Home. Acento azul-sereno (--help-accent), menos
+   dependente do rosa. Cards brancos, bordas finas, sombras suaves,
+   texto grande. Linguagem acolhedora, sem tom de diario triste.
+   ===================================================================== */
+
+.help-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--help-accent-border);
+  border-radius: var(--radius-lg);
+  background-image: linear-gradient(var(--help-accent-bg), var(--help-accent-bg));
+}
+
+.help-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.help-section-sub {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+
+.help-primary-button {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: 1px solid var(--help-accent-strong);
+  border-radius: var(--radius-pill);
+  background-color: var(--help-accent);
+  color: var(--help-on);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+.help-primary-button:hover:not(:disabled) {
+  background-color: var(--help-accent-strong);
+  box-shadow: var(--shadow-md);
+}
+.help-primary-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.help-primary-button:focus-visible {
+  outline: 2px solid var(--help-accent);
+  outline-offset: 2px;
+}
+.help-primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.help-cta {
+  flex: 0 0 auto;
+}
+
+.help-secondary-button {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--help-accent-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--help-accent-strong);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.help-secondary-button:hover:not(:disabled) {
+  background-color: var(--help-accent-bg);
+  border-color: var(--help-accent);
+}
+.help-secondary-button:focus-visible {
+  outline: 2px solid var(--help-accent);
+  outline-offset: 2px;
+}
+
+.help-chip-button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 38px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--white);
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.help-chip-button:hover:not(:disabled) {
+  border-color: var(--help-accent-border);
+  color: var(--help-accent-strong);
+}
+.help-chip-button:focus-visible {
+  outline: 2px solid var(--help-accent);
+  outline-offset: 2px;
+}
+.help-chip-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.help-chip-button--danger {
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+.help-chip-button--danger:hover:not(:disabled) {
+  background-color: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.help-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+}
+
+.help-form-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.help-form-text {
+  font: inherit;
+  font-size: 15.5px;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--white);
+  color: var(--graphite);
+  resize: vertical;
+}
+.help-form-text::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.7;
+}
+.help-form-text:focus,
+.help-form-text:focus-visible {
+  outline: none;
+  border-color: var(--help-accent);
+  box-shadow: 0 0 0 3px var(--help-accent-bg);
+}
+
+.help-audience {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.help-audience-option {
+  flex: 1 1 220px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+  color: var(--graphite);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.help-audience-option svg {
+  color: var(--help-accent-strong);
+}
+.help-audience-option:hover {
+  border-color: var(--help-accent-border);
+}
+.help-audience-option:focus-visible {
+  outline: 2px solid var(--help-accent);
+  outline-offset: 2px;
+}
+.help-audience-option--on {
+  border-color: var(--help-accent);
+  background-color: var(--help-accent-bg);
+}
+
+.help-audience-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.help-audience-sub {
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.help-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.help-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.help-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--help-accent-border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.help-card--in_progress {
+  border-left-color: var(--straw-text);
+}
+.help-card--resolved {
+  border-left-color: var(--leaf-text);
+}
+
+.help-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.help-status {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--help-accent-bg);
+  color: var(--help-accent-strong);
+}
+.help-status--in_progress {
+  background-color: var(--straw-soft);
+  color: var(--straw-text);
+}
+.help-status--resolved {
+  background-color: var(--leaf-soft);
+  color: var(--leaf-text);
+}
+
+.help-card-audience {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-sunken);
+  color: var(--graphite-soft);
+}
+
+.help-card-time {
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.help-card-body {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+  white-space: pre-wrap;
+}
+
+.help-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.help-replies {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.help-queue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.help-queue-intro {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.help-queue-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.help-queue-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--help-accent-strong);
+}
+
+.help-queue-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--help-accent-bg);
+  color: var(--help-accent-strong);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
 }

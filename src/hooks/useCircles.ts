@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { CircleResult, CircleWithMembers, JoinCircleResult } from '../types/circle'
 
 const CIRCLE_SELECT =
-  'id,community_id,name,created_by,created_at,members:circle_members(id,circle_id,profile_id,joined_at,profile:profiles(id,full_name,avatar_url))'
+  'id,community_id,name,cover_image_url,created_by,created_at,members:circle_members(id,circle_id,profile_id,joined_at,profile:profiles(id,full_name,avatar_url))'
 
 export function useCircles(communityId: string | null) {
   const [circles, setCircles] = useState<CircleWithMembers[]>([])
@@ -41,12 +41,17 @@ export function useCircles(communityId: string | null) {
     fetchCircles()
   }, [fetchCircles])
 
-  async function createCircle(createdBy: string, name: string): Promise<CircleResult> {
+  async function createCircle(
+    createdBy: string,
+    name: string,
+    coverImageUrl?: string | null,
+  ): Promise<CircleResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }
 
     const { error: insertError } = await supabase.from('community_circles').insert({
       community_id: communityId,
       name,
+      cover_image_url: coverImageUrl?.trim() ? coverImageUrl.trim() : null,
       created_by: createdBy,
     })
 
@@ -56,16 +61,25 @@ export function useCircles(communityId: string | null) {
     return { error: null }
   }
 
-  async function renameCircle(circleId: string, name: string): Promise<CircleResult> {
+  async function renameCircle(
+    circleId: string,
+    name: string,
+    coverImageUrl?: string | null,
+  ): Promise<CircleResult> {
+    const patch: { name: string; cover_image_url?: string | null } = { name }
+    if (coverImageUrl !== undefined) {
+      patch.cover_image_url = coverImageUrl?.trim() ? coverImageUrl.trim() : null
+    }
+
     const { error: updateError } = await supabase
       .from('community_circles')
-      .update({ name })
+      .update(patch)
       .eq('id', circleId)
 
     if (updateError) return { error: updateError.message }
 
     setCircles((prev) =>
-      prev.map((circle) => (circle.id === circleId ? { ...circle, name } : circle)),
+      prev.map((circle) => (circle.id === circleId ? { ...circle, ...patch } : circle)),
     )
     return { error: null }
   }

@@ -9,7 +9,7 @@ import type {
 } from '../types/post'
 
 const POST_SELECT =
-  'id,community_id,author_id,content,created_at,post_type,question_id,title,engagement_command_id,author:profiles(id,full_name,avatar_url)'
+  'id,community_id,circle_id,author_id,content,image_url,created_at,post_type,question_id,title,engagement_command_id,author:profiles(id,full_name,avatar_url)'
 
 const COMMENT_SELECT =
   'id,post_id,author_id,content,created_at,author:profiles(id,full_name,avatar_url)'
@@ -18,6 +18,11 @@ export function usePosts(
   communityId: string | null,
   viewerId: string | null,
   refreshToken?: number,
+  // Escopo opcional: quando definido, o feed é de um círculo — busca
+  // só posts daquele círculo e novos posts recebem esse circle_id.
+  // Sem circleId => feed da comunidade (posts com circle_id null),
+  // comportamento idêntico ao anterior.
+  circleId?: string | null,
 ) {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -71,11 +76,10 @@ export function usePosts(
     setLoading(true)
     setError(null)
 
-    const { data, error: fetchError } = await supabase
-      .from('posts')
-      .select(POST_SELECT)
-      .eq('community_id', communityId)
-      .order('created_at', { ascending: false })
+    let query = supabase.from('posts').select(POST_SELECT).eq('community_id', communityId)
+    query = circleId ? query.eq('circle_id', circleId) : query.is('circle_id', null)
+
+    const { data, error: fetchError } = await query.order('created_at', { ascending: false })
 
     if (fetchError) {
       setError(fetchError.message)
@@ -89,19 +93,25 @@ export function usePosts(
     await fetchEngagement(list.map((post) => post.id))
 
     setLoading(false)
-  }, [communityId, fetchEngagement])
+  }, [communityId, circleId, fetchEngagement])
 
   useEffect(() => {
     fetchPosts()
   }, [fetchPosts, refreshToken])
 
-  async function createPost(authorId: string, content: string): Promise<CreatePostResult> {
+  async function createPost(
+    authorId: string,
+    content: string,
+    imageUrl?: string | null,
+  ): Promise<CreatePostResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }
 
     const { error: insertError } = await supabase.from('posts').insert({
       community_id: communityId,
+      circle_id: circleId ?? null,
       author_id: authorId,
       content,
+      image_url: imageUrl ?? null,
     })
 
     if (insertError) {
@@ -110,6 +120,27 @@ export function usePosts(
 
     await fetchPosts()
     return { error: null }
+  }
+
+  // Upload de UMA imagem para o post, reaproveitando o bucket "avatars"
+  // já existente (path por uid — a policy de insert do bucket autoriza
+  // exatamente ${uid}/...). Mesmo padrão de useAuth.uploadAvatar.
+  async function uploadPostImage(
+    file: File,
+  ): Promise<{ url: string | null; error: string | null }> {
+    if (!viewerId) return { url: null, error: 'Sem sessão ativa.' }
+
+    const extension = file.name.split('.').pop() ?? 'jpg'
+    const path = `${viewerId}/posts/${Date.now()}.${extension}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: false })
+
+    if (uploadError) return { url: null, error: uploadError.message }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    return { url: data.publicUrl, error: null }
   }
 
   async function fetchComments(postId: string): Promise<CreateCommentResult> {
@@ -185,6 +216,7 @@ export function usePosts(
     loading,
     error,
     createPost,
+    uploadPostImage,
     reactionCounts,
     reactedPostIds,
     commentCounts,

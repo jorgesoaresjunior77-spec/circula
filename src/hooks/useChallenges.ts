@@ -1,18 +1,26 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { addDays } from '../lib/challengePeriod'
 import type {
+  ChallengeActivityDraft,
   ChallengeComment,
   ChallengeCommentResult,
+  ChallengeDetailsInput,
   ChallengeResult,
   ChallengeWithActivities,
   JoinChallengeResult,
 } from '../types/challenge'
 
 const CHALLENGE_SELECT =
-  'id,community_id,title,description,is_active,created_by,created_at,activities:challenge_activities(id,challenge_id,day_number,content)'
+  'id,community_id,title,description,cover_image_url,starts_on,ends_on,completion_points,per_day_points,is_active,created_by,created_at,activities:challenge_activities(id,challenge_id,day_number,content)'
 
 const CHALLENGE_COMMENT_SELECT =
   'id,challenge_id,author_id,content,created_at,author:profiles(id,full_name,avatar_url)'
+
+/** Fim do periodo = inicio + (numero de dias - 1). Sem dias => 1 dia. */
+function computeEndsOn(startsOn: string, dayCount: number): string {
+  return addDays(startsOn, Math.max(dayCount, 1) - 1)
+}
 
 export function useChallenges(communityId: string | null, viewerId: string | null) {
   const [challenges, setChallenges] = useState<ChallengeWithActivities[]>([])
@@ -20,6 +28,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
   const [todayCompletedCounts, setTodayCompletedCounts] = useState<Record<string, number>>({})
   const [currentDays, setCurrentDays] = useState<Record<string, number>>({})
   const [myParticipation, setMyParticipation] = useState<Set<string>>(new Set())
+  const [myCompletions, setMyCompletions] = useState<Set<string>>(new Set())
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
   const [commentsByChallenge, setCommentsByChallenge] = useState<Record<string, ChallengeComment[]>>({})
   const [loading, setLoading] = useState(true)
@@ -82,6 +91,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
       setTodayCompletedCounts({})
       setCurrentDays({})
       setMyParticipation(new Set())
+      setMyCompletions(new Set())
       setCommentCounts({})
       setCommentsByChallenge({})
       setLoading(false)
@@ -114,15 +124,24 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     await Promise.all([fetchCounts(ids), fetchCommentCounts(ids)])
 
     if (viewerId && ids.length > 0) {
-      const { data: participantRows } = await supabase
-        .from('challenge_participants')
-        .select('challenge_id')
-        .eq('profile_id', viewerId)
-        .in('challenge_id', ids)
+      const [{ data: participantRows }, { data: completionRows }] = await Promise.all([
+        supabase
+          .from('challenge_participants')
+          .select('challenge_id')
+          .eq('profile_id', viewerId)
+          .in('challenge_id', ids),
+        supabase
+          .from('challenge_completions')
+          .select('challenge_id')
+          .eq('profile_id', viewerId)
+          .in('challenge_id', ids),
+      ])
 
       setMyParticipation(new Set((participantRows ?? []).map((row) => row.challenge_id)))
+      setMyCompletions(new Set((completionRows ?? []).map((row) => row.challenge_id)))
     } else {
       setMyParticipation(new Set())
+      setMyCompletions(new Set())
     }
 
     setLoading(false)
@@ -134,8 +153,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
 
   async function createChallenge(
     createdBy: string,
-    title: string,
-    description: string,
+    details: ChallengeDetailsInput,
     activities: { day_number: number; content: string }[],
   ): Promise<ChallengeResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }
@@ -144,8 +162,13 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
       .from('community_challenges')
       .insert({
         community_id: communityId,
-        title,
-        description: description || null,
+        title: details.title,
+        description: details.description || null,
+        cover_image_url: details.coverImageUrl || null,
+        starts_on: details.startsOn,
+        ends_on: computeEndsOn(details.startsOn, activities.length),
+        completion_points: details.completionPoints,
+        per_day_points: details.perDayPoints,
         created_by: createdBy,
       })
       .select('id')
@@ -174,22 +197,82 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
 
   async function updateChallenge(
     challengeId: string,
-    input: { title: string; description: string },
+    details: ChallengeDetailsInput,
+    activities: ChallengeActivityDraft[],
   ): Promise<ChallengeResult> {
+    const target = challenges.find((challenge) => challenge.id === challengeId)
+    const existingDays = target ? target.activities.map((activity) => activity.day_number) : []
+    const newCount = activities.length
+    const removedDays = existingDays.filter((day) => day > newCount)
+
+    // Nao apagar um dia que ja tem progresso de participante (o cascade
+    // apagaria as linhas de challenge_progress). A Nutri deve desativar o
+    // desafio nesse caso, nao encurta-lo.
+    if (removedDays.length > 0) {
+      const { data: progressRows } = await supabase
+        .from('challenge_progress')
+        .select('day_number')
+        .eq('challenge_id', challengeId)
+        .in('day_number', removedDays)
+        .limit(1)
+
+      if (progressRows && progressRows.length > 0) {
+        return {
+          error:
+            'Não dá para remover dias que já têm progresso de participantes. Desative o desafio em vez de encurtá-lo.',
+        }
+      }
+    }
+
     const { error: updateError } = await supabase
       .from('community_challenges')
-      .update({ title: input.title, description: input.description || null })
+      .update({
+        title: details.title,
+        description: details.description || null,
+        cover_image_url: details.coverImageUrl || null,
+        starts_on: details.startsOn,
+        ends_on: computeEndsOn(details.startsOn, newCount),
+        completion_points: details.completionPoints,
+        per_day_points: details.perDayPoints,
+      })
       .eq('id', challengeId)
 
     if (updateError) return { error: updateError.message }
 
-    setChallenges((prev) =>
-      prev.map((challenge) =>
-        challenge.id === challengeId
-          ? { ...challenge, title: input.title, description: input.description || null }
-          : challenge,
-      ),
-    )
+    // Sincroniza as atividades: atualiza o texto dos dias existentes,
+    // insere os dias novos ao final, remove os dias excedentes (ja
+    // checado acima que nao tem progresso).
+    for (const draft of activities) {
+      const existing = target?.activities.find((activity) => activity.day_number === draft.day_number)
+      if (existing) {
+        if (existing.content !== draft.content) {
+          const { error: contentError } = await supabase
+            .from('challenge_activities')
+            .update({ content: draft.content })
+            .eq('challenge_id', challengeId)
+            .eq('day_number', draft.day_number)
+          if (contentError) return { error: contentError.message }
+        }
+      } else {
+        const { error: insertDayError } = await supabase.from('challenge_activities').insert({
+          challenge_id: challengeId,
+          day_number: draft.day_number,
+          content: draft.content,
+        })
+        if (insertDayError) return { error: insertDayError.message }
+      }
+    }
+
+    if (removedDays.length > 0) {
+      const { error: deleteDaysError } = await supabase
+        .from('challenge_activities')
+        .delete()
+        .eq('challenge_id', challengeId)
+        .in('day_number', removedDays)
+      if (deleteDaysError) return { error: deleteDaysError.message }
+    }
+
+    await fetchChallenges()
     return { error: null }
   }
 
@@ -262,6 +345,23 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     await fetchCounts([challengeId])
   }
 
+  /** Recarrega apenas o estado de conclusao da viewer para um desafio. */
+  async function refreshCompletions(challengeId: string) {
+    if (!viewerId) return
+    const { data } = await supabase
+      .from('challenge_completions')
+      .select('challenge_id')
+      .eq('profile_id', viewerId)
+      .eq('challenge_id', challengeId)
+
+    setMyCompletions((prev) => {
+      const next = new Set(prev)
+      if (data && data.length > 0) next.add(challengeId)
+      else next.delete(challengeId)
+      return next
+    })
+  }
+
   async function fetchComments(challengeId: string): Promise<ChallengeCommentResult> {
     const { data, error: fetchError } = await supabase
       .from('challenge_comments')
@@ -306,6 +406,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     todayCompletedCounts,
     currentDays,
     myParticipation,
+    myCompletions,
     commentCounts,
     commentsByChallenge,
     loading,
@@ -317,6 +418,7 @@ export function useChallenges(communityId: string | null, viewerId: string | nul
     joinChallenge,
     leaveChallenge,
     refreshCounts,
+    refreshCompletions,
     fetchComments,
     addComment,
     refresh: fetchChallenges,

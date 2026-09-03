@@ -5,6 +5,7 @@ export interface Community {
   name: string
   slug: string
   description: string | null
+  cover_image_url: string | null
   owner_id: string
   is_discoverable: boolean
   created_at: string

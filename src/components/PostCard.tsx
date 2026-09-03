@@ -3,7 +3,7 @@ import { formatRelativeTime } from '../lib/formatRelativeTime'
 import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '../types/post'
 import { CommentList } from './CommentList'
 import { CommentForm } from './CommentForm'
-import { HeartIcon, CommentIcon } from './icons'
+import { HeartIcon, CommentIcon, BookmarkIcon } from './icons'
 
 interface PostCardProps {
   post: Post
@@ -15,6 +15,9 @@ interface PostCardProps {
   onToggleReaction: () => Promise<ToggleReactionResult>
   onOpenComments: () => Promise<CreateCommentResult>
   onAddComment: (content: string) => Promise<CreateCommentResult>
+  /** Quando definido, mostra o botão de salvar (Módulo 7). */
+  isSaved?: boolean
+  onToggleSave?: (saved: boolean) => Promise<{ error: string | null }>
 }
 
 export function PostCard({
@@ -27,11 +30,14 @@ export function PostCard({
   onToggleReaction,
   onOpenComments,
   onAddComment,
+  isSaved,
+  onToggleSave,
 }: PostCardProps) {
   const name = post.author?.full_name ?? 'Participante'
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
   const [reacting, setReacting] = useState(false)
+  const [savingBookmark, setSavingBookmark] = useState(false)
 
   async function handleToggleComments() {
     const nextOpen = !commentsOpen
@@ -49,6 +55,13 @@ export function PostCard({
     setReacting(true)
     await onToggleReaction()
     setReacting(false)
+  }
+
+  async function handleSave() {
+    if (!onToggleSave) return
+    setSavingBookmark(true)
+    await onToggleSave(!!isSaved)
+    setSavingBookmark(false)
   }
 
   const isDailyQuestion = post.post_type === 'daily_question'
@@ -87,6 +100,10 @@ export function PostCard({
       {isEngagementCommand && post.title && <p className="post-title">{post.title}</p>}
       <p className="post-content">{post.content}</p>
 
+      {post.image_url && (
+        <img className="post-image" src={post.image_url} alt="" loading="lazy" />
+      )}
+
       <div className="post-actions">
         <button
           type="button"
@@ -100,6 +117,19 @@ export function PostCard({
         <button type="button" className="post-comment-toggle" onClick={handleToggleComments}>
           <CommentIcon /> {commentCount}
         </button>
+
+        {onToggleSave && (
+          <button
+            type="button"
+            className={`save-button${isSaved ? ' save-button--on' : ''}`}
+            onClick={handleSave}
+            disabled={savingBookmark}
+            aria-pressed={!!isSaved}
+          >
+            <BookmarkIcon size={15} />
+            {isSaved ? 'Salvo' : 'Salvar'}
+          </button>
+        )}
       </div>
 
       {commentsOpen && (

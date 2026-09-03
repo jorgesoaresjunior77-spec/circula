@@ -9,8 +9,10 @@ export type PostType = 'standard' | 'daily_question' | 'checkin_share' | 'engage
 export interface Post {
   id: string
   community_id: string
+  circle_id: string | null
   author_id: string
   content: string
+  image_url: string | null
   created_at: string
   post_type: PostType
   question_id: string | null

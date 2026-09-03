@@ -8,6 +8,7 @@ import { Feed } from './Feed'
 import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { CheckinManager } from './CheckinManager'
+import { PointsWidget } from './PointsWidget'
 import { ProductManager } from './ProductManager'
 
 interface MemberCommunityCardProps {
@@ -59,6 +60,11 @@ export function MemberCommunityCard({
         profileId={profile.id}
         canManage={false}
         canParticipate
+      />
+      <PointsWidget
+        communityId={community.id}
+        communityName={community.name}
+        profileId={profile.id}
       />
       <CircleManager
         communityId={community.id}

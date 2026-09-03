@@ -70,6 +70,14 @@
   --danger-border: rgba(169, 86, 74, 0.34);
   --danger-bg: rgba(169, 86, 74, 0.09);
 
+  /* Azul-sereno — Pedido de ajuda (Fase 5). Um acento calmo, menos
+     dependente do rosa, para o CTA "Pedir ajuda" e os selos de status. */
+  --help-accent: #4f7bb3;
+  --help-accent-strong: #3f689b;
+  --help-on: #ffffff;
+  --help-accent-bg: rgba(79, 123, 179, 0.1);
+  --help-accent-border: rgba(79, 123, 179, 0.34);
+
   /* ---- Gradientes de CTA -------------------------------------
      Luz de pêssego escorrendo para rosa poeira, como nos mockups.
      Ainda não aplicados a nenhum componente — a Etapa 1 os consome. */
@@ -172,6 +180,12 @@
     --straw-soft: rgba(214, 190, 150, 0.14);
     --straw-text: rgba(245, 236, 230, 0.72);
 
+    --help-accent: #9db9dd;
+    --help-accent-strong: #b0c8e6;
+    --help-on: #21303f;
+    --help-accent-bg: rgba(157, 185, 221, 0.16);
+    --help-accent-border: rgba(157, 185, 221, 0.42);
+
     --cta-gradient: linear-gradient(135deg, #cd949b 0%, #bd7b86 55%, #a5636f 100%);
     --cta-gradient-hover: linear-gradient(135deg, #d7a1a7 0%, #c78791 55%, #b06f7b 100%);
     --cta-on: #2a1e21;
@@ -199,7 +213,7 @@
 }
 
 #root {
-  width: 1126px;
+  width: 1360px;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -213,7 +227,7 @@
 
   /* Moldura lateral só quando a coluna realmente descola das bordas da
      viewport — no mobile/tablet ela ficava encostada como um fio solto. */
-  @media (min-width: 1127px) {
+  @media (min-width: 1361px) {
     border-inline: 1px solid var(--border);
   }
 }
