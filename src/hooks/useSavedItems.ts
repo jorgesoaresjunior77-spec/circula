@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { buildCommentTree } from '../lib/commentTree'
 import type { CommunityContent } from '../types/content'
 import type { Post, Comment } from '../types/post'
 import type { EventWithParticipants } from '../types/event'
@@ -41,7 +42,7 @@ const EVENT_SELECT =
   `starts_at,ends_at,is_online,location,online_url,capacity,status,created_at,updated_at,` +
   `participants:event_participants(id,event_id,profile_id,joined_at,profile:profiles(${PERSON_SELECT}))`
 
-const COMMENT_SELECT = `id,post_id,author_id,content,created_at,author:profiles(${PERSON_SELECT})`
+const COMMENT_SELECT = `id,post_id,author_id,content,created_at,parent_comment_id,author:profiles(${PERSON_SELECT})`
 
 function idsOf(rows: SavedItemRow[], type: SavedItemType): string[] {
   return rows.filter((r) => r.item_type === type).map((r) => r.item_id)
@@ -200,7 +201,11 @@ export function useSavedItems(profileId: string | null) {
 
     if (fetchError) return { error: fetchError.message }
 
-    setPostCommentsByPost((prev) => ({ ...prev, [postId]: (data as unknown as Comment[]) ?? [] }))
+    // mesma árvore rasa do Feed: respostas agrupadas sob o comentário-raiz
+    setPostCommentsByPost((prev) => ({
+      ...prev,
+      [postId]: buildCommentTree((data as unknown as Comment[]) ?? []),
+    }))
     return { error: null }
   }
 

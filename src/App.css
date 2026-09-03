@@ -7485,3 +7485,235 @@
   line-height: 20px;
   text-align: center;
 }
+
+/* =====================================================================
+   FEED DE CONVERSA — comentários e respostas direto no card
+   ---------------------------------------------------------------------
+   Aditivo. Complementa .post-card / .post-comments / .comment-list, que
+   seguem em uso no modo clássico (Home, Desafios, Pedidos de ajuda).
+   Tom: fundo claro, bolhas suaves, fio rosé discreto, bastante respiro.
+   ===================================================================== */
+
+.post-conversation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-soft);
+}
+
+.comment-thread-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.comment-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* linha do comentário (CommentRow) — base compartilhada com .comment-item */
+.comment-item-main {
+  min-width: 0;
+  flex: 1;
+}
+
+/* avatares maiores só no Feed de Conversa — Desafios/Ajuda inalterados */
+.post-conversation .comment-item--root > .comment-avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  font-size: 15px;
+}
+
+.post-conversation .comment-item--reply > .comment-avatar,
+.comment-list--replies .comment-item > .comment-avatar {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  font-size: 12px;
+}
+
+/* bolha de conteúdo — só no Feed de Conversa; Home segue texto simples */
+.post-conversation .comment-content {
+  margin-top: 3px;
+  padding: 8px 12px;
+  background: var(--surface-sunken);
+  border-radius: 4px 13px 13px 13px;
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--graphite);
+  overflow-wrap: anywhere;
+}
+
+.post-conversation .comment-item--reply .comment-content {
+  background: var(--olive-bg);
+  font-size: 13.5px;
+}
+
+/* ações abaixo do comentário-raiz: Responder / Ver respostas */
+.comment-thread-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-left: 48px;
+}
+
+.comment-reply-action {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  width: auto;
+  transition: color 0.15s ease;
+}
+
+.comment-reply-action:hover {
+  color: var(--olive-text);
+}
+
+.comment-reply-form-wrap {
+  padding-left: 48px;
+}
+
+/* respostas agrupadas — recuo com fio rosé */
+.comment-replies {
+  list-style: none;
+  margin: 2px 0 0 28px;
+  padding-left: 16px;
+  border-left: 2px solid var(--olive-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.comment-reply-more {
+  align-self: flex-start;
+  margin-left: 46px;
+  padding: 2px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  color: var(--olive-text);
+  cursor: pointer;
+  width: auto;
+}
+
+.comment-reply-more:hover {
+  text-decoration: underline;
+}
+
+/* "Ver mais comentários" — convite claro, nunca esconde a conversa toda */
+.comment-more {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 2px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  color: var(--olive-text);
+  cursor: pointer;
+  width: auto;
+}
+
+.comment-more:hover {
+  text-decoration: underline;
+}
+
+.comment-loading {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* recuo leve das respostas no modo clássico (CommentList com árvore) */
+.comment-list--replies {
+  margin-top: 6px;
+  margin-left: 24px;
+  padding-left: 12px;
+  border-left: 2px solid var(--olive-border);
+}
+
+/* form de resposta compacto */
+.comment-form--reply {
+  margin-top: 2px;
+}
+
+.comment-form-cancel {
+  font: inherit;
+  font-size: 13px;
+  border: none;
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  width: auto;
+  padding: 0 6px;
+}
+
+.comment-form-cancel:hover {
+  color: var(--graphite);
+}
+
+/* carregar mais publicações */
+.feed-load-more {
+  align-self: center;
+  margin-top: var(--space-2);
+  padding: 10px 22px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--olive-border);
+  background: var(--surface);
+  color: var(--olive-text);
+  cursor: pointer;
+  width: auto;
+  transition: background 0.15s ease;
+}
+
+.feed-load-more:hover:not(:disabled) {
+  background: var(--olive-bg);
+}
+
+.feed-load-more:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* telas estreitas: sem recuo grande, nada de overflow horizontal */
+@media (max-width: 480px) {
+  .comment-thread-actions,
+  .comment-reply-form-wrap {
+    padding-left: 0;
+  }
+
+  .comment-reply-more,
+  .comment-more {
+    margin-left: 0;
+  }
+
+  .comment-replies {
+    margin-left: 12px;
+    padding-left: 12px;
+  }
+}

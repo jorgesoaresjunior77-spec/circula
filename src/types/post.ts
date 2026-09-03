@@ -35,7 +35,12 @@ export interface Comment {
   author_id: string
   content: string
   created_at: string
+  /** Nulo => comentário-raiz. Preenchido => resposta a um comentário-raiz. */
+  parent_comment_id: string | null
   author: CommentAuthor | null
+  /** Preenchido por buildCommentTree em comentários-raiz (respostas agrupadas). */
+  replies?: Comment[]
+  reply_count?: number
 }
 
 export type CreateCommentResult = { error: string | null }

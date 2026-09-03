@@ -1,15 +1,35 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { CreateCommentResult } from '../types/post'
 
 interface CommentFormProps {
   onSubmit: (content: string) => Promise<CreateCommentResult>
+  placeholder?: string
+  submitLabel?: string
+  pendingLabel?: string
+  /** Quando definido, mostra "Cancelar" e é chamado após enviar/cancelar. */
+  onCancel?: () => void
+  autoFocus?: boolean
+  variant?: 'comment' | 'reply'
 }
 
-export function CommentForm({ onSubmit }: CommentFormProps) {
+export function CommentForm({
+  onSubmit,
+  placeholder = 'Escreva um comentário...',
+  submitLabel = 'Comentar',
+  pendingLabel = 'Enviando...',
+  onCancel,
+  autoFocus = false,
+  variant = 'comment',
+}: CommentFormProps) {
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus()
+  }, [autoFocus])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -21,27 +41,47 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
     setLoading(false)
 
     if (submitError) {
-      setError('Não foi possível comentar agora. Tente novamente.')
+      setError(
+        variant === 'reply'
+          ? 'Não foi possível responder agora. Tente novamente.'
+          : 'Não foi possível comentar agora. Tente novamente.',
+      )
       return
     }
 
     setContent('')
+    onCancel?.()
   }
 
   return (
-    <form className="comment-form" onSubmit={handleSubmit}>
+    <form
+      className={`comment-form${variant === 'reply' ? ' comment-form--reply' : ''}`}
+      onSubmit={handleSubmit}
+    >
       <input
+        ref={inputRef}
         type="text"
         value={content}
         onChange={(event) => setContent(event.target.value)}
-        placeholder="Escreva um comentário..."
-        aria-label="Escreva um comentário..."
+        placeholder={placeholder}
+        aria-label={placeholder}
         required
       />
 
       <button type="submit" disabled={loading || !content.trim()}>
-        {loading ? 'Enviando...' : 'Comentar'}
+        {loading ? pendingLabel : submitLabel}
       </button>
+
+      {onCancel && (
+        <button
+          type="button"
+          className="comment-form-cancel"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+      )}
 
       {error && <p className="auth-error">{error}</p>}
     </form>

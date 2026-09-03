@@ -475,3 +475,26 @@ export function SparkleIcon({ size = 18, className }: IconProps) {
     </svg>
   )
 }
+
+/** Seta de retorno — ação "Responder" no Feed de Conversa. */
+export function ReplyIcon({ size = 14, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M9 7 4 12l5 5M4 12h9a7 7 0 0 1 7 7"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

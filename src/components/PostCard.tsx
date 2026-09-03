@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '../types/post'
 import { CommentList } from './CommentList'
+import { CommentThread } from './CommentThread'
 import { CommentForm } from './CommentForm'
 import { HeartIcon, CommentIcon, BookmarkIcon } from './icons'
 
@@ -14,10 +15,20 @@ interface PostCardProps {
   canInteract: boolean
   onToggleReaction: () => Promise<ToggleReactionResult>
   onOpenComments: () => Promise<CreateCommentResult>
-  onAddComment: (content: string) => Promise<CreateCommentResult>
+  onAddComment: (content: string, parentCommentId?: string | null) => Promise<CreateCommentResult>
   /** Quando definido, mostra o botão de salvar (Módulo 7). */
   isSaved?: boolean
   onToggleSave?: (saved: boolean) => Promise<{ error: string | null }>
+  /**
+   * Feed de Conversa: mostra os comentários direto no card (2–3 de
+   * preview + "Ver mais comentários" + respostas agrupadas), sem
+   * esconder tudo atrás do botão. Sem isso, comportamento clássico
+   * (usado pela Home): a seção de comentários abre/fecha no botão 💬.
+   */
+  inlineConversation?: boolean
+  previewComments?: Comment[]
+  topLevelCount?: number
+  replyCountByComment?: Record<string, number>
 }
 
 export function PostCard({
@@ -32,12 +43,25 @@ export function PostCard({
   onAddComment,
   isSaved,
   onToggleSave,
+  inlineConversation = false,
+  previewComments = [],
+  topLevelCount = 0,
+  replyCountByComment = {},
 }: PostCardProps) {
   const name = post.author?.full_name ?? 'Participante'
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
   const [reacting, setReacting] = useState(false)
   const [savingBookmark, setSavingBookmark] = useState(false)
+
+  const expanded = comments !== undefined
+
+  async function loadFullThread() {
+    if (expanded || loadingComments) return
+    setLoadingComments(true)
+    await onOpenComments()
+    setLoadingComments(false)
+  }
 
   async function handleToggleComments() {
     const nextOpen = !commentsOpen
@@ -47,6 +71,14 @@ export function PostCard({
       setLoadingComments(true)
       await onOpenComments()
       setLoadingComments(false)
+    }
+  }
+
+  async function handleCommentButton() {
+    if (inlineConversation) {
+      await loadFullThread()
+    } else {
+      await handleToggleComments()
     }
   }
 
@@ -64,6 +96,9 @@ export function PostCard({
     setSavingBookmark(false)
   }
 
+  const handleReply = (content: string, parentCommentId: string) =>
+    onAddComment(content, parentCommentId)
+
   const isDailyQuestion = post.post_type === 'daily_question'
   const isCheckinShare = post.post_type === 'checkin_share'
   const isEngagementCommand = post.post_type === 'engagement_command'
@@ -74,6 +109,11 @@ export function PostCard({
       : isEngagementCommand
         ? ' post-card--command'
         : ''
+
+  const showClassicComments = !inlineConversation && commentsOpen
+  const remainingThreads = Math.max(0, topLevelCount - previewComments.length)
+  const showSeeMore =
+    inlineConversation && !expanded && commentCount > previewComments.length
 
   return (
     <article className={`post-card${cardVariant}`}>
@@ -114,7 +154,7 @@ export function PostCard({
           <HeartIcon /> {reactionCount}
         </button>
 
-        <button type="button" className="post-comment-toggle" onClick={handleToggleComments}>
+        <button type="button" className="post-comment-toggle" onClick={handleCommentButton}>
           <CommentIcon /> {commentCount}
         </button>
 
@@ -132,13 +172,68 @@ export function PostCard({
         )}
       </div>
 
-      {commentsOpen && (
+      {inlineConversation && (
+        <div className="post-conversation">
+          {loadingComments && <p className="comment-loading">Carregando conversa...</p>}
+
+          {expanded ? (
+            (comments ?? []).length > 0 ? (
+              <ul className="comment-thread-list">
+                {(comments ?? []).map((thread) => (
+                  <CommentThread
+                    key={thread.id}
+                    comment={thread}
+                    canInteract={canInteract}
+                    onReply={canInteract ? handleReply : undefined}
+                  />
+                ))}
+              </ul>
+            ) : (
+              !loadingComments && (
+                <p className="comment-empty">
+                  Ainda não há comentários. Seja a primeira a comentar! 🌷
+                </p>
+              )
+            )
+          ) : (
+            <>
+              {previewComments.length > 0 ? (
+                <ul className="comment-thread-list">
+                  {previewComments.map((thread) => (
+                    <CommentThread
+                      key={thread.id}
+                      comment={thread}
+                      canInteract={canInteract}
+                      onReply={canInteract ? handleReply : undefined}
+                      replyCountHint={replyCountByComment[thread.id] ?? 0}
+                      onExpand={loadFullThread}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p className="comment-empty">Seja a primeira a comentar 🌷</p>
+              )}
+
+              {showSeeMore && (
+                <button type="button" className="comment-more" onClick={loadFullThread}>
+                  <CommentIcon size={15} /> Ver mais comentários
+                  {remainingThreads > 0 ? ` (${remainingThreads})` : ''}
+                </button>
+              )}
+            </>
+          )}
+
+          {canInteract && <CommentForm onSubmit={(text) => onAddComment(text, null)} />}
+        </div>
+      )}
+
+      {showClassicComments && (
         <div className="post-comments">
           {loadingComments && <p>Carregando comentários...</p>}
 
           {!loadingComments && <CommentList comments={comments ?? []} />}
 
-          {canInteract && <CommentForm onSubmit={onAddComment} />}
+          {canInteract && <CommentForm onSubmit={(text) => onAddComment(text, null)} />}
         </div>
       )}
     </article>
