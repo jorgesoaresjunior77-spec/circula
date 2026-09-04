@@ -47,7 +47,11 @@ export function DailyMoodCard({ profileId, communityId }: DailyMoodCardProps) {
       </h3>
       <p className="mood-card-hint">É só um carinho com você. Fica entre você e o Círcula 🤍</p>
 
-      <div className="mood-options" role="group" aria-label="Escolha como você está hoje">
+      <div
+        className={`mood-options${shown ? ' mood-options--chosen' : ''}`}
+        role="group"
+        aria-label="Escolha como você está hoje"
+      >
         {MOOD_ORDER.map((mood) => {
           const meta = MOOD_META[mood]
           const isOn = shown === mood

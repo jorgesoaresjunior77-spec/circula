@@ -661,7 +661,14 @@ export function Dashboard({
     <section className={`dashboard${showRail ? ' dashboard--rail' : ''}`}>
       <header className="dashboard-header">
         <div className="brand">
-          <img src={circulaIcon} alt="" className="brand-icon" />
+          <button
+            type="button"
+            className="brand-icon-btn"
+            onClick={() => handleNavigate('inicio')}
+            aria-label="Ir para o Início"
+          >
+            <img src={circulaIcon} alt="" className="brand-icon" />
+          </button>
           <div className="brand-lockup">
             <h1 className="brand-name">Círcula</h1>
             <p className="brand-tagline">Conectando Mulheres</p>

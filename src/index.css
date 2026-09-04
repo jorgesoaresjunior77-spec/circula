@@ -13,12 +13,14 @@
        · Fraunces em peso leve + itálico para títulos e destaques
      ============================================================ */
 
-  /* Superfícies — porcelana e concha dominam a interface */
+  /* Superfícies — porcelana e concha dominam a interface.
+     Fase 11 — o fundo geral clareia para "quase branco" (um sopro de
+     morno só), deixando os cards brancos ganharem mais presença. */
   --white: #ffffff;
-  --page-bg: #f6efe5;
-  --sand: #f4ece1;
-  --sand-deep: #ece1d2;
-  --beige: #fdfbf7;
+  --page-bg: #faf6f1;
+  --sand: #f5eee5;
+  --sand-deep: #ece2d4;
+  --beige: #fefdfb;
 
   /* Aliases semânticos de superfície (para as próximas etapas) */
   --surface: var(--beige);
@@ -77,6 +79,19 @@
   --help-on: #ffffff;
   --help-accent-bg: rgba(79, 123, 179, 0.1);
   --help-accent-border: rgba(79, 123, 179, 0.34);
+
+  /* ---- Azul-pérola — Fase 11 ---------------------------------
+     O reflexo frio na base do logotipo, traduzido num acento
+     secundário muito suave. Uso comedido: selos de informação,
+     conquistas, faixas neutras — nunca compete com o rosé. */
+  --sky-50: #f2f6fa;
+  --sky-100: #e7eff6;
+  --sky-200: #d3e2ef;
+  --sky-400: #8fb4d3;
+  --sky-600: #5f88ab;
+  --sky-text: #3f6a8c;
+  --sky-bg: rgba(126, 163, 194, 0.12);
+  --sky-border: rgba(126, 163, 194, 0.34);
 
   /* ---- Gradientes de CTA -------------------------------------
      Luz de pêssego escorrendo para rosa poeira, como nos mockups.
@@ -149,6 +164,16 @@
     --beige: #241b1f;
     --sand: rgba(210, 150, 160, 0.1);
     --sand-deep: rgba(210, 150, 160, 0.14);
+
+    /* Azul-pérola no escuro — véus translúcidos frios */
+    --sky-50: rgba(143, 180, 211, 0.08);
+    --sky-100: rgba(143, 180, 211, 0.12);
+    --sky-200: rgba(143, 180, 211, 0.2);
+    --sky-400: #9fbcd8;
+    --sky-600: #b3c9e0;
+    --sky-text: #c3d5e8;
+    --sky-bg: rgba(143, 180, 211, 0.16);
+    --sky-border: rgba(143, 180, 211, 0.4);
     --border: rgba(245, 236, 230, 0.14);
     --border-soft: rgba(245, 236, 230, 0.08);
     --code-bg: #3a262d;
