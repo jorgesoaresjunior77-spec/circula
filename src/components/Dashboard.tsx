@@ -7,6 +7,7 @@ import { CreateCommunityForm } from './CreateCommunityForm'
 import { CommunityView } from './CommunityView'
 import { MemberList } from './MemberList'
 import { AddMemberForm } from './AddMemberForm'
+import { InviteMemberForm } from './InviteMemberForm'
 import { MyProfile } from './MyProfile'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
@@ -70,6 +71,7 @@ export function Dashboard({
     error,
     createCommunity,
     addMember,
+    inviteMember,
     joinCommunity,
     approveMembershipRequest,
     rejectMembershipRequest,
@@ -613,6 +615,9 @@ export function Dashboard({
               onReject={rejectMembershipRequest}
             />
             <p className="section-label">Participantes</p>
+            <InviteMemberForm
+              onInvite={(email, fullName) => inviteMember(community.id, email, fullName)}
+            />
             <AddMemberForm onAdd={(email) => addMember(community.id, email)} />
             <MemberList
               members={community.community_members}

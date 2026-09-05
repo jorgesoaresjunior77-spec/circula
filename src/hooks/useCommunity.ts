@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Profile } from '../types/profile'
-import type { AddMemberResult, CommunityWithMembers, JoinResult } from '../types/community'
+import type {
+  AddMemberResult,
+  CommunityWithMembers,
+  InviteMemberResult,
+  JoinResult,
+} from '../types/community'
 
 const COMMUNITY_SELECT =
   'id,name,slug,description,cover_image_url,owner_id,is_discoverable,created_at,community_members(id,status,joined_at,profile:profiles(id,full_name,avatar_url))'
@@ -136,6 +141,55 @@ export function useCommunity(profile: Profile | null) {
     return { status: 'success', fullName: match.full_name }
   }
 
+  // Fase 14.2 — convida uma nova participante por e-mail. Toda a parte
+  // privilegiada (criar usuário de Auth, enviar o e-mail, vincular à
+  // comunidade) fica na Edge Function `invite-member`; aqui só chamamos
+  // e traduzimos a resposta. O `supabase-js` anexa o JWT da sessão
+  // atual (a Professional) automaticamente na chamada.
+  async function inviteMember(
+    communityId: string,
+    email: string,
+    fullName: string,
+  ): Promise<InviteMemberResult> {
+    const { data, error: invokeError } = await supabase.functions.invoke('invite-member', {
+      body: { communityId, email, fullName: fullName || undefined },
+    })
+
+    if (invokeError) {
+      // Respostas != 2xx viram FunctionsHttpError; a mensagem real da
+      // função vem no corpo JSON de `context` (um Response).
+      let serverMessage: string | undefined
+      const ctx = (invokeError as { context?: Response }).context
+      if (ctx && typeof ctx.json === 'function') {
+        try {
+          const body = (await ctx.json()) as { error?: string }
+          if (typeof body?.error === 'string') serverMessage = body.error
+        } catch {
+          serverMessage = undefined
+        }
+      }
+      return {
+        status: 'error',
+        error: serverMessage ?? 'Não foi possível enviar o convite agora. Tente novamente.',
+      }
+    }
+
+    const payload = data as { status?: string; fullName?: string | null } | null
+
+    if (payload?.status === 'invited') {
+      await fetchCommunities()
+      return { status: 'invited' }
+    }
+    if (payload?.status === 'added_existing') {
+      await fetchCommunities()
+      return { status: 'added_existing', fullName: payload.fullName ?? null }
+    }
+    if (payload?.status === 'already_member') {
+      return { status: 'already_member' }
+    }
+    return { status: 'error', error: 'Resposta inesperada do servidor.' }
+  }
+
   async function joinCommunity(communityId: string): Promise<JoinResult> {
     if (!profile) return { status: 'error', error: 'Sem sessão ativa.' }
 
@@ -207,6 +261,7 @@ export function useCommunity(profile: Profile | null) {
     error,
     createCommunity,
     addMember,
+    inviteMember,
     joinCommunity,
     approveMembershipRequest,
     rejectMembershipRequest,

@@ -34,6 +34,17 @@ export type AddMemberResult =
   | { status: 'not_found' }
   | { status: 'error'; error: string }
 
+// Fase 14.2 — resultado do convite de nova participante por e-mail
+// (Edge Function `invite-member`).
+export type InviteMemberResult =
+  // e-mail novo: convite enviado (link de definição de senha)
+  | { status: 'invited' }
+  // e-mail já tinha conta de participante: adicionada direto, sem e-mail
+  | { status: 'added_existing'; fullName: string | null }
+  // já fazia parte desta comunidade
+  | { status: 'already_member' }
+  | { status: 'error'; error: string }
+
 export type JoinResult =
   // Fase 12.3: entrar em comunidade discoverable nunca concede acesso
   // imediato — cria uma solicitação (community_members.status='pending').
