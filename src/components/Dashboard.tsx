@@ -148,6 +148,19 @@ export function Dashboard({
       Icon: CalendarIcon,
       inBottomNav: false,
     })
+    // Fase 13 — Loja acessível também à Member (antes só existia como
+    // destino da anfitriã, dentro de canHostDestinations). Backend/RLS
+    // e o componente já suportavam a Member comprar (ProductManager
+    // canBuy, já usado dentro de MemberCommunityCard) — faltava só
+    // este item de navegação. Mesma resolução de comunidade de
+    // círculos/eventos/receitas (community-picker quando houver mais
+    // de uma).
+    navItems.push({
+      key: 'loja',
+      label: 'Loja',
+      Icon: StoreIcon,
+      inBottomNav: false,
+    })
     navItems.push({
       key: 'mensagens',
       label: 'Mensagens',
@@ -159,7 +172,6 @@ export function Dashboard({
   }
   if (canHostDestinations) {
     navItems.push({ key: 'painel', label: 'Painel', Icon: PanelIcon, inBottomNav: true })
-    navItems.push({ key: 'loja', label: 'Loja', Icon: StoreIcon, inBottomNav: false })
   }
   if (profile) {
     navItems.push({ key: 'perfil', label: 'Meu perfil', Icon: UserIcon, inBottomNav: true })
@@ -525,6 +537,48 @@ export function Dashboard({
       )
     }
 
+    // Fase 13 — Loja: destino único para dona (gerencia) e Member
+    // (compra), mesmo componente/lógica de sempre (ProductManager),
+    // só decidindo canManage/canBuy pelo papel. RLS de `products` já
+    // restringe a Member a `status='published'` (products_select) —
+    // nenhuma alteração de banco necessária.
+    if (effectiveNav === 'loja') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+
+      if (!resolvedCirclesCommunityId) {
+        return (
+          <>
+            <p className="section-label">Loja · escolha uma comunidade</p>
+            <div className="community-picker">
+              {circlesRelevantCommunities.map((community) => (
+                <button
+                  key={community.id}
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setCirclesCommunityId(community.id)}
+                >
+                  {community.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )
+      }
+
+      const isOwner = profile.role === 'professional'
+
+      return (
+        <ProductManager
+          communityId={resolvedCirclesCommunityId}
+          profileId={profile.id}
+          canManage={isOwner}
+          canBuy={!isOwner}
+        />
+      )
+    }
+
     if (profile.role === 'professional') {
       if (communities.length === 0) {
         return (
@@ -545,12 +599,6 @@ export function Dashboard({
             onFeedRefresh={refreshFeed}
             onOpenConversation={openConversationById}
           />
-        )
-      }
-
-      if (effectiveNav === 'loja') {
-        return (
-          <ProductManager communityId={community.id} profileId={profile.id} canManage />
         )
       }
 
