@@ -1,4 +1,5 @@
 import type { CommunityContent } from '../types/content'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { RecipeIcon } from './icons'
 
 // Fase 2 — card de receita na visão da usuária.
@@ -13,11 +14,12 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ recipe, onOpen, showStatus = false }: RecipeCardProps) {
+  const { url: coverUrl } = useSignedImageUrl(recipe.cover_image_url)
   return (
     <button type="button" className="recipe-card" onClick={onOpen}>
       <span className="recipe-card-cover" aria-hidden="true">
-        {recipe.cover_image_url ? (
-          <img src={recipe.cover_image_url} alt="" />
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
         ) : (
           <span className="recipe-card-cover-fallback">
             <RecipeIcon size={40} />

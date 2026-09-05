@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { EventWithParticipants, RsvpResult } from '../types/event'
 import { formatEventDate, isPastEvent } from '../lib/formatEventDate'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { BookmarkIcon } from './icons'
 
 interface EventCardProps {
@@ -33,6 +34,7 @@ export function EventCard({
   const [showList, setShowList] = useState(false)
   const [savingBookmark, setSavingBookmark] = useState(false)
 
+  const { url: coverUrl } = useSignedImageUrl(event.cover_image_url)
   const isAttending = event.participants.some((p) => p.profile_id === profileId)
   const count = event.participants.length
   const isFull = event.capacity != null && count >= event.capacity && !isAttending
@@ -59,9 +61,9 @@ export function EventCard({
 
   return (
     <article className={`event-card${past || cancelled ? ' event-card--muted' : ''}`}>
-      {event.cover_image_url && (
+      {coverUrl && (
         <div className="event-card-cover" aria-hidden="true">
-          <img src={event.cover_image_url} alt="" />
+          <img src={coverUrl} alt="" />
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.jpg'
 import { supabase } from '../lib/supabase'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { CommunityMemberProfile, CommunityWithMembers } from '../types/community'
 
 interface HomeCommunityHeaderProps {
@@ -65,12 +66,13 @@ export function HomeCommunityHeader({ community, memberCount }: HomeCommunityHea
 
   const owner = embeddedOwner ?? fetchedOwner
   const count = typeof memberCount === 'number' ? memberCount : null
+  const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
 
   return (
     <section className="home-community-header" aria-label="Sua comunidade">
       <div className="home-community-cover" aria-hidden="true">
-        {community.cover_image_url ? (
-          <img src={community.cover_image_url} alt="" />
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
         ) : (
           <span className="home-community-cover-fallback" />
         )}

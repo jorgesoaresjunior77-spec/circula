@@ -220,6 +220,7 @@ export function ChallengeManager({
             label="Foto de capa (opcional)"
             value={coverUrl}
             onChange={setCoverUrl}
+            communityId={communityId}
             uid={profileId}
             disabled={creating}
           />
@@ -338,6 +339,7 @@ export function ChallengeManager({
                   label="Foto de capa (opcional)"
                   value={editCoverUrl}
                   onChange={setEditCoverUrl}
+                  communityId={communityId}
                   uid={profileId}
                   disabled={savingEdit}
                 />

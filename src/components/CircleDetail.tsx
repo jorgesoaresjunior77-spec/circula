@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { CircleWithMembers, JoinCircleResult } from '../types/circle'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { Feed } from './Feed'
 import { ChevronLeftIcon } from './icons'
 
@@ -45,6 +46,7 @@ export function CircleDetail({
   const memberCount = circle.members.length
   const shownAvatars = circle.members.slice(0, AVATAR_LIMIT)
   const extraCount = memberCount - shownAvatars.length
+  const { url: coverUrl } = useSignedImageUrl(circle.cover_image_url)
 
   return (
     <section className="circle-detail">
@@ -55,10 +57,10 @@ export function CircleDetail({
 
       <div className="community-card community-card--highlight community-hero circle-detail-hero">
         <div className="community-hero-cover" aria-hidden="true">
-          {circle.cover_image_url && (
+          {coverUrl && (
             <img
               className="community-hero-cover-image"
-              src={circle.cover_image_url}
+              src={coverUrl}
               alt=""
             />
           )}

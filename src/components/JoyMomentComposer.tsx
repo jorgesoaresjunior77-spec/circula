@@ -10,11 +10,12 @@ import { SparkleIcon } from './icons'
 // opcional e um único botão claro. Nada de "diário" — é celebração.
 
 interface JoyMomentComposerProps {
+  communityId: string
   profileId: string
   onSubmit: (input: JoyMomentInput) => Promise<JoyResult>
 }
 
-export function JoyMomentComposer({ profileId, onSubmit }: JoyMomentComposerProps) {
+export function JoyMomentComposer({ communityId, profileId, onSubmit }: JoyMomentComposerProps) {
   const [body, setBody] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [busy, setBusy] = useState(false)
@@ -59,6 +60,7 @@ export function JoyMomentComposer({ profileId, onSubmit }: JoyMomentComposerProp
 
       <CoverImageInput
         id="joy-image"
+        communityId={communityId}
         uid={profileId}
         label="Foto (opcional)"
         value={imageUrl}

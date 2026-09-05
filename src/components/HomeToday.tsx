@@ -8,6 +8,8 @@ import { useCircles } from '../hooks/useCircles'
 import { useChallenges } from '../hooks/useChallenges'
 import { usePosts } from '../hooks/usePosts'
 import { useHomeToday } from '../hooks/useHomeToday'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import type { CircleWithMembers } from '../types/circle'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
 import { CircleCard } from './CircleCard'
@@ -57,6 +59,35 @@ function timeGreeting(now = new Date()): string {
   if (hour < 12) return 'Bom dia'
   if (hour < 18) return 'Boa tarde'
   return 'Boa noite'
+}
+
+// "Seus círculos": tile próprio para poder resolver a signed URL da capa
+// (hook não pode ser chamado dentro de .map()).
+function HomeCircleTile({
+  circle,
+  onOpen,
+}: {
+  circle: CircleWithMembers
+  onOpen: () => void
+}) {
+  const { url: coverUrl } = useSignedImageUrl(circle.cover_image_url)
+  return (
+    <button type="button" className="home-circle-tile" onClick={onOpen}>
+      <span className="home-circle-cover" aria-hidden="true">
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
+        ) : (
+          <span className="home-circle-cover-fallback">
+            {circle.name.charAt(0).toUpperCase()}
+          </span>
+        )}
+      </span>
+      <span className="home-circle-name">{circle.name}</span>
+      <span className="home-circle-meta">
+        {circle.members.length === 1 ? '1 mulher' : `${circle.members.length} mulheres`}
+      </span>
+    </button>
+  )
 }
 
 function firstName(fullName: string | null): string | null {
@@ -425,28 +456,11 @@ export function HomeToday({
         ) : myCircles.length > 0 ? (
           <div className="home-circle-row">
             {myCircles.slice(0, 6).map((circle) => (
-              <button
+              <HomeCircleTile
                 key={circle.id}
-                type="button"
-                className="home-circle-tile"
-                onClick={() => onNavigate('circulos')}
-              >
-                <span className="home-circle-cover" aria-hidden="true">
-                  {circle.cover_image_url ? (
-                    <img src={circle.cover_image_url} alt="" />
-                  ) : (
-                    <span className="home-circle-cover-fallback">
-                      {circle.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </span>
-                <span className="home-circle-name">{circle.name}</span>
-                <span className="home-circle-meta">
-                  {circle.members.length === 1
-                    ? '1 mulher'
-                    : `${circle.members.length} mulheres`}
-                </span>
-              </button>
+                circle={circle}
+                onOpen={() => onNavigate('circulos')}
+              />
             ))}
           </div>
         ) : (

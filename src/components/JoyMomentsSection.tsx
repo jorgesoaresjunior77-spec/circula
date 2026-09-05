@@ -31,7 +31,7 @@ export function JoyMomentsSection({ communityId, profileId }: JoyMomentsSectionP
         <h3 className="home-section-title">Momento de alegria</h3>
       </div>
 
-      <JoyMomentComposer profileId={profileId} onSubmit={createMoment} />
+      <JoyMomentComposer communityId={communityId} profileId={profileId} onSubmit={createMoment} />
 
       {loading && <p className="home-muted">Carregando momentos…</p>}
       {!loading && error && <p className="auth-error">{error}</p>}
@@ -47,6 +47,7 @@ export function JoyMomentsSection({ communityId, profileId }: JoyMomentsSectionP
           {visible.map((moment) => (
             <JoyMomentCard
               key={moment.id}
+              communityId={communityId}
               moment={moment}
               isOwn={moment.profile_id === profileId}
               profileId={profileId}

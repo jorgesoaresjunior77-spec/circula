@@ -139,9 +139,16 @@ export function useCommunity(profile: Profile | null) {
   async function joinCommunity(communityId: string): Promise<JoinResult> {
     if (!profile) return { status: 'error', error: 'Sem sessão ativa.' }
 
+    // Fase 12.3: entrada em comunidade discoverable é sempre uma
+    // SOLICITAÇÃO (status='pending'), nunca acesso imediato. A RLS
+    // (community_members_insert) já exige status='pending' nesse ramo
+    // e rejeita qualquer outro valor — manter explícito aqui também
+    // para a intenção ficar clara e não depender só do default da
+    // coluna (que continua 'active', usado pelos ramos dona/master).
     const { error: insertError } = await supabase.from('community_members').insert({
       community_id: communityId,
       profile_id: profile.id,
+      status: 'pending',
     })
 
     if (insertError) {
@@ -152,7 +159,31 @@ export function useCommunity(profile: Profile | null) {
     }
 
     await fetchCommunities()
-    return { status: 'success' }
+    return { status: 'pending' }
+  }
+
+  async function approveMembershipRequest(communityId: string, profileId: string) {
+    const { error: rpcError } = await supabase.rpc('approve_membership_request', {
+      p_community_id: communityId,
+      p_profile_id: profileId,
+    })
+
+    if (rpcError) return { error: rpcError.message }
+
+    await fetchCommunities()
+    return { error: null }
+  }
+
+  async function rejectMembershipRequest(communityId: string, profileId: string) {
+    const { error: rpcError } = await supabase.rpc('reject_membership_request', {
+      p_community_id: communityId,
+      p_profile_id: profileId,
+    })
+
+    if (rpcError) return { error: rpcError.message }
+
+    await fetchCommunities()
+    return { error: null }
   }
 
   async function setCommunityCover(communityId: string, coverImageUrl: string | null) {
@@ -177,6 +208,8 @@ export function useCommunity(profile: Profile | null) {
     createCommunity,
     addMember,
     joinCommunity,
+    approveMembershipRequest,
+    rejectMembershipRequest,
     setCommunityCover,
     refresh: fetchCommunities,
   }

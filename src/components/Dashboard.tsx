@@ -25,6 +25,7 @@ import { ProductManager } from './ProductManager'
 import { ProfessionalPanel } from './ProfessionalPanel'
 import { MasterPanel } from './MasterPanel'
 import { MemberCommunityCard } from './MemberCommunityCard'
+import { PendingMembershipRequests } from './PendingMembershipRequests'
 import { HomeToday } from './HomeToday'
 import { PrimaryNav } from './PrimaryNav'
 import { DashboardRail } from './DashboardRail'
@@ -70,6 +71,8 @@ export function Dashboard({
     createCommunity,
     addMember,
     joinCommunity,
+    approveMembershipRequest,
+    rejectMembershipRequest,
     setCommunityCover,
   } = useCommunity(profile)
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
@@ -554,6 +557,13 @@ export function Dashboard({
       if (effectiveNav === 'comunidades') {
         return (
           <>
+            <PendingMembershipRequests
+              communityId={community.id}
+              communityName={community.name}
+              members={community.community_members}
+              onApprove={approveMembershipRequest}
+              onReject={rejectMembershipRequest}
+            />
             <p className="section-label">Participantes</p>
             <AddMemberForm onAdd={(email) => addMember(community.id, email)} />
             <MemberList

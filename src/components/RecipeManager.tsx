@@ -145,6 +145,7 @@ export function RecipeManager({ communityId, profileId, canManage = true }: Reci
 
               <CoverImageInput
                 id="recipe-cover"
+                communityId={communityId}
                 uid={profileId}
                 label="Foto da receita (opcional)"
                 value={form.coverImageUrl}

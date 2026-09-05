@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { JoyMoment, JoyMomentInput, JoyResult } from '../types/joy'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { CoverImageInput } from './CoverImageInput'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { SparkleIcon } from './icons'
 
 // Fase 4 — card de um Momento de Alegria.
@@ -9,6 +10,7 @@ import { SparkleIcon } from './icons'
 // texto grande. Só o próprio autor vê "Editar"/"Excluir" (edição inline).
 
 interface JoyMomentCardProps {
+  communityId: string
   moment: JoyMoment
   isOwn: boolean
   profileId: string
@@ -16,7 +18,14 @@ interface JoyMomentCardProps {
   onDelete: (momentId: string) => Promise<JoyResult>
 }
 
-export function JoyMomentCard({ moment, isOwn, profileId, onUpdate, onDelete }: JoyMomentCardProps) {
+export function JoyMomentCard({
+  communityId,
+  moment,
+  isOwn,
+  profileId,
+  onUpdate,
+  onDelete,
+}: JoyMomentCardProps) {
   const [editing, setEditing] = useState(false)
   const [body, setBody] = useState(moment.body)
   const [imageUrl, setImageUrl] = useState(moment.image_url ?? '')
@@ -24,6 +33,7 @@ export function JoyMomentCard({ moment, isOwn, profileId, onUpdate, onDelete }: 
   const [error, setError] = useState<string | null>(null)
 
   const authorName = moment.author?.full_name ?? 'Uma mulher do Círcula'
+  const { url: photoUrl } = useSignedImageUrl(moment.image_url)
 
   function startEdit() {
     setBody(moment.body)
@@ -85,6 +95,7 @@ export function JoyMomentCard({ moment, isOwn, profileId, onUpdate, onDelete }: 
           />
           <CoverImageInput
             id={`joy-edit-${moment.id}`}
+            communityId={communityId}
             uid={profileId}
             label="Foto (opcional)"
             value={imageUrl}
@@ -108,9 +119,9 @@ export function JoyMomentCard({ moment, isOwn, profileId, onUpdate, onDelete }: 
       ) : (
         <>
           <p className="joy-card-body">{moment.body}</p>
-          {moment.image_url && (
+          {photoUrl && (
             <div className="joy-card-image">
-              <img src={moment.image_url} alt="" />
+              <img src={photoUrl} alt="" />
             </div>
           )}
           {error && <p className="auth-error">{error}</p>}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { buildCommentTree } from '../lib/commentTree'
+import { uploadCommunityMedia } from '../lib/communityMedia'
 import type {
   Comment,
   CreateCommentResult,
@@ -269,25 +270,23 @@ export function usePosts(
     return { error: null }
   }
 
-  // Upload de UMA imagem para o post, reaproveitando o bucket "avatars"
-  // já existente (path por uid — a policy de insert do bucket autoriza
-  // exatamente ${uid}/...). Mesmo padrão de useAuth.uploadAvatar.
+  // Fase 12.5B — upload de UMA imagem para o post, agora no bucket
+  // PRIVADO `community-media` (criado na 12.5A), path
+  // `${communityId}/posts/${viewerId}/...`. O campo `url` devolvido
+  // aqui NÃO é mais uma URL pública utilizável — é o PATH do objeto,
+  // que segue intacto até `createPost` → `posts.image_url` (o nome do
+  // campo foi mantido para não mexer em `PostComposer`/`Feed`, que só
+  // repassam o valor adiante sem renderizá-lo). A leitura resolve esse
+  // path numa signed URL sob demanda, via `useSignedImageUrl`
+  // (`PostCard`, `PostsModerationPanel`).
   async function uploadPostImage(
     file: File,
   ): Promise<{ url: string | null; error: string | null }> {
     if (!viewerId) return { url: null, error: 'Sem sessão ativa.' }
+    if (!communityId) return { url: null, error: 'Sem comunidade selecionada.' }
 
-    const extension = file.name.split('.').pop() ?? 'jpg'
-    const path = `${viewerId}/posts/${Date.now()}.${extension}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: false })
-
-    if (uploadError) return { url: null, error: uploadError.message }
-
-    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-    return { url: data.publicUrl, error: null }
+    const { path, error } = await uploadCommunityMedia(file, communityId, viewerId, 'posts')
+    return { url: path, error }
   }
 
   // Carrega a conversa INTEIRA de um post em UMA consulta e monta a

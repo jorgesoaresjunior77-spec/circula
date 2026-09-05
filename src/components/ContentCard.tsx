@@ -3,6 +3,7 @@ import type { CommunityContent } from '../types/content'
 import { CONTENT_TYPE_LABEL } from '../types/content'
 import { HeartIcon, BookmarkIcon } from './icons'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
 interface ContentCardProps {
   item: CommunityContent
@@ -30,6 +31,7 @@ export function ContentCard({
 
   const liked = item.likes.some((like) => like.profile_id === profileId)
   const likeCount = item.likes.length
+  const { url: coverUrl } = useSignedImageUrl(item.cover_image_url)
 
   async function handleLike() {
     setWorking(true)
@@ -46,9 +48,9 @@ export function ContentCard({
 
   return (
     <article className="content-card">
-      {item.cover_image_url && (
+      {coverUrl && (
         <div className="content-card-cover" aria-hidden="true">
-          <img src={item.cover_image_url} alt="" />
+          <img src={coverUrl} alt="" />
         </div>
       )}
 

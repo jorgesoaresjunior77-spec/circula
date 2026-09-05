@@ -1,5 +1,6 @@
 import { usePlatformCommunities } from '../hooks/usePlatformCommunities'
 import type { PlatformCommunity } from '../types/platform'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { EmptyState } from './EmptyState'
 
 function activityLabel(iso: string | null): string {
@@ -21,11 +22,18 @@ const STATUS_LABEL: Record<string, string> = {
 
 function CommunityCard({ community }: { community: PlatformCommunity }) {
   const name = community.name || 'Comunidade'
+  // Nota: para comunidades com mídia nova (path no bucket privado
+  // `community-media`), a signed URL aqui tende a falhar — o Master
+  // não tem `owns_community`/`is_community_member` sobre comunidades
+  // alheias. Consistente com a filosofia já estabelecida nas fases
+  // 12.4/12.4b/12.4c ("Master não tem acesso individual"): o
+  // fallback (inicial do nome) assume normalmente, sem ser um bug.
+  const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
   return (
     <article className="master-community-card">
       <div className="master-community-cover" aria-hidden="true">
-        {community.cover_image_url ? (
-          <img src={community.cover_image_url} alt="" />
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}

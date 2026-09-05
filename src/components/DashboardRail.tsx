@@ -1,5 +1,6 @@
 import type { NavKey } from './PrimaryNav'
 import { formatEventDate } from '../lib/formatEventDate'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import {
   CalendarIcon,
   ChevronRightIcon,
@@ -50,6 +51,7 @@ export function DashboardRail({
   nextEvent,
   onNavigate,
 }: DashboardRailProps) {
+  const { url: coverUrl } = useSignedImageUrl(communityCoverUrl)
   return (
     <aside className="dashboard-rail" aria-label="Resumo e atalhos">
       {(typeof pointsBalance === 'number' || typeof achievementsCount === 'number') && (
@@ -105,8 +107,8 @@ export function DashboardRail({
             onClick={() => onNavigate('comunidades')}
           >
             <span className="rail-community-cover" aria-hidden="true">
-              {communityCoverUrl ? (
-                <img src={communityCoverUrl} alt="" />
+              {coverUrl ? (
+                <img src={coverUrl} alt="" />
               ) : (
                 <span>{communityName.charAt(0).toUpperCase()}</span>
               )}

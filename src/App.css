@@ -3125,6 +3125,18 @@
   }
 }
 
+/* Fase 12.3 — solicitações de entrada pendentes (Professional) */
+.pending-requests {
+  margin-bottom: var(--space-4);
+}
+
+.pending-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Moderação de publicações */
 .moderation-post {
   display: flex;

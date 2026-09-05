@@ -1,6 +1,7 @@
 import type { CommunityContent } from '../types/content'
 import { ChevronLeftIcon, RecipeIcon } from './icons'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
 // Fase 2 — visualização completa de uma receita.
 // Prioridade absoluta: LEGIBILIDADE. Foto maior no topo, título grande,
@@ -23,6 +24,7 @@ function toLines(value: string | null): string[] {
 export function RecipeView({ recipe, onBack }: RecipeViewProps) {
   const ingredients = toLines(recipe.ingredients)
   const author = recipe.author?.full_name ?? 'Equipe da comunidade'
+  const { url: coverUrl } = useSignedImageUrl(recipe.cover_image_url)
 
   return (
     <article className="recipe-view">
@@ -32,8 +34,8 @@ export function RecipeView({ recipe, onBack }: RecipeViewProps) {
       </button>
 
       <div className="recipe-view-cover" aria-hidden="true">
-        {recipe.cover_image_url ? (
-          <img src={recipe.cover_image_url} alt="" />
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
         ) : (
           <span className="recipe-view-cover-fallback">
             <RecipeIcon size={56} />

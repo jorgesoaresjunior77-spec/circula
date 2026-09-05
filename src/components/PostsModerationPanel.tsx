@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { usePostsModeration } from '../hooks/usePostsModeration'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { ModerationPost } from '../types/panel'
 import { HeartIcon, CommentIcon } from './icons'
 import { EmptyState } from './EmptyState'
@@ -29,6 +30,7 @@ function ModerationRow({
 
   const hidden = post.hidden_at !== null
   const name = post.author_name ?? 'Participante'
+  const { url: moderationImageUrl } = useSignedImageUrl(post.image_url)
 
   async function run(action: 'hide' | 'unhide' | 'remove') {
     setBusy(true)
@@ -68,8 +70,8 @@ function ModerationRow({
 
       {post.title && <p className="moderation-post-title">{post.title}</p>}
       <p className="moderation-post-content">{post.content}</p>
-      {post.image_url && (
-        <img className="moderation-post-image" src={post.image_url} alt="" loading="lazy" />
+      {moderationImageUrl && (
+        <img className="moderation-post-image" src={moderationImageUrl} alt="" loading="lazy" />
       )}
 
       <p className="moderation-post-stats">

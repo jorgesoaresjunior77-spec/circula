@@ -35,6 +35,8 @@ export type AddMemberResult =
   | { status: 'error'; error: string }
 
 export type JoinResult =
-  | { status: 'success' }
+  // Fase 12.3: entrar em comunidade discoverable nunca concede acesso
+  // imediato — cria uma solicitação (community_members.status='pending').
+  | { status: 'pending' }
   | { status: 'already_member' }
   | { status: 'error'; error: string }

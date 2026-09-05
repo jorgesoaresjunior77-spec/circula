@@ -166,6 +166,7 @@ export function EventManager({ communityId, profileId, canManage = true }: Event
 
         <CoverImageInput
           id="event-cover"
+          communityId={communityId}
           uid={profileId}
           value={form.coverImageUrl}
           onChange={(url) => set('coverImageUrl', url)}

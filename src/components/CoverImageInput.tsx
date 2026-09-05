@@ -1,12 +1,21 @@
 import { useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
-import { uploadCoverImage } from '../lib/uploadImage'
+import { uploadCommunityMedia } from '../lib/communityMedia'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
 interface CoverImageInputProps {
-  /** URL de capa já persistida (`''` = sem capa). */
+  /** Path/URL de capa já persistida (`''` = sem capa) — path novo do
+   *  bucket `community-media` ou, para capas enviadas antes da 12.5B,
+   *  URL pública antiga do bucket `avatars`. */
   value: string
-  /** Chamado com a nova URL pública, ou `''` quando a capa é removida. */
-  onChange: (url: string) => void
+  /** Chamado com o novo PATH (bucket community-media), ou `''` quando a
+   *  capa é removida. NÃO é mais uma URL pública utilizável direto —
+   *  ver `uploadCommunityMedia`. */
+  onChange: (path: string) => void
+  /** id da comunidade dona deste conteúdo — 1o segmento do path, usado
+   *  pelas policies de Storage para autorizar leitura/escrita. NUNCA
+   *  assumido: vem sempre do contexto real de quem chama. */
+  communityId: string
   /** id da usuária logada (= `auth.uid()`), usado no caminho do upload. */
   uid: string
   /** id do input de arquivo, para associar ao rótulo. */
@@ -17,15 +26,19 @@ interface CoverImageInputProps {
 
 /**
  * Campo reutilizável de imagem de capa: seleciona um arquivo, faz o
- * upload direto para o Storage (via `uploadCoverImage`) e devolve a URL
- * pública pelo `onChange` — os hooks de persistência continuam recebendo
- * apenas uma string de URL, exatamente como recebiam do antigo
- * `<input type="url">`. Mostra preview (local durante o envio, remoto
- * depois), estado de envio e ação de remover. Sem dependência nova.
+ * upload direto para o Storage (bucket privado `community-media`, via
+ * `uploadCommunityMedia`) e devolve o PATH pelo `onChange` — os hooks de
+ * persistência continuam recebendo apenas uma string, exatamente como
+ * recebiam do antigo `<input type="url">`, só que agora é um path, não
+ * uma URL pública. Mostra preview: local (blob) durante o envio; depois
+ * do envio, e para valores já persistidos, resolve via
+ * `useSignedImageUrl` (que também sabe exibir direto uma URL pública
+ * antiga, sem tentar assiná-la). Estado de envio e ação de remover.
  */
 export function CoverImageInput({
   value,
   onChange,
+  communityId,
   uid,
   id,
   label = 'Imagem de capa (opcional)',
@@ -36,7 +49,8 @@ export function CoverImageInput({
   const [error, setError] = useState<string | null>(null)
   const [localPreview, setLocalPreview] = useState<string | null>(null)
 
-  const preview = localPreview ?? (value || null)
+  const { url: savedPreviewUrl } = useSignedImageUrl(value || null)
+  const preview = localPreview ?? savedPreviewUrl
   const controlsDisabled = disabled || uploading
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
@@ -50,18 +64,23 @@ export function CoverImageInput({
     setLocalPreview(objectUrl)
     setUploading(true)
 
-    const { url, error: uploadError } = await uploadCoverImage(file, uid)
+    const { path, error: uploadError } = await uploadCommunityMedia(
+      file,
+      communityId,
+      uid,
+      'covers',
+    )
 
     setUploading(false)
     URL.revokeObjectURL(objectUrl)
     setLocalPreview(null)
 
-    if (uploadError || !url) {
+    if (uploadError || !path) {
       setError(uploadError ?? 'Não foi possível enviar a imagem agora. Tente novamente.')
       return
     }
 
-    onChange(url)
+    onChange(path)
   }
 
   function handleClear() {

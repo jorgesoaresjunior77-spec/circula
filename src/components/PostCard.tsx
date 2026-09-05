@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '../types/post'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CommentList } from './CommentList'
 import { CommentThread } from './CommentThread'
 import { CommentForm } from './CommentForm'
@@ -49,6 +50,7 @@ export function PostCard({
   replyCountByComment = {},
 }: PostCardProps) {
   const name = post.author?.full_name ?? 'Participante'
+  const { url: postImageUrl } = useSignedImageUrl(post.image_url)
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
   const [reacting, setReacting] = useState(false)
@@ -140,8 +142,8 @@ export function PostCard({
       {isEngagementCommand && post.title && <p className="post-title">{post.title}</p>}
       <p className="post-content">{post.content}</p>
 
-      {post.image_url && (
-        <img className="post-image" src={post.image_url} alt="" loading="lazy" />
+      {postImageUrl && (
+        <img className="post-image" src={postImageUrl} alt="" loading="lazy" />
       )}
 
       <div className="post-actions">

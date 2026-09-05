@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useChallengeProgress } from '../hooks/useChallengeProgress'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { formatChallengePeriod, formatStartCountdown } from '../lib/challengePeriod'
 import type {
   ChallengeComment,
@@ -51,6 +52,7 @@ export function ChallengeCard({
   onOpenComments,
   onAddComment,
 }: ChallengeCardProps) {
+  const { url: coverUrl } = useSignedImageUrl(challenge.cover_image_url)
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState<string | null>(null)
   const [toggleError, setToggleError] = useState<string | null>(null)
@@ -124,9 +126,7 @@ export function ChallengeCard({
 
   return (
     <article className="challenge-card">
-      {challenge.cover_image_url && (
-        <img className="challenge-cover" src={challenge.cover_image_url} alt="" />
-      )}
+      {coverUrl && <img className="challenge-cover" src={coverUrl} alt="" />}
 
       <div className="challenge-card-head">
         <div className="challenge-card-heading">

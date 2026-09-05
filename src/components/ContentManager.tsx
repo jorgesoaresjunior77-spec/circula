@@ -180,6 +180,7 @@ export function ContentManager({
 
           <CoverImageInput
             id="content-cover"
+            communityId={communityId}
             uid={profileId}
             value={form.coverImageUrl}
             onChange={(url) => set('coverImageUrl', url)}

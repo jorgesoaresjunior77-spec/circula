@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { CircleWithMembers, JoinCircleResult } from '../types/circle'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { ChevronRightIcon } from './icons'
 
 interface CircleCardProps {
@@ -24,6 +25,7 @@ export function CircleCard({
 }: CircleCardProps) {
   const [working, setWorking] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  const { url: coverUrl } = useSignedImageUrl(circle.cover_image_url)
 
   async function handleToggle() {
     setWorking(true)
@@ -45,9 +47,9 @@ export function CircleCard({
   return (
     <article className="circle-card">
       <div className="circle-card-row">
-        {circle.cover_image_url ? (
+        {coverUrl ? (
           <span className="circle-card-cover" aria-hidden="true">
-            <img src={circle.cover_image_url} alt="" />
+            <img src={coverUrl} alt="" />
           </span>
         ) : (
           memberCount > 0 && (

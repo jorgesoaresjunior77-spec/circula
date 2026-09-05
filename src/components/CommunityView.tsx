@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { CommunityWithMembers, JoinResult } from '../types/community'
 import { CoverImageInput } from './CoverImageInput'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
 interface CommunityViewProps {
   community: CommunityWithMembers
@@ -97,8 +98,13 @@ export function CommunityView({
 
     setJoining(false)
 
-    if (result.status === 'already_member') {
-      setMessage({ type: 'error', text: 'Você já participa desta comunidade.' })
+    if (result.status === 'pending') {
+      setMessage({
+        type: 'success',
+        text: 'Solicitação enviada! Assim que a profissional aprovar, você terá acesso.',
+      })
+    } else if (result.status === 'already_member') {
+      setMessage({ type: 'error', text: 'Você já solicitou ou já participa desta comunidade.' })
     } else if (result.status === 'error') {
       setMessage({ type: 'error', text: 'Não foi possível entrar agora. Tente novamente.' })
     }
@@ -123,14 +129,15 @@ export function CommunityView({
   }
 
   const stats = buildStats(community, memberCount)
+  const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
 
   return (
     <section className="community-card community-card--highlight community-hero">
       <div className="community-hero-cover" aria-hidden="true">
-        {community.cover_image_url && (
+        {coverUrl && (
           <img
             className="community-hero-cover-image"
-            src={community.cover_image_url}
+            src={coverUrl}
             alt=""
           />
         )}
@@ -141,9 +148,10 @@ export function CommunityView({
           <div className="community-hero-cover-control">
             <CoverImageInput
               id={`community-cover-${community.id}`}
+              communityId={community.id}
               uid={ownerId}
               value={community.cover_image_url ?? ''}
-              onChange={(url) => void saveCover(url ? url : null)}
+              onChange={(path) => void saveCover(path ? path : null)}
               disabled={coverSaving}
               label="Imagem de capa"
             />

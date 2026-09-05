@@ -86,6 +86,7 @@ export function CircleManager({
 
           <CoverImageInput
             id="circle-cover"
+            communityId={communityId}
             uid={profileId}
             value={coverImageUrl}
             onChange={setCoverImageUrl}
@@ -123,6 +124,7 @@ export function CircleManager({
                 />
                 <CoverImageInput
                   id={`edit-circle-cover-${circle.id}`}
+                  communityId={communityId}
                   uid={profileId}
                   value={editCoverImageUrl}
                   onChange={setEditCoverImageUrl}
