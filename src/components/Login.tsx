@@ -4,7 +4,12 @@ import { supabase } from '../lib/supabase'
 import circulaIcon from '../assets/circula-icon.jpg'
 import circulaLogo from '../assets/circula-logo.jpg'
 
-const RESET_PASSWORD_REDIRECT_TO = 'http://localhost:5173/'
+// Fase 14.1 — deriva a URL do próprio ambiente/base da app: em dev
+// resolve para http://localhost:5173/circula/ e em produção para
+// https://jorgesoaresjunior77-spec.github.io/circula/ (base '/circula/'
+// definida no vite.config.ts). O link de recuperação de senha volta
+// para esta URL, nunca mais para um localhost fixo.
+const RESET_PASSWORD_REDIRECT_TO = `${window.location.origin}${import.meta.env.BASE_URL}`
 const FORGOT_PASSWORD_GENERIC_MESSAGE =
   'Se este e-mail estiver cadastrado, você receberá um link de recuperação em instantes.'
 const FORGOT_PASSWORD_ERROR_MESSAGE =
