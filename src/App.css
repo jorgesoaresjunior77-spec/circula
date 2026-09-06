@@ -1263,6 +1263,42 @@
   }
 }
 
+/* FASE 15.2 (G1) — faixa de status do trial de plataforma (PlatformTrialBanner).
+   Reaproveita .community-card--quiet; só acrescenta a linha headline+CTA e um
+   acento lateral por tom. */
+.trial-banner {
+  gap: var(--space-2);
+  border-left-width: 3px;
+}
+
+.trial-banner--info {
+  border-left-color: var(--olive-border);
+  background-image: linear-gradient(var(--olive-bg), var(--olive-bg));
+}
+
+.trial-banner--warn {
+  border-left-color: var(--danger);
+  background-image: linear-gradient(var(--danger-bg), var(--danger-bg));
+}
+
+.trial-banner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.trial-banner-headline {
+  margin: 0;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.trial-banner-row .btn {
+  flex-shrink: 0;
+}
+
 /* Botões "de ação principal" soltos direto no card — formulário ou avulso
    (ex.: "Entrar" do CommunityView, "Publicar X agora" dos gerenciadores). */
 .community-card form > button[type='submit'],

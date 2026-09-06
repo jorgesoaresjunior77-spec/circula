@@ -24,6 +24,7 @@ import { Messages } from './Messages'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { ProfessionalPanel } from './ProfessionalPanel'
+import { PlatformTrialBanner } from './PlatformTrialBanner'
 import { MasterPanel } from './MasterPanel'
 import { MemberCommunityCard } from './MemberCommunityCard'
 import { PendingMembershipRequests } from './PendingMembershipRequests'
@@ -790,6 +791,11 @@ export function Dashboard({
               {loading && <p>Carregando comunidade...</p>}
 
               {!loading && error && <p className="auth-error">{error}</p>}
+
+              {/* FASE 15.2 (G1) — status do trial de plataforma + CTA de
+                  assinatura, visível em qualquer destino do Professional.
+                  Renderiza null fora dos estados de trial/pendência. */}
+              {!loading && !error && profile?.role === 'professional' && <PlatformTrialBanner />}
 
               {!loading && !error && renderDestination()}
             </div>
