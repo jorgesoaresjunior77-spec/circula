@@ -12,6 +12,7 @@ import { HelpQueue } from './HelpQueue'
 import { PointsPanel } from './PointsPanel'
 import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
+import { CommunityPriceSettings } from './CommunityPriceSettings'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { ParticipantsPanel } from './ParticipantsPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
@@ -170,7 +171,14 @@ export function ProfessionalPanel({
         </div>
       )}
 
-      {activeTab === 'assinaturas' && <SubscriptionPanel subject="platform" />}
+      {activeTab === 'assinaturas' && (
+        <div className="panel-tab-content">
+          <SubscriptionPanel subject="platform" />
+          {/* FASE 16.1-P — preço da assinatura da própria comunidade
+              (piso R$ 14,90, validado no servidor). */}
+          <CommunityPriceSettings communityId={communityId} />
+        </div>
+      )}
     </section>
   )
 }

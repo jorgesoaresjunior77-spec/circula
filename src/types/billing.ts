@@ -34,3 +34,19 @@ export interface Subscription {
 export type DocumentType = 'CPF' | 'CNPJ'
 
 export type SubscriptionActionResult = { error: string | null }
+
+// FASE 16.1-P — preço da assinatura por comunidade (Regra de Produto 2).
+// R$ 14,90 é o PISO, não um preço fixo. O enforcement real é o CHECK no
+// banco + a RPC set_community_price; a constante abaixo é só validação
+// visual.
+export const MEMBER_PRICE_MIN_CENTS = 1490
+
+export type CommunityBillingCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
+
+export interface CommunityBillingSettings {
+  community_id: string
+  price_cents: number
+  billing_cycle: CommunityBillingCycle
+  currency: 'BRL'
+  updated_at: string
+}
