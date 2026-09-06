@@ -84,29 +84,6 @@ export function ProfessionalDashboard({ communityId, onOpenTab }: ProfessionalDa
 
         <section className="community-card community-card--quiet panel-dashboard-block">
           <div className="panel-dashboard-block-head">
-            <h4>Receitas recentes</h4>
-            <button type="button" className="auth-link" onClick={() => onOpenTab('receitas')}>
-              Abrir
-            </button>
-          </div>
-          {data.recent_recipes.length === 0 ? (
-            <p className="panel-dashboard-line">Nenhuma receita publicada ainda.</p>
-          ) : (
-            <ul className="panel-dashboard-list">
-              {data.recent_recipes.map((recipe) => (
-                <li key={recipe.id}>
-                  <span>{recipe.title ?? 'Receita'}</span>
-                  <span className="panel-dashboard-muted">
-                    {formatRelativeTime(recipe.created_at)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
             <h4>Publicações recentes</h4>
             <button type="button" className="auth-link" onClick={() => onOpenTab('publicacoes')}>
               Abrir

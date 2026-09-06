@@ -28,7 +28,7 @@ export function HelpQueue({ communityId, profileId, onOpenConversation }: HelpQu
       <h3>Pedidos de ajuda</h3>
       <p className="help-queue-intro">
         Pedidos das mulheres da sua comunidade. Você pode mover o status e responder. Os pedidos
-        "para a Nutri" abrem a conversa no Mensagens.
+        "para a responsável" abrem a conversa no Mensagens.
       </p>
 
       {loading && <p>Carregando fila…</p>}

@@ -7,7 +7,6 @@ import {
   CommunitiesIcon,
   FeedIcon,
   MessageIcon,
-  RecipeIcon,
   SparkleIcon,
   UserIcon,
 } from './icons'
@@ -35,7 +34,6 @@ interface DashboardRailProps {
 
 const QUICK_LINKS: { key: NavKey; label: string; Icon: typeof FeedIcon }[] = [
   { key: 'feed', label: 'Feed', Icon: FeedIcon },
-  { key: 'receitas', label: 'Receitas', Icon: RecipeIcon },
   { key: 'eventos', label: 'Eventos', Icon: CalendarIcon },
   { key: 'mensagens', label: 'Mensagens', Icon: MessageIcon },
   { key: 'perfil', label: 'Meu perfil', Icon: UserIcon },

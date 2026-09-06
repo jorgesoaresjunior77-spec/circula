@@ -39,7 +39,6 @@ export interface ParticipantOverview {
 export interface PanelExtraMetrics {
   events_upcoming: number
   events_total_period: number
-  recipes_published: number
   content_published: number
   challenge_completions_period: number
   joy_moments_period: number
@@ -48,12 +47,6 @@ export interface PanelExtraMetrics {
   help_resolved: number
   points_period: number
   points_all_time: number
-}
-
-export interface DashboardRecipe {
-  id: string
-  title: string | null
-  created_at: string
 }
 
 export interface DashboardEvent {
@@ -88,7 +81,6 @@ export interface ProfessionalDashboardData {
   posts_count: number
   comments_count: number
   reactions_count: number
-  recent_recipes: DashboardRecipe[]
   upcoming_events: DashboardEvent[]
   recent_posts: DashboardPost[]
   top_earners: DashboardTopEarner[]

@@ -11,7 +11,7 @@ export const POINT_REASON_LABEL: Record<PointReason, string> = {
   challenge_day: 'Dia de desafio concluído',
   challenge_completion: 'Desafio concluído',
   recurring_participation: 'Participação diária',
-  manual: 'Concedido pela Nutri',
+  manual: 'Concedido pela responsável',
 }
 
 /** Frase curta para o histórico ("descrição" da origem). */
@@ -19,7 +19,7 @@ export const POINT_REASON_DESCRIPTION: Record<PointReason, string> = {
   challenge_day: 'Você marcou um dia do desafio.',
   challenge_completion: 'Você concluiu um desafio inteiro.',
   recurring_participation: 'Você registrou seu humor do dia.',
-  manual: 'A Nutri concedeu pontos manualmente.',
+  manual: 'A responsável concedeu pontos manualmente.',
 }
 
 export interface PointAccount {

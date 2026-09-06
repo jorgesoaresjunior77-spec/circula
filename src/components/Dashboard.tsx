@@ -15,8 +15,6 @@ import { CircleList } from './CircleList'
 import { CircleDetail } from './CircleDetail'
 import { EventList } from './EventList'
 import { useEvents } from '../hooks/useEvents'
-import { RecipeList } from './RecipeList'
-import { useRecipes } from '../hooks/useRecipes'
 import { SavedItems } from './SavedItems'
 import { useSavedItems } from '../hooks/useSavedItems'
 import { NotificationBell } from './NotificationBell'
@@ -41,7 +39,6 @@ import {
   HomeIcon,
   MessageIcon,
   PanelIcon,
-  RecipeIcon,
   StoreIcon,
   UserIcon,
 } from './icons'
@@ -140,12 +137,6 @@ export function Dashboard({
       inBottomNav: true,
     })
     navItems.push({
-      key: 'receitas',
-      label: 'Receitas',
-      Icon: RecipeIcon,
-      inBottomNav: false,
-    })
-    navItems.push({
       key: 'eventos',
       label: 'Eventos',
       Icon: CalendarIcon,
@@ -225,15 +216,6 @@ export function Dashboard({
     rsvp: eventRsvp,
     cancelRsvp: eventCancelRsvp,
   } = useEvents(effectiveNav === 'eventos' ? resolvedCirclesCommunityId : null)
-
-  // Fase 2 — RECEITAS: destino próprio, alimentado por useRecipes
-  // (extensão de community_content, type='recipe'). Só busca quando o
-  // destino está ativo.
-  const {
-    recipes,
-    loading: recipesLoading,
-    error: recipesError,
-  } = useRecipes(effectiveNav === 'receitas' ? resolvedCirclesCommunityId : null)
 
   // Módulo 7 — Salvos: DESPRIORIZADO na Fase 1. O hook fica dormente
   // (profileId null = sem fetch) e os botões "Salvar" saem de
@@ -498,44 +480,6 @@ export function Dashboard({
           }
           onRsvp={(id) => eventRsvp(id, profile.id)}
           onCancelRsvp={(id) => eventCancelRsvp(id, profile.id)}
-        />
-      )
-    }
-
-    if (effectiveNav === 'receitas') {
-      if (circlesRelevantCommunities.length === 0) {
-        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
-      }
-
-      if (!resolvedCirclesCommunityId) {
-        return (
-          <>
-            <p className="section-label">Receitas · escolha uma comunidade</p>
-            <div className="community-picker">
-              {circlesRelevantCommunities.map((community) => (
-                <button
-                  key={community.id}
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setCirclesCommunityId(community.id)}
-                >
-                  {community.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )
-      }
-
-      return (
-        <RecipeList
-          recipes={recipes}
-          loading={recipesLoading}
-          error={recipesError}
-          canSeeUnpublished={profile.role === 'professional'}
-          communityName={
-            circlesRelevantCommunities.length > 1 ? circlesCommunity?.name : undefined
-          }
         />
       )
     }

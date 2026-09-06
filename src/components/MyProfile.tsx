@@ -190,7 +190,7 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
                   addInterest()
                 }
               }}
-              placeholder="Ex: corrida, alimentação..."
+              placeholder="Ex: corrida, leitura, meditação..."
             />
             <button type="button" onClick={addInterest}>
               Adicionar

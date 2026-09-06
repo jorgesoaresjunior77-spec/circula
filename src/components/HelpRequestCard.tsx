@@ -133,16 +133,18 @@ export function HelpRequestCard({
       {error && <p className="auth-error">{error}</p>}
 
       <div className="help-card-actions">
-        {request.audience === 'nutri' && request.related_conversation_id && onOpenConversation && (
-          <button
-            type="button"
-            className="help-secondary-button"
-            onClick={() => onOpenConversation(request.related_conversation_id as string)}
-          >
-            <MessageIcon size={16} />
-            {canManageStatus ? 'Abrir conversa' : 'Abrir conversa com a Nutri'}
-          </button>
-        )}
+        {request.audience === 'professional' &&
+          request.related_conversation_id &&
+          onOpenConversation && (
+            <button
+              type="button"
+              className="help-secondary-button"
+              onClick={() => onOpenConversation(request.related_conversation_id as string)}
+            >
+              <MessageIcon size={16} />
+              {canManageStatus ? 'Abrir conversa' : 'Abrir conversa com a responsável'}
+            </button>
+          )}
 
         {request.audience === 'community' && (
           <button type="button" className="help-secondary-button" onClick={openReplies}>

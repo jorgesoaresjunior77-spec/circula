@@ -3,7 +3,6 @@ import { QuestionBankManager } from './QuestionBankManager'
 import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { EventManager } from './EventManager'
-import { RecipeManager } from './RecipeManager'
 import { ContentManager } from './ContentManager'
 import { MoodMessageManager } from './MoodMessageManager'
 import { CheckinManager } from './CheckinManager'
@@ -22,7 +21,6 @@ type PanelTab =
   | 'participantes'
   | 'publicacoes'
   | 'desafios'
-  | 'receitas'
   | 'eventos'
   | 'circulos'
   | 'conteudo'
@@ -37,7 +35,6 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'participantes', label: 'Participantes' },
   { key: 'publicacoes', label: 'Publicações' },
   { key: 'desafios', label: 'Desafios' },
-  { key: 'receitas', label: 'Receitas' },
   { key: 'eventos', label: 'Eventos' },
   { key: 'circulos', label: 'Círculos' },
   { key: 'conteudo', label: 'Conteúdo' },
@@ -107,12 +104,6 @@ export function ProfessionalPanel({
         </div>
       )}
 
-      {activeTab === 'receitas' && (
-        <div className="panel-tab-content">
-          <RecipeManager communityId={communityId} profileId={profileId} canManage />
-        </div>
-      )}
-
       {activeTab === 'eventos' && (
         <div className="panel-tab-content">
           <EventManager communityId={communityId} profileId={profileId} canManage />
@@ -133,7 +124,7 @@ export function ProfessionalPanel({
             canManage
             onPublished={onFeedRefresh}
           />
-          <ContentManager communityId={communityId} profileId={profileId} canManage excludeRecipes />
+          <ContentManager communityId={communityId} profileId={profileId} canManage />
           <CheckinManager
             communityId={communityId}
             profileId={profileId}

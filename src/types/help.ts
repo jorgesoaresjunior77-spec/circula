@@ -3,11 +3,11 @@
 // Estrutura própria (help_requests / help_request_replies), separada de
 // posts/Feed, daily_mood, joy_moments e check-in.
 
-export type HelpAudience = 'nutri' | 'community'
+export type HelpAudience = 'professional' | 'community'
 export type HelpStatus = 'open' | 'in_progress' | 'resolved'
 
 export const HELP_AUDIENCE_LABEL: Record<HelpAudience, string> = {
-  nutri: 'Falar com a Nutri',
+  professional: 'Falar com a responsável',
   community: 'Pedir para a comunidade',
 }
 

@@ -414,36 +414,6 @@ export function BookmarkIcon({ size = 17, className }: IconProps) {
   )
 }
 
-/** Receitas — tigela com vapor. Substitui o BookIcon no destino de
- *  Receitas para a função ficar clara sem depender só do rótulo. */
-export function RecipeIcon({ size = 20, className }: IconProps) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <path
-        d="M4 12h16a8 8 0 0 1-8 8 8 8 0 0 1-8-8Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-      <path d="M3 12h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path
-        d="M9 8.5c0-1 .8-1.5.8-2.5S9 3.7 9 3.7M12.2 8.5c0-1 .8-1.5.8-2.5s-.8-1.8-.8-1.8M15.4 8.5c0-1 .8-1.5.8-2.5s-.8-1.8-.8-1.8"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
 /** Brilho — acento alegre do "Momento de alegria". */
 export function SparkleIcon({ size = 18, className }: IconProps) {
   return (

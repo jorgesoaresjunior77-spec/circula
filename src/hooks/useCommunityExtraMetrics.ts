@@ -25,7 +25,6 @@ function windowStartISO(periodDays: number): string {
 const EMPTY: PanelExtraMetrics = {
   events_upcoming: 0,
   events_total_period: 0,
-  recipes_published: 0,
   content_published: 0,
   challenge_completions_period: 0,
   joy_moments_period: 0,
@@ -68,7 +67,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
     const [
       eventsUpcoming,
       eventsPeriod,
-      recipesPublished,
       contentPublished,
       joyPeriod,
       helpRows,
@@ -97,16 +95,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
           .from('community_content')
           .select('id', { count: 'exact' })
           .eq('community_id', communityId)
-          .eq('type', 'recipe')
-          .eq('status', 'published')
-          .limit(0),
-      ),
-      exactCount(
-        supabase
-          .from('community_content')
-          .select('id', { count: 'exact' })
-          .eq('community_id', communityId)
-          .neq('type', 'recipe')
           .eq('status', 'published')
           .limit(0),
       ),
@@ -154,7 +142,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
     setMetrics({
       events_upcoming: eventsUpcoming,
       events_total_period: eventsPeriod,
-      recipes_published: recipesPublished,
       content_published: contentPublished,
       challenge_completions_period: completionsPeriod,
       joy_moments_period: joyPeriod,

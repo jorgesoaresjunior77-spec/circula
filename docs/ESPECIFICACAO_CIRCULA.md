@@ -4,6 +4,48 @@ Este documento é a referência funcional oficial do produto Círcula. Todo dese
 ser avaliado em relação a este conteúdo. Não simplificar, não descaracterizar e não substituir estas
 ideias por funcionalidades genéricas sem marcação explícita como sugestão futura.
 
+## Regras de Produto (obrigatórias — atualização 2026, Fase 16)
+
+Estas duas regras têm precedência sobre qualquer exemplo específico usado no restante do documento
+(incluindo "Nutricionista Marluce", "Fluir e Florescer", receitas e o valor R$ 14,90).
+
+### Regra 1 — O Círcula é agnóstico ao nicho
+
+O **núcleo** da plataforma NÃO contém funcionalidades específicas de um nicho. Não existe, no produto
+base, dependência de: receitas, alimentação, nutrição, dieta, plano alimentar ou qualquer recurso
+que faça o Círcula parecer uma plataforma de nutrição.
+
+O Círcula fornece **a infraestrutura da comunidade** (feed, círculos, eventos, desafios, pontos,
+humor diário, momento de alegria, pedido de ajuda, check-ins, mensagens, biblioteca de conteúdo
+genérica, Loja, billing). **O conteúdo pertence à Professional.** A plataforma funciona igualmente
+para nutricionistas, psicólogos, personal trainers, professores, terapeutas, mentores, consultores
+e profissionais de outros nichos.
+
+Conteúdo específico de um nicho (por exemplo, um caderno de receitas) é publicado pela Professional
+como **conteúdo genérico** da comunidade ou vendido como **produto da Loja** (e-book, curso,
+material, plano). A Loja continua sendo o mecanismo oficial para isso.
+
+*Removido do núcleo na Fase 16.1-D:* o recurso dedicado de **Receitas** (tipo de conteúdo `recipe`,
+tela/aba/nav próprias, categorias de refeição, campo `ingredients`); o identificador de nicho
+`help_requests.audience = 'nutri'` foi renomeado para `'professional'`; textos como "a Nutri" /
+"sua nutricionista" foram trocados por linguagem neutra ("a responsável pela comunidade") ou pelo
+nome da Professional.
+
+### Regra 2 — Cada Professional define o preço da própria comunidade
+
+O preço da assinatura do Member **não** é fixo em R$ 14,90 e **não** pode ser hard-coded. R$ 14,90 é
+apenas uma referência comercial histórica. Cada Professional deverá poder configurar quanto cobra
+dos Members da sua comunidade (ex.: R$ 14,90 / R$ 29,90 / R$ 49,90 / R$ 99,90 por mês), com
+periodicidade própria, e a comunidade poderá ser gratuita.
+
+O preço deve viver como **dado da comunidade / configuração de assinatura** (não no frontend). A
+cobrança usa o valor configurado; o valor **nunca** trafega do cliente para o backend. A lógica
+financeira continua: Member → cobrança pela conta Asaas do Círcula → Split (regra atual 90%
+Professional / 10% Círcula, sobre o `netValue`) → cada parte na sua conta.
+
+*Status:* **ainda não implementada.** A Fase 16.1-D (des-nicho) não altera billing/subscriptions/
+Asaas/Split. A implementação do preço por comunidade é uma etapa posterior (16.1-P).
+
 ## 1. Conceito da Plataforma
 
 A plataforma é uma rede social de comunidades voltada para mulheres.
@@ -1451,3 +1493,28 @@ Validado ao vivo (`http://localhost:5173/circula/`) nos 3 perfis:
 Responsividade 320/375px: não renderizável neste ambiente (a janela do Chrome não reduz abaixo de ~1366px); 1280/1440px OK, sem overflow. A correção não altera CSS do cabeçalho (só render condicional + uma consulta).
 
 Sem `supabase db push`, sem dados de teste criados, sem alteração de RLS.
+
+
+---
+
+## FASE 16.1-D — DES-NICHO DO NÚCLEO (2026-09, código + build; migration criada, não aplicada)
+
+Aplica a **Regra de Produto 1** (ver topo do documento). O núcleo deixa de ter recurso específico de nutrição.
+
+### Removido do produto base
+- **Receitas** como recurso dedicado: componentes `RecipeManager` / `RecipeList` / `RecipeCard` / `RecipeView` e o hook `useRecipes` (apagados); destino de navegação "Receitas" (Dashboard + `PrimaryNav` + `DashboardRail`); aba "Receitas" do `ProfessionalPanel`; seção "Receitas" da Home (`HomeHighlights`); bloco "Receitas recentes" do `ProfessionalDashboard`; métrica "Receitas publicadas" (`CommunityMetricsPanel`, `MasterDashboard`).
+- `types/content.ts`: tipo `'recipe'` removido de `ContentType`, além de `RECIPE_CATEGORIES` / `RecipeCategory` / `RECIPE_CATEGORY_FALLBACK` / `RecipeInput` e do campo `ingredients` das interfaces.
+- `ContentManager`: prop `excludeRecipes` removida (não há mais receitas a excluir — o gerenciador trata toda a `Biblioteca da comunidade`).
+- `types/panel.ts` / `types/platform.ts`: campos `recipes_published`, `communities_with_recipes`, `recent_recipes`, `DashboardRecipe` removidos.
+- Linguagem de nicho: `help_requests.audience = 'nutri'` → `'professional'` (schema + código); textos "a Nutri" / "sua nutricionista" / "Falar com a Nutri" → "a responsável" / "a responsável pela comunidade" / "Falar com a responsável"; `POINT_REASON` "Concedido pela Nutri" → "Concedido pela responsável"; placeholder de interesses "corrida, alimentação..." → "corrida, leitura, meditação...".
+
+### Banco — migration `20260917120000_desniche_core.sql` (CRIADA, **não aplicada**)
+Verificação read-only ANTES (2026-09-06): `community_content` 2 linhas, sendo **1** com `type='recipe'` (e `ingredients`); `help_requests` 1 linha, **0** com `audience='nutri'`.
+- A linha `recipe` é **convertida** para `type='material'` com os ingredientes preservados dentro de `body`; nada é apagado. `ingredients` volta a NULL. A coluna `ingredients` **não** é dropada (drop de coluna é destrutivo) — fica vazia; drop seguro adiado.
+- `community_content_type_check` recriado sem `'recipe'`; `help_requests_audience_check` recriado como `('professional','community')` (UPDATE defensivo antes).
+- **Não** toca RLS/policies/GRANTs, billing, subscriptions, Asaas, Split, Loja, Storage, auth. `platform_overview()` segue emitindo `recipes_published` = 0 (vestigial, inofensivo; limpeza adiada porque a função também lê billing, congelado nesta etapa).
+
+### Preservado
+Feed, Loja (produtos/checkout/split/entitlements), Storage, billing/subscriptions/Asaas, onboarding financeiro (Fase 16.1), autenticação, e todos os recursos genéricos: círculos, eventos, desafios, pontos, humor diário, momento de alegria, pedido de ajuda (mecanismo), check-ins, comandos de engajamento, mensagens, biblioteca de conteúdo genérica (`article`/`tip`/`material`/`video`/`educational`), notificações sociais, Master.
+
+### Sem `db push`, sem commit, sem push, sem deploy.

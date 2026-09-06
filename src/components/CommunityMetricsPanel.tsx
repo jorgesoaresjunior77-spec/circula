@@ -115,10 +115,6 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
                 <p className="metric-tile-label">Eventos criados</p>
               </div>
               <div className="metric-tile">
-                <p className="metric-tile-value">{extra.recipes_published}</p>
-                <p className="metric-tile-label">Receitas publicadas</p>
-              </div>
-              <div className="metric-tile">
                 <p className="metric-tile-value">{extra.content_published}</p>
                 <p className="metric-tile-label">Conteúdos publicados</p>
               </div>

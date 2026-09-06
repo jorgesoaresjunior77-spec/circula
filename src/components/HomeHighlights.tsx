@@ -10,7 +10,6 @@ import { isPastEvent } from '../lib/formatEventDate'
 import { PostCard } from './PostCard'
 import { EventCard } from './EventCard'
 import { ContentCard } from './ContentCard'
-import { RecipeCard } from './RecipeCard'
 import { CheckinResponseForm } from './CheckinResponseForm'
 
 // MÓDULO 6 · A4 — HomeToday v2 (Home rica)
@@ -26,7 +25,6 @@ import { CheckinResponseForm } from './CheckinResponseForm'
 
 const RECENT_POSTS_LIMIT = 4
 const UPCOMING_EVENTS_LIMIT = 3
-const LIBRARY_LIMIT = 3
 const CONTENT_LIMIT = 3
 
 interface HomeHighlightsProps {
@@ -80,18 +78,11 @@ export function HomeHighlights({
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
     .slice(0, UPCOMING_EVENTS_LIMIT)
 
-  // Fase 1 — "Biblioteca" deixa de ser conceito principal: a Home
-  // destaca Receitas. Os demais tipos de conteúdo seguem geridos no
-  // painel da Nutri; a área dedicada de Receitas chega na Fase 2.
-  const libraryHighlights = content.items
-    .filter((item) => item.status === 'published' && item.type === 'recipe')
-    .slice(0, LIBRARY_LIMIT)
-
-  // Fase 10 — "Conteúdo para você": os tipos NÃO-receita publicados
-  // (artigo, dica, material, vídeo, educativo). A Biblioteca antiga não
-  // volta — é só uma faixa da Home, e só aparece se houver conteúdo real.
+  // "Conteúdo para você": conteúdos publicados da comunidade (artigo,
+  // dica, material, vídeo, educativo). É só uma faixa da Home, e só
+  // aparece se houver conteúdo real.
   const contentForYou = content.items
-    .filter((item) => item.status === 'published' && item.type !== 'recipe')
+    .filter((item) => item.status === 'published')
     .slice(0, CONTENT_LIMIT)
 
   const pendingCheckin =
@@ -117,7 +108,6 @@ export function HomeHighlights({
     dailyCommand ||
     pendingCheckin ||
     upcomingEvents.length > 0 ||
-    libraryHighlights.length > 0 ||
     contentForYou.length > 0 ||
     recentPosts.length > 0
 
@@ -190,26 +180,6 @@ export function HomeHighlights({
                 onRsvp={() => events.rsvp(event.id, profileId)}
                 onCancelRsvp={() => events.cancelRsvp(event.id, profileId)}
               />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {libraryHighlights.length > 0 && (
-        <section className="home-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Receitas</h3>
-            <button
-              type="button"
-              className="home-section-link"
-              onClick={() => onNavigate('receitas')}
-            >
-              Ver todas
-            </button>
-          </div>
-          <div className="home-recipe-row">
-            {libraryHighlights.map((item) => (
-              <RecipeCard key={item.id} recipe={item} onOpen={() => onNavigate('receitas')} />
             ))}
           </div>
         </section>

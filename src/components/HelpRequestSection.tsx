@@ -42,11 +42,11 @@ export function HelpRequestSection({
 
   const visible = showAll ? requests : requests.slice(0, PREVIEW_COUNT)
 
-  async function handleSubmit(input: { body: string; audience: 'nutri' | 'community' }) {
+  async function handleSubmit(input: { body: string; audience: 'professional' | 'community' }) {
     const result = await createRequest(input)
     if (!result.error) {
       setFormOpen(false)
-      if (input.audience === 'nutri' && result.conversationId) {
+      if (input.audience === 'professional' && result.conversationId) {
         onOpenConversation(result.conversationId)
       }
     }
@@ -61,8 +61,8 @@ export function HelpRequestSection({
             Quer conversar sobre alguma coisa?
           </h3>
           <p className="help-section-sub">
-            Não se sinta sozinha. Você pode pedir ajuda quando precisar — para a Nutri ou para as
-            outras mulheres do Círcula. 🤍
+            Não se sinta sozinha. Você pode pedir ajuda quando precisar — para a responsável ou para
+            as outras mulheres do Círcula. 🤍
           </p>
         </div>
         {!formOpen && (

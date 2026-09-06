@@ -100,7 +100,7 @@ export function useHelpRequests(
 
     let conversationId: string | null = null
 
-    if (input.audience === 'nutri') {
+    if (input.audience === 'professional') {
       if (!communityOwnerId) return { error: 'Comunidade sem anfitriã definida.' }
       const { data: convData, error: rpcError } = await supabase.rpc(
         'get_or_create_direct_conversation',
@@ -128,7 +128,7 @@ export function useHelpRequests(
 
     // Mensagem de abertura na conversa (só para 'nutri'). Uma falha aqui
     // não invalida o pedido, que já foi criado.
-    if (input.audience === 'nutri' && conversationId) {
+    if (input.audience === 'professional' && conversationId) {
       await supabase
         .from('messages')
         .insert({ conversation_id: conversationId, sender_id: profileId, body })

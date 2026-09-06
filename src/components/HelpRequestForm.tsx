@@ -16,7 +16,7 @@ interface HelpRequestFormProps {
 
 export function HelpRequestForm({ onSubmit, onCancel, busy = false }: HelpRequestFormProps) {
   const [body, setBody] = useState('')
-  const [audience, setAudience] = useState<HelpAudience>('nutri')
+  const [audience, setAudience] = useState<HelpAudience>('professional')
   const [error, setError] = useState<string | null>(null)
   const [working, setWorking] = useState(false)
 
@@ -58,12 +58,14 @@ export function HelpRequestForm({ onSubmit, onCancel, busy = false }: HelpReques
         <button
           type="button"
           role="radio"
-          aria-checked={audience === 'nutri'}
-          className={`help-audience-option${audience === 'nutri' ? ' help-audience-option--on' : ''}`}
-          onClick={() => setAudience('nutri')}
+          aria-checked={audience === 'professional'}
+          className={`help-audience-option${
+            audience === 'professional' ? ' help-audience-option--on' : ''
+          }`}
+          onClick={() => setAudience('professional')}
         >
           <HeartIcon size={20} />
-          <span className="help-audience-title">{HELP_AUDIENCE_LABEL.nutri}</span>
+          <span className="help-audience-title">{HELP_AUDIENCE_LABEL.professional}</span>
           <span className="help-audience-sub">Uma conversa privada com a anfitriã.</span>
         </button>
         <button

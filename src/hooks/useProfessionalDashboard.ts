@@ -10,7 +10,6 @@ import type { ProfessionalDashboardData } from '../types/panel'
 //   points_community_summary (RPC)   -> pontos do período + total + top 3
 //   help_requests                    -> pendentes (open + in_progress)
 //   community_challenges             -> ativos hoje (is_active & dentro do período)
-//   community_content (recipe)       -> 3 receitas recentes publicadas
 //   community_events                 -> 3 próximos eventos
 //   posts                            -> 3 publicações recentes (RLS já filtra ocultas)
 
@@ -32,7 +31,6 @@ const EMPTY: ProfessionalDashboardData = {
   posts_count: 0,
   comments_count: 0,
   reactions_count: 0,
-  recent_recipes: [],
   upcoming_events: [],
   recent_posts: [],
   top_earners: [],
@@ -56,7 +54,7 @@ export function useProfessionalDashboard(communityId: string | null, periodDays 
     const today = todayISODate()
     const nowIso = new Date().toISOString()
 
-    const [metricsRes, pointsRes, helpRes, challengesRes, recipesRes, eventsRes, postsRes] =
+    const [metricsRes, pointsRes, helpRes, challengesRes, eventsRes, postsRes] =
       await Promise.all([
         supabase.rpc('community_metrics', { p_community_id: communityId, p_period_days: periodDays }),
         supabase.rpc('points_community_summary', {
@@ -77,14 +75,6 @@ export function useProfessionalDashboard(communityId: string | null, periodDays 
           .select('id,is_active,ends_on')
           .eq('community_id', communityId)
           .eq('is_active', true),
-        supabase
-          .from('community_content')
-          .select('id,title,created_at')
-          .eq('community_id', communityId)
-          .eq('type', 'recipe')
-          .eq('status', 'published')
-          .order('created_at', { ascending: false })
-          .limit(3),
         supabase
           .from('community_events')
           .select('id,title,starts_at')
@@ -131,8 +121,6 @@ export function useProfessionalDashboard(communityId: string | null, periodDays 
       posts_count: metrics?.posts_count ?? 0,
       comments_count: metrics?.comments_count ?? 0,
       reactions_count: metrics?.reactions_count ?? 0,
-      recent_recipes:
-        (recipesRes.data as { id: string; title: string | null; created_at: string }[] | null) ?? [],
       upcoming_events:
         (eventsRes.data as { id: string; title: string; starts_at: string }[] | null) ?? [],
       recent_posts: (

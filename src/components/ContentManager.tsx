@@ -18,13 +18,6 @@ interface ContentManagerProps {
   profileId: string
   /** false = visão somente leitura (Master). */
   canManage?: boolean
-  /**
-   * Fase 2 — quando true, este gerenciador NÃO trata receitas (elas têm
-   * o RecipeManager próprio): o tipo "Receita" some do formulário e as
-   * linhas type='recipe' saem da lista. O Master segue com o
-   * ContentManager completo (excludeRecipes omitido).
-   */
-  excludeRecipes?: boolean
 }
 
 interface FormState {
@@ -83,16 +76,13 @@ export function ContentManager({
   communityId,
   profileId,
   canManage = true,
-  excludeRecipes = false,
 }: ContentManagerProps) {
   const { items, loading, error, createContent, updateContent, deleteContent, toggleLike } =
     useContent(communityId)
   const { circles } = useCircles(communityId)
 
-  const typeKeys = (Object.keys(CONTENT_TYPE_LABEL) as ContentType[]).filter(
-    (key) => !excludeRecipes || key !== 'recipe',
-  )
-  const visibleItems = excludeRecipes ? items.filter((item) => item.type !== 'recipe') : items
+  const typeKeys = Object.keys(CONTENT_TYPE_LABEL) as ContentType[]
+  const visibleItems = items
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -136,7 +126,7 @@ export function ContentManager({
 
   return (
     <section className="community-card community-card--quiet content-manager">
-      <h3>{excludeRecipes ? 'Outros conteúdos da comunidade' : 'Biblioteca da comunidade'}</h3>
+      <h3>Biblioteca da comunidade</h3>
 
       {canManage && (
         <form onSubmit={handleSubmit} className="content-form">

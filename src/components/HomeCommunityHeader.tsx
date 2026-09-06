@@ -92,7 +92,7 @@ export function HomeCommunityHeader({ community, memberCount }: HomeCommunityHea
                   <span>{(owner.full_name ?? 'N').charAt(0).toUpperCase()}</span>
                 )}
               </span>
-              com {owner.full_name ?? 'sua nutricionista'}
+              com {owner.full_name ?? 'a responsável pela comunidade'}
             </span>
           )}
           {count !== null && (

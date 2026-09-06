@@ -22,8 +22,6 @@ export interface PlatformOverview {
   posts_total: number
   posts_30d: number
 
-  recipes_published: number
-  communities_with_recipes: number
   content_published: number
 
   events_total: number

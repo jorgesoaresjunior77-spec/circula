@@ -55,7 +55,6 @@ export function MasterDashboard({ overview, loading, error }: MasterDashboardPro
       title: 'Conteúdo',
       tiles: [
         { label: 'Publicações', value: o.posts_total, hint: `${o.posts_30d} nos últimos 30d` },
-        { label: 'Receitas publicadas', value: o.recipes_published },
         { label: 'Conteúdos publicados', value: o.content_published },
         { label: 'Eventos', value: o.events_total, hint: `${o.events_upcoming} próximos` },
       ],
