@@ -36,7 +36,6 @@ export function MasterDashboard({ overview, loading, error }: MasterDashboardPro
         { label: 'Total', value: o.communities_total },
         { label: 'Ativas', value: o.communities_active, hint: 'com assinatura vigente' },
         { label: 'Novas (30d)', value: o.communities_new_30d },
-        { label: 'Com receitas', value: o.communities_with_recipes },
       ],
     },
     {
