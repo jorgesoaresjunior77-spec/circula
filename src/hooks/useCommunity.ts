@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { Profile } from '../types/profile'
 import type {
   AddMemberResult,
+  CommunityUpdateInput,
   CommunityWithMembers,
   InviteMemberResult,
   JoinResult,
@@ -254,6 +255,22 @@ export function useCommunity(profile: Profile | null) {
     return { error: null }
   }
 
+  // 16.2.3-G — edição das informações básicas da comunidade (nome,
+  // descrição, capa, is_discoverable). UPDATE direto em `communities`
+  // sob a policy `communities_update` já existente (dona/master). `slug`
+  // nunca entra no patch. Nenhuma RPC, migration ou RLS nova.
+  async function updateCommunity(communityId: string, patch: CommunityUpdateInput) {
+    const { error: updateError } = await supabase
+      .from('communities')
+      .update(patch)
+      .eq('id', communityId)
+
+    if (updateError) return { error: updateError.message }
+
+    await fetchCommunities()
+    return { error: null }
+  }
+
   return {
     communities,
     memberCounts,
@@ -266,6 +283,7 @@ export function useCommunity(profile: Profile | null) {
     approveMembershipRequest,
     rejectMembershipRequest,
     setCommunityCover,
+    updateCommunity,
     refresh: fetchCommunities,
   }
 }

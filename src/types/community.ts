@@ -24,6 +24,16 @@ export interface CommunityMember {
   profile: CommunityMemberProfile | null
 }
 
+// 16.2.3-G — campos editáveis das informações básicas da comunidade
+// (UPDATE direto em `communities` sob a policy `communities_update`).
+// `slug` NÃO entra: permanece somente leitura.
+export interface CommunityUpdateInput {
+  name?: string
+  description?: string | null
+  cover_image_url?: string | null
+  is_discoverable?: boolean
+}
+
 export interface CommunityWithMembers extends Community {
   community_members: CommunityMember[]
 }

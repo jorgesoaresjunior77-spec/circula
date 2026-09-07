@@ -15,8 +15,9 @@ import { SubscriptionPanel } from './SubscriptionPanel'
 import { AsaasAccountConnect } from './AsaasAccountConnect'
 import { CommunityPriceSettings } from './CommunityPriceSettings'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
-import { ParticipantsPanel } from './ParticipantsPanel'
+import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
+import type { CommunityUpdateInput, CommunityWithMembers } from '../types/community'
 
 type PanelTab =
   | 'visao'
@@ -49,16 +50,30 @@ const TABS: { key: PanelTab; label: string }[] = [
 
 interface ProfessionalPanelProps {
   communityId: string
+  /** Comunidade já carregada (useCommunity) — usada pela aba Visão geral. */
+  community: CommunityWithMembers
   profileId: string
   onFeedRefresh: () => void
   onOpenConversation: (conversationId: string) => void
+  /** RPCs approve/reject_membership_request via useCommunity (16.2.3-C). */
+  onApproveMembership: (communityId: string, profileId: string) => Promise<{ error: string | null }>
+  onRejectMembership: (communityId: string, profileId: string) => Promise<{ error: string | null }>
+  /** 16.2.3-G — salva informações básicas da comunidade (useCommunity.updateCommunity). */
+  onUpdateCommunity: (
+    communityId: string,
+    patch: CommunityUpdateInput,
+  ) => Promise<{ error: string | null }>
 }
 
 export function ProfessionalPanel({
   communityId,
+  community,
   profileId,
   onFeedRefresh,
   onOpenConversation,
+  onApproveMembership,
+  onRejectMembership,
+  onUpdateCommunity,
 }: ProfessionalPanelProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('visao')
 
@@ -82,15 +97,26 @@ export function ProfessionalPanel({
       {activeTab === 'visao' && (
         <div className="panel-tab-content">
           <ProfessionalDashboard
-            communityId={communityId}
+            community={community}
+            profileId={profileId}
             onOpenTab={(tab) => setActiveTab(tab as PanelTab)}
+            onUpdateCommunity={onUpdateCommunity}
           />
         </div>
       )}
 
       {activeTab === 'participantes' && (
         <div className="panel-tab-content">
-          <ParticipantsPanel communityId={communityId} />
+          {/* 16.2.3-C/D — roster por status (Todas/Ativas/Pendentes/Bloqueadas).
+              "Ativas" mantém o ParticipantsPanel (RPC community_participants_overview);
+              "Pendentes"/"Bloqueadas" leem community.community_members já carregado.
+              Aprovar/rejeitar segue nas RPCs approve/reject_membership_request. */}
+          <CommunityMembersPanel
+            communityId={communityId}
+            community={community}
+            onApprove={onApproveMembership}
+            onReject={onRejectMembership}
+          />
         </div>
       )}
 

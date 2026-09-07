@@ -74,6 +74,7 @@ export function Dashboard({
     approveMembershipRequest,
     rejectMembershipRequest,
     setCommunityCover,
+    updateCommunity,
   } = useCommunity(profile)
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
   const [feedRefreshToken, setFeedRefreshToken] = useState(0)
@@ -542,9 +543,13 @@ export function Dashboard({
         return (
           <ProfessionalPanel
             communityId={community.id}
+            community={community}
             profileId={profile.id}
             onFeedRefresh={refreshFeed}
             onOpenConversation={openConversationById}
+            onApproveMembership={approveMembershipRequest}
+            onRejectMembership={rejectMembershipRequest}
+            onUpdateCommunity={updateCommunity}
           />
         )
       }

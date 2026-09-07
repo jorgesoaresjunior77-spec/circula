@@ -3082,6 +3082,129 @@
   min-width: 0;
 }
 
+/* 16.2.3-A — bloco "Informações da comunidade" na Visão geral */
+.panel-community-info {
+  gap: var(--space-3);
+}
+
+.panel-community-info-main {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.panel-community-cover {
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--sand);
+}
+
+.panel-community-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.panel-community-cover-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--rose-100), var(--sand));
+}
+
+.panel-community-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+.panel-community-description {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.panel-community-path {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-community-facts {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: 13px;
+    color: var(--graphite);
+  }
+
+  li > span:first-child {
+    color: var(--graphite-soft);
+  }
+}
+
+.panel-community-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--sand);
+  color: var(--graphite-soft);
+}
+
+.panel-community-badge--open {
+  background: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.panel-community-badge--blocked {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* 16.2.3-B — grupos de KPI (Membros / Atividade) */
+.panel-dashboard-kpi-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 16.2.3-D — aba Participantes com filtro por status */
+.community-members-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.community-members-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
 /* Participantes */
 .participants-panel,
 .moderation-panel {
