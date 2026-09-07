@@ -12,6 +12,7 @@ import { HelpQueue } from './HelpQueue'
 import { PointsPanel } from './PointsPanel'
 import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
+import { AsaasAccountConnect } from './AsaasAccountConnect'
 import { CommunityPriceSettings } from './CommunityPriceSettings'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { ParticipantsPanel } from './ParticipantsPanel'
@@ -174,6 +175,9 @@ export function ProfessionalPanel({
       {activeTab === 'assinaturas' && (
         <div className="panel-tab-content">
           <SubscriptionPanel subject="platform" />
+          {/* FASE 16.1 — onboarding financeiro: conectar a conta Asaas
+              recebedora do split 90/10. Só a anfitriã chega ao painel. */}
+          <AsaasAccountConnect enabled />
           {/* FASE 16.1-P — preço da assinatura da própria comunidade
               (piso R$ 14,90, validado no servidor). */}
           <CommunityPriceSettings communityId={communityId} />
