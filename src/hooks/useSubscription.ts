@@ -68,15 +68,39 @@ export function useSubscription({ subject, communityId }: UseSubscriptionOptions
     return { error: null }
   }
 
-  async function createSubscription(planCode: string) {
+  async function createSubscription(planCode?: string | null) {
+    // FASE 16.2.4-B — o checkout de comunidade NÃO envia plan_code: o
+    // preço é resolvido no servidor a partir de community_billing_settings.
+    const body: Record<string, unknown> = { subject, community_id: communityId }
+    if (subject === 'platform' && planCode) body.plan_code = planCode
+
     const { data, error: invokeError } = await supabase.functions.invoke('asaas-create-subscription', {
-      body: { subject, community_id: communityId, plan_code: planCode },
+      body,
     })
 
-    if (invokeError) return { error: invokeError.message, invoiceUrl: null as string | null }
+    if (invokeError) {
+      // FunctionsHttpError: a mensagem/código reais vêm no corpo JSON.
+      let message = invokeError.message
+      let code: string | undefined
+      const ctx = (invokeError as { context?: Response }).context
+      if (ctx && typeof ctx.json === 'function') {
+        try {
+          const parsed = (await ctx.json()) as { error?: string; code?: string }
+          if (typeof parsed?.error === 'string') message = parsed.error
+          if (typeof parsed?.code === 'string') code = parsed.code
+        } catch {
+          /* mantém a mensagem genérica */
+        }
+      }
+      return { error: message, code, invoiceUrl: null as string | null }
+    }
 
     await refresh()
-    return { error: null, invoiceUrl: (data?.invoiceUrl as string | undefined) ?? null }
+    return {
+      error: null as string | null,
+      code: undefined as string | undefined,
+      invoiceUrl: (data?.invoiceUrl as string | undefined) ?? null,
+    }
   }
 
   async function cancelSubscription() {

@@ -30,6 +30,283 @@ type AsaasPayment = {
 
 type Admin = ReturnType<typeof createClient>
 
+// =====================================================================
+// FASE 16.2.4-B — eventos Asaas de ASSINATURA DE COMUNIDADE
+// =====================================================================
+// Chamado só quando `payment.subscription` casa uma `subscriptions` com
+// `subject='community'`. O ramo `subject='platform'` (assinatura da
+// Professional) segue no caminho original, INALTERADO.
+//
+// Garante, de forma idempotente / à prova de retry:
+//   • payment_charges (1 por asaas_payment_id) + reconciliação de split
+//     (net_value_cents / split_professional_cents / split_circula_cents /
+//     asaas_fee_cents) nos eventos confirmados;
+//   • subscription_payouts kind='sale' (1 por (subscription_id,
+//     payment_charge_id, kind)) — native: status='paid'; ledger:
+//     status='pending';
+//   • extensão do período por base determinística (dueDate + 1 ciclo) com
+//     guarda `current_period_end < alvo` -> CONFIRMED e RECEIVED do mesmo
+//     payment.id NÃO estendem duas vezes;
+//   • reativação a partir de trial/active/past_due/blocked (nunca canceled);
+//   • PAYMENT_OVERDUE -> past_due + grace 3d (só de trial/active);
+//   • PAYMENT_REFUNDED / CHARGEBACK* -> subscription 'blocked' (revoga
+//     acesso via trigger de sync) + subscription_payouts kind='reversal'
+//     status='reversed'.
+// Snapshots congelados em `subscriptions` são a fonte do split; o webhook
+// NUNCA re-resolve `resolve_split`.
+// =====================================================================
+async function handleCommunitySubscriptionEvent(
+  admin: Admin,
+  event: string,
+  payment: AsaasPayment,
+  subscription: Record<string, unknown>,
+) {
+  const nowIso = new Date().toISOString()
+  const valueCents = Math.round(payment.value * 100)
+  const netCents = typeof payment.netValue === 'number' ? Math.round(payment.netValue * 100) : null
+
+  const isConfirmed = CONFIRMED_EVENTS.has(event)
+  const isOverdue = OVERDUE_EVENTS.has(event)
+  const isRefund = REFUND_EVENTS.has(event)
+  const isChargeback = CHARGEBACK_EVENTS.has(event)
+
+  const subId = subscription.id as string
+  const communityId = subscription.community_id as string
+  const circulaPercent = Number(subscription.circula_percent_snapshot ?? 10)
+  const splitModel = (subscription.split_model_snapshot as 'native' | 'ledger' | null) ?? 'ledger'
+  const status = subscription.status as string
+
+  // dona da comunidade — destino (implícito) do repasse
+  const { data: community } = await admin
+    .from('communities')
+    .select('owner_id')
+    .eq('id', communityId)
+    .maybeSingle()
+  const ownerId = (community?.owner_id as string | undefined) ?? null
+
+  // I-2: se ESTA cobrança já foi estornada/chargeback (existe um payout
+  // kind='reversal' para ela), um evento confirmado reprocessado ou
+  // re-entregue é NO-OP TOTAL — não reabre a cobrança (mantém o status
+  // REFUNDED/CHARGEBACK), não recria o sale, não reativa o acesso.
+  // Idempotência por payment.id preservada; regra normal de venda/payout
+  // INALTERADA quando ainda não existe reversal.
+  if (isConfirmed) {
+    const { data: priorCharge } = await admin
+      .from('payment_charges')
+      .select('id')
+      .eq('asaas_payment_id', payment.id)
+      .maybeSingle()
+    if (priorCharge?.id) {
+      const { data: priorReversal } = await admin
+        .from('subscription_payouts')
+        .select('id')
+        .eq('subscription_id', subId)
+        .eq('payment_charge_id', priorCharge.id)
+        .eq('kind', 'reversal')
+        .maybeSingle()
+      if (priorReversal) {
+        console.log('asaas-webhook: evento confirmado ignorado — cobrança já estornada', subId, payment.id)
+        return
+      }
+    }
+  }
+
+  // ---- payment_charges: upsert PARCIAL ----
+  // Só grava paid_at / reconciliação em evento confirmado; nunca zera
+  // paid_at ou invoice_url num evento posterior (refund etc.).
+  const chargeRow: Record<string, unknown> = {
+    subscription_id: subId,
+    asaas_payment_id: payment.id,
+    status: payment.status,
+    amount_cents: valueCents,
+    due_date: payment.dueDate,
+  }
+  if (payment.billingType) chargeRow.billing_type = payment.billingType
+  if (payment.invoiceUrl) chargeRow.invoice_url = payment.invoiceUrl
+  if (isConfirmed) chargeRow.paid_at = nowIso
+  if (isConfirmed && netCents !== null) {
+    const splitCircula = Math.max(0, Math.round((netCents * circulaPercent) / 100))
+    chargeRow.net_value_cents = netCents
+    chargeRow.split_circula_cents = splitCircula
+    chargeRow.split_professional_cents = Math.max(0, netCents - splitCircula)
+    chargeRow.asaas_fee_cents = Math.max(0, valueCents - netCents)
+  }
+
+  const { error: chargeErr } = await admin
+    .from('payment_charges')
+    .upsert(chargeRow, { onConflict: 'asaas_payment_id' })
+  if (chargeErr) {
+    console.error('asaas-webhook: falha payment_charges (community)', subId, chargeErr)
+    throw chargeErr
+  }
+
+  const { data: charge } = await admin
+    .from('payment_charges')
+    .select('id')
+    .eq('asaas_payment_id', payment.id)
+    .maybeSingle()
+  const chargeId = (charge?.id as string | undefined) ?? null
+
+  // ---- eventos confirmados ----
+  if (isConfirmed) {
+    // 1) subscription_payouts (sale) — idempotente pela unique
+    //    (subscription_id, payment_charge_id, kind)
+    if (chargeId && ownerId) {
+      const grossCents = Number(subscription.price_cents_snapshot ?? valueCents)
+      const asaasFeeCents = netCents !== null ? Math.max(0, valueCents - netCents) : 0
+      let netAmountCents: number
+      let circulaFeeCents: number
+      let payoutStatus: 'paid' | 'pending'
+
+      if (splitModel === 'native') {
+        const basis = netCents ?? valueCents
+        const splitCircula = Math.max(0, Math.round((basis * circulaPercent) / 100))
+        netAmountCents = Math.max(0, basis - splitCircula)
+        circulaFeeCents = splitCircula
+        payoutStatus = 'paid'
+      } else {
+        const snapProf = Number(subscription.professional_amount_cents_snapshot ?? 0)
+        const snapCircula = Number(subscription.circula_amount_cents_snapshot ?? 0)
+        netAmountCents = Math.max(0, snapProf || Math.max(0, grossCents - snapCircula))
+        circulaFeeCents = Math.max(0, snapCircula || Math.max(0, grossCents - netAmountCents))
+        payoutStatus = 'pending'
+      }
+
+      const { error: payoutErr } = await admin.from('subscription_payouts').upsert(
+        {
+          subscription_id: subId,
+          payment_charge_id: chargeId,
+          community_id: communityId,
+          professional_id: ownerId,
+          kind: 'sale',
+          split_model: splitModel,
+          gross_amount_cents: grossCents,
+          asaas_fee_cents: asaasFeeCents,
+          circula_fee_cents: circulaFeeCents,
+          net_amount_cents: netAmountCents,
+          status: payoutStatus,
+        },
+        { onConflict: 'subscription_id,payment_charge_id,kind', ignoreDuplicates: true },
+      )
+      if (payoutErr && payoutErr.code !== '23505') {
+        console.error('asaas-webhook: falha subscription_payouts (sale)', subId, payoutErr)
+        throw payoutErr
+      }
+    } else if (!ownerId) {
+      console.error('asaas-webhook: comunidade sem owner_id, payout não criado', communityId)
+    }
+
+    // 2) período — base determinística (dueDate + 1 ciclo); só avança.
+    const cycle =
+      (subscription.billing_cycle_snapshot as string | null) ??
+      ((subscription.billing_plans as { billing_cycle?: string } | null)?.billing_cycle ?? 'MONTHLY')
+    const targetEnd = addCycleMonths(
+      new Date(payment.dueDate),
+      cycle as 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY',
+    ).toISOString()
+
+    const { error: periodErr } = await admin
+      .from('subscriptions')
+      .update({ current_period_end: targetEnd })
+      .eq('id', subId)
+      .lt('current_period_end', targetEnd)
+    if (periodErr) {
+      console.error('asaas-webhook: falha estender período (community)', subId, periodErr)
+      throw periodErr
+    }
+
+    // 3) estado — reativa de trial/active/past_due/blocked (nunca canceled)
+    const { error: stateErr } = await admin
+      .from('subscriptions')
+      .update({ status: 'active', grace_period_ends_at: null })
+      .eq('id', subId)
+      .in('status', ['trial', 'active', 'past_due', 'blocked'])
+    if (stateErr) {
+      console.error('asaas-webhook: falha reativar (community)', subId, stateErr)
+      throw stateErr
+    }
+    return
+  }
+
+  // ---- overdue ----
+  if (isOverdue) {
+    if (status === 'trial' || status === 'active') {
+      const graceEnds = new Date()
+      graceEnds.setUTCDate(graceEnds.getUTCDate() + 3)
+      const { error } = await admin
+        .from('subscriptions')
+        .update({ status: 'past_due', grace_period_ends_at: graceEnds.toISOString() })
+        .eq('id', subId)
+        .in('status', ['trial', 'active'])
+      if (error) {
+        console.error('asaas-webhook: falha past_due (community)', subId, error)
+        throw error
+      }
+    }
+    return
+  }
+
+  // ---- refund / chargeback -> revoga acesso + reversal ----
+  if (isRefund || isChargeback) {
+    // 'blocked' (não 'canceled'): o trigger sync_membership_from_subscription
+    // mapeia canceled->membership 'active', o que NÃO revogaria o acesso.
+    // I-3: 'canceled' TAMBÉM entra no bloqueio — uma cobrança estornada
+    // deve revogar o acesso mesmo que a Member já tivesse cancelado
+    // (senão ela ficaria com acesso até o fim do período já pago).
+    const { error: subErr } = await admin
+      .from('subscriptions')
+      .update({ status: 'blocked' })
+      .eq('id', subId)
+      .in('status', ['trial', 'active', 'past_due', 'blocked', 'canceled'])
+    if (subErr) {
+      console.error('asaas-webhook: falha bloquear (refund/chargeback)', subId, subErr)
+      throw subErr
+    }
+
+    if (chargeId && ownerId) {
+      const { data: salePayout } = await admin
+        .from('subscription_payouts')
+        .select('split_model, gross_amount_cents, asaas_fee_cents, circula_fee_cents, net_amount_cents')
+        .eq('subscription_id', subId)
+        .eq('payment_charge_id', chargeId)
+        .eq('kind', 'sale')
+        .maybeSingle()
+
+      const { error: revErr } = await admin.from('subscription_payouts').upsert(
+        {
+          subscription_id: subId,
+          payment_charge_id: chargeId,
+          community_id: communityId,
+          professional_id: ownerId,
+          kind: 'reversal',
+          split_model: (salePayout?.split_model as string | undefined) ?? splitModel,
+          gross_amount_cents:
+            Number(salePayout?.gross_amount_cents ?? subscription.price_cents_snapshot ?? valueCents),
+          asaas_fee_cents: Number(salePayout?.asaas_fee_cents ?? 0),
+          circula_fee_cents: Number(
+            salePayout?.circula_fee_cents ?? subscription.circula_amount_cents_snapshot ?? 0,
+          ),
+          net_amount_cents: Number(
+            salePayout?.net_amount_cents ?? subscription.professional_amount_cents_snapshot ?? 0,
+          ),
+          status: 'reversed',
+          reversed_at: nowIso,
+        },
+        { onConflict: 'subscription_id,payment_charge_id,kind', ignoreDuplicates: true },
+      )
+      if (revErr && revErr.code !== '23505') {
+        console.error('asaas-webhook: falha subscription_payouts (reversal)', subId, revErr)
+        throw revErr
+      }
+    }
+    return
+  }
+
+  // PAYMENT_CREATED / PAYMENT_DELETED / outros: o upsert de status acima já
+  // registrou; nenhuma transição de assinatura.
+  console.log('asaas-webhook: evento de assinatura de comunidade sem transição', event, subId)
+}
+
 // Processa eventos Asaas cujo externalReference e product_order:<order_id>.
 // Nunca toca em subscriptions / payment_charges / billing_plans. Usa somente
 // os snapshots ja congelados em product_orders (item 11).
@@ -288,13 +565,25 @@ Deno.serve(async (req) => {
 
     if (insertEventError) {
       if (insertEventError.code === '23505') {
-        return new Response(JSON.stringify({ ok: true, duplicate: true }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
+        // Evento já recebido. Só ignora se JÁ foi processado por completo.
+        // Se processed_at está NULL (falha parcial anterior), o retry
+        // REPROCESSA — todos os handlers abaixo são idempotentes.
+        const { data: prior } = await admin
+          .from('webhook_events')
+          .select('processed_at')
+          .eq('asaas_event_id', eventId)
+          .maybeSingle()
+        if (prior?.processed_at) {
+          return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+        // segue para reprocessar
+      } else {
+        console.error('asaas-webhook: falha ao inserir webhook_events', insertEventError)
+        throw insertEventError
       }
-      console.error('asaas-webhook: falha ao inserir webhook_events', insertEventError)
-      throw insertEventError
     }
 
     if (payment.subscription) {
@@ -309,7 +598,11 @@ Deno.serve(async (req) => {
         throw subscriptionError
       }
 
-      if (subscription) {
+      if (subscription && subscription.subject === 'community') {
+        // FASE 16.2.4-B — fluxo financeiro próprio da assinatura de comunidade.
+        await handleCommunitySubscriptionEvent(admin, event, payment, subscription)
+      } else if (subscription) {
+        // ===== subject='platform' — INALTERADO =====
         const { error: upsertError } = await admin.from('payment_charges').upsert(
           {
             subscription_id: subscription.id,

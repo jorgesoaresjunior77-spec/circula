@@ -1299,6 +1299,40 @@
   flex-shrink: 0;
 }
 
+/* FASE 16.2.4-C — avisos de cobrança dentro do SubscriptionPanel */
+.billing-notice-list {
+  list-style: none;
+  margin: var(--space-2) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.billing-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--danger);
+  background-image: linear-gradient(var(--danger-bg), var(--danger-bg));
+  border-radius: var(--radius-sm, 8px);
+}
+
+.billing-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: var(--graphite);
+}
+
+.billing-notice .auth-link {
+  flex-shrink: 0;
+}
+
 /* Botões "de ação principal" soltos direto no card — formulário ou avulso
    (ex.: "Entrar" do CommunityView, "Publicar X agora" dos gerenciadores). */
 .community-card form > button[type='submit'],
@@ -2640,6 +2674,150 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   box-shadow: none;
+}
+
+/* ===== FASE P1-A — Recebimentos da Professional ===== */
+
+.revenue-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.revenue-account-note {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  color: var(--graphite);
+  border-left: 3px solid var(--olive-border);
+  background-image: linear-gradient(var(--olive-bg), var(--olive-bg));
+  border-radius: var(--radius-sm);
+}
+
+.revenue-last {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.revenue-empty {
+  margin: var(--space-2) 0;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.revenue-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.revenue-table-wrap {
+  overflow-x: auto;
+}
+
+.revenue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.revenue-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.revenue-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--graphite);
+  vertical-align: top;
+}
+
+.revenue-table .revenue-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.revenue-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--graphite);
+}
+
+.revenue-badge--paid {
+  border-color: var(--olive-border);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.revenue-badge--pending {
+  border-color: var(--olive-border);
+  color: var(--olive-text);
+}
+
+.revenue-badge--reversed {
+  border-color: var(--danger);
+  background-image: linear-gradient(var(--danger-bg), var(--danger-bg));
+}
+
+/* Mobile: cada linha vira um card, sem rolagem horizontal. */
+@media (max-width: 760px) {
+  .revenue-table,
+  .revenue-table tbody,
+  .revenue-table tr,
+  .revenue-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .revenue-table thead {
+    display: none;
+  }
+
+  .revenue-table tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    margin-bottom: var(--space-2);
+  }
+
+  .revenue-table td {
+    border-bottom: 1px dashed var(--border);
+    padding: 7px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .revenue-table tr td:last-child {
+    border-bottom: 0;
+  }
+
+  .revenue-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--graphite-soft);
+  }
+
+  .revenue-table .revenue-num {
+    text-align: right;
+  }
 }
 
 /* ===== Desafios ===== */

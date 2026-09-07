@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc -b",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:rls": "bash supabase/tests/rls/run.sh",
+    "ci:rls": "node supabase/tests/rls/ci.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

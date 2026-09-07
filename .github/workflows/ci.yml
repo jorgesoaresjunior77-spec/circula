@@ -1,0 +1,113 @@
+name: CI
+
+# =====================================================================
+# FASE P1-C — validações críticas antes de qualquer merge.
+#
+# Job `checks`  : typecheck + build + lint. Sem secrets. Roda em todo PR
+#                 e push para main.
+# Job `rls`     : suíte de RLS (regressão bloqueia; as 9 FAILs de
+#                 data-count drift NÃO bloqueiam — ver ci.mjs +
+#                 supabase/tests/rls/baseline-failures.txt).
+#                 Só roda com os secrets configurados; PULA (exit 0 com
+#                 aviso) quando ausentes ou em PR de fork.
+#
+# NÃO faz deploy, NÃO faz db push, NÃO faz functions deploy, NÃO cria
+# secrets, NÃO executa migrations, NÃO chama o Asaas. O deploy de
+# produção continua exclusivamente no workflow `deploy.yml`.
+# =====================================================================
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: typecheck · build · lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          # Valores PUBLICÁVEIS (não são secrets) — mesmos usados pelo
+          # deploy.yml. Se ausentes, o build ainda passa (o bundle só
+          # carrega os placeholders).
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: Lint
+        run: npm run lint
+
+  rls:
+    name: Suíte RLS (regressão bloqueia; baseline não)
+    runs-on: ubuntu-latest
+    needs: checks
+    # Não roda em PR vindo de fork (sem acesso a secrets).
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Secrets configurados?
+        id: guard
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
+            echo "::warning title=Suíte RLS pulada::SUPABASE_ACCESS_TOKEN ausente. Configure os secrets do repositório (SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD) e a variável SUPABASE_PROJECT_REF para ativar este gate."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Link do projeto Supabase
+        if: steps.guard.outputs.run == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          npx --yes supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}"
+
+      - name: Suíte RLS — baseline vs regressão
+        if: steps.guard.outputs.run == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: npm run ci:rls

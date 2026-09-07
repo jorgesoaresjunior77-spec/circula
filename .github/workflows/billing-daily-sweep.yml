@@ -1,0 +1,57 @@
+name: Billing daily sweep
+
+# =====================================================================
+# FASE 16.2.4-C — agendador do ciclo de cobrança
+# =====================================================================
+# Invoca a Edge Function `billing-daily-sweep` (trial expirado, grace
+# vencido, bloqueio, avisos de billing) uma vez por dia.
+#
+# INERTE ATÉ:
+#   1. a function estar deployada:
+#        supabase functions deploy billing-daily-sweep
+#   2. os secrets do repositório estarem configurados (Settings > Secrets):
+#        SUPABASE_URL               ex.: https://<ref>.supabase.co
+#        SUPABASE_SERVICE_ROLE_KEY  service_role JWT do projeto
+#
+# NÃO faz db push, NÃO faz deploy, NÃO altera secrets — só chama o
+# endpoint HTTP com a service_role key. A function valida o header
+# Authorization contra a própria service_role key (nenhum dado do
+# cliente é confiado).
+# =====================================================================
+
+on:
+  schedule:
+    # ~03:11 America/Sao_Paulo (UTC-3) -> 06:11 UTC. Diário.
+    - cron: '11 6 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: billing-daily-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke billing-daily-sweep
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_SERVICE_ROLE_KEY}" ]; then
+            echo "::error::Secrets SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes — configure antes de habilitar o sweep."
+            exit 1
+          fi
+          code=$(curl -sS -o /tmp/sweep.json -w '%{http_code}' \
+            -X POST "${SUPABASE_URL%/}/functions/v1/billing-daily-sweep" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          echo "HTTP ${code}"
+          cat /tmp/sweep.json || true
+          echo
+          test "${code}" = "200"

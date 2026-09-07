@@ -14,6 +14,7 @@ import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { AsaasAccountConnect } from './AsaasAccountConnect'
 import { CommunityPriceSettings } from './CommunityPriceSettings'
+import { RevenuePanel } from './RevenuePanel'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
@@ -32,6 +33,7 @@ type PanelTab =
   | 'metricas'
   | 'produtos'
   | 'assinaturas'
+  | 'recebimentos'
 
 const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
@@ -46,6 +48,7 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'metricas', label: 'Métricas' },
   { key: 'produtos', label: 'Produtos' },
   { key: 'assinaturas', label: 'Assinaturas' },
+  { key: 'recebimentos', label: 'Recebimentos' },
 ]
 
 interface ProfessionalPanelProps {
@@ -207,6 +210,14 @@ export function ProfessionalPanel({
           {/* FASE 16.1-P — preço da assinatura da própria comunidade
               (piso R$ 14,90, validado no servidor). */}
           <CommunityPriceSettings communityId={communityId} />
+        </div>
+      )}
+
+      {activeTab === 'recebimentos' && (
+        <div className="panel-tab-content">
+          {/* FASE P1-A — extrato de recebimentos da assinatura da comunidade
+              (só leitura; deriva de subscription_payouts). */}
+          <RevenuePanel communityId={communityId} communityName={community.name} />
         </div>
       )}
     </section>

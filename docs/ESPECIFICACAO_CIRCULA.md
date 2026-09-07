@@ -1518,3 +1518,231 @@ Verificação read-only ANTES (2026-09-06): `community_content` 2 linhas, sendo 
 Feed, Loja (produtos/checkout/split/entitlements), Storage, billing/subscriptions/Asaas, onboarding financeiro (Fase 16.1), autenticação, e todos os recursos genéricos: círculos, eventos, desafios, pontos, humor diário, momento de alegria, pedido de ajuda (mecanismo), check-ins, comandos de engajamento, mensagens, biblioteca de conteúdo genérica (`article`/`tip`/`material`/`video`/`educational`), notificações sociais, Master.
 
 ### Sem `db push`, sem commit, sem push, sem deploy.
+
+---
+
+## FASE 16.2.4-B — FLUXO FINANCEIRO DA ASSINATURA DE COMUNIDADE (2026-09, código + build local; sem `db push`, sem deploy, sem commit)
+
+Fecha ponta a ponta o caminho do dinheiro da assinatura de comunidade, espelhando o desenho já provado da Loja (`product_orders`/`product_payouts`). O esqueleto de schema (colunas `*_snapshot` em `subscriptions`, colunas de reconciliação em `payment_charges`, tabela `subscription_payouts`) já existia (migrations `20260920/21/22`, aplicadas) — a 16.2.4-B **liga as Edge Functions a esse esqueleto**. **Nenhuma migration nova.**
+
+### Decisões de produto congeladas nesta fase
+- **Preço:** fonte única = `community_billing_settings` (nunca `plan_code` do cliente). O piso R$ 14,90 é revalidado no servidor.
+- **Split:** nativo Asaas, `percentualValue = 100 − circula_percent` (90% Professional / 10% Círcula no MVP), sobre o `netValue`. `walletId` só de `resolve_split` (validado por `connect-asaas-account`); nunca do cliente; nunca `CIRCULA_WALLET_IDS`.
+- **Comunidade sem conta Asaas conectada da dona:** o checkout **bloqueia** (`OWNER_NOT_CONNECTED`) — não há dinheiro sem destino de repasse. O ramo `ledger` continua tratado no webhook (robustez/futuro), mas o `asaas-create-subscription` não o emite.
+- **Grandfathering:** preço/ciclo/split são congelados nas 8 colunas `*_snapshot` da `subscriptions` no checkout; renovações usam o snapshot; mudança de preço só afeta novas assinaturas.
+- **Refund / chargeback:** `subscriptions.status = 'blocked'` (não `canceled` — o trigger `sync_membership_from_subscription` mapeia `canceled → membership active`, o que não revogaria acesso) + `subscription_payouts` `kind='reversal'`.
+- **`blocked` volta a `active`** com um pagamento confirmado (incluído no conjunto reabrível **só para `subject='community'`**). O card de bloqueado reaproveita a assinatura Asaas existente (idempotência), não recria.
+
+### Snapshot (`subscriptions`, 8 colunas — todas preenchidas no checkout de comunidade)
+`price_cents_snapshot` (= `community_billing_settings.price_cents`), `billing_cycle_snapshot`, `currency_snapshot` (`'BRL'`), `split_model_snapshot` (`'native'`), `circula_percent_snapshot` (`resolve_split`), `circula_amount_cents_snapshot`, `professional_amount_cents_snapshot` (bruto; `circula + professional = price`), `professional_wallet_id_snapshot` (carteira validada). Coerência garantida pelas constraints `NOT VALID` já existentes (`..._wallet_coherence_check`, `..._amounts_coherence_check`).
+
+### `payment_charges` — reconciliação (nos eventos confirmados de comunidade)
+`net_value_cents = round(netValue·100)`; `split_circula_cents = round(net_value_cents · circula_percent_snapshot / 100)`; `split_professional_cents = net_value_cents − split_circula_cents`; `asaas_fee_cents = amount_cents − net_value_cents`. Invariantes: `split_circula + split_professional = net_value`, `asaas_fee = amount − net_value`. Upsert **parcial** por `asaas_payment_id` (nunca zera `paid_at`/`invoice_url` num evento posterior).
+
+### `subscription_payouts` — extrato de repasse
+Uma linha `kind='sale'` por `(subscription_id, payment_charge_id, kind)` (unique → `ON CONFLICT DO NOTHING`). `native`: `net_amount_cents = split_professional_cents`, `circula_fee_cents = net − net_amount`, `status='paid'`. `ledger`: `net_amount = professional_amount_cents_snapshot`, `circula_fee = circula_amount_cents_snapshot`, `status='pending'`. Refund/chargeback → `kind='reversal'`, `status='reversed'`, espelhando o `sale` (fallback nos snapshots).
+
+### Idempotência
+- **Criação (`asaas-create-subscription`):** lock otimista — `UPDATE subscriptions SET asaas_subscription_id = '__provisioning__' WHERE id = ? AND asaas_subscription_id IS NULL` **antes** de falar com a Asaas; o perdedor da corrida recebe `409 PROVISIONING` ou a fatura existente; falha libera o lock (volta a NULL). Assinatura já criada → devolve a fatura atual (`reused: true`).
+- **Webhook:** `webhook_events.asaas_event_id` unique; em 23505 só ignora se `processed_at IS NOT NULL` — se NULL (falha parcial), **reprocessa** (handlers idempotentes). `payment_charges` upsert por `asaas_payment_id`. `subscription_payouts` unique triplo + `ignoreDuplicates`. Período: `current_period_end = max(atual, dueDate + 1 ciclo)` (base determinística) → `PAYMENT_CONFIRMED` e `PAYMENT_RECEIVED` do mesmo `payment.id` **não** estendem duas vezes.
+
+### Estados (assinatura de comunidade)
+`trial → active` (confirmado) · `active → past_due` + grace 3d (`PAYMENT_OVERDUE`, só de `trial`/`active`) · `past_due → active` (pagamento tardio) · `{trial,active,past_due} → blocked` (`billing-daily-sweep`) · `blocked → active` (pagamento confirmado) · `{trial,active,past_due,blocked} → blocked` (refund/chargeback). Nunca reativa `canceled`.
+
+### Arquivos alterados
+- `supabase/functions/asaas-create-subscription/index.ts` — novo ramo `subject='community'` (`handleCommunitySubscription`); ramo `subject='platform'` **inalterado**.
+- `supabase/functions/asaas-webhook/index.ts` — `handleCommunitySubscriptionEvent` + dispatch por `subscription.subject`; dedup reprocessável quando `processed_at IS NULL`; ramo `subject='platform'` e ramo da Loja (`handleProductOrderEvent`) **inalterados**.
+- `src/hooks/useSubscription.ts` — `createSubscription()` não envia `plan_code` no ramo de comunidade; expõe `code` de erro.
+- `src/components/SubscriptionPanel.tsx` — ramo de comunidade exibe o preço da própria comunidade e o botão "Regularizar pagamento" quando `blocked`; mensagens por `code`.
+- `src/types/billing.ts` — `Subscription.*_snapshot`, `SubscriptionPayout`, `PaymentCharge`, `SplitModel`.
+- `supabase/tests/rls/80_billing_community_subscription.sql` — RLS/isolamento de `subscription_payouts` / `payment_charges` / `resolve_split`.
+
+### Migrations
+Nenhuma. O schema e todos os grants (`subscription_payouts` a `service_role`, `resolve_split` `EXECUTE` a `service_role`, `community_billing_settings` legível por `service_role`, colunas novas herdando grant de tabela) já estavam aplicados. **Recomendadas para fases seguintes** (não feitas aqui): endurecer `resolve_split` com `AND disconnected_at IS NULL`; agendar `billing-daily-sweep` (pg_cron); `VALIDATE CONSTRAINT` dos checks de snapshot; corrigir `asaas-cancel-subscription` (`current_period_end` coerente).
+
+### Sandbox
+`_shared/asaas.ts` (`assertSandboxKey`, `ASAAS_BASE_URL` sandbox) **intocado** — todo o fluxo roda por baixo da trava de Sandbox. Nenhuma secret de produção configurada. E2E real depende de uma 2ª conta Asaas Sandbox (carteira/API key da "Professional") — **não improvisado**; listado como dependência.
+
+### Não alterado
+Loja (produtos/checkout/split/webhook), `subject='platform'`, conteúdo, Master, notificações sociais, 16.2.4-A, comunidade/discovery/entrada/aprovação/rejeição, feed, métricas, RLS existente, arquitetura 1 Professional = 1 comunidade.
+
+### Sem `db push`, sem `functions deploy`, sem `secrets set`, sem commit, sem push.
+
+### Correções pós-revisão (I-1 / I-2 / I-3 — mesma sessão, ainda local)
+- **I-1 (`asaas-create-subscription`):** lock otimista com carimbo de tempo (`__provisioning__:<ISO>`); lock órfão (> 5 min) é assumível por CAS; antes do `POST /subscriptions` faz `GET /subscriptions?externalReference=<subscription.id>` e **adota** uma assinatura Asaas pré-existente (recuperação de invocação que morreu antes de persistir). `externalReference` é sempre `subscription.id` (server-side).
+- **I-2 (`asaas-webhook`):** no ramo confirmado de comunidade, antes de qualquer escrita, verifica se já existe `subscription_payouts` `kind='reversal'` para a cobrança — se sim, `return` (NO-OP): um `CONFIRMED` reprocessado/re-entregue após estorno não recria `sale` nem reativa o acesso.
+- **I-3 (`asaas-webhook`):** `canceled` incluído no `.in('status', [...])` do bloqueio de refund/chargeback — cobrança estornada revoga o acesso mesmo com a Member já em `canceled`.
+
+---
+
+## FASE 16.2.4-C — FECHAMENTO DO CICLO DE COBRANÇA E ACESSO (2026-09, código + build local; sem `db push`, sem deploy, sem secret, sem webhook, sem Asaas, sem commit)
+
+Fecha o loop periódico: trial expira → tolerância → bloqueio → aviso; e endurece cancelamento/idempotência. **Nenhuma migration.** Nenhuma alteração de RLS/schema. Split 90/10, wallet, preço server-side, snapshot, reconciliação, `payment.id` idempotency, `subscription_payouts`, dedup de webhook e I-1/I-2/I-3 **intocados**.
+
+### Regras de produto usadas (todas já existentes — nada inventado)
+- **Trial:** 21 dias (`create_community_trial` / `handle_new_user`).
+- **Tolerância (grace):** 3 dias — gravada em `subscriptions.grace_period_ends_at` pela `asaas-webhook` ao pôr em `past_due` (regra pré-existente no ramo `platform`; a 16.2.4-B replicou no ramo comunidade). O sweep só **enforça** esse prazo.
+- **Cancelamento:** acesso mantido até `current_period_end` (semântica SaaS), depois `blocked`.
+
+### Estados e transições consolidados
+
+| De | Para | Quem | Quando |
+|---|---|---|---|
+| — | `trial` | `create_community_trial` | INSERT em `community_members` |
+| `trial` | `active` | `asaas-webhook` | `PAYMENT_CONFIRMED/RECEIVED` |
+| `trial` | `blocked` | **sweep** | `trial_ends_at <= now` |
+| `active` | `past_due` | `asaas-webhook` | `PAYMENT_OVERDUE` → `grace = now + 3d` |
+| `past_due` | `active` | `asaas-webhook` | pagamento tardio confirmado |
+| `past_due` | `blocked` | **sweep** | `grace_period_ends_at <= now` (ou grace ausente) |
+| `blocked` | `active` | `asaas-webhook` (só comunidade) | pagamento confirmado |
+| `active`/`trial`/`past_due` | `canceled` | `asaas-cancel-subscription` | Member/Master cancela |
+| `canceled` | `blocked` | **sweep** | `current_period_end <= now` |
+| `{trial,active,past_due,blocked,canceled}` | `blocked` | `asaas-webhook` | `PAYMENT_REFUNDED`/`CHARGEBACK*` (I-3) |
+
+`sync_membership_from_subscription` (trigger) propaga: `blocked → community_members.blocked`; qualquer outro → `active`; nunca toca `pending`.
+
+### Sweep — `supabase/functions/billing-daily-sweep/index.ts` (reescrito)
+- **Trata:** (A) trial expirado → `blocked`; (B) `past_due` com grace vencido **ou sem grace** → `blocked` + aviso `past_due`; (E) toda assinatura recém-bloqueada → aviso `blocked`; (G) `canceled` com `current_period_end` vencido → `blocked`; (A) avisos de fim de trial `d3/d2/d1/due_today`.
+- **NÃO trata / NÃO faz:** nenhuma cobrança, nenhum payout, nenhuma alteração de `current_period_end`/`payment_charges`/`subscription_payouts`; **não reativa** nada (reativação é só da `asaas-webhook`); não chama a Asaas.
+- **Idempotência:** cada `UPDATE` de bloqueio filtra pelo status de **origem** (`.eq('status', …)`) → re-rodar não re-transiciona; cada notificação passa por `billing_notifications_log` (UNIQUE `(subscription_id, milestone, channel)`) via `notifyOnce()` → no máximo uma por marco/assinatura. Marcos: enum `notification_milestone` já tem `d3/d2/d1/due_today/past_due/blocked` — **sem migration**.
+- **Escrita de notificação:** tabela `public.notifications` (`type='billing'`) — `service_role` já tem `INSERT`; nenhuma migration.
+- **Agendamento:** **GitHub Actions é o agendador OFICIAL do Círcula nesta fase.** `.github/workflows/billing-daily-sweep.yml` — `schedule` diário (`11 6 * * *`) + `workflow_dispatch`, `concurrency` group, `curl` no endpoint com a `service_role` key. **INERTE** até: (1) `supabase functions deploy billing-daily-sweep`; (2) secrets do repo `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`. **`pg_cron` está DESCARTADO nesta fase** — não implementado, sem migration.
+
+### Cancelamento — `asaas-cancel-subscription/index.ts`
+- **Idempotente:** já `canceled` → `{ ok: true, alreadyCanceled: true }` (não re-deleta na Asaas, não reescreve status, não re-notifica). O `UPDATE` ganha `.neq('status', 'canceled')`.
+- **Guarda I-1:** só chama `DELETE /subscriptions/{id}` se `asaas_subscription_id` for id **real** (não um lock `__provisioning__:…`).
+- **`trial_ends_at` e `current_period_end` preservados** (acesso até o fim do período já concedido — trial cancelado mantém acesso até o fim do período de trial; assinatura paga cancelada, até o fim do período pago). Histórico (`payment_charges` / `subscription_payouts`) **preservado** — nada apagado. **Não bloqueia imediatamente** — o sweep é quem transiciona `canceled → blocked` ao fim do período.
+- **Aviso de cancelamento** em `notifications` (à prova de exceção).
+- **Não ressuscita `canceled`:** confirmado — `asaas-webhook` (comunidade e `platform`) exclui `canceled` da reativação; o sweep nunca reativa.
+
+### Reativação
+- Só `asaas-webhook` reativa, e só de `trial/active/past_due/blocked` (comunidade) — nunca `canceled`. Não cria nova subscription Asaas se já houver uma válida (idempotência + adoção por `externalReference` da I-1, **inalterada**).
+
+### Notificações de cobrança
+- **Princípio (decisão fechada):** notificações de assinatura devem ser **idempotentes e relevantes** — nunca spam. Cada evento é notificado no máximo uma vez.
+- **Implementadas:** fim de trial (`d3/d2/d1`), pagamento vencido (`past_due`), acesso bloqueado (`blocked`), assinatura cancelada. Idempotência: `billing_notifications_log` (UNIQUE `(subscription_id, milestone, channel)`) para as periódicas; early-return `alreadyCanceled` para o cancelamento.
+- **Surfaçadas no app (novo):** `src/hooks/useBillingNotices.ts` lê `notifications` (`type='billing'`, `related_subscription_id`); `SubscriptionPanel` mostra os avisos não lidos + botão "Ok, entendi" (`notifications_update_own`) + uma linha de detalhe derivada de `calculate_subscription_state`.
+- **"Assinatura ativa / reativada" — NÃO implementada nesta fase (decisão fechada):** uma implementação idempotente-segura exigiria um marco novo (`reactivated`) no enum `notification_milestone` → **migration**, que está fora de escopo agora. Uma versão sem dedup na `asaas-webhook` (fluxo financeiro congelado I-1/I-2/I-3) traria risco de repetição em retry de webhook. **A proteção atual (ausência da notificação) é suficiente contra spam** e o Member já percebe a volta pelo desbloqueio do card. Fica como **backlog** (ver "Backlog documentado").
+- **Re-notificação por recaída — NÃO implementada nesta fase (decisão fechada):** `past_due`/`blocked` notificam **uma vez para sempre** por assinatura (UNIQUE do log). Uma recaída (past_due → recupera → past_due) não gera novo aviso. **A proteção contra notificação duplicada é mantida como está.** Fica como **backlog** (ver "Backlog documentado").
+
+### Access control (`subscriptions.status` ↔ `community_members.status`)
+Sem alteração de RLS. O sweep só muda `subscriptions.status`; o trigger `sync_membership_from_subscription` (12.2) é quem propaga para `community_members.status`, e o paywall de conteúdo lê `community_members.status`. `active` → acesso; `past_due` → acesso durante o grace (trigger mapeia → `active`); `blocked` → sem acesso; `canceled` → acesso até `current_period_end`, depois o sweep bloqueia. O sweep **nunca concede** acesso — só transiciona para `blocked`.
+
+### Decisões de produto FECHADAS (16.2.4-C)
+1. **Trial cancelado** — se Professional/Member cancelar **durante o trial**, o acesso **permanece até o fim do período de trial já concedido**. **Não** bloqueia imediatamente. **Não** altera `trial_ends_at` nem `current_period_end`. **Não** apaga histórico. Ao chegar ao fim do trial, o **fluxo normal** é aplicado: o sweep transiciona `canceled → blocked` (quando `current_period_end` = fim do trial passa) → `sync_membership_from_subscription` → `community_members.blocked`. **Já era o comportamento do código; formalizado e comentado em `asaas-cancel-subscription`.**
+2. **Re-notificação por recaída** — **fica para etapa futura (backlog).** A proteção atual contra notificação duplicada (`billing_notifications_log` UNIQUE) é **mantida como está**. Sem migration `notification_milestone` agora.
+3. **Notificação "assinatura ativa/reativada"** — **fica para etapa futura (backlog).** Não é criada agora: exigiria marco novo no enum (migration) para ser idempotente, ou tocaria a `asaas-webhook` congelada. A proteção atual (sem a notificação) já evita spam.
+4. **Agendador oficial** — **GitHub Actions** (`.github/workflows/billing-daily-sweep.yml`). **`pg_cron` descartado** nesta fase (sem migration, sem `pg_net`).
+
+### Backlog documentado (não fazer agora — requer migration/decisão)
+- **`notification_milestone` + `'reactivated'` / `'past_due_recovered'`** — para "assinatura ativa novamente" e re-notificar `past_due`/`blocked` após recuperação e recaída. Hoje o log UNIQUE notifica esses marcos uma única vez por assinatura.
+- **`social_notifications_type_check` + tipos `billing_*`** — só se um dia os eventos de cobrança devessem aparecer no sino (`useSocialNotifications`). Não necessário: usamos a tabela `notifications` (com consumidor a partir desta fase).
+- **`create_community_trial` em re-entrada:** Member que sai e re-entra (novo INSERT em `community_members`) com a única assinatura anterior `canceled` recebe um `trial` **novo** (linha nova; não ressuscita a `canceled`). Comportamento atual; avaliar se deve ser mantido.
+
+### Ainda dependente de Sandbox + 2ª conta Asaas (NÃO aprovado)
+Consulta real ao Asaas, `PAYMENT_CONFIRMED/RECEIVED` real, **Split real (não aprovado)**, **refund/chargeback real (não aprovado)**, **criação real de subscription**, **webhook Asaas real (não aprovado)**, **confirmação de pagamento real (não aprovada)**, **E2E Sandbox (pendente)**. Nada disso foi executado nem simulado com mock.
+
+### Arquivos alterados (16.2.4-C)
+- `supabase/functions/billing-daily-sweep/index.ts` — reescrito (harden + avisos past_due/blocked).
+- `supabase/functions/asaas-cancel-subscription/index.ts` — idempotência + guarda I-1 + aviso; **fechamento de decisão:** comentário do trial cancelado + copy "período já concedido".
+- `src/hooks/useBillingNotices.ts` — **novo** (lê `notifications` type='billing').
+- `src/components/SubscriptionPanel.tsx` — linha de detalhe + lista de avisos.
+- `src/App.css` — `.billing-notice*`.
+- `.github/workflows/billing-daily-sweep.yml` — **novo** (agendador OFICIAL, inerte até deploy+secrets).
+- `supabase/tests/rls/81_billing_sweep_idempotency.sql` — **novo** (idempotência do sweep, 10/10).
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção + fechamento das decisões de produto.
+
+### Fechamento das decisões (2ª passada — só documentação + 1 comentário)
+As decisões de produto foram fechadas: (1) trial cancelado mantém acesso até o fim do período (código já fazia; comentário formalizado); (2) re-notificação por recaída → backlog, proteção UNIQUE mantida; (3) notificação "ativa/reativada" → backlog (evita migration / não toca `asaas-webhook`); (4) GitHub Actions é o agendador oficial, `pg_cron` descartado. **Nenhuma migration, nenhum schema/RLS, nenhuma alteração de lógica** — só `docs/` + um comentário/copy em `asaas-cancel-subscription`.
+
+### Não alterado
+Split/wallet/preço/snapshot/reconciliação/`payment_charges`/`subscription_payouts`/dedup de webhook/I-1/I-2/I-3; `asaas-create-subscription` (não tocado nesta fase); `asaas-webhook` (não tocado nesta fase); Loja; `subject='platform'`; Master; conteúdo; RLS; migrations; schema.
+
+### Sem `db push`, sem `functions deploy`, sem `secrets set`, sem webhook, sem chamada Asaas, sem commit, sem push.
+
+---
+
+## FASE P1-A — ABA "RECEBIMENTOS" DA PROFESSIONAL (2026-09, código + build local; sem `db push`, sem deploy, sem secret, sem webhook, sem Asaas, sem commit)
+
+Fecha a UX financeira da Professional: uma aba **"Recebimentos"** no `ProfessionalPanel` que responde "quanto recebi?", "quanto está a repassar?", "quanto foi para o Círcula?", "quais foram meus últimos recebimentos?", "qual o status de cada um?". **Nenhuma migration, nenhuma alteração de RLS/schema, nenhuma chamada ao Asaas.** Só leitura.
+
+### Dados apresentados
+Fonte **única**: `public.subscription_payouts` (escrito só pela `asaas-webhook`). Complementado por `subscriptions` (`circula_percent_snapshot`, `billing_cycle_snapshot`, `profile_id`) e `profiles` (`full_name` do Member).
+- **KPIs:** Você recebeu (Σ `net_amount_cents` sale/paid − reversões), A repassar (Σ `net_amount_cents` sale/pending — modelo ledger), Foi para o Círcula (Σ `circula_fee_cents` sale/paid − reversões), Recebimentos pagos (contagem), Último recebimento (data + valor + status do sale mais recente).
+- **Listagem:** data · membro · assinatura (ciclo + id curto) · bruto · taxa Asaas · líquido (bruto − taxa) · % Círcula · valor Círcula · valor Professional (Você) · status (Pago / Pendente / Revertido).
+- **Filtro de período:** 30 dias / 90 dias / este ano / todo o período (client-side, sobre `created_at`; reutiliza as classes `.metrics-period*`).
+
+### Regras de visibilidade (RLS existente — não alterada)
+- A Professional só vê `subscription_payouts` da própria comunidade — `subscription_payouts_select` = `is_master() OR professional_id = auth.uid() OR owns_community(...)`; a query ainda filtra `.eq('community_id', …)`.
+- Member **não** lê `subscription_payouts` (validado no cenário RLS `80`).
+- Professional **não** vê recebimentos de outra comunidade (cenário `80`: "prof: NÃO vê subscription_payouts de C").
+- Master mantém as regras atuais.
+- **Nunca lido/exibido:** walletId, `asaas_customer_id`, API key, dados bancários. O extrato só seleciona colunas de valor + `circula_percent_snapshot`/`billing_cycle_snapshot` + nome do Member.
+
+### Estados
+Carregando · vazio ("ainda não há recebimentos neste período…") · dados · erro · **sem conta Asaas conectada** (aviso informativo `"Conecte sua conta Asaas para receber pagamentos da comunidade."` — **não bloqueia** a visualização do histórico) · sem recebimentos (KPIs zerados + lista vazia).
+
+### Responsividade
+Tabela com `overflow-x:auto` no desktop; em ≤ 760 px cada linha vira um card (thead escondido, `td::before { content: attr(data-label) }`) — sem rolagem horizontal.
+
+### Limitações / o que NÃO tem nesta fase
+- Não inclui vendas de **produtos (Loja)** — `product_payouts` fica para uma fase futura (a listagem é "assinatura-shaped").
+- Sem gráficos, sem exportação CSV, sem conciliação manual, sem configurações financeiras.
+- **Sem E2E real do Asaas:** como o fluxo financeiro 16.2.4-B ainda não foi deployado, não há `subscription_payouts` reais no banco — a tela foi validada com o estado vazio (real) + o cenário RLS `80` (linhas sintéticas em transação com ROLLBACK provam query + RLS + isolamento). **E2E financeiro / Split real / recebimento real / integração Asaas: NÃO aprovados.**
+
+### Arquivos
+- `src/hooks/useProfessionalRevenue.ts` — **novo** (3 consultas planas: `subscription_payouts` → `subscriptions` → `profiles`; KPIs derivados; filtro de período).
+- `src/components/RevenuePanel.tsx` — **novo** (KPIs + filtro + tabela responsiva + estados).
+- `src/components/ProfessionalPanel.tsx` — aba `'recebimentos'` (tipo + `TABS` + bloco de render).
+- `src/types/billing.ts` — `RevenuePeriod`, `RevenueRow`, `RevenueSummary`.
+- `src/App.css` — bloco `.revenue-*` (reutiliza `.metric-tile`/`.metrics-stats`/`.metrics-period*`).
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+`subscription_payouts`/`payment_charges`/`subscriptions` (schema/RLS/grants); Split 90/10; preço server-side; snapshots; `asaas-*`; `billing-daily-sweep`; cancelamento; webhook; Loja; I-1/I-2/I-3; `subject='platform'`; Master; migrations.
+
+### Sem `db push`, sem `functions deploy`, sem `secrets set`, sem webhook, sem chamada Asaas, sem commit, sem push.
+
+---
+
+## FASE P1-C — CI + SUÍTE RLS (2026-09, config de repositório local; sem `db push`, sem deploy, sem secret, sem commit)
+
+Cria o CI do Círcula para rodar as validações críticas antes de qualquer merge. **Nenhuma migration, nenhuma alteração de RLS/schema, nenhum secret configurado, nenhum deploy.** Os cenários `10_/30_/60_*.sql` **não** foram alterados.
+
+### Workflows
+- **`deploy.yml`** (existente) — deploy no GitHub Pages em `push` para `main`. **Não alterado.** Continua sendo o único pipeline de deploy de produção.
+- **`billing-daily-sweep.yml`** (16.2.4-C, inerte) — agendador do sweep. **Não alterado.**
+- **`ci.yml`** (novo) — validações. Triggers: `pull_request` → `main`, `push` → `main`, `workflow_dispatch`. `permissions: contents: read` (mínimo).
+  - **Job `checks`** (sem secrets): `npm ci` → `npm run typecheck` (`tsc -b`) → `npm run build` (`tsc -b && vite build`, com `vars.VITE_SUPABASE_URL`/`vars.VITE_SUPABASE_PUBLISHABLE_KEY` publicáveis) → `npm run lint` (`oxlint`).
+  - **Job `rls`** (`needs: checks`): pula PR de fork (`if:` compara `head.repo.full_name`); passo de guarda checa se `SUPABASE_ACCESS_TOKEN` existe — se **ausente**, emite `::warning` e **PULA** (exit 0, não bloqueia); se presente, faz `supabase link` e roda `npm run ci:rls`.
+
+### `npm run ci:rls` — baseline vs regressão (novo)
+`supabase/tests/rls/ci.mjs` executa `run.mjs --json`, lê o array `results` de cada cenário e separa:
+- **FAILs de baseline** — listadas em `supabase/tests/rls/baseline-failures.txt` (as 9 falhas de **data-count drift** dos cenários 10/30/60: os literais de contagem foram escritos na Fase 12.1 e a comunidade real cresceu; as policies continuam corretas). **Impressas explicitamente** (não mascaradas) e **não bloqueiam**.
+- **Regressões novas** — qualquer FAIL cujo `<arquivo>.sql: <nome do teste>` **não** está no baseline → `ci.mjs` sai com **exit 1** e o CI falha.
+- Também avisa se alguma entrada do baseline **parou de falhar** ("baseline stale — revisar").
+- `run.mjs`, `run.sh` e os `.sql` **não foram tocados**. `run.sh` continua saindo com exit 1 (não distingue baseline); `ci:rls` é o wrapper que distingue.
+
+### `package.json` (aditivo)
+`"typecheck": "tsc -b"`, `"test:rls": "bash supabase/tests/rls/run.sh"`, `"ci:rls": "node supabase/tests/rls/ci.mjs"`.
+
+### Secrets/variáveis necessários (NOMES — nenhum configurado)
+- `checks` (build): variáveis de repositório `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` — **publicáveis**, já usadas por `deploy.yml`; se ausentes, o build ainda passa.
+- `rls`: **secrets** `SUPABASE_ACCESS_TOKEN` (Personal Access Token da Management API, para `supabase link`), `SUPABASE_DB_PASSWORD` (senha do Postgres do projeto, evita prompt interativo do `db query --linked`); **variável** `SUPABASE_PROJECT_REF` (ref do projeto). Enquanto ausentes, o job `rls` **pula** (não falha o CI).
+
+### Segurança
+- `permissions: contents: read` — sem `write`, sem `pages`, sem `id-token`.
+- **`SUPABASE_SERVICE_ROLE_KEY` NÃO é usada no CI** (a suíte roda via `supabase db query --linked` — conexão de banco, não JWT). Nenhum `service_role` no CI.
+- Secrets passados só como `env:` de passos específicos; o passo de guarda só testa `-z`, nunca imprime valores. `set -euo pipefail` nos passos de shell.
+- **Nenhum `db push`, `functions deploy`, `secrets set`, migration, ou chamada ao Asaas.** Cada cenário RLS roda em transação com `ROLLBACK` (design existente).
+- Sem pipeline de deploy automático novo.
+
+### Validação local (P1-C)
+`npm run typecheck` → PASS · `npm run build` → PASS · `npm run lint` → PASS (56 warnings baseline, 0 errors) · `supabase/tests/rls/run.sh` → 230 pass / **9 fail baseline** / 0 gap (exit 1, esperado) · `npm run ci:rls` → **"Nenhuma regressão nova" · RESULTADO: OK · exit 0** (9 FAILs todas casaram o baseline).
+
+### Pendências
+- **CI ainda não executado remotamente no GitHub** — os workflows só entram em vigor após commit + push (fora do escopo desta fase).
+- Job `rls` só ativa após configurar `SUPABASE_ACCESS_TOKEN` + `SUPABASE_DB_PASSWORD` + `SUPABASE_PROJECT_REF`.
+- Re-baseline dos cenários 10/30/60 (atualizar os literais defasados) — tarefa separada; até lá o `baseline-failures.txt` cobre.
+
+### Sem `db push`, sem `functions deploy`, sem `secrets set`, sem webhook, sem chamada Asaas, sem commit, sem push.

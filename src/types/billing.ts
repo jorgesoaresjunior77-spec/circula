@@ -29,6 +29,95 @@ export interface Subscription {
   current_period_end: string
   asaas_customer_id: string | null
   asaas_subscription_id: string | null
+  // FASE 16.2.4-B — snapshot financeiro congelado no checkout de comunidade.
+  // Nulos para assinaturas de plataforma e para assinaturas de comunidade
+  // ainda em trial (antes do primeiro checkout).
+  price_cents_snapshot?: number | null
+  billing_cycle_snapshot?: BillingCycle | null
+  currency_snapshot?: string | null
+  split_model_snapshot?: SplitModel | null
+  circula_percent_snapshot?: number | null
+  circula_amount_cents_snapshot?: number | null
+  professional_amount_cents_snapshot?: number | null
+  professional_wallet_id_snapshot?: string | null
+}
+
+// FASE 16.2.4-B — modelo de rateio da assinatura de comunidade.
+export type SplitModel = 'native' | 'ledger'
+export type PayoutKind = 'sale' | 'reversal'
+export type PayoutStatus = 'paid' | 'pending' | 'reversed'
+
+// Extrato de repasse da Professional (uma linha por cobrança confirmada /
+// por reversão). Escrito só pela Edge Function asaas-webhook.
+export interface SubscriptionPayout {
+  id: string
+  subscription_id: string
+  payment_charge_id: string | null
+  community_id: string
+  professional_id: string
+  kind: PayoutKind
+  split_model: SplitModel
+  gross_amount_cents: number
+  asaas_fee_cents: number
+  circula_fee_cents: number
+  net_amount_cents: number
+  status: PayoutStatus
+  created_at: string
+  reversed_at: string | null
+}
+
+// Cobrança de assinatura + reconciliação de split reportada pela Asaas.
+export interface PaymentCharge {
+  id: string
+  subscription_id: string
+  asaas_payment_id: string | null
+  status: string
+  amount_cents: number
+  due_date: string
+  paid_at: string | null
+  invoice_url: string | null
+  net_value_cents: number | null
+  split_professional_cents: number | null
+  split_circula_cents: number | null
+  asaas_fee_cents: number | null
+}
+
+// FASE P1-A — aba "Recebimentos" do painel da Professional.
+// Deriva EXCLUSIVAMENTE de `subscription_payouts` (+ `subscriptions` para o
+// snapshot de % e ciclo, + `profiles` para o nome do Member). Nenhum campo
+// sensível (walletId, customer_id, API key) é lido.
+export type RevenuePeriod = '30d' | '90d' | 'year' | 'all'
+
+export interface RevenueRow {
+  id: string
+  kind: PayoutKind
+  splitModel: SplitModel
+  status: PayoutStatus
+  createdAt: string
+  reversedAt: string | null
+  grossCents: number
+  asaasFeeCents: number
+  circulaFeeCents: number
+  netAmountCents: number // valor destinado à Professional
+  netValueCents: number // líquido processado (bruto − taxa Asaas)
+  circulaPercent: number | null
+  billingCycle: BillingCycle | null
+  subscriptionId: string
+  memberName: string | null
+}
+
+export interface RevenueSummary {
+  professionalPaidCents: number // já repassado à Professional (sale/paid − reversões)
+  professionalPendingCents: number // devido à Professional, ainda não repassado (sale/pending)
+  circulaPaidCents: number // parcela do Círcula (sale/paid − reversões)
+  grossPaidCents: number // bruto processado (sale/paid − reversões)
+  asaasFeePaidCents: number // taxa Asaas (sale/paid − reversões)
+  paidCount: number
+  pendingCount: number
+  reversedCount: number
+  lastPayout:
+    | { createdAt: string; netAmountCents: number; status: PayoutStatus; kind: PayoutKind }
+    | null
 }
 
 export type DocumentType = 'CPF' | 'CNPJ'

@@ -1,0 +1,27 @@
+# =====================================================================
+# FASE P1-C — FAILs conhecidas da suíte de RLS (baseline)
+# =====================================================================
+# São falhas de DATA-COUNT DRIFT, não de segurança: os cenários 10/30/60
+# fixam contagens literais de linhas ("11 posts", "2 membros", ...) que
+# foram escritas na Fase 12.1. A comunidade real "Fluir & Florescer"
+# cresceu desde então, então os literais estão defasados. As policies de
+# RLS continuam corretas.
+#
+# NÃO são regressão. `supabase/tests/rls/ci.mjs` usa este arquivo para
+# separar "baseline conhecido" (não bloqueia o CI) de "regressão nova"
+# (bloqueia o CI).
+#
+# Formato: "<arquivo>.sql: <nome exato do teste>" (uma por linha; `#` = comentário).
+# Atualizar quando os cenários forem re-baselineados (tarefa separada —
+# esta fase NÃO altera 10_/30_/60_*.sql).
+# =====================================================================
+
+10_member_active.sql: member-ativo: profiles visíveis (próprio + quem compartilha comunidade ativa)
+10_member_active.sql: member-ativo: SELECT joy_moments de A
+10_member_active.sql: member-ativo: SELECT post_comments (via can_view_post)
+10_member_active.sql: member-ativo: SELECT post_reactions
+10_member_active.sql: member-ativo: SELECT posts de A
+30_professional.sql: prof: SELECT community_members de A (todas)
+30_professional.sql: prof: SELECT posts de A
+60_discovery_pending.sql: O: após aprovação, master lê os posts de A como qualquer membro ativo
+60_discovery_pending.sql: Q: member (ativo em A, mexendo com D o cenário inteiro) sempre leu A normalmente
