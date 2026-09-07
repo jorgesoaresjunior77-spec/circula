@@ -24,6 +24,12 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   // Notificação de pedido de ajuda vai sempre para a dona da comunidade
   // → leva à fila no Painel.
   help_request: 'painel',
+  // 16.2.4-A — ciclo de entrada de membros.
+  // A solicitação vai para a dona (Painel → Participantes / "Precisa de
+  // atenção"); aprovação e rejeição vão para a Member (sua comunidade).
+  membership_requested: 'painel',
+  membership_approved: 'comunidades',
+  membership_rejected: 'comunidades',
 }
 
 export function NotificationBell({

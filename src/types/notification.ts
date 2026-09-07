@@ -6,6 +6,9 @@ export type SocialNotificationType =
   | 'challenge_comment'
   | 'direct_message'
   | 'help_request'
+  | 'membership_requested'
+  | 'membership_approved'
+  | 'membership_rejected'
 
 export interface NotificationActor {
   id: string
@@ -27,6 +30,7 @@ export interface SocialNotification {
   related_challenge_id: string | null
   related_conversation_id: string | null
   related_help_request_id: string | null
+  related_community_id: string | null
   read_at: string | null
   created_at: string
   actor: NotificationActor | null
