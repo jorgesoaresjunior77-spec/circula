@@ -1115,9 +1115,11 @@
    sombra e uma escala de padding, para tudo parecer o mesmo produto. */
 
 :root {
-  --card-radius: 22px; /* sofisticado, não infantil */
-  --card-radius-sm: 14px; /* itens de lista */
-  --card-radius-lg: 28px; /* hero (Etapa 4) */
+  /* Redesign editorial (commit 3) — cantos discretos, fio hairline,
+     sombra quase ausente. O padding generoso permanece (respiro). */
+  --card-radius: 16px;
+  --card-radius-sm: 10px;
+  --card-radius-lg: 22px;
   --card-pad: var(--space-5); /* 20 — mobile */
   --card-pad-md: 24px; /* tablet */
   --card-pad-lg: var(--space-6); /* 28 — desktop arejado */
@@ -1128,11 +1130,16 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--card-pad);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--hairline);
   border-radius: var(--card-radius);
   background-color: var(--surface);
   box-shadow: var(--shadow-sm);
   text-align: left;
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    border-color 0.24s ease,
+    background-color 0.24s ease;
 }
 
 /* Hero: o cartão âncora de uma tela. Aplicado de fato na Etapa 4. */
@@ -1140,7 +1147,7 @@
   gap: var(--space-4);
   padding: var(--card-pad-lg);
   border-radius: var(--card-radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 /* Quiet: ferramenta administrativa, calma, sem elevação. */
@@ -1150,14 +1157,46 @@
   box-shadow: none;
 }
 
-/* List: linha/tile discreto, recuado na superfície. Adotado na Etapa 5. */
+/* List: linha discreta — fio hairline sobre o branco, sem preenchimento. */
 .card--list {
   gap: var(--space-2);
   padding: var(--space-4);
-  border-color: transparent;
+  border-color: var(--hairline);
   border-radius: var(--card-radius-sm);
-  background-color: var(--surface-sunken);
+  background-color: transparent;
   box-shadow: none;
+}
+
+.card--list:hover {
+  background-color: var(--surface-sunken);
+}
+
+/* Glass: só sobre imagem/hero (commit 6). Guardado por @supports. */
+.card--glass {
+  background-color: rgba(255, 255, 255, 0.62);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-sm);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .card--glass {
+    background-color: rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    backdrop-filter: blur(10px) saturate(1.1);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .card--glass {
+    background-color: rgba(32, 27, 23, 0.62);
+    border-color: rgba(244, 238, 232, 0.12);
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .card--glass {
+      background-color: rgba(32, 27, 23, 0.5);
+    }
+  }
 }
 
 @media (min-width: 768px) {
@@ -7829,25 +7868,46 @@
   padding: var(--card-pad);
 }
 
-/* Modificador opcional: card clicável com realce discreto ao passar. */
-.card--interactive {
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.2s ease,
-    border-color 0.16s ease;
-}
-
-.card--interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--olive-border);
-}
-
-/* CircleCard / ContentCard não são clicáveis por inteiro — só um
-   aquecimento de borda ao passar, sem "levantar" o card. */
+/* Redesign editorial (commit 3) — cards respondem ao mouse.
+   Gentil (fio + sombra) em todos os cards mapeados; levantar + escala
+   mínima só nos que são clicáveis por inteiro (.card--interactive,
+   <a>/<button> como card). */
+.card:hover,
+.community-card:hover,
+.post-card:hover,
+.challenge-card:hover,
+.product-card:hover,
+.event-card:hover,
+.recipe-card:hover,
+.master-community-card:hover,
+.master-pro-card:hover,
+.participant-card:hover,
 .circle-card:hover,
 .content-card:hover {
-  border-color: var(--olive-border);
+  border-color: var(--ink-action-line);
+  box-shadow: var(--shadow-md);
+}
+
+.card--interactive {
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    border-color 0.24s ease;
+}
+
+.card--interactive:hover,
+a.card:hover,
+button.card:hover {
+  transform: translateY(-2px) scale(1.004);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--ink-action-line);
+}
+
+.card--interactive:active,
+a.card:active,
+button.card:active {
+  transform: translateY(0) scale(1);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ---- Feed Rico: acabamento ---------------------------------------- */
@@ -7993,15 +8053,20 @@
 }
 
 /* ---- Foco de teclado visível e consistente em elementos novos ---- */
-.card--interactive:focus-visible {
-  outline: 2px solid var(--olive);
+.card--interactive:focus-visible,
+a.card:focus-visible,
+button.card:focus-visible {
+  outline: 2px solid var(--ink-action);
   outline-offset: 2px;
 }
 
 /* ---- Reduced motion: nada de levantar/escala nos cards ----------- */
 @media (prefers-reduced-motion: reduce) {
+  .card,
   .card--interactive,
   .card--interactive:hover,
+  a.card:hover,
+  button.card:hover,
   .post-reaction,
   .save-button {
     transition: none;
