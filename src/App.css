@@ -991,7 +991,7 @@
 
 .bottom-nav-item--active {
   color: var(--ink-action);
-  background-color: var(--ink-action-soft);
+  background-color: var(--surface-sunken);
 }
 
 /* "+" central — ação real: leva para o Início (feed). */
@@ -1114,7 +1114,9 @@
   }
 
   .sidebar-item--active {
-    background-color: var(--ink-action-soft);
+    /* Seleção editorial: fundo NEUTRO + barra de acento + texto na tinta
+       de ação. Sem véu rosa. */
+    background-color: var(--surface-sunken);
     border-color: transparent;
     color: var(--ink-action);
     font-weight: 500;
@@ -1125,7 +1127,7 @@
     }
 
     &:hover {
-      background-color: var(--ink-action-soft);
+      background-color: var(--surface-sunken);
       color: var(--ink-action);
     }
   }
@@ -1301,14 +1303,14 @@
     margin: 0;
   }
 
-  /* Comunidade em foco / anfitriã. O Hero completo é a Etapa 4; aqui
-     só a borda de acento e um véu rosé chapado sobre a superfície —
-     sem o antigo "orbe" decorativo. */
+  /* Comunidade em foco / anfitriã. Marcação editorial: apenas uma barra
+     de acento à esquerda — sem véu rosa (num card grande, 6% já lê como
+     "colorido"). */
   &.community-card--highlight {
-    /* comunidade em foco — um dos poucos pontos que mantêm o sussurro
-       plum da identidade (o resto de --olive-bg/-border foi neutralizado). */
-    border-color: var(--ink-action-line);
-    background-image: linear-gradient(var(--ink-action-soft), var(--ink-action-soft));
+    border-color: var(--border-soft);
+    box-shadow:
+      inset 3px 0 0 0 var(--ink-action),
+      var(--shadow-sm);
   }
 
   /* Cards administrativos (bancos de conteúdo, painéis): mais quietos — a
@@ -1628,7 +1630,9 @@
   overflow: hidden;
   border-radius: var(--card-radius-lg);
   box-shadow: var(--shadow-md);
-  background-image: var(--zone-wash);
+  /* sem --zone-wash aqui: o hero é alto demais e a lavagem vertical
+     acaba lendo como um card 'rosado'. Fica branco chapado. */
+  background-image: none;
 }
 
 /* Capa sem foto: lavagem chapada de areia + broto botânico no canto.
