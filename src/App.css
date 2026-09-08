@@ -6,45 +6,46 @@
    adoção direta na marcação em etapas futuras. */
 
 :root {
-  /* Fase 11 — botões "menos rosa": a base clareia um tom (dust rose,
-     não tijolo) e o brilho passa a ser a luz de pêssego dos mockups,
-     escorrendo por cima. Contraste com o texto branco mantido em AA. */
-  --btn-primary-bg: #a35b64;
-  --btn-primary-bg-hover: #b06a73;
-  --btn-primary-bg-active: #8c4b54;
-  --btn-primary-on: #ffffff;
-  --btn-sheen: linear-gradient(
-    135deg,
-    rgba(238, 190, 162, 0.5) 0%,
-    rgba(222, 156, 160, 0.26) 46%,
-    rgba(198, 127, 142, 0.06) 100%
-  );
+  /* Redesign editorial (commit 2) — botões outline-first.
+     `--btn-sheen` desativado (sem degradê). Os tokens `--btn-primary-*`
+     alimentam as ~12 variações contextuais de botão espalhadas pelo
+     arquivo: ficam CHAPADAS na tinta de ação (sem brilho). As classes
+     do sistema (.btn-primary/.btn-secondary/.auth-card button) recebem
+     o tratamento outline-que-preenche logo abaixo. */
+  --btn-primary-bg: var(--ink-action);
+  --btn-primary-bg-hover: var(--ink-action-hover);
+  --btn-primary-bg-active: var(--ink-action-hover);
+  --btn-primary-on: var(--on-action);
+  --btn-sheen: none;
+
+  /* Rótulo de botão — Jost tracké, um degrau abaixo do eyebrow puro
+     para não abrir demais com acento no português. */
+  --btn-label-font: var(--font-label);
+  --btn-label-size: 11.5px;
+  --btn-label-tracking: 0.12em;
+  --btn-label-weight: 500;
+
   --field-bg: var(--white);
   --field-focus-ring: 0 0 0 3px var(--cta-ring);
-  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%23726860' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%236b6560' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --btn-primary-bg: #e0a8b2;
-    --btn-primary-bg-hover: #ecbcc3;
-    --btn-primary-bg-active: #cf94a0;
-    --btn-primary-on: #2a1e21;
-    --btn-sheen: linear-gradient(
-      135deg,
-      rgba(255, 236, 220, 0.18) 0%,
-      rgba(255, 255, 255, 0) 55%
-    );
-    --field-bg: #2b2024;
-    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%23c7b8b2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --field-bg: #201b17;
+    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%23b6a89f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 }
 
 /* --- Base compartilhada --------------------------------------------- */
+/* Linguagem editorial: rótulo Jost maiúsculo tracké, canto discreto,
+   respiro interno generoso, sem sombra de origem. */
 .btn {
-  font: inherit;
-  font-weight: 600;
-  letter-spacing: 0.005em;
+  font-family: var(--btn-label-font);
+  font-size: var(--btn-label-size);
+  font-weight: var(--btn-label-weight);
+  letter-spacing: var(--btn-label-tracking);
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -52,9 +53,9 @@
   width: auto;
   min-height: 40px;
   margin: 0;
-  padding: 10px 20px;
+  padding: 13px 22px;
   border: 1px solid transparent;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: none;
   color: var(--graphite);
   text-align: center;
@@ -63,21 +64,21 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.2s ease,
-    color 0.15s ease,
-    transform 0.1s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    color 0.2s ease,
+    transform 0.12s ease;
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--olive);
+  outline: 2px solid var(--ink-action);
   outline-offset: 2px;
 }
 
 .btn:disabled,
 .btn[aria-disabled='true'] {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
@@ -89,64 +90,64 @@
   }
 }
 
-/* --- Primário: a ação principal de um bloco (um por vez) ----------- */
+/* --- Primário: outline na tinta de ação, PREENCHE no hover -------- */
 .btn-primary {
-  border-color: var(--btn-primary-bg-active);
-  background-color: var(--btn-primary-bg);
-  background-image: var(--btn-sheen);
-  color: var(--btn-primary-on);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--ink-action-line);
+  background-color: transparent;
+  color: var(--ink-action);
 }
 
 .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
-  background-color: var(--btn-primary-bg-hover);
-  box-shadow: var(--shadow-md);
+  border-color: var(--ink-action);
+  background-color: var(--ink-action);
+  color: var(--on-action);
 }
 
 .btn-primary:active:not(:disabled):not([aria-disabled='true']) {
-  background-color: var(--btn-primary-bg-active);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--ink-action-hover);
+  border-color: var(--ink-action-hover);
+  color: var(--on-action);
   transform: translateY(1px);
 }
 
-/* --- Secundário: ação de apoio, contorno discreto ----------------- */
+/* --- Secundário: contorno neutro, véu de acento no hover --------- */
 .btn-secondary {
   border-color: var(--border);
-  background-color: var(--white);
+  background-color: transparent;
   color: var(--graphite);
-  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover:not(:disabled):not([aria-disabled='true']) {
-  border-color: var(--olive-border);
-  background-color: var(--surface);
-  color: var(--olive-text);
+  border-color: var(--ink-action-line);
+  background-color: var(--ink-action-soft);
+  color: var(--ink-action);
 }
 
 .btn-secondary:active:not(:disabled):not([aria-disabled='true']) {
   transform: translateY(1px);
 }
 
-/* --- Fantasma: ação terciária, peso mínimo ----------------------- */
+/* --- Fantasma: ação terciária, peso mínimo (link tracké) -------- */
 .btn-ghost {
   min-height: 0;
-  padding: 6px 8px;
-  color: var(--olive-text);
-  text-decoration: underline;
-  text-decoration-color: var(--olive-border);
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
+  padding: 6px 6px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-action);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink-action-line);
+  border-radius: 0;
 }
 
 .btn-ghost:hover:not(:disabled) {
   color: var(--graphite);
-  text-decoration-color: currentColor;
+  border-bottom-color: currentColor;
 }
 
-/* --- Perigo: ação destrutiva ----------------------------------- */
+/* --- Perigo: contorno destrutivo, véu no hover ---------------- */
 .btn-danger {
   border-color: var(--danger-border);
-  background-color: var(--white);
+  background-color: transparent;
   color: var(--danger);
 }
 
@@ -305,47 +306,49 @@
 }
 
 .auth-card button:not(.auth-link) {
-  /* variação de .btn-primary — largura total no formulário de auth */
-  font: inherit;
-  font-weight: 600;
-  letter-spacing: 0.005em;
+  /* Igual ao .btn-primary editorial — outline que preenche —, em
+     largura total no formulário de auth. */
+  font-family: var(--btn-label-font);
+  font-size: var(--btn-label-size);
+  font-weight: var(--btn-label-weight);
+  letter-spacing: var(--btn-label-tracking);
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
   margin-top: var(--space-4);
-  padding: 12px;
-  border: 1px solid var(--btn-primary-bg-active);
-  border-radius: var(--radius-pill);
-  background-color: var(--btn-primary-bg);
-  background-image: var(--btn-sheen);
-  color: var(--btn-primary-on);
-  box-shadow: var(--shadow-sm);
+  padding: 15px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--ink-action);
   cursor: pointer;
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.2s ease,
+    transform 0.12s ease;
 
   &:hover:not(:disabled) {
-    background-color: var(--btn-primary-bg-hover);
-    box-shadow: var(--shadow-md);
+    border-color: var(--ink-action);
+    background-color: var(--ink-action);
+    color: var(--on-action);
   }
   &:active:not(:disabled) {
-    background-color: var(--btn-primary-bg-active);
-    box-shadow: var(--shadow-sm);
+    background-color: var(--ink-action-hover);
+    border-color: var(--ink-action-hover);
+    color: var(--on-action);
     transform: translateY(1px);
   }
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
-    box-shadow: none;
     transform: none;
   }
   &:focus-visible {
-    outline: 2px solid var(--olive);
+    outline: 2px solid var(--ink-action);
     outline-offset: 2px;
   }
 }
@@ -5564,7 +5567,7 @@
   height: 92px;
   overflow: hidden;
   border-radius: var(--card-radius-sm);
-  background-image: var(--cta-gradient);
+  background-color: var(--accent-sand-tint);
   box-shadow: var(--shadow-sm);
 }
 

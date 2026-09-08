@@ -114,10 +114,10 @@
   --sky-border: var(--accent-sky-line);
 
   /* ---- Gradientes de CTA — DESATIVADOS (sem degradê) ----------
-     Aliases inertes: qualquer `var(--cta-gradient)` remanescente
-     renderiza uma cor chapada de ação, não um degradê. */
-  --cta-gradient: var(--ink-action);
-  --cta-gradient-hover: var(--ink-action-hover);
+     Aliases inertes: `--cta-gradient*` viram `none`; consumidores
+     antigos de `background-image` deixam de pintar degradê. */
+  --cta-gradient: none;
+  --cta-gradient-hover: none;
   --cta-on: var(--on-action);
   --cta-on-ink: var(--graphite);
   --cta-ring: rgba(109, 60, 66, 0.26);
