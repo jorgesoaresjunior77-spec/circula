@@ -6,16 +6,22 @@
    adoção direta na marcação em etapas futuras. */
 
 :root {
-  /* Redesign editorial (commit 2) — botões outline-first.
-     `--btn-sheen` desativado (sem degradê). Os tokens `--btn-primary-*`
-     alimentam as ~12 variações contextuais de botão espalhadas pelo
-     arquivo: ficam CHAPADAS na tinta de ação (sem brilho). As classes
-     do sistema (.btn-primary/.btn-secondary/.auth-card button) recebem
-     o tratamento outline-que-preenche logo abaixo. */
-  --btn-primary-bg: var(--ink-action);
-  --btn-primary-bg-hover: var(--ink-action-hover);
-  --btn-primary-bg-active: var(--ink-action-hover);
-  --btn-primary-on: var(--on-action);
+  /* Redesign editorial (commit 8) — TODOS os botões viram outline.
+     `--btn-sheen` desativado. Os tokens `--btn-primary-*` alimentam as
+     ~7 variações contextuais de botão espalhadas pelo arquivo (Publicar,
+     Comentar, Salvar-de-banco, joy-composer…): agora TRANSPARENTES, com
+     fio fino na tinta de ação e texto na tinta de ação. Hover = véu
+     discreto (6%), não preenchimento cheio — sutil e elegante.
+       · --btn-primary-bg        -> fundo (transparente)
+       · --btn-primary-bg-hover  -> fundo no hover (véu 6%)
+       · --btn-primary-bg-active -> fundo no active E cor da borda (fio 32%)
+       · --btn-primary-on        -> a cor do texto (tinta de ação)
+     As classes do sistema (.btn-primary/.auth/.hero) já têm o
+     outline-que-preenche mais abaixo — este bloco cobre o resto. */
+  --btn-primary-bg: transparent;
+  --btn-primary-bg-hover: var(--ink-action-soft);
+  --btn-primary-bg-active: var(--ink-action-line);
+  --btn-primary-on: var(--ink-action);
   --btn-sheen: none;
 
   /* Rótulo de botão — Jost tracké, um degrau abaixo do eyebrow puro
