@@ -103,7 +103,7 @@ export function EventList({
               ? 'Você ainda não confirmou presença em nenhum evento.'
               : filter === 'encerrados'
                 ? 'Nenhum evento encerrado.'
-                : 'Nenhum evento próximo. Volte em breve 🌿'
+                : 'Nenhum evento próximo. Volte em breve'
           }
         />
       )}

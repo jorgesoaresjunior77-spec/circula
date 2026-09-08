@@ -24,14 +24,14 @@ export const MOOD_META: Record<MoodLevel, { emoji: string; label: string }> = {
  */
 export const MOOD_DEFAULT_MESSAGE: Record<MoodLevel, string> = {
   very_sad:
-    'Dias difíceis também passam. Você não está sozinha aqui 🤍 Cuide de você com carinho hoje e, se quiser, converse com as outras mulheres do Círcula.',
+    'Dias difíceis também passam. Você não está sozinha aqui. Cuide de você com carinho hoje e, se quiser, converse com as outras mulheres do Círcula.',
   sad: 'Tudo bem não estar 100% hoje. Seja gentil com você mesma, faça uma pausa quando precisar — amanhã é uma nova chance.',
   neutral:
     'Um dia tranquilo também é um bom dia. Que tal fazer agora uma pequena coisa boa só para você?',
   happy:
     'Que bom saber que você está bem hoje! Aproveite esse ânimo — e, se puder, espalhe um pouco dele para outra mulher do Círcula.',
   very_happy:
-    'Que alegria! 🌸 Dias assim merecem ser celebrados. Guarde esse momento com carinho e, se quiser, compartilhe a sua conquista.',
+    'Que alegria! Dias assim merecem ser celebrados. Guarde esse momento com carinho e, se quiser, compartilhe a sua conquista.',
 }
 
 export interface DailyMoodEntry {

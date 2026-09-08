@@ -194,7 +194,7 @@ export function ChallengeCard({
       {trackProgress && (
         <div className="challenge-track">
           {isDone ? (
-            <p className="challenge-completed-badge">Desafio concluído 🎉</p>
+            <p className="challenge-completed-badge">Desafio concluído</p>
           ) : notStarted ? (
             <p className="challenge-notstarted">
               O primeiro dia libera {formatStartCountdown(challenge.starts_on)}.

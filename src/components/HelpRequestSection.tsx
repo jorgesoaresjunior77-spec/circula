@@ -62,7 +62,7 @@ export function HelpRequestSection({
           </h3>
           <p className="help-section-sub">
             Não se sinta sozinha. Você pode pedir ajuda quando precisar — para a responsável ou para
-            as outras mulheres do Círcula. 🤍
+            as outras mulheres do Círcula.
           </p>
         </div>
         {!formOpen && (
@@ -91,7 +91,7 @@ export function HelpRequestSection({
       {!loading && !error && requests.length === 0 && !formOpen && (
         <p className="help-section-note">
           Nenhum pedido por aqui agora — e tudo bem. Dias difíceis passam, e a comunidade está
-          aqui quando você quiser. 🌷
+          aqui quando você quiser.
         </p>
       )}
 

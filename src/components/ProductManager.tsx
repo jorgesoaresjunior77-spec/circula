@@ -166,7 +166,7 @@ function ProductFields({ idPrefix, values, onChange }: ProductFieldsProps) {
         type="text"
         value={values.title}
         onChange={(e) => onChange({ title: e.target.value })}
-        placeholder="Ex.: Ebook de receitas afetivas"
+        placeholder="Ex.: Ebook de autocuidado"
         required
       />
 

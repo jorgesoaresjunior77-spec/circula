@@ -127,7 +127,7 @@ export function ProfessionalDashboard({
           <h4>Precisa de atenção</h4>
         </div>
         {attention.length === 0 ? (
-          <p className="panel-dashboard-line">Tudo em dia. 🌿</p>
+          <p className="panel-dashboard-line">Tudo em dia.</p>
         ) : (
           <ul className="panel-dashboard-list">
             {attention.map((item) => (
@@ -256,7 +256,7 @@ export function ProfessionalDashboard({
           <h4>Atividade recente</h4>
         </div>
         {data.recent_activity.length === 0 ? (
-          <p className="panel-dashboard-line">Nada de novo por aqui ainda. 🌱</p>
+          <p className="panel-dashboard-line">Nada de novo por aqui ainda.</p>
         ) : (
           <ul className="panel-dashboard-list">
             {data.recent_activity.map((item) => (
@@ -288,7 +288,7 @@ export function ProfessionalDashboard({
           </div>
           <p className="panel-dashboard-line">
             {membersPending === 0
-              ? 'Nenhuma solicitação de entrada aguardando. 🌿'
+              ? 'Nenhuma solicitação de entrada aguardando.'
               : `${membersPending} solicitação(ões) aguardando sua aprovação.`}
           </p>
         </section>
@@ -302,7 +302,7 @@ export function ProfessionalDashboard({
           </div>
           <p className="panel-dashboard-line">
             {data.help_pending === 0
-              ? 'Nenhum pedido pendente. 🌿'
+              ? 'Nenhum pedido pendente.'
               : `${data.help_pending} pedido(s) aguardando resposta.`}
           </p>
         </section>

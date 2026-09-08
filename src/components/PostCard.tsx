@@ -193,7 +193,7 @@ export function PostCard({
             ) : (
               !loadingComments && (
                 <p className="comment-empty">
-                  Ainda não há comentários. Seja a primeira a comentar! 🌷
+                  Ainda não há comentários. Seja a primeira a comentar!
                 </p>
               )
             )
@@ -213,7 +213,7 @@ export function PostCard({
                   ))}
                 </ul>
               ) : (
-                <p className="comment-empty">Seja a primeira a comentar 🌷</p>
+                <p className="comment-empty">Seja a primeira a comentar</p>
               )}
 
               {showSeeMore && (

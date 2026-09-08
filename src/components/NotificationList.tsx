@@ -23,7 +23,7 @@ export function NotificationList({
   }
 
   if (notifications.length === 0) {
-    return <p className="notification-empty">Você está em dia por aqui 🌿</p>
+    return <p className="notification-empty">Você está em dia por aqui</p>
   }
 
   return (

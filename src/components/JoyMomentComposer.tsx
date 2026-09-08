@@ -24,7 +24,7 @@ export function JoyMomentComposer({ communityId, profileId, onSubmit }: JoyMomen
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!body.trim()) {
-      setError('Escreva uma linha sobre a sua alegria de hoje 🌟')
+      setError('Escreva uma linha sobre a sua alegria de hoje')
       return
     }
     setBusy(true)
