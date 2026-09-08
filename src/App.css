@@ -2745,11 +2745,12 @@
 
 .metrics-section-title {
   margin: 4px 0 0;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: var(--olive-text);
+  color: var(--graphite-soft);
 }
 
 .metrics-period {
@@ -3354,7 +3355,12 @@
 
   h4 {
     margin: 0;
-    font-size: 14px;
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: var(--eyebrow-weight);
+    letter-spacing: var(--eyebrow-tracking);
+    text-transform: var(--eyebrow-transform);
+    color: var(--graphite-soft);
   }
 }
 
