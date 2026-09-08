@@ -605,7 +605,7 @@
 
   strong {
     color: var(--graphite);
-    font-weight: 600;
+    font-weight: 500;
   }
 
   @media (min-width: 600px) {
@@ -708,7 +708,7 @@
 .rail-card-title {
   margin: 0;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--olive-text);
@@ -774,7 +774,7 @@
 
 .rail-community-name {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -809,7 +809,7 @@
   color: var(--graphite);
   font: inherit;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
   transition:
@@ -852,7 +852,7 @@
   background-color: var(--danger);
   color: #fff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 20px;
   text-align: center;
 }
@@ -1362,7 +1362,7 @@
 
 .trial-banner-headline {
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -1411,7 +1411,7 @@
 .community-card > button[type='button']:not(.auth-link) {
   /* variação de .btn-primary — largura total dentro do card */
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.005em;
   display: inline-flex;
   align-items: center;
@@ -1636,7 +1636,7 @@
 
   label {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--graphite);
   }
 
@@ -1969,7 +1969,7 @@
   button {
     /* variação de .btn-secondary */
     font: inherit;
-    font-weight: 600;
+    font-weight: 500;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2134,7 +2134,7 @@
 
 .post-author {
   margin: 0;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--graphite);
   font-size: 15.5px;
   letter-spacing: -0.01em;
@@ -2175,7 +2175,7 @@
 .post-comment-toggle {
   font: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -2255,7 +2255,7 @@
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   box-shadow: 0 0 0 1px var(--border-soft);
 
   img {
@@ -2268,7 +2268,7 @@
 .comment-author {
   margin: 0;
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--graphite);
 }
 
@@ -2324,7 +2324,7 @@
   button {
     /* variação de .btn-primary — inline ao lado do campo */
     font: inherit;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.005em;
     display: inline-flex;
     align-items: center;
@@ -2477,7 +2477,7 @@
   /* variação compacta de .btn-secondary */
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2528,7 +2528,7 @@
   background-color: var(--btn-primary-bg);
   background-image: var(--btn-sheen);
   color: var(--btn-primary-on);
-  font-weight: 600;
+  font-weight: 500;
 
   &:hover:not(:disabled) {
     background-color: var(--btn-primary-bg-hover);
@@ -2585,7 +2585,7 @@
   background: var(--rose-soft);
   color: var(--graphite);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -2639,7 +2639,7 @@
 .panel-tab--active {
   border-bottom-color: var(--olive);
   color: var(--graphite);
-  font-weight: 600;
+  font-weight: 500;
 
   &:hover {
     color: var(--graphite);
@@ -2700,7 +2700,7 @@
 .metrics-section-title {
   margin: 4px 0 0;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--olive-text);
@@ -2716,7 +2716,7 @@
   /* variação compacta de .btn-secondary — grupo segmentado */
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   width: auto;
   padding: 7px 14px;
   margin: 0;
@@ -2798,7 +2798,7 @@
 
 .revenue-table th {
   text-align: left;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 11px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -2824,7 +2824,7 @@
 .revenue-badge {
   display: inline-block;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 9px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
@@ -2883,7 +2883,7 @@
   .revenue-table td::before {
     content: attr(data-label);
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--graphite-soft);
@@ -2961,7 +2961,7 @@
 .challenge-period {
   margin: 0;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--olive-text);
 }
@@ -3017,7 +3017,7 @@
   border: 1px solid var(--olive-border);
   color: var(--olive-text);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* ===== Fase 7 — Pontos ===== */
@@ -3079,7 +3079,7 @@
 
 .points-balance-value {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--olive-text);
@@ -3121,7 +3121,7 @@
 
 .points-entry-amount {
   flex-shrink: 0;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--olive-text);
 }
 
@@ -3179,7 +3179,7 @@
 .points-entry-reason {
   margin: 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -3435,7 +3435,7 @@
 
 .panel-community-badge {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--sand);
@@ -3503,7 +3503,7 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 600;
 
   img {
     width: 100%;
@@ -3523,7 +3523,7 @@
 .participant-name {
   margin: 0;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -3596,7 +3596,7 @@
   place-items: center;
   background-color: var(--olive-bg);
   color: var(--olive-text);
-  font-weight: 700;
+  font-weight: 600;
 
   img {
     width: 100%;
@@ -3613,7 +3613,7 @@
 .moderation-post-author {
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -3628,7 +3628,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   background-color: var(--olive-bg);
   color: var(--olive-text);
 }
@@ -3640,7 +3640,7 @@
 
 .moderation-post-title {
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -3687,7 +3687,7 @@
   background-color: var(--surface);
   color: var(--graphite);
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -3760,7 +3760,7 @@
   background-color: var(--rose-100);
   color: var(--olive-text);
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 600;
 
   img {
     width: 100%;
@@ -3780,7 +3780,7 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
 
   img {
     width: 100%;
@@ -3809,7 +3809,7 @@
 .master-community-name {
   margin: 0;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -3825,7 +3825,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   background-color: var(--olive-bg);
   color: var(--olive-text);
 }
@@ -3907,7 +3907,7 @@
 .home-community-eyebrow {
   margin: 0;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--graphite-soft);
@@ -3946,7 +3946,7 @@
   background: var(--olive-bg);
   color: var(--olive-text);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 
   img {
     width: 100%;
@@ -3960,13 +3960,13 @@
   border-radius: 999px;
   background: var(--olive-bg);
   color: var(--olive-text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* --- Conquistas --- */
 .achievements-count {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--olive-text);
 }
 
@@ -3988,7 +3988,7 @@
   background: var(--surface-sunken);
   border: 1px solid var(--border-soft);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -4007,7 +4007,7 @@
 .achievement-next-label {
   margin: 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -4096,7 +4096,7 @@
 }
 
 .rail-next-event-title {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4376,7 +4376,7 @@
 
 .challenge-ring-value {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--olive-text);
 }
@@ -4401,7 +4401,7 @@
 .challenge-track-label {
   margin: 0;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--olive-text);
@@ -4487,7 +4487,7 @@
 .circle-avatar--more {
   font-family: var(--font-body);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   background: var(--surface-sunken);
   color: var(--graphite-soft);
 }
@@ -4496,7 +4496,7 @@
 .circle-card > button {
   /* variação de .btn-primary — inline, alinhado à esquerda no card */
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.005em;
   display: inline-flex;
   align-items: center;
@@ -4656,7 +4656,7 @@
   color: var(--olive-text);
   border-color: var(--olive);
   box-shadow: 0 0 0 1px var(--olive);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ===== Círculos ===== */
@@ -4711,7 +4711,7 @@
 .post-composer-context {
   margin: 0;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--olive-text);
 }
@@ -4745,7 +4745,7 @@
 .circle-list-filter {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   min-height: 36px;
   padding: 6px 16px;
   border: 1px solid var(--border);
@@ -4816,7 +4816,7 @@
 .circle-detail-context {
   margin: 0;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
   text-transform: none;
   color: var(--olive-text);
@@ -4858,7 +4858,7 @@
   background-color: var(--surface);
   color: var(--graphite);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.01em;
   box-shadow: var(--shadow-sm);
   white-space: nowrap;
@@ -5020,7 +5020,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--leaf-text);
 }
 
@@ -5102,7 +5102,7 @@
   > button {
     /* variação de .btn-primary — inline, alinhado à esquerda */
     font: inherit;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.005em;
     display: inline-flex;
     align-items: center;
@@ -5158,7 +5158,7 @@
   button:not(.auth-link) {
     /* variação de .btn-primary — inline */
     font: inherit;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.005em;
     display: inline-flex;
     align-items: center;
@@ -5423,7 +5423,7 @@
 .home-greeting-title {
   margin: 0;
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 21px;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -5489,7 +5489,7 @@
 
 .home-stat-value {
   font-family: var(--font-body);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 20px;
   line-height: 1;
   color: var(--graphite);
@@ -5519,7 +5519,7 @@
 .home-section-title {
   margin: 0;
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 15px;
   letter-spacing: 0;
   text-transform: none;
@@ -5529,7 +5529,7 @@
 .home-section-link {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 0;
   border: none;
   background: none;
@@ -5590,7 +5590,7 @@
   background-color: var(--rose-100);
   color: var(--rose-700);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .home-activity-avatar img {
@@ -5678,7 +5678,7 @@
 .home-circle-name {
   max-width: 132px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   color: var(--graphite);
   overflow: hidden;
@@ -5706,7 +5706,7 @@
 .home-chip {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
@@ -5804,14 +5804,14 @@
 
 .event-card-when {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--olive-text);
   text-transform: capitalize;
 }
 
 .event-card-tag {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   background-color: var(--surface-sunken);
@@ -5851,7 +5851,7 @@
 .event-card-count {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 0;
   border: none;
   background: none;
@@ -5874,7 +5874,7 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   overflow: hidden;
 }
 
@@ -6011,7 +6011,7 @@
 
 .content-card-type {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   padding: 2px 8px;
@@ -6022,7 +6022,7 @@
 
 .content-card-tag {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   background-color: var(--surface-sunken);
@@ -6065,7 +6065,7 @@
 .content-card-read {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 6px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
@@ -6081,7 +6081,7 @@
   gap: 4px;
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 6px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
@@ -6188,7 +6188,7 @@
   background-color: var(--danger);
   color: #fff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 18px;
   text-align: center;
 }
@@ -6214,7 +6214,7 @@
   gap: var(--space-2);
   padding: var(--space-3);
   border-bottom: 1px solid var(--border);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 14px;
   position: sticky;
   top: 0;
@@ -6268,7 +6268,7 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .notification-avatar img {
@@ -6287,7 +6287,7 @@
 
 .notification-title {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -6337,7 +6337,7 @@
   background-color: var(--danger);
   color: #fff;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 16px;
   text-align: center;
 }
@@ -6393,7 +6393,7 @@
 .conversation-new-button {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 6px 14px;
   border: 1px solid var(--olive-border);
   border-radius: var(--radius-pill);
@@ -6447,7 +6447,7 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .conversation-avatar img {
@@ -6473,7 +6473,7 @@
 
 .conversation-row-name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6503,7 +6503,7 @@
 
 .conversation-row-text--unread {
   color: var(--graphite);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .conversation-unread {
@@ -6515,7 +6515,7 @@
   background-color: var(--danger);
   color: #fff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 18px;
   text-align: center;
 }
@@ -6553,7 +6553,7 @@
 
 .conversation-view-name {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--graphite);
 }
 
@@ -6605,7 +6605,7 @@
 
 .message-bubble-read {
   color: var(--olive-text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ---- composer ---- */
@@ -6643,7 +6643,7 @@
   background-color: var(--olive-bg);
   color: var(--olive-text);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -6717,7 +6717,7 @@
 
 .cover-image-input-label {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -6762,7 +6762,7 @@
   border: 1px solid var(--border);
   background-color: var(--surface);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -6775,7 +6775,7 @@
 
 .cover-image-input-pick {
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   min-height: 40px;
   padding: 8px 18px;
   border: 1px solid var(--border);
@@ -6797,7 +6797,7 @@
 
 .community-hero-cover-saving {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite-soft);
 }
 
@@ -6812,7 +6812,7 @@
   gap: 6px;
   font: inherit;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   min-height: 38px;
   padding: 6px 14px;
   border: 1px solid var(--border);
@@ -6873,7 +6873,7 @@
 .saved-items-group-title {
   margin: 0;
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 15px;
   color: var(--graphite);
 }
@@ -6997,14 +6997,14 @@
 
 .mood-option-label {
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
   color: var(--graphite-soft);
 }
 
 .mood-option--on .mood-option-label {
   color: var(--olive-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .mood-message {
@@ -7020,7 +7020,7 @@
 .mood-message-tag {
   margin: 0;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--rose-text);
 }
@@ -7059,13 +7059,13 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
 .mood-mgr-flag {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   background-color: var(--surface-sunken);
@@ -7124,7 +7124,7 @@
 
 .joy-composer-label {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
   margin-top: var(--space-1);
 }
@@ -7158,7 +7158,7 @@
 .joy-composer-submit {
   font: inherit;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   width: 100%;
   min-height: 48px;
   margin-top: var(--space-2);
@@ -7248,7 +7248,7 @@
 
 .joy-card-author {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -7370,7 +7370,7 @@
 .help-secondary-button {
   font: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -7397,7 +7397,7 @@
 .help-chip-button {
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   min-height: 38px;
   padding: 7px 14px;
   border: 1px solid var(--border);
@@ -7445,7 +7445,7 @@
 .help-form-label {
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -7514,7 +7514,7 @@
 
 .help-audience-title {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--graphite);
 }
 
@@ -7565,7 +7565,7 @@
 
 .help-status {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.02em;
   padding: 3px 10px;
   border-radius: var(--radius-pill);
@@ -7583,7 +7583,7 @@
 
 .help-card-audience {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   background-color: var(--surface-sunken);
@@ -7643,7 +7643,7 @@
   gap: 8px;
   margin: var(--space-2) 0 0;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--help-accent-strong);
@@ -7657,7 +7657,7 @@
   background-color: var(--help-accent-bg);
   color: var(--help-accent-strong);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 20px;
   text-align: center;
 }
@@ -7743,7 +7743,7 @@
 .comment-reply-action {
   font: inherit;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -7782,7 +7782,7 @@
   padding: 2px;
   font: inherit;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   border: none;
   background: none;
   color: var(--olive-text);
@@ -7804,7 +7804,7 @@
   padding: 6px 2px;
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   border: none;
   background: none;
   color: var(--olive-text);
@@ -7857,7 +7857,7 @@
   padding: 10px 22px;
   font: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: var(--radius-sm);
   border: 1px solid var(--olive-border);
   background: var(--surface);
