@@ -1,126 +1,143 @@
 :root {
   /* ============================================================
-     Círcula — Pérola & Rosa
-     Superfícies em porcelana morna; um único acento rosé
-     (a família dos "cores do logo") carrega toda a personalidade.
+     Círcula — Editorial (redesign, commit 1: tokens)
+     Referência de LINGUAGEM: AVVA Wellness House — não de conteúdo.
+     O branco domina. Bege, areia, rosé, azul-bebê e folha entram
+     apenas como sussurros (véus de 4–12%), nunca como bloco chapado.
+     Sem gradiente, sem degradê.
 
-     Etapa 0 — Fundação de tokens:
-       · rampa de rosas coerente com o logotipo
-       · gradientes de CTA (consumidos a partir da Etapa 1)
-       · superfícies de card mais claras, quase porcelana branca
-       · sombras mais suaves, profundas e difusas
-       · escala tipográfica que não encolhe no desktop
-       · Fraunces em peso leve + itálico para títulos e destaques
+       · tipografia espelhada da referência: Mitr (títulos, leve),
+         Lato (corpo, leve), Jost (eyebrows/rótulos, maiúsculo tracké)
+       · 5 micro-acentos de peso igual, todos discretos
+       · sombras quase imperceptíveis; fios hairline no lugar de caixas
+       · cantos menos "bolha de app" (8–24px)
+       · escala de títulos maior, com clamp()
+     Nomes legados (--rose-*, --sky-*, --olive*, --cta-*) são mantidos
+     como ALIAS reapontado — nenhum seletor existente quebra; os
+     consumidores são retunados nos commits seguintes.
      ============================================================ */
 
-  /* Superfícies — porcelana e concha dominam a interface.
-     Fase 11 — o fundo geral clareia para "quase branco" (um sopro de
-     morno só), deixando os cards brancos ganharem mais presença. */
+  /* ---- Superfícies — o branco carrega a interface --------------- */
   --white: #ffffff;
-  --page-bg: #faf6f1;
-  --sand: #f5eee5;
-  --sand-deep: #ece2d4;
-  --beige: #fefdfb;
+  --page-bg: #fcfbf9; /* quase branco, um sopro de morno */
+  --sand: #f6f2ec;
+  --sand-deep: #efe9e0;
+  --beige: #ffffff; /* superfície de card = branco puro */
 
-  /* Aliases semânticos de superfície (para as próximas etapas) */
-  --surface: var(--beige);
-  --surface-sunken: var(--sand);
+  --surface: var(--white);
+  --surface-sunken: #f8f5f1;
 
-  /* Texto e bordas — tinta quente, nunca cinza neutro */
-  --graphite: #453e38;
-  --graphite-soft: #726860;
-  --border: rgba(69, 62, 56, 0.11);
-  --border-soft: rgba(69, 62, 56, 0.06);
-  --code-bg: #f1e7d8;
+  /* ---- Tinta e fios — quente, nunca cinza neutro --------------- */
+  --graphite: #35302c; /* títulos e tinta forte */
+  --graphite-soft: #6b6560; /* corpo, texto de interface */
+  --border: rgba(53, 48, 44, 0.1);
+  --border-soft: rgba(53, 48, 44, 0.05);
+  --hairline: rgba(53, 48, 44, 0.08);
+  --code-bg: #f2ede5;
 
-  /* ---- Rampa de rosas — "cores do logo" ----------------------
-     Do nude perolado ao malva profundo. Tons claros para fundos e
-     tinta suave; médios e escuros para ação, estados ativos e texto.
-     Nomes -50..-800 são novos e aditivos: nada existente depende deles. */
-  --rose-50: #faf2ec;
-  --rose-100: #f4e2d8;
-  --rose-200: #eacabb;
-  --rose-300: #dcaa97;
-  --rose-400: #cd8c81; /* terracota morna */
-  --rose-500: #c17f89; /* rosa poeira — acento vivo */
-  --rose-600: #ab5f70; /* malva — ação primária */
-  --rose-700: #8c4c53; /* rosa profundo — texto sobre claro */
-  --rose-800: #6d3c42;
+  /* ---- 5 micro-acentos, peso igual ---------------------------
+     text = tinta legível sobre branco · tint = fundo (véu) ·
+     line = fio de borda. Usar UM por viewport, jamais chapado. */
+  --accent-sand: #9c8a70;
+  --accent-sand-tint: rgba(156, 138, 112, 0.1);
+  --accent-sand-line: rgba(156, 138, 112, 0.3);
+  --accent-beige: #94886f;
+  --accent-beige-tint: rgba(180, 165, 140, 0.12);
+  --accent-beige-line: rgba(180, 165, 140, 0.32);
+  --accent-rose: #a86e75;
+  --accent-rose-tint: rgba(168, 110, 117, 0.09);
+  --accent-rose-line: rgba(168, 110, 117, 0.28);
+  --accent-sky: #5f83a3;
+  --accent-sky-tint: rgba(95, 131, 163, 0.1);
+  --accent-sky-line: rgba(95, 131, 163, 0.3);
+  --accent-leaf: #6f8468;
+  --accent-leaf-tint: rgba(111, 132, 104, 0.1);
+  --accent-leaf-line: rgba(111, 132, 104, 0.3);
 
-  /* Acento rosé — ação primária, estados ativos, links.
-     Nomes mantidos por compatibilidade; valores realinhados à rampa
-     (antes puxavam para o tijolo amarronzado, agora rosa poeira/malva). */
-  --olive-soft: #eedad3;
-  --olive: #ab5f70;
-  --olive-text: #8c4c53;
-  --olive-bg: rgba(171, 95, 112, 0.12);
-  --olive-border: rgba(171, 95, 112, 0.38);
+  /* ---- Ação — tinta rosé-terra profunda (não um fundo vivo) ----
+     A identidade Círcula sobrevive aqui: outline nesta cor, que
+     PREENCHE no hover. Sem gradiente. */
+  --ink-action: #6d3c42;
+  --ink-action-hover: #572f34;
+  --ink-action-soft: rgba(109, 60, 66, 0.06);
+  --ink-action-line: rgba(109, 60, 66, 0.32);
+  --on-action: #ffffff;
 
-  /* Rosé neutro morno — check-in, participação, confirmação */
-  --leaf-soft: #efe0d6;
-  --leaf-text: #7c6a5b;
+  /* ---- Rampa de rosas LEGADA — reapontada a neutros/acento ----
+     Mantida só para não quebrar seletores antigos. Migrar nos
+     commits de botões/cards/hero. */
+  --rose-50: #fbf8f6;
+  --rose-100: #f5edea;
+  --rose-200: #ecdcdb;
+  --rose-300: #dcc2c2;
+  --rose-400: #c79ea1;
+  --rose-500: var(--accent-rose);
+  --rose-600: #8c4c53;
+  --rose-700: #7a4249;
+  --rose-800: var(--ink-action);
 
-  /* Rosé claro — pergunta do dia */
-  --rose-soft: #f4e4de;
-  --rose-text: #8c4c53;
+  /* Aliases --olive* (eram o "acento rosé") -> tinta de ação */
+  --olive-soft: var(--ink-action-soft);
+  --olive: var(--ink-action);
+  --olive-text: #7a4249;
+  --olive-bg: var(--ink-action-soft);
+  --olive-border: var(--ink-action-line);
 
-  /* Pérola quente — comando da comunidade, destaques pontuais */
-  --straw-soft: #f1e6d6;
-  --straw-text: #7a6a54;
+  /* Aliases de acento pontual — todos para a família discreta */
+  --leaf-soft: var(--accent-sand-tint);
+  --leaf-text: #6f6553;
+  --rose-soft: var(--accent-rose-tint);
+  --rose-text: #7a4249;
+  --straw-soft: var(--accent-sand-tint);
+  --straw-text: #6f6553;
 
-  --danger: #a9564a;
-  --danger-border: rgba(169, 86, 74, 0.34);
-  --danger-bg: rgba(169, 86, 74, 0.09);
+  --danger: #a2564b;
+  --danger-border: rgba(162, 86, 75, 0.32);
+  --danger-bg: rgba(162, 86, 75, 0.08);
 
-  /* Azul-sereno — Pedido de ajuda (Fase 5). Um acento calmo, menos
-     dependente do rosa, para o CTA "Pedir ajuda" e os selos de status. */
-  --help-accent: #4f7bb3;
-  --help-accent-strong: #3f689b;
+  /* Azul-sereno — Pedido de ajuda. Acento funcional (não decorativo),
+     alinhado à família azul-bebê. */
+  --help-accent: #5f83a3;
+  --help-accent-strong: #4e6f8c;
   --help-on: #ffffff;
-  --help-accent-bg: rgba(79, 123, 179, 0.1);
-  --help-accent-border: rgba(79, 123, 179, 0.34);
+  --help-accent-bg: var(--accent-sky-tint);
+  --help-accent-border: var(--accent-sky-line);
 
-  /* ---- Azul-pérola — Fase 11 ---------------------------------
-     O reflexo frio na base do logotipo, traduzido num acento
-     secundário muito suave. Uso comedido: selos de informação,
-     conquistas, faixas neutras — nunca compete com o rosé. */
-  --sky-50: #f2f6fa;
-  --sky-100: #e7eff6;
-  --sky-200: #d3e2ef;
-  --sky-400: #8fb4d3;
-  --sky-600: #5f88ab;
-  --sky-text: #3f6a8c;
-  --sky-bg: rgba(126, 163, 194, 0.12);
-  --sky-border: rgba(126, 163, 194, 0.34);
+  /* Rampa --sky-* LEGADA -> família azul-bebê */
+  --sky-50: #f4f7fa;
+  --sky-100: #eaf0f5;
+  --sky-200: #dbe6ee;
+  --sky-400: #9fb6c9;
+  --sky-600: var(--accent-sky);
+  --sky-text: #4e6f8c;
+  --sky-bg: var(--accent-sky-tint);
+  --sky-border: var(--accent-sky-line);
 
-  /* ---- Gradientes de CTA -------------------------------------
-     Luz de pêssego escorrendo para rosa poeira, como nos mockups.
-     Ainda não aplicados a nenhum componente — a Etapa 1 os consome. */
-  --cta-gradient: linear-gradient(135deg, #eab99f 0%, #dd9ca0 52%, #c67f8e 100%);
-  --cta-gradient-hover: linear-gradient(135deg, #e7b096 0%, #d78f96 52%, #bd7484 100%);
-  --cta-on: #ffffff; /* texto claro sobre o gradiente */
-  --cta-on-ink: #5a3138; /* alternativa em tinta profunda para trechos claros */
-  --cta-ring: rgba(171, 95, 112, 0.34); /* halo de foco do CTA */
+  /* ---- Gradientes de CTA — DESATIVADOS (sem degradê) ----------
+     Aliases inertes: qualquer `var(--cta-gradient)` remanescente
+     renderiza uma cor chapada de ação, não um degradê. */
+  --cta-gradient: var(--ink-action);
+  --cta-gradient-hover: var(--ink-action-hover);
+  --cta-on: var(--on-action);
+  --cta-on-ink: var(--graphite);
+  --cta-ring: rgba(109, 60, 66, 0.26);
 
-  /* Sombras — flutuação suave, profunda e difusa, tingida de morno.
-     Camadas curtas + longas dão o efeito "porcelana pousada". */
+  /* ---- Sombras — quase imperceptíveis ------------------------- */
   --shadow-sm:
-    rgba(70, 58, 52, 0.04) 0 2px 8px -2px,
-    rgba(70, 58, 52, 0.05) 0 8px 24px -10px;
+    rgba(53, 48, 44, 0.03) 0 1px 3px,
+    rgba(53, 48, 44, 0.04) 0 6px 16px -8px;
   --shadow-md:
-    rgba(70, 58, 52, 0.05) 0 4px 14px -4px,
-    rgba(70, 58, 52, 0.07) 0 18px 44px -14px,
-    rgba(70, 58, 52, 0.04) 0 44px 90px -36px;
+    rgba(53, 48, 44, 0.04) 0 2px 8px -2px,
+    rgba(53, 48, 44, 0.05) 0 14px 34px -12px;
   --shadow-lg:
-    rgba(70, 58, 52, 0.06) 0 8px 24px -6px,
-    rgba(70, 58, 52, 0.09) 0 32px 70px -18px,
-    rgba(70, 58, 52, 0.05) 0 64px 120px -48px;
+    rgba(53, 48, 44, 0.05) 0 6px 18px -6px,
+    rgba(53, 48, 44, 0.07) 0 28px 60px -20px;
 
-  /* Cantos generosos, como as telas de referência */
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 26px;
-  --radius-xl: 32px;
+  /* ---- Cantos — discretos, editoriais ------------------------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-pill: 999px;
 
   --space-1: 4px;
@@ -131,21 +148,31 @@
   --space-6: 28px;
   --space-7: 40px;
   --space-8: 56px;
+  --space-9: 80px;
+  --space-10: 120px;
 
   --brand-filter: none;
 
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-body: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* ---- Tipografia — espelhada da referência ------------------- */
+  --font-display: 'Mitr', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Lato', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-label: 'Jost', var(--font-body);
   --sans: var(--font-body);
   --heading: var(--font-display);
   --mono: ui-monospace, Consolas, monospace;
 
-  /* Pesos de exibição — Fraunces respira melhor em peso leve nos
-     tamanhos grandes; textos funcionais seguem em Figtree, sem mudança. */
-  --display-weight: 400;
-  --display-weight-strong: 500;
+  /* Mitr respira em peso leve nos tamanhos grandes; textos
+     funcionais seguem em Lato. */
+  --display-weight: 300;
+  --display-weight-strong: 400;
 
-  font: 16px/1.5 var(--font-body);
+  /* Eyebrow / rótulo tracké (Jost) — consumido nos commits seguintes */
+  --eyebrow-size: 11px;
+  --eyebrow-tracking: 0.28em;
+  --eyebrow-weight: 500;
+  --eyebrow-transform: uppercase;
+
+  font: 16px/1.7 var(--font-body);
   letter-spacing: normal;
   color-scheme: light dark;
   color: var(--graphite-soft);
@@ -159,77 +186,103 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --graphite-soft: rgba(245, 236, 230, 0.74);
-    --graphite: #f6ece5;
-    --beige: #241b1f;
-    --sand: rgba(210, 150, 160, 0.1);
-    --sand-deep: rgba(210, 150, 160, 0.14);
+    /* Editorial no escuro — tinta quase-branca morna sobre carvão
+       morno. Acentos viram véus translúcidos; nada chapado, sem degradê. */
+    --graphite-soft: rgba(244, 238, 232, 0.72);
+    --graphite: #f4eee8;
+    --page-bg: #17130f;
+    --sand: rgba(244, 238, 232, 0.05);
+    --sand-deep: rgba(244, 238, 232, 0.08);
+    --beige: #201b17;
 
-    /* Azul-pérola no escuro — véus translúcidos frios */
-    --sky-50: rgba(143, 180, 211, 0.08);
-    --sky-100: rgba(143, 180, 211, 0.12);
-    --sky-200: rgba(143, 180, 211, 0.2);
-    --sky-400: #9fbcd8;
-    --sky-600: #b3c9e0;
-    --sky-text: #c3d5e8;
-    --sky-bg: rgba(143, 180, 211, 0.16);
-    --sky-border: rgba(143, 180, 211, 0.4);
-    --border: rgba(245, 236, 230, 0.14);
-    --border-soft: rgba(245, 236, 230, 0.08);
-    --code-bg: #3a262d;
+    --surface: #1e1915;
+    --surface-sunken: rgba(244, 238, 232, 0.04);
 
-    --surface: #2b2024;
-    --surface-sunken: rgba(224, 168, 178, 0.1);
+    --border: rgba(244, 238, 232, 0.13);
+    --border-soft: rgba(244, 238, 232, 0.07);
+    --hairline: rgba(244, 238, 232, 0.09);
+    --code-bg: #2a2320;
 
-    /* Rampa de rosas — no escuro os tons claros viram véus translúcidos
-       e os médios clareiam para manter contraste sobre a porcelana escura. */
+    /* Micro-acentos — mesmos matizes, como véus */
+    --accent-sand: #cbb99b;
+    --accent-sand-tint: rgba(203, 185, 155, 0.12);
+    --accent-sand-line: rgba(203, 185, 155, 0.3);
+    --accent-beige: #d3c4a8;
+    --accent-beige-tint: rgba(211, 196, 168, 0.12);
+    --accent-beige-line: rgba(211, 196, 168, 0.3);
+    --accent-rose: #d9a9ae;
+    --accent-rose-tint: rgba(217, 169, 174, 0.12);
+    --accent-rose-line: rgba(217, 169, 174, 0.3);
+    --accent-sky: #a6c1d8;
+    --accent-sky-tint: rgba(166, 193, 216, 0.12);
+    --accent-sky-line: rgba(166, 193, 216, 0.3);
+    --accent-leaf: #a9bda0;
+    --accent-leaf-tint: rgba(169, 189, 160, 0.12);
+    --accent-leaf-line: rgba(169, 189, 160, 0.3);
+
+    --ink-action: #e0a8b2;
+    --ink-action-hover: #ecbcc3;
+    --ink-action-soft: rgba(224, 168, 178, 0.14);
+    --ink-action-line: rgba(224, 168, 178, 0.4);
+    --on-action: #241a1c;
+
+    /* Rampa de rosas LEGADA — véus + médios claros p/ contraste */
     --rose-50: rgba(224, 168, 178, 0.1);
     --rose-100: rgba(224, 168, 178, 0.16);
     --rose-200: rgba(224, 168, 178, 0.24);
     --rose-300: #d9a4ac;
     --rose-400: #e0a8b2;
-    --rose-500: #e6b1ba;
+    --rose-500: var(--accent-rose);
     --rose-600: #ecbcc3;
     --rose-700: #f2dfe0;
-    --rose-800: #f7ece9;
+    --rose-800: var(--ink-action);
 
-    --olive-soft: rgba(224, 168, 178, 0.22);
-    --olive: #e0a8b2;
+    --olive-soft: var(--ink-action-soft);
+    --olive: var(--ink-action);
     --olive-text: #f2dfe0;
-    --olive-bg: rgba(224, 168, 178, 0.16);
-    --olive-border: rgba(224, 168, 178, 0.42);
-    --leaf-soft: rgba(224, 168, 178, 0.14);
-    --leaf-text: rgba(245, 236, 230, 0.72);
-    --rose-soft: rgba(224, 168, 178, 0.16);
+    --olive-bg: var(--ink-action-soft);
+    --olive-border: var(--ink-action-line);
+    --leaf-soft: var(--accent-sand-tint);
+    --leaf-text: rgba(244, 238, 232, 0.7);
+    --rose-soft: var(--accent-rose-tint);
     --rose-text: #f2dfe0;
-    --straw-soft: rgba(214, 190, 150, 0.14);
-    --straw-text: rgba(245, 236, 230, 0.72);
+    --straw-soft: var(--accent-sand-tint);
+    --straw-text: rgba(244, 238, 232, 0.7);
 
-    --help-accent: #9db9dd;
-    --help-accent-strong: #b0c8e6;
-    --help-on: #21303f;
-    --help-accent-bg: rgba(157, 185, 221, 0.16);
-    --help-accent-border: rgba(157, 185, 221, 0.42);
+    --help-accent: #a6c1d8;
+    --help-accent-strong: #bcd2e5;
+    --help-on: #1c2731;
+    --help-accent-bg: var(--accent-sky-tint);
+    --help-accent-border: var(--accent-sky-line);
 
-    --cta-gradient: linear-gradient(135deg, #cd949b 0%, #bd7b86 55%, #a5636f 100%);
-    --cta-gradient-hover: linear-gradient(135deg, #d7a1a7 0%, #c78791 55%, #b06f7b 100%);
-    --cta-on: #2a1e21;
-    --cta-on-ink: #f7e9e6;
-    --cta-ring: rgba(224, 168, 178, 0.45);
+    --sky-50: rgba(166, 193, 216, 0.08);
+    --sky-100: rgba(166, 193, 216, 0.12);
+    --sky-200: rgba(166, 193, 216, 0.2);
+    --sky-400: #a6c1d8;
+    --sky-600: #bcd2e5;
+    --sky-text: #cfe0ee;
+    --sky-bg: var(--accent-sky-tint);
+    --sky-border: var(--accent-sky-line);
+
+    --cta-gradient: var(--ink-action);
+    --cta-gradient-hover: var(--ink-action-hover);
+    --cta-on: var(--on-action);
+    --cta-on-ink: var(--graphite);
+    --cta-ring: rgba(224, 168, 178, 0.4);
+
+    --danger: #d99a90;
+    --danger-border: rgba(217, 154, 144, 0.36);
+    --danger-bg: rgba(217, 154, 144, 0.12);
 
     --shadow-sm:
-      rgba(0, 0, 0, 0.32) 0 2px 10px -3px,
-      rgba(0, 0, 0, 0.34) 0 10px 28px -12px;
+      rgba(0, 0, 0, 0.34) 0 1px 4px,
+      rgba(0, 0, 0, 0.36) 0 8px 22px -10px;
     --shadow-md:
-      rgba(0, 0, 0, 0.36) 0 6px 18px -6px,
-      rgba(0, 0, 0, 0.4) 0 20px 44px -14px,
-      rgba(0, 0, 0, 0.28) 0 48px 90px -40px;
+      rgba(0, 0, 0, 0.38) 0 4px 14px -4px,
+      rgba(0, 0, 0, 0.42) 0 18px 40px -14px;
     --shadow-lg:
-      rgba(0, 0, 0, 0.4) 0 10px 28px -8px,
-      rgba(0, 0, 0, 0.46) 0 36px 76px -20px,
-      rgba(0, 0, 0, 0.3) 0 72px 130px -50px;
-
-    --page-bg: #1c1418;
+      rgba(0, 0, 0, 0.44) 0 8px 24px -6px,
+      rgba(0, 0, 0, 0.48) 0 32px 66px -20px;
   }
 
   #social .button-icon {
@@ -288,37 +341,33 @@ h3 {
   color: var(--graphite);
 }
 
+/* Escala editorial — títulos grandes e leves (Mitr), com clamp()
+   para crescerem no desktop em vez de encolher. */
 h1 {
-  font-size: 30px;
-  font-weight: var(--display-weight); /* leve nos tamanhos grandes */
-  line-height: 1.15;
-  letter-spacing: -0.4px;
+  font-size: clamp(30px, 4.4vw, 46px);
+  font-weight: var(--display-weight); /* 300 — leve nos tamanhos grandes */
+  line-height: 1.12;
+  letter-spacing: -0.005em;
   margin: 16px 0;
 
   @media (min-width: 1024px) {
-    font-size: 33px; /* cresce no desktop em vez de encolher */
-    margin: 10px 0;
+    margin: 12px 0;
   }
 }
 
 h2 {
-  font-size: 21px;
-  line-height: 1.2;
-  letter-spacing: -0.2px;
-  margin: 0 0 6px;
-
-  @media (min-width: 1024px) {
-    font-size: 22px;
-  }
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: var(--display-weight);
+  line-height: 1.18;
+  letter-spacing: -0.003em;
+  margin: 0 0 8px;
 }
 
 h3 {
-  font-size: 17px;
-  letter-spacing: -0.1px;
-
-  @media (min-width: 1024px) {
-    font-size: 18px;
-  }
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: var(--display-weight-strong);
+  line-height: 1.28;
+  letter-spacing: normal;
 }
 
 p {
