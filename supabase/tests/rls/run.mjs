@@ -45,7 +45,7 @@ function query(sqlPath) {
   const arg = isWin ? `"${sqlPath}"` : sqlPath;
   const raw = execFileSync(
     'npx',
-    ['--yes', 'supabase', 'db', 'query', '--linked', '--output-format', 'json', '-f', arg],
+    ['--yes', 'supabase', 'db', 'query', '--linked', '--output-format', 'json', '--agent', 'yes', '-f', arg],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1024 * 1024 * 32, shell: true },
   );
   // a saída começa com "Initialising login role..." antes do JSON
@@ -170,3 +170,4 @@ if (totalFail === 0) {
   console.log(`${C.red}${C.bold}X SUÍTE VERMELHA — ${totalFail} falha(s) real(is).${C.reset}`);
   process.exit(1);
 }
+
