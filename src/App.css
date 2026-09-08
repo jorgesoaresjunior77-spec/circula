@@ -1559,12 +1559,14 @@
    de fundação — todos derivados de props e dados já carregados). */
 
 :root {
-  --hero-botanical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='150' viewBox='0 0 260 150' fill='none'%3E%3Cpath d='M250 150 C 246 96 214 52 150 20' stroke='%23ab5f70' stroke-opacity='0.4' stroke-width='2' stroke-linecap='round'/%3E%3Cellipse cx='230' cy='120' rx='19' ry='9' transform='rotate(-24 230 120)' fill='%23ab5f70' fill-opacity='0.3'/%3E%3Cellipse cx='210' cy='92' rx='20' ry='9' transform='rotate(-30 210 92)' fill='%23ab5f70' fill-opacity='0.26'/%3E%3Cellipse cx='188' cy='66' rx='20' ry='9' transform='rotate(-36 188 66)' fill='%23ab5f70' fill-opacity='0.3'/%3E%3Cellipse cx='168' cy='44' rx='17' ry='8' transform='rotate(-42 168 44)' fill='%23ab5f70' fill-opacity='0.24'/%3E%3Cellipse cx='152' cy='26' rx='14' ry='7' transform='rotate(-48 152 26)' fill='%23ab5f70' fill-opacity='0.3'/%3E%3C/svg%3E");
+  /* Broto botânico — folha muito suave (era malva). Recuo discreto no
+     canto da capa quando não há foto. */
+  --hero-botanical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='150' viewBox='0 0 260 150' fill='none'%3E%3Cpath d='M250 150 C 246 96 214 52 150 20' stroke='%236f8468' stroke-opacity='0.32' stroke-width='2' stroke-linecap='round'/%3E%3Cellipse cx='230' cy='120' rx='19' ry='9' transform='rotate(-24 230 120)' fill='%236f8468' fill-opacity='0.22'/%3E%3Cellipse cx='210' cy='92' rx='20' ry='9' transform='rotate(-30 210 92)' fill='%236f8468' fill-opacity='0.18'/%3E%3Cellipse cx='188' cy='66' rx='20' ry='9' transform='rotate(-36 188 66)' fill='%236f8468' fill-opacity='0.22'/%3E%3Cellipse cx='168' cy='44' rx='17' ry='8' transform='rotate(-42 168 44)' fill='%236f8468' fill-opacity='0.16'/%3E%3Cellipse cx='152' cy='26' rx='14' ry='7' transform='rotate(-48 152 26)' fill='%236f8468' fill-opacity='0.22'/%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --hero-botanical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='150' viewBox='0 0 260 150' fill='none'%3E%3Cpath d='M250 150 C 246 96 214 52 150 20' stroke='%23e0a8b2' stroke-opacity='0.45' stroke-width='2' stroke-linecap='round'/%3E%3Cellipse cx='230' cy='120' rx='19' ry='9' transform='rotate(-24 230 120)' fill='%23e0a8b2' fill-opacity='0.32'/%3E%3Cellipse cx='210' cy='92' rx='20' ry='9' transform='rotate(-30 210 92)' fill='%23e0a8b2' fill-opacity='0.28'/%3E%3Cellipse cx='188' cy='66' rx='20' ry='9' transform='rotate(-36 188 66)' fill='%23e0a8b2' fill-opacity='0.32'/%3E%3Cellipse cx='168' cy='44' rx='17' ry='8' transform='rotate(-42 168 44)' fill='%23e0a8b2' fill-opacity='0.26'/%3E%3Cellipse cx='152' cy='26' rx='14' ry='7' transform='rotate(-48 152 26)' fill='%23e0a8b2' fill-opacity='0.32'/%3E%3C/svg%3E");
+    --hero-botanical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='150' viewBox='0 0 260 150' fill='none'%3E%3Cpath d='M250 150 C 246 96 214 52 150 20' stroke='%23a9bda0' stroke-opacity='0.36' stroke-width='2' stroke-linecap='round'/%3E%3Cellipse cx='230' cy='120' rx='19' ry='9' transform='rotate(-24 230 120)' fill='%23a9bda0' fill-opacity='0.26'/%3E%3Cellipse cx='210' cy='92' rx='20' ry='9' transform='rotate(-30 210 92)' fill='%23a9bda0' fill-opacity='0.22'/%3E%3Cellipse cx='188' cy='66' rx='20' ry='9' transform='rotate(-36 188 66)' fill='%23a9bda0' fill-opacity='0.26'/%3E%3Cellipse cx='168' cy='44' rx='17' ry='8' transform='rotate(-42 168 44)' fill='%23a9bda0' fill-opacity='0.2'/%3E%3Cellipse cx='152' cy='26' rx='14' ry='7' transform='rotate(-48 152 26)' fill='%23a9bda0' fill-opacity='0.26'/%3E%3C/svg%3E");
   }
 }
 
@@ -1576,24 +1578,20 @@
   padding: 0;
   overflow: hidden;
   border-radius: var(--card-radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
+/* Capa sem foto: lavagem chapada de areia + broto botânico no canto.
+   Sem degradê. */
 .community-hero-cover {
   position: relative;
   height: 96px;
-  background-color: var(--rose-50);
-  background-image:
-    linear-gradient(112deg, var(--rose-100) 0%, var(--rose-50) 70%),
-    var(--hero-botanical);
-  background-repeat: no-repeat, no-repeat;
-  background-position:
-    center,
-    right -8px bottom -14px;
-  background-size:
-    cover,
-    260px auto;
-  box-shadow: inset 0 -1px 0 var(--border-soft);
+  background-color: var(--sand);
+  background-image: var(--hero-botanical);
+  background-repeat: no-repeat;
+  background-position: right -8px bottom -14px;
+  background-size: 240px auto;
+  box-shadow: inset 0 -1px 0 var(--hairline);
 
   @media (min-width: 768px) {
     height: 120px;
@@ -1645,7 +1643,7 @@
     &:focus,
     &:focus-visible {
       outline: none;
-      border-color: var(--olive);
+      border-color: var(--ink-action);
       box-shadow: var(--field-focus-ring);
     }
   }
@@ -1657,20 +1655,31 @@
   gap: var(--space-3);
 
   button[type='submit'] {
-    font: inherit;
-    font-weight: 600;
+    font-family: var(--btn-label-font);
+    font-size: 10.5px;
+    font-weight: var(--btn-label-weight);
+    letter-spacing: var(--btn-label-tracking);
+    text-transform: uppercase;
     margin-left: auto;
     min-height: 40px;
-    padding: 8px 18px;
-    border: 1px solid var(--btn-primary-bg-active);
-    border-radius: var(--radius-pill);
-    background-color: var(--btn-primary-bg);
-    background-image: var(--btn-sheen);
-    color: var(--btn-primary-on);
+    padding: 9px 18px;
+    border: 1px solid var(--ink-action-line);
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--ink-action);
     cursor: pointer;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.2s ease;
 
+    &:hover:not(:disabled) {
+      background-color: var(--ink-action);
+      border-color: var(--ink-action);
+      color: var(--on-action);
+    }
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.45;
       cursor: not-allowed;
     }
   }
@@ -1724,41 +1733,34 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: var(--display-weight);
-  font-size: 26px;
+  font-size: clamp(27px, 3.6vw, 40px);
   line-height: 1.1;
-  letter-spacing: -0.015em;
+  letter-spacing: 0;
   color: var(--graphite);
-
-  @media (min-width: 768px) {
-    font-size: 30px;
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 33px;
-  }
 }
 
 .community-hero-about {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 .community-hero-about-label {
   margin: 0;
+  font-family: var(--font-label);
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--olive-text);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: var(--eyebrow-transform);
+  color: var(--graphite-soft);
 }
 
 .community-hero-description {
   margin: 0;
-  max-width: 54ch;
+  max-width: 58ch;
   color: var(--graphite);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 
 /* Faixa de indicadores reais */
@@ -1766,7 +1768,8 @@
   display: flex;
   align-items: stretch;
   border-radius: var(--card-radius-sm);
-  background-color: var(--surface-sunken);
+  border: 1px solid var(--hairline);
+  background-color: transparent;
   overflow: hidden;
 }
 
@@ -1776,30 +1779,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: var(--space-3) var(--space-3);
+  gap: 4px;
+  padding: var(--space-4) var(--space-3);
   text-align: center;
 
   & + & {
-    border-left: 1px solid var(--border-soft);
+    border-left: 1px solid var(--hairline);
   }
 }
 
 .community-hero-stat-value {
   font-family: var(--font-display);
   font-weight: var(--display-weight);
-  font-size: 22px;
+  font-size: clamp(22px, 2.4vw, 28px);
   line-height: 1;
   color: var(--graphite);
-
-  @media (min-width: 1024px) {
-    font-size: 25px;
-  }
 }
 
 .community-hero-stat-label {
-  font-size: 11.5px;
-  letter-spacing: 0.02em;
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--graphite-soft);
 }
 
@@ -1813,45 +1815,46 @@
 /* "Entrar" — o casco não é mais filho direto de .community-card, então
    reaplica a variação de .btn-primary aqui. */
 .community-hero-actions button:not(.auth-link) {
-  font: inherit;
-  font-weight: 600;
-  letter-spacing: 0.005em;
+  font-family: var(--btn-label-font);
+  font-size: var(--btn-label-size);
+  font-weight: var(--btn-label-weight);
+  letter-spacing: var(--btn-label-tracking);
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 40px;
-  padding: 10px 24px;
-  border: 1px solid var(--btn-primary-bg-active);
-  border-radius: var(--radius-pill);
-  background-color: var(--btn-primary-bg);
-  background-image: var(--btn-sheen);
-  color: var(--btn-primary-on);
-  box-shadow: var(--shadow-sm);
+  padding: 13px 26px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--ink-action);
   cursor: pointer;
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.2s ease,
+    transform 0.12s ease;
 
   &:hover:not(:disabled) {
-    background-color: var(--btn-primary-bg-hover);
-    box-shadow: var(--shadow-md);
+    border-color: var(--ink-action);
+    background-color: var(--ink-action);
+    color: var(--on-action);
   }
   &:active:not(:disabled) {
-    background-color: var(--btn-primary-bg-active);
-    box-shadow: var(--shadow-sm);
+    background-color: var(--ink-action-hover);
+    border-color: var(--ink-action-hover);
+    color: var(--on-action);
     transform: translateY(1px);
   }
   &:focus-visible {
-    outline: 2px solid var(--olive);
+    outline: 2px solid var(--ink-action);
     outline-offset: 2px;
   }
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
-    box-shadow: none;
     transform: none;
   }
 }
@@ -3354,7 +3357,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--rose-100), var(--sand));
+  background-color: var(--sand);
 }
 
 .panel-community-identity {
@@ -3842,7 +3845,7 @@
   display: block;
   width: 100%;
   aspect-ratio: 5 / 2;
-  background: linear-gradient(120deg, var(--rose-100), var(--rose-50));
+  background-color: var(--sand);
 
   img {
     width: 100%;
@@ -3855,7 +3858,7 @@
 .home-community-cover-fallback {
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, var(--rose-200), var(--rose-50));
+  background-color: var(--sand-deep);
 }
 
 .home-community-logo {
