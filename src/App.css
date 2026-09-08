@@ -1264,8 +1264,10 @@
      só a borda de acento e um véu rosé chapado sobre a superfície —
      sem o antigo "orbe" decorativo. */
   &.community-card--highlight {
-    border-color: var(--olive-border);
-    background-image: linear-gradient(var(--olive-bg), var(--olive-bg));
+    /* comunidade em foco — um dos poucos pontos que mantêm o sussurro
+       plum da identidade (o resto de --olive-bg/-border foi neutralizado). */
+    border-color: var(--ink-action-line);
+    background-image: linear-gradient(var(--ink-action-soft), var(--ink-action-soft));
   }
 
   /* Cards administrativos (bancos de conteúdo, painéis): mais quietos — a

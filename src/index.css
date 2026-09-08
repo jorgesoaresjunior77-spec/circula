@@ -76,19 +76,23 @@
   --rose-700: #7a4249;
   --rose-800: var(--ink-action);
 
-  /* Aliases --olive* (eram o "acento rosé") -> tinta de ação */
-  --olive-soft: var(--ink-action-soft);
+  /* Commit 9 — o "cast rosado". Estes aliases pintavam ~70 superfícies
+     (avatares, chips, estados ativos, cards de humor/pergunta/check-in).
+     Reapontados a NEUTRO — a tinta quente aparece só a 4%, sem matiz.
+     O sussurro plum da identidade fica reservado ao nav ativo, ao hover
+     dos botões e ao card da comunidade em foco (que usam --ink-action-*
+     diretamente). --olive == cor de ação (links/foco) permanece. */
+  --olive-soft: var(--surface-sunken);
   --olive: var(--ink-action);
-  --olive-text: #7a4249;
-  --olive-bg: var(--ink-action-soft);
-  --olive-border: var(--ink-action-line);
+  --olive-text: #7a4249; /* cor de LINK/texto interativo — sussurro plum, fica */
+  --olive-bg: rgba(53, 48, 44, 0.04);
+  --olive-border: var(--border);
 
-  /* Aliases de acento pontual — todos para a família discreta */
-  --leaf-soft: var(--accent-sand-tint);
+  --leaf-soft: var(--surface-sunken);
   --leaf-text: #6f6553;
-  --rose-soft: var(--accent-rose-tint);
-  --rose-text: #7a4249;
-  --straw-soft: var(--accent-sand-tint);
+  --rose-soft: var(--surface-sunken);
+  --rose-text: var(--graphite-soft);
+  --straw-soft: var(--surface-sunken);
   --straw-text: #6f6553;
 
   --danger: #a2564b;
@@ -237,16 +241,16 @@
     --rose-700: #f2dfe0;
     --rose-800: var(--ink-action);
 
-    --olive-soft: var(--ink-action-soft);
+    --olive-soft: var(--surface-sunken);
     --olive: var(--ink-action);
-    --olive-text: #f2dfe0;
-    --olive-bg: var(--ink-action-soft);
-    --olive-border: var(--ink-action-line);
-    --leaf-soft: var(--accent-sand-tint);
+    --olive-text: #e7c8cc; /* link/texto interativo — sussurro plum */
+    --olive-bg: rgba(244, 238, 232, 0.05);
+    --olive-border: var(--border);
+    --leaf-soft: var(--surface-sunken);
     --leaf-text: rgba(244, 238, 232, 0.7);
-    --rose-soft: var(--accent-rose-tint);
-    --rose-text: #f2dfe0;
-    --straw-soft: var(--accent-sand-tint);
+    --rose-soft: var(--surface-sunken);
+    --rose-text: rgba(244, 238, 232, 0.7);
+    --straw-soft: var(--surface-sunken);
     --straw-text: rgba(244, 238, 232, 0.7);
 
     --help-accent: #a6c1d8;
