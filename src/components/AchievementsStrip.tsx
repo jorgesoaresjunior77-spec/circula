@@ -46,7 +46,7 @@ export function AchievementsStrip({ communityId, profileId }: AchievementsStripP
         </ul>
       ) : (
         <p className="home-muted">
-          Suas primeiras conquistas aparecem aqui conforme você participa. 🌱
+          Suas primeiras conquistas aparecem aqui conforme você participa.
         </p>
       )}
 

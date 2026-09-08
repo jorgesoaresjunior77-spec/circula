@@ -38,7 +38,7 @@ export function JoyMomentsSection({ communityId, profileId }: JoyMomentsSectionP
 
       {!loading && !error && moments.length === 0 && (
         <p className="home-muted">
-          Ainda não há momentos por aqui. Que tal você começar? 🌟
+          Ainda não há momentos por aqui. Que tal você começar?
         </p>
       )}
 

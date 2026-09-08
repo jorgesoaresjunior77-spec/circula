@@ -45,7 +45,7 @@ export function DailyMoodCard({ profileId, communityId }: DailyMoodCardProps) {
       <h3 id="mood-card-title" className="mood-card-title">
         Como você está hoje?
       </h3>
-      <p className="mood-card-hint">É só um carinho com você. Fica entre você e o Círcula 🤍</p>
+      <p className="mood-card-hint">É só um carinho com você. Fica entre você e o Círcula</p>
 
       <div
         className={`mood-options${shown ? ' mood-options--chosen' : ''}`}

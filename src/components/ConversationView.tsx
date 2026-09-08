@@ -64,7 +64,7 @@ export function ConversationView({
         {error && <p className="auth-error">{error}</p>}
         {!loading && !error && messages.length === 0 && (
           <p className="conversation-empty">
-            Nenhuma mensagem ainda. Diga oi para {peerName.split(' ')[0]} 🌿
+            Nenhuma mensagem ainda. Diga oi para {peerName.split(' ')[0]}
           </p>
         )}
 

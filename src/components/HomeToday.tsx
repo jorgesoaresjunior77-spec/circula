@@ -190,7 +190,7 @@ export function HomeToday({
     <header className="home-greeting">
       <h2 className="home-greeting-title">
         {timeGreeting()}
-        {greetingName ? `, ${greetingName}` : ''} <span aria-hidden="true">🌸</span>
+        {greetingName ? `, ${greetingName}` : ''}
       </h2>
       <p className="home-greeting-sub">Seu Círcula de hoje</p>
     </header>
@@ -347,7 +347,7 @@ export function HomeToday({
             ))}
           </div>
         ) : (
-          <p className="home-muted">Tudo em dia por aqui 🌿</p>
+          <p className="home-muted">Tudo em dia por aqui</p>
         )}
       </section>
 
