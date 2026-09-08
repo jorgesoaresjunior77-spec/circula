@@ -166,6 +166,45 @@
   transform: translateY(1px);
 }
 
+/* --- Sobre fotografia: transparente, fio fino, alto contraste -----
+   Modificador de .btn para CTAs posicionados SOBRE imagem (capas,
+   heros com foto). Vidro sutil onde suportado; a cor branca + o fio
+   claro garantem leitura. A foto continua protagonista.
+   Uso: <button class="btn btn-primary btn--on-photo">…  */
+.btn--on-photo {
+  border-color: rgba(255, 255, 255, 0.55);
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: none;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .btn--on-photo {
+    -webkit-backdrop-filter: blur(6px) saturate(1.05);
+    backdrop-filter: blur(6px) saturate(1.05);
+  }
+}
+
+.btn--on-photo:hover:not(:disabled):not([aria-disabled='true']) {
+  border-color: #fff;
+  background-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.btn--on-photo:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn--on-photo:focus-visible {
+  outline-color: #fff;
+}
+
+/* Texto/eyebrow sobre fotografia — mesma lógica de contraste. */
+.text-on-photo {
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(20, 16, 14, 0.45);
+}
+
 /* --- Campo: input, textarea, select --------------------------- */
 .field {
   font: inherit;
