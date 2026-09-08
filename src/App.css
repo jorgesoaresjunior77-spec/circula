@@ -736,6 +736,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background-color: var(--surface);
+  background-image: var(--zone-wash);
   box-shadow: var(--shadow-sm);
 }
 
@@ -1214,6 +1215,7 @@
   padding: var(--card-pad-lg);
   border-radius: var(--card-radius-lg);
   box-shadow: var(--shadow-md);
+  background-image: var(--zone-wash);
 }
 
 /* Quiet: ferramenta administrativa, calma, sem elevação. */
@@ -1626,6 +1628,7 @@
   overflow: hidden;
   border-radius: var(--card-radius-lg);
   box-shadow: var(--shadow-md);
+  background-image: var(--zone-wash);
 }
 
 /* Capa sem foto: lavagem chapada de areia + broto botânico no canto.

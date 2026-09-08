@@ -27,6 +27,11 @@
   --surface: var(--white);
   --surface-sunken: #f8f5f1;
 
+  /* Zoneamento — lavagem rosé QUASE imperceptível (~1,5%) para separar
+     visualmente algumas áreas do branco puro (hero, trilho). Editorial,
+     não decorativa. Do branco no topo a um sopro de rosé na base. */
+  --zone-wash: linear-gradient(180deg, #ffffff 0%, #fdf8f7 100%);
+
   /* ---- Tinta e fios — quente, nunca cinza neutro --------------- */
   --graphite: #35302c; /* títulos e tinta forte */
   --graphite-soft: #6b6560; /* corpo, texto de interface */
@@ -201,6 +206,7 @@
 
     --surface: #1e1915;
     --surface-sunken: rgba(244, 238, 232, 0.04);
+    --zone-wash: linear-gradient(180deg, #1e1915 0%, #211a18 100%);
 
     --border: rgba(244, 238, 232, 0.13);
     --border-soft: rgba(244, 238, 232, 0.07);
