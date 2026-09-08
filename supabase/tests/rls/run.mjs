@@ -100,7 +100,7 @@ if (!filter || '00_fixtures_check.sql'.includes(filter)) {
       process.exit(1);
     }
   } catch (e) {
-    console.log(`${C.red}ERRO${C.reset}\n${e.message}`);
+    console.log(`${C.red}ERRO${C.reset}\n${e.message}\n${e.stderr ?? ''}`);
     process.exit(1);
   }
   console.log();
