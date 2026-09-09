@@ -504,9 +504,9 @@
   width: 100%;
   max-width: 480px;
   text-align: left;
-  /* espaço para a barra inferior fixa + o "+" elevado, no mobile
-     (+ área segura iOS) */
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  /* B2 — sem barra inferior fixa no mobile; só um respiro ao final
+     da coluna (+ área segura iOS). */
+  padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
 
   @media (min-width: 768px) {
     max-width: 640px;
@@ -986,68 +986,176 @@
    largura) e barra inferior fixa com "+" central no mobile.
    Etapa B1: só o desktop virou barra no topo — o mobile segue igual. */
 
+/* --- Mobile (< 1024px): a barra recolhe para um botão "Menu" ------ */
 .topnav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--space-3) 0 var(--space-4);
+}
+
+/* No mobile os itens vivem só dentro da folha .nav-sheet. */
+.topnav-list {
   display: none;
 }
 
-.bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 20;
-  display: flex;
+/* Botão "Menu" — pílula Jost, fundo transparente, fio muito sutil. */
+.topnav-toggle {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
-  background-color: var(--surface);
-  border-top: 1px solid var(--hairline);
-  box-shadow: 0 -8px 24px -18px rgba(53, 48, 44, 0.22);
-}
-
-.bottom-nav-side {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: stretch;
-  justify-content: space-around;
-  gap: 2px;
-}
-
-.bottom-nav-item {
-  flex: 1 1 0;
-  min-width: 0;
+  gap: var(--space-2);
   min-height: 44px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 4px 2px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--graphite-soft);
+  padding: 11px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--graphite);
   font-family: var(--font-label);
-  font-size: 9.5px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
+    color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-out);
 
-  span {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  svg {
+    color: var(--graphite-soft);
   }
 
   &:hover {
+    color: var(--graphite);
+    background-color: var(--ink-action-soft);
+    border-color: var(--ink-action-line);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: 2px;
+  }
+}
+
+/* --- Folha / overlay de navegação (mobile) -----------------------
+   Fundo branco, muito espaço, rótulos Jost. Transparência só no
+   backdrop. Animação muito suave — anulada por prefers-reduced-motion
+   (guarda global da Etapa A2). */
+.nav-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.55);
+  animation: navSheetBackdropIn var(--dur) var(--ease) both;
+}
+
+@supports (backdrop-filter: blur(6px)) {
+  .nav-sheet-backdrop {
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(6px);
+  }
+}
+
+.nav-sheet {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-4) var(--gutter) var(--space-8);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  box-shadow: var(--shadow-lg);
+  animation: navSheetIn var(--dur-slow) var(--ease-out) both;
+}
+
+.nav-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-5);
+}
+
+.nav-sheet-mark {
+  height: 26px;
+  width: auto;
+  filter: var(--brand-filter);
+}
+
+.nav-sheet-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+
+  &:hover {
+    background-color: var(--ink-action-soft);
+    border-color: var(--ink-action-line);
     color: var(--ink-action);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: 2px;
+  }
+}
+
+.nav-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.nav-sheet-item {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 14px var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--graphite);
+  font-family: var(--font-label);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+
+  .nav-icon-wrap {
+    flex: 0 0 auto;
+    color: var(--graphite-soft);
+  }
+
+  &:hover {
+    background-color: var(--surface-sunken);
   }
 
   &:focus-visible {
@@ -1056,51 +1164,30 @@
   }
 }
 
-.bottom-nav-item--active {
+.nav-sheet-item--active {
   color: var(--ink-action);
-  background-color: var(--surface-sunken);
+  background-color: var(--ink-action-soft);
+
+  .nav-icon-wrap {
+    color: var(--ink-action);
+  }
 }
 
-/* "+" central — ação real: leva para o Início (feed). */
-.bottom-nav-fab {
-  flex: 0 0 auto;
-  width: 52px;
-  height: 52px;
-  min-height: 52px;
-  margin: 0 8px;
-  align-self: center;
-  transform: translateY(-10px);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--ink-action);
-  border-radius: var(--radius-pill);
-  background-color: var(--ink-action);
-  color: var(--on-action);
-  box-shadow: var(--shadow-md);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    background-color 0.18s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
-
-  &:hover {
-    background-color: var(--btn-primary-bg-hover);
+@keyframes navSheetBackdropIn {
+  from {
+    opacity: 0;
   }
+}
 
-  &:active {
-    transform: translateY(-8px);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--olive);
-    outline-offset: 2px;
+@keyframes navSheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
 @media (min-width: 1024px) {
-  .bottom-nav {
+  .topnav-toggle {
     display: none;
   }
 
@@ -1115,7 +1202,8 @@
     grid-column: 1 / -1;
     grid-row: 2;
     margin-top: var(--space-2);
-    padding-bottom: var(--space-4);
+    /* neutraliza o padding-top da regra base (mobile) — desktop inalterado */
+    padding: 0 0 var(--space-4);
     border-bottom: 1px solid var(--hairline);
   }
 
@@ -8168,45 +8256,6 @@ button.card:active {
 .dashboard-main,
 .dashboard-main-solo {
   gap: var(--space-6);
-}
-
-/* ---- Bottom navigation em telas muito pequenas (≤ 400px) ---------
-   Pendência antiga: "Comunidades" / "Meu perfil" truncavam a 320px.
-   Correção só visual: o rótulo pode quebrar em duas linhas curtas,
-   centralizado, sem reticências e sem hifenização feia. */
-@media (max-width: 400px) {
-  .bottom-nav {
-    padding-left: 4px;
-    padding-right: 4px;
-  }
-
-  .bottom-nav-item {
-    font-size: 10px;
-    letter-spacing: -0.02em;
-    padding: 4px 1px;
-    min-height: 50px;
-  }
-
-  .bottom-nav-item span:last-child {
-    white-space: normal;
-    text-overflow: clip;
-    line-height: 1.06;
-    text-align: center;
-    hyphens: none;
-    word-break: normal;
-    overflow-wrap: anywhere;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .bottom-nav-fab {
-    margin: 0 4px;
-    width: 48px;
-    height: 48px;
-    min-height: 48px;
-  }
 }
 
 /* ---- Foco de teclado visível e consistente em elementos novos ---- */

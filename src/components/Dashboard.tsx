@@ -728,8 +728,6 @@ export function Dashboard({
         items={navItems}
         active={effectiveNav}
         onNavigate={handleNavigate}
-        onPlus={() => handleNavigate(profile?.role === 'master' ? 'inicio' : 'feed')}
-        plusLabel={profile?.role === 'master' ? 'Ir para o Início' : 'Abrir o Feed'}
         badges={{ mensagens: totalUnread }}
       />
 
