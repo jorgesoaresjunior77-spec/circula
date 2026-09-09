@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import circulaIcon from '../assets/circula-icon.jpg'
+import circulaIcon from '../assets/circula-icon.png'
 import { supabase } from '../lib/supabase'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { CommunityMemberProfile, CommunityWithMembers } from '../types/community'

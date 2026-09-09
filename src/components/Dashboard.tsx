@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import circulaIcon from '../assets/circula-icon.jpg'
+import circulaIcon from '../assets/circula-icon.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import { useCommunity } from '../hooks/useCommunity'
 import { useCircles } from '../hooks/useCircles'

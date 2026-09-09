@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import circulaIcon from '../assets/circula-icon.jpg'
+import circulaIcon from '../assets/circula-icon.png'
 
 interface ResetPasswordProps {
   /**

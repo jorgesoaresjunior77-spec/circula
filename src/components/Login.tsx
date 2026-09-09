@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import circulaIcon from '../assets/circula-icon.jpg'
-import circulaLogo from '../assets/circula-logo.jpg'
+import circulaIcon from '../assets/circula-icon.png'
+import circulaLogo from '../assets/circula-logo.png'
 
 // Fase 14.1 — deriva a URL do próprio ambiente/base da app: em dev
 // resolve para http://localhost:5173/circula/ e em produção para
