@@ -36,9 +36,11 @@ interface PrimaryNavProps {
 
 /**
  * Navegação primária do Círcula. Um único componente que renderiza a
- * sidebar (desktop, rail compacto só-ícone) e a barra inferior fixa
- * (mobile, com "+" central) — a alternância é 100% CSS. Puramente
- * apresentacional: não toca dados, hooks de negócio, Supabase ou auth.
+ * navegação superior editorial (desktop, barra horizontal no topo) e a
+ * barra inferior fixa (mobile, com "+" central) — a alternância é 100%
+ * CSS. Puramente apresentacional: não toca dados, hooks de negócio,
+ * Supabase ou auth. Etapa B1: só o desktop virou barra no topo; o
+ * mobile segue exatamente com a barra inferior de antes.
  */
 export function PrimaryNav({
   items,
@@ -79,22 +81,22 @@ export function PrimaryNav({
 
   return (
     <>
-      <nav className="sidebar" aria-label="Navegação principal">
-        <ul className="sidebar-list">
+      <nav className="topnav" aria-label="Navegação principal">
+        <ul className="topnav-list">
           {items.map((item) => (
             <li key={item.key}>
               <button
                 type="button"
-                className={`sidebar-item${active === item.key ? ' sidebar-item--active' : ''}`}
+                className={`topnav-item${active === item.key ? ' topnav-item--active' : ''}`}
                 aria-current={active === item.key ? 'page' : undefined}
                 title={item.label}
                 onClick={() => onNavigate(item.key)}
               >
                 <span className="nav-icon-wrap">
-                  <item.Icon size={22} />
+                  <item.Icon size={18} />
                   {badgeFor(item.key)}
                 </span>
-                <span className="sidebar-label">{item.label}</span>
+                <span className="topnav-label">{item.label}</span>
               </button>
             </li>
           ))}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
+import circulaLogo from '../assets/circula-logo.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import { useCommunity } from '../hooks/useCommunity'
 import { useCircles } from '../hooks/useCircles'
@@ -686,6 +687,17 @@ export function Dashboard({
             <h1 className="brand-name">Círcula</h1>
             <p className="brand-tagline">Conectando Mulheres</p>
           </div>
+          {/* B1 — logo oficial na navegação superior (desktop, onde há
+              espaço). Mesma ação "ir para o Início". No mobile a marca
+              segue como pastilha + wordmark acima. */}
+          <button
+            type="button"
+            className="brand-mark-btn"
+            onClick={() => handleNavigate('inicio')}
+            aria-label="Ir para o Início"
+          >
+            <img src={circulaLogo} alt="Círcula" className="brand-mark" />
+          </button>
         </div>
 
         <div className="dashboard-user">
