@@ -29,15 +29,17 @@ export function CommunityCardImagesManager({
   profileId,
 }: CommunityCardImagesManagerProps) {
   const { images, loading, setImage, clearImage } = useCommunityCardImages(communityId)
-  const [error, setError] = useState<string | null>(null)
+  // Só a apresentação mudou: em vez de uma mensagem única no topo, guardamos
+  // QUAL card falhou para mostrar o aviso dentro do próprio card.
+  const [errorKey, setErrorKey] = useState<CommunityCardKey | null>(null)
 
   async function handleChange(cardKey: CommunityCardKey, path: string) {
-    setError(null)
+    setErrorKey(null)
     const result = path
       ? await setImage(cardKey, path, profileId)
       : await clearImage(cardKey)
     if (result.error) {
-      setError('Não foi possível salvar agora. Tente novamente.')
+      setErrorKey(cardKey)
     }
   }
 
@@ -51,8 +53,6 @@ export function CommunityCardImagesManager({
         </p>
         <p className="card-images-format">{COMMUNITY_CARD_IMAGE_FORMAT}</p>
       </header>
-
-      {error && <p className="auth-error">{error}</p>}
 
       {loading ? (
         <p className="home-muted">Carregando imagens…</p>
@@ -72,6 +72,17 @@ export function CommunityCardImagesManager({
                   label=""
                   onChange={(path) => void handleChange(key, path)}
                 />
+                {/* Orientação discreta, só no Painel da Profissional — nunca
+                    chega à Home nem aos membros. */}
+                <p className="card-images-guide">
+                  <span>Formato recomendado: 4:5</span>
+                  <span>Até 5 MB</span>
+                </p>
+                {errorKey === key && (
+                  <p className="card-images-error" role="alert">
+                    Não foi possível salvar agora. Tente novamente.
+                  </p>
+                )}
               </div>
             </li>
           ))}

@@ -8950,6 +8950,9 @@ button.card:focus-visible {
 
 .exp-card-frame {
   position: relative;
+  /* box-sizing local: o projeto usa content-box por padrão; sem isto o
+     padding fica fora do aspect-ratio e a caixa visível vira ~5:6. */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -8995,6 +8998,8 @@ button.card:focus-visible {
 .exp-card--photo .exp-card-title,
 .exp-card--photo .exp-card-meta {
   position: relative;
+  /* acima do ::after/scrim (que não é alterado) */
+  z-index: 1;
   color: var(--c-white);
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
 }
@@ -9639,42 +9644,24 @@ button.card:focus-visible {
   color: var(--graphite-soft);
 }
 
+/* Grade editorial — usa a largura do Painel: os 6 cards fluem em
+   colunas conforme o espaço, sem esticar demais nem apertar. */
 .card-images-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
+  gap: var(--space-7) var(--space-6);
 }
 
+/* Cada card: fundo branco, sem borda, sem caixa — só respiro. */
 .card-images-row {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-6) 0;
-  border-top: 1px solid var(--hairline);
-}
-
-.card-images-row:first-child {
-  border-top: 0;
-  padding-top: var(--space-2);
-}
-
-@media (min-width: 720px) {
-  .card-images-row {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--space-7);
-  }
-  .card-images-info {
-    flex: 0 0 34%;
-    padding-top: var(--space-2);
-  }
-  .card-images-field {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 320px;
-  }
+  padding: 0;
+  border: 0;
 }
 
 .card-images-info {
@@ -9696,4 +9683,77 @@ button.card:focus-visible {
   font-size: 13px;
   line-height: 1.5;
   color: var(--graphite-soft);
+}
+
+.card-images-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* PREVIEW 4:5 — escopo só neste painel; o CoverImageInput compartilhado
+   (capa de comunidade/desafio/etc.) continua 16:9 em toda parte. */
+.card-images-field .cover-image-input-frame {
+  aspect-ratio: 4 / 5;
+  max-height: none;
+  border: 1px solid var(--hairline);
+  border-radius: var(--card-radius-sm);
+  background-color: var(--surface);
+}
+
+.card-images-field .cover-image-input-frame[data-empty='true'] {
+  border-style: dashed;
+  background-color: var(--surface-sunken);
+}
+
+.card-images-field .cover-image-input-preview {
+  object-fit: cover;
+}
+
+/* Estado sem imagem: reescreve o texto do placeholder só aqui, via CSS,
+   sem tocar no componente compartilhado. */
+.card-images-field .cover-image-input-placeholder {
+  font-size: 0;
+  line-height: 1.4;
+}
+
+.card-images-field .cover-image-input-placeholder::before {
+  content: 'Adicionar imagem';
+  display: block;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--graphite);
+}
+
+.card-images-field .cover-image-input-placeholder::after {
+  content: '4:5 · até 5 MB';
+  display: block;
+  margin-top: var(--space-1);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* Orientação discreta ao lado de cada campo (só no Painel). */
+.card-images-guide {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-3);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+/* Erro de salvamento — mesma cor funcional do resto do app, dentro do card. */
+.card-images-error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--danger);
 }
