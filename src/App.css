@@ -8528,3 +8528,314 @@ button.card:focus-visible {
   font-style: italic;
   color: var(--graphite-soft);
 }
+
+
+/* ===================================================================
+   C1 · Comunidade — Hero fotografico full-bleed
+   A capa da comunidade em foco (cover_image_url) deixa de ser um card e
+   passa a ser a fotografia protagonista da entrada da Home: 100% da
+   largura da viewport, de ponta a ponta, sem borda / moldura / card.
+   O cabecalho (logo oficial, "Ola, [nome]", notificacoes, Sair) e o
+   menu B1/B2 FLUTUAM sobre a foto — mesmos elementos e acoes, so
+   recoloridos com branco + translucidez + backdrop-filter minimo +
+   sombra tipografica. A identidade da comunidade (olho, nome grande e
+   leve, responsavel, no de participantes) e ancorada, por posicao
+   absoluta, na base da foto — nunca escapa para o branco, independente
+   do que houver acima (faixa de trial etc.).
+
+   So CSS + props booleanas de passagem (coverHero / overlay). Nada de
+   banco, campo, hook de negocio, RLS, Auth, Billing. CoverImageInput e
+   a edicao de capa pela dona (CommunityView) seguem intactos. Sem
+   PhotoCard / EditorialGallery / Circulos / Wellness / Instagram /
+   parceiros / humor. Ativo so quando ha capa real
+   (Dashboard -> .dashboard--cover-hero). Reduced-motion: sem animacao
+   nova; hovers herdam a guarda global da A2.
+   =================================================================== */
+
+.dashboard--cover-hero {
+  position: relative;
+  /* Altura da foto por breakpoint + folga entre a base da foto e o
+     inicio do corpo (cromo real ~= 190px + um respiro). */
+  --cover-hero-h: clamp(420px, 64vh, 560px);
+  --cover-hero-fold: calc(var(--cover-hero-h) - 190px + var(--space-6));
+}
+
+@media (min-width: 768px) {
+  .dashboard--cover-hero {
+    --cover-hero-h: clamp(460px, 60vh, 640px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard--cover-hero {
+    --cover-hero-h: clamp(500px, 62vh, 720px);
+  }
+}
+
+/* A foto encosta no topo da viewport — o palco perde o respiro
+   superior do #center so nesta entrada. */
+#center:has(.dashboard--cover-hero) {
+  padding-top: 0;
+}
+
+.cover-hero {
+  position: relative;
+  z-index: 0;
+  width: 100vw;
+  height: var(--cover-hero-h);
+  margin-inline: var(--bleed);
+  overflow: hidden;
+  /* fallback caso a URL assinada falhe: tinta quente escura o bastante
+     para o texto branco seguir legivel. */
+  background: linear-gradient(150deg, var(--n-600), var(--n-800));
+}
+
+.cover-hero-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+  display: block;
+}
+
+/* Nao e caixa: so um veu de contraste, mais denso na base (onde fica o
+   nome) e um fio no topo (onde flutua o cromo). Tinta quente escura,
+   nunca cor. */
+.cover-hero-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(35, 30, 28, 0.42) 0%, rgba(35, 30, 28, 0) 22%),
+    linear-gradient(
+      0deg,
+      rgba(35, 30, 28, 0.66) 0%,
+      rgba(35, 30, 28, 0.16) 34%,
+      rgba(35, 30, 28, 0) 60%
+    );
+}
+
+/* Identidade ancorada na base da foto, alinhada a coluna de conteudo
+   (mesma sangria lateral do .dashboard em qualquer largura). */
+.cover-hero-identity {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  padding-block-end: clamp(20px, 4.5vh, 44px);
+  padding-inline: max(
+    var(--gutter),
+    calc((100% - (var(--maxw-editorial) + 300px + var(--space-7))) / 2)
+  );
+}
+
+.cover-hero-identity .home-community-header--overlay {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: var(--maxw-editorial);
+}
+
+.cover-hero-identity .home-community-info {
+  padding: 0;
+  gap: var(--space-2);
+}
+
+.cover-hero-identity .home-community-eyebrow {
+  font-family: var(--font-label);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cover-hero-identity .home-community-name {
+  color: var(--c-white);
+  font-weight: var(--display-weight);
+  font-size: clamp(30px, 4.6vw, 58px);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-display);
+  text-shadow: 0 2px 16px rgba(35, 30, 28, 0.5);
+  white-space: normal;
+}
+
+.cover-hero-identity .home-community-meta {
+  margin-top: var(--space-3);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.cover-hero-identity .home-community-owner {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.cover-hero-identity .home-community-owner-avatar {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--c-white);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.cover-hero-identity .home-community-count {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--c-white);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+/* --- Empilhamento: cromo e corpo acima da foto ------------------- */
+.dashboard--cover-hero > .dashboard-header,
+.dashboard--cover-hero > .topnav,
+.dashboard--cover-hero .dashboard-main,
+.dashboard--cover-hero .dashboard-rail {
+  position: relative;
+  z-index: 2;
+}
+
+/* O corpo (faixa de trial + toda a HomeToday) comeca abaixo da foto. */
+.dashboard--cover-hero .dashboard-main {
+  padding-top: var(--cover-hero-fold);
+}
+
+/* Mobile (< 1024): .dashboard e flex-column — o hero precisa ser
+   absoluto para o cromo pousar sobre ele. */
+@media (max-width: 1023px) {
+  .cover-hero {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-inline: 0;
+  }
+}
+
+/* Desktop (>= 1024): o hero e um item do grid cobrindo as linhas do
+   cabecalho, do menu e o topo do conteudo; o trilho reaparece abaixo
+   da foto, alinhado ao corpo. */
+@media (min-width: 1024px) {
+  .cover-hero {
+    grid-column: 1 / -1;
+    grid-row: 1 / 4;
+    align-self: start;
+  }
+
+  .dashboard--cover-hero .dashboard-rail {
+    margin-top: var(--cover-hero-fold);
+  }
+}
+
+/* --- Cabecalho sobre a foto ------------------------------------- */
+.dashboard--cover-hero > .dashboard-header {
+  border-bottom-color: transparent;
+  padding-top: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .dashboard--cover-hero > .dashboard-header {
+    padding-top: var(--space-5);
+  }
+}
+
+.dashboard--cover-hero .brand-name,
+.dashboard--cover-hero .brand-tagline {
+  color: var(--c-white);
+  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.55);
+}
+
+/* Contraste do logo oficial sem tocar o asset: so uma sombra projetada
+   discreta para ele nao sumir sobre trechos claros da foto. */
+.dashboard--cover-hero .brand-mark {
+  filter: drop-shadow(0 1px 8px rgba(35, 30, 28, 0.6));
+}
+
+.dashboard--cover-hero .dashboard-user-name,
+.dashboard--cover-hero .dashboard-user-name strong {
+  color: var(--c-white);
+}
+
+.dashboard--cover-hero .dashboard-user-name {
+  text-shadow: 0 1px 5px rgba(35, 30, 28, 0.5);
+}
+
+.dashboard--cover-hero .dashboard-user-avatar {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+/* "Sair" e o sino: pilulas translucidas claras, backdrop minimo. */
+.dashboard--cover-hero .dashboard-header button,
+.dashboard--cover-hero .notification-bell-button {
+  color: var(--c-white);
+  border-color: rgba(255, 255, 255, 0.42);
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.dashboard--cover-hero .dashboard-header button:hover:not(:disabled),
+.dashboard--cover-hero .notification-bell-button:hover {
+  color: var(--c-white);
+  border-color: rgba(255, 255, 255, 0.72);
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.dashboard--cover-hero .dashboard-header button:focus-visible,
+.dashboard--cover-hero .notification-bell-button:focus-visible,
+.dashboard--cover-hero .topnav-item:focus-visible,
+.dashboard--cover-hero .topnav-toggle:focus-visible,
+.dashboard--cover-hero .brand-mark-btn:focus-visible,
+.dashboard--cover-hero .brand-icon-btn:focus-visible {
+  outline-color: var(--c-white);
+}
+
+/* --- Menu B1 (desktop) sobre a foto: so recolore, nao redesenha --- */
+.dashboard--cover-hero .topnav {
+  border-bottom-color: rgba(255, 255, 255, 0.24);
+}
+
+.dashboard--cover-hero .topnav-item {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.dashboard--cover-hero .topnav-item:hover {
+  color: var(--c-white);
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.dashboard--cover-hero .topnav-item--active {
+  color: var(--c-white);
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.dashboard--cover-hero .topnav-item--active .nav-icon-wrap {
+  color: var(--c-white);
+  opacity: 1;
+}
+
+/* --- Menu B2 (mobile): botao "Menu" translucido claro; a folha de
+   navegacao em si nao muda. --- */
+.dashboard--cover-hero .topnav-toggle {
+  color: var(--c-white);
+  border-color: rgba(255, 255, 255, 0.42);
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.dashboard--cover-hero .topnav-toggle svg {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Desktop: a saudacao "Bom dia" da HomeToday sai — "Ola, [nome]" ja
+   esta no cabecalho sobre a foto (poucos elementos). No mobile o nome
+   fica oculto no cabecalho (< 600px); a saudacao da HomeToday
+   permanece, agora como primeiro bloco abaixo da foto. */
+@media (min-width: 1024px) {
+  .dashboard--cover-hero .home-greeting {
+    display: none;
+  }
+}

@@ -52,6 +52,13 @@ interface HomeTodayProps {
   onNavigate: (key: NavKey) => void
   /** Abrir uma conversa do Mensagens (deep-link do Pedido de ajuda "para a Nutri"). */
   onOpenConversation: (conversationId: string) => void
+  /**
+   * C1 — quando a capa da comunidade em foco está sendo usada como hero
+   * fotográfico full-bleed (renderizado pelo Dashboard atrás do
+   * cabeçalho), o HomeCommunityHeader entra em modo sobreposição: só a
+   * identidade da comunidade sobre a foto, sem a própria capa/card.
+   */
+  coverHero?: boolean
 }
 
 function timeGreeting(now = new Date()): string {
@@ -123,6 +130,7 @@ export function HomeToday({
   onCreateCommunity,
   onNavigate,
   onOpenConversation,
+  coverHero = false,
 }: HomeTodayProps) {
   const myCommunities = useMemo(
     () =>
@@ -302,11 +310,16 @@ export function HomeToday({
 
       {/* Fase 10 — cabeçalho da comunidade: capa, logo, nome, profissional
           responsável e nº de participantes. "Onde estou" claro logo na
-          entrada. Somente leitura. */}
-      <HomeCommunityHeader
-        community={focusCommunity}
-        memberCount={memberCounts[focusCommunity.id]}
-      />
+          entrada. Somente leitura.
+          C1 — quando a capa vira hero fotográfico full-bleed, esta
+          identidade é renderizada pelo Dashboard DENTRO do hero (sobre a
+          foto); aqui ela sai para não duplicar. */}
+      {!coverHero && (
+        <HomeCommunityHeader
+          community={focusCommunity}
+          memberCount={memberCounts[focusCommunity.id]}
+        />
+      )}
 
       {/* Fase 3 — "Como você está hoje?": humor diário privado da usuária.
           Fase 10: emojis interativos. */}

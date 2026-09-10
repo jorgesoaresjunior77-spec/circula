@@ -15,6 +15,13 @@ interface HomeCommunityHeaderProps {
    * Member. Nunca usar o length do embed como contagem.
    */
   memberCount?: number
+  /**
+   * C1 — modo sobreposição: a capa já está sendo exibida como hero
+   * fotográfico full-bleed pelo Dashboard, atrás do cabeçalho. Aqui
+   * renderizamos só a identidade da comunidade (olho + nome + meta),
+   * sem repetir a foto nem a moldura de card. Mesmos dados e semântica.
+   */
+  overlay?: boolean
 }
 
 /**
@@ -37,7 +44,11 @@ interface HomeCommunityHeaderProps {
  *     via `shares_active_community`). O filtro é sempre pelo owner_id
  *     exato — nunca um fallback que possa trazer outra pessoa.
  */
-export function HomeCommunityHeader({ community, memberCount }: HomeCommunityHeaderProps) {
+export function HomeCommunityHeader({
+  community,
+  memberCount,
+  overlay = false,
+}: HomeCommunityHeaderProps) {
   const embeddedOwner =
     community.community_members.find((member) => member.profile?.id === community.owner_id)
       ?.profile ?? null
@@ -69,15 +80,20 @@ export function HomeCommunityHeader({ community, memberCount }: HomeCommunityHea
   const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
 
   return (
-    <section className="home-community-header" aria-label="Sua comunidade">
-      <div className="home-community-cover" aria-hidden="true">
-        {coverUrl ? (
-          <img src={coverUrl} alt="" />
-        ) : (
-          <span className="home-community-cover-fallback" />
-        )}
-        <img src={circulaIcon} alt="" className="home-community-logo" />
-      </div>
+    <section
+      className={`home-community-header${overlay ? ' home-community-header--overlay' : ''}`}
+      aria-label="Sua comunidade"
+    >
+      {!overlay && (
+        <div className="home-community-cover" aria-hidden="true">
+          {coverUrl ? (
+            <img src={coverUrl} alt="" />
+          ) : (
+            <span className="home-community-cover-fallback" />
+          )}
+          <img src={circulaIcon} alt="" className="home-community-logo" />
+        </div>
+      )}
 
       <div className="home-community-info">
         <p className="home-community-eyebrow">Você está em</p>

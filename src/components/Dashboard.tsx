@@ -28,9 +28,11 @@ import { MasterPanel } from './MasterPanel'
 import { MemberCommunityCard } from './MemberCommunityCard'
 import { PendingMembershipRequests } from './PendingMembershipRequests'
 import { HomeToday } from './HomeToday'
+import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { PrimaryNav } from './PrimaryNav'
 import { DashboardRail } from './DashboardRail'
 import { useRailSummary } from '../hooks/useRailSummary'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { NavItem, NavKey } from './PrimaryNav'
 import {
   CalendarIcon,
@@ -197,6 +199,13 @@ export function Dashboard({
     railActive ? (profile?.id ?? null) : null,
   )
 
+  // C1 — Hero full-bleed da comunidade: a capa da comunidade em foco
+  // vira a fotografia protagonista da entrada da Home. Só quando há capa
+  // real; sem capa, o cabeçalho segue no formato atual. A URL assinada
+  // reusa o mesmo hook de imagem já usado no HomeCommunityHeader — sem
+  // consulta nova, sem campo novo, sem hook de negócio.
+  const { url: heroCoverUrl } = useSignedImageUrl(railCommunity?.cover_image_url ?? null)
+
   // Círculos da comunidade resolvida — só busca quando o destino
   // "Círculos" ou "Eventos" está ativo (useCircles(null) não faz fetch).
   // Eventos reaproveita a mesma resolução de comunidade dos círculos.
@@ -283,6 +292,7 @@ export function Dashboard({
           onCreateCommunity={createCommunity}
           onNavigate={handleNavigate}
           onOpenConversation={openConversationById}
+          coverHero={coverHero}
         />
       )
     }
@@ -671,8 +681,36 @@ export function Dashboard({
   const showRail =
     !viewingProfileId && effectiveNav === 'inicio' && profile?.role !== 'master'
 
+  // C1 — só ativa o hero fotográfico quando a Home está visível E há uma
+  // capa real para ser protagonista. Sem capa, tudo segue como antes.
+  const coverHero = showRail && !!railCommunity?.cover_image_url
+
   return (
-    <section className={`dashboard${showRail ? ' dashboard--rail' : ''}`}>
+    <section
+      className={`dashboard${showRail ? ' dashboard--rail' : ''}${
+        coverHero ? ' dashboard--cover-hero' : ''
+      }`}
+    >
+      {coverHero && railCommunity && (
+        <div className="cover-hero">
+          {heroCoverUrl && (
+            <img src={heroCoverUrl} alt="" className="cover-hero-photo" />
+          )}
+          <span className="cover-hero-scrim" aria-hidden="true" />
+          {/* Identidade da comunidade ancorada na base da foto — mesmos
+              dados e semântica do HomeCommunityHeader, em modo sobreposição
+              (sem repetir a foto). Renderizado aqui, dentro do hero, para
+              o nome ficar SEMPRE sobre a fotografia, independente do que
+              houver acima (faixa de trial etc.). */}
+          <div className="cover-hero-identity">
+            <HomeCommunityHeader
+              community={railCommunity}
+              memberCount={memberCounts[railCommunity.id]}
+              overlay
+            />
+          </div>
+        </div>
+      )}
       <header className="dashboard-header">
         <div className="brand">
           <button
