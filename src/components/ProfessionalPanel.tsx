@@ -18,6 +18,7 @@ import { RevenuePanel } from './RevenuePanel'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
+import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import type { CommunityUpdateInput, CommunityWithMembers } from '../types/community'
 
 type PanelTab =
@@ -28,6 +29,7 @@ type PanelTab =
   | 'eventos'
   | 'circulos'
   | 'conteudo'
+  | 'imagens'
   | 'ajuda'
   | 'pontos'
   | 'metricas'
@@ -43,6 +45,7 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'eventos', label: 'Eventos' },
   { key: 'circulos', label: 'Círculos' },
   { key: 'conteudo', label: 'Conteúdo' },
+  { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'ajuda', label: 'Pedidos de ajuda' },
   { key: 'pontos', label: 'Pontos' },
   { key: 'metricas', label: 'Métricas' },
@@ -170,6 +173,12 @@ export function ProfessionalPanel({
             canManage
             onPublished={onFeedRefresh}
           />
+        </div>
+      )}
+
+      {activeTab === 'imagens' && (
+        <div className="panel-tab-content">
+          <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
         </div>
       )}
 

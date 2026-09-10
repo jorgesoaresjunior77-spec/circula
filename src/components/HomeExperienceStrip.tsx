@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { ChallengeWithActivities } from '../types/challenge'
+import type { CommunityCardKey } from '../types/communityCards'
 import type { CommunityContent } from '../types/content'
 import type { HomeSummary } from '../types/home'
 import type { NavKey } from './PrimaryNav'
@@ -49,6 +50,13 @@ interface HomeExperienceStripProps {
    * aparece.
    */
   instagramPosts: CommunityContent[]
+  /**
+   * Capas (só VISUAIS) cadastradas pela Profissional no Painel, já
+   * assinadas. Uma capa por experiência (mesma chave do `key` do card).
+   * Ausente/null -> o card mantém o fallback editorial atual. Não muda a
+   * origem dos dados de nenhum card.
+   */
+  cardCovers?: Partial<Record<CommunityCardKey, string | null>>
   onNavigate: (key: NavKey) => void
 }
 
@@ -77,6 +85,7 @@ export function HomeExperienceStrip({
   hasPosts,
   journey,
   instagramPosts,
+  cardCovers,
   onNavigate,
 }: HomeExperienceStripProps) {
   // Só o desafio em foco e o 1º post do Instagram têm imagem
@@ -115,7 +124,7 @@ export function HomeExperienceStrip({
         todayCount > 0
           ? `${todayCount} ${todayCount === 1 ? 'novidade' : 'novidades'}`
           : 'Tudo em dia',
-      image: null,
+      image: cardCovers?.hoje ?? null,
       onActivate: () => onNavigate('comunidades'),
       ariaLabel:
         todayCount > 0
@@ -130,7 +139,7 @@ export function HomeExperienceStrip({
         eyebrow: 'Desafio',
         title: 'Seus desafios',
         meta: pickedChallenge.title,
-        image: challengeCover,
+        image: cardCovers?.desafios ?? challengeCover,
         onActivate: () => scrollToSection('home-desafios'),
         ariaLabel: `Seus desafios — ${pickedChallenge.title}`,
       })
@@ -143,7 +152,7 @@ export function HomeExperienceStrip({
         eyebrow: 'Agenda',
         title: 'Próximos eventos',
         meta: `${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`,
-        image: null,
+        image: cardCovers?.eventos ?? null,
         onActivate: () => onNavigate('eventos'),
         ariaLabel: `Próximos eventos — ${nextEvent.title}`,
       })
@@ -159,7 +168,7 @@ export function HomeExperienceStrip({
           newPosts > 0
             ? `${newPosts} ${newPosts === 1 ? 'nova publicação' : 'novas publicações'}`
             : 'Feed da comunidade',
-        image: null,
+        image: cardCovers?.comunidade ?? null,
         onActivate: () => onNavigate('feed'),
         ariaLabel:
           newPosts > 0
@@ -182,7 +191,7 @@ export function HomeExperienceStrip({
         } · ${achievementsCount} ${
           achievementsCount === 1 ? 'conquista' : 'conquistas'
         }`,
-        image: null,
+        image: cardCovers?.jornada ?? null,
         onActivate: () => scrollToSection('home-jornada'),
         ariaLabel: `Sua jornada — ${pointsBalance} pontos, ${achievementsCount} conquistas`,
       })
@@ -197,7 +206,10 @@ export function HomeExperienceStrip({
         eyebrow: 'Instagram',
         title: 'No Instagram',
         meta: count === 1 ? instagramPosts[0].title : `${count} publicações`,
-        image: instagramCover,
+        // Capa do conteúdo primeiro; a imagem cadastrada no Painel é o
+        // fallback quando não houver capa específica (C4.1: modal
+        // inalterado, sempre com a capa de cada post).
+        image: instagramCover ?? cardCovers?.instagram ?? null,
         onActivate: () => setInstagramOpen(true),
         ariaLabel:
           count === 1
@@ -217,6 +229,7 @@ export function HomeExperienceStrip({
     journey,
     instagramPosts,
     instagramCover,
+    cardCovers,
     onNavigate,
   ])
 

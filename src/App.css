@@ -9589,3 +9589,111 @@ button.card:focus-visible {
     transform: translateY(12px) scale(0.985);
   }
 }
+
+/* ===================================================================
+   Painel · Imagens da comunidade (aba "Imagens da comunidade")
+   Cadastro editorial das capas dos 6 cards de experiência da Home.
+   Segue a identidade nova: branco, muito espaço, Mitr no nome, Lato
+   nos textos, Jost nos rótulos; sem caixa pesada, sem borda forte, sem
+   cor viva. Reusa o CoverImageInput (upload/preview/remover) já
+   existente. Sem sidebar nova — vive dentro do Painel.
+   =================================================================== */
+
+.card-images-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.card-images-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 60ch;
+}
+
+.card-images-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2vw, 26px);
+  letter-spacing: var(--tracking-display);
+  color: var(--graphite);
+}
+
+.card-images-desc {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+.card-images-format {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.card-images-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-images-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.card-images-row:first-child {
+  border-top: 0;
+  padding-top: var(--space-2);
+}
+
+@media (min-width: 720px) {
+  .card-images-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-7);
+  }
+  .card-images-info {
+    flex: 0 0 34%;
+    padding-top: var(--space-2);
+  }
+  .card-images-field {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 320px;
+  }
+}
+
+.card-images-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-images-name {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 17px;
+  color: var(--graphite);
+}
+
+.card-images-hint {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite-soft);
+}

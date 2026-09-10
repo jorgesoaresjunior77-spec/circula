@@ -9,6 +9,8 @@ import { useChallenges } from '../hooks/useChallenges'
 import { usePosts } from '../hooks/usePosts'
 import { useContent } from '../hooks/useContent'
 import { useHomeToday } from '../hooks/useHomeToday'
+import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
@@ -151,6 +153,39 @@ export function HomeToday({
   const instagramPosts = useMemo(
     () => filterInstagramContent(contentItems),
     [contentItems],
+  )
+
+  // Imagens (só VISUAIS) que a Profissional cadastrou no Painel para as
+  // capas dos 6 cards de experiência. Sem imagem cadastrada -> o card
+  // mantém o fallback editorial atual. Não muda a origem dos dados.
+  const { images: cardImagePaths } = useCommunityCardImages(communityId)
+  const { url: cardCoverHoje } = useSignedImageUrl(cardImagePaths.hoje ?? null)
+  const { url: cardCoverDesafios } = useSignedImageUrl(cardImagePaths.desafios ?? null)
+  const { url: cardCoverEventos } = useSignedImageUrl(cardImagePaths.eventos ?? null)
+  const { url: cardCoverComunidade } = useSignedImageUrl(
+    cardImagePaths.comunidade ?? null,
+  )
+  const { url: cardCoverJornada } = useSignedImageUrl(cardImagePaths.jornada ?? null)
+  const { url: cardCoverInstagram } = useSignedImageUrl(
+    cardImagePaths.instagram ?? null,
+  )
+  const cardCovers = useMemo(
+    () => ({
+      hoje: cardCoverHoje,
+      desafios: cardCoverDesafios,
+      eventos: cardCoverEventos,
+      comunidade: cardCoverComunidade,
+      jornada: cardCoverJornada,
+      instagram: cardCoverInstagram,
+    }),
+    [
+      cardCoverHoje,
+      cardCoverDesafios,
+      cardCoverEventos,
+      cardCoverComunidade,
+      cardCoverJornada,
+      cardCoverInstagram,
+    ],
   )
 
   const myCircles = useMemo(
@@ -313,6 +348,7 @@ export function HomeToday({
             : null
         }
         instagramPosts={instagramPosts}
+        cardCovers={cardCovers}
         onNavigate={onNavigate}
       />
 
