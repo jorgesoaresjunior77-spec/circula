@@ -503,6 +503,7 @@
   gap: var(--space-6);
   width: 100%;
   max-width: 480px;
+  margin-inline: auto;
   text-align: left;
   /* B2 — sem barra inferior fixa no mobile; só um respiro ao final
      da coluna (+ área segura iOS). */
@@ -512,27 +513,29 @@
     max-width: 640px;
   }
 
+  /* B3 — o shell abre. A coluna-fantasma de 216px (menu lateral,
+     obsoleta desde a B1, quando a navegação subiu para o topo) sai do
+     grid: acaba a canaleta lateral vazia. A composição passa a usar a
+     medida editorial ampla (--maxw-editorial) numa coluna única; só
+     volta a existir uma segunda coluna real quando o trilho da Home
+     aparece. */
   @media (min-width: 1024px) {
-    max-width: 1000px;
+    max-width: var(--maxw-editorial);
     display: grid;
-    /* Fase 1 — coluna 1 passa a comportar o menu com ícone + nome. */
-    grid-template-columns: 216px minmax(0, 1fr);
-    column-gap: var(--space-5);
-    row-gap: var(--space-5);
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--space-6);
+    row-gap: var(--space-6);
     align-items: start;
     padding-bottom: 0;
   }
 
-  @media (min-width: 1280px) {
-    max-width: 1140px;
-    grid-template-columns: 216px minmax(0, 1fr);
-  }
-
-  /* Fase 1 — trilho direito só na Home de member/professional (>= 1280px). */
+  /* Home com trilho (>= 1280px): a coluna editorial mantém sua medida e
+     o trilho de 300px é ACRESCENTADO ao lado — telas largas ganham uso
+     generoso da largura sem comprimir o conteúdo de leitura. */
   &.dashboard--rail {
     @media (min-width: 1280px) {
-      max-width: 1340px;
-      grid-template-columns: 216px minmax(0, 1fr) 300px;
+      max-width: calc(var(--maxw-editorial) + 300px + var(--space-7));
+      grid-template-columns: minmax(0, 1fr) 300px;
     }
   }
 }
@@ -755,7 +758,9 @@
   display: none;
 
   @media (min-width: 1280px) {
-    grid-column: 3;
+    /* B3 — grid agora tem 2 colunas reais (1fr + 300px); o trilho ocupa
+       a segunda. */
+    grid-column: 2;
     grid-row: 3;
     align-self: start;
     position: sticky;
@@ -774,21 +779,52 @@
   gap: var(--space-5);
   min-width: 0;
 
-  /* B1 — com a navegação no topo (linha 2 do grid), o conteúdo ocupa a
-     largura toda. A faixa lateral obsoleta (216px/76px) segue no
-     grid-template só até a Etapa B3, mas nada mais a ocupa: um filho
-     que abrange 1 / -1 a cobre por completo (sem canaleta vazia). */
+  /* B1/B3 — com a navegação no topo (linha 2 do grid) e a coluna-
+     fantasma do menu removida na B3, o conteúdo ocupa a coluna editorial
+     inteira. Sem trilho, o grid tem uma coluna só. */
   @media (min-width: 1024px) {
     grid-column: 1 / -1;
     grid-row: 3;
   }
 }
 
-/* Home com trilho (>=1280): conteúdo nas colunas 1–2, trilho na 3. */
+/* Home com trilho (>=1280): conteúdo na coluna editorial (1), trilho na 2. */
 @media (min-width: 1280px) {
   .dashboard--rail .dashboard-main {
-    grid-column: 1 / 3;
+    grid-column: 1 / 2;
   }
+}
+
+/* ===== Utilitários de shell editorial (B3) =======================
+   Duas ferramentas prontas para as próximas etapas (fotografia, capas,
+   faixas de largura total): a medida de leitura e a quebra de página
+   inteira. Nenhuma seção as consome ainda — só existem para que o
+   full-bleed das etapas seguintes seja trivial. */
+
+/* Reimpõe a medida editorial ampla e centra o bloco. Use num filho de
+   um contêiner full-bleed que precise voltar à coluna de leitura. */
+.editorial {
+  width: 100%;
+  max-width: var(--maxw-editorial);
+  margin-inline: auto;
+}
+
+/* Tira o bloco da coluna e leva de ponta a ponta da viewport, anulando
+   o --gutter do #center. `--bleed` = calc(50% - 50vw); o #root tem
+   overflow-x: clip como rede de segurança. Funciona limpo em contexto
+   centrado (coluna única). */
+.full-bleed {
+  margin-inline: var(--bleed);
+  width: 100vw;
+  max-width: 100vw;
+}
+
+/* Devolve o respiro lateral ao conteúdo textual dentro de uma faixa
+   full-bleed (mídia que deve sangrar fica fora deste wrapper). */
+.full-bleed-inner {
+  max-width: var(--maxw-editorial);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
 }
 
 /* ===== Trilho direito da Home (Fase 1) ===========================
@@ -5459,9 +5495,11 @@
  */
 @media (min-width: 1024px) {
   .dashboard {
-    gap: var(--space-5);
-    column-gap: var(--space-5);
-    row-gap: var(--space-5);
+    /* B3 — mais ar entre a coluna editorial e o trilho, e entre as
+       linhas do shell (marca / navegação / conteúdo). */
+    gap: var(--space-6);
+    column-gap: var(--space-7);
+    row-gap: var(--space-6);
   }
 
   .dashboard-rail,
@@ -5576,17 +5614,11 @@
   }
 }
 
-/* Telas bem largas: aproveita a largura extra em vez de deixar sobra de branco. */
+/* Telas bem largas: aproveita a largura extra em vez de deixar sobra de branco.
+   B3 — o #root não é mais uma caixa de largura fixa e a .dashboard usa
+   --maxw-editorial (sem coluna-fantasma de menu); ambos os overrides
+   antigos saíram. O --gutter (64px aqui) já dá o respiro lateral. */
 @media (min-width: 1440px) {
-  #root {
-    width: 1320px;
-  }
-
-  .dashboard {
-    max-width: 1240px;
-    grid-template-columns: 76px 1fr;
-  }
-
   .community-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }

@@ -401,23 +401,23 @@
 }
 
 #root {
-  width: 1360px;
-  max-width: 100%;
-  margin: 0 auto;
+  /* B3 · shell editorial — o painel deixa de viver dentro de uma
+     moldura fixa de 1360px centrada, com fio lateral. O #root passa a
+     ocupar toda a largura da viewport; a medida de leitura é reimposta
+     mais adentro (#center + .dashboard, via --maxw-editorial) e as
+     faixas full-bleed das próximas etapas podem ir de ponta a ponta. */
+  width: 100%;
+  margin: 0;
   text-align: center;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   /* Rede de segurança contra estouro horizontal em telas estreitas.
-     `clip` não cria contexto de rolagem e não quebra `position: sticky`. */
+     `clip` não cria contexto de rolagem e não quebra `position: sticky`.
+     Também absorve o eventual ~15px de 100vw vs. barra de rolagem das
+     faixas .full-bleed. */
   overflow-x: clip;
-
-  /* Moldura lateral só quando a coluna realmente descola das bordas da
-     viewport — no mobile/tablet ela ficava encostada como um fio solto. */
-  @media (min-width: 1361px) {
-    border-inline: 1px solid var(--border);
-  }
 }
 
 #center {
@@ -427,14 +427,18 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  padding: 20px 16px;
+  /* B3 — palco editorial de largura plena. O respiro lateral é o
+     --gutter responsivo (20 → 32 → 44 → 64); a medida de composição
+     volta a ser imposta pelos filhos (--maxw-editorial). Espaço
+     vertical generoso e crescente — nada de dashboard comprimido. */
+  padding: var(--space-5) var(--gutter) var(--space-8);
 
   @media (min-width: 768px) {
-    padding: 28px 24px;
+    padding: var(--space-7) var(--gutter) var(--space-9);
   }
 
   @media (min-width: 1024px) {
-    padding: 24px 28px;
+    padding: var(--space-8) var(--gutter) var(--space-10);
   }
 }
 
