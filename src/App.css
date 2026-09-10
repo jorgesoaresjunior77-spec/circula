@@ -8852,32 +8852,74 @@ button.card:focus-visible {
    =================================================================== */
 
 .exp-strip {
-  /* rola so dentro de si; contido pela coluna de conteudo */
+  /* o trilho se move só dentro de si; a página nunca estoura */
   min-width: 0;
 }
 
-.exp-track {
-  list-style: none;
-  margin: 0;
-  padding: var(--space-2) 0 var(--space-3);
-  display: flex;
-  gap: var(--space-4);
+/* fronteira de recorte — nada da faixa vaza para a página */
+.exp-viewport {
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
 
-.exp-track::-webkit-scrollbar {
+.exp-viewport::-webkit-scrollbar {
   display: none;
+}
+
+/* modo marquee: sem rolagem; o trilho translada em loop contínuo */
+.exp-viewport--marquee {
+  overflow: hidden;
+  scroll-snap-type: none;
+}
+
+.exp-track {
+  display: flex;
+  width: max-content;
+  padding-block: var(--space-2) var(--space-3);
+}
+
+.exp-viewport--marquee .exp-track {
+  animation: exp-marquee var(--exp-marquee-dur, 48s) linear infinite;
+  will-change: transform;
+}
+
+.exp-seq {
+  flex: 0 0 auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* a folga entre a 1ª e a 2ª sequência = a mesma folga entre cards, e a
+   translação de -50% cai EXATAMENTE sobre o início da 2ª sequência —
+   loop sem salto, sem retorno e sem espaço vazio */
+.exp-viewport--marquee .exp-seq {
+  padding-right: var(--space-4);
+}
+
+@keyframes exp-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 .exp-card-item {
   flex: 0 0 auto;
   width: clamp(186px, 42vw, 244px);
   scroll-snap-align: start;
+}
+
+.exp-viewport--marquee .exp-card-item {
+  scroll-snap-align: none;
 }
 
 @media (min-width: 768px) {
@@ -9033,6 +9075,17 @@ button.card:focus-visible {
   .exp-card:focus-visible .exp-card-frame,
   .exp-card:hover .exp-card-photo {
     transform: none;
+  }
+  /* sem marquee automático — faixa estática e rolável */
+  .exp-viewport--marquee {
+    overflow-x: auto;
+  }
+  .exp-viewport--marquee .exp-track {
+    animation: none;
+    width: auto;
+  }
+  .exp-viewport--marquee .exp-seq {
+    padding-right: 0;
   }
 }
 

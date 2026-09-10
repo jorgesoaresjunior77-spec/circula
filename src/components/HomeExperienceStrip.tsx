@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { ChallengeWithActivities } from '../types/challenge'
 import type { CommunityContent } from '../types/content'
 import type { HomeSummary } from '../types/home'
@@ -11,13 +12,22 @@ import { InstagramHighlightModal } from './InstagramHighlightModal'
 //
 // Apresentação horizontal e editorial das experiências que a Home já
 // tem em dados REAIS. Não instancia hook de negócio novo e não busca
-// nada: recebe tudo pronto da HomeToday (que reusa useHomeToday /
-// useChallenges / usePosts / useContent e o railSummary do Dashboard).
-// Uma experiência só entra na faixa quando há dado real — sem dado, ela
-// não aparece; nada de placeholder, imagem ou métrica inventada. Cada
-// card preserva a ação já existente do conteúdo que representa: navegar
-// por uma rota que já existe, rolar até a seção detalhada logo abaixo,
-// ou (C4.1 — "No Instagram") abrir uma tela editorial no próprio app.
+// nada: recebe tudo pronto da HomeToday. Uma experiência só entra na
+// faixa quando há dado real. Cada card preserva a ação já existente:
+// navegar por uma rota que já existe, rolar até a seção detalhada, ou
+// (C4.1 — "No Instagram") abrir uma tela editorial no próprio app.
+//
+// Movimento (ajuste): MARQUEE CONTÍNUO E INFINITO — a sequência de
+// cards é renderizada DUAS vezes e o trilho translada de 0 a -50% em
+// loop `linear infinite`. Como as duas metades são idênticas, ao
+// completar -50% a 2ª metade ocupa exatamente a posição visual da 1ª:
+// não há parada, retorno, salto nem intervalo. O movimento não depende
+// de mouse e não pausa no hover (o hover só aplica o micro-zoom do
+// card). No mobile (pointer grosso) e em prefers-reduced-motion o
+// autoplay fica desligado e a faixa continua estática/rolável.
+
+const SPEED_PX_PER_SEC = 26 // velocidade editorial constante (~20–30 px/s)
+const MIN_DURATION_SEC = 18
 
 interface NextEvent {
   id: string
@@ -34,9 +44,9 @@ interface HomeExperienceStripProps {
   journey: { pointsBalance: number; achievementsCount: number } | null
   /**
    * C4.1 — publicações do Instagram destacadas pela comunidade
-   * (community_content publicado, com capa, external_url do Instagram).
-   * Já filtrado na HomeToday por filterInstagramContent. Vazio -> a
-   * experiência "No Instagram" não aparece.
+   * (community_content publicado, com capa, external_url do Instagram),
+   * já filtrado na HomeToday. Vazio -> a experiência "No Instagram" não
+   * aparece.
    */
   instagramPosts: CommunityContent[]
   onNavigate: (key: NavKey) => void
@@ -186,10 +196,7 @@ export function HomeExperienceStrip({
         key: 'instagram',
         eyebrow: 'Instagram',
         title: 'No Instagram',
-        meta:
-          count === 1
-            ? instagramPosts[0].title
-            : `${count} publicações`,
+        meta: count === 1 ? instagramPosts[0].title : `${count} publicações`,
         image: instagramCover,
         onActivate: () => setInstagramOpen(true),
         ariaLabel:
@@ -213,104 +220,92 @@ export function HomeExperienceStrip({
     onNavigate,
   ])
 
-  const trackRef = useRef<HTMLUListElement>(null)
-
-  // Movimento horizontal contínuo, muito suave, em vaivém. Pausa ao
-  // interagir (mouse, foco, toque), quando a aba está oculta e enquanto
-  // a tela "No Instagram" está aberta. Desligado em prefers-reduced-
-  // motion e em ponteiro grosso (touch) — aí vale o swipe/scroll
-  // nativo. Sem biblioteca.
+  // Autoplay do marquee: só no desktop com movimento permitido. Em
+  // pointer grosso (touch) ou prefers-reduced-motion fica desligado — a
+  // faixa continua estática e rolável. Reage a mudanças ao vivo dessas
+  // media queries.
+  const [marquee, setMarquee] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+      !window.matchMedia('(pointer: coarse)').matches,
+  )
   useEffect(() => {
-    const el = trackRef.current
-    if (!el || instagramOpen) return
-    if (
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      window.matchMedia('(pointer: coarse)').matches
-    ) {
-      return
-    }
-
-    let raf = 0
-    let paused = false
-    let dir = 1
-    // `scrollLeft` volta arredondado a inteiro quando dpr = 1 — por isso
-    // o avanço é acumulado num float e só então escrito. ~0.4px/frame
-    // ≈ 24px/s: um deslize, não um carrossel.
-    let pos = el.scrollLeft
-    const SPEED = 0.4
-
-    const step = () => {
-      if (!paused && el.scrollWidth > el.clientWidth + 4) {
-        const max = el.scrollWidth - el.clientWidth
-        if (pos >= max) dir = -1
-        else if (pos <= 0) dir = 1
-        pos += SPEED * dir
-        el.scrollLeft = pos
-      }
-      raf = requestAnimationFrame(step)
-    }
-
-    const pause = () => {
-      paused = true
-    }
-    const resume = () => {
-      paused = false
-    }
-    const onVisibility = () => {
-      paused = document.hidden
-    }
-    // enquanto pausado, o usuário pode ter rolado/deslizado à mão —
-    // ressincroniza o acumulador para não haver salto ao retomar.
-    const syncPos = () => {
-      if (paused) pos = el.scrollLeft
-    }
-
-    el.addEventListener('pointerenter', pause)
-    el.addEventListener('pointerleave', resume)
-    el.addEventListener('pointerdown', pause)
-    el.addEventListener('focusin', pause)
-    el.addEventListener('focusout', resume)
-    el.addEventListener('scroll', syncPos, { passive: true })
-    document.addEventListener('visibilitychange', onVisibility)
-    raf = requestAnimationFrame(step)
-
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const coarse = window.matchMedia('(pointer: coarse)')
+    const update = () => setMarquee(!reduce.matches && !coarse.matches)
+    update()
+    reduce.addEventListener('change', update)
+    coarse.addEventListener('change', update)
     return () => {
-      cancelAnimationFrame(raf)
-      el.removeEventListener('pointerenter', pause)
-      el.removeEventListener('pointerleave', resume)
-      el.removeEventListener('pointerdown', pause)
-      el.removeEventListener('focusin', pause)
-      el.removeEventListener('focusout', resume)
-      el.removeEventListener('scroll', syncPos)
-      document.removeEventListener('visibilitychange', onVisibility)
+      reduce.removeEventListener('change', update)
+      coarse.removeEventListener('change', update)
     }
-  }, [experiences.length, instagramOpen])
+  }, [])
+
+  // Duração = largura de UMA sequência / velocidade -> velocidade
+  // constante (~26 px/s) em qualquer largura/quantidade de cards. A
+  // sequência é re-medida no resize (os cards usam clamp()/vw).
+  const seqRef = useRef<HTMLUListElement>(null)
+  const [durationSec, setDurationSec] = useState(48)
+  useEffect(() => {
+    if (!marquee) return
+    const seq = seqRef.current
+    if (!seq) return
+    const measure = () => {
+      const width = seq.offsetWidth
+      if (width > 0) {
+        setDurationSec(Math.max(MIN_DURATION_SEC, width / SPEED_PX_PER_SEC))
+      }
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(seq)
+    return () => observer.disconnect()
+  }, [marquee, experiences.length])
 
   if (experiences.length === 0) return null
 
+  const renderCard = (exp: Experience, clone: boolean) => (
+    <li key={clone ? `${exp.key}-clone` : exp.key} className="exp-card-item">
+      <button
+        type="button"
+        className={`exp-card${exp.image ? ' exp-card--photo' : ''}`}
+        onClick={exp.onActivate}
+        aria-label={clone ? undefined : exp.ariaLabel}
+        aria-hidden={clone ? true : undefined}
+        tabIndex={clone ? -1 : undefined}
+        aria-haspopup={!clone && exp.key === 'instagram' ? 'dialog' : undefined}
+        ref={!clone && exp.key === 'instagram' ? instagramCardRef : undefined}
+      >
+        <span className="exp-card-frame">
+          {exp.image && <img src={exp.image} alt="" className="exp-card-photo" />}
+          <span className="exp-card-eyebrow">{exp.eyebrow}</span>
+          <span className="exp-card-title">{exp.title}</span>
+          <span className="exp-card-meta">{exp.meta}</span>
+        </span>
+      </button>
+    </li>
+  )
+
+  const trackStyle = marquee
+    ? ({ '--exp-marquee-dur': `${durationSec}s` } as CSSProperties)
+    : undefined
+
   return (
     <section className="exp-strip" aria-label="Experiências da comunidade">
-      <ul className="exp-track" ref={trackRef}>
-        {experiences.map((exp) => (
-          <li key={exp.key} className="exp-card-item">
-            <button
-              type="button"
-              className={`exp-card${exp.image ? ' exp-card--photo' : ''}`}
-              onClick={exp.onActivate}
-              aria-label={exp.ariaLabel}
-              aria-haspopup={exp.key === 'instagram' ? 'dialog' : undefined}
-              ref={exp.key === 'instagram' ? instagramCardRef : undefined}
-            >
-              <span className="exp-card-frame">
-                {exp.image && <img src={exp.image} alt="" className="exp-card-photo" />}
-                <span className="exp-card-eyebrow">{exp.eyebrow}</span>
-                <span className="exp-card-title">{exp.title}</span>
-                <span className="exp-card-meta">{exp.meta}</span>
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className={`exp-viewport${marquee ? ' exp-viewport--marquee' : ''}`}>
+        <div className="exp-track" style={trackStyle}>
+          <ul className="exp-seq" ref={seqRef}>
+            {experiences.map((exp) => renderCard(exp, false))}
+          </ul>
+          {marquee && (
+            <ul className="exp-seq" aria-hidden="true">
+              {experiences.map((exp) => renderCard(exp, true))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       {instagramOpen && (
         <InstagramHighlightModal posts={instagramPosts} onClose={closeInstagram} />
