@@ -8,17 +8,15 @@ import { useCircles } from '../hooks/useCircles'
 import { useChallenges } from '../hooks/useChallenges'
 import { usePosts } from '../hooks/usePosts'
 import { useHomeToday } from '../hooks/useHomeToday'
-import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
-import type { CircleWithMembers } from '../types/circle'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
-import { CircleCard } from './CircleCard'
 import { DailyMoodCard } from './DailyMoodCard'
 import { JoyMomentsSection } from './JoyMomentsSection'
 import { HelpRequestSection } from './HelpRequestSection'
 import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
+import { HomeCirclesSection } from './HomeCirclesSection'
 import { PointsWidget } from './PointsWidget'
 import { AchievementsStrip } from './AchievementsStrip'
 import { EmptyState } from './EmptyState'
@@ -79,35 +77,6 @@ function timeGreeting(now = new Date()): string {
   return 'Boa noite'
 }
 
-// "Seus círculos": tile próprio para poder resolver a signed URL da capa
-// (hook não pode ser chamado dentro de .map()).
-function HomeCircleTile({
-  circle,
-  onOpen,
-}: {
-  circle: CircleWithMembers
-  onOpen: () => void
-}) {
-  const { url: coverUrl } = useSignedImageUrl(circle.cover_image_url)
-  return (
-    <button type="button" className="home-circle-tile" onClick={onOpen}>
-      <span className="home-circle-cover" aria-hidden="true">
-        {coverUrl ? (
-          <img src={coverUrl} alt="" />
-        ) : (
-          <span className="home-circle-cover-fallback">
-            {circle.name.charAt(0).toUpperCase()}
-          </span>
-        )}
-      </span>
-      <span className="home-circle-name">{circle.name}</span>
-      <span className="home-circle-meta">
-        {circle.members.length === 1 ? '1 mulher' : `${circle.members.length} mulheres`}
-      </span>
-    </button>
-  )
-}
-
 function firstName(fullName: string | null): string | null {
   const name = (fullName ?? '').trim().split(/\s+/)[0]
   return name || null
@@ -160,7 +129,7 @@ export function HomeToday({
       : (myCommunities[0] ?? null)
   const communityId = focusCommunity?.id ?? null
 
-  const { circles, loading: circlesLoading, joinCircle, leaveCircle } = useCircles(communityId)
+  const { circles, joinCircle, leaveCircle } = useCircles(communityId)
 
   // A5-cleanup (opção A): instância ÚNICA de usePosts na Home. Alimenta
   // os blocos ricos (HomeHighlights) E o "Resumo do dia" / "Atividade
@@ -174,26 +143,6 @@ export function HomeToday({
 
   const myCircles = useMemo(
     () => circles.filter((circle) => circle.members.some((m) => m.profile_id === profile.id)),
-    [circles, profile.id],
-  )
-
-  // E2 — Círculos sugeridos: círculos da comunidade em foco onde a
-  // usuária ainda NÃO participa. Ordena por mais participantes e, no
-  // empate, pelo mais recente. Sem query nova: mesma instância de
-  // useCircles (já restrita à comunidade e à RLS). Entrar = mesmo
-  // joinCircle já usado no resto do app; ao entrar, o círculo sai
-  // daqui e passa para "Seus círculos" no próximo fetch.
-  const suggestedCircles = useMemo(
-    () =>
-      circles
-        .filter((circle) => !circle.members.some((m) => m.profile_id === profile.id))
-        .slice()
-        .sort((a, b) => {
-          const byMembers = b.members.length - a.members.length
-          if (byMembers !== 0) return byMembers
-          return b.created_at.localeCompare(a.created_at)
-        })
-        .slice(0, 4),
     [circles, profile.id],
   )
 
@@ -353,6 +302,18 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
+      {/* C3 — Círculos da comunidade como coleção editorial, logo após a
+          faixa de experiências. Só dados existentes (useCircles já
+          instanciado); abrir leva ao destino "Círculos" como antes;
+          joinCircle / leaveCircle preservados. */}
+      <HomeCirclesSection
+        circles={circles}
+        profileId={profile.id}
+        onOpen={() => onNavigate('circulos')}
+        onJoin={(circleId) => joinCircle(circleId, profile.id)}
+        onLeave={(circleId) => leaveCircle(circleId, profile.id)}
+      />
+
       {/* Fase 3 — "Como você está hoje?": humor diário privado da usuária.
           Fase 10: emojis interativos. */}
       <DailyMoodCard profileId={profile.id} communityId={focusCommunity.id} />
@@ -485,62 +446,10 @@ export function HomeToday({
         )}
       </section>
 
-      <section className="home-section">
-        <div className="home-section-head">
-          <h3 className="home-section-title">Seus círculos</h3>
-          <button
-            type="button"
-            className="home-section-link"
-            onClick={() => onNavigate('circulos')}
-          >
-            Ver todos
-          </button>
-        </div>
-        {circlesLoading ? (
-          <p className="home-muted">Carregando círculos...</p>
-        ) : myCircles.length > 0 ? (
-          <div className="home-circle-row">
-            {myCircles.slice(0, 6).map((circle) => (
-              <HomeCircleTile
-                key={circle.id}
-                circle={circle}
-                onOpen={() => onNavigate('circulos')}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="home-muted">Você ainda não participa de círculos.</p>
-        )}
-      </section>
-
-      {/* E2 — Círculos sugeridos: só aparece se houver ao menos um
-          círculo da comunidade em que a usuária ainda não está. */}
-      {suggestedCircles.length > 0 && (
-        <section className="home-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Círculos sugeridos</h3>
-            <button
-              type="button"
-              className="home-section-link"
-              onClick={() => onNavigate('circulos')}
-            >
-              Ver todos
-            </button>
-          </div>
-          <div className="home-card-stack">
-            {suggestedCircles.map((circle) => (
-              <CircleCard
-                key={circle.id}
-                circle={circle}
-                isParticipating={false}
-                canParticipate
-                onJoin={() => joinCircle(circle.id, profile.id)}
-                onLeave={() => leaveCircle(circle.id, profile.id)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* C3 — "Seus círculos" e "Círculos sugeridos" foram consolidados
+          na coleção editorial <HomeCirclesSection> logo abaixo do hero.
+          O destino "Círculos" (CircleList / CircleDetail com filtros e
+          entrada/saída) permanece intacto na navegação. */}
 
       <section className="home-section home-shortcuts-section">
         <div className="home-shortcuts">

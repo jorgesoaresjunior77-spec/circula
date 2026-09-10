@@ -9035,3 +9035,274 @@ button.card:focus-visible {
     transform: none;
   }
 }
+
+/* ===================================================================
+   C3 · Circulos editoriais na comunidade
+   Os Circulos existentes da comunidade em foco, logo abaixo da faixa de
+   experiencias (C2), como uma colecao editorial — nao um bloco de
+   dashboard. Branco, muito espaco, sem card-container, sem borda, sem
+   linha, sem sombra forte. Card ~4:5 com a capa do Circulo (dado real,
+   escolhido pelo criador) como protagonista; sem capa, composicao
+   tipografica em tinta clara. Titulo/contagem discretos, realce suave
+   no hover (nao no toque). Faixa horizontal com deslize automatico
+   muito sutil na linguagem da C2 — pausa na interacao, respeita
+   reduced-motion, rola so dentro de si (sem overflow horizontal da
+   pagina). So CSS + um componente de apresentacao; nenhum dado novo.
+   Handlers preservados: abrir -> destino Circulos; joinCircle /
+   leaveCircle.
+   =================================================================== */
+
+.circ-strip {
+  min-width: 0;
+}
+
+.circ-strip-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-display);
+  color: var(--graphite);
+}
+
+.circ-track {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1) 0 var(--space-3);
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.circ-track::-webkit-scrollbar {
+  display: none;
+}
+
+.circ-card-item {
+  flex: 0 0 auto;
+  width: clamp(196px, 46vw, 240px);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .circ-card-item {
+    width: clamp(220px, 28vw, 268px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .circ-card-item {
+    width: clamp(236px, 20vw, 292px);
+  }
+}
+
+.circ-card {
+  display: block;
+  width: 100%;
+}
+
+.circ-card-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 4 / 5;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-sand);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+/* tintas alternadas — so a paleta clara, nada de cor viva */
+.circ-card[data-tint='1'] .circ-card-frame {
+  background: var(--c-rose-mist);
+}
+.circ-card[data-tint='2'] .circ-card-frame {
+  background: var(--c-beige);
+}
+.circ-card[data-tint='3'] .circ-card-frame {
+  background: var(--c-dry-leaf);
+}
+
+.circ-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+/* overlay extremamente sutil, so nos cards com foto */
+.circ-card--photo .circ-card-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(35, 30, 28, 0.54) 0%,
+    rgba(35, 30, 28, 0.06) 48%,
+    rgba(35, 30, 28, 0) 74%
+  );
+}
+
+/* abrir o Circulo: link esticado sobre todo o card */
+.circ-card-open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.circ-card-open:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: -3px;
+  border-radius: var(--radius-lg);
+}
+
+.circ-card--photo .circ-card-open:focus-visible {
+  outline-color: var(--c-white);
+}
+
+.circ-card-text {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.circ-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.14;
+  color: var(--graphite);
+  opacity: 0.94;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.circ-card-meta {
+  margin-top: var(--space-1);
+  font-size: 12.5px;
+  font-weight: 300;
+  color: var(--graphite-soft);
+  /* discreto de partida, nunca oculto — realca no hover */
+  opacity: 0.6;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.circ-card--photo .circ-card-title {
+  color: var(--c-white);
+  opacity: 0.96;
+  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
+}
+
+.circ-card--photo .circ-card-meta {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 5px rgba(35, 30, 28, 0.4);
+}
+
+@media (hover: hover) {
+  .circ-card:hover .circ-card-frame,
+  .circ-card:focus-within .circ-card-frame {
+    transform: translateY(-3px) scale(1.012);
+  }
+  .circ-card:hover .circ-card-photo {
+    transform: scale(1.05);
+  }
+  .circ-card:hover .circ-card-title,
+  .circ-card:focus-within .circ-card-title,
+  .circ-card:hover .circ-card-meta,
+  .circ-card:focus-within .circ-card-meta {
+    opacity: 1;
+  }
+}
+
+/* participar / sair: um unico chip translucido, sempre acessivel */
+.circ-card-join {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 3;
+  pointer-events: auto;
+  min-height: 32px;
+  padding: 6px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: var(--c-white);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+/* sobre tinta clara (card sem foto) o chip vira tinta de acao */
+.circ-card:not(.circ-card--photo) .circ-card-join {
+  border-color: var(--ink-action-line);
+  background: var(--ink-action-soft);
+  color: var(--ink-action);
+}
+
+.circ-card-join:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.72);
+}
+
+.circ-card:not(.circ-card--photo) .circ-card-join:hover:not(:disabled) {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: var(--on-action);
+}
+
+.circ-card-join:focus-visible {
+  outline: 2px solid var(--c-white);
+  outline-offset: 2px;
+}
+
+.circ-card:not(.circ-card--photo) .circ-card-join:focus-visible {
+  outline-color: var(--ink-action);
+}
+
+.circ-card-join:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circ-card-frame,
+  .circ-card-photo,
+  .circ-card-title,
+  .circ-card-meta {
+    transition: none;
+  }
+  .circ-card:hover .circ-card-frame,
+  .circ-card:focus-within .circ-card-frame,
+  .circ-card:hover .circ-card-photo {
+    transform: none;
+  }
+  .circ-card-meta {
+    opacity: 1;
+  }
+}
