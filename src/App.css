@@ -8311,3 +8311,220 @@ button.card:focus-visible {
     transform: none;
   }
 }
+
+/* ===================================================================
+   B3.1 · Refinamento editorial do shell
+   Só CSS. Não toca componentes, dados, navegação (B1/B2), regras,
+   Supabase/RLS/Auth/Billing/Asaas/banco/migrations/hooks. Não mexe em
+   capa da comunidade, humor, Círculos, Wellness, Instagram, parceiros.
+   Objetivo: tirar a sensação de "dashboard de cards" apontada no QA do
+   B3 — marca única no desktop, medida de leitura para o texto, menos
+   caixas nos wrappers genéricos e um trilho que lê como coluna
+   editorial de apoio.
+   =================================================================== */
+
+/* 1 · MARCA — no desktop aparece SÓ o logo oficial (circula-logo.png).
+   A pastilha-ícone segue reservada a mobile/favicon. Esta regra, por
+   vir por último no arquivo, anula o `display: inline-flex` sem media
+   de `.dashboard-header .brand-icon-btn` (linha ~4427) que derrotava o
+   `display: none` da B1. Presença do logo levemente maior para não
+   sumir no branco — a arte do asset não muda. */
+@media (min-width: 1024px) {
+  .dashboard-header .brand-icon-btn {
+    display: none;
+  }
+
+  .brand-mark {
+    height: 38px;
+  }
+}
+
+/* 2 · MEDIDA DE LEITURA — o palco continua amplo; só o TEXTO recebe
+   medida. Blocos textuais/administrativos da Home recuam para ~68ch
+   (alinhados à esquerda); fotografia e blocos visuais seguem na
+   largura inteira da coluna editorial. */
+@media (min-width: 1024px) {
+  .dashboard-main .trial-banner,
+  .dashboard-main .home-summary-card,
+  .dashboard-main .home-activity,
+  .dashboard-main .home-muted {
+    max-width: 68ch;
+  }
+
+  /* Explicitamente largos — nunca recebem a medida de leitura. */
+  .dashboard-main .home-community-header,
+  .dashboard-main .home-circle-row,
+  .dashboard-main .home-card-stack,
+  .dashboard-main .challenge-block,
+  .dashboard-main .mood-card {
+    max-width: none;
+  }
+}
+
+/* 3 · DESDASHBOARDIZAÇÃO — os wrappers GENÉRICOS deixam de ser cartão.
+   Os componentes ricos (ChallengeCard, CircleCard, mood, capa, pontos,
+   conquistas) não são tocados aqui — ficam para a C1. */
+.home {
+  gap: var(--space-8);
+}
+
+/* "Resumo do dia": bloco de dados, não cartão rosé. */
+.home-summary-card {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.home-stat-icon {
+  width: auto;
+  height: auto;
+  background: none;
+  box-shadow: none;
+}
+
+.home-stat:hover {
+  background: none;
+}
+
+/* Faixa de trial: só um acento lateral hairline, sem véu nem moldura. */
+.trial-banner {
+  border: 0;
+  border-left: 2px solid var(--hairline);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding-left: var(--space-4);
+}
+
+.trial-banner--info {
+  border-left-color: var(--accent-leaf-line);
+  background: none;
+}
+
+.trial-banner--warn {
+  border-left-color: var(--danger);
+  background: none;
+}
+
+/* Títulos de seção viram eyebrow Jost — hierarquia por tipografia. */
+.home-section {
+  gap: var(--space-4);
+}
+
+.home-section-title {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* 4 · TRILHO — coluna editorial de apoio, não painel administrativo.
+   Sem caixa, sem véu, sem sombra; seções empilhadas e separadas por um
+   único fio hairline; micro-rótulos em Jost; tipografia leve. As
+   informações e ações são exatamente as mesmas; os números seguem
+   (são dados reais). */
+.dashboard-rail {
+  gap: 0;
+}
+
+.rail-card,
+.rail-card--quiet {
+  gap: var(--space-3);
+  padding: var(--space-5) 0;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.dashboard-rail > .rail-card:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.rail-card-title {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* "Seu resumo": números soltos, sem caixinhas. */
+.rail-summary {
+  gap: var(--space-5);
+}
+
+.rail-summary-item {
+  align-items: flex-start;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.rail-summary-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--graphite);
+}
+
+.rail-summary-label {
+  font-family: var(--font-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* "Próximo evento" / "Sua comunidade": linha simples, sem cartão interno. */
+.rail-next-event,
+.rail-community {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.rail-next-event:hover,
+.rail-community:hover {
+  border: 0;
+  background: none;
+}
+
+.rail-community-cover {
+  border-radius: var(--radius-sm);
+}
+
+/* "Ir rápido": lista de links de texto, sem pílulas. */
+.rail-links {
+  gap: 0;
+}
+
+.rail-links li + li {
+  border-top: 1px solid var(--border-soft);
+}
+
+.rail-link {
+  min-height: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: 0;
+  font-weight: 400;
+}
+
+.rail-link:hover {
+  border: 0;
+  background: none;
+  color: var(--ink-action);
+}
+
+.rail-note {
+  font-style: italic;
+  color: var(--graphite-soft);
+}
