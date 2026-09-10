@@ -8839,3 +8839,199 @@ button.card:focus-visible {
     display: none;
   }
 }
+
+/* ===================================================================
+   C2 · Faixa editorial de experiencias da comunidade
+   Logo abaixo do hero C1. Apresentacao horizontal, editorial (branco +
+   areia / bege / rose-mist muito claros, sem borda, sem moldura, sombra
+   praticamente inexistente, tipografia leve). Cards ~4:5; foto (quando
+   ha, dos dados reais) ocupa o card inteiro. Vaivem horizontal muito
+   suave que pausa na interacao; desligado em reduced-motion e touch. A
+   faixa rola SO dentro de si — nunca cria overflow horizontal na
+   pagina. So CSS + um componente de apresentacao; nenhum dado novo.
+   =================================================================== */
+
+.exp-strip {
+  /* rola so dentro de si; contido pela coluna de conteudo */
+  min-width: 0;
+}
+
+.exp-track {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) 0 var(--space-3);
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.exp-track::-webkit-scrollbar {
+  display: none;
+}
+
+.exp-card-item {
+  flex: 0 0 auto;
+  width: clamp(186px, 42vw, 244px);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .exp-card-item {
+    width: clamp(216px, 26vw, 264px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .exp-card-item {
+    width: clamp(232px, 19vw, 288px);
+  }
+}
+
+.exp-card {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.exp-card-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 4 / 5;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-sand);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+/* tinta de fundo alternada, so a paleta clara — nada de cor viva */
+.exp-card-item:nth-child(3n + 2) .exp-card-frame {
+  background: var(--c-rose-mist);
+}
+.exp-card-item:nth-child(3n + 3) .exp-card-frame {
+  background: var(--c-beige);
+}
+
+.exp-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+/* overlay extremamente sutil, so nos cards com foto */
+.exp-card--photo .exp-card-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(35, 30, 28, 0.5) 0%,
+    rgba(35, 30, 28, 0.08) 44%,
+    rgba(35, 30, 28, 0) 68%
+  );
+}
+
+.exp-card--photo .exp-card-eyebrow,
+.exp-card--photo .exp-card-title,
+.exp-card--photo .exp-card-meta {
+  position: relative;
+  color: var(--c-white);
+  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
+}
+
+.exp-card-eyebrow {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.exp-card-title {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(18px, 1.5vw, 23px);
+  line-height: 1.15;
+  color: var(--graphite);
+}
+
+.exp-card-meta {
+  margin-top: var(--space-2);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--graphite-soft);
+  /* meta longa (titulo de evento etc.) nao estoura o card */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* hover / foco: avanco e zoom minimos, muito suaves */
+.exp-card:hover .exp-card-frame,
+.exp-card:focus-visible .exp-card-frame {
+  transform: translateY(-3px) scale(1.012);
+}
+
+.exp-card:hover .exp-card-photo {
+  transform: scale(1.045);
+}
+
+.exp-card:focus-visible {
+  outline: none;
+}
+
+.exp-card:focus-visible .exp-card-frame {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 3px;
+}
+
+.exp-card--photo.exp-card:focus-visible .exp-card-frame {
+  outline-color: var(--c-white);
+}
+
+/* alvos de rolagem das experiencias sem rota propria */
+#home-desafios,
+#home-jornada {
+  scroll-margin-top: var(--space-8);
+}
+
+.home-jornada {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exp-card-frame,
+  .exp-card-photo {
+    transition: none;
+  }
+  .exp-card:hover .exp-card-frame,
+  .exp-card:focus-visible .exp-card-frame,
+  .exp-card:hover .exp-card-photo {
+    transform: none;
+  }
+}

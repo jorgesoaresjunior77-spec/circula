@@ -18,6 +18,7 @@ import { JoyMomentsSection } from './JoyMomentsSection'
 import { HelpRequestSection } from './HelpRequestSection'
 import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
+import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { PointsWidget } from './PointsWidget'
 import { AchievementsStrip } from './AchievementsStrip'
 import { EmptyState } from './EmptyState'
@@ -59,6 +60,16 @@ interface HomeTodayProps {
    * identidade da comunidade sobre a foto, sem a própria capa/card.
    */
   coverHero?: boolean
+  /**
+   * C2 — resumo leve já calculado pelo Dashboard (useRailSummary): saldo
+   * de pontos, nº de conquistas e o próximo evento. Alimenta a faixa
+   * editorial de experiências sem nenhuma consulta nova aqui.
+   */
+  railSummary?: {
+    pointsBalance: number
+    achievementsCount: number
+    nextEvent: { id: string; title: string; starts_at: string } | null
+  } | null
 }
 
 function timeGreeting(now = new Date()): string {
@@ -131,6 +142,7 @@ export function HomeToday({
   onNavigate,
   onOpenConversation,
   coverHero = false,
+  railSummary = null,
 }: HomeTodayProps) {
   const myCommunities = useMemo(
     () =>
@@ -321,6 +333,26 @@ export function HomeToday({
         />
       )}
 
+      {/* C2 — Faixa editorial de experiências da comunidade, logo abaixo
+          do hero. Só dados reais que a Home já tem; cada card leva à ação
+          que já existe (rota existente ou rolar até a seção detalhada). */}
+      <HomeExperienceStrip
+        summary={summary}
+        pickedChallenge={pickedChallenge}
+        nextEvent={railSummary?.nextEvent ?? null}
+        newPosts={summary.newPosts}
+        hasPosts={postsApi.posts.length > 0}
+        journey={
+          railSummary
+            ? {
+                pointsBalance: railSummary.pointsBalance,
+                achievementsCount: railSummary.achievementsCount,
+              }
+            : null
+        }
+        onNavigate={onNavigate}
+      />
+
       {/* Fase 3 — "Como você está hoje?": humor diário privado da usuária.
           Fase 10: emojis interativos. */}
       <DailyMoodCard profileId={profile.id} communityId={focusCommunity.id} />
@@ -364,7 +396,7 @@ export function HomeToday({
         )}
       </section>
 
-      <section className="home-section">
+      <section id="home-desafios" className="home-section">
         <div className="home-section-head">
           <h3 className="home-section-title">Seu desafio</h3>
         </div>
@@ -397,17 +429,17 @@ export function HomeToday({
         )}
       </section>
 
-      {/* Fase 7 — pontos da usuária NESTA comunidade (nunca misturados
-          entre comunidades). */}
-      <PointsWidget
-        communityId={focusCommunity.id}
-        communityName={focusCommunity.name}
-        profileId={profile.id}
-      />
-
-      {/* Fase 10 — Conquistas: selos derivados de pontos/desafios/dias/
-          tempo de comunidade. Some se não houver nada. */}
-      <AchievementsStrip communityId={focusCommunity.id} profileId={profile.id} />
+      {/* Fase 7 / Fase 10 — "Sua jornada": pontos da usuária NESTA
+          comunidade + conquistas. Agrupados numa seção com id para a
+          faixa editorial de experiências (C2) poder rolar até aqui. */}
+      <section id="home-jornada" className="home-jornada">
+        <PointsWidget
+          communityId={focusCommunity.id}
+          communityName={focusCommunity.name}
+          profileId={profile.id}
+        />
+        <AchievementsStrip communityId={focusCommunity.id} profileId={profile.id} />
+      </section>
 
       {/* A4 — blocos ricos: pergunta/comando do dia, check-in pendente,
           próximos eventos, destaques da biblioteca, publicações recentes.

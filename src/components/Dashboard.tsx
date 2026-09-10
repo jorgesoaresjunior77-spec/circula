@@ -293,6 +293,15 @@ export function Dashboard({
           onNavigate={handleNavigate}
           onOpenConversation={openConversationById}
           coverHero={coverHero}
+          railSummary={
+            railActive
+              ? {
+                  pointsBalance: railSummary.pointsBalance,
+                  achievementsCount: railSummary.achievementsCount,
+                  nextEvent: railSummary.nextEvent,
+                }
+              : null
+          }
         />
       )
     }
