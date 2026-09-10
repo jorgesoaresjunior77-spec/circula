@@ -9306,3 +9306,194 @@ button.card:focus-visible {
     opacity: 1;
   }
 }
+
+/* ===================================================================
+   C4 · Destaque editorial de postagens do Instagram
+   Uma pequena galeria editorial horizontal das postagens que a
+   comunidade destacou (itens de community_content publicados, com capa,
+   cujo external_url e do Instagram). Mesma linguagem de C2/C3: branco,
+   muito espaco, sem card-container, sem borda/linha, sem sombra forte,
+   imagem protagonista ~4:5, cantos discretos, zoom minimo no hover.
+   Sem iframe, sem feed automatico, sem integracao. So aparece quando ha
+   post real. So CSS + um componente de apresentacao.
+   =================================================================== */
+
+.ig-strip {
+  min-width: 0;
+}
+
+.ig-strip-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-display);
+  color: var(--graphite);
+}
+
+.ig-track {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1) 0 var(--space-3);
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.ig-track::-webkit-scrollbar {
+  display: none;
+}
+
+.ig-card-item {
+  flex: 0 0 auto;
+  width: clamp(184px, 44vw, 232px);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .ig-card-item {
+    width: clamp(210px, 26vw, 256px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ig-card-item {
+    width: clamp(224px, 19vw, 280px);
+  }
+}
+
+.ig-card {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ig-card-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 4 / 5;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-sand);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.ig-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+/* overlay extremamente sutil — so o suficiente para o texto respirar */
+.ig-card-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(35, 30, 28, 0.56) 0%,
+    rgba(35, 30, 28, 0.08) 46%,
+    rgba(35, 30, 28, 0) 72%
+  );
+}
+
+.ig-card-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ig-card-eyebrow {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 5px rgba(35, 30, 28, 0.4);
+}
+
+.ig-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.16;
+  color: var(--c-white);
+  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.44);
+  /* no máximo duas linhas — nada de excesso de texto sobre a imagem */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.ig-card-meta {
+  margin-top: var(--space-1);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 5px rgba(35, 30, 28, 0.4);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  /* discreto de partida; revela no hover (onde houver hover) */
+  opacity: 0.66;
+  transition: opacity var(--dur) var(--ease);
+}
+
+@media (hover: hover) {
+  .ig-card:hover .ig-card-frame,
+  .ig-card:focus-visible .ig-card-frame {
+    transform: translateY(-3px) scale(1.012);
+  }
+  .ig-card:hover .ig-card-photo {
+    transform: scale(1.05);
+  }
+  .ig-card:hover .ig-card-meta,
+  .ig-card:focus-visible .ig-card-meta {
+    opacity: 1;
+  }
+}
+
+.ig-card:focus-visible {
+  outline: none;
+}
+
+.ig-card:focus-visible .ig-card-frame {
+  outline: 2px solid var(--c-white);
+  outline-offset: -3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ig-card-frame,
+  .ig-card-photo,
+  .ig-card-meta {
+    transition: none;
+  }
+  .ig-card:hover .ig-card-frame,
+  .ig-card:focus-visible .ig-card-frame,
+  .ig-card:hover .ig-card-photo {
+    transform: none;
+  }
+  .ig-card-meta {
+    opacity: 1;
+  }
+}

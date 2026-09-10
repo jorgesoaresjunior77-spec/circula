@@ -17,6 +17,7 @@ import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
+import { HomeInstagramSection } from './HomeInstagramSection'
 import { PointsWidget } from './PointsWidget'
 import { AchievementsStrip } from './AchievementsStrip'
 import { EmptyState } from './EmptyState'
@@ -313,6 +314,12 @@ export function HomeToday({
         onJoin={(circleId) => joinCircle(circleId, profile.id)}
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
+
+      {/* C4 — Postagens do Instagram destacadas pela comunidade. Reusa
+          community_content (useContent): itens publicados, com capa, cujo
+          external_url é do Instagram. Sem infraestrutura nova; se não
+          houver item real que se qualifique, a seção não aparece. */}
+      <HomeInstagramSection communityId={focusCommunity.id} />
 
       {/* Fase 3 — "Como você está hoje?": humor diário privado da usuária.
           Fase 10: emojis interativos. */}
