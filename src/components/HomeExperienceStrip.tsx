@@ -1,20 +1,23 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChallengeWithActivities } from '../types/challenge'
+import type { CommunityContent } from '../types/content'
 import type { HomeSummary } from '../types/home'
 import type { NavKey } from './PrimaryNav'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { formatEventDate } from '../lib/formatEventDate'
+import { InstagramHighlightModal } from './InstagramHighlightModal'
 
 // C2 — Faixa editorial de experiências da comunidade.
 //
 // Apresentação horizontal e editorial das experiências que a Home já
 // tem em dados REAIS. Não instancia hook de negócio novo e não busca
 // nada: recebe tudo pronto da HomeToday (que reusa useHomeToday /
-// useChallenges / usePosts e o railSummary do Dashboard). Uma
-// experiência só entra na faixa quando há dado real — sem dado, ela não
-// aparece; nada de placeholder, imagem ou métrica inventada. Cada card
-// preserva a ação já existente do conteúdo que representa: navegar por
-// uma rota que já existe, ou rolar até a seção detalhada logo abaixo.
+// useChallenges / usePosts / useContent e o railSummary do Dashboard).
+// Uma experiência só entra na faixa quando há dado real — sem dado, ela
+// não aparece; nada de placeholder, imagem ou métrica inventada. Cada
+// card preserva a ação já existente do conteúdo que representa: navegar
+// por uma rota que já existe, rolar até a seção detalhada logo abaixo,
+// ou (C4.1 — "No Instagram") abrir uma tela editorial no próprio app.
 
 interface NextEvent {
   id: string
@@ -29,6 +32,13 @@ interface HomeExperienceStripProps {
   newPosts: number
   hasPosts: boolean
   journey: { pointsBalance: number; achievementsCount: number } | null
+  /**
+   * C4.1 — publicações do Instagram destacadas pela comunidade
+   * (community_content publicado, com capa, external_url do Instagram).
+   * Já filtrado na HomeToday por filterInstagramContent. Vazio -> a
+   * experiência "No Instagram" não aparece.
+   */
+  instagramPosts: CommunityContent[]
   onNavigate: (key: NavKey) => void
 }
 
@@ -56,14 +66,27 @@ export function HomeExperienceStrip({
   newPosts,
   hasPosts,
   journey,
+  instagramPosts,
   onNavigate,
 }: HomeExperienceStripProps) {
-  // Só o desafio em foco tem imagem diretamente reutilizável — a capa
-  // passa pelo mesmo useSignedImageUrl do ChallengeCard. É UM valor,
-  // não um .map(), então o hook no topo é seguro.
+  // Só o desafio em foco e o 1º post do Instagram têm imagem
+  // diretamente reutilizável — a capa passa pelo mesmo useSignedImageUrl
+  // do ChallengeCard / ContentCard. São valores únicos, não .map(),
+  // então os hooks no topo são seguros.
   const { url: challengeCover } = useSignedImageUrl(
     pickedChallenge?.cover_image_url ?? null,
   )
+  const { url: instagramCover } = useSignedImageUrl(
+    instagramPosts[0]?.cover_image_url ?? null,
+  )
+
+  const [instagramOpen, setInstagramOpen] = useState(false)
+  const instagramCardRef = useRef<HTMLButtonElement>(null)
+
+  function closeInstagram() {
+    setInstagramOpen(false)
+    instagramCardRef.current?.focus()
+  }
 
   const experiences = useMemo<Experience[]>(() => {
     const list: Experience[] = []
@@ -155,6 +178,27 @@ export function HomeExperienceStrip({
       })
     }
 
+    // 6 — No Instagram (C4.1) — só com publicação real destacada. Abre a
+    // tela editorial no app; NÃO navega direto para o Instagram.
+    if (instagramPosts.length > 0) {
+      const count = instagramPosts.length
+      list.push({
+        key: 'instagram',
+        eyebrow: 'Instagram',
+        title: 'No Instagram',
+        meta:
+          count === 1
+            ? instagramPosts[0].title
+            : `${count} publicações`,
+        image: instagramCover,
+        onActivate: () => setInstagramOpen(true),
+        ariaLabel:
+          count === 1
+            ? `No Instagram — ${instagramPosts[0].title}`
+            : `No Instagram — ${count} publicações`,
+      })
+    }
+
     return list
   }, [
     summary,
@@ -164,18 +208,21 @@ export function HomeExperienceStrip({
     newPosts,
     hasPosts,
     journey,
+    instagramPosts,
+    instagramCover,
     onNavigate,
   ])
 
   const trackRef = useRef<HTMLUListElement>(null)
 
   // Movimento horizontal contínuo, muito suave, em vaivém. Pausa ao
-  // interagir (mouse, foco, toque) e quando a aba está oculta. Desligado
-  // em prefers-reduced-motion e em ponteiro grosso (touch) — aí vale o
-  // swipe/scroll nativo. Sem biblioteca.
+  // interagir (mouse, foco, toque), quando a aba está oculta e enquanto
+  // a tela "No Instagram" está aberta. Desligado em prefers-reduced-
+  // motion e em ponteiro grosso (touch) — aí vale o swipe/scroll
+  // nativo. Sem biblioteca.
   useEffect(() => {
     const el = trackRef.current
-    if (!el) return
+    if (!el || instagramOpen) return
     if (
       window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
       window.matchMedia('(pointer: coarse)').matches
@@ -237,7 +284,7 @@ export function HomeExperienceStrip({
       el.removeEventListener('scroll', syncPos)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [experiences.length])
+  }, [experiences.length, instagramOpen])
 
   if (experiences.length === 0) return null
 
@@ -251,6 +298,8 @@ export function HomeExperienceStrip({
               className={`exp-card${exp.image ? ' exp-card--photo' : ''}`}
               onClick={exp.onActivate}
               aria-label={exp.ariaLabel}
+              aria-haspopup={exp.key === 'instagram' ? 'dialog' : undefined}
+              ref={exp.key === 'instagram' ? instagramCardRef : undefined}
             >
               <span className="exp-card-frame">
                 {exp.image && <img src={exp.image} alt="" className="exp-card-photo" />}
@@ -262,6 +311,10 @@ export function HomeExperienceStrip({
           </li>
         ))}
       </ul>
+
+      {instagramOpen && (
+        <InstagramHighlightModal posts={instagramPosts} onClose={closeInstagram} />
+      )}
     </section>
   )
 }

@@ -7,7 +7,9 @@ import type { NavKey } from './PrimaryNav'
 import { useCircles } from '../hooks/useCircles'
 import { useChallenges } from '../hooks/useChallenges'
 import { usePosts } from '../hooks/usePosts'
+import { useContent } from '../hooks/useContent'
 import { useHomeToday } from '../hooks/useHomeToday'
+import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
 import { DailyMoodCard } from './DailyMoodCard'
@@ -17,7 +19,6 @@ import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
-import { HomeInstagramSection } from './HomeInstagramSection'
 import { PointsWidget } from './PointsWidget'
 import { AchievementsStrip } from './AchievementsStrip'
 import { EmptyState } from './EmptyState'
@@ -141,6 +142,16 @@ export function HomeToday({
   const postsApi = usePosts(communityId, profile.id)
 
   const challenges = useChallenges(communityId, profile.id)
+
+  // C4.1 — "No Instagram": publicações que a comunidade cadastrou como
+  // community_content com link do Instagram + capa. useContent já existe
+  // (não é hook novo); a HomeExperienceStrip recebe a lista filtrada e
+  // só mostra o card quando há publicação real.
+  const { items: contentItems } = useContent(communityId)
+  const instagramPosts = useMemo(
+    () => filterInstagramContent(contentItems),
+    [contentItems],
+  )
 
   const myCircles = useMemo(
     () => circles.filter((circle) => circle.members.some((m) => m.profile_id === profile.id)),
@@ -285,7 +296,8 @@ export function HomeToday({
 
       {/* C2 — Faixa editorial de experiências da comunidade, logo abaixo
           do hero. Só dados reais que a Home já tem; cada card leva à ação
-          que já existe (rota existente ou rolar até a seção detalhada). */}
+          que já existe (rota existente, rolar até a seção detalhada ou,
+          em "No Instagram", abrir a tela editorial no app — C4.1). */}
       <HomeExperienceStrip
         summary={summary}
         pickedChallenge={pickedChallenge}
@@ -300,6 +312,7 @@ export function HomeToday({
               }
             : null
         }
+        instagramPosts={instagramPosts}
         onNavigate={onNavigate}
       />
 
@@ -314,12 +327,6 @@ export function HomeToday({
         onJoin={(circleId) => joinCircle(circleId, profile.id)}
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
-
-      {/* C4 — Postagens do Instagram destacadas pela comunidade. Reusa
-          community_content (useContent): itens publicados, com capa, cujo
-          external_url é do Instagram. Sem infraestrutura nova; se não
-          houver item real que se qualifique, a seção não aparece. */}
-      <HomeInstagramSection communityId={focusCommunity.id} />
 
       {/* Fase 3 — "Como você está hoje?": humor diário privado da usuária.
           Fase 10: emojis interativos. */}
