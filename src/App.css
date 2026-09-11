@@ -3692,6 +3692,2898 @@
   gap: var(--space-2);
 }
 
+/* ===================================================================
+   Painel · Visão geral — redesign editorial
+   Seções PLANAS separadas por espaço em branco: sem card dentro de
+   card, sem borda pesada, sem sombra. Branco predominante; véu rosé
+   (--zone-wash) só no bloco "Precisa de atenção". Mitr Light no nome,
+   Lato Light nos textos, Jost nos rótulos. Só tokens existentes.
+   Escopo total sob .panel-overview — nenhum estilo global é alterado.
+   =================================================================== */
+
+.panel-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* rótulo Jost tracké — reutilizado por todas as seções */
+.panel-overview-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* --- 1 · Cabeçalho ---------------------------------------------- */
+.panel-overview-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 60ch;
+}
+
+.panel-overview-lede {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- 2 · Precisa de atenção ----------------------------------- */
+.panel-overview-attention {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-lg);
+  /* véu rosé quase imperceptível — o ÚNICO ponto com cor na aba */
+  background: var(--zone-wash);
+}
+
+.panel-overview-attention-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-overview-attention-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.panel-overview-calm {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--graphite-soft);
+}
+
+/* o link de ação (.auth-link) fica na linha-base do título, sem o
+   margin-top padrão dele */
+.panel-overview-attention-list .auth-link,
+.panel-overview-identity-head .auth-link,
+.panel-overview-note-head .auth-link {
+  margin-top: 0;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* --- 3 · Informações da comunidade -------------------------- */
+.panel-overview-identity {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.panel-overview-cover {
+  flex: 0 0 auto;
+  width: 148px;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-sand);
+}
+
+.panel-overview-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.panel-overview-cover-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--c-sand);
+}
+
+.panel-overview-identity-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-overview-identity-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.panel-overview-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-display);
+  color: var(--graphite);
+}
+
+.panel-overview-description {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+.panel-overview-none {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.panel-overview-path {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-overview-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-1);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+.panel-overview-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.panel-overview-editor {
+  margin-top: var(--space-3);
+}
+
+/* --- 4 · Panorama ------------------------------------------- */
+.panel-overview-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.panel-overview-number-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panel-overview-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: var(--space-2);
+}
+
+.panel-overview-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+.panel-overview-kpi:hover {
+  background: var(--surface-sunken);
+}
+
+.panel-overview-kpi-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: clamp(24px, 2.6vw, 30px);
+  line-height: 1.1;
+  color: var(--graphite);
+}
+
+.panel-overview-kpi-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+.panel-overview-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- 5 · Atividade recente --------------------------------- */
+.panel-overview-timeline-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panel-overview-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-overview-timeline li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.panel-overview-aside {
+  flex-shrink: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--graphite-soft);
+}
+
+.panel-overview-line {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+
+/* --- 6 · Explorar ----------------------------------------- */
+.panel-overview-explore {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* grade leve: 1 col (mobile) -> 2 -> ~3. Separação por espaço em
+   branco, sem borda, sem sombra, sem border-top. */
+.panel-overview-explore-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7) var(--space-7);
+}
+
+@media (min-width: 620px) {
+  .panel-overview-explore-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .panel-overview-explore-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.panel-overview-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.panel-overview-note-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.panel-overview-note-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-overview-note-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-overview-note-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+/* --- responsivo estreito -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-overview {
+    gap: var(--space-7);
+  }
+  .panel-overview-identity {
+    gap: var(--space-4);
+  }
+  .panel-overview-cover {
+    width: 112px;
+  }
+  .panel-overview-attention {
+    padding: var(--space-4);
+  }
+}
+
+/* ===================================================================
+   Painel · Participantes — redesign editorial
+   Mesma linguagem da "Visão geral": seções planas, muito respiro, sem
+   card dentro de card, sem sombra. Véu rosé (--zone-wash) só na zona de
+   solicitações pendentes. Filtro flat — sem box-shadow, sem olive; ativo
+   em --surface-sunken. Só tokens existentes; escopo total sob
+   .panel-members. Nenhum estilo global/compartilhado é redefinido
+   (.section-label, .panel-community-badge*, .btn*, .empty-state e o
+   seletor .participants-panel continuam intactos).
+   =================================================================== */
+
+.panel-members {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho ------------------------------------------------- */
+.panel-members-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 60ch;
+}
+
+.panel-members-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-members-lede {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Filtro flat (sem box-shadow, sem olive) ------------------ */
+.panel-members-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.panel-members-filter-btn {
+  font: inherit;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  width: auto;
+  margin: 0;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-members-filter-btn:hover {
+  color: var(--graphite);
+}
+
+.panel-members-filter-btn--active {
+  background: var(--surface-sunken);
+  color: var(--graphite);
+}
+
+.panel-members-filter-btn:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Seção de grupo (Ativas / Pendentes / Bloqueadas) -------- */
+.panel-members-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Zona de pendências: véu rosé quase imperceptível -------- */
+.panel-members-attention {
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--zone-wash);
+}
+
+.panel-members-pending {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panel-members-active {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* aviso "humor individual não é exibido…" */
+.panel-members-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Lista de linhas ---------------------------------------- */
+.panel-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* linha editorial plana — sem caixa, sem borda, sem sombra;
+   separação pelas próprias margens da lista */
+.panel-members-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.panel-members-avatar {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--surface-sunken);
+  color: var(--graphite-soft);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 20px;
+}
+
+.panel-members-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.panel-members-row-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.panel-members-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 16px;
+  line-height: 1.25;
+  color: var(--graphite);
+}
+
+.panel-members-meta {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--graphite-soft);
+}
+
+.panel-members-figures {
+  margin: 4px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-4);
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.panel-members-figure-num {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+/* ações Aprovar / Rejeitar — .btn (já editorial) fica intacto */
+.panel-members-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+/* badge "Bloqueada" (reusa .panel-community-badge--blocked) */
+.panel-members-row .panel-community-badge {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* --- Responsivo ------------------------------------------- */
+@media (max-width: 620px) {
+  .panel-members {
+    gap: var(--space-7);
+  }
+  .panel-members-row {
+    flex-wrap: wrap;
+  }
+  .panel-members-actions {
+    width: 100%;
+  }
+  .panel-members-actions .btn {
+    flex: 1 1 auto;
+  }
+  .panel-members-attention {
+    padding: var(--space-4);
+  }
+}
+
+/* ===================================================================
+   Painel · Publicações — redesign editorial
+   Mesma linguagem de "Visão geral" / "Participantes": blocos planos,
+   muito respiro, sem card, sem borda, sem sombra, sem border-top como
+   separador. Autor em Mitr; microinfo em Jost; imagem protagonista com
+   moldura suave. Ações como links editoriais. "Oculta" = esmaecimento
+   leve + marcador discreto; "Visível" não tem marcador (é o padrão).
+   --danger só na confirmação de remoção. Só tokens existentes; escopo
+   total sob .panel-posts; nenhum estilo global/compartilhado é
+   redefinido (.auth-link, .auth-error, .empty-state, .btn* intactos).
+   =================================================================== */
+
+.panel-posts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* --- Cabeçalho + contagem --------------------------------- */
+.panel-posts-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 62ch;
+}
+
+.panel-posts-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-posts-lede {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+.panel-posts-count {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+/* --- Lista de blocos ------------------------------------- */
+.panel-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.panel-post {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* ocultas: só um esmaecimento leve (o marcador "Oculta" faz o resto) */
+.panel-post--hidden {
+  opacity: 0.62;
+}
+
+/* --- Cabeçalho da publicação --------------------------- */
+.panel-post-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.panel-post-avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--surface-sunken);
+  color: var(--graphite-soft);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 18px;
+}
+
+.panel-post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.panel-post-byline {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.panel-post-author {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 16px;
+  line-height: 1.25;
+  color: var(--graphite);
+}
+
+.panel-post-meta {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--graphite-soft);
+}
+
+/* marcador só nas publicações ocultas */
+.panel-post-flag {
+  flex-shrink: 0;
+  align-self: center;
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+  background: var(--surface-sunken);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+/* --- Corpo -------------------------------------------- */
+.panel-post-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--graphite);
+}
+
+.panel-post-body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--graphite);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* imagem protagonista, moldura suave, nunca estoura a largura */
+.panel-post-figure {
+  margin: var(--space-1) 0;
+  max-width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-sand);
+}
+
+.panel-post-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+  object-fit: cover;
+}
+
+/* --- Stats discretos -------------------------------- */
+.panel-post-stats {
+  margin: 0;
+  display: flex;
+  gap: var(--space-4);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--graphite-soft);
+}
+
+.panel-post-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* --- Ações como links editoriais -------------------- */
+.panel-post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-1);
+}
+
+.panel-post-action {
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--ink-action);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-action-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease),
+    text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.panel-post-action:hover:not(:disabled) {
+  color: var(--ink-action-hover);
+  text-decoration-color: currentColor;
+}
+
+.panel-post-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-post-action:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* "Remover" antes da confirmação: discreto, nada agressivo */
+.panel-post-action--remove {
+  color: var(--graphite-soft);
+  text-decoration-color: var(--border);
+}
+
+.panel-post-action--remove:hover:not(:disabled) {
+  color: var(--graphite);
+}
+
+/* "Confirmar remoção definitiva": claramente em tinta --danger */
+.panel-post-action--danger {
+  color: var(--danger);
+  font-weight: 600;
+  text-decoration-color: var(--danger-border);
+}
+
+.panel-post-action--danger:hover:not(:disabled) {
+  color: var(--danger);
+  text-decoration-color: currentColor;
+}
+
+.panel-post-action--danger:focus-visible {
+  outline-color: var(--danger);
+}
+
+/* "Cancelar" reusa .auth-link — só neutraliza a margem herdada
+   dentro desta barra de ações (não redefine .auth-link) */
+.panel-post-actions .auth-link {
+  margin-top: 0;
+}
+
+/* --- Responsivo ------------------------------------ */
+@media (max-width: 560px) {
+  .panel-posts {
+    gap: var(--space-5);
+  }
+  .panel-posts-list {
+    gap: var(--space-6);
+  }
+  .panel-post-figure img {
+    max-height: 340px;
+  }
+}
+
+/* ===================================================================
+   Painel · Conteúdo — redesign editorial
+   5 famílias (Perguntas, Biblioteca, Check-ins, Mensagens de humor,
+   Comandos) como SEÇÕES PLANAS separadas por respiro. Sem
+   community-card, sem card dentro de card, sem sombra, sem border-top
+   como separador. Nomes de seção em Jost; títulos/prompts em Mitr Light;
+   textos em Lato Light. Ações como links editoriais. Só a Biblioteca
+   mantém a presença do ContentCard (compartilhado, INTOCADO). Só tokens
+   existentes; escopo total sob .panel-content-*. Nenhuma classe global
+   compartilhada é redefinida.
+   =================================================================== */
+
+/* --- Cabeçalho da aba ------------------------------------------ */
+.panel-content-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-content-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-content-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Seção de família --------------------------------------- */
+.panel-content-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* respiro extra entre famílias (o gap do .panel-tab-content é a base) */
+.panel-content-block + .panel-content-block {
+  margin-top: var(--space-6);
+}
+
+.panel-content-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.panel-content-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-content-section-lede {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+  max-width: 62ch;
+}
+
+.panel-content-notice,
+.panel-content-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* ação "Publicar … agora" — botão discreto (outline) */
+.panel-content-publish {
+  align-self: flex-start;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 7px 16px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-action);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.panel-content-publish:hover:not(:disabled) {
+  background: var(--ink-action-soft);
+  border-color: var(--ink-action);
+}
+
+.panel-content-publish:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.panel-content-publish:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Formulários editoriais -------------------------------- */
+.panel-content-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 640px;
+}
+
+.panel-content-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-content-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-content-form input,
+.panel-content-form textarea,
+.panel-content-form select,
+.panel-content-edit textarea,
+.panel-content-edit input,
+.panel-content-mood-item textarea {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--graphite);
+  resize: vertical;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.panel-content-form input::placeholder,
+.panel-content-form textarea::placeholder,
+.panel-content-edit textarea::placeholder,
+.panel-content-mood-item textarea::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.7;
+}
+
+.panel-content-form input:focus,
+.panel-content-form textarea:focus,
+.panel-content-form select:focus,
+.panel-content-edit textarea:focus,
+.panel-content-edit input:focus,
+.panel-content-mood-item textarea:focus {
+  outline: none;
+  border-color: var(--ink-action-line);
+  box-shadow: 0 0 0 3px var(--ink-action-soft);
+}
+
+.panel-content-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-content-form-group-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-content-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 620px) {
+  .panel-content-form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel-content-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.panel-content-submit {
+  align-self: flex-start;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 9px 20px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-action);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-content-submit:hover:not(:disabled) {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: var(--on-action);
+}
+
+.panel-content-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-content-submit:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Listas de linhas (Perguntas / Comandos / banco de Check-ins) --- */
+.panel-content-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-content-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.panel-content-row-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--graphite);
+}
+
+.panel-content-row-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--graphite);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.panel-content-row-text--inactive {
+  color: var(--graphite-soft);
+  text-decoration: line-through;
+  text-decoration-color: var(--border);
+}
+
+.panel-content-state {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-content-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.panel-content-action {
+  padding: 3px 2px;
+  border: 0;
+  background: none;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--ink-action);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-action-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease),
+    text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.panel-content-action:hover:not(:disabled) {
+  color: var(--ink-action-hover);
+  text-decoration-color: currentColor;
+}
+
+.panel-content-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-content-action:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+.panel-content-action--primary {
+  font-weight: 600;
+}
+
+.panel-content-action--delete {
+  color: var(--graphite-soft);
+  text-decoration-color: var(--border);
+}
+
+.panel-content-action--delete:hover:not(:disabled) {
+  color: var(--danger);
+  text-decoration-color: var(--danger-border);
+}
+
+/* edição inline */
+.panel-content-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* --- Biblioteca: contexto plano ao redor do ContentCard --- */
+.panel-content-library-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.panel-content-library-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.panel-content-library-item .content-card {
+  max-width: 100%;
+}
+
+/* --- Check-ins publicados (instâncias) ------------------- */
+.panel-content-instances {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.panel-content-instance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.panel-content-instance-prompt {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--graphite);
+}
+
+.panel-content-roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.panel-content-roster li {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.panel-content-roster-empty {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Mensagens de humor -------------------------------- */
+.panel-content-mood-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.panel-content-mood-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-content-mood-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.panel-content-mood-emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.panel-content-mood-label {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+.panel-content-mood-flag {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--graphite-soft);
+  background: var(--surface-sunken);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+/* --- Responsivo ------------------------------------- */
+@media (max-width: 560px) {
+  .panel-content-block + .panel-content-block {
+    margin-top: var(--space-5);
+  }
+  .panel-content-publish,
+  .panel-content-submit {
+    align-self: stretch;
+    text-align: center;
+  }
+}
+
+/* ===================================================================
+   Painel · Desafios — redesign editorial
+   Seções planas: sem community-card, sem .challenge-block, sem borda,
+   sem sombra. Cabeçalho + "Criar um desafio" (form em 3 grupos) +
+   "Desafios da comunidade" (lista vertical com respiro). Cada item
+   hospeda o <ChallengeCard> INTOCADO; abaixo dele, ações como links.
+   Inativo = item esmaecido + marcador Jost discreto. Só tokens
+   existentes; escopo total sob .panel-challenges-*. Nenhuma classe
+   global compartilhada é redefinida — apenas 1 override LOCALIZADO da
+   capa dentro de .panel-challenges-item (a regra global de
+   .challenge-cover fica intacta, para a Home).
+   =================================================================== */
+
+.panel-challenges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho --------------------------------------------- */
+.panel-challenges-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-challenges-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-challenges-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Seção (Criar / Lista) ------------------------------- */
+.panel-challenges-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-challenges-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-challenges-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Formulário editorial (criar + editar) --------------- */
+.panel-challenges-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 640px;
+}
+
+.panel-challenges-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-challenges-form-group-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-challenges-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-challenges-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-challenges-form input,
+.panel-challenges-form textarea,
+.panel-challenges-form select {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--graphite);
+  resize: vertical;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.panel-challenges-form input::placeholder,
+.panel-challenges-form textarea::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.7;
+}
+
+.panel-challenges-form input:focus,
+.panel-challenges-form textarea:focus,
+.panel-challenges-form select:focus {
+  outline: none;
+  border-color: var(--ink-action-line);
+  box-shadow: 0 0 0 3px var(--ink-action-soft);
+}
+
+.panel-challenges-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 560px) {
+  .panel-challenges-form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel-challenges-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* dias */
+.panel-challenges-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.panel-challenges-day-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-challenges-day-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-1);
+}
+
+.panel-challenges-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.panel-challenges-submit {
+  align-self: flex-start;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 9px 20px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-action);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-challenges-submit:hover:not(:disabled) {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: var(--on-action);
+}
+
+.panel-challenges-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-challenges-submit:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Lista de desafios ---------------------------------- */
+.panel-challenges-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.panel-challenges-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.panel-challenges-item--inactive {
+  opacity: 0.6;
+}
+
+/* Override LOCALIZADO da capa — sem .challenge-block, as margens
+   negativas do .challenge-cover global não fazem sentido aqui. A regra
+   global permanece intacta (Home). */
+.panel-challenges-item .challenge-cover {
+  width: 100%;
+  margin: 0;
+  border-radius: var(--radius-lg);
+}
+
+/* ações abaixo do card, alinhadas à direita */
+.panel-challenges-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-4);
+}
+
+.panel-challenges-flag {
+  margin-right: auto;
+  align-self: center;
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+  background: var(--surface-sunken);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.panel-challenges-inactive-note {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--graphite-soft);
+  text-align: right;
+}
+
+/* --- Ações como links editoriais ---------------------- */
+.panel-challenges-action {
+  padding: 3px 2px;
+  border: 0;
+  background: none;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--ink-action);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-action-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease),
+    text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.panel-challenges-action:hover:not(:disabled) {
+  color: var(--ink-action-hover);
+  text-decoration-color: currentColor;
+}
+
+.panel-challenges-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-challenges-action:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+.panel-challenges-action--primary {
+  font-weight: 600;
+}
+
+.panel-challenges-action--muted {
+  color: var(--graphite-soft);
+  text-decoration-color: var(--border);
+}
+
+.panel-challenges-action--muted:hover:not(:disabled) {
+  color: var(--graphite);
+}
+
+.panel-challenges-action--delete {
+  color: var(--graphite-soft);
+  text-decoration-color: var(--border);
+}
+
+.panel-challenges-action--delete:hover:not(:disabled) {
+  color: var(--danger);
+  text-decoration-color: var(--danger-border);
+}
+
+/* edição inline: um pouco menos de gap que o form de criação */
+.panel-challenges-edit {
+  gap: var(--space-4);
+}
+
+/* --- Responsivo -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-challenges {
+    gap: var(--space-7);
+  }
+  .panel-challenges-list {
+    gap: var(--space-7);
+  }
+  .panel-challenges-submit {
+    align-self: stretch;
+    text-align: center;
+  }
+  .panel-challenges-item-actions {
+    justify-content: flex-start;
+  }
+  .panel-challenges-inactive-note {
+    text-align: left;
+  }
+}
+
+/* ===================================================================
+   Painel · Eventos — redesign editorial
+   Seções planas: sem community-card, sem .event-block, sem sombra
+   pesada no wrapper. Cabeçalho + "Criar evento" (form em 3 grupos) +
+   "Eventos da comunidade" (lista com respiro). Cada item hospeda o
+   <EventCard> INTOCADO — ele mantém a própria borda/sombra por ser
+   compartilhado (EventList, Home, Salvos); o wrapper não soma outra
+   camada de card. Ações como links editoriais; "Cancelar evento" no
+   mesmo nível neutro de "Editar"; "Excluir" só fica --danger no hover.
+   Só tokens existentes; escopo total sob .panel-events-*. Nenhuma
+   classe global compartilhada é redefinida.
+   =================================================================== */
+
+.panel-events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho --------------------------------------------- */
+.panel-events-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-events-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-events-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Seção (Criar / Lista) ------------------------------- */
+.panel-events-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-events-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-events-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Formulário editorial (criar + editar, mesmo form) --- */
+.panel-events-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 640px;
+}
+
+.panel-events-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-events-form-group-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-events-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-events-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-events-form input,
+.panel-events-form textarea,
+.panel-events-form select {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--graphite);
+  resize: vertical;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.panel-events-form input::placeholder,
+.panel-events-form textarea::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.7;
+}
+
+.panel-events-form input:focus,
+.panel-events-form textarea:focus,
+.panel-events-form select:focus {
+  outline: none;
+  border-color: var(--ink-action-line);
+  box-shadow: 0 0 0 3px var(--ink-action-soft);
+}
+
+.panel-events-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 560px) {
+  .panel-events-form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* checkbox "Evento online" — classe própria (não reaproveita
+   .event-form-check, que é compartilhada com CommunityInfoEditor) */
+.panel-events-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.panel-events-check input {
+  width: auto;
+}
+
+.panel-events-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.panel-events-submit {
+  align-self: flex-start;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 9px 20px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-action);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-events-submit:hover:not(:disabled) {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: var(--on-action);
+}
+
+.panel-events-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-events-submit:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Lista de eventos ------------------------------------ */
+.panel-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.panel-events-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* --- Ações como links editoriais -------------------------- */
+.panel-events-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-4);
+}
+
+.panel-events-action {
+  padding: 3px 2px;
+  border: 0;
+  background: none;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--ink-action);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-action-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease),
+    text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.panel-events-action:hover:not(:disabled) {
+  color: var(--ink-action-hover);
+  text-decoration-color: currentColor;
+}
+
+.panel-events-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-events-action:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* "Excluir": mesmo nível neutro em repouso; só --danger no hover */
+.panel-events-action--delete:hover:not(:disabled) {
+  color: var(--danger);
+  text-decoration-color: var(--danger-border);
+}
+
+/* --- Responsivo -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-events {
+    gap: var(--space-7);
+  }
+  .panel-events-list {
+    gap: var(--space-6);
+  }
+  .panel-events-submit {
+    align-self: stretch;
+    text-align: center;
+  }
+  .panel-events-item-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* --- Painel Professional: aba Círculos (redesign editorial) --- */
+.panel-circles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho --------------------------------------------- */
+.panel-circles-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-circles-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-circles-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Seção (Criar / Lista) ------------------------------- */
+.panel-circles-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-circles-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-circles-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Formulário editorial enxuto (nome + capa) ------------ */
+.panel-circles-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 480px;
+}
+
+.panel-circles-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-circles-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-circles-form input {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--graphite);
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.panel-circles-form input::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.7;
+}
+
+.panel-circles-form input:focus {
+  outline: none;
+  border-color: var(--ink-action-line);
+  box-shadow: 0 0 0 3px var(--ink-action-soft);
+}
+
+.panel-circles-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.panel-circles-submit {
+  align-self: flex-start;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 9px 20px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-action);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-circles-submit:hover:not(:disabled) {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: var(--on-action);
+}
+
+.panel-circles-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-circles-submit:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Lista de círculos: totalmente flat, sem card-in-card - */
+.panel-circles-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.panel-circles-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* edição inline: um pouco menos de gap que o form de criação */
+.panel-circles-edit {
+  gap: var(--space-4);
+  max-width: 480px;
+}
+
+/* ações abaixo do CircleCard (intocado), alinhadas à direita */
+.panel-circles-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-4);
+}
+
+/* --- Ações como links editoriais ---------------------- */
+.panel-circles-action {
+  padding: 3px 2px;
+  border: 0;
+  background: none;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--ink-action);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-action-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease),
+    text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.panel-circles-action:hover:not(:disabled) {
+  color: var(--ink-action-hover);
+  text-decoration-color: currentColor;
+}
+
+.panel-circles-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-circles-action:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+.panel-circles-action--primary {
+  font-weight: 600;
+}
+
+/* "Excluir": mesmo nível neutro que "Editar" em repouso; só
+   --danger no hover — mesmo padrão da aba Eventos. */
+.panel-circles-action--delete:hover:not(:disabled) {
+  color: var(--danger);
+  text-decoration-color: var(--danger-border);
+}
+
+/* --- Responsivo -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-circles {
+    gap: var(--space-7);
+  }
+  .panel-circles-list {
+    gap: var(--space-6);
+  }
+  .panel-circles-submit {
+    align-self: stretch;
+    text-align: center;
+  }
+  .panel-circles-item-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* --- Painel Professional: aba Pontos (redesign editorial) --- */
+.panel-points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho --------------------------------------------- */
+.panel-points-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-points-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-points-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Seção --------------------------------------------- */
+.panel-points-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-points-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-points-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.panel-points-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+.panel-points-msg {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Resumo: números editoriais (Mitr Light) --------------- */
+.panel-points-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-5);
+}
+
+.panel-points-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.panel-points-kpi-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: clamp(24px, 2.6vw, 30px);
+  line-height: 1.1;
+  color: var(--graphite);
+}
+
+.panel-points-kpi-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+/* --- Resumo: pontos por motivo ------------------------------ */
+.panel-points-breakdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 420px;
+}
+
+.panel-points-breakdown li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.panel-points-breakdown-amount {
+  font-family: var(--font-label);
+  font-weight: 500;
+  color: var(--graphite);
+}
+
+/* --- Formulários editoriais (config diária + concessão) --- */
+.panel-points-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 320px;
+}
+
+.panel-points-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* .community-card form (regra global, App.css) já define display/gap/
+   margin-top com especificidade 0,1,1 — mais alta que uma classe só
+   (0,1,0). O seletor "form.panel-points-*" abaixo empata a especificidade
+   para que os valores editoriais desta aba prevaleçam, sem tocar na
+   regra global (que continua servindo as outras seções do painel). */
+form.panel-points-config-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+  margin-top: 0;
+}
+
+.panel-points-config-form .panel-points-field {
+  max-width: 220px;
+}
+
+form.panel-points-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 480px;
+  margin-top: 0;
+}
+
+.panel-points-config-form input,
+.panel-points-form input,
+.panel-points-form select {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--graphite);
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.panel-points-form input::placeholder {
+  color: var(--graphite-soft);
+  opacity: 0.7;
+}
+
+.panel-points-config-form input:focus,
+.panel-points-form input:focus,
+.panel-points-form select:focus {
+  outline: none;
+  border-color: var(--ink-action-line);
+  box-shadow: 0 0 0 3px var(--ink-action-soft);
+}
+
+.panel-points-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.panel-points-submit {
+  align-self: flex-start;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 9px 20px;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-action);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-points-submit:hover:not(:disabled) {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: var(--on-action);
+}
+
+.panel-points-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panel-points-submit:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+/* --- Saldo dos participantes: lista totalmente flat -------- */
+.panel-points-member-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-points-member-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.panel-points-member-toggle:hover {
+  color: var(--ink-action);
+}
+
+.panel-points-member-toggle:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+.panel-points-member-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: inherit;
+}
+
+.panel-points-member-balance {
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--graphite-soft);
+}
+
+.panel-points-member-ledger {
+  padding: 0 0 var(--space-4);
+}
+
+/* --- Responsivo -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-points {
+    gap: var(--space-7);
+  }
+  .panel-points-submit {
+    align-self: stretch;
+    text-align: center;
+  }
+  form.panel-points-config-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .panel-points-config-form .panel-points-field {
+    max-width: none;
+  }
+}
+
+/* --- Painel Professional: aba Métricas (redesign editorial) --- */
+/* .metric-tile / .metrics-* (App.css) são compartilhadas com RevenuePanel
+   (aba Recebimentos) e com os painéis do Master — não redefinidas aqui;
+   esta aba usa só .panel-metrics-* daqui para baixo. */
+.panel-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho --------------------------------------------- */
+.panel-metrics-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-metrics-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-metrics-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Seção --------------------------------------------- */
+.panel-metrics-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.panel-metrics-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.panel-metrics-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.panel-metrics-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.panel-metrics-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+/* --- Membros: resumo principal, números maiores --------- */
+.panel-metrics-primary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+.panel-metrics-primary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel-metrics-primary-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: clamp(30px, 3.4vw, 40px);
+  line-height: 1.1;
+  color: var(--graphite);
+}
+
+.panel-metrics-primary-label {
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+/* --- Demais métricas: números menores, mesma família ----- */
+.panel-metrics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5) var(--space-6);
+}
+
+.panel-metrics-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.panel-metrics-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: clamp(19px, 2vw, 23px);
+  line-height: 1.15;
+  color: var(--graphite);
+}
+
+.panel-metrics-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+/* --- Como a comunidade está: emoji + número ---------------- */
+.panel-metrics-mood-item {
+  align-items: center;
+  text-align: center;
+}
+
+.panel-metrics-mood-face {
+  margin: 0 0 2px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* --- Seletor de período: pill outline discreto ------------- */
+.panel-metrics-period {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.panel-metrics-period-button {
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  min-height: 34px;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.panel-metrics-period-button:hover {
+  border-color: var(--ink-action-line);
+  color: var(--ink-action);
+}
+
+.panel-metrics-period-button:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+.panel-metrics-period-button--active {
+  border-color: var(--ink-action-line);
+  background: var(--ink-action-soft);
+  color: var(--ink-action);
+}
+
+/* --- Responsivo -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-metrics {
+    gap: var(--space-7);
+  }
+  .panel-metrics-primary {
+    gap: var(--space-4);
+  }
+  .panel-metrics-grid {
+    gap: var(--space-4) var(--space-5);
+  }
+}
+
+/* --- Painel Professional: aba Pedidos de ajuda (redesign editorial) --- */
+/* HelpRequestCard (App.css: .help-card, .help-status, .help-list) é
+   compartilhado com a Home — não redefinido aqui; esta aba usa só
+   .panel-help-* daqui para baixo. */
+.panel-help {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* --- Cabeçalho --------------------------------------------- */
+.panel-help-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 64ch;
+}
+
+.panel-help-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+
+.panel-help-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite-soft);
+}
+
+.panel-help-muted {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+/* --- Grupos por status --------------------------------------- */
+.panel-help-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Grupo vazio: só título + EmptyState, sem o respiro extra dos
+   grupos com conteúdo — evita área vazia grande quando vários
+   grupos estão sem itens. */
+.panel-help-group--empty {
+  gap: var(--space-2);
+}
+
+.panel-help-group-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+/* Contagem discreta — sem pastilha/badge, mesmo tratamento para os
+   3 grupos (nenhum destaque especial para "Novos"). */
+.panel-help-count {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--graphite-soft);
+}
+
+.panel-help-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Responsivo -------------------------------------- */
+@media (max-width: 560px) {
+  .panel-help {
+    gap: var(--space-6);
+  }
+  .panel-help-group {
+    gap: var(--space-3);
+  }
+  .panel-help-list {
+    gap: var(--space-3);
+  }
+}
+
 /* 16.2.3-D — aba Participantes com filtro por status */
 .community-members-panel {
   display: flex;

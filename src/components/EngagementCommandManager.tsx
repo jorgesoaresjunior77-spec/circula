@@ -100,17 +100,23 @@ export function EngagementCommandManager({
   }
 
   return (
-    <section className="community-card community-card--quiet question-bank">
-      <h3>Comandos de engajamento</h3>
-
-      {canManage && (
-        <button type="button" onClick={handlePublish} disabled={publishing || activeCount === 0}>
-          {publishing ? 'Publicando...' : 'Publicar comando agora'}
-        </button>
-      )}
+    <section className="panel-content-block panel-content-commands">
+      <div className="panel-content-block-head">
+        <h3 className="panel-content-eyebrow">Comandos de engajamento</h3>
+        {canManage && (
+          <button
+            type="button"
+            className="panel-content-publish"
+            onClick={handlePublish}
+            disabled={publishing || activeCount === 0}
+          >
+            {publishing ? 'Publicando...' : 'Publicar comando agora'}
+          </button>
+        )}
+      </div>
 
       {canManage && activeCount === 0 && !loading && (
-        <p className="question-empty">
+        <p className="panel-content-notice">
           Cadastre pelo menos um comando ativo para poder publicar.
         </p>
       )}
@@ -122,33 +128,47 @@ export function EngagementCommandManager({
       )}
 
       {canManage && (
-        <form onSubmit={handleCreate} className="question-form">
-          <label htmlFor="new-command-title">Título do comando</label>
-          <input
-            id="new-command-title"
-            type="text"
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
-            placeholder="Ex.: Compartilhe sua vitória"
-            required
-          />
-          <label htmlFor="new-command-content">Texto do comando</label>
-          <textarea
-            id="new-command-content"
-            value={newContent}
-            onChange={(event) => setNewContent(event.target.value)}
-            rows={2}
-            placeholder="Ex.: O que você conseguiu fazer esta semana e está orgulhosa?"
-            required
-          />
+        <form onSubmit={handleCreate} className="panel-content-form">
+          <div className="panel-content-field">
+            <label className="panel-content-label" htmlFor="new-command-title">
+              Título do comando
+            </label>
+            <input
+              id="new-command-title"
+              type="text"
+              value={newTitle}
+              onChange={(event) => setNewTitle(event.target.value)}
+              placeholder="Ex.: Compartilhe sua vitória"
+              required
+            />
+          </div>
+          <div className="panel-content-field">
+            <label className="panel-content-label" htmlFor="new-command-content">
+              Texto do comando
+            </label>
+            <textarea
+              id="new-command-content"
+              value={newContent}
+              onChange={(event) => setNewContent(event.target.value)}
+              rows={2}
+              placeholder="Ex.: O que você conseguiu fazer esta semana e está orgulhosa?"
+              required
+            />
+          </div>
           {createError && <p className="auth-error">{createError}</p>}
-          <button type="submit" disabled={creating || !newTitle.trim() || !newContent.trim()}>
-            {creating ? 'Salvando...' : 'Adicionar comando'}
-          </button>
+          <div className="panel-content-form-actions">
+            <button
+              type="submit"
+              className="panel-content-submit"
+              disabled={creating || !newTitle.trim() || !newContent.trim()}
+            >
+              {creating ? 'Salvando...' : 'Adicionar comando'}
+            </button>
+          </div>
         </form>
       )}
 
-      {loading && <p>Carregando comandos...</p>}
+      {loading && <p className="panel-content-muted">Carregando comandos...</p>}
 
       {!loading && error && <p className="auth-error">{error}</p>}
 
@@ -157,12 +177,12 @@ export function EngagementCommandManager({
       )}
 
       {!loading && !error && commands.length > 0 && (
-        <ul className="question-list">
+        <ul className="panel-content-list">
           {commands.map((command) => (
-            <li key={command.id} className="question-item">
+            <li key={command.id} className="panel-content-row">
               {editingId === command.id ? (
                 <form
-                  className="question-edit-form"
+                  className="panel-content-edit"
                   onSubmit={(event) => handleSaveEdit(event, command.id)}
                 >
                   <input
@@ -177,17 +197,17 @@ export function EngagementCommandManager({
                     rows={2}
                     required
                   />
-                  <div className="question-item-actions">
+                  <div className="panel-content-row-actions">
                     <button
                       type="button"
-                      className="auth-link"
+                      className="panel-content-action"
                       onClick={() => setEditingId(null)}
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="question-save-button"
+                      className="panel-content-action panel-content-action--primary"
                       disabled={savingEdit || !editTitle.trim() || !editContent.trim()}
                     >
                       {savingEdit ? 'Salvando...' : 'Salvar'}
@@ -197,30 +217,39 @@ export function EngagementCommandManager({
               ) : (
                 <>
                   <p
-                    className={`question-content${
-                      command.is_active ? '' : ' question-content--inactive'
+                    className={`panel-content-row-title${
+                      command.is_active ? '' : ' panel-content-row-text--inactive'
                     }`}
                   >
-                    <strong>{command.title}</strong> — {command.content}
+                    {command.title}
+                  </p>
+                  <p
+                    className={`panel-content-row-text${
+                      command.is_active ? '' : ' panel-content-row-text--inactive'
+                    }`}
+                  >
+                    {command.content}
                   </p>
 
                   {canManage ? (
-                    <div className="question-item-actions">
+                    <div className="panel-content-row-actions">
                       <button
                         type="button"
+                        className="panel-content-action"
                         onClick={() => startEdit(command.id, command.title, command.content)}
                       >
                         Editar
                       </button>
                       <button
                         type="button"
+                        className="panel-content-action"
                         onClick={() => toggleActive(command.id, !command.is_active)}
                       >
                         {command.is_active ? 'Desativar' : 'Ativar'}
                       </button>
                       <button
                         type="button"
-                        className="question-delete-button"
+                        className="panel-content-action panel-content-action--delete"
                         onClick={() => deleteCommand(command.id)}
                       >
                         Excluir
@@ -228,8 +257,8 @@ export function EngagementCommandManager({
                     </div>
                   ) : (
                     <span
-                      className={`question-status-badge${
-                        command.is_active ? '' : ' question-status-badge--inactive'
+                      className={`panel-content-state${
+                        command.is_active ? '' : ' panel-content-state--inactive'
                       }`}
                     >
                       {command.is_active ? 'Ativo' : 'Inativo'}

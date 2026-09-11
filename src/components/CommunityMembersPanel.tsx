@@ -14,6 +14,10 @@ import type { CommunityMember, CommunityWithMembers } from '../types/community'
 //                 libera todos os status para a dona).
 // Aprovar/rejeitar continua 100% nas RPCs approve/reject_membership_request
 // (via as props onApprove/onReject, iguais às da 16.2.3-C).
+//
+// Redesign editorial: seções planas, sem card dentro de card; véu rosé
+// só na zona de pendências. Nenhum dado, hook, ação, estado ou guard de
+// renderização mudou — só markup/classes.
 
 type MemberFilter = 'todas' | 'ativas' | 'pendentes' | 'bloqueadas'
 
@@ -47,17 +51,17 @@ interface CommunityMembersPanelProps {
 function BlockedMemberCard({ member }: { member: CommunityMember }) {
   const name = member.profile?.full_name ?? 'Participante'
   return (
-    <article className="participant-card">
-      <div className="participant-avatar" aria-hidden="true">
+    <article className="panel-members-row">
+      <div className="panel-members-avatar" aria-hidden="true">
         {member.profile?.avatar_url ? (
           <img src={member.profile.avatar_url} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}
       </div>
-      <div className="participant-body">
-        <p className="participant-name">{name}</p>
-        <p className="participant-since">Entrou em {dateLabel(member.joined_at)}</p>
+      <div className="panel-members-row-body">
+        <p className="panel-members-name">{name}</p>
+        <p className="panel-members-meta">Entrou em {dateLabel(member.joined_at)}</p>
       </div>
       <span className="panel-community-badge panel-community-badge--blocked">Bloqueada</span>
     </article>
@@ -80,14 +84,25 @@ export function CommunityMembersPanel({
   const showBlocked = filter === 'todas' || filter === 'bloqueadas'
 
   return (
-    <div className="community-members-panel">
-      <div className="metrics-period" role="group" aria-label="Filtrar participantes por status">
+    <div className="panel-members">
+      <header className="panel-members-head">
+        <p className="panel-members-eyebrow">Painel · Participantes</p>
+        <p className="panel-members-lede">
+          Quem faz parte da sua comunidade — e quem está esperando para entrar.
+        </p>
+      </header>
+
+      <div
+        className="panel-members-filter"
+        role="group"
+        aria-label="Filtrar participantes por status"
+      >
         {FILTERS.map((option) => (
           <button
             key={option.key}
             type="button"
-            className={`metrics-period-button${
-              filter === option.key ? ' metrics-period-button--active' : ''
+            className={`panel-members-filter-btn${
+              filter === option.key ? ' panel-members-filter-btn--active' : ''
             }`}
             onClick={() => setFilter(option.key)}
           >
@@ -97,40 +112,44 @@ export function CommunityMembersPanel({
       </div>
 
       {showActive && (
-        <div className="community-members-section">
+        <section className="panel-members-section">
           {filter === 'todas' && <p className="section-label">Ativas</p>}
           <ParticipantsPanel communityId={communityId} />
-        </div>
+        </section>
       )}
 
       {showPending && (pending.length > 0 || filter === 'pendentes') && (
-        <div className="community-members-section">
-          <PendingMembershipRequests
-            communityId={community.id}
-            communityName={community.name}
-            members={community.community_members}
-            onApprove={onApprove}
-            onReject={onReject}
-          />
+        <section className="panel-members-section">
+          {pending.length > 0 && (
+            <div className="panel-members-attention">
+              <PendingMembershipRequests
+                communityId={community.id}
+                communityName={community.name}
+                members={community.community_members}
+                onApprove={onApprove}
+                onReject={onReject}
+              />
+            </div>
+          )}
           {filter === 'pendentes' && pending.length === 0 && (
             <EmptyState message="Nenhuma solicitação de entrada pendente." />
           )}
-        </div>
+        </section>
       )}
 
       {showBlocked && (blocked.length > 0 || filter === 'bloqueadas') && (
-        <div className="community-members-section">
+        <section className="panel-members-section">
           <p className="section-label">Bloqueadas ({blocked.length})</p>
           {blocked.length === 0 ? (
             <EmptyState message="Nenhuma participante bloqueada." />
           ) : (
-            <div className="participants-panel">
+            <div className="panel-members-list">
               {blocked.map((member) => (
                 <BlockedMemberCard key={member.id} member={member} />
               ))}
             </div>
           )}
-        </div>
+        </section>
       )}
     </div>
   )

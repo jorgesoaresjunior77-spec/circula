@@ -125,157 +125,205 @@ export function ContentManager({
   }
 
   return (
-    <section className="community-card community-card--quiet content-manager">
-      <h3>Biblioteca da comunidade</h3>
+    <section className="panel-content-block panel-content-library">
+      <div className="panel-content-block-head">
+        <h3 className="panel-content-eyebrow">Biblioteca da comunidade</h3>
+      </div>
 
       {canManage && (
-        <form onSubmit={handleSubmit} className="content-form">
-          <label htmlFor="content-type">Tipo</label>
-          <select
-            id="content-type"
-            value={form.type}
-            onChange={(e) => set('type', e.target.value as ContentType)}
-          >
-            {typeKeys.map((key) => (
-              <option key={key} value={key}>
-                {CONTENT_TYPE_LABEL[key]}
-              </option>
-            ))}
-          </select>
+        <form onSubmit={handleSubmit} className="panel-content-form">
+          <div className="panel-content-form-group">
+            <p className="panel-content-form-group-title">Identificação</p>
 
-          <label htmlFor="content-title">Título</label>
-          <input
-            id="content-title"
-            type="text"
-            value={form.title}
-            onChange={(e) => set('title', e.target.value)}
-            required
-          />
-
-          <label htmlFor="content-summary">Resumo (opcional)</label>
-          <input
-            id="content-summary"
-            type="text"
-            value={form.summary}
-            onChange={(e) => set('summary', e.target.value)}
-          />
-
-          <label htmlFor="content-body">Conteúdo (opcional)</label>
-          <textarea
-            id="content-body"
-            rows={5}
-            value={form.body}
-            onChange={(e) => set('body', e.target.value)}
-          />
-
-          <CoverImageInput
-            id="content-cover"
-            communityId={communityId}
-            uid={profileId}
-            value={form.coverImageUrl}
-            onChange={(url) => set('coverImageUrl', url)}
-          />
-
-          <label htmlFor="content-external">Link externo (vídeo/material, opcional)</label>
-          <input
-            id="content-external"
-            type="url"
-            value={form.externalUrl}
-            onChange={(e) => set('externalUrl', e.target.value)}
-            placeholder="https://..."
-          />
-
-          <div className="event-form-row">
-            <div>
-              <label htmlFor="content-category">Categoria (opcional)</label>
-              <input
-                id="content-category"
-                type="text"
-                value={form.category}
-                onChange={(e) => set('category', e.target.value)}
-                placeholder="Ex.: café da manhã"
-              />
-            </div>
-            <div>
-              <label htmlFor="content-circle">Círculo (opcional)</label>
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="content-type">
+                Tipo
+              </label>
               <select
-                id="content-circle"
-                value={form.circleId}
-                onChange={(e) => set('circleId', e.target.value)}
+                id="content-type"
+                value={form.type}
+                onChange={(e) => set('type', e.target.value as ContentType)}
               >
-                <option value="">Toda a comunidade</option>
-                {circles.map((circle) => (
-                  <option key={circle.id} value={circle.id}>
-                    {circle.name}
+                {typeKeys.map((key) => (
+                  <option key={key} value={key}>
+                    {CONTENT_TYPE_LABEL[key]}
                   </option>
                 ))}
               </select>
             </div>
+
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="content-title">
+                Título
+              </label>
+              <input
+                id="content-title"
+                type="text"
+                value={form.title}
+                onChange={(e) => set('title', e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="panel-content-form-row">
+              <div className="panel-content-field">
+                <label className="panel-content-label" htmlFor="content-category">
+                  Categoria (opcional)
+                </label>
+                <input
+                  id="content-category"
+                  type="text"
+                  value={form.category}
+                  onChange={(e) => set('category', e.target.value)}
+                  placeholder="Ex.: café da manhã"
+                />
+              </div>
+              <div className="panel-content-field">
+                <label className="panel-content-label" htmlFor="content-circle">
+                  Círculo (opcional)
+                </label>
+                <select
+                  id="content-circle"
+                  value={form.circleId}
+                  onChange={(e) => set('circleId', e.target.value)}
+                >
+                  <option value="">Toda a comunidade</option>
+                  {circles.map((circle) => (
+                    <option key={circle.id} value={circle.id}>
+                      {circle.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          <label htmlFor="content-status">Publicação</label>
-          <select
-            id="content-status"
-            value={form.status}
-            onChange={(e) => set('status', e.target.value as ContentStatus)}
-          >
-            <option value="published">Publicado</option>
-            <option value="draft">Rascunho</option>
-            <option value="archived">Arquivado</option>
-          </select>
+          <div className="panel-content-form-group">
+            <p className="panel-content-form-group-title">Conteúdo</p>
+
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="content-summary">
+                Resumo (opcional)
+              </label>
+              <input
+                id="content-summary"
+                type="text"
+                value={form.summary}
+                onChange={(e) => set('summary', e.target.value)}
+              />
+            </div>
+
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="content-body">
+                Conteúdo (opcional)
+              </label>
+              <textarea
+                id="content-body"
+                rows={5}
+                value={form.body}
+                onChange={(e) => set('body', e.target.value)}
+              />
+            </div>
+
+            <CoverImageInput
+              id="content-cover"
+              communityId={communityId}
+              uid={profileId}
+              value={form.coverImageUrl}
+              onChange={(url) => set('coverImageUrl', url)}
+            />
+
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="content-external">
+                Link externo (vídeo/material, opcional)
+              </label>
+              <input
+                id="content-external"
+                type="url"
+                value={form.externalUrl}
+                onChange={(e) => set('externalUrl', e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+
+          <div className="panel-content-form-group">
+            <p className="panel-content-form-group-title">Publicação</p>
+
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="content-status">
+                Status
+              </label>
+              <select
+                id="content-status"
+                value={form.status}
+                onChange={(e) => set('status', e.target.value as ContentStatus)}
+              >
+                <option value="published">Publicado</option>
+                <option value="draft">Rascunho</option>
+                <option value="archived">Arquivado</option>
+              </select>
+            </div>
+          </div>
 
           {formError && <p className="auth-error">{formError}</p>}
 
-          <div className="challenge-item-actions">
+          <div className="panel-content-form-actions">
             {editingId && (
-              <button type="button" className="auth-link" onClick={resetForm}>
+              <button type="button" className="panel-content-action" onClick={resetForm}>
                 Cancelar edição
               </button>
             )}
-            <button type="submit" className="challenge-save-button" disabled={busy}>
+            <button type="submit" className="panel-content-submit" disabled={busy}>
               {busy ? 'Salvando...' : editingId ? 'Salvar conteúdo' : 'Publicar conteúdo'}
             </button>
           </div>
         </form>
       )}
 
-      {loading && <p>Carregando conteúdos...</p>}
+      {loading && <p className="panel-content-muted">Carregando conteúdos...</p>}
       {!loading && error && <p className="auth-error">{error}</p>}
       {!loading && !error && visibleItems.length === 0 && (
         <EmptyState message="Nenhum conteúdo publicado ainda." />
       )}
 
-      {!loading &&
-        !error &&
-        visibleItems.map((item) => (
-          <div key={item.id} className="content-block">
-            <ContentCard
-              item={item}
-              profileId={profileId}
-              circleName={
-                item.circle_id
-                  ? (circles.find((c) => c.id === item.circle_id)?.name ?? null)
-                  : null
-              }
-              canLike={canManage}
-              onToggleLike={(liked) => toggleLike(item.id, profileId, liked)}
-            />
-            {canManage && (
-              <div className="challenge-item-actions">
-                <button type="button" onClick={() => startEdit(item)}>
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  className="challenge-delete-button"
-                  onClick={() => deleteContent(item.id)}
-                >
-                  Excluir
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+      {!loading && !error && visibleItems.length > 0 && (
+        <div className="panel-content-library-list">
+          {visibleItems.map((item) => (
+            <div key={item.id} className="panel-content-library-item">
+              <ContentCard
+                item={item}
+                profileId={profileId}
+                circleName={
+                  item.circle_id
+                    ? (circles.find((c) => c.id === item.circle_id)?.name ?? null)
+                    : null
+                }
+                canLike={canManage}
+                onToggleLike={(liked) => toggleLike(item.id, profileId, liked)}
+              />
+              {canManage && (
+                <div className="panel-content-row-actions">
+                  <button
+                    type="button"
+                    className="panel-content-action"
+                    onClick={() => startEdit(item)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="panel-content-action panel-content-action--delete"
+                    onClick={() => deleteContent(item.id)}
+                  >
+                    Excluir
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

@@ -22,6 +22,11 @@ const REASON_ORDER: PointReason[] = [
  * configuração dos pontos de participação diária, saldo e extrato por
  * participante, e concessão manual (1–1000, nunca para si). A Nutri NUNCA
  * altera/apaga lançamentos — não há UI para isso e a RLS não permite.
+ *
+ * Redesign editorial: blocos planos com classes .panel-points-*, sem
+ * .community-card. Nenhuma lógica (usePointsAdmin, handleSaveConfig,
+ * handleGrant, toggle de saldo) mudou — só markup/classes. `top_earners`
+ * (já presente no summary) continua sem uso visual, por decisão explícita.
  */
 export function PointsPanel({ communityId, profileId }: PointsPanelProps) {
   const {
@@ -101,7 +106,7 @@ export function PointsPanel({ communityId, profileId }: PointsPanelProps) {
   }
 
   if (loading) {
-    return <p className="home-muted">Carregando pontos da comunidade...</p>
+    return <p className="panel-points-muted">Carregando pontos da comunidade...</p>
   }
 
   if (error) {
@@ -109,33 +114,42 @@ export function PointsPanel({ communityId, profileId }: PointsPanelProps) {
   }
 
   return (
-    <div className="points-panel">
-      <section className="community-card community-card--quiet">
-        <h3>Resumo de pontos</h3>
+    <section className="panel-points">
+      <header className="panel-points-head">
+        <p className="panel-points-title">Painel · Pontos</p>
+        <p className="panel-points-intro">
+          Acompanhe a pontuação da comunidade e conceda pontos manualmente.
+        </p>
+      </header>
+
+      <div className="panel-points-block">
+        <h3 className="panel-points-eyebrow">Resumo</h3>
         {summary ? (
           <>
-            <div className="points-widget-figures">
-              <div className="points-balance">
-                <span className="points-balance-value">{summary.total_points_period}</span>
-                <span className="points-balance-label">
+            <div className="panel-points-kpis">
+              <div className="panel-points-kpi">
+                <span className="panel-points-kpi-value">{summary.total_points_period}</span>
+                <span className="panel-points-kpi-label">
                   concedidos em {summary.period_days} dias
                 </span>
               </div>
-              <div className="points-balance points-balance--muted">
-                <span className="points-balance-value">{summary.total_points_all_time}</span>
-                <span className="points-balance-label">total já concedido</span>
+              <div className="panel-points-kpi">
+                <span className="panel-points-kpi-value">{summary.total_points_all_time}</span>
+                <span className="panel-points-kpi-label">total já concedido</span>
               </div>
-              <div className="points-balance points-balance--muted">
-                <span className="points-balance-value">{summary.earners_count}</span>
-                <span className="points-balance-label">participantes com saldo</span>
+              <div className="panel-points-kpi">
+                <span className="panel-points-kpi-value">{summary.earners_count}</span>
+                <span className="panel-points-kpi-label">participantes com saldo</span>
               </div>
             </div>
 
-            <ul className="points-reason-breakdown">
+            <ul className="panel-points-breakdown">
               {REASON_ORDER.map((reason) => (
                 <li key={reason}>
                   <span>{POINT_REASON_LABEL[reason]}</span>
-                  <span className="points-entry-amount">+{summary.by_reason[reason] ?? 0}</span>
+                  <span className="panel-points-breakdown-amount">
+                    +{summary.by_reason[reason] ?? 0}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -143,102 +157,124 @@ export function PointsPanel({ communityId, profileId }: PointsPanelProps) {
         ) : (
           <EmptyState message="Ainda não há pontos nesta comunidade." />
         )}
-      </section>
+      </div>
 
-      <section className="community-card community-card--quiet">
-        <h3>Pontos de participação diária</h3>
-        <p className="challenge-field-hint">
+      <div className="panel-points-block">
+        <h3 className="panel-points-eyebrow">Pontos de participação diária</h3>
+        <p className="panel-points-hint">
           Pontos concedidos quando a participante registra o humor do dia. 0 = desligado.
         </p>
-        <form className="points-config-form" onSubmit={handleSaveConfig}>
-          <label htmlFor="points-recurring">Pontos por dia</label>
-          <input
-            id="points-recurring"
-            type="number"
-            min={0}
-            max={1000}
-            step={1}
-            value={recurringValue}
-            onChange={(event) => setRecurringDraft(event.target.value)}
-          />
-          <button type="submit" disabled={savingConfig}>
-            {savingConfig ? 'Salvando...' : 'Salvar'}
-          </button>
+        <form className="panel-points-config-form" onSubmit={handleSaveConfig}>
+          <div className="panel-points-field">
+            <label className="panel-points-label" htmlFor="points-recurring">
+              Pontos por dia
+            </label>
+            <input
+              id="points-recurring"
+              type="number"
+              min={0}
+              max={1000}
+              step={1}
+              value={recurringValue}
+              onChange={(event) => setRecurringDraft(event.target.value)}
+            />
+          </div>
+          <div className="panel-points-form-actions">
+            <button type="submit" className="panel-points-submit" disabled={savingConfig}>
+              {savingConfig ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
         </form>
-        {configMsg && <p className="points-panel-msg">{configMsg}</p>}
-      </section>
+        {configMsg && <p className="panel-points-msg">{configMsg}</p>}
+      </div>
 
-      <section className="community-card community-card--quiet">
-        <h3>Conceder pontos</h3>
-        <p className="challenge-field-hint">
+      <div className="panel-points-block">
+        <h3 className="panel-points-eyebrow">Conceder pontos</h3>
+        <p className="panel-points-hint">
           De 1 a 1000 pontos por vez. Você não pode conceder pontos para si mesma.
         </p>
-        <form className="points-award-form" onSubmit={handleGrant}>
-          <label htmlFor="points-grant-target">Participante</label>
-          <select
-            id="points-grant-target"
-            value={grantTarget}
-            onChange={(event) => setGrantTarget(event.target.value)}
-          >
-            <option value="">Selecione...</option>
-            {grantableMembers.map((member) => (
-              <option key={member.profile.id} value={member.profile.id}>
-                {member.profile.full_name ?? 'Participante'} · {member.balance} pts
-              </option>
-            ))}
-          </select>
+        <form className="panel-points-form" onSubmit={handleGrant}>
+          <div className="panel-points-field">
+            <label className="panel-points-label" htmlFor="points-grant-target">
+              Participante
+            </label>
+            <select
+              id="points-grant-target"
+              value={grantTarget}
+              onChange={(event) => setGrantTarget(event.target.value)}
+            >
+              <option value="">Selecione...</option>
+              {grantableMembers.map((member) => (
+                <option key={member.profile.id} value={member.profile.id}>
+                  {member.profile.full_name ?? 'Participante'} · {member.balance} pts
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <label htmlFor="points-grant-amount">Quantidade</label>
-          <input
-            id="points-grant-amount"
-            type="number"
-            min={1}
-            max={1000}
-            step={1}
-            value={grantAmount}
-            onChange={(event) => setGrantAmount(event.target.value)}
-          />
+          <div className="panel-points-field">
+            <label className="panel-points-label" htmlFor="points-grant-amount">
+              Quantidade
+            </label>
+            <input
+              id="points-grant-amount"
+              type="number"
+              min={1}
+              max={1000}
+              step={1}
+              value={grantAmount}
+              onChange={(event) => setGrantAmount(event.target.value)}
+            />
+          </div>
 
-          <label htmlFor="points-grant-note">Motivo (opcional)</label>
-          <input
-            id="points-grant-note"
-            type="text"
-            value={grantNote}
-            onChange={(event) => setGrantNote(event.target.value)}
-            placeholder="Ex.: participação especial na roda de conversa."
-          />
+          <div className="panel-points-field">
+            <label className="panel-points-label" htmlFor="points-grant-note">
+              Motivo (opcional)
+            </label>
+            <input
+              id="points-grant-note"
+              type="text"
+              value={grantNote}
+              onChange={(event) => setGrantNote(event.target.value)}
+              placeholder="Ex.: participação especial na roda de conversa."
+            />
+          </div>
 
           {grantError && <p className="auth-error">{grantError}</p>}
-          {grantOk && <p className="points-panel-msg">{grantOk}</p>}
+          {grantOk && <p className="panel-points-msg">{grantOk}</p>}
 
-          <button type="submit" disabled={granting}>
-            {granting ? 'Concedendo...' : 'Conceder pontos'}
-          </button>
+          <div className="panel-points-form-actions">
+            <button type="submit" className="panel-points-submit" disabled={granting}>
+              {granting ? 'Concedendo...' : 'Conceder pontos'}
+            </button>
+          </div>
         </form>
-      </section>
+      </div>
 
-      <section className="community-card community-card--quiet">
-        <h3>Saldo dos participantes</h3>
+      <div className="panel-points-block">
+        <h3 className="panel-points-eyebrow">Saldo dos participantes</h3>
         {memberBalances.length === 0 ? (
           <EmptyState message="Nenhum participante ativo ainda." />
         ) : (
-          <ul className="points-member-list">
+          <div className="panel-points-member-list">
             {memberBalances.map((member) => (
-              <li key={member.profile.id} className="points-member-row">
+              <div key={member.profile.id} className="panel-points-member">
                 <button
                   type="button"
-                  className="points-member-toggle"
+                  className="panel-points-member-toggle"
                   onClick={() =>
                     setOpenMemberId((current) =>
                       current === member.profile.id ? null : member.profile.id,
                     )
                   }
                 >
-                  <span>{member.profile.full_name ?? 'Participante'}</span>
-                  <span className="points-entry-amount">{member.balance} pts</span>
+                  <span className="panel-points-member-name">
+                    {member.profile.full_name ?? 'Participante'}
+                  </span>
+                  <span className="panel-points-member-balance">{member.balance} pts</span>
                 </button>
                 {openMemberId === member.profile.id && (
-                  <div className="points-member-ledger">
+                  <div className="panel-points-member-ledger">
                     <PointsHistory
                       entries={openMemberLedger}
                       communityName={communityName}
@@ -246,21 +282,21 @@ export function PointsPanel({ communityId, profileId }: PointsPanelProps) {
                     />
                   </div>
                 )}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
-      </section>
+      </div>
 
-      <section className="community-card community-card--quiet">
-        <h3>Extrato da comunidade</h3>
+      <div className="panel-points-block">
+        <h3 className="panel-points-eyebrow">Extrato da comunidade</h3>
         <PointsHistory
           entries={ledger}
           communityName={communityName}
           showWho
           emptyMessage="Nenhuma movimentação de pontos ainda."
         />
-      </section>
-    </div>
+      </div>
+    </section>
   )
 }

@@ -116,17 +116,25 @@ export function CheckinManager({
   }
 
   return (
-    <section className="community-card community-card--quiet checkin-manager">
-      <h3>Check-ins da comunidade</h3>
+    <section className="panel-content-block panel-content-checkins">
+      <div className="panel-content-block-head">
+        <h3 className="panel-content-eyebrow">Check-ins da comunidade</h3>
+        {canManage && (
+          <button
+            type="button"
+            className="panel-content-publish"
+            onClick={handlePublish}
+            disabled={publishing || activeCount === 0}
+          >
+            {publishing ? 'Publicando...' : 'Publicar check-in agora'}
+          </button>
+        )}
+      </div>
 
       {canManage && (
         <>
-          <button type="button" onClick={handlePublish} disabled={publishing || activeCount === 0}>
-            {publishing ? 'Publicando...' : 'Publicar check-in agora'}
-          </button>
-
           {activeCount === 0 && !loading && (
-            <p className="question-empty">
+            <p className="panel-content-notice">
               Cadastre pelo menos um check-in ativo para poder publicar.
             </p>
           )}
@@ -137,33 +145,43 @@ export function CheckinManager({
             </p>
           )}
 
-          <form onSubmit={handleCreate} className="question-form">
-            <label htmlFor="new-checkin">Novo check-in</label>
-            <textarea
-              id="new-checkin"
-              value={newContent}
-              onChange={(event) => setNewContent(event.target.value)}
-              rows={2}
-              placeholder="Ex.: Como você está?"
-              required
-            />
+          <form onSubmit={handleCreate} className="panel-content-form">
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="new-checkin">
+                Novo check-in
+              </label>
+              <textarea
+                id="new-checkin"
+                value={newContent}
+                onChange={(event) => setNewContent(event.target.value)}
+                rows={2}
+                placeholder="Ex.: Como você está?"
+                required
+              />
+            </div>
             {createError && <p className="auth-error">{createError}</p>}
-            <button type="submit" disabled={creating || !newContent.trim()}>
-              {creating ? 'Salvando...' : 'Adicionar check-in'}
-            </button>
+            <div className="panel-content-form-actions">
+              <button
+                type="submit"
+                className="panel-content-submit"
+                disabled={creating || !newContent.trim()}
+              >
+                {creating ? 'Salvando...' : 'Adicionar check-in'}
+              </button>
+            </div>
           </form>
 
           {!loading && !error && checkins.length === 0 && (
-            <p className="question-empty">Nenhum check-in cadastrado ainda.</p>
+            <p className="panel-content-notice">Nenhum check-in cadastrado ainda.</p>
           )}
 
           {!loading && !error && checkins.length > 0 && (
-            <ul className="question-list">
+            <ul className="panel-content-list">
               {checkins.map((checkin) => (
-                <li key={checkin.id} className="question-item">
+                <li key={checkin.id} className="panel-content-row">
                   {editingId === checkin.id ? (
                     <form
-                      className="question-edit-form"
+                      className="panel-content-edit"
                       onSubmit={(event) => handleSaveEdit(event, checkin.id)}
                     >
                       <textarea
@@ -172,13 +190,17 @@ export function CheckinManager({
                         rows={2}
                         required
                       />
-                      <div className="question-item-actions">
-                        <button type="button" className="auth-link" onClick={() => setEditingId(null)}>
+                      <div className="panel-content-row-actions">
+                        <button
+                          type="button"
+                          className="panel-content-action"
+                          onClick={() => setEditingId(null)}
+                        >
                           Cancelar
                         </button>
                         <button
                           type="submit"
-                          className="question-save-button"
+                          className="panel-content-action panel-content-action--primary"
                           disabled={savingEdit || !editContent.trim()}
                         >
                           {savingEdit ? 'Salvando...' : 'Salvar'}
@@ -188,25 +210,30 @@ export function CheckinManager({
                   ) : (
                     <>
                       <p
-                        className={`question-content${
-                          checkin.is_active ? '' : ' question-content--inactive'
+                        className={`panel-content-row-text${
+                          checkin.is_active ? '' : ' panel-content-row-text--inactive'
                         }`}
                       >
                         {checkin.content}
                       </p>
-                      <div className="question-item-actions">
-                        <button type="button" onClick={() => startEdit(checkin.id, checkin.content)}>
+                      <div className="panel-content-row-actions">
+                        <button
+                          type="button"
+                          className="panel-content-action"
+                          onClick={() => startEdit(checkin.id, checkin.content)}
+                        >
                           Editar
                         </button>
                         <button
                           type="button"
+                          className="panel-content-action"
                           onClick={() => toggleActive(checkin.id, !checkin.is_active)}
                         >
                           {checkin.is_active ? 'Desativar' : 'Ativar'}
                         </button>
                         <button
                           type="button"
-                          className="question-delete-button"
+                          className="panel-content-action panel-content-action--delete"
                           onClick={() => deleteCheckin(checkin.id)}
                         >
                           Excluir
@@ -221,7 +248,7 @@ export function CheckinManager({
         </>
       )}
 
-      {loading && <p>Carregando check-ins...</p>}
+      {loading && <p className="panel-content-muted">Carregando check-ins...</p>}
 
       {!loading && error && <p className="auth-error">{error}</p>}
 
@@ -229,44 +256,46 @@ export function CheckinManager({
         <EmptyState message="Nenhum check-in publicado ainda." />
       )}
 
-      {!loading &&
-        !error &&
-        instances.map((instance) => {
-          const responses = responsesByInstance[instance.id] ?? []
-          const myResponse = responses.find((response) => response.profile_id === profileId)
+      {!loading && !error && instances.length > 0 && (
+        <div className="panel-content-instances">
+          {instances.map((instance) => {
+            const responses = responsesByInstance[instance.id] ?? []
+            const myResponse = responses.find((response) => response.profile_id === profileId)
 
-          return (
-            <div key={instance.id} className="checkin-block">
-              <p className="checkin-prompt">{instance.content}</p>
+            return (
+              <div key={instance.id} className="panel-content-instance">
+                <p className="panel-content-instance-prompt">{instance.content}</p>
 
-              {canParticipate && (
-                <CheckinResponseForm
-                  myResponse={myResponse}
-                  onRespond={(mood, wantsToShare) =>
-                    respondCheckin(instance.id, profileId, mood, wantsToShare)
-                  }
-                  onShare={handleShare}
-                />
-              )}
+                {canParticipate && (
+                  <CheckinResponseForm
+                    myResponse={myResponse}
+                    onRespond={(mood, wantsToShare) =>
+                      respondCheckin(instance.id, profileId, mood, wantsToShare)
+                    }
+                    onShare={handleShare}
+                  />
+                )}
 
-              {canManage && (
-                <div className="checkin-roster">
-                  {responses.length === 0 ? (
-                    <p className="checkin-empty">Ninguém respondeu ainda.</p>
-                  ) : (
-                    <ul className="checkin-roster-list">
-                      {responses.map((response) => (
-                        <li key={response.id}>
-                          {MOOD_EMOJI[response.mood]} {response.profile?.full_name ?? 'Participante'}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          )
-        })}
+                {canManage && (
+                  <div className="panel-content-roster-wrap">
+                    {responses.length === 0 ? (
+                      <p className="panel-content-roster-empty">Ninguém respondeu ainda.</p>
+                    ) : (
+                      <ul className="panel-content-roster">
+                        {responses.map((response) => (
+                          <li key={response.id}>
+                            {MOOD_EMOJI[response.mood]} {response.profile?.full_name ?? 'Participante'}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }

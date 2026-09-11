@@ -69,110 +69,149 @@ export function CircleManager({
   }
 
   return (
-    <section className="community-card community-card--quiet circle-manager">
-      <h3>Círculos da comunidade</h3>
+    <section className="panel-circles">
+      <header className="panel-circles-head">
+        <p className="panel-circles-title">Painel · Círculos</p>
+        <p className="panel-circles-intro">
+          Pequenos grupos para criar conexões e compartilhar experiências dentro da comunidade.
+        </p>
+      </header>
 
       {canManage && (
-        <form onSubmit={handleCreate} className="circle-form">
-          <label htmlFor="circle-name">Nome do círculo</label>
-          <input
-            id="circle-name"
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Ex.: Mães"
-            required
-          />
+        <div className="panel-circles-block">
+          <h3 className="panel-circles-eyebrow">Criar um círculo</h3>
 
-          <CoverImageInput
-            id="circle-cover"
-            communityId={communityId}
-            uid={profileId}
-            value={coverImageUrl}
-            onChange={setCoverImageUrl}
-          />
+          <form onSubmit={handleCreate} className="panel-circles-form">
+            <div className="panel-circles-field">
+              <label className="panel-circles-label" htmlFor="circle-name">
+                Nome do círculo
+              </label>
+              <input
+                id="circle-name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Ex.: Mães"
+                required
+              />
+            </div>
 
-          {createError && <p className="auth-error">{createError}</p>}
+            <CoverImageInput
+              id="circle-cover"
+              communityId={communityId}
+              uid={profileId}
+              value={coverImageUrl}
+              onChange={setCoverImageUrl}
+            />
 
-          <button type="submit" disabled={creating || !name.trim()}>
-            {creating ? 'Criando...' : 'Criar círculo'}
-          </button>
-        </form>
+            {createError && <p className="auth-error">{createError}</p>}
+
+            <div className="panel-circles-form-actions">
+              <button
+                type="submit"
+                className="panel-circles-submit"
+                disabled={creating || !name.trim()}
+              >
+                {creating ? 'Criando...' : 'Criar círculo'}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
-      {loading && <p>Carregando círculos...</p>}
+      <div className="panel-circles-block">
+        <h3 className="panel-circles-eyebrow">Círculos da comunidade</h3>
 
-      {!loading && error && <p className="auth-error">{error}</p>}
+        {loading && <p className="panel-circles-muted">Carregando círculos...</p>}
 
-      {!loading && !error && circles.length === 0 && (
-        <EmptyState message="Nenhum círculo cadastrado ainda." />
-      )}
+        {!loading && error && <p className="auth-error">{error}</p>}
 
-      {!loading &&
-        !error &&
-        circles.map((circle) => (
-          <div key={circle.id} className="circle-block">
-            {editingId === circle.id ? (
-              <form className="circle-edit-form" onSubmit={(event) => handleSaveEdit(event, circle.id)}>
-                <label htmlFor={`edit-circle-${circle.id}`}>Nome</label>
-                <input
-                  id={`edit-circle-${circle.id}`}
-                  type="text"
-                  value={editName}
-                  onChange={(event) => setEditName(event.target.value)}
-                  required
-                />
-                <CoverImageInput
-                  id={`edit-circle-cover-${circle.id}`}
-                  communityId={communityId}
-                  uid={profileId}
-                  value={editCoverImageUrl}
-                  onChange={setEditCoverImageUrl}
-                />
-                <div className="challenge-item-actions">
-                  <button type="button" className="auth-link" onClick={() => setEditingId(null)}>
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="challenge-save-button"
-                    disabled={savingEdit || !editName.trim()}
+        {!loading && !error && circles.length === 0 && (
+          <EmptyState message="Nenhum círculo cadastrado ainda." />
+        )}
+
+        {!loading && !error && circles.length > 0 && (
+          <div className="panel-circles-list">
+            {circles.map((circle) => (
+              <div key={circle.id} className="panel-circles-item">
+                {editingId === circle.id ? (
+                  <form
+                    className="panel-circles-form panel-circles-edit"
+                    onSubmit={(event) => handleSaveEdit(event, circle.id)}
                   >
-                    {savingEdit ? 'Salvando...' : 'Salvar'}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <>
-                <CircleCard
-                  circle={circle}
-                  isParticipating={circle.members.some((member) => member.profile_id === profileId)}
-                  canParticipate={canParticipate}
-                  onJoin={() => joinCircle(circle.id, profileId)}
-                  onLeave={() => leaveCircle(circle.id, profileId)}
-                />
+                    <div className="panel-circles-field">
+                      <label className="panel-circles-label" htmlFor={`edit-circle-${circle.id}`}>
+                        Nome
+                      </label>
+                      <input
+                        id={`edit-circle-${circle.id}`}
+                        type="text"
+                        value={editName}
+                        onChange={(event) => setEditName(event.target.value)}
+                        required
+                      />
+                    </div>
 
-                {canManage && (
-                  <div className="challenge-item-actions">
-                    <button
-                      type="button"
-                      onClick={() => startEdit(circle.id, circle.name, circle.cover_image_url)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      className="challenge-delete-button"
-                      onClick={() => deleteCircle(circle.id)}
-                    >
-                      Excluir
-                    </button>
-                  </div>
+                    <CoverImageInput
+                      id={`edit-circle-cover-${circle.id}`}
+                      communityId={communityId}
+                      uid={profileId}
+                      value={editCoverImageUrl}
+                      onChange={setEditCoverImageUrl}
+                    />
+
+                    <div className="panel-circles-form-actions">
+                      <button
+                        type="button"
+                        className="panel-circles-action"
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="panel-circles-action panel-circles-action--primary"
+                        disabled={savingEdit || !editName.trim()}
+                      >
+                        {savingEdit ? 'Salvando...' : 'Salvar'}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <CircleCard
+                      circle={circle}
+                      isParticipating={circle.members.some((member) => member.profile_id === profileId)}
+                      canParticipate={canParticipate}
+                      onJoin={() => joinCircle(circle.id, profileId)}
+                      onLeave={() => leaveCircle(circle.id, profileId)}
+                    />
+
+                    {canManage && (
+                      <div className="panel-circles-item-actions">
+                        <button
+                          type="button"
+                          className="panel-circles-action"
+                          onClick={() => startEdit(circle.id, circle.name, circle.cover_image_url)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="panel-circles-action panel-circles-action--delete"
+                          onClick={() => deleteCircle(circle.id)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+      </div>
     </section>
   )
 }

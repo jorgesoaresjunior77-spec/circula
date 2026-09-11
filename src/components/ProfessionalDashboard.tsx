@@ -40,6 +40,10 @@ function createdLabel(iso: string): string {
  * dados reais (RPCs community_metrics / points_community_summary +
  * consultas que a RLS já libera para a dona) e a linha de `communities`
  * que o Dashboard já carregou (nenhuma RPC nova, nenhuma alteração de RLS).
+ *
+ * Apresentação editorial (redesign "Visão geral"): seções planas, muito
+ * respiro, sem card dentro de card. Nenhum dado, hook, ação ou destino
+ * mudou — só o markup/classes.
  */
 export function ProfessionalDashboard({
   community,
@@ -118,18 +122,24 @@ export function ProfessionalDashboard({
   }
 
   return (
-    <div className="panel-dashboard">
-      {/* 16.2.3-F — "Precisa de atenção": pendências acionáveis agregadas.
-          16.2.3-H (C2) — movido para o topo da Visão geral; conteúdo e
-          lógica inalterados. */}
-      <section className="community-card community-card--quiet panel-dashboard-block">
-        <div className="panel-dashboard-block-head">
-          <h4>Precisa de atenção</h4>
-        </div>
-        {attention.length === 0 ? (
-          <p className="panel-dashboard-line">Tudo em dia.</p>
-        ) : (
-          <ul className="panel-dashboard-list">
+    <div className="panel-overview">
+      {/* 1 — Cabeçalho da aba */}
+      <header className="panel-overview-head">
+        <p className="panel-overview-eyebrow">Painel · Visão geral</p>
+        <p className="panel-overview-lede">
+          Um resumo do que está acontecendo na sua comunidade.
+        </p>
+      </header>
+
+      {/* 2 — Precisa de atenção (16.2.3-F / 16.2.3-H C2): pendências
+          acionáveis agregadas. Único ponto com véu rosé quando há algo;
+          estado calmo e discreto quando não há. */}
+      {attention.length === 0 ? (
+        <p className="panel-overview-calm">Tudo em dia.</p>
+      ) : (
+        <section className="panel-overview-attention" aria-label="Precisa de atenção">
+          <p className="panel-overview-eyebrow">Precisa de atenção</p>
+          <ul className="panel-overview-attention-list">
             {attention.map((item) => (
               <li key={item.key}>
                 <span className="panel-dashboard-clip">{item.text}</span>
@@ -143,267 +153,271 @@ export function ProfessionalDashboard({
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
 
-      {/* 16.2.3-A — Informações da comunidade */}
-      <section className="community-card community-card--quiet panel-community-info">
-        <div className="panel-dashboard-block-head">
-          <h4>Informações da comunidade</h4>
-          <button
-            type="button"
-            className="auth-link"
-            onClick={() => setEditingInfo((open) => !open)}
-          >
-            {editingInfo ? 'Fechar' : 'Editar'}
-          </button>
+      {/* 3 — Informações da comunidade (16.2.3-A) */}
+      <section className="panel-overview-identity" aria-label="Informações da comunidade">
+        <div className="panel-overview-cover" aria-hidden="true">
+          {coverUrl ? (
+            <img src={coverUrl} alt="" />
+          ) : (
+            <span className="panel-overview-cover-fallback" />
+          )}
         </div>
 
-        <div className="panel-community-info-main">
-          <div className="panel-community-cover" aria-hidden="true">
-            {coverUrl ? (
-              <img src={coverUrl} alt="" />
-            ) : (
-              <span className="panel-community-cover-fallback" />
-            )}
-          </div>
-          <div className="panel-community-identity">
-            <h4>{community.name}</h4>
-            {community.description ? (
-              <p className="panel-community-description">{community.description}</p>
-            ) : (
-              <p className="panel-dashboard-muted">Sem descrição.</p>
-            )}
-            <p className="panel-community-path" title={publicPath}>
-              {publicPath}
-            </p>
-          </div>
-        </div>
-
-        {/* 16.2.3-H (C1) — contadores de membros (Total/Pendentes/Bloqueados)
-            saíram daqui: já aparecem no grupo de KPI "Membros" logo abaixo. */}
-        <ul className="panel-community-facts">
-          <li>
-            <span>Descoberta</span>
-            <span
-              className={`panel-community-badge${
-                community.is_discoverable ? ' panel-community-badge--open' : ''
-              }`}
+        <div className="panel-overview-identity-body">
+          <div className="panel-overview-identity-head">
+            <h4 className="panel-overview-name">{community.name}</h4>
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => setEditingInfo((open) => !open)}
             >
-              {community.is_discoverable ? 'Aberta' : 'Fechada'}
+              {editingInfo ? 'Fechar' : 'Editar'}
+            </button>
+          </div>
+
+          {community.description ? (
+            <p className="panel-overview-description">{community.description}</p>
+          ) : (
+            <p className="panel-overview-none">Sem descrição.</p>
+          )}
+
+          <p className="panel-overview-path" title={publicPath}>
+            {publicPath}
+          </p>
+
+          {/* 16.2.3-H (C1) — contadores de membros saíram daqui: aparecem
+              no grupo de KPI "Membros" logo abaixo. */}
+          <div className="panel-overview-facts">
+            <span className="panel-overview-fact">
+              Descoberta
+              <span
+                className={`panel-community-badge${
+                  community.is_discoverable ? ' panel-community-badge--open' : ''
+                }`}
+              >
+                {community.is_discoverable ? 'Aberta' : 'Fechada'}
+              </span>
             </span>
-          </li>
-          <li>
-            <span>Criada em</span>
-            <span>{createdLabel(community.created_at)}</span>
-          </li>
-        </ul>
+            <span className="panel-overview-fact">Criada em {createdLabel(community.created_at)}</span>
+          </div>
 
-        {editingInfo && (
-          <CommunityInfoEditor
-            community={community}
-            profileId={profileId}
-            onSave={(patch) => onUpdateCommunity(community.id, patch)}
-            onClose={() => setEditingInfo(false)}
-          />
-        )}
+          {editingInfo && (
+            <div className="panel-overview-editor">
+              <CommunityInfoEditor
+                community={community}
+                profileId={profileId}
+                onSave={(patch) => onUpdateCommunity(community.id, patch)}
+                onClose={() => setEditingInfo(false)}
+              />
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* 16.2.3-B — KPIs de membros, separados dos de atividade */}
-      <div className="panel-dashboard-kpi-group">
-        <p className="metrics-section-title">Membros</p>
-        <div className="panel-dashboard-kpis">
-          {memberKpis.map((kpi) => (
-            <button
-              key={kpi.label}
-              type="button"
-              className="metric-tile panel-dashboard-kpi"
-              onClick={() => onOpenTab(kpi.tab)}
-            >
-              <p className="metric-tile-value">{kpi.value}</p>
-              <p className="metric-tile-label">{kpi.label}</p>
-            </button>
-          ))}
+      {/* 4 — Panorama: KPIs de Membros e de Atividade (16.2.3-B).
+          Continuam botões; cada um pula para a aba certa via onOpenTab. */}
+      <section className="panel-overview-numbers" aria-label="Panorama da comunidade">
+        <div className="panel-overview-number-group">
+          <p className="panel-overview-eyebrow">Membros</p>
+          <div className="panel-overview-kpis">
+            {memberKpis.map((kpi) => (
+              <button
+                key={kpi.label}
+                type="button"
+                className="panel-overview-kpi"
+                onClick={() => onOpenTab(kpi.tab)}
+              >
+                <span className="panel-overview-kpi-value">{kpi.value}</span>
+                <span className="panel-overview-kpi-label">{kpi.label}</span>
+              </button>
+            ))}
+          </div>
+          <p className="panel-overview-hint">
+            Ativas (30 d) = participantes com pelo menos uma ação (publicação, comentário, reação,
+            check-in, desafio ou círculo) nos últimos 30 dias. Novas (30 d) = entraram nos últimos 30
+            dias.
+          </p>
         </div>
-        <p className="metrics-hint">
-          Ativas (30 d) = participantes com pelo menos uma ação (publicação, comentário, reação,
-          check-in, desafio ou círculo) nos últimos 30 dias. Novas (30 d) = entraram nos últimos 30
-          dias.
-        </p>
-      </div>
 
-      <div className="panel-dashboard-kpi-group">
-        <p className="metrics-section-title">Atividade (30 d)</p>
-        <div className="panel-dashboard-kpis">
-          {activityKpis.map((kpi) => (
-            <button
-              key={kpi.label}
-              type="button"
-              className="metric-tile panel-dashboard-kpi"
-              onClick={() => onOpenTab(kpi.tab)}
-            >
-              <p className="metric-tile-value">{kpi.value}</p>
-              <p className="metric-tile-label">{kpi.label}</p>
-            </button>
-          ))}
+        <div className="panel-overview-number-group">
+          <p className="panel-overview-eyebrow">Atividade (30 d)</p>
+          <div className="panel-overview-kpis">
+            {activityKpis.map((kpi) => (
+              <button
+                key={kpi.label}
+                type="button"
+                className="panel-overview-kpi"
+                onClick={() => onOpenTab(kpi.tab)}
+              >
+                <span className="panel-overview-kpi-value">{kpi.value}</span>
+                <span className="panel-overview-kpi-label">{kpi.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* 16.2.3-E — timeline "Atividade recente": novas participantes,
-          desafios criados e conteúdos publicados, ordenados por data. */}
-      <section className="community-card community-card--quiet panel-dashboard-block">
-        <div className="panel-dashboard-block-head">
-          <h4>Atividade recente</h4>
-        </div>
+      {/* 5 — Atividade recente (16.2.3-E): timeline plana, sem card. */}
+      <section className="panel-overview-timeline-wrap" aria-label="Atividade recente">
+        <p className="panel-overview-eyebrow">Atividade recente</p>
         {data.recent_activity.length === 0 ? (
-          <p className="panel-dashboard-line">Nada de novo por aqui ainda.</p>
+          <p className="panel-overview-line">Nada de novo por aqui ainda.</p>
         ) : (
-          <ul className="panel-dashboard-list">
+          <ul className="panel-overview-timeline">
             {data.recent_activity.map((item) => (
               <li key={item.id}>
                 <span className="panel-dashboard-clip">
                   {item.actor_name ? `${item.actor_name} ` : ''}
                   {item.summary}
                 </span>
-                <span className="panel-dashboard-muted">{formatRelativeTime(item.at)}</span>
+                <span className="panel-overview-aside">{formatRelativeTime(item.at)}</span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <div className="panel-dashboard-grid">
-        {/* 16.2.3-C — nudge compacto: a fila completa (aprovar/rejeitar)
-            fica na aba Participantes; aqui só a contagem + atalho. */}
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
-            <h4>Solicitações pendentes</h4>
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => onOpenTab('participantes')}
-            >
-              Revisar
-            </button>
+      {/* 6 — Explorar: os 6 atalhos numa grade leve, separados por espaço
+          em branco (sem caixas, sem sombras, sem border-top). Todos os
+          links e destinos são os mesmos. */}
+      <section className="panel-overview-explore" aria-label="Explorar">
+        <p className="panel-overview-eyebrow">Explorar</p>
+        <div className="panel-overview-explore-grid">
+          <div className="panel-overview-note">
+            <div className="panel-overview-note-head">
+              <h4 className="panel-overview-note-title">Solicitações pendentes</h4>
+              <button
+                type="button"
+                className="auth-link"
+                onClick={() => onOpenTab('participantes')}
+              >
+                Revisar
+              </button>
+            </div>
+            <p className="panel-overview-line">
+              {membersPending === 0
+                ? 'Nenhuma solicitação de entrada aguardando.'
+                : `${membersPending} solicitação(ões) aguardando sua aprovação.`}
+            </p>
           </div>
-          <p className="panel-dashboard-line">
-            {membersPending === 0
-              ? 'Nenhuma solicitação de entrada aguardando.'
-              : `${membersPending} solicitação(ões) aguardando sua aprovação.`}
-          </p>
-        </section>
 
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
-            <h4>Pedidos de ajuda</h4>
-            <button type="button" className="auth-link" onClick={() => onOpenTab('ajuda')}>
-              Abrir
-            </button>
+          <div className="panel-overview-note">
+            <div className="panel-overview-note-head">
+              <h4 className="panel-overview-note-title">Pedidos de ajuda</h4>
+              <button type="button" className="auth-link" onClick={() => onOpenTab('ajuda')}>
+                Abrir
+              </button>
+            </div>
+            <p className="panel-overview-line">
+              {data.help_pending === 0
+                ? 'Nenhum pedido pendente.'
+                : `${data.help_pending} pedido(s) aguardando resposta.`}
+            </p>
           </div>
-          <p className="panel-dashboard-line">
-            {data.help_pending === 0
-              ? 'Nenhum pedido pendente.'
-              : `${data.help_pending} pedido(s) aguardando resposta.`}
-          </p>
-        </section>
 
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
-            <h4>Próximos eventos</h4>
-            <button type="button" className="auth-link" onClick={() => onOpenTab('eventos')}>
-              Abrir
-            </button>
+          <div className="panel-overview-note">
+            <div className="panel-overview-note-head">
+              <h4 className="panel-overview-note-title">Próximos eventos</h4>
+              <button type="button" className="auth-link" onClick={() => onOpenTab('eventos')}>
+                Abrir
+              </button>
+            </div>
+            {data.upcoming_events.length === 0 ? (
+              <p className="panel-overview-line">Nenhum evento agendado.</p>
+            ) : (
+              <ul className="panel-overview-note-list">
+                {data.upcoming_events.map((event) => (
+                  <li key={event.id}>
+                    <span className="panel-dashboard-clip">{event.title}</span>
+                    <span className="panel-overview-aside">{formatEventDate(event.starts_at)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          {data.upcoming_events.length === 0 ? (
-            <p className="panel-dashboard-line">Nenhum evento agendado.</p>
-          ) : (
-            <ul className="panel-dashboard-list">
-              {data.upcoming_events.map((event) => (
-                <li key={event.id}>
-                  <span>{event.title}</span>
-                  <span className="panel-dashboard-muted">{formatEventDate(event.starts_at)}</span>
-                </li>
-              ))}
+
+          <div className="panel-overview-note">
+            <div className="panel-overview-note-head">
+              <h4 className="panel-overview-note-title">Publicações recentes</h4>
+              <button type="button" className="auth-link" onClick={() => onOpenTab('publicacoes')}>
+                Abrir
+              </button>
+            </div>
+            {data.recent_posts.length === 0 ? (
+              <p className="panel-overview-line">Nenhuma publicação recente.</p>
+            ) : (
+              <ul className="panel-overview-note-list">
+                {data.recent_posts.map((post) => (
+                  <li key={post.id}>
+                    <span className="panel-dashboard-clip">
+                      {post.author_name ? `${post.author_name}: ` : ''}
+                      {post.content}
+                    </span>
+                    <span className="panel-overview-aside">
+                      {formatRelativeTime(post.created_at)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="panel-overview-note">
+            <div className="panel-overview-note-head">
+              <h4 className="panel-overview-note-title">Pontos</h4>
+              <button type="button" className="auth-link" onClick={() => onOpenTab('pontos')}>
+                Abrir
+              </button>
+            </div>
+            <p className="panel-overview-line">
+              {data.points_period} pontos concedidos nos últimos 30 dias ({data.points_all_time} no
+              total).
+            </p>
+            {data.top_earners.length > 0 && (
+              <ul className="panel-overview-note-list">
+                {data.top_earners.map((earner) => (
+                  <li key={earner.profile_id}>
+                    <span className="panel-dashboard-clip">
+                      {earner.full_name ?? 'Participante'}
+                    </span>
+                    <span className="panel-overview-aside">{earner.balance} pts</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="panel-overview-note">
+            <div className="panel-overview-note-head">
+              <h4 className="panel-overview-note-title">Engajamento (30 dias)</h4>
+              <button type="button" className="auth-link" onClick={() => onOpenTab('metricas')}>
+                Ver métricas
+              </button>
+            </div>
+            <ul className="panel-overview-note-list">
+              <li>
+                <span>Publicações</span>
+                <span className="panel-overview-aside">{data.posts_count}</span>
+              </li>
+              <li>
+                <span>Comentários</span>
+                <span className="panel-overview-aside">{data.comments_count}</span>
+              </li>
+              <li>
+                <span>Reações</span>
+                <span className="panel-overview-aside">{data.reactions_count}</span>
+              </li>
+              <li>
+                <span>Participantes inativas</span>
+                <span className="panel-overview-aside">{data.members_inactive}</span>
+              </li>
             </ul>
-          )}
-        </section>
-
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
-            <h4>Publicações recentes</h4>
-            <button type="button" className="auth-link" onClick={() => onOpenTab('publicacoes')}>
-              Abrir
-            </button>
           </div>
-          {data.recent_posts.length === 0 ? (
-            <p className="panel-dashboard-line">Nenhuma publicação recente.</p>
-          ) : (
-            <ul className="panel-dashboard-list">
-              {data.recent_posts.map((post) => (
-                <li key={post.id}>
-                  <span className="panel-dashboard-clip">
-                    {post.author_name ? `${post.author_name}: ` : ''}
-                    {post.content}
-                  </span>
-                  <span className="panel-dashboard-muted">
-                    {formatRelativeTime(post.created_at)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
-            <h4>Pontos</h4>
-            <button type="button" className="auth-link" onClick={() => onOpenTab('pontos')}>
-              Abrir
-            </button>
-          </div>
-          <p className="panel-dashboard-line">
-            {data.points_period} pontos concedidos nos últimos 30 dias ({data.points_all_time} no
-            total).
-          </p>
-          {data.top_earners.length > 0 && (
-            <ul className="panel-dashboard-list">
-              {data.top_earners.map((earner) => (
-                <li key={earner.profile_id}>
-                  <span>{earner.full_name ?? 'Participante'}</span>
-                  <span className="panel-dashboard-muted">{earner.balance} pts</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="community-card community-card--quiet panel-dashboard-block">
-          <div className="panel-dashboard-block-head">
-            <h4>Engajamento (30 dias)</h4>
-            <button type="button" className="auth-link" onClick={() => onOpenTab('metricas')}>
-              Ver métricas
-            </button>
-          </div>
-          <ul className="panel-dashboard-list">
-            <li>
-              <span>Publicações</span>
-              <span className="panel-dashboard-muted">{data.posts_count}</span>
-            </li>
-            <li>
-              <span>Comentários</span>
-              <span className="panel-dashboard-muted">{data.comments_count}</span>
-            </li>
-            <li>
-              <span>Reações</span>
-              <span className="panel-dashboard-muted">{data.reactions_count}</span>
-            </li>
-            <li>
-              <span>Participantes inativas</span>
-              <span className="panel-dashboard-muted">{data.members_inactive}</span>
-            </li>
-          </ul>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   )
 }

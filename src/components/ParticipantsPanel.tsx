@@ -23,32 +23,40 @@ function activityLabel(iso: string | null): string {
   return `sem atividade há ${Math.floor(diffDays / 30)} mês(es)`
 }
 
-function ParticipantCard({ participant }: { participant: ParticipantOverview }) {
+/**
+ * Linha editorial plana (redesign): avatar circular + nome com hierarquia
+ * (Mitr), metadados discretos (Jost) e pontos/desafios/dias em linha, com
+ * os números em Mitr. Sem caixa, sem borda, sem sombra. Nenhum dado mudou.
+ */
+function ParticipantRow({ participant }: { participant: ParticipantOverview }) {
   const name = participant.full_name ?? 'Participante'
   return (
-    <article className="participant-card">
-      <div className="participant-avatar" aria-hidden="true">
+    <article className="panel-members-row">
+      <div className="panel-members-avatar" aria-hidden="true">
         {participant.avatar_url ? (
           <img src={participant.avatar_url} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}
       </div>
-      <div className="participant-body">
-        <p className="participant-name">{name}</p>
-        <p className="participant-since">Participa desde {joinedLabel(participant.joined_at)}</p>
-        <p className="participant-activity">{activityLabel(participant.last_activity_at)}</p>
-      </div>
-      <div className="participant-figures">
-        <span className="participant-figure">
-          <strong>{participant.balance}</strong> pontos
-        </span>
-        <span className="participant-figure">
-          <strong>{participant.challenges_completed}</strong> desafio(s)
-        </span>
-        <span className="participant-figure">
-          <strong>{participant.challenge_days_done}</strong> dia(s)
-        </span>
+      <div className="panel-members-row-body">
+        <p className="panel-members-name">{name}</p>
+        <p className="panel-members-meta">
+          Participa desde {joinedLabel(participant.joined_at)} ·{' '}
+          {activityLabel(participant.last_activity_at)}
+        </p>
+        <p className="panel-members-figures">
+          <span>
+            <span className="panel-members-figure-num">{participant.balance}</span> pontos
+          </span>
+          <span>
+            <span className="panel-members-figure-num">{participant.challenges_completed}</span>{' '}
+            desafios
+          </span>
+          <span>
+            <span className="panel-members-figure-num">{participant.challenge_days_done}</span> dias
+          </span>
+        </p>
       </div>
     </article>
   )
@@ -71,15 +79,17 @@ export function ParticipantsPanel({ communityId }: ParticipantsPanelProps) {
   }
 
   return (
-    <div className="participants-panel">
-      <p className="challenge-field-hint">
+    <div className="panel-members-active">
+      <p className="panel-members-hint">
         {participants.length} participante{participants.length === 1 ? '' : 's'} ativa
         {participants.length === 1 ? '' : 's'}. O humor individual não é exibido — apenas os números
         agregados aparecem em Métricas.
       </p>
-      {participants.map((participant) => (
-        <ParticipantCard key={participant.profile_id} participant={participant} />
-      ))}
+      <div className="panel-members-list">
+        {participants.map((participant) => (
+          <ParticipantRow key={participant.profile_id} participant={participant} />
+        ))}
+      </div>
     </div>
   )
 }

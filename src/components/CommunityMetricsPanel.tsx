@@ -15,6 +15,16 @@ const PERIOD_OPTIONS: { label: string; value: MetricsPeriodDays }[] = [
   { label: '30 dias', value: 30 },
 ]
 
+/**
+ * Aba "Métricas" do painel da Nutri. Somente leitura — 4 blocos agregados
+ * (Membros, Engajamento, Áreas da comunidade, Como a comunidade está).
+ *
+ * Redesign editorial: classes .panel-metrics-*, sem .metric-tile/.metrics-*
+ * (essas classes são compartilhadas com RevenuePanel e os painéis do
+ * Master — não tocadas). Nenhuma lógica (useCommunityMetrics,
+ * useCommunityMoodOverview, useCommunityExtraMetrics, periodDays) mudou —
+ * só markup/classes.
+ */
 export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProps) {
   const [periodDays, setPeriodDays] = useState<MetricsPeriodDays>(30)
   const { metrics, loading, error } = useCommunityMetrics(communityId, periodDays)
@@ -26,149 +36,169 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
   const { metrics: extra, loading: extraLoading } = useCommunityExtraMetrics(communityId, periodDays)
 
   return (
-    <div className="metrics-panel">
-      {loading && <p>Carregando métricas...</p>}
+    <section className="panel-metrics">
+      <header className="panel-metrics-head">
+        <p className="panel-metrics-title">Painel · Métricas</p>
+        <p className="panel-metrics-intro">
+          Um retrato de como sua comunidade está — sempre um pouco atrás do tempo real, nunca ao
+          vivo.
+        </p>
+      </header>
+
+      {loading && <p className="panel-metrics-muted">Carregando métricas...</p>}
 
       {!loading && error && <p className="auth-error">{error}</p>}
 
       {!loading && !error && metrics && (
         <>
-          <div className="metrics-stats">
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.total_members}</p>
-              <p className="metric-tile-label">Total de Members</p>
+          <div className="panel-metrics-block">
+            <h3 className="panel-metrics-eyebrow">Membros</h3>
+
+            <div className="panel-metrics-primary">
+              <div className="panel-metrics-primary-item">
+                <span className="panel-metrics-primary-value">{metrics.total_members}</span>
+                <span className="panel-metrics-primary-label">Total de membros</span>
+              </div>
+              <div className="panel-metrics-primary-item">
+                <span className="panel-metrics-primary-value">{metrics.active_members}</span>
+                <span className="panel-metrics-primary-label">Ativas</span>
+              </div>
+              <div className="panel-metrics-primary-item">
+                <span className="panel-metrics-primary-value">{metrics.inactive_members}</span>
+                <span className="panel-metrics-primary-label">Inativas</span>
+              </div>
+              <div className="panel-metrics-primary-item">
+                <span className="panel-metrics-primary-value">{metrics.new_members}</span>
+                <span className="panel-metrics-primary-label">Novas</span>
+              </div>
             </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.active_members}</p>
-              <p className="metric-tile-label">Ativas</p>
+
+            <p className="panel-metrics-hint">
+              Ativa = pelo menos uma ação (post, comentário, reação, resposta de check-in, progresso
+              de desafio ou entrada em círculo) nos últimos 30 dias, independente do período abaixo.
+            </p>
+          </div>
+
+          <div className="panel-metrics-block">
+            <div className="panel-metrics-block-head">
+              <h3 className="panel-metrics-eyebrow">Engajamento</h3>
+              <div className="panel-metrics-period">
+                {PERIOD_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`panel-metrics-period-button${
+                      periodDays === option.value ? ' panel-metrics-period-button--active' : ''
+                    }`}
+                    onClick={() => setPeriodDays(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.inactive_members}</p>
-              <p className="metric-tile-label">Inativas</p>
-            </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.new_members}</p>
-              <p className="metric-tile-label">Novas</p>
+
+            <div className="panel-metrics-grid">
+              <div className="panel-metrics-item">
+                <span className="panel-metrics-value">{metrics.posts_count}</span>
+                <span className="panel-metrics-label">Posts</span>
+              </div>
+              <div className="panel-metrics-item">
+                <span className="panel-metrics-value">{metrics.comments_count}</span>
+                <span className="panel-metrics-label">Comentários</span>
+              </div>
+              <div className="panel-metrics-item">
+                <span className="panel-metrics-value">{metrics.reactions_count}</span>
+                <span className="panel-metrics-label">Reações</span>
+              </div>
+              <div className="panel-metrics-item">
+                <span className="panel-metrics-value">{metrics.challenge_progress_count}</span>
+                <span className="panel-metrics-label">Desafios</span>
+              </div>
+              <div className="panel-metrics-item">
+                <span className="panel-metrics-value">{metrics.checkin_responses_count}</span>
+                <span className="panel-metrics-label">Check-ins</span>
+              </div>
+              <div className="panel-metrics-item">
+                <span className="panel-metrics-value">{metrics.circle_joins_count}</span>
+                <span className="panel-metrics-label">Círculos</span>
+              </div>
             </div>
           </div>
 
-          <p className="metrics-hint">
-            Ativa = pelo menos uma ação (post, comentário, reação, resposta de check-in, progresso
-            de desafio ou entrada em círculo) nos últimos 30 dias, independente do período abaixo.
-          </p>
+          <div className="panel-metrics-block">
+            <h3 className="panel-metrics-eyebrow">Áreas da comunidade</h3>
 
-          <p className="metrics-section-title">Engajamento</p>
-
-          <div className="metrics-period">
-            {PERIOD_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`metrics-period-button${
-                  periodDays === option.value ? ' metrics-period-button--active' : ''
-                }`}
-                onClick={() => setPeriodDays(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="metrics-stats">
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.posts_count}</p>
-              <p className="metric-tile-label">Posts</p>
-            </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.comments_count}</p>
-              <p className="metric-tile-label">Comentários</p>
-            </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.reactions_count}</p>
-              <p className="metric-tile-label">Reações</p>
-            </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.challenge_progress_count}</p>
-              <p className="metric-tile-label">Desafios</p>
-            </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.checkin_responses_count}</p>
-              <p className="metric-tile-label">Check-ins</p>
-            </div>
-            <div className="metric-tile">
-              <p className="metric-tile-value">{metrics.circle_joins_count}</p>
-              <p className="metric-tile-label">Círculos</p>
-            </div>
-          </div>
-
-          <p className="metrics-section-title">Áreas da comunidade</p>
-          {extraLoading ? (
-            <p className="metrics-hint">Carregando…</p>
-          ) : (
-            <div className="metrics-stats">
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.events_upcoming}</p>
-                <p className="metric-tile-label">Próximos eventos</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.events_total_period}</p>
-                <p className="metric-tile-label">Eventos criados</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.content_published}</p>
-                <p className="metric-tile-label">Conteúdos publicados</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.challenge_completions_period}</p>
-                <p className="metric-tile-label">Desafios concluídos</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.joy_moments_period}</p>
-                <p className="metric-tile-label">Momentos de alegria</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.points_period}</p>
-                <p className="metric-tile-label">Pontos no período</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">
-                  {extra.help_open + extra.help_in_progress}
-                </p>
-                <p className="metric-tile-label">Ajuda pendente</p>
-              </div>
-              <div className="metric-tile">
-                <p className="metric-tile-value">{extra.help_resolved}</p>
-                <p className="metric-tile-label">Ajuda respondida</p>
-              </div>
-            </div>
-          )}
-
-          <p className="metrics-section-title">Como a comunidade está</p>
-          <p className="metrics-hint">
-            Registros de "Como você está hoje?" no período, somados por humor. Números agregados —
-            sem identificar quem respondeu o quê.
-          </p>
-
-          {moodLoading && <p>Carregando humor da comunidade…</p>}
-          {!moodLoading && moodError && <p className="auth-error">{moodError}</p>}
-          {!moodLoading && !moodError && (
-            <div className="metrics-stats mood-metrics">
-              {MOOD_ORDER.map((m) => (
-                <div key={m} className="metric-tile mood-metric-tile">
-                  <p className="mood-metric-face" aria-hidden="true">
-                    {MOOD_META[m].emoji}
-                  </p>
-                  <p className="metric-tile-value">{mood.byMood[m]}</p>
-                  <p className="metric-tile-label">{MOOD_META[m].label}</p>
+            {extraLoading ? (
+              <p className="panel-metrics-muted">Carregando…</p>
+            ) : (
+              <div className="panel-metrics-grid">
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.events_upcoming}</span>
+                  <span className="panel-metrics-label">Próximos eventos</span>
                 </div>
-              ))}
-            </div>
-          )}
-          {!moodLoading && !moodError && mood.total === 0 && (
-            <p className="metrics-hint">Nenhum registro de humor no período selecionado.</p>
-          )}
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.events_total_period}</span>
+                  <span className="panel-metrics-label">Eventos criados</span>
+                </div>
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.content_published}</span>
+                  <span className="panel-metrics-label">Conteúdos publicados</span>
+                </div>
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.challenge_completions_period}</span>
+                  <span className="panel-metrics-label">Desafios concluídos</span>
+                </div>
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.joy_moments_period}</span>
+                  <span className="panel-metrics-label">Momentos de alegria</span>
+                </div>
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.points_period}</span>
+                  <span className="panel-metrics-label">Pontos no período</span>
+                </div>
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">
+                    {extra.help_open + extra.help_in_progress}
+                  </span>
+                  <span className="panel-metrics-label">Ajuda pendente</span>
+                </div>
+                <div className="panel-metrics-item">
+                  <span className="panel-metrics-value">{extra.help_resolved}</span>
+                  <span className="panel-metrics-label">Ajuda respondida</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="panel-metrics-block">
+            <h3 className="panel-metrics-eyebrow">Como a comunidade está</h3>
+            <p className="panel-metrics-hint">
+              Registros de "Como você está hoje?" no período, somados por humor. Números agregados —
+              sem identificar quem respondeu o quê.
+            </p>
+
+            {moodLoading && <p className="panel-metrics-muted">Carregando humor da comunidade…</p>}
+            {!moodLoading && moodError && <p className="auth-error">{moodError}</p>}
+            {!moodLoading && !moodError && (
+              <div className="panel-metrics-grid panel-metrics-mood-grid">
+                {MOOD_ORDER.map((m) => (
+                  <div key={m} className="panel-metrics-item panel-metrics-mood-item">
+                    <span className="panel-metrics-mood-face" aria-hidden="true">
+                      {MOOD_META[m].emoji}
+                    </span>
+                    <span className="panel-metrics-value">{mood.byMood[m]}</span>
+                    <span className="panel-metrics-label">{MOOD_META[m].label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!moodLoading && !moodError && mood.total === 0 && (
+              <p className="panel-metrics-hint">Nenhum registro de humor no período selecionado.</p>
+            )}
+          </div>
         </>
       )}
-    </div>
+    </section>
   )
 }

@@ -30,6 +30,10 @@ function requestedLabel(iso: string): string {
  * (via useCommunity), que são as únicas a decidir se a chamadora pode.
  * Um erro delas (ex.: comunidade errada) só aparece como mensagem — a
  * segurança real está inteiramente no banco.
+ *
+ * Redesign editorial: cada solicitação vira uma linha plana; o bloco é
+ * embrulhado no véu rosé pelo componente pai (CommunityMembersPanel).
+ * Nenhuma lógica (run/busy/errors/onApprove/onReject) ou estado mudou.
  */
 export function PendingMembershipRequests({
   communityId,
@@ -70,55 +74,58 @@ export function PendingMembershipRequests({
   if (pending.length === 0) return null
 
   return (
-    <section className="participants-panel pending-requests">
+    <section className="panel-members-pending">
       <p className="section-label">Solicitações pendentes ({pending.length})</p>
 
-      {pending.map((member) => {
-        const profileId = member.profile?.id
-        if (!profileId) return null
+      <div className="panel-members-list">
+        {pending.map((member) => {
+          const profileId = member.profile?.id
+          if (!profileId) return null
 
-        const name = member.profile?.full_name ?? 'Mulher do Círcula'
-        const rowBusy = busy?.profileId === profileId ? busy.action : null
-        const error = errors[profileId]
+          const name = member.profile?.full_name ?? 'Mulher do Círcula'
+          const rowBusy = busy?.profileId === profileId ? busy.action : null
+          const error = errors[profileId]
 
-        return (
-          <article key={member.id} className="participant-card">
-            <div className="participant-avatar" aria-hidden="true">
-              {member.profile?.avatar_url ? (
-                <img src={member.profile.avatar_url} alt="" />
-              ) : (
-                <span>{name.charAt(0).toUpperCase()}</span>
-              )}
-            </div>
+          return (
+            <article key={member.id} className="panel-members-row">
+              <div className="panel-members-avatar" aria-hidden="true">
+                {member.profile?.avatar_url ? (
+                  <img src={member.profile.avatar_url} alt="" />
+                ) : (
+                  <span>{name.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
 
-            <div className="participant-body">
-              <p className="participant-name">{name}</p>
-              <p className="participant-since">{communityName}</p>
-              <p className="participant-since">Solicitado em {requestedLabel(member.joined_at)}</p>
-              {error && <p className="auth-error">{error}</p>}
-            </div>
+              <div className="panel-members-row-body">
+                <p className="panel-members-name">{name}</p>
+                <p className="panel-members-meta">
+                  {communityName} · Solicitado em {requestedLabel(member.joined_at)}
+                </p>
+                {error && <p className="auth-error">{error}</p>}
+              </div>
 
-            <div className="pending-request-actions">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => run(profileId, 'approve')}
-                disabled={rowBusy !== null}
-              >
-                {rowBusy === 'approve' ? 'Aprovando...' : 'Aprovar'}
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={() => run(profileId, 'reject')}
-                disabled={rowBusy !== null}
-              >
-                {rowBusy === 'reject' ? 'Rejeitando...' : 'Rejeitar'}
-              </button>
-            </div>
-          </article>
-        )
-      })}
+              <div className="panel-members-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => run(profileId, 'approve')}
+                  disabled={rowBusy !== null}
+                >
+                  {rowBusy === 'approve' ? 'Aprovando...' : 'Aprovar'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => run(profileId, 'reject')}
+                  disabled={rowBusy !== null}
+                >
+                  {rowBusy === 'reject' ? 'Rejeitando...' : 'Rejeitar'}
+                </button>
+              </div>
+            </article>
+          )
+        })}
+      </div>
     </section>
   )
 }

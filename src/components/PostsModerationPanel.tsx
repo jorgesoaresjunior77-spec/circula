@@ -17,6 +17,14 @@ const POST_TYPE_LABEL: Record<string, string> = {
   engagement_command: 'Comando da comunidade',
 }
 
+/**
+ * Bloco editorial plano de uma publicação (redesign): autor em Mitr,
+ * microinfo em Jost, imagem protagonista com moldura suave, ações como
+ * links editoriais. "Visível" não tem marcador (é o padrão); só as
+ * ocultas ganham o marcador "Oculta" + esmaecimento leve. Nada da
+ * lógica (run/busy/confirmRemove/error/onModerate) ou dos estados mudou
+ * — só markup/classes.
+ */
 function ModerationRow({
   post,
   onModerate,
@@ -45,36 +53,34 @@ function ModerationRow({
   }
 
   return (
-    <article className={`moderation-post${hidden ? ' moderation-post--hidden' : ''}`}>
-      <div className="moderation-post-head">
-        <div className="moderation-post-avatar" aria-hidden="true">
+    <article className={`panel-post${hidden ? ' panel-post--hidden' : ''}`}>
+      <div className="panel-post-head">
+        <div className="panel-post-avatar" aria-hidden="true">
           {post.author_avatar ? (
             <img src={post.author_avatar} alt="" />
           ) : (
             <span>{name.charAt(0).toUpperCase()}</span>
           )}
         </div>
-        <div className="moderation-post-meta">
-          <p className="moderation-post-author">{name}</p>
-          <p className="moderation-post-time">
+        <div className="panel-post-byline">
+          <p className="panel-post-author">{name}</p>
+          <p className="panel-post-meta">
             {POST_TYPE_LABEL[post.post_type] ?? 'Publicação'} · {formatRelativeTime(post.created_at)}
             {post.circle_id ? ' · em um círculo' : ''}
           </p>
         </div>
-        <span
-          className={`moderation-post-state${hidden ? ' moderation-post-state--hidden' : ''}`}
-        >
-          {hidden ? 'Oculta' : 'Visível'}
-        </span>
+        {hidden && <span className="panel-post-flag">Oculta</span>}
       </div>
 
-      {post.title && <p className="moderation-post-title">{post.title}</p>}
-      <p className="moderation-post-content">{post.content}</p>
+      {post.title && <p className="panel-post-title">{post.title}</p>}
+      <p className="panel-post-body">{post.content}</p>
       {moderationImageUrl && (
-        <img className="moderation-post-image" src={moderationImageUrl} alt="" loading="lazy" />
+        <div className="panel-post-figure">
+          <img src={moderationImageUrl} alt="" loading="lazy" />
+        </div>
       )}
 
-      <p className="moderation-post-stats">
+      <p className="panel-post-stats">
         <span>
           <HeartIcon size={14} /> {post.reaction_count}
         </span>
@@ -85,13 +91,23 @@ function ModerationRow({
 
       {error && <p className="auth-error">{error}</p>}
 
-      <div className="moderation-post-actions">
+      <div className="panel-post-actions">
         {hidden ? (
-          <button type="button" onClick={() => run('unhide')} disabled={busy}>
+          <button
+            type="button"
+            className="panel-post-action"
+            onClick={() => run('unhide')}
+            disabled={busy}
+          >
             Reexibir
           </button>
         ) : (
-          <button type="button" onClick={() => run('hide')} disabled={busy}>
+          <button
+            type="button"
+            className="panel-post-action"
+            onClick={() => run('hide')}
+            disabled={busy}
+          >
             Ocultar
           </button>
         )}
@@ -100,7 +116,7 @@ function ModerationRow({
           <>
             <button
               type="button"
-              className="moderation-post-remove"
+              className="panel-post-action panel-post-action--danger"
               onClick={() => run('remove')}
               disabled={busy}
             >
@@ -113,7 +129,7 @@ function ModerationRow({
         ) : (
           <button
             type="button"
-            className="moderation-post-remove"
+            className="panel-post-action panel-post-action--remove"
             onClick={() => setConfirmRemove(true)}
             disabled={busy}
           >
@@ -143,19 +159,29 @@ export function PostsModerationPanel({ communityId }: PostsModerationPanelProps)
   const hiddenCount = posts.filter((post) => post.hidden_at !== null).length
 
   return (
-    <div className="moderation-panel">
-      <p className="challenge-field-hint">
+    <div className="panel-posts">
+      <header className="panel-posts-head">
+        <p className="panel-posts-eyebrow">Painel · Publicações</p>
+        <p className="panel-posts-lede">
+          Tudo o que foi publicado na sua comunidade. Ocultar tira a publicação do Feed das
+          participantes; remover apaga em definitivo.
+        </p>
+      </header>
+
+      <p className="panel-posts-count">
         {posts.length} publicaç{posts.length === 1 ? 'ão' : 'ões'}
-        {hiddenCount > 0 ? ` · ${hiddenCount} oculta${hiddenCount === 1 ? '' : 's'}` : ''}. Ocultar
-        tira a publicação do Feed das participantes; remover apaga em definitivo.
+        {hiddenCount > 0 ? ` · ${hiddenCount} oculta${hiddenCount === 1 ? '' : 's'}` : ''}
       </p>
-      {posts.map((post) => (
-        <ModerationRow
-          key={post.id}
-          post={post}
-          onModerate={(action) => moderate(post.id, action)}
-        />
-      ))}
+
+      <div className="panel-posts-list">
+        {posts.map((post) => (
+          <ModerationRow
+            key={post.id}
+            post={post}
+            onModerate={(action) => moderate(post.id, action)}
+          />
+        ))}
+      </div>
     </div>
   )
 }

@@ -6,6 +6,11 @@ import type { HelpStatus } from '../types/help'
 // Fase 5 — fila de Pedidos de ajuda no painel da Nutri.
 // Três grupos simples: novos, em andamento e respondidos. A Nutri move
 // o status e responde; NÃO apaga o pedido da usuária.
+//
+// Redesign editorial: classes .panel-help-*, sem .community-card/
+// .help-queue-*. HelpRequestCard (compartilhado com a Home) permanece
+// intocado — nenhuma lógica (useHelpQueue, setStatus, addReply,
+// fetchReplies) mudou, só markup/classes do wrapper da aba.
 
 interface HelpQueueProps {
   communityId: string
@@ -24,14 +29,15 @@ export function HelpQueue({ communityId, profileId, onOpenConversation }: HelpQu
     useHelpQueue(communityId, profileId)
 
   return (
-    <section className="community-card community-card--quiet help-queue">
-      <h3>Pedidos de ajuda</h3>
-      <p className="help-queue-intro">
-        Pedidos das mulheres da sua comunidade. Você pode mover o status e responder. Os pedidos
-        "para a responsável" abrem a conversa no Mensagens.
-      </p>
+    <section className="panel-help">
+      <header className="panel-help-head">
+        <p className="panel-help-title">Painel · Pedidos de ajuda</p>
+        <p className="panel-help-intro">
+          Pedidos das mulheres da sua comunidade. Mova o status e responda quando necessário.
+        </p>
+      </header>
 
-      {loading && <p>Carregando fila…</p>}
+      {loading && <p className="panel-help-muted">Carregando fila…</p>}
       {!loading && error && (
         <p className="auth-error">
           Não foi possível carregar a fila de pedidos agora. Tente novamente em instantes.
@@ -40,33 +46,39 @@ export function HelpQueue({ communityId, profileId, onOpenConversation }: HelpQu
 
       {!loading &&
         !error &&
-        GROUPS.map((group) => (
-          <div key={group.key} className="help-queue-group">
-            <p className="help-queue-group-title">
-              {group.label}
-              <span className="help-queue-count">{byStatus[group.key].length}</span>
-            </p>
-            {byStatus[group.key].length === 0 ? (
-              <EmptyState message="Nada por aqui." />
-            ) : (
-              <div className="help-list">
-                {byStatus[group.key].map((request) => (
-                  <HelpRequestCard
-                    key={request.id}
-                    request={request}
-                    viewerId={profileId}
-                    canManageStatus
-                    replies={repliesByRequest[request.id]}
-                    onFetchReplies={() => fetchReplies(request.id)}
-                    onReply={(body) => addReply(request.id, body)}
-                    onSetStatus={(status) => setStatus(request.id, status)}
-                    onOpenConversation={onOpenConversation}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+        GROUPS.map((group) => {
+          const items = byStatus[group.key]
+          return (
+            <div
+              key={group.key}
+              className={`panel-help-group${items.length === 0 ? ' panel-help-group--empty' : ''}`}
+            >
+              <p className="panel-help-group-title">
+                {group.label}
+                <span className="panel-help-count">{items.length}</span>
+              </p>
+              {items.length === 0 ? (
+                <EmptyState message="Nada por aqui." />
+              ) : (
+                <div className="panel-help-list">
+                  {items.map((request) => (
+                    <HelpRequestCard
+                      key={request.id}
+                      request={request}
+                      viewerId={profileId}
+                      canManageStatus
+                      replies={repliesByRequest[request.id]}
+                      onFetchReplies={() => fetchReplies(request.id)}
+                      onReply={(body) => addReply(request.id, body)}
+                      onSetStatus={(status) => setStatus(request.id, status)}
+                      onOpenConversation={onOpenConversation}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
     </section>
   )
 }

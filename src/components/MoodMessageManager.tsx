@@ -7,6 +7,10 @@ import { MOOD_DEFAULT_MESSAGE, MOOD_META, MOOD_ORDER } from '../types/mood'
 // pela versão da própria comunidade (community_mood_messages, 1 por
 // humor). Sem override ativo, a Home usa a mensagem padrão do sistema.
 // Não expõe nenhum humor individual — só o texto das mensagens.
+//
+// Redesign editorial: blocos planos, sem border-top. Nenhuma lógica
+// (fetchRows / save / resetToDefault / supabase / drafts / busyMood)
+// mudou — só markup/classes.
 
 interface MoodMessageManagerProps {
   communityId: string
@@ -107,57 +111,65 @@ export function MoodMessageManager({ communityId, profileId }: MoodMessageManage
   }
 
   return (
-    <section className="community-card community-card--quiet mood-message-manager">
-      <h3>Mensagens de "Como você está hoje?"</h3>
-      <p className="mood-mgr-intro">
+    <section className="panel-content-block panel-content-mood">
+      <div className="panel-content-block-head">
+        <h3 className="panel-content-eyebrow">Mensagens de "Como você está hoje?"</h3>
+      </div>
+      <p className="panel-content-section-lede">
         Estas mensagens aparecem para a mulher depois que ela escolhe um rosto na Home. Deixe em
         branco para usar a mensagem padrão do Círcula.
       </p>
 
-      {loading && <p>Carregando mensagens…</p>}
+      {loading && <p className="panel-content-muted">Carregando mensagens…</p>}
       {!loading && error && <p className="auth-error">{error}</p>}
 
-      {!loading &&
-        MOOD_ORDER.map((mood) => {
-          const has = !!overrideFor(mood)
-          return (
-            <div key={mood} className="mood-mgr-item">
-              <label className="mood-mgr-label" htmlFor={`mood-msg-${mood}`}>
-                <span aria-hidden="true">{MOOD_META[mood].emoji}</span> {MOOD_META[mood].label}
-                <span className="mood-mgr-flag">
-                  {has ? 'mensagem da comunidade' : 'mensagem padrão do sistema'}
-                </span>
-              </label>
-              <textarea
-                id={`mood-msg-${mood}`}
-                rows={3}
-                value={drafts[mood]}
-                onChange={(e) => setDrafts((prev) => ({ ...prev, [mood]: e.target.value }))}
-                placeholder={MOOD_DEFAULT_MESSAGE[mood]}
-              />
-              <div className="challenge-item-actions">
-                {has && (
+      {!loading && (
+        <div className="panel-content-mood-list">
+          {MOOD_ORDER.map((mood) => {
+            const has = !!overrideFor(mood)
+            return (
+              <div key={mood} className="panel-content-mood-item">
+                <label className="panel-content-mood-head" htmlFor={`mood-msg-${mood}`}>
+                  <span className="panel-content-mood-emoji" aria-hidden="true">
+                    {MOOD_META[mood].emoji}
+                  </span>
+                  <span className="panel-content-mood-label">{MOOD_META[mood].label}</span>
+                  <span className="panel-content-mood-flag">
+                    {has ? 'mensagem da comunidade' : 'mensagem padrão do sistema'}
+                  </span>
+                </label>
+                <textarea
+                  id={`mood-msg-${mood}`}
+                  rows={3}
+                  value={drafts[mood]}
+                  onChange={(e) => setDrafts((prev) => ({ ...prev, [mood]: e.target.value }))}
+                  placeholder={MOOD_DEFAULT_MESSAGE[mood]}
+                />
+                <div className="panel-content-row-actions">
+                  {has && (
+                    <button
+                      type="button"
+                      className="panel-content-action"
+                      onClick={() => resetToDefault(mood)}
+                      disabled={busyMood === mood}
+                    >
+                      Voltar ao padrão
+                    </button>
+                  )}
                   <button
                     type="button"
-                    className="auth-link"
-                    onClick={() => resetToDefault(mood)}
-                    disabled={busyMood === mood}
+                    className="panel-content-action panel-content-action--primary"
+                    onClick={() => save(mood)}
+                    disabled={busyMood === mood || !drafts[mood].trim()}
                   >
-                    Voltar ao padrão
+                    {busyMood === mood ? 'Salvando…' : 'Salvar mensagem'}
                   </button>
-                )}
-                <button
-                  type="button"
-                  className="challenge-save-button"
-                  onClick={() => save(mood)}
-                  disabled={busyMood === mood || !drafts[mood].trim()}
-                >
-                  {busyMood === mood ? 'Salvando…' : 'Salvar mensagem'}
-                </button>
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }

@@ -96,132 +96,162 @@ export function QuestionBankManager({
   }
 
   return (
-    <section className="community-card community-card--quiet question-bank">
-      <h3>Perguntas da comunidade</h3>
-
-      {canManage && (
-        <button type="button" onClick={handlePublish} disabled={publishing || activeCount === 0}>
-          {publishing ? 'Publicando...' : 'Publicar pergunta do dia agora'}
-        </button>
-      )}
-
-      {canManage && activeCount === 0 && !loading && (
-        <p className="question-empty">
-          Cadastre pelo menos uma pergunta ativa para poder publicar.
+    <>
+      {/* Cabeçalho da aba Conteúdo (a aba renderiza os 5 gerenciadores;
+          o cabeçalho vive aqui, no primeiro deles — só markup). */}
+      <header className="panel-content-head">
+        <p className="panel-content-title">Painel · Conteúdo</p>
+        <p className="panel-content-intro">
+          Aqui você organiza tudo o que a sua comunidade recebe — perguntas do dia, biblioteca,
+          check-ins, mensagens de acolhimento e comandos de engajamento.
         </p>
-      )}
+      </header>
 
-      {publishMessage && (
-        <p className={publishMessage.type === 'success' ? 'auth-success' : 'auth-error'}>
-          {publishMessage.text}
-        </p>
-      )}
+      <section className="panel-content-block panel-content-questions">
+        <div className="panel-content-block-head">
+          <h3 className="panel-content-eyebrow">Perguntas da comunidade</h3>
+          {canManage && (
+            <button
+              type="button"
+              className="panel-content-publish"
+              onClick={handlePublish}
+              disabled={publishing || activeCount === 0}
+            >
+              {publishing ? 'Publicando...' : 'Publicar pergunta do dia agora'}
+            </button>
+          )}
+        </div>
 
-      {canManage && (
-        <form onSubmit={handleCreate} className="question-form">
-          <label htmlFor="new-question">Nova pergunta</label>
-          <textarea
-            id="new-question"
-            value={newContent}
-            onChange={(event) => setNewContent(event.target.value)}
-            rows={2}
-            placeholder="Ex.: Qual foi uma pequena vitória sua esta semana?"
-            required
-          />
-          {createError && <p className="auth-error">{createError}</p>}
-          <button type="submit" disabled={creating || !newContent.trim()}>
-            {creating ? 'Salvando...' : 'Adicionar pergunta'}
-          </button>
-        </form>
-      )}
+        {canManage && activeCount === 0 && !loading && (
+          <p className="panel-content-notice">
+            Cadastre pelo menos uma pergunta ativa para poder publicar.
+          </p>
+        )}
 
-      {loading && <p>Carregando perguntas...</p>}
+        {publishMessage && (
+          <p className={publishMessage.type === 'success' ? 'auth-success' : 'auth-error'}>
+            {publishMessage.text}
+          </p>
+        )}
 
-      {!loading && error && <p className="auth-error">{error}</p>}
+        {canManage && (
+          <form onSubmit={handleCreate} className="panel-content-form">
+            <div className="panel-content-field">
+              <label className="panel-content-label" htmlFor="new-question">
+                Nova pergunta
+              </label>
+              <textarea
+                id="new-question"
+                value={newContent}
+                onChange={(event) => setNewContent(event.target.value)}
+                rows={2}
+                placeholder="Ex.: Qual foi uma pequena vitória sua esta semana?"
+                required
+              />
+            </div>
+            {createError && <p className="auth-error">{createError}</p>}
+            <div className="panel-content-form-actions">
+              <button
+                type="submit"
+                className="panel-content-submit"
+                disabled={creating || !newContent.trim()}
+              >
+                {creating ? 'Salvando...' : 'Adicionar pergunta'}
+              </button>
+            </div>
+          </form>
+        )}
 
-      {!loading && !error && questions.length === 0 && (
-        <EmptyState message="Nenhuma pergunta cadastrada ainda." />
-      )}
+        {loading && <p className="panel-content-muted">Carregando perguntas...</p>}
 
-      {!loading && !error && questions.length > 0 && (
-        <ul className="question-list">
-          {questions.map((question) => (
-            <li key={question.id} className="question-item">
-              {editingId === question.id ? (
-                <form
-                  className="question-edit-form"
-                  onSubmit={(event) => handleSaveEdit(event, question.id)}
-                >
-                  <textarea
-                    value={editContent}
-                    onChange={(event) => setEditContent(event.target.value)}
-                    rows={2}
-                    required
-                  />
-                  <div className="question-item-actions">
-                    <button
-                      type="button"
-                      className="auth-link"
-                      onClick={() => setEditingId(null)}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className="question-save-button"
-                      disabled={savingEdit || !editContent.trim()}
-                    >
-                      {savingEdit ? 'Salvando...' : 'Salvar'}
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
-                  <p
-                    className={`question-content${
-                      question.is_active ? '' : ' question-content--inactive'
-                    }`}
+        {!loading && error && <p className="auth-error">{error}</p>}
+
+        {!loading && !error && questions.length === 0 && (
+          <EmptyState message="Nenhuma pergunta cadastrada ainda." />
+        )}
+
+        {!loading && !error && questions.length > 0 && (
+          <ul className="panel-content-list">
+            {questions.map((question) => (
+              <li key={question.id} className="panel-content-row">
+                {editingId === question.id ? (
+                  <form
+                    className="panel-content-edit"
+                    onSubmit={(event) => handleSaveEdit(event, question.id)}
                   >
-                    {question.content}
-                  </p>
-
-                  {canManage ? (
-                    <div className="question-item-actions">
+                    <textarea
+                      value={editContent}
+                      onChange={(event) => setEditContent(event.target.value)}
+                      rows={2}
+                      required
+                    />
+                    <div className="panel-content-row-actions">
                       <button
                         type="button"
-                        onClick={() => startEdit(question.id, question.content)}
+                        className="panel-content-action"
+                        onClick={() => setEditingId(null)}
                       >
-                        Editar
+                        Cancelar
                       </button>
                       <button
-                        type="button"
-                        onClick={() => toggleActive(question.id, !question.is_active)}
+                        type="submit"
+                        className="panel-content-action panel-content-action--primary"
+                        disabled={savingEdit || !editContent.trim()}
                       >
-                        {question.is_active ? 'Desativar' : 'Ativar'}
-                      </button>
-                      <button
-                        type="button"
-                        className="question-delete-button"
-                        onClick={() => deleteQuestion(question.id)}
-                      >
-                        Excluir
+                        {savingEdit ? 'Salvando...' : 'Salvar'}
                       </button>
                     </div>
-                  ) : (
-                    <span
-                      className={`question-status-badge${
-                        question.is_active ? '' : ' question-status-badge--inactive'
+                  </form>
+                ) : (
+                  <>
+                    <p
+                      className={`panel-content-row-text${
+                        question.is_active ? '' : ' panel-content-row-text--inactive'
                       }`}
                     >
-                      {question.is_active ? 'Ativa' : 'Inativa'}
-                    </span>
-                  )}
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+                      {question.content}
+                    </p>
+
+                    {canManage ? (
+                      <div className="panel-content-row-actions">
+                        <button
+                          type="button"
+                          className="panel-content-action"
+                          onClick={() => startEdit(question.id, question.content)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="panel-content-action"
+                          onClick={() => toggleActive(question.id, !question.is_active)}
+                        >
+                          {question.is_active ? 'Desativar' : 'Ativar'}
+                        </button>
+                        <button
+                          type="button"
+                          className="panel-content-action panel-content-action--delete"
+                          onClick={() => deleteQuestion(question.id)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    ) : (
+                      <span
+                        className={`panel-content-state${
+                          question.is_active ? '' : ' panel-content-state--inactive'
+                        }`}
+                      >
+                        {question.is_active ? 'Ativa' : 'Inativa'}
+                      </span>
+                    )}
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </>
   )
 }
