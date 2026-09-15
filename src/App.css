@@ -7877,9 +7877,212 @@ form.panel-points-form {
 }
 
 .circle-list-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-6) var(--space-5);
+}
+
+@media (max-width: 480px) {
+  .circle-list-items {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+}
+
+/* --- Círculos · destino "Círculos" — composição editorial 4:5 ------
+   Substitui só a apresentação do card usado aqui (variant="grid" do
+   CircleCard); o uso no Painel (CircleManager, variant="row") continua
+   com a linha compacta de antes, sem nenhuma mudança. Mesmos dados
+   (nome, cover_image_url, membros), mesmos handlers de abrir/entrar/
+   sair — nada de lógica muda. */
+.circle-card--grid {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 0;
+}
+
+/* Especificidade: ".circle-card > button" (regra pré-existente do
+   variant "row", que segue precisando dela) tem (0,1,1) — mais peso
+   que uma classe sozinha. As duas regras abaixo usam o combinador de
+   filho direto para vencer sem tocar naquela regra nem aumentar sua
+   especificidade por especificidade — só o necessário para não herdar
+   pilula/borda/sombra do botão de participar/sair. */
+.circle-card--grid > .circle-card-link {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.circle-card--grid > .circle-card-link:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.circle-card-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--circula-champagne-tint);
+}
+
+.circle-card--grid[data-tint='1'] .circle-card-photo {
+  background: rgba(183, 169, 157, 0.16); /* --circula-beige, em véu */
+}
+
+.circle-card--grid[data-tint='2'] .circle-card-photo {
+  background: rgba(21, 19, 17, 0.05); /* --circula-black, em véu bem leve */
+}
+
+.circle-card-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .circle-card-link:hover .circle-card-photo img,
+  .circle-card-link:focus-visible .circle-card-photo img {
+    transform: scale(1.05);
+  }
+}
+
+.circle-card-info {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--circula-champagne-line);
+}
+
+.circle-card-name {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--circula-mocha);
+}
+
+.circle-card-rule {
+  display: block;
+  width: 0;
+  height: 1px;
+  margin: 8px 0 0;
+  background: var(--circula-champagne);
+  transition: width 0.4s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .circle-card-link:hover .circle-card-rule,
+  .circle-card-link:focus-visible .circle-card-rule {
+    width: 28px;
+  }
+}
+
+.circle-card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-2);
+}
+
+.circle-card-avatars {
+  display: flex;
+}
+
+.circle-card-avatar {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 9px;
+  font-weight: 500;
+  margin-left: -6px;
+  box-shadow: 0 0 0 1.5px var(--surface);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.circle-card-avatar:first-child {
+  margin-left: 0;
+}
+
+.circle-card-count {
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: var(--circula-taupe);
+}
+
+.circle-card-toggle {
+  align-self: flex-start;
+  margin-top: var(--space-3);
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 2px;
+  padding: 8px 14px;
+  background: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.circle-card-toggle:hover:not(:disabled) {
+  border-color: var(--circula-mocha);
+  color: var(--circula-mocha);
+}
+
+.circle-card-toggle:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 2px;
+}
+
+.circle-card-toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circle-card-photo img,
+  .circle-card-rule {
+    transition: none;
+  }
 }
 
 /* Detalhe de círculo */

@@ -101,10 +101,12 @@ export function CircleList({
 
       {!loading && !error && visible.length > 0 && (
         <div className="circle-list-items">
-          {visible.map((circle) => (
+          {visible.map((circle, index) => (
             <CircleCard
               key={circle.id}
               circle={circle}
+              variant="grid"
+              index={index}
               isParticipating={isMember(circle)}
               canParticipate
               onJoin={() => onJoin(circle.id)}
