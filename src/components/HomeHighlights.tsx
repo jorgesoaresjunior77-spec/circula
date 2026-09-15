@@ -114,9 +114,10 @@ export function HomeHighlights({
   if (!hasAnything) return null
 
   return (
-    <>
+    <div className="home-highlights">
+      <p className="home-highlights-eyebrow">Destaques de hoje</p>
       {dailyQuestion && (
-        <section className="home-section">
+        <section className="home-section home-highlight-section">
           <div className="home-section-head">
             <h3 className="home-section-title">Pergunta do dia</h3>
           </div>
@@ -125,7 +126,7 @@ export function HomeHighlights({
       )}
 
       {dailyCommand && (
-        <section className="home-section">
+        <section className="home-section home-highlight-section">
           <div className="home-section-head">
             <h3 className="home-section-title">Comando da comunidade</h3>
           </div>
@@ -134,7 +135,7 @@ export function HomeHighlights({
       )}
 
       {pendingCheckin && (
-        <section className="home-section">
+        <section className="home-section home-highlight-section">
           <div className="home-section-head">
             <h3 className="home-section-title">Check-in de hoje</h3>
           </div>
@@ -156,7 +157,7 @@ export function HomeHighlights({
       )}
 
       {upcomingEvents.length > 0 && (
-        <section className="home-section">
+        <section className="home-section home-highlight-section">
           <div className="home-section-head">
             <h3 className="home-section-title">Próximos eventos</h3>
             <button
@@ -186,7 +187,7 @@ export function HomeHighlights({
       )}
 
       {contentForYou.length > 0 && (
-        <section className="home-section">
+        <section className="home-section home-highlight-section">
           <div className="home-section-head">
             <h3 className="home-section-title">Conteúdo para você</h3>
           </div>
@@ -208,7 +209,7 @@ export function HomeHighlights({
       )}
 
       {recentPosts.length > 0 && (
-        <section className="home-section">
+        <section className="home-section home-highlight-section">
           <div className="home-section-head">
             <h3 className="home-section-title">Publicações recentes</h3>
             <button
@@ -226,6 +227,6 @@ export function HomeHighlights({
           </div>
         </section>
       )}
-    </>
+    </div>
   )
 }

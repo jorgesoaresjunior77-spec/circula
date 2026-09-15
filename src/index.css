@@ -46,7 +46,7 @@
 
   /* ---- Superfícies — o branco carrega a interface ------------- */
   --white: var(--c-white);
-  --page-bg: var(--n-050); /* quase branco, um sopro de morno */
+  --page-bg: var(--circula-offwhite); /* TESTE paleta oficial — era var(--n-050) */
   --sand: var(--c-sand);
   --sand-deep: var(--c-beige);
   --beige: var(--c-white); /* superfície de card = branco puro (legado) */
@@ -59,9 +59,26 @@
      Editorial, não decorativo. */
   --zone-wash: linear-gradient(180deg, #ffffff 0%, var(--c-rose-mist) 100%);
 
+  /* ---- TESTE — nova paleta oficial Círcula (2026-09-11) -------
+     identidadevisual/Logo Circula. Teste controlado: só fundo,
+     tinta de texto (graphite/graphite-soft) e um toque pontual de
+     superfície (ver App.css). NÃO reaponta --danger nem --ink-action*
+     — funcionais/ação ficam fora deste teste. */
+  --circula-mocha: #5a463a;
+  --circula-taupe: #6b574a;
+  --circula-beige: #b7a99d;
+  --circula-champagne: #c8b8a8;
+  --circula-black: #151311;
+  --circula-offwhite: #f5f3ef;
+
+  /* Champagne como ACENTO EDITORIAL — nunca fundo predominante.
+     Par tint/line no mesmo padrão de --accent-sand-tint/-line. */
+  --circula-champagne-tint: rgba(200, 184, 168, 0.16);
+  --circula-champagne-line: rgba(200, 184, 168, 0.4);
+
   /* ---- Tinta e fios — quente, nunca cinza neutro ------------- */
-  --graphite: var(--n-900); /* títulos e tinta forte */
-  --graphite-soft: var(--n-700); /* corpo, texto de interface */
+  --graphite: var(--circula-mocha); /* títulos/destaques — TESTE, era var(--n-900) */
+  --graphite-soft: var(--circula-black); /* texto principal — TESTE, era var(--n-700) */
   --border: rgba(53, 48, 44, 0.1);
   --border-soft: rgba(53, 48, 44, 0.05);
   --hairline: rgba(53, 48, 44, 0.08);

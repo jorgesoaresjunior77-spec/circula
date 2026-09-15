@@ -369,6 +369,7 @@ export function HomeToday({
       <JoyMomentsSection profileId={profile.id} communityId={focusCommunity.id} />
 
       <section className="home-summary-card">
+        <p className="home-summary-eyebrow">Resumo do dia</p>
         {homeLoading && tiles.length === 0 ? (
           <p className="home-muted">Carregando resumo...</p>
         ) : tiles.length > 0 ? (
@@ -393,7 +394,7 @@ export function HomeToday({
         )}
       </section>
 
-      <section id="home-desafios" className="home-section">
+      <section id="home-desafios" className="home-section home-challenge-section">
         <div className="home-section-head">
           <h3 className="home-section-title">Seu desafio</h3>
         </div>
@@ -430,6 +431,7 @@ export function HomeToday({
           comunidade + conquistas. Agrupados numa seção com id para a
           faixa editorial de experiências (C2) poder rolar até aqui. */}
       <section id="home-jornada" className="home-jornada">
+        <p className="home-jornada-eyebrow">Sua jornada</p>
         <PointsWidget
           communityId={focusCommunity.id}
           communityName={focusCommunity.name}
@@ -449,7 +451,7 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
-      <section className="home-section">
+      <section className="home-section home-activity-section">
         <div className="home-section-head">
           <h3 className="home-section-title">Atividade recente</h3>
         </div>
@@ -488,6 +490,7 @@ export function HomeToday({
           entrada/saída) permanece intacto na navegação. */}
 
       <section className="home-section home-shortcuts-section">
+        <p className="home-shortcuts-eyebrow">Atalhos</p>
         <div className="home-shortcuts">
           {shortcuts.map((shortcut) => (
             <button

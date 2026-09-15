@@ -311,7 +311,7 @@
   font-weight: var(--eyebrow-weight);
   letter-spacing: var(--eyebrow-tracking);
   text-transform: var(--eyebrow-transform);
-  color: var(--graphite-soft);
+  color: var(--circula-taupe); /* TESTE — texto secundário */
 }
 
 .auth-card form {
@@ -552,7 +552,7 @@
   gap: var(--space-4);
   flex-wrap: wrap; /* área da usuária quebra abaixo antes de estourar */
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid rgba(183, 169, 157, 0.35); /* TESTE — bege quente, pontual */
 
   @media (min-width: 1024px) {
     grid-column: 1 / -1;
@@ -606,7 +606,7 @@
   font-weight: var(--eyebrow-weight);
   letter-spacing: var(--eyebrow-tracking);
   text-transform: var(--eyebrow-transform);
-  color: var(--graphite-soft);
+  color: var(--circula-taupe); /* TESTE — texto secundário */
 }
 
 /* B1 — logo oficial (circula-logo.png) na navegação superior do
@@ -1042,7 +1042,7 @@
   gap: var(--space-2);
   min-height: 44px;
   padding: 11px 20px;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--circula-champagne-line); /* TESTE — acento champagne */
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--graphite);
@@ -1240,7 +1240,7 @@
     margin-top: var(--space-2);
     /* neutraliza o padding-top da regra base (mobile) — desktop inalterado */
     padding: 0 0 var(--space-4);
-    border-bottom: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--circula-champagne-line); /* TESTE — acento champagne */
   }
 
   .topnav-list {
@@ -2901,7 +2901,7 @@
   flex: 1 1 120px;
   padding: 13px 15px;
   border-radius: var(--radius-sm);
-  background: var(--sand);
+  background: var(--circula-champagne-tint); /* TESTE — acento champagne, era var(--sand) */
 }
 
 .metric-tile-value {
@@ -6987,6 +6987,94 @@ form.panel-points-form {
   font-weight: 500;
 }
 
+/* --- Cabeçalho da comunidade sem capa: mesma linguagem do hero -------
+   Modo card (não-overlay) sem foto real — só a marcação editorial do
+   nome, sem nenhuma "caixa de dashboard". :has() detecta com precisão o
+   caso "sem imagem" (o fallback .home-community-cover-fallback só
+   existe quando não há cover_image_url); o modo overlay nunca renderiza
+   .home-community-cover, então nunca é afetado por esta regra. */
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  ) {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-cover {
+  display: none;
+}
+
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-info {
+  padding: 0;
+  gap: var(--space-3); /* TESTE — mais respiro editorial, era var(--space-2) */
+}
+
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-eyebrow {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe); /* TESTE — texto secundário, era var(--graphite-soft) */
+}
+
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-name {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-display);
+  color: var(--graphite); /* Mocha — protagonista */
+}
+
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-meta {
+  margin-top: var(--space-4); /* TESTE — mais respiro, era var(--space-3) */
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--circula-taupe); /* TESTE — texto secundário, era var(--graphite-soft) */
+}
+
+/* acentos — TESTE: avatar da responsável ganha um toque de identidade em
+   champagne (detalhe pontual, não é bloco/pastilha — mesmo raio circular
+   que já existia). Elimina a mistura anterior entre os tokens olive/sky. */
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-owner-avatar {
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  box-shadow: none;
+}
+
+.home-community-header:not(.home-community-header--overlay):has(
+    .home-community-cover-fallback
+  )
+  .home-community-count {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--circula-taupe); /* TESTE — texto secundário, era var(--graphite-soft) */
+  font-weight: 400;
+}
+
 /* --- Conquistas --- */
 .achievements-count {
   font-size: 12px;
@@ -7178,17 +7266,18 @@ form.panel-points-form {
   }
 }
 
-/* --- Fase 11 — o círculo do logo vem levemente para frente e retorna --- */
-.brand-icon,
-.brand-logo {
+/* --- Fase 11 — o círculo do ícone vem levemente para frente e retorna ---
+   TESTE — .brand-logo saiu deste grupo: a logo do Login é decorativa
+   (não é botão) e não deve ganhar anel/sombra de pastilha ao passar
+   o mouse. Tratamento do ícone mobile (.brand-icon-btn) inalterado. */
+.brand-icon {
   transition:
     transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
     box-shadow 0.22s ease;
 }
 
 .brand-icon-btn:hover .brand-icon,
-.brand-icon-btn:focus-visible .brand-icon,
-.brand-logo:hover {
+.brand-icon-btn:focus-visible .brand-icon {
   transform: scale(1.07) translateY(-2px);
   box-shadow:
     0 0 0 4px var(--olive-bg),
@@ -7197,8 +7286,7 @@ form.panel-points-form {
 
 /* Toque: um toque leva ao Início e dispara o realce (sem exigir dois). */
 @media (hover: none) {
-  .brand-icon-btn:active .brand-icon,
-  .brand-logo:active {
+  .brand-icon-btn:active .brand-icon {
     transform: scale(1.05) translateY(-1px);
   }
 }
@@ -7237,7 +7325,6 @@ form.panel-points-form {
   .mood-option--on .mood-option-face,
   .brand-icon-btn:hover .brand-icon,
   .brand-icon,
-  .brand-logo,
   .card--interactive:hover,
   .achievement-next-fill {
     transition: none;
@@ -7253,13 +7340,14 @@ form.panel-points-form {
   color: var(--graphite-soft);
 }
 
-/* Check-ins seguem com divisória em fio — a Etapa 5 não os cobre. */
+/* Check-ins seguem com divisória em fio — a Etapa 5 não os cobre.
+   TESTE — fio em champagne, único acento de superfície do bloco. */
 .checkin-block {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--circula-champagne-line);
 
   &:first-of-type {
     padding-top: 0;
@@ -8445,69 +8533,81 @@ form.panel-points-form {
   color: var(--graphite-soft);
 }
 
-/* --- Resumo do dia ---------------------------------------------- */
+/* --- Resumo do dia — TESTE: linguagem editorial, sem caixa de
+   dashboard. Fio superior em champagne (único acento de superfície),
+   eyebrow Jost, números em Mitr. Estrutura/dados/handlers intocados. */
 .home-summary-card {
   padding: var(--space-4);
   border-radius: var(--card-radius);
-  background-color: var(--rose-50);
-  border: 1px solid var(--rose-100);
+}
+
+.home-summary-eyebrow {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.home-summary-card .home-muted {
+  color: var(--circula-taupe);
 }
 
 .home-summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3) var(--space-2);
+  gap: var(--space-5) var(--space-4);
 }
 
 .home-stat {
   font: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 3px;
   min-width: 0;
-  padding: 8px 6px;
+  padding: 0;
   border: none;
   border-radius: var(--radius-sm);
   background: none;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .home-stat:hover {
-  background-color: var(--rose-100);
+  opacity: 0.7;
 }
 
 .home-stat:focus-visible {
   outline: 2px solid var(--olive);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 .home-stat-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background-color: var(--white);
-  color: var(--rose-600);
-  box-shadow: var(--shadow-sm);
+  align-self: center;
+  color: var(--circula-taupe);
 }
 
 .home-stat-value {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 20px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(21px, 2.2vw, 26px);
   line-height: 1;
   color: var(--graphite);
 }
 
 .home-stat-label {
+  grid-column: 1 / -1;
   font-size: 11px;
-  line-height: 1.25;
-  color: var(--graphite-soft);
+  line-height: 1.3;
+  color: var(--circula-taupe);
 }
 
 /* --- Seções ---------------------------------------------------- */
@@ -8565,14 +8665,44 @@ form.panel-points-form {
   min-width: 0;
 }
 
-/* --- Atividade recente --------------------------------------- */
+/* --- Atividade recente — TESTE: linguagem editorial. Lista deixa de
+   ser uma pilha de cartões (fundo/borda/sombra por item) e vira uma
+   timeline aberta, com hairline champagne separando as linhas em vez
+   de caixa. Escopo: .home-activity-section (só esta seção — "Seu
+   desafio", "Momento de alegria" etc. usam .home-section-title mas não
+   são tocados). */
+.home-activity-section {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--circula-champagne-line);
+  gap: var(--space-4);
+}
+
+.home-activity-section .home-section-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-display);
+  text-transform: none;
+  color: var(--circula-mocha);
+}
+
+.home-activity-section .home-muted,
+.home-activity-section .empty-state {
+  color: var(--circula-taupe);
+}
+
+.home-activity-section .empty-state svg {
+  color: var(--circula-champagne);
+}
+
 .home-activity {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 0;
 }
 
 .home-activity-item {
@@ -8580,11 +8710,12 @@ form.panel-points-form {
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
-  padding: 12px 14px;
-  border-radius: var(--card-radius-sm);
-  background-color: var(--surface);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--circula-champagne-line);
+}
+
+.home-activity-item:last-child {
+  border-bottom: none;
 }
 
 .home-activity-avatar {
@@ -8596,8 +8727,8 @@ form.panel-points-form {
   height: 32px;
   overflow: hidden;
   border-radius: var(--radius-pill);
-  background-color: var(--rose-100);
-  color: var(--rose-700);
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
   font-size: 13px;
   font-weight: 500;
 }
@@ -8612,7 +8743,7 @@ form.panel-points-form {
   flex: 1;
   min-width: 0;
   font-size: 13.5px;
-  color: var(--graphite);
+  color: var(--circula-black);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -8621,7 +8752,7 @@ form.panel-points-form {
 .home-activity-time {
   flex: none;
   font-size: 12px;
-  color: var(--graphite-soft);
+  color: var(--circula-taupe);
 }
 
 /* --- Seus círculos: carrossel horizontal --------------------- */
@@ -8700,42 +8831,67 @@ form.panel-points-form {
   color: var(--graphite-soft);
 }
 
-/* --- Atalhos --------------------------------------------------- */
+/* --- Atalhos — TESTE: deixa de ser grade de botões (pílula branca +
+   borda + sombra, hover rosé) e vira uma linha editorial de links,
+   separados por hairline champagne em vez de caixa individual. Mesmos
+   botões/handlers/destinos — só a apresentação muda. */
 .home-shortcuts-section {
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border-soft);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--circula-champagne-line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.home-shortcuts-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe);
 }
 
 .home-shortcuts {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-2) 0;
 }
 
 .home-chip {
   font: inherit;
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-size: 14px;
   font-weight: 500;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background-color: var(--white);
-  color: var(--graphite);
+  padding: 4px var(--space-4);
+  border-radius: 0;
+  border: 0;
+  border-right: 1px solid var(--circula-champagne-line);
+  background: none;
+  color: var(--circula-mocha);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
+  box-shadow: none;
+  transition: color 0.15s ease;
+}
+
+.home-chip:first-child {
+  padding-left: 0;
+}
+
+.home-chip:last-child {
+  border-right: none;
 }
 
 .home-chip:hover {
-  border-color: var(--rose-300);
-  color: var(--rose-700);
+  color: var(--ink-action);
 }
 
 .home-chip:focus-visible {
-  outline: 2px solid var(--olive);
-  outline-offset: 2px;
+  outline: 2px solid var(--ink-action);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
 @media (min-width: 1024px) {
@@ -10745,7 +10901,7 @@ button.card:focus-visible {
   }
 
   .brand-mark {
-    height: 38px;
+    height: 46px; /* TESTE — logo maior, mesma proporção (width: auto) */
   }
 }
 
@@ -10778,21 +10934,12 @@ button.card:focus-visible {
   gap: var(--space-8);
 }
 
-/* "Resumo do dia": bloco de dados, não cartão rosé. */
+/* "Resumo do dia" — TESTE: fio superior em champagne no lugar do
+   cartão rosé, mais respiro vertical (ver definição completa acima). */
 .home-summary-card {
-  padding: 0;
+  padding: var(--space-5) 0 0;
   border: 0;
-  background: none;
-}
-
-.home-stat-icon {
-  width: auto;
-  height: auto;
-  background: none;
-  box-shadow: none;
-}
-
-.home-stat:hover {
+  border-top: 1px solid var(--circula-champagne-line);
   background: none;
 }
 
@@ -10828,6 +10975,382 @@ button.card:focus-visible {
   letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
   color: var(--graphite-soft);
+}
+
+/* HomeHighlights — TESTE (v2, mais perceptível): a seção inteira ganha
+   um wrapper próprio (.home-highlights) com eyebrow, fio champagne e
+   bastante respiro; cada título interno vira headline Mitr Light em
+   Mocha (em vez do eyebrow Jost minúsculo herdado). Tudo escopado via
+   .home-highlights/.home-highlight-section — as demais .home-section da
+   Home ("Seu desafio", "Atividade recente", "Momento de alegria") não
+   são afetadas, e nenhum componente compartilhado (PostCard/EventCard/
+   ContentCard/CheckinResponseForm) é tocado. */
+.home-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--circula-champagne-line);
+}
+
+.home-highlights-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.home-highlight-section {
+  gap: var(--space-4);
+}
+
+.home-highlight-section .home-section-head {
+  align-items: flex-end;
+}
+
+.home-highlight-section .home-section-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-display);
+  text-transform: none;
+  color: var(--circula-mocha);
+}
+
+.home-highlight-section .home-card-stack {
+  gap: var(--space-4);
+}
+
+/* "Seu desafio" — mesmo tratamento editorial de "Atividade recente" e
+   HomeHighlights: fio champagne hairline no topo (sem caixa envolvendo
+   a seção), título vira manchete Mitr Light em Mocha. Escopo estrito a
+   .home-challenge-section — o ChallengeCard (.challenge-block/
+   .challenge-card) não é tocado, nem aqui nem globalmente; ele segue
+   com o próprio casco de card, igual ao Painel e a qualquer outro
+   lugar em que é reaproveitado. */
+.home-challenge-section {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--circula-champagne-line);
+  gap: var(--space-4);
+}
+
+.home-challenge-section .home-section-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-display);
+  text-transform: none;
+  color: var(--circula-mocha);
+}
+
+.home-challenge-section .home-muted,
+.home-challenge-section .empty-state {
+  color: var(--circula-taupe);
+}
+
+.home-challenge-section .empty-state svg {
+  color: var(--circula-champagne);
+}
+
+/* "Sua jornada" — mesma linguagem editorial: fio champagne no topo,
+   eyebrow Jost/Taupe (como "Resumo do dia" e "Atalhos") em vez de
+   manchete, já que PointsWidget/AchievementsStrip são blocos de dado
+   curto, não conteúdo rico. Escopo estrito a .home-jornada:
+   PointsWidget e AchievementsStrip continuam sendo os MESMOS
+   componentes (mesmos hooks/dados/handlers) em qualquer outra tela
+   (ex.: MemberCommunityCard) — lá seguem com o casco de card padrão,
+   intocado. Aqui só perdem a caixa/sombra de dashboard e trocam os
+   acentos fora da paleta (olive/sky) por mocha/taupe/champagne. */
+.home-jornada {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--circula-champagne-line);
+  gap: var(--space-4);
+}
+
+.home-jornada-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.home-jornada .points-widget {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.home-jornada .points-widget-icon {
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.home-jornada .points-widget-title {
+  color: var(--circula-mocha);
+}
+
+.home-jornada .points-widget-sub {
+  color: var(--circula-taupe);
+}
+
+.home-jornada .points-balance-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(22px, 2.4vw, 30px);
+  color: var(--circula-mocha);
+}
+
+.home-jornada .points-balance--muted .points-balance-value {
+  color: var(--circula-taupe);
+}
+
+.home-jornada .points-balance-label {
+  color: var(--circula-taupe);
+}
+
+.home-jornada .points-entry-amount {
+  color: var(--circula-mocha);
+}
+
+/* Respiro extra entre o bloco de pontos e as conquistas — além do gap
+   base de .home-jornada. */
+.home-jornada .achievements-section {
+  margin-top: var(--space-4);
+}
+
+.home-jornada .home-section-title {
+  color: var(--circula-taupe);
+}
+
+.home-jornada .achievements-count {
+  color: var(--circula-taupe);
+}
+
+.home-jornada .achievement-badge {
+  background-color: var(--circula-champagne-tint);
+  border-color: var(--circula-champagne-line);
+  color: var(--circula-mocha);
+}
+
+.home-jornada .achievement-next-fill {
+  background: var(--circula-mocha);
+}
+
+/* "Como você está hoje?" (DailyMoodCard) — era o elemento mais
+   destoante da Home: caixa branca, borda, sombra, cada humor era um
+   mini card individual (borda + fundo branco + hover rosé + shadow).
+   Vira composição aberta: fio champagne no topo (mesmo padrão de
+   .home-challenge-section/.home-jornada), título editorial Mitr Light
+   em Mocha, e os cinco rostos perdem por completo a caixa — só ícone +
+   rótulo, com a seleção marcada por um anel champagne fino ao redor do
+   ícone (não uma pill/badge). DailyMoodCard não é reaproveitado em
+   nenhuma outra tela (só HomeToday), então as classes .mood-* são
+   editadas diretamente — sem precisar de wrapper de escopo. Emoji
+   Unicode preservados (MOOD_META em types/mood.ts não foi tocado); só
+   o tratamento visual do contêiner ao redor de cada um. Microinterações
+   de hover/seleção do ícone (scale/rotate/moodPop, Fase 11) e o
+   comportamento de reduced-motion permanecem intocados — só ganham
+   border-color/background-color na transição. */
+.mood-card {
+  gap: var(--space-4);
+  padding: 0;
+  padding-top: var(--space-6);
+  border: 0;
+  border-top: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.mood-card-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-display);
+  color: var(--circula-mocha);
+}
+
+.mood-card-hint {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--circula-taupe);
+}
+
+.mood-card-status,
+.mood-card-softnote {
+  color: var(--circula-taupe);
+}
+
+/* Cada opção perde caixa/borda/fundo/sombra — só ícone + rótulo. */
+.mood-option {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.mood-option:hover:not(:disabled) {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.mood-option:active:not(:disabled) {
+  transform: none;
+}
+
+.mood-option:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}
+
+/* Selecionado: sem lift, sem borda/sombra no botão inteiro — o anel
+   fino fica só ao redor do ícone (.mood-option-face--on abaixo). */
+.mood-option--on {
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Ícone ganha uma moldura circular reservada (borda transparente em
+   repouso, para não "pular" de tamanho ao selecionar) — em vez de
+   pill/badge, um anel champagne muito fino marca a seleção. */
+.mood-option-face {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.5, 0.64, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.mood-option--on .mood-option-face {
+  border-color: var(--circula-champagne-line);
+  background-color: var(--circula-champagne-tint);
+}
+
+@media (max-width: 380px) {
+  .mood-option-face {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.mood-option-label {
+  color: var(--circula-taupe);
+}
+
+.mood-option--on .mood-option-label {
+  color: var(--circula-mocha);
+}
+
+/* Mensagem acolhedora: sem balão preenchido — um fio champagne no
+   topo, texto principal em Mocha, tag secundária em Taupe/Jost. */
+.mood-message {
+  margin-top: var(--space-2);
+  padding: var(--space-4) 0 0;
+  border-radius: 0;
+  border-top: 1px solid var(--circula-champagne-line);
+  background: none;
+}
+
+.mood-message-tag {
+  font-family: var(--font-label);
+  letter-spacing: 0.02em;
+  color: var(--circula-taupe);
+}
+
+.mood-message-text {
+  color: var(--circula-mocha);
+}
+
+/* "Momento de alegria" (JoyMomentsSection) — ajuste leve: a seção já
+   usava .home-section/.home-section-title (mesma base de "Seu
+   desafio"), só precisava do mesmo tratamento editorial de título +
+   fio. O foco principal é o compositor (.joy-composer), que lia como
+   card de formulário administrativo (caixa rose-soft + borda) — vira
+   composição aberta, com uma única linha inferior champagne no lugar
+   da caixa. JoyMomentComposer e JoyMomentCard só são usados aqui (não
+   são compartilhados por outras telas), então .joy-composer* e
+   .joy-card* são editados diretamente; CoverImageInput, .challenge-save-button,
+   .challenge-delete-button, .auth-link e .home-section-link SÃO
+   compartilhados e não foram tocados. Cards já publicados (.joy-card)
+   mantêm o próprio casco — só os 2 acentos fora da paleta (avatar e
+   marca de brilho) trocam de olive/rose para mocha/taupe/champagne. */
+.joy-section {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--circula-champagne-line);
+  gap: var(--space-4);
+}
+
+.joy-section .home-section-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-display);
+  text-transform: none;
+  color: var(--circula-mocha);
+}
+
+.joy-section .home-muted {
+  color: var(--circula-taupe);
+}
+
+.joy-composer {
+  gap: var(--space-3);
+  padding: var(--space-2) 0 var(--space-5);
+  border: 0;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+}
+
+.joy-composer-invite svg {
+  color: var(--circula-taupe);
+}
+
+.joy-composer-label {
+  color: var(--circula-taupe);
+}
+
+.joy-composer-text {
+  border-color: var(--circula-champagne-line);
+}
+
+.joy-composer-text:focus,
+.joy-composer-text:focus-visible {
+  border-color: var(--circula-mocha);
+  box-shadow: 0 0 0 3px var(--circula-champagne-tint);
+}
+
+.joy-card-avatar {
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.joy-card-mark {
+  color: var(--circula-taupe);
 }
 
 /* 4 · TRILHO — coluna editorial de apoio, não painel administrativo.
