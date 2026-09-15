@@ -29,6 +29,10 @@ export interface Product {
   event_is_online: boolean | null
   event_location: string | null
   requires_shipping: boolean
+  // V1 Hotmart: link de checkout externo (só ebook/course na UI hoje).
+  // Quando preenchido, o botão Comprar abre este link em vez do fluxo
+  // Asaas — ver ProductCard.tsx. Opcional; nulo preserva o fluxo atual.
+  checkout_url: string | null
   created_at: string
   updated_at: string
 }
@@ -50,6 +54,7 @@ export interface ProductInput {
   event_is_online: boolean | null
   event_location: string | null
   requires_shipping: boolean
+  checkout_url: string | null
 }
 
 export type ProductResult = { error: string | null }
@@ -80,6 +85,13 @@ export const PRODUCT_DELIVERABLE_KIND_LABELS: Record<ProductDeliverableKind, str
 
 export function isEventProductType(type: ProductType): boolean {
   return type === 'event' || type === 'workshop'
+}
+
+// V1 Hotmart (checkout externo): decisão de produto, não constraint de
+// banco — só ebook/course mostram o campo (ProductManager) e desviam
+// para checkout_url no botão Comprar (ProductCard) nesta versão.
+export function isHotmartEligibleType(type: ProductType): boolean {
+  return type === 'ebook' || type === 'course'
 }
 
 const BRL_FORMATTER = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })

@@ -6,7 +6,18 @@ import {
   PRODUCT_TYPE_LABELS,
   formatPriceBRL,
   isEventProductType,
+  isHotmartEligibleType,
 } from '../types/product'
+
+// V1 Hotmart: só considera o link se o tipo permite (ebook/course) E o
+// valor é https:// — defesa em profundidade, mesma regra já aplicada
+// na escrita (ProductManager), agora também checada na leitura.
+function resolveHotmartUrl(product: Product): string | null {
+  if (!isHotmartEligibleType(product.type)) return null
+  if (!product.checkout_url) return null
+  if (!/^https:\/\//i.test(product.checkout_url)) return null
+  return product.checkout_url
+}
 
 interface ProductCardProps {
   product: Product
@@ -33,6 +44,7 @@ export function ProductCard({
 
   const isPhysical = product.type === 'physical'
   const purchasable = canBuy && product.status === 'published'
+  const hotmartUrl = resolveHotmartUrl(product)
   // Produto não físico já adquirido não pode ser comprado de novo (a regra é
   // reforçada no servidor por create_product_order + índice parcial).
   const alreadyOwned = owned && !isPhysical
@@ -41,6 +53,15 @@ export function ProductCard({
   const [lastInvoiceUrl, setLastInvoiceUrl] = useState<string | null>(null)
 
   async function handleBuy() {
+    // V1 Hotmart: produto ebook/course com checkout_url válido nunca
+    // passa pelo fluxo Asaas — abre o link externo e para por aqui.
+    // useProductCheckout/onBuy não são chamados; nenhum product_order
+    // é criado.
+    if (hotmartUrl) {
+      window.open(hotmartUrl, '_blank', 'noopener,noreferrer')
+      return
+    }
+
     if (!onBuy) return
     setFeedback(null)
 
@@ -147,7 +168,7 @@ export function ProductCard({
                 onClick={handleBuy}
                 disabled={buying}
               >
-                {buying ? 'Processando...' : 'Comprar'}
+                {hotmartUrl ? 'Comprar na Hotmart' : buying ? 'Processando...' : 'Comprar'}
               </button>
             )}
 

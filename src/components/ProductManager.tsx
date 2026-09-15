@@ -12,6 +12,7 @@ import {
   PRODUCT_DELIVERABLE_KIND_LABELS,
   PRODUCT_TYPE_LABELS,
   isEventProductType,
+  isHotmartEligibleType,
 } from '../types/product'
 import { ProductCard } from './ProductCard'
 import { EmptyState } from './EmptyState'
@@ -50,6 +51,7 @@ interface ProductFormValues {
   eventIsOnline: boolean
   eventLocation: string
   requiresShipping: boolean
+  checkoutUrl: string
 }
 
 const EMPTY_FORM: ProductFormValues = {
@@ -65,6 +67,7 @@ const EMPTY_FORM: ProductFormValues = {
   eventIsOnline: false,
   eventLocation: '',
   requiresShipping: false,
+  checkoutUrl: '',
 }
 
 function parsePriceToCents(input: string): number | null {
@@ -80,12 +83,38 @@ function centsToPriceInput(cents: number): string {
   return (cents / 100).toFixed(2).replace('.', ',')
 }
 
+// Só aceita URLs https:// (recusa http://, javascript:, data: e qualquer
+// outro esquema). Vazio é permitido — o campo é opcional.
+function parseCheckoutUrl(input: string): string | null | { error: string } {
+  const trimmed = input.trim()
+  if (trimmed === '') return null
+
+  if (!/^https:\/\//i.test(trimmed)) {
+    return { error: 'O link de compra deve começar com https://.' }
+  }
+
+  try {
+    new URL(trimmed)
+  } catch {
+    return { error: 'Informe um link de compra válido.' }
+  }
+
+  return trimmed
+}
+
 function formToInput(values: ProductFormValues): ProductInput | { error: string } {
   const title = values.title.trim()
   if (!title) return { error: 'Informe um título.' }
 
   const priceCents = parsePriceToCents(values.price)
   if (priceCents === null) return { error: 'Informe um preço válido (ex.: 14,90).' }
+
+  const checkoutUrl = isHotmartEligibleType(values.type)
+    ? parseCheckoutUrl(values.checkoutUrl)
+    : null
+  if (checkoutUrl !== null && typeof checkoutUrl === 'object') {
+    return { error: checkoutUrl.error }
+  }
 
   let maxQuantity: number | null = null
   const rawMax = values.maxQuantity.trim()
@@ -112,6 +141,7 @@ function formToInput(values: ProductFormValues): ProductInput | { error: string 
     event_is_online: event ? values.eventIsOnline : null,
     event_location: event ? values.eventLocation.trim() || null : null,
     requires_shipping: values.type === 'physical' ? values.requiresShipping : false,
+    checkout_url: checkoutUrl,
   }
 }
 
@@ -129,6 +159,7 @@ function productToForm(product: Product): ProductFormValues {
     eventIsOnline: product.event_is_online ?? false,
     eventLocation: product.event_location ?? '',
     requiresShipping: product.requires_shipping,
+    checkoutUrl: product.checkout_url ?? '',
   }
 }
 
@@ -188,6 +219,25 @@ function ProductFields({ idPrefix, values, onChange }: ProductFieldsProps) {
         onChange={(e) => onChange({ price: e.target.value })}
         placeholder="Ex.: 14,90"
       />
+
+      {isHotmartEligibleType(values.type) && (
+        <>
+          <label htmlFor={`${idPrefix}-checkout-url`}>Link de compra Hotmart (opcional)</label>
+          <input
+            id={`${idPrefix}-checkout-url`}
+            type="url"
+            value={values.checkoutUrl}
+            onChange={(e) => onChange({ checkoutUrl: e.target.value })}
+            placeholder="https://pay.hotmart.com/..."
+          />
+          <p className="challenge-field-hint">
+            Informe o link do checkout deste produto na Hotmart.
+          </p>
+          <p className="challenge-field-hint">
+            O preço exibido no Círcula deve ser mantido alinhado ao preço configurado na Hotmart.
+          </p>
+        </>
+      )}
 
       <label htmlFor={`${idPrefix}-cover`}>URL da imagem de capa (opcional)</label>
       <input

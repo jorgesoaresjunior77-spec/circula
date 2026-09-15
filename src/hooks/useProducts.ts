@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { Product, ProductInput, ProductResult, ProductStatus } from '../types/product'
 
 const PRODUCT_SELECT =
-  'id,community_id,created_by,type,title,description,cover_image_url,price_cents,currency,status,max_quantity,deliverable_kind,deliverable_url,deliverable_file_path,event_starts_at,event_is_online,event_location,requires_shipping,created_at,updated_at'
+  'id,community_id,created_by,type,title,description,cover_image_url,price_cents,currency,status,max_quantity,deliverable_kind,deliverable_url,deliverable_file_path,event_starts_at,event_is_online,event_location,requires_shipping,checkout_url,created_at,updated_at'
 
 // Colunas que a interface escreve. Espelha ProductInput (nomes do banco).
 function inputToRow(input: ProductInput) {
@@ -20,6 +20,7 @@ function inputToRow(input: ProductInput) {
     event_is_online: input.event_is_online,
     event_location: input.event_location,
     requires_shipping: input.requires_shipping,
+    checkout_url: input.checkout_url,
   }
 }
 
