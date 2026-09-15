@@ -6,8 +6,8 @@ import type { PanelExtraMetrics } from '../types/panel'
 // de fontes reais já existentes. NÃO altera a RPC `community_metrics`
 // (que segue cobrindo membros / posts / comentários / reações / desafios
 // / check-ins / círculos). Aqui só o que faltava: eventos, receitas,
-// conteúdos, conclusões de desafio, momentos de alegria, pedidos de ajuda
-// e pontos (via a RPC da Fase 7). Nenhuma métrica sem fonte real.
+// conteúdos, conclusões de desafio, momentos de alegria e pontos (via a
+// RPC da Fase 7). Nenhuma métrica sem fonte real.
 //
 // A RLS já entrega tudo isso para `owns_community()` / `is_master()`;
 // os counts usam GET + `count: 'exact'` + `.limit(0)` (não `head: true`):
@@ -28,9 +28,6 @@ const EMPTY: PanelExtraMetrics = {
   content_published: 0,
   challenge_completions_period: 0,
   joy_moments_period: 0,
-  help_open: 0,
-  help_in_progress: 0,
-  help_resolved: 0,
   points_period: 0,
   points_all_time: 0,
 }
@@ -69,7 +66,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
       eventsPeriod,
       contentPublished,
       joyPeriod,
-      helpRows,
       pointsSummary,
       completionsPeriod,
     ] = await Promise.all([
@@ -106,7 +102,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
           .gte('created_at', since)
           .limit(0),
       ),
-      supabase.from('help_requests').select('status').eq('community_id', communityId),
       supabase.rpc('points_community_summary', {
         p_community_id: communityId,
         p_period_days: periodDays,
@@ -129,11 +124,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
       return
     }
 
-    const help = { open: 0, in_progress: 0, resolved: 0 }
-    for (const row of (helpRows.data as { status: keyof typeof help }[] | null) ?? []) {
-      if (row.status in help) help[row.status] += 1
-    }
-
     const summary = pointsSummary.data as {
       total_points_period?: number
       total_points_all_time?: number
@@ -145,9 +135,6 @@ export function useCommunityExtraMetrics(communityId: string | null, periodDays:
       content_published: contentPublished,
       challenge_completions_period: completionsPeriod,
       joy_moments_period: joyPeriod,
-      help_open: help.open,
-      help_in_progress: help.in_progress,
-      help_resolved: help.resolved,
       points_period: summary?.total_points_period ?? 0,
       points_all_time: summary?.total_points_all_time ?? 0,
     })

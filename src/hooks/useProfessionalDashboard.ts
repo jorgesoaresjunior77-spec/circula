@@ -8,7 +8,6 @@ import type { DashboardActivityItem, ProfessionalDashboardData } from '../types/
 //
 //   community_metrics (RPC)          -> membros / posts / comentários / reações
 //   points_community_summary (RPC)   -> pontos do período + total + top 3
-//   help_requests                    -> pendentes (open + in_progress)
 //   community_challenges             -> ativos hoje (is_active & dentro do período)
 //   community_events                 -> 3 próximos eventos
 //   posts                            -> 3 publicações recentes (RLS já filtra ocultas)
@@ -18,8 +17,8 @@ import type { DashboardActivityItem, ProfessionalDashboardData } from '../types/
 //   community_members (status='active')  -> novas participantes
 //   community_challenges                 -> desafios criados
 //   community_content (status='published') -> conteúdos publicados
-// Sem post_comments (exigiria join cliente) e sem help_requests (já tem
-// bloco próprio). Merge + ordenação por data desc, 8 itens.
+// Sem post_comments (exigiria join cliente). Merge + ordenação por data
+// desc, 8 itens.
 
 function todayISODate(): string {
   const d = new Date()
@@ -41,7 +40,6 @@ const EMPTY: ProfessionalDashboardData = {
   members_active: 0,
   members_inactive: 0,
   members_new: 0,
-  help_pending: 0,
   challenges_active: 0,
   challenges_ending_soon: 0,
   next_event_within_24h: false,
@@ -77,7 +75,6 @@ export function useProfessionalDashboard(communityId: string | null, periodDays 
     const [
       metricsRes,
       pointsRes,
-      helpRes,
       challengesRes,
       eventsRes,
       postsRes,
@@ -90,15 +87,6 @@ export function useProfessionalDashboard(communityId: string | null, periodDays 
           p_community_id: communityId,
           p_period_days: periodDays,
         }),
-        // GET + count + limit(0) em vez de head: true — o gateway do
-        // Supabase responde 503 às requisições HEAD do supabase-js; o GET
-        // devolve 200 com o total em Content-Range (helpRes.count).
-        supabase
-          .from('help_requests')
-          .select('id', { count: 'exact' })
-          .eq('community_id', communityId)
-          .in('status', ['open', 'in_progress'])
-          .limit(0),
         supabase
           .from('community_challenges')
           .select('id,is_active,ends_on')
@@ -218,7 +206,6 @@ export function useProfessionalDashboard(communityId: string | null, periodDays 
       members_active: metrics?.active_members ?? 0,
       members_inactive: metrics?.inactive_members ?? 0,
       members_new: metrics?.new_members ?? 0,
-      help_pending: helpRes.count ?? 0,
       challenges_active: challengesActive,
       challenges_ending_soon: challengesEndingSoon,
       points_period: points?.total_points_period ?? 0,

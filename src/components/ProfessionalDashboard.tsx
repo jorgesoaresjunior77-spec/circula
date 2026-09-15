@@ -35,8 +35,8 @@ function createdLabel(iso: string): string {
 /**
  * Home do painel Professional. Mostra o que importa logo na entrada —
  * identidade da comunidade (16.2.3-A), contadores de membros separados
- * (16.2.3-B), participantes, ajuda pendente, desafios ativos, pontos,
- * próximos eventos, publicações recentes e métricas resumidas. Tudo com
+ * (16.2.3-B), participantes, desafios ativos, pontos, próximos eventos,
+ * publicações recentes e métricas resumidas. Tudo com
  * dados reais (RPCs community_metrics / points_community_summary +
  * consultas que a RLS já libera para a dona) e a linha de `communities`
  * que o Dashboard já carregou (nenhuma RPC nova, nenhuma alteração de RLS).
@@ -76,7 +76,6 @@ export function ProfessionalDashboard({
   ]
 
   const activityKpis: { label: string; value: number | string; tab: string }[] = [
-    { label: 'Ajuda pendente', value: data.help_pending, tab: 'ajuda' },
     { label: 'Desafios ativos', value: data.challenges_active, tab: 'desafios' },
     { label: 'Pontos (30 d)', value: data.points_period, tab: 'pontos' },
     { label: 'Publicações', value: data.posts_count, tab: 'publicacoes' },
@@ -94,14 +93,6 @@ export function ProfessionalDashboard({
       text: `${membersPending} solicitação(ões) de entrada aguardando aprovação`,
       action: 'Revisar',
       tab: 'participantes',
-    })
-  }
-  if (data.help_pending > 0) {
-    attention.push({
-      key: 'help',
-      text: `${data.help_pending} pedido(s) de ajuda sem resposta`,
-      action: 'Responder',
-      tab: 'ajuda',
     })
   }
   if (nextEventSoon && nextEvent) {
@@ -301,20 +292,6 @@ export function ProfessionalDashboard({
               {membersPending === 0
                 ? 'Nenhuma solicitação de entrada aguardando.'
                 : `${membersPending} solicitação(ões) aguardando sua aprovação.`}
-            </p>
-          </div>
-
-          <div className="panel-overview-note">
-            <div className="panel-overview-note-head">
-              <h4 className="panel-overview-note-title">Pedidos de ajuda</h4>
-              <button type="button" className="auth-link" onClick={() => onOpenTab('ajuda')}>
-                Abrir
-              </button>
-            </div>
-            <p className="panel-overview-line">
-              {data.help_pending === 0
-                ? 'Nenhum pedido pendente.'
-                : `${data.help_pending} pedido(s) aguardando resposta.`}
             </p>
           </div>
 

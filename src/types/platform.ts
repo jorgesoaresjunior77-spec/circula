@@ -33,11 +33,6 @@ export interface PlatformOverview {
   challenge_completions_30d: number
   challenge_days_done_total: number
 
-  help_open: number
-  help_in_progress: number
-  help_resolved: number
-  help_total: number
-
   joy_moments_total: number
   joy_moments_30d: number
 
@@ -83,7 +78,6 @@ export interface PlatformCommunity {
   challenge_completions_30d: number
   points_30d: number
   points_total: number
-  help_pending: number
   last_activity_at: string | null
 }
 

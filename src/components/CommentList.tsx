@@ -16,9 +16,9 @@ interface CommentListProps {
 
 /**
  * Lista de comentários somente-leitura. Usada por PostCard (modo
- * clássico da Home), SavedItems, ChallengeCard e HelpRequestCard.
+ * clássico da Home), SavedItems e ChallengeCard.
  * Quando um item traz `replies`, elas aparecem agrupadas e recuadas —
- * fontes sem árvore (desafios, pedidos de ajuda) continuam planas.
+ * fontes sem árvore (desafios) continuam planas.
  */
 export function CommentList({ comments }: CommentListProps) {
   if (comments.length === 0) {

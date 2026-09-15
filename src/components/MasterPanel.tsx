@@ -17,7 +17,7 @@ const TABS: { key: MasterTab; label: string }[] = [
 /**
  * Painel Master — visão administrativa/técnica da plataforma Círcula.
  * Só agregados: nunca conteúdo de comunidade, nunca dado individual de
- * usuária (humor, saldo, ledger, pedido de ajuda, conversa). Os dados
+ * usuária (humor, saldo, ledger, conversa). Os dados
  * vêm de 3 RPCs `SECURITY DEFINER` com guard `is_master()`
  * (platform_overview / platform_communities / platform_professionals) —
  * a Visão Geral e a aba Plataforma compartilham uma única chamada de

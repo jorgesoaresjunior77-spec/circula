@@ -11,7 +11,7 @@
        · rosé super claro (--c-rose-mist)
        · neutros quentes derivados (--n-*)
      Azul, rosa forte, roxo e verde forte foram ELIMINADOS: os aliases
-     legados (--accent-sky*, --sky-*, --help-accent*, rampa --rose-*)
+     legados (--accent-sky*, --sky-*, rampa --rose-*)
      seguem existindo apenas como ALIAS REAPONTADO para a paleta curta —
      nenhum seletor de App.css quebra, e nenhuma cor decorativa sobra.
      Os elementos coloridos da UI são só micro-acentos; a cor viva do
@@ -126,13 +126,6 @@
   --danger: #a2564b; /* funcional (não decorativo): brick discreto */
   --danger-border: rgba(162, 86, 75, 0.3);
   --danger-bg: rgba(162, 86, 75, 0.08);
-
-  /* Pedido de ajuda — acento FUNCIONAL, agora SEM azul (folha seca). */
-  --help-accent: var(--accent-leaf);
-  --help-accent-strong: #6f6650;
-  --help-on: #ffffff;
-  --help-accent-bg: var(--accent-leaf-tint);
-  --help-accent-border: var(--accent-leaf-line);
 
   /* Rampa --sky-* LEGADA -> neutros quentes (azul ELIMINADO). */
   --sky-50: var(--n-100);
@@ -336,12 +329,6 @@
     --rose-text: rgba(244, 238, 232, 0.7);
     --straw-soft: var(--surface-sunken);
     --straw-text: rgba(244, 238, 232, 0.7);
-
-    --help-accent: var(--accent-leaf);
-    --help-accent-strong: #d3c8ab;
-    --help-on: #241f17;
-    --help-accent-bg: var(--accent-leaf-tint);
-    --help-accent-border: var(--accent-leaf-line);
 
     --sky-50: var(--n-100);
     --sky-100: var(--n-100);

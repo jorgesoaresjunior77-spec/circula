@@ -16,7 +16,6 @@ import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
 import { DailyMoodCard } from './DailyMoodCard'
 import { JoyMomentsSection } from './JoyMomentsSection'
-import { HelpRequestSection } from './HelpRequestSection'
 import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
@@ -53,8 +52,6 @@ interface HomeTodayProps {
     cover_image_url?: string | null
   }) => Promise<{ error: string | null }>
   onNavigate: (key: NavKey) => void
-  /** Abrir uma conversa do Mensagens (deep-link do Pedido de ajuda "para a Nutri"). */
-  onOpenConversation: (conversationId: string) => void
   /**
    * C1 — quando a capa da comunidade em foco está sendo usada como hero
    * fotográfico full-bleed (renderizado pelo Dashboard atrás do
@@ -113,7 +110,6 @@ export function HomeToday({
   memberCounts,
   onCreateCommunity,
   onNavigate,
-  onOpenConversation,
   coverHero = false,
   railSummary = null,
 }: HomeTodayProps) {
@@ -369,18 +365,8 @@ export function HomeToday({
       <DailyMoodCard profileId={profile.id} communityId={focusCommunity.id} />
 
       {/* Fase 4 — "Momento de alegria": tabela própria joy_moments, não o
-          Feed. Fase 10: sobe antes do pedido de ajuda, para a Home abrir
-          com leveza e positividade. */}
+          Feed. Fase 10: sobe com leveza e positividade. */}
       <JoyMomentsSection profileId={profile.id} communityId={focusCommunity.id} />
-
-      {/* Fase 5 — "Pedido de ajuda": estrutura própria (help_requests),
-          sem virar post. Fase 10: copy acolhedora. */}
-      <HelpRequestSection
-        communityId={focusCommunity.id}
-        communityOwnerId={focusCommunity.owner_id}
-        profileId={profile.id}
-        onOpenConversation={onOpenConversation}
-      />
 
       <section className="home-summary-card">
         {homeLoading && tiles.length === 0 ? (

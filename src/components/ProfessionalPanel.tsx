@@ -8,7 +8,6 @@ import { MoodMessageManager } from './MoodMessageManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
-import { HelpQueue } from './HelpQueue'
 import { PointsPanel } from './PointsPanel'
 import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
@@ -30,7 +29,6 @@ type PanelTab =
   | 'circulos'
   | 'conteudo'
   | 'imagens'
-  | 'ajuda'
   | 'pontos'
   | 'metricas'
   | 'produtos'
@@ -46,7 +44,6 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'circulos', label: 'Círculos' },
   { key: 'conteudo', label: 'Conteúdo' },
   { key: 'imagens', label: 'Imagens da comunidade' },
-  { key: 'ajuda', label: 'Pedidos de ajuda' },
   { key: 'pontos', label: 'Pontos' },
   { key: 'metricas', label: 'Métricas' },
   { key: 'produtos', label: 'Produtos' },
@@ -60,7 +57,6 @@ interface ProfessionalPanelProps {
   community: CommunityWithMembers
   profileId: string
   onFeedRefresh: () => void
-  onOpenConversation: (conversationId: string) => void
   /** RPCs approve/reject_membership_request via useCommunity (16.2.3-C). */
   onApproveMembership: (communityId: string, profileId: string) => Promise<{ error: string | null }>
   onRejectMembership: (communityId: string, profileId: string) => Promise<{ error: string | null }>
@@ -76,7 +72,6 @@ export function ProfessionalPanel({
   community,
   profileId,
   onFeedRefresh,
-  onOpenConversation,
   onApproveMembership,
   onRejectMembership,
   onUpdateCommunity,
@@ -179,16 +174,6 @@ export function ProfessionalPanel({
       {activeTab === 'imagens' && (
         <div className="panel-tab-content">
           <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
-        </div>
-      )}
-
-      {activeTab === 'ajuda' && (
-        <div className="panel-tab-content">
-          <HelpQueue
-            communityId={communityId}
-            profileId={profileId}
-            onOpenConversation={onOpenConversation}
-          />
         </div>
       )}
 

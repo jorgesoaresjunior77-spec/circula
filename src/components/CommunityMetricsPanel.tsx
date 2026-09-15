@@ -157,16 +157,6 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
                   <span className="panel-metrics-value">{extra.points_period}</span>
                   <span className="panel-metrics-label">Pontos no período</span>
                 </div>
-                <div className="panel-metrics-item">
-                  <span className="panel-metrics-value">
-                    {extra.help_open + extra.help_in_progress}
-                  </span>
-                  <span className="panel-metrics-label">Ajuda pendente</span>
-                </div>
-                <div className="panel-metrics-item">
-                  <span className="panel-metrics-value">{extra.help_resolved}</span>
-                  <span className="panel-metrics-label">Ajuda respondida</span>
-                </div>
               </div>
             )}
           </div>

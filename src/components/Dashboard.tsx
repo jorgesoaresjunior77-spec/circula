@@ -291,7 +291,6 @@ export function Dashboard({
           memberCounts={memberCounts}
           onCreateCommunity={createCommunity}
           onNavigate={handleNavigate}
-          onOpenConversation={openConversationById}
           coverHero={coverHero}
           railSummary={
             railActive
@@ -566,7 +565,6 @@ export function Dashboard({
             community={community}
             profileId={profile.id}
             onFeedRefresh={refreshFeed}
-            onOpenConversation={openConversationById}
             onApproveMembership={approveMembershipRequest}
             onRejectMembership={rejectMembershipRequest}
             onUpdateCommunity={updateCommunity}

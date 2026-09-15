@@ -83,14 +83,6 @@ export function MasterDashboard({ overview, loading, error }: MasterDashboardPro
         { label: 'Distribuídos (30d)', value: o.points_distributed_30d },
       ],
     },
-    {
-      title: 'Pedidos de ajuda (contagem)',
-      tiles: [
-        { label: 'Abertos', value: o.help_open },
-        { label: 'Em andamento', value: o.help_in_progress },
-        { label: 'Respondidos', value: o.help_resolved },
-      ],
-    },
   ]
 
   return (

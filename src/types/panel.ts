@@ -42,9 +42,6 @@ export interface PanelExtraMetrics {
   content_published: number
   challenge_completions_period: number
   joy_moments_period: number
-  help_open: number
-  help_in_progress: number
-  help_resolved: number
   points_period: number
   points_all_time: number
 }
@@ -90,7 +87,6 @@ export interface ProfessionalDashboardData {
   members_active: number
   members_inactive: number
   members_new: number
-  help_pending: number
   challenges_active: number
   /** 16.2.3-F — desafios ativos terminando em até 3 dias. */
   challenges_ending_soon: number
