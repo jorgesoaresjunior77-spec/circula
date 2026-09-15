@@ -16,6 +16,9 @@ interface FeedProps {
   circleId?: string
   /** Nome do círculo — mostrado no compositor quando circleId existe. */
   circleName?: string
+  /** Só apresentação: avatar/nome de quem publica, para o convite do composer. */
+  authorName?: string | null
+  authorAvatarUrl?: string | null
 }
 
 export function Feed({
@@ -25,6 +28,8 @@ export function Feed({
   refreshToken,
   circleId,
   circleName,
+  authorName,
+  authorAvatarUrl,
 }: FeedProps) {
   const {
     posts,
@@ -62,6 +67,8 @@ export function Feed({
         <PostComposer
           onPublish={(content, imageUrl) => createPost(authorId, content, imageUrl)}
           onUploadImage={uploadPostImage}
+          authorName={authorName}
+          authorAvatarUrl={authorAvatarUrl}
           contextLabel={
             circleId
               ? circleName

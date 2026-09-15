@@ -111,6 +111,10 @@ export function PostCard({
       : isEngagementCommand
         ? ' post-card--command'
         : ''
+  // Composição editorial do Feed de Conversa (redesign). A Home e demais
+  // usos clássicos (HomeHighlights) não passam inlineConversation e
+  // continuam com a apresentação de card de sempre — nada muda para eles.
+  const editorialVariant = inlineConversation ? ' post-card--editorial' : ''
 
   const showClassicComments = !inlineConversation && commentsOpen
   const remainingThreads = Math.max(0, topLevelCount - previewComments.length)
@@ -118,7 +122,7 @@ export function PostCard({
     inlineConversation && !expanded && commentCount > previewComments.length
 
   return (
-    <article className={`post-card${cardVariant}`}>
+    <article className={`post-card${cardVariant}${editorialVariant}`}>
       <div className="post-card-header">
         <div className="post-avatar" aria-hidden="true">
           {post.author?.avatar_url ? (

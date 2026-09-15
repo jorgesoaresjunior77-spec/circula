@@ -7,15 +7,28 @@ interface PostComposerProps {
   onUploadImage: (file: File) => Promise<{ url: string | null; error: string | null }>
   /** Ex.: "Publicando no círculo Corrida de Rua" — só aparece se definido. */
   contextLabel?: string
+  /** Só apresentação: identidade de quem publica, para o avatar do convite. */
+  authorName?: string | null
+  authorAvatarUrl?: string | null
 }
 
-export function PostComposer({ onPublish, onUploadImage, contextLabel }: PostComposerProps) {
+export function PostComposer({
+  onPublish,
+  onUploadImage,
+  contextLabel,
+  authorName,
+  authorAvatarUrl,
+}: PostComposerProps) {
   const [content, setContent] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Só apresentação: a linha-convite abre o formulário de sempre — nada
+  // muda em validação/submit/upload, só quando o formulário fica visível.
+  const [expanded, setExpanded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     return () => {
@@ -72,14 +85,40 @@ export function PostComposer({ onPublish, onUploadImage, contextLabel }: PostCom
 
     setContent('')
     removeImage()
+    setExpanded(false)
   }
+
+  function openComposer() {
+    setExpanded(true)
+  }
+
+  useEffect(() => {
+    if (expanded) textareaRef.current?.focus()
+  }, [expanded])
+
+  const authorInitial = (authorName ?? 'Você').charAt(0).toUpperCase()
 
   return (
     <section className="community-card post-composer">
-      <form onSubmit={handleSubmit}>
+      {!expanded && (
+        <div className="post-composer-invite">
+          <span className="post-composer-avatar" aria-hidden="true">
+            {authorAvatarUrl ? <img src={authorAvatarUrl} alt="" /> : <span>{authorInitial}</span>}
+          </span>
+          <button type="button" className="post-composer-invite-prompt" onClick={openComposer}>
+            Compartilhe algo com a sua comunidade
+          </button>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className={`post-composer-form${expanded ? '' : ' post-composer-form--collapsed'}`}
+      >
         {contextLabel && <p className="post-composer-context">{contextLabel}</p>}
         <label htmlFor="post-content">O que você quer compartilhar?</label>
         <textarea
+          ref={textareaRef}
           id="post-content"
           value={content}
           onChange={(event) => setContent(event.target.value)}
@@ -103,7 +142,7 @@ export function PostComposer({ onPublish, onUploadImage, contextLabel }: PostCom
           <div className="post-composer-actions">
             <button
               type="button"
-              className="auth-link"
+              className="auth-link post-composer-image-btn"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
             >
@@ -122,7 +161,7 @@ export function PostComposer({ onPublish, onUploadImage, contextLabel }: PostCom
 
         {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit" disabled={loading || !content.trim()}>
+        <button type="submit" className="post-composer-submit" disabled={loading || !content.trim()}>
           {loading ? 'Publicando...' : 'Publicar'}
         </button>
       </form>

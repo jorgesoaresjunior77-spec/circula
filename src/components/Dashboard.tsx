@@ -372,10 +372,10 @@ export function Dashboard({
 
       return (
         <>
-          <p className="section-label">
-            Feed
-            {circlesRelevantCommunities.length > 1 ? ` · ${feedCommunity.name}` : ''}
-          </p>
+          <div className="feed-masthead">
+            <p className="section-label">Feed</p>
+            <h2 className="feed-masthead-title">{feedCommunity.name}</h2>
+          </div>
           <CommunityView
             community={feedCommunity}
             memberCount={memberCounts[feedCommunity.id]}
@@ -394,6 +394,8 @@ export function Dashboard({
             authorId={profile.id}
             canPost={profile.role !== 'master'}
             refreshToken={feedRefreshToken}
+            authorName={profile.full_name}
+            authorAvatarUrl={profile.avatar_url}
           />
         </>
       )
@@ -610,6 +612,8 @@ export function Dashboard({
             authorId={profile.id}
             canPost
             refreshToken={feedRefreshToken}
+            authorName={profile.full_name}
+            authorAvatarUrl={profile.avatar_url}
           />
         </>
       )

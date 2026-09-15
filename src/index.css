@@ -197,6 +197,7 @@
      Definidos agora; passam a ser CONSUMIDOS a partir da Etapa B.
      ========================================================== */
   --maxw-editorial: 1200px; /* largura ampla de composição/leitura */
+  --maxw-feed: 640px; /* coluna de leitura estreita do Feed editorial */
   --gutter: 20px; /* respiro lateral da página — cresce nos breakpoints */
   --bleed: calc(50% - 50vw); /* margin-inline p/ a faixa ir de ponta a ponta */
 

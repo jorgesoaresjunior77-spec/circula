@@ -2825,6 +2825,321 @@
   background: var(--straw-soft);
 }
 
+/* ===================================================================
+   Feed · redesign editorial (protótipo aprovado no Frontend do Claude)
+   ---------------------------------------------------------------------
+   Escopo: só o Feed de Conversa. O gancho é a própria prop
+   `inlineConversation` do PostCard (só true em Feed.tsx) → classe
+   `.post-card--editorial`; nada aqui redefine `.post-card`,
+   `.post-badge*`, `.comment-item*` ou `.save-button` fora desse
+   seletor — a Home (HomeHighlights, modo clássico do PostCard) e
+   CommentList (Home/SavedItems/ChallengeCard) continuam com a
+   aparência de sempre. `.feed`, `.feed-list`, `.feed-masthead`,
+   `.post-composer*`, `.comment-reply-*`, `.comment-more`,
+   `.comment-replies`, `.feed-load-more` e `.post-conversation *` já
+   eram exclusivos do Feed antes desta etapa (confirmado por grep) —
+   esses puderam ser editados direto, sem variant.
+   =================================================================== */
+
+.feed {
+  max-width: var(--maxw-feed);
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* --- masthead ------------------------------------------------------ */
+.feed-masthead {
+  max-width: var(--maxw-feed);
+  margin: 0 auto var(--space-5);
+}
+
+.feed-masthead .section-label {
+  margin: 0 0 var(--space-2) 0;
+}
+
+.feed-masthead-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.15;
+  color: var(--circula-mocha);
+  text-wrap: balance;
+}
+
+/* --- composer: convite leve, expande ao clicar ---------------------
+   Mesmo <form>/handlers de sempre — só fica escondido até a linha-
+   convite ser clicada (.post-composer-form--collapsed = display:none). */
+.post-composer-invite {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.post-composer-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 14px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.post-composer-invite-prompt {
+  flex: 1;
+  text-align: left;
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 16px;
+  color: var(--circula-beige);
+  border: none;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  background: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.post-composer-invite-prompt:hover,
+.post-composer-invite-prompt:focus-visible {
+  color: var(--circula-taupe);
+  border-color: var(--circula-mocha);
+}
+
+/* .community-card form (aninhado, App.css:1505) tem especificidade
+   0,1,1 — mais alta que uma classe só. O seletor abaixo soma o tipo
+   form + a classe do próprio .post-composer para vencer sem tocar
+   naquela regra (compartilhada por CommunityView, CircleManager etc). */
+.post-composer form.post-composer-form--collapsed {
+  display: none;
+}
+
+/* .post-composer-image-btn já herda .auth-link (Jost, tamanho, peso);
+   só a cor/sublinhado mudam aqui — especificidade igual, resolvida por
+   ordem (esta regra vem depois de .auth-link no arquivo). */
+.post-composer-image-btn {
+  color: var(--circula-taupe);
+  text-decoration: none;
+}
+
+.post-composer-image-btn:hover {
+  color: var(--circula-mocha);
+}
+
+/* .community-card form > button[type='submit'] (especificidade 0,2,2)
+   é o botão cheio de sempre — aqui a pílula compacta do redesign
+   precisa de especificidade maior para vencer sem tocar aquela regra
+   (usada por CommunityView, CircleManager etc.), daí a repetição de
+   .post-composer + [type='submit']. */
+.post-composer .post-composer-submit[type='submit'] {
+  width: auto;
+  margin-top: 0;
+  padding: 10px 22px;
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--circula-mocha);
+  background-image: none;
+  color: var(--circula-offwhite);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-black);
+    box-shadow: none;
+  }
+  &:active:not(:disabled) {
+    background-color: var(--circula-black);
+    box-shadow: none;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+}
+
+/* --- publicação: sem card, hairline entre publicações --------------
+   inlineConversation (Feed.tsx) → .post-card--editorial. Home/
+   HomeHighlights não passam essa prop e mantêm .post-card como está. */
+.feed-list {
+  gap: 0;
+}
+
+.post-card.post-card--editorial {
+  padding: var(--space-6) 0;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  background: none;
+  background-image: none;
+  box-shadow: none;
+}
+
+.feed-list .post-card--editorial:first-child {
+  padding-top: 0;
+}
+
+.feed-list .post-card--editorial:last-child {
+  border-bottom: 0;
+}
+
+/* neutraliza o hover genérico de card (lift + sombra) — só a imagem
+   ganha zoom sutil, mais abaixo. Especificidade (0,3,0) > a regra
+   genérica .post-card:hover da lista de cards (0,2,0). */
+.post-card.post-card--editorial:hover {
+  border-color: transparent;
+  border-bottom-color: var(--circula-champagne-line);
+  box-shadow: none;
+  transform: none;
+}
+
+.post-card--editorial .post-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  font-size: 15px;
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  box-shadow: none;
+}
+
+.post-card--editorial .post-author {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: 0;
+  color: var(--circula-mocha);
+}
+
+.post-card--editorial .post-time {
+  font-family: var(--font-label);
+  font-size: 12px;
+  color: var(--circula-beige);
+}
+
+.post-card--editorial .post-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 19px;
+  color: var(--circula-mocha);
+}
+
+.post-card--editorial .post-content {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--circula-black);
+}
+
+/* pergunta do dia — tratamento editorial em destaque (citação), sem
+   imagem; os demais tipos ficam com o texto-padrão acima. */
+.post-card--editorial.post-card--question .post-content {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 1.35;
+  color: var(--circula-mocha);
+  max-width: 20ch;
+}
+
+.post-card--editorial .post-badge {
+  background: var(--circula-champagne-tint);
+  color: var(--circula-taupe);
+  font-family: var(--font-label);
+  font-weight: 500;
+}
+
+.post-card--editorial .post-badge--checkin,
+.post-card--editorial .post-badge--command {
+  background: var(--circula-champagne-tint);
+}
+
+/* imagem protagonista — zoom sutil só nela, sem lift do post */
+.post-card--editorial .post-image {
+  border-radius: 3px;
+  max-height: none;
+  aspect-ratio: 4 / 3;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .post-card--editorial:hover .post-image {
+    transform: scale(1.03);
+  }
+}
+
+.post-card--editorial .post-actions {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+  gap: var(--space-5);
+}
+
+.post-card--editorial .post-reaction,
+.post-card--editorial .post-comment-toggle {
+  padding: 4px 2px;
+  min-height: 0;
+  border-radius: 0;
+  font-family: var(--font-label);
+  font-size: 13px;
+  color: var(--circula-taupe);
+
+  &:hover:not(:disabled) {
+    background: none;
+    color: var(--circula-mocha);
+  }
+}
+
+.post-card--editorial .post-reaction--active {
+  color: var(--circula-mocha);
+  background: none;
+}
+
+/* .save-button é compartilhado com ContentCard/EventCard — escopado
+   ao variant editorial para não mudar os outros usos. */
+.post-card--editorial .save-button {
+  min-height: 0;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--circula-taupe);
+
+  &:hover:not(:disabled) {
+    border-color: transparent;
+    background: none;
+    color: var(--circula-mocha);
+  }
+}
+
+.post-card--editorial .save-button--on {
+  border-color: transparent;
+  background: none;
+  color: var(--circula-mocha);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-card--editorial .post-image {
+    transition: none;
+  }
+}
+
 /* ===== Painel da Professional ===== */
 
 .challenge-manager {
@@ -10713,21 +11028,34 @@ form.panel-points-form {
   font-size: 12px;
 }
 
-/* bolha de conteúdo — só no Feed de Conversa; Home segue texto simples */
+/* texto simples — redesign do Feed abandona a bolha de chat, igual à
+   Home; só o espaçamento muda do texto-plano padrão de .comment-content. */
 .post-conversation .comment-content {
   margin-top: 3px;
-  padding: 8px 12px;
-  background: var(--surface-sunken);
-  border-radius: 4px 13px 13px 13px;
-  font-size: 14px;
-  line-height: 150%;
-  color: var(--graphite);
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--circula-black);
   overflow-wrap: anywhere;
 }
 
 .post-conversation .comment-item--reply .comment-content {
-  background: var(--olive-bg);
-  font-size: 13.5px;
+  font-size: 14px;
+}
+
+.post-conversation .comment-author {
+  color: var(--circula-mocha);
+}
+
+.post-conversation .comment-time {
+  color: var(--circula-beige);
+}
+
+.post-conversation .comment-avatar {
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  box-shadow: none;
 }
 
 /* ações abaixo do comentário-raiz: Responder / Ver respostas */
@@ -10756,19 +11084,19 @@ form.panel-points-form {
 }
 
 .comment-reply-action:hover {
-  color: var(--olive-text);
+  color: var(--circula-mocha);
 }
 
 .comment-reply-form-wrap {
   padding-left: 48px;
 }
 
-/* respostas agrupadas — recuo com fio rosé */
+/* respostas agrupadas — recuo com fio champagne (redesign do Feed) */
 .comment-replies {
   list-style: none;
   margin: 2px 0 0 28px;
   padding-left: 16px;
-  border-left: 2px solid var(--olive-border);
+  border-left: 1px solid var(--circula-champagne-line);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -10783,12 +11111,13 @@ form.panel-points-form {
   font-weight: 500;
   border: none;
   background: none;
-  color: var(--olive-text);
+  color: var(--circula-taupe);
   cursor: pointer;
   width: auto;
 }
 
 .comment-reply-more:hover {
+  color: var(--circula-mocha);
   text-decoration: underline;
 }
 
@@ -10805,12 +11134,13 @@ form.panel-points-form {
   font-weight: 500;
   border: none;
   background: none;
-  color: var(--olive-text);
+  color: var(--circula-taupe);
   cursor: pointer;
   width: auto;
 }
 
 .comment-more:hover {
+  color: var(--circula-mocha);
   text-decoration: underline;
 }
 
@@ -10852,21 +11182,25 @@ form.panel-points-form {
 .feed-load-more {
   align-self: center;
   margin-top: var(--space-2);
-  padding: 10px 22px;
-  font: inherit;
-  font-size: 14px;
+  padding: 11px 26px;
+  font-family: var(--font-label);
+  font-size: 12.5px;
   font-weight: 500;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--olive-border);
-  background: var(--surface);
-  color: var(--olive-text);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid var(--circula-champagne-line);
+  background: none;
+  color: var(--circula-taupe);
   cursor: pointer;
   width: auto;
-  transition: background 0.15s ease;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
 
 .feed-load-more:hover:not(:disabled) {
-  background: var(--olive-bg);
+  background: none;
+  border-color: var(--circula-mocha);
+  color: var(--circula-mocha);
 }
 
 .feed-load-more:disabled {
