@@ -46,7 +46,7 @@ export function AddMemberForm({ onAdd }: AddMemberFormProps) {
   }
 
   return (
-    <section className="community-card">
+    <section className="community-card community-pro-form">
       <h3>Adicionar mulher</h3>
 
       <form onSubmit={handleSubmit}>

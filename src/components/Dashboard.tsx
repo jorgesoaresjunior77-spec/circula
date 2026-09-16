@@ -2,6 +2,7 @@ import { useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
+import type { CommunityWithMembers } from '../types/community'
 import { useCommunity } from '../hooks/useCommunity'
 import { useCircles } from '../hooks/useCircles'
 import { CreateCommunityForm } from './CreateCommunityForm'
@@ -46,6 +47,84 @@ import {
   UserIcon,
 } from './icons'
 
+// Fase 7 — só a quantidade para preencher a largura da grade real
+// (.community-grid vira 3 colunas no desktop); puramente decorativo.
+const COMMUNITY_LOADING_KEYS = ['a', 'b', 'c']
+
+// Skeleton editorial exclusivo da tela Comunidades do Member (Fase 7).
+// Puramente apresentacional — nenhum dado novo, nenhuma lógica; usado
+// só quando `effectiveNav === 'comunidades'` e `profile.role ===
+// 'member'` durante o `loading` já existente de useCommunity. O
+// Professional continua com o texto genérico de sempre (item 5 da
+// fase: nenhum estado novo para ele).
+function CommunityLoadingSkeleton() {
+  return (
+    <div className="community-loading" aria-hidden="true">
+      <span className="community-loading-line community-loading-line--heading" />
+      <div className="community-grid">
+        {COMMUNITY_LOADING_KEYS.map((key) => (
+          <div key={`minhas-${key}`} className="community-loading-card">
+            <span className="community-loading-media" />
+            <span className="community-loading-line community-loading-line--title" />
+            <span className="community-loading-line community-loading-line--meta" />
+          </div>
+        ))}
+      </div>
+      <span className="community-loading-line community-loading-line--heading" />
+      <div className="community-grid">
+        {COMMUNITY_LOADING_KEYS.map((key) => (
+          <div key={`descobrir-${key}`} className="community-loading-card">
+            <span className="community-loading-media" />
+            <span className="community-loading-line community-loading-line--title" />
+            <span className="community-loading-line community-loading-line--meta" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface CommunityPickerOptionProps {
+  community: CommunityWithMembers
+  memberCount?: number
+  onSelect: () => void
+}
+
+// Redesign do community-picker (Fase 5): componente próprio (não
+// exportado, só deste arquivo) exigido pelas regras de hooks do React
+// — `useSignedImageUrl` precisa rodar uma vez por item da lista, o que
+// não é possível dentro do `.map()` do componente pai. Só apresentação:
+// nenhum dado novo (usa `cover_image_url`/`memberCount` já carregados),
+// nenhuma query, callback recebido de fora sem alteração.
+function CommunityPickerOption({ community, memberCount, onSelect }: CommunityPickerOptionProps) {
+  const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
+
+  return (
+    <button type="button" className="community-picker-card" onClick={onSelect}>
+      <span className="community-picker-card-media" aria-hidden="true">
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
+        ) : (
+          <span className="community-picker-card-fallback">
+            {community.name.charAt(0).toUpperCase()}
+          </span>
+        )}
+      </span>
+      <span className="community-picker-card-body">
+        <span className="community-picker-card-name">{community.name}</span>
+        <span className="community-picker-card-meta">
+          {memberCount != null
+            ? `${memberCount} ${memberCount === 1 ? 'pessoa' : 'pessoas'}`
+            : 'Selecionar comunidade'}
+        </span>
+      </span>
+      <span className="community-picker-card-arrow" aria-hidden="true">
+        →
+      </span>
+    </button>
+  )
+}
+
 interface DashboardProps {
   profile: Profile | null
   onSignOut: () => void
@@ -84,6 +163,32 @@ export function Dashboard({
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
   const [circlesCommunityId, setCirclesCommunityId] = useState<string | null>(null)
+
+  // Redesign do community-picker (Fase 5) — só a apresentação dos 4
+  // blocos idênticos (Feed/Círculos/Eventos/Loja); `onSelect` é sempre
+  // o mesmo callback que cada chamador já usa hoje (`setCirclesCommunityId`),
+  // passado como parâmetro, sem alteração nenhuma de comportamento.
+  function renderCommunityPicker(
+    label: string,
+    items: CommunityWithMembers[],
+    onSelect: (communityId: string) => void,
+  ) {
+    return (
+      <>
+        <p className="section-label">{label}</p>
+        <div className="community-picker">
+          {items.map((community) => (
+            <CommunityPickerOption
+              key={community.id}
+              community={community}
+              memberCount={memberCounts[community.id]}
+              onSelect={() => onSelect(community.id)}
+            />
+          ))}
+        </div>
+      </>
+    )
+  }
 
   const myCommunities = communities.filter((community) =>
     community.community_members.some((member) => member.profile?.id === profile?.id),
@@ -344,19 +449,11 @@ export function Dashboard({
       if (!resolvedCirclesCommunityId) {
         return (
           <>
-            <p className="section-label">Feed · escolha uma comunidade</p>
-            <div className="community-picker">
-              {circlesRelevantCommunities.map((community) => (
-                <button
-                  key={community.id}
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setCirclesCommunityId(community.id)}
-                >
-                  {community.name}
-                </button>
-              ))}
-            </div>
+            {renderCommunityPicker(
+              'Feed · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
           </>
         )
       }
@@ -409,19 +506,11 @@ export function Dashboard({
       if (!resolvedCirclesCommunityId) {
         return (
           <>
-            <p className="section-label">Círculos · escolha uma comunidade</p>
-            <div className="community-picker">
-              {circlesRelevantCommunities.map((community) => (
-                <button
-                  key={community.id}
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setCirclesCommunityId(community.id)}
-                >
-                  {community.name}
-                </button>
-              ))}
-            </div>
+            {renderCommunityPicker(
+              'Círculos · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
           </>
         )
       }
@@ -472,19 +561,11 @@ export function Dashboard({
       if (!resolvedCirclesCommunityId) {
         return (
           <>
-            <p className="section-label">Eventos · escolha uma comunidade</p>
-            <div className="community-picker">
-              {circlesRelevantCommunities.map((community) => (
-                <button
-                  key={community.id}
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setCirclesCommunityId(community.id)}
-                >
-                  {community.name}
-                </button>
-              ))}
-            </div>
+            {renderCommunityPicker(
+              'Eventos · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
           </>
         )
       }
@@ -519,19 +600,11 @@ export function Dashboard({
       if (!resolvedCirclesCommunityId) {
         return (
           <>
-            <p className="section-label">Loja · escolha uma comunidade</p>
-            <div className="community-picker">
-              {circlesRelevantCommunities.map((community) => (
-                <button
-                  key={community.id}
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setCirclesCommunityId(community.id)}
-                >
-                  {community.name}
-                </button>
-              ))}
-            </div>
+            {renderCommunityPicker(
+              'Loja · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
           </>
         )
       }
@@ -577,22 +650,55 @@ export function Dashboard({
       if (effectiveNav === 'comunidades') {
         return (
           <>
-            <PendingMembershipRequests
-              communityId={community.id}
-              communityName={community.name}
-              members={community.community_members}
-              onApprove={approveMembershipRequest}
-              onReject={rejectMembershipRequest}
-            />
-            <p className="section-label">Participantes</p>
-            <InviteMemberForm
-              onInvite={(email, fullName) => inviteMember(community.id, email, fullName)}
-            />
-            <AddMemberForm onAdd={(email) => addMember(community.id, email)} />
-            <MemberList
-              members={community.community_members}
-              onSelectMember={setViewingProfileId}
-            />
+            <div className="community-masthead">
+              <p className="community-masthead-eyebrow">Comunidades</p>
+              <h1 className="community-masthead-title">Sua comunidade, em um só lugar</h1>
+              <p className="community-masthead-intro">
+                Acompanhe pedidos de entrada, convide novas pessoas e conheça quem já faz
+                parte de {community.name}.
+              </p>
+            </div>
+
+            <div className="community-pro-hero">
+              <CommunityView
+                community={community}
+                memberCount={memberCounts[community.id]}
+                badge="Você é a anfitriã desta comunidade"
+                onSetCover={(url) => setCommunityCover(community.id, url)}
+                ownerId={profile.id}
+              />
+            </div>
+
+            <div className="community-pro-block">
+              <PendingMembershipRequests
+                communityId={community.id}
+                communityName={community.name}
+                members={community.community_members}
+                onApprove={approveMembershipRequest}
+                onReject={rejectMembershipRequest}
+                variant="editorial"
+              />
+            </div>
+
+            <div className="community-pro-block">
+              <p className="community-pro-block-eyebrow">Convite</p>
+              <InviteMemberForm
+                onInvite={(email, fullName) => inviteMember(community.id, email, fullName)}
+              />
+            </div>
+
+            <div className="community-pro-block">
+              <p className="community-pro-block-eyebrow">Adição direta</p>
+              <AddMemberForm onAdd={(email) => addMember(community.id, email)} />
+            </div>
+
+            <div className="community-pro-block">
+              <p className="community-pro-block-eyebrow">Comunidade</p>
+              <MemberList
+                members={community.community_members}
+                onSelectMember={setViewingProfileId}
+              />
+            </div>
           </>
         )
       }
@@ -630,7 +736,16 @@ export function Dashboard({
     if (effectiveNav === 'comunidades') {
       return (
         <>
-          {myCommunities.length > 0 && (
+          <div className="community-masthead">
+            <p className="community-masthead-eyebrow">Comunidades</p>
+            <h1 className="community-masthead-title">Encontre seu espaço no Círcula</h1>
+            <p className="community-masthead-intro">
+              Cada comunidade é um jeito diferente de viver o Círcula — escolha onde já
+              está, ou descubra um novo espaço para chamar de seu.
+            </p>
+          </div>
+
+          {myCommunities.length > 0 ? (
             <>
               <p className="section-label">Minhas comunidades</p>
               <div className="community-grid">
@@ -639,10 +754,21 @@ export function Dashboard({
                     key={community.id}
                     community={community}
                     memberCount={memberCounts[community.id]}
+                    variant="grid"
                   />
                 ))}
               </div>
             </>
+          ) : (
+            <div className="community-empty">
+              <p className="community-empty-eyebrow">Minhas comunidades</p>
+              <p className="community-empty-title">
+                Você ainda não participa de nenhuma comunidade
+              </p>
+              <p className="community-empty-text">
+                Descubra abaixo um espaço que combine com o seu momento.
+              </p>
+            </div>
           )}
 
           {discoverableCommunities.length > 0 ? (
@@ -655,12 +781,22 @@ export function Dashboard({
                     community={community}
                     memberCount={memberCounts[community.id]}
                     onJoin={() => joinCommunity(community.id)}
+                    variant="grid"
                   />
                 ))}
               </div>
             </>
           ) : (
-            myCommunities.length === 0 && <p>Nenhuma comunidade disponível.</p>
+            <div className="community-empty">
+              <p className="community-empty-eyebrow">Descobrir comunidades</p>
+              <p className="community-empty-title">
+                Nenhuma comunidade nova para descobrir agora
+              </p>
+              <p className="community-empty-text">
+                Você já faz parte de tudo que temos por perto. Volte em breve para ver
+                novidades.
+              </p>
+            </div>
           )}
         </>
       )
@@ -796,7 +932,12 @@ export function Dashboard({
         <>
           <div className="dashboard-main">
             <div className="community-area">
-              {loading && <p>Carregando comunidade...</p>}
+              {loading &&
+                (effectiveNav === 'comunidades' && profile?.role === 'member' ? (
+                  <CommunityLoadingSkeleton />
+                ) : (
+                  <p>Carregando comunidade...</p>
+                ))}
 
               {!loading && error && <p className="auth-error">{error}</p>}
 

@@ -9,7 +9,7 @@ export function MemberList({ members, onSelectMember }: MemberListProps) {
   const activeMembers = members.filter((member) => member.status === 'active')
 
   return (
-    <section className="member-list">
+    <section className="member-list member-list--editorial">
       <h3>Participantes</h3>
 
       {activeMembers.length === 0 ? (

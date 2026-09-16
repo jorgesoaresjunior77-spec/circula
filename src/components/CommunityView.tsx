@@ -12,6 +12,13 @@ interface CommunityViewProps {
   onSetCover?: (url: string | null) => Promise<{ error: string | null }>
   /** id da anfitriã (= `auth.uid()`), necessário para o upload da capa. */
   ownerId?: string
+  // Redesign de Comunidades (Fase 1): variant só troca a classe raiz
+  // (App.css vai escopar por `.community-card--grid`, no mesmo molde de
+  // EventCard/ProductCard) — os outros 6 call sites (Home, Feed) nunca
+  // passam variant, então mantêm exatamente `community-card
+  // community-card--highlight community-hero` de sempre, intocado. Sem
+  // CSS novo e sem mudança de layout/conteúdo nesta fase.
+  variant?: 'hero' | 'grid'
 }
 
 interface HeroStat {
@@ -76,6 +83,7 @@ export function CommunityView({
   onJoin,
   onSetCover,
   ownerId,
+  variant = 'hero',
 }: CommunityViewProps) {
   const [joining, setJoining] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
@@ -131,8 +139,13 @@ export function CommunityView({
   const stats = buildStats(community, memberCount)
   const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
 
+  const rootClassName =
+    variant === 'grid'
+      ? 'community-card community-card--grid'
+      : 'community-card community-card--highlight community-hero'
+
   return (
-    <section className="community-card community-card--highlight community-hero">
+    <section className={rootClassName}>
       <div className="community-hero-cover" aria-hidden="true">
         {coverUrl && (
           <img

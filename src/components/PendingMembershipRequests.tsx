@@ -7,6 +7,13 @@ interface PendingMembershipRequestsProps {
   members: CommunityMember[]
   onApprove: (communityId: string, profileId: string) => Promise<{ error: string | null }>
   onReject: (communityId: string, profileId: string) => Promise<{ error: string | null }>
+  // Redesign de Comunidades (Fase 6): variant só troca a classe raiz
+  // (App.css escopa por `.panel-members-pending--editorial`, sempre com
+  // essa classe como ancestral) — CommunityMembersPanel (aba Painel,
+  // outra tela) nunca passa variant, então mantém exatamente o visual
+  // "véu rosé" de sempre. Nenhuma lógica (run/busy/errors/onApprove/
+  // onReject) muda com a variant.
+  variant?: 'panel' | 'editorial'
 }
 
 const REQUEST_FMT = new Intl.DateTimeFormat('pt-BR', {
@@ -41,6 +48,7 @@ export function PendingMembershipRequests({
   members,
   onApprove,
   onReject,
+  variant = 'panel',
 }: PendingMembershipRequestsProps) {
   const pending = members.filter((member) => member.status === 'pending')
   const [busy, setBusy] = useState<{ profileId: string; action: 'approve' | 'reject' } | null>(
@@ -74,7 +82,11 @@ export function PendingMembershipRequests({
   if (pending.length === 0) return null
 
   return (
-    <section className="panel-members-pending">
+    <section
+      className={`panel-members-pending${
+        variant === 'editorial' ? ' panel-members-pending--editorial' : ''
+      }`}
+    >
       <p className="section-label">Solicitações pendentes ({pending.length})</p>
 
       <div className="panel-members-list">

@@ -51,7 +51,7 @@ export function InviteMemberForm({ onInvite }: InviteMemberFormProps) {
   }
 
   return (
-    <section className="community-card">
+    <section className="community-card community-pro-form">
       <h3>Convidar nova participante</h3>
       <p className="challenge-field-hint">
         Para quem ainda não tem conta no Círcula. Ela recebe um e-mail para

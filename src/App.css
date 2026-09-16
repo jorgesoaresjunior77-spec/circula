@@ -2133,6 +2133,250 @@
   }
 }
 
+/* ===================================================================
+   Comunidades · masthead editorial da tela (Fase 4 do redesign,
+   protótipo aprovado no Frontend do Claude) — abertura da experiência
+   principal de Comunidades do Member. Classes próprias, exclusivas
+   desta tela; nenhuma classe global (.section-label à parte, já
+   reaproveitada em Loja/Eventos) foi tocada. Mesmo molde de
+   .event-masthead e .store-masthead, só com nomes próprios.
+   =================================================================== */
+.community-masthead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.community-masthead-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.community-masthead-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(28px, 4.5vw, 42px);
+  line-height: 1.18;
+  color: var(--circula-mocha);
+}
+
+.community-masthead-intro {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--circula-taupe);
+}
+
+@media (max-width: 620px) {
+  .community-masthead {
+    gap: var(--space-1);
+  }
+
+  .community-masthead-intro {
+    max-width: none;
+  }
+}
+
+/* ===================================================================
+   Comunidades · variante editorial do CommunityView (Fase 2 do
+   redesign, protótipo aprovado no Frontend do Claude) — CSS
+   exclusivo de `.community-card--grid` e seus descendentes, sempre
+   escopado sob esse seletor. Nenhuma regra de `.community-card`,
+   `.community-hero*`, `.community-avatar` ou `.community-badge` foi
+   redefinida globalmente — Home, Feed e o hero do Professional (que
+   nunca passam `variant`) continuam exatamente como estão. Reaproveita
+   só os tokens --circula-* já usados em Círculos/Loja/Eventos; classes
+   próprias, nenhuma delas compartilhada com essas telas.
+   =================================================================== */
+.community-card--grid {
+  display: block;
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  background-image: none;
+  box-shadow: none;
+}
+
+/* --- capa: protagonista, 4:5, sem decoração botânica --------------- */
+.community-card--grid .community-hero-cover {
+  position: relative;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+  background-image: none;
+  box-shadow: none;
+}
+
+.community-card--grid .community-hero-cover::after {
+  content: '';
+  position: absolute;
+  inset: 16% 14%;
+  border: 1px solid rgba(245, 243, 239, 0.45);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.community-card--grid .community-hero-cover-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .community-card--grid:hover .community-hero-cover-image,
+  .community-card--grid:focus-within .community-hero-cover-image {
+    transform: scale(1.03);
+  }
+}
+
+/* Controle de capa (upload) não aparece na grade — card só de leitura;
+   mantido aqui como reforço mesmo que nenhum call site da grade passe
+   onSetCover hoje. */
+.community-card--grid .community-hero-cover-control {
+  display: none;
+}
+
+/* --- corpo: sem caixa, hairline Champagne separando da capa -------- */
+.community-card--grid .community-hero-body {
+  padding: var(--space-3) 0 0;
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--circula-champagne-line);
+  gap: var(--space-2);
+}
+
+/* Avatar circular vira redundante quando a foto já é protagonista. */
+.community-card--grid .community-avatar {
+  display: none;
+}
+
+.community-card--grid .community-hero-headline {
+  gap: 0;
+}
+
+.community-card--grid .community-badge {
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+
+  &.community-badge--outline {
+    border-color: var(--circula-champagne-line);
+    color: var(--circula-taupe);
+  }
+}
+
+.community-card--grid .community-hero-name {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--circula-mocha);
+}
+
+/* Descrição não aparece na grade — só na leitura completa (hero). */
+.community-card--grid .community-hero-about {
+  display: none;
+}
+
+/* --- indicadores: legenda compacta em Jost, sem caixa/coluna ------- */
+.community-card--grid .community-hero-stats {
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  gap: 4px;
+  margin-top: 0.35rem;
+}
+
+.community-card--grid .community-hero-stat {
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
+  padding: 0;
+  text-align: left;
+
+  & + & {
+    border-left: none;
+
+    &::before {
+      content: '·';
+      margin-right: 4px;
+      color: var(--circula-champagne);
+    }
+  }
+}
+
+.community-card--grid .community-hero-stat-value {
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 11.5px;
+  color: var(--circula-taupe);
+}
+
+.community-card--grid .community-hero-stat-label {
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--circula-taupe);
+}
+
+/* --- ação: CTA editorial sólido (só aparece quando há onJoin) ------ */
+.community-card--grid .community-hero-actions {
+  margin-top: 0.85rem;
+}
+
+.community-card--grid .community-hero-actions button:not(.auth-link) {
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  min-height: 40px;
+  padding: 9px 22px;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-black);
+    border-color: transparent;
+  }
+  &:active:not(:disabled) {
+    background-color: var(--circula-black);
+    border-color: transparent;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
 .profile-avatar {
   width: 56px;
   height: 56px;
@@ -8132,10 +8376,428 @@ form.panel-points-form {
   color: var(--olive-text);
 }
 
+/* ===================================================================
+   community-picker · redesign editorial (Fase 5), protótipo aprovado
+   no Frontend do Claude — bloco pequeno e compacto, não uma grade de
+   Comunidades. Classes exclusivas deste seletor (usado só aqui, nos 4
+   pontos de Dashboard.tsx); nenhuma classe de Círculos/Loja/Eventos
+   reaproveitada, nenhuma classe de CommunityView tocada.
+   =================================================================== */
 .community-picker {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  flex-direction: column;
+  max-width: 480px;
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 6px;
+}
+
+.community-picker-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  border: none;
+  border-top: 1px solid var(--circula-champagne-line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: padding-left 0.18s ease;
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &:hover {
+    padding-left: 4px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.community-picker-card-media {
+  position: relative;
+  width: 52px;
+  height: 65px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+  display: grid;
+  place-items: center;
+}
+
+.community-picker-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .community-picker-card:hover .community-picker-card-media img,
+  .community-picker-card:focus-visible .community-picker-card-media img {
+    transform: scale(1.03);
+  }
+}
+
+.community-picker-card-fallback {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+
+.community-picker-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.community-picker-card-name {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--circula-mocha);
+  overflow-wrap: break-word;
+}
+
+.community-picker-card-meta {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--circula-taupe);
+}
+
+.community-picker-card-arrow {
+  flex: none;
+  font-family: var(--font-label);
+  font-size: 14px;
+  color: var(--circula-taupe);
+}
+
+@media (max-width: 480px) {
+  .community-picker {
+    max-width: none;
+    padding: var(--space-1) var(--space-3);
+  }
+}
+
+/* ===================================================================
+   Comunidades · experiência editorial da anfitriã (Fase 6 do redesign,
+   protótipo aprovado no Frontend do Claude). CSS exclusivo desta tela;
+   `.community-card` e `.community-hero` continuam intocados
+   globalmente — o CommunityView aqui usa a variant "hero" padrão,
+   só ganha respiro ao redor (.community-pro-hero). Solicitações
+   pendentes, convite e adição só recebem tratamento visual quando
+   escopados por `.panel-members-pending--editorial` /
+   `.community-card.community-pro-form` — nunca alterando a regra base
+   compartilhada com CommunityMembersPanel (aba Painel) ou com as
+   dezenas de outros usos de `.community-card`.
+   =================================================================== */
+.community-pro-hero {
+  margin-bottom: var(--space-4);
+}
+
+.community-pro-block {
+  max-width: 640px;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--circula-champagne-line);
+}
+
+.community-pro-block-eyebrow {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+/* --- solicitações pendentes: só quando escopado à variant editorial */
+.panel-members-pending--editorial {
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.panel-members-pending--editorial .panel-members-list {
+  gap: var(--space-4);
+}
+
+.panel-members-pending--editorial .panel-members-row {
+  align-items: center;
+}
+
+.panel-members-pending--editorial .panel-members-avatar {
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.panel-members-pending--editorial .panel-members-name {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  color: var(--circula-mocha);
+}
+
+.panel-members-pending--editorial .panel-members-meta {
+  color: var(--circula-taupe);
+}
+
+.panel-members-pending--editorial .btn-primary {
+  background-color: var(--circula-mocha);
+  border-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-black);
+    border-color: var(--circula-black);
+  }
+}
+
+.panel-members-pending--editorial .btn-danger {
+  background: none;
+  border: 1px solid var(--circula-champagne-line);
+  color: var(--circula-taupe);
+
+  &:hover:not(:disabled) {
+    border-color: var(--circula-mocha);
+    color: var(--circula-mocha);
+  }
+}
+
+/* --- convite / adição: casco herda .community-card, só reskin ----- */
+.community-card.community-pro-form {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.community-card.community-pro-form h3 {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 18px;
+  color: var(--circula-mocha);
+}
+
+.community-card.community-pro-form label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.community-card.community-pro-form input {
+  border: none;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  padding: 8px 0;
+  font-family: var(--font-body);
+  color: var(--circula-black);
+  transition: border-color 0.2s ease;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--circula-mocha);
+  }
+}
+
+.community-card.community-pro-form button[type='submit'] {
+  margin-top: var(--space-2);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-black);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+/* --- membros: lista plana editorial --------------------------------- */
+.member-list--editorial {
+  padding: 0;
+
+  h3 {
+    display: none;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  li {
+    border-top: 1px solid var(--circula-champagne-line);
+
+    &:first-child {
+      border-top: none;
+    }
+  }
+}
+
+.member-list--editorial .member-list-item {
+  min-height: 48px;
+  padding: 12px 0;
+  font-family: var(--font-body);
+  color: var(--circula-black);
+
+  &:hover {
+    color: var(--circula-mocha);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 620px) {
+  .community-pro-block {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+  }
+}
+
+/* ===================================================================
+   Comunidades · loading e empty state (Fase 7 do redesign, protótipo
+   aprovado no Frontend do Claude). Classes próprias, exclusivas desta
+   tela; nenhum skeleton global nem o EmptyState.tsx/.empty-state
+   compartilhado foram tocados — esta composição (eyebrow + título +
+   texto) é construída à parte. Reaproveita só `.community-grid` (já
+   exclusiva de Comunidades) para herdar a mesma responsividade real.
+   =================================================================== */
+.community-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.community-loading-line {
+  display: block;
+  height: 10px;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+}
+
+.community-loading-line--heading {
+  width: 180px;
+  height: 22px;
+}
+
+.community-loading-line--title {
+  width: 70%;
+  height: 14px;
+  margin-top: 0.6rem;
+}
+
+.community-loading-line--meta {
+  width: 45%;
+  margin-top: 0.4rem;
+}
+
+.community-loading-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.community-loading-media {
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--circula-champagne-tint) 0%,
+    rgba(200, 184, 168, 0.32) 50%,
+    var(--circula-champagne-tint) 100%
+  );
+  background-size: 200% 100%;
+  animation: communityLoadingShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes communityLoadingShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community-loading-media {
+    animation: none;
+    background: var(--circula-champagne-tint);
+  }
+}
+
+/* --- empty state: eyebrow + título + texto, sem botão inventado ---- */
+.community-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 52ch;
+  padding: var(--space-5) 0;
+}
+
+.community-empty-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.community-empty-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 20px;
+  line-height: 1.3;
+  color: var(--circula-mocha);
+}
+
+.community-empty-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--circula-taupe);
 }
 
 /* Lista de círculos */
