@@ -26,6 +26,14 @@ interface ProductCardProps {
   owned?: boolean
   buying?: boolean
   onBuy?: (product: Product) => Promise<{ error: string | null; invoiceUrl: string | null }>
+  // Redesign da vitrine: variant só troca a classe CSS (App.css escopa
+  // por `.product-manager--storefront .product-card--*`) — a gestão
+  // (ProfessionalPanel) nunca passa variant, então mantém o visual
+  // clássico de sempre, intocado.
+  variant?: 'grid' | 'featured' | 'detail'
+  // Abre o detalhe (estado local no ProductManager). Omitido em modo
+  // gestão e dentro do próprio detalhe — nada de rota nova.
+  onSelect?: (product: Product) => void
 }
 
 export function ProductCard({
@@ -34,6 +42,8 @@ export function ProductCard({
   owned = false,
   buying = false,
   onBuy,
+  variant = 'grid',
+  onSelect,
 }: ProductCardProps) {
   const inactive = product.status !== 'published'
   const showEventInfo =
@@ -106,15 +116,30 @@ export function ProductCard({
     product.deliverable_kind !== 'none' ||
     (isPhysical && product.requires_shipping)
 
+  const cover = product.cover_image_url ? (
+    <img src={product.cover_image_url} alt="" className="product-card-image" />
+  ) : (
+    <div className="product-card-placeholder" aria-hidden="true">
+      <span>{product.title.charAt(0).toUpperCase()}</span>
+    </div>
+  )
+
+  const openDetail = onSelect ? () => onSelect(product) : undefined
+
   return (
-    <article className="product-card">
+    <article className={`product-card product-card--${variant}`}>
       <div className="product-card-media">
-        {product.cover_image_url ? (
-          <img src={product.cover_image_url} alt="" className="product-card-image" />
+        {openDetail ? (
+          <button
+            type="button"
+            className="product-card-media-open"
+            onClick={openDetail}
+            aria-label={`Ver detalhes de ${product.title}`}
+          >
+            {cover}
+          </button>
         ) : (
-          <div className="product-card-placeholder" aria-hidden="true">
-            <span>{product.title.charAt(0).toUpperCase()}</span>
-          </div>
+          cover
         )}
 
         <div className="product-card-chips">
@@ -126,7 +151,15 @@ export function ProductCard({
       </div>
 
       <div className="product-card-body">
-        <h3 className="product-card-title">{product.title}</h3>
+        <h3 className="product-card-title">
+          {openDetail ? (
+            <button type="button" className="product-card-title-open" onClick={openDetail}>
+              {product.title}
+            </button>
+          ) : (
+            product.title
+          )}
+        </h3>
 
         {product.description && (
           <p className="product-card-description">{product.description}</p>

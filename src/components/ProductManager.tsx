@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { useProducts } from '../hooks/useProducts'
 import type {
@@ -16,6 +16,7 @@ import {
 } from '../types/product'
 import { ProductCard } from './ProductCard'
 import { EmptyState } from './EmptyState'
+import { CloseIcon } from './icons'
 import { useProductCheckout } from '../hooks/useProductCheckout'
 import { useProductEntitlements } from '../hooks/useProductEntitlements'
 
@@ -37,6 +38,13 @@ const PRODUCT_TYPES: ProductType[] = [
 ]
 
 const DELIVERABLE_KINDS: ProductDeliverableKind[] = ['none', 'file', 'external_link', 'scheduling']
+
+// Filtros da vitrine (Member): só os tipos reais de PRODUCT_TYPES, sem
+// categoria fictícia. Client-side — nenhuma query nova.
+const STORE_FILTERS: Array<{ value: ProductType | 'all'; label: string }> = [
+  { value: 'all', label: 'Todos' },
+  ...PRODUCT_TYPES.map((type) => ({ value: type, label: PRODUCT_TYPE_LABELS[type] })),
+]
 
 interface ProductFormValues {
   type: ProductType
@@ -356,6 +364,59 @@ export function ProductManager({
 
   const [actionError, setActionError] = useState<string | null>(null)
 
+  // --- Vitrine (Member): estado só de apresentação, sem query nova ---
+  const [activeFilter, setActiveFilter] = useState<ProductType | 'all'>('all')
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
+
+  const publishedProducts = products.filter((product) => product.status === 'published')
+  // `products` já vem ordenado por created_at desc (useProducts) — o
+  // primeiro publicado É o mais recente. Sem published_at no banco,
+  // este é o critério simples pedido; nenhum campo novo foi criado.
+  const featuredProduct = publishedProducts[0] ?? null
+  const gridProducts = featuredProduct
+    ? publishedProducts.filter((product) => product.id !== featuredProduct.id)
+    : publishedProducts
+  const filteredGridProducts =
+    activeFilter === 'all'
+      ? gridProducts
+      : gridProducts.filter((product) => product.type === activeFilter)
+  const selectedProduct = selectedProductId
+    ? (products.find((product) => product.id === selectedProductId) ?? null)
+    : null
+
+  // Detalhe = overlay local (sem rota nova). ESC fecha; rolagem do fundo
+  // trava enquanto aberto — mesmo padrão já usado na folha de navegação
+  // (PrimaryNav.tsx).
+  useEffect(() => {
+    if (!selectedProduct) return
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setSelectedProductId(null)
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [selectedProduct])
+
+  // Mesmas props/lógica de compra de sempre — reaproveitadas nos 3
+  // lugares que renderizam ProductCard na vitrine (grade, destaque,
+  // detalhe), para não duplicar o fluxo de checkout.
+  function buyPropsFor(product: Product) {
+    return {
+      canBuy: showBuy,
+      owned: ownedProductIds.has(product.id),
+      buying: pendingProductId === product.id,
+      onBuy: showBuy
+        ? (p: Product) => buyProduct(p.id).then((r) => ({ error: r.error, invoiceUrl: r.invoiceUrl }))
+        : undefined,
+    }
+  }
+
   async function handleCreate(formEvent: FormEvent) {
     formEvent.preventDefault()
     setCreateError(null)
@@ -429,7 +490,17 @@ export function ProductManager({
         showBuy ? ' product-manager--storefront' : ''
       }`}
     >
-      <h3>Produtos da comunidade</h3>
+      {showBuy ? (
+        <div className="store-masthead">
+          <p className="section-label">Loja</p>
+          <h2 className="store-masthead-title">Loja</h2>
+          <p className="store-masthead-intro">
+            Uma seleção de conteúdos e produtos para acompanhar sua jornada.
+          </p>
+        </div>
+      ) : (
+        <h3>Produtos da comunidade</h3>
+      )}
 
       {canManage && (
         <form onSubmit={handleCreate} className="question-form">
@@ -453,15 +524,76 @@ export function ProductManager({
         </p>
       )}
 
-      {loading && <p>Carregando produtos...</p>}
+      {loading && showBuy && (
+        <div className="store-skeleton" aria-hidden="true">
+          <div className="store-skeleton-card" />
+          <div className="store-skeleton-card" />
+          <div className="store-skeleton-card" />
+        </div>
+      )}
+
+      {loading && !showBuy && <p>Carregando produtos...</p>}
 
       {!loading && error && <p className="auth-error">{error}</p>}
 
-      {!loading && !error && products.length === 0 && (
+      {!loading && !error && showBuy && publishedProducts.length === 0 && (
+        <EmptyState message="Em breve, novos conteúdos e produtos por aqui." />
+      )}
+
+      {!loading && !error && !showBuy && products.length === 0 && (
         <EmptyState message="Nenhum produto cadastrado ainda." />
       )}
 
-      {!loading && !error && products.length > 0 && (
+      {!loading && !error && showBuy && featuredProduct && (
+        <div className="store-featured">
+          <ProductCard
+            product={featuredProduct}
+            variant="featured"
+            onSelect={() => setSelectedProductId(featuredProduct.id)}
+            {...buyPropsFor(featuredProduct)}
+          />
+        </div>
+      )}
+
+      {!loading && !error && showBuy && publishedProducts.length > 0 && (
+        <div className="store-filters" role="group" aria-label="Filtrar produtos por tipo">
+          {STORE_FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`store-filter-pill${
+                activeFilter === filter.value ? ' store-filter-pill--active' : ''
+              }`}
+              aria-pressed={activeFilter === filter.value}
+              onClick={() => setActiveFilter(filter.value)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!loading && !error && showBuy && publishedProducts.length > 0 && (
+        <>
+          {filteredGridProducts.length === 0 ? (
+            <p className="store-filter-empty">Nenhum produto neste filtro.</p>
+          ) : (
+            <ul className="question-list product-list">
+              {filteredGridProducts.map((product) => (
+                <li key={product.id} className="question-item product-item">
+                  <ProductCard
+                    product={product}
+                    onSelect={() => setSelectedProductId(product.id)}
+                    {...buyPropsFor(product)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+
+      {!loading && !error && !showBuy && products.length > 0 && (
         <ul className="question-list product-list">
           {products.map((product) => (
             <li key={product.id} className="question-item product-item">
@@ -568,6 +700,28 @@ export function ProductManager({
             </li>
           ))}
         </ul>
+      )}
+
+      {showBuy && selectedProduct && (
+        <div className="product-detail-backdrop" onClick={() => setSelectedProductId(null)}>
+          <div
+            className="product-detail-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Detalhes de ${selectedProduct.title}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="product-detail-close"
+              onClick={() => setSelectedProductId(null)}
+              aria-label="Fechar"
+            >
+              <CloseIcon size={18} />
+            </button>
+            <ProductCard product={selectedProduct} variant="detail" {...buyPropsFor(selectedProduct)} />
+          </div>
+        </div>
       )}
     </section>
   )
