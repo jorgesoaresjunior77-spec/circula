@@ -15,6 +15,17 @@ interface EventCardProps {
   /** Quando definido, mostra o botão de salvar (Módulo 7). */
   isSaved?: boolean
   onToggleSave?: (saved: boolean) => Promise<{ error: string | null }>
+  // Redesign de Eventos (Fase A): variant só troca a classe CSS (App.css
+  // vai escopar por `.event-card--*`, no mesmo molde de ProductCard) —
+  // EventManager e HomeHighlights nunca passam variant, então mantêm o
+  // visual clássico de sempre, intocado. Sem CSS novo nesta fase.
+  variant?: 'list' | 'grid' | 'featured' | 'detail'
+  // Fase D — abre o detalhe (estado local no EventList), mesmo padrão
+  // de `onSelect` do ProductCard: capa e título viram <button> só
+  // quando definido; EventManager, HomeHighlights e o próprio card
+  // dentro do detalhe nunca passam onSelect, então mantêm exatamente o
+  // markup de sempre (h3/div simples, sem botão extra).
+  onSelect?: () => void
 }
 
 const AVATAR_LIMIT = 5
@@ -28,6 +39,8 @@ export function EventCard({
   onCancelRsvp,
   isSaved,
   onToggleSave,
+  variant = 'list',
+  onSelect,
 }: EventCardProps) {
   const [working, setWorking] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -60,10 +73,23 @@ export function EventCard({
   const extra = count - shownAvatars.length
 
   return (
-    <article className={`event-card${past || cancelled ? ' event-card--muted' : ''}`}>
+    <article
+      className={`event-card event-card--${variant}${past || cancelled ? ' event-card--muted' : ''}`}
+    >
       {coverUrl && (
-        <div className="event-card-cover" aria-hidden="true">
-          <img src={coverUrl} alt="" />
+        <div className="event-card-cover" aria-hidden={onSelect ? undefined : true}>
+          {onSelect ? (
+            <button
+              type="button"
+              className="event-card-cover-open"
+              onClick={onSelect}
+              aria-label={`Ver detalhes de ${event.title}`}
+            >
+              <img src={coverUrl} alt="" />
+            </button>
+          ) : (
+            <img src={coverUrl} alt="" />
+          )}
         </div>
       )}
 
@@ -76,7 +102,15 @@ export function EventCard({
           {circleName && <span className="event-card-tag">Círculo: {circleName}</span>}
         </div>
 
-        <h3 className="event-card-title">{event.title}</h3>
+        <h3 className="event-card-title">
+          {onSelect ? (
+            <button type="button" className="event-card-title-open" onClick={onSelect}>
+              {event.title}
+            </button>
+          ) : (
+            event.title
+          )}
+        </h3>
 
         {event.description && <p className="event-card-desc">{event.description}</p>}
 

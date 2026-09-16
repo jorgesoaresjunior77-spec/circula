@@ -9909,6 +9909,226 @@ form.panel-points-form {
   gap: var(--space-3);
 }
 
+/* ===================================================================
+   Eventos · composição editorial da tela (Fase C do redesign,
+   protótipo aprovado no Frontend do Claude) — masthead, destaque e
+   grade do EventList. Classes próprias (não reaproveita .store-masthead
+   nem .circle-list-filter diretamente) para não vazar efeito em
+   Loja/Círculos; usa só os tokens --circula- já existentes.
+   Base `.event-list`/`.event-list-items` acima NÃO foi alterada —
+   `.event-list--editorial` só soma um `gap` maior de seção.
+   =================================================================== */
+.event-list--editorial {
+  gap: var(--space-7);
+}
+
+.event-masthead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.event-masthead-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(26px, 4vw, 40px);
+  line-height: 1.18;
+  color: var(--circula-mocha);
+  text-wrap: balance;
+}
+
+.event-masthead-intro {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--circula-taupe);
+}
+
+.event-upcoming {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.event-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.event-filter-pill {
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 999px;
+  padding: 7px 16px;
+  background: none;
+  color: var(--circula-taupe);
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--circula-mocha);
+    color: var(--circula-mocha);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+}
+
+.event-filter-pill--active {
+  border-color: var(--circula-mocha);
+  background: var(--circula-mocha);
+  color: var(--circula-offwhite);
+
+  &:hover {
+    border-color: var(--circula-black);
+    background: var(--circula-black);
+    color: var(--circula-offwhite);
+  }
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6) var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .event-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .event-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ===================================================================
+   Eventos · loading e empty state (Fase E do redesign, protótipo
+   aprovado no Frontend do Claude). Classes próprias, molde visual de
+   .store-skeleton/.store-skeleton-card (Loja); shimmer neutralizado
+   pela guarda global de prefers-reduced-motion (index.css). O empty
+   state usa o EmptyState.tsx / .empty-state de sempre (mensagens e
+   condições intocadas) — só um seletor escopado
+   `.event-list--editorial .empty-state` muda a apresentação, sem
+   tocar a regra `.empty-state` global usada por outras telas.
+   =================================================================== */
+
+/* --- destaque: mesma silhueta 2 colunas de .event-card--featured --- */
+.event-skeleton-featured {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-bottom: var(--space-7);
+}
+
+@media (min-width: 860px) {
+  .event-skeleton-featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-7);
+  }
+}
+
+.event-skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* --- grade: um .event-skeleton-card por vaga da .event-grid real --- */
+.event-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.event-skeleton-media {
+  aspect-ratio: 4 / 5;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--circula-champagne-tint) 0%,
+    rgba(200, 184, 168, 0.32) 50%,
+    var(--circula-champagne-tint) 100%
+  );
+  background-size: 200% 100%;
+  animation: eventSkeletonShimmer 1.6s ease-in-out infinite;
+}
+
+.event-skeleton-line {
+  display: block;
+  height: 10px;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+}
+
+.event-skeleton-line--eyebrow {
+  width: 35%;
+  height: 8px;
+}
+
+.event-skeleton-line--title {
+  width: 70%;
+  height: 14px;
+}
+
+.event-skeleton-line--meta {
+  width: 55%;
+}
+
+@keyframes eventSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-skeleton-media {
+    animation: none;
+    background: var(--circula-champagne-tint);
+  }
+}
+
+/* --- empty state: escopado, sem tocar .empty-state global ---------- */
+.event-list--editorial .empty-state {
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--circula-taupe);
+}
+
+.event-list--editorial .empty-state svg {
+  color: var(--circula-champagne);
+}
+
+.event-list--editorial .empty-state p {
+  max-width: 42ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--circula-taupe);
+}
+
 .event-card {
   display: flex;
   flex-direction: column;
@@ -11000,6 +11220,451 @@ form.panel-points-form {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* ===================================================================
+   Eventos · variantes editoriais do EventCard (Fase B do redesign,
+   protótipo aprovado no Frontend do Claude) — CSS de preparação para
+   masthead/destaque/grade/detalhe das próximas fases. `.event-card`
+   base e `.event-card--list` NÃO foram tocados: EventManager e
+   HomeHighlights nunca passam `variant`, então continuam recebendo
+   só `event-card event-card--list` e mantêm o visual de sempre.
+   Reaproveita o molde já validado em Loja (.product-card-*,
+   .store-*) e Círculos (.circle-card-photo/-rule): foto 4:5, hairline
+   Champagne, título Mitr Light em Mocha, textos secundários em Taupe.
+   Sem novo token de cor — só --circula-*. Reduced-motion já é
+   tratado globalmente (index.css zera --dur/--dur-slow e neutraliza
+   transition/animation em prefers-reduced-motion), nenhuma regra
+   extra é necessária aqui.
+   =================================================================== */
+
+/* --- grid: card protagonista por imagem, para "Próximos encontros" - */
+.event-card--grid {
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.event-card--grid .event-card-cover {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+}
+
+.event-card--grid .event-card-cover img {
+  display: block;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .event-card--grid:hover .event-card-cover img,
+  .event-card--grid:focus-within .event-card-cover img {
+    transform: scale(1.05);
+  }
+}
+
+.event-card--grid .event-card-body {
+  padding: var(--space-3) 0 0;
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--circula-champagne-line);
+}
+
+.event-card--grid .event-card-when {
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.event-card--grid .event-card-tag {
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.event-card--grid .event-card-tag--cancel {
+  background-color: rgba(21, 19, 17, 0.06); /* --circula-black, em véu */
+  color: var(--circula-black);
+}
+
+.event-card--grid .event-card-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--circula-mocha);
+}
+
+.event-card--grid .event-card-desc,
+.event-card--grid .event-card-meta,
+.event-card--grid .event-card-count {
+  color: var(--circula-taupe);
+}
+
+.event-card--grid .event-rsvp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 9px 20px;
+  border: 1px solid var(--circula-mocha);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.event-card--grid .event-rsvp-button:hover:not(:disabled) {
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+}
+
+.event-card--grid .event-rsvp-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.event-card--grid .event-rsvp-button:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 2px;
+}
+
+/* --- featured: evento protagonista — imagem grande + info ao lado -- */
+.event-card--featured {
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  gap: var(--space-5);
+}
+
+@media (min-width: 860px) {
+  .event-card--featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-7);
+  }
+}
+
+.event-card--featured .event-card-cover {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+}
+
+.event-card--featured .event-card-body {
+  padding: 0;
+  gap: var(--space-3);
+}
+
+.event-card--featured .event-card-when {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.event-card--featured .event-card-tag {
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.event-card--featured .event-card-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.15;
+  color: var(--circula-mocha);
+}
+
+.event-card--featured .event-card-desc {
+  font-size: 15.5px;
+  line-height: 1.6;
+  max-width: 46ch;
+  color: var(--circula-taupe);
+}
+
+.event-card--featured .event-card-meta,
+.event-card--featured .event-card-count {
+  color: var(--circula-taupe);
+}
+
+.event-card--featured .event-rsvp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 12px 26px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.event-card--featured .event-rsvp-button:hover:not(:disabled) {
+  background-color: var(--circula-black);
+}
+
+.event-card--featured .event-rsvp-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.event-card--featured .event-rsvp-button:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 2px;
+}
+
+/* --- detail: leitura confortável dentro do painel/modal (Fase D) --- */
+.event-card--detail {
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  gap: var(--space-5);
+}
+
+@media (min-width: 640px) {
+  .event-card--detail {
+    display: grid;
+    grid-template-columns: minmax(0, 320px) 1fr;
+    align-items: start;
+  }
+}
+
+.event-card--detail .event-card-cover {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--circula-champagne-tint);
+}
+
+.event-card--detail .event-card-body {
+  padding: 0;
+  gap: var(--space-3);
+}
+
+.event-card--detail .event-card-when {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.event-card--detail .event-card-tag {
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.event-card--detail .event-card-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(22px, 3vw, 26px);
+  color: var(--circula-mocha);
+}
+
+.event-card--detail .event-card-desc {
+  font-size: 15px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  color: var(--circula-taupe);
+}
+
+.event-card--detail .event-card-meta,
+.event-card--detail .event-card-count {
+  color: var(--circula-taupe);
+}
+
+.event-card--detail .event-rsvp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 26px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.event-card--detail .event-rsvp-button:hover:not(:disabled) {
+  background-color: var(--circula-black);
+}
+
+.event-card--detail .event-rsvp-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.event-card--detail .event-rsvp-button:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 2px;
+}
+
+/* --- gatilho do detalhe: capa e título viram <button> só quando o
+   EventList passa `onSelect` (grid/featured) — RSVP/Salvar/contagem
+   continuam irmãos, fora desse botão, sem risco de clique indevido.
+   Molde idêntico a .product-card-media-open/.product-card-title-open. */
+.event-card-cover-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.event-card-cover-open:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: -2px;
+}
+
+.event-card-title-open {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.event-card-title-open:hover {
+  color: var(--circula-black);
+}
+
+.event-card-title-open:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 2px;
+}
+
+/* ===================================================================
+   Eventos · detalhe editorial (Fase D do redesign, protótipo aprovado
+   no Frontend do Claude) — overlay local, sem rota nova. Classes
+   próprias (não reaproveita .product-detail-* diretamente); mesmo
+   comportamento/molde visual de .product-detail-backdrop/-panel/-close
+   (Loja): overlay centralizado no desktop, quase full-screen no
+   mobile, animação de entrada curta, neutralizada em
+   prefers-reduced-motion pela guarda global (index.css).
+   =================================================================== */
+.event-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-5) var(--gutter);
+  overflow-y: auto;
+  background-color: rgba(21, 19, 17, 0.4);
+  animation: eventDetailBackdropIn var(--dur) var(--ease) both;
+}
+
+@supports (backdrop-filter: blur(6px)) {
+  .event-detail-backdrop {
+    background-color: rgba(21, 19, 17, 0.32);
+    backdrop-filter: blur(6px);
+  }
+}
+
+.event-detail-panel {
+  position: relative;
+  width: 100%;
+  max-width: 880px;
+  margin: var(--space-6) 0;
+  padding: var(--space-6);
+  border-radius: 4px;
+  background-color: var(--circula-offwhite);
+  box-shadow: 0 24px 60px rgba(21, 19, 17, 0.22);
+  animation: eventDetailPanelIn var(--dur-slow) var(--ease-out) both;
+}
+
+.event-detail-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 999px;
+  background: var(--circula-offwhite);
+  color: var(--circula-mocha);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.event-detail-close:hover {
+  border-color: var(--circula-mocha);
+}
+
+.event-detail-close:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 2px;
+}
+
+@keyframes eventDetailBackdropIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes eventDetailPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-detail-backdrop,
+  .event-detail-panel {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .event-detail-panel {
+    max-height: calc(100vh - 2 * var(--space-5));
+    padding: var(--space-4) var(--space-4)
+      calc(var(--space-4) + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
 }
 
 /* Destino Salvos */
