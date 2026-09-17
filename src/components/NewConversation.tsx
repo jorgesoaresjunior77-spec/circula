@@ -79,7 +79,7 @@ export function NewConversation({ myProfileId, onBack, onPick }: NewConversation
       <div className="new-conversation-body">
         <input
           type="search"
-          className="content-search"
+          className="content-search content-search--conversation"
           placeholder="Buscar por nome..."
           value={query}
           onChange={(event) => setQuery(event.target.value)}

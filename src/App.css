@@ -11646,9 +11646,8 @@ form.panel-points-form {
 
 .messages-pane--detail {
   flex: 1 1 auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background-color: var(--surface);
+  border-left: 1px solid var(--border-soft);
+  padding-left: var(--space-4);
   overflow: hidden;
 }
 
@@ -11676,14 +11675,25 @@ form.panel-points-form {
 
 .conversation-new-button {
   font: inherit;
-  font-size: 13px;
+  font-family: var(--font-label);
+  font-size: 12px;
   font-weight: 500;
-  padding: 6px 14px;
-  border: 1px solid var(--olive-border);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border: 1px solid var(--ink-action-line);
   border-radius: var(--radius-pill);
-  background-color: var(--olive-bg);
-  color: var(--olive-text);
+  background-color: transparent;
+  color: var(--ink-action);
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.conversation-new-button:hover {
+  background-color: var(--ink-action);
+  color: var(--on-action);
 }
 
 .conversation-list-items {
@@ -11712,12 +11722,12 @@ form.panel-points-form {
 }
 
 .conversation-row:hover {
-  background-color: var(--surface-sunken);
+  background-color: var(--circula-champagne-tint);
 }
 
 .conversation-row--active {
-  background-color: var(--olive-bg);
-  border-color: var(--olive-border);
+  background-color: var(--circula-champagne-tint);
+  border-color: var(--circula-champagne-line);
 }
 
 .conversation-avatar {
@@ -11732,6 +11742,7 @@ form.panel-points-form {
   color: var(--olive-text);
   font-size: 15px;
   font-weight: 600;
+  box-shadow: 0 0 0 1px var(--circula-champagne-line);
 }
 
 .conversation-avatar img {
@@ -11766,7 +11777,9 @@ form.panel-points-form {
 
 .conversation-row-time {
   flex-shrink: 0;
+  font-family: var(--font-label);
   font-size: 11px;
+  letter-spacing: 0.02em;
   color: var(--graphite-soft);
 }
 
@@ -11865,24 +11878,30 @@ form.panel-points-form {
   gap: 3px;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
-  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  background-color: var(--field-bg);
 }
 
 .message-bubble--mine {
   align-self: flex-end;
-  background-color: var(--olive-bg);
+  background-color: var(--circula-champagne-tint);
+  border-color: var(--circula-champagne-line);
 }
 
 .message-bubble-body {
+  font-family: var(--font-body);
+  font-weight: 300;
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--graphite);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .message-bubble-meta {
+  font-family: var(--font-label);
   font-size: 10.5px;
+  letter-spacing: 0.02em;
   color: var(--graphite-soft);
   align-self: flex-end;
 }
@@ -11910,25 +11929,37 @@ form.panel-points-form {
   min-height: 40px;
   max-height: 120px;
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--circula-champagne-line);
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 14px;
-  background-color: var(--surface);
-  color: var(--graphite);
+  background-color: var(--field-bg);
+  color: var(--graphite-soft);
 }
 
 .message-composer-send {
   flex-shrink: 0;
   min-height: 40px;
-  padding: 0 18px;
-  border: none;
+  padding: 0 20px;
+  border: 1px solid var(--ink-action-line);
   border-radius: var(--radius-pill);
-  background-color: var(--olive-bg);
-  color: var(--olive-text);
+  background-color: transparent;
+  color: var(--ink-action);
   font: inherit;
-  font-weight: 600;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.message-composer-send:hover:not(:disabled) {
+  background-color: var(--ink-action);
+  color: var(--on-action);
 }
 
 .message-composer-send:disabled {
@@ -11953,6 +11984,25 @@ form.panel-points-form {
   gap: 4px;
 }
 
+/* Variante escopada — não altera a regra base de .content-search
+   (compartilhada com a Biblioteca, ContentLibrary.tsx, que só define
+   width:100%, sem borda própria). Estilo completo só aqui. */
+.content-search--conversation {
+  padding: 10px 14px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 14px;
+  background-color: var(--field-bg);
+  color: var(--graphite-soft);
+}
+
+.content-search--conversation:focus {
+  outline: none;
+  border-color: var(--ink-action);
+  box-shadow: var(--field-focus-ring);
+}
+
 .profile-message-button {
   align-self: flex-start;
 }
@@ -11966,6 +12016,11 @@ form.panel-points-form {
   .messages-pane--list {
     flex: 1 1 auto;
     max-width: none;
+  }
+
+  .messages-pane--detail {
+    border-left: none;
+    padding-left: 0;
   }
 
   .messages--thread .messages-pane--list,
