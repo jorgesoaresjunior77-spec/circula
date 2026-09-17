@@ -1725,16 +1725,136 @@
   }
 }
 
-/* ===== Perfil ===== */
+/* ===== Perfil =====
+   Fase 1 do redesign editorial (MyProfile + ProfileCard, protótipo
+   aprovado no Frontend do Claude) — fundação visual: wrapper, eyebrow
+   e cabeçalho (avatar/nome/cidade). Classes exclusivas desta dupla
+   (ver auditoria); .community-card, .auth-link, .auth-error,
+   .auth-success, .btn e .btn-primary permanecem intocados — a
+   variante de wrapper é aditiva. */
+
+.community-card--profile {
+  max-width: 640px;
+  width: 100%;
+  margin-inline: auto;
+  padding: var(--space-2) 0 var(--space-6);
+  background: none;
+  border: none;
+  box-shadow: none;
+  gap: var(--space-6);
+}
+
+.profile-eyebrow {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
 
 .profile-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-3);
+  text-align: center;
 
   h2 {
     margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--circula-mocha);
   }
+}
+
+.profile-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.profile-identity .auth-link {
+  margin-top: 0;
+}
+
+/* =====================================================================
+   Fase 3 do redesign de Perfil — formulário de edição (MyProfile).
+   Escopado sob .community-card--profile: não toca a regra base de
+   .community-card (form/label/input compartilhados por ~19 outras
+   telas), nem .auth-link/.btn/.btn-primary. "Trocar foto" (label fora
+   do <form>) fica fora deste escopo por construção — não é afetado.
+   ===================================================================== */
+
+.community-card--profile form {
+  gap: var(--space-3);
+}
+
+.community-card--profile form label {
+  margin-top: var(--space-5);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.community-card--profile form > label:first-child {
+  margin-top: 0;
+}
+
+.community-card--profile form input,
+.community-card--profile form textarea {
+  border-color: var(--circula-champagne-line);
+  color: var(--graphite-soft);
+}
+
+.community-card--profile form textarea {
+  line-height: 1.6;
+}
+
+/* "Editar perfil" (view) e "Salvar" (submit do form) — mesma
+   especificidade da regra "botão de ação solta no card" de
+   App.css:1633 (não alterada), mas escopada a --profile e definida
+   depois no arquivo, então vence só aqui. Pill discreta na cor de
+   ação já usada no resto do Círcula, sem largura total e sem sombra. */
+.community-card--profile > button[type='button'].profile-edit-action,
+.community-card--profile .profile-actions > button[type='submit'].profile-save-action {
+  align-self: flex-start;
+  width: auto;
+  margin-top: var(--space-2);
+  padding: 10px 22px;
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink-action-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-action);
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--ink-action);
+    color: var(--on-action);
+    box-shadow: none;
+  }
+  &:active:not(:disabled) {
+    background-color: var(--ink-action);
+    box-shadow: none;
+  }
+}
+
+.community-card--profile .profile-actions > button[type='submit'].profile-save-action {
+  align-self: auto;
+  margin-top: 0;
 }
 
 .community-card-header {
@@ -2378,9 +2498,9 @@
 }
 
 .profile-avatar {
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
+  width: 84px;
+  height: 84px;
+  min-width: 84px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--olive-bg);
@@ -2389,8 +2509,9 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 30px;
+  font-weight: var(--display-weight);
+  box-shadow: 0 0 0 1px var(--circula-champagne-line);
 
   img {
     width: 100%;
@@ -2402,27 +2523,70 @@
 .interest-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-2);
+}
+
+/* Fase 2 do redesign de Perfil — só as duas instâncias somente-leitura
+   (MyProfile em visualização e ProfileCard) recebem o fio; a lista
+   editável dentro do formulário (Fase 3) permanece sem esse tratamento. */
+.interest-tags--view {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--circula-champagne-line);
 }
 
 .interest-tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 11px;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--circula-champagne-line);
   border-radius: var(--radius-pill);
-  background: var(--sand);
-  color: var(--graphite-soft);
-  font-size: 13px;
+  background: transparent;
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin: -2px -4px -2px 0;
     font: inherit;
+    font-size: 14px;
     border: none;
+    border-radius: 50%;
     background: none;
-    color: inherit;
+    color: var(--circula-taupe);
     cursor: pointer;
     line-height: 1;
     padding: 0;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+
+    &:hover {
+      color: var(--circula-mocha);
+      background: var(--circula-champagne-tint);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--ink-action);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* Área de toque do "×" reforçada em ponteiro grosso, sem tocar a
+   proteção compartilhada de .interest-input-row button (Fase 3). */
+@media (pointer: coarse) {
+  .interest-tag button {
+    width: 28px;
+    height: 28px;
   }
 }
 
@@ -2435,40 +2599,48 @@
   input {
     flex: 1 1 160px;
     min-width: 0;
+    border-color: var(--circula-champagne-line);
+    color: var(--graphite-soft);
   }
 
   button {
-    /* variação de .btn-secondary */
+    /* Fase 3 — mesma linguagem de pill outline-primeiro do resto do
+       Círcula (preenche na cor de ação ao passar o mouse); min-height
+       de toque continua vindo da regra compartilhada em App.css, não
+       tocada aqui. */
     font: inherit;
+    font-family: var(--font-label);
     font-weight: 500;
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 9px 15px;
+    padding: 9px 18px;
     border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    background-color: var(--white);
-    color: var(--graphite);
-    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--ink-action-line);
+    background-color: transparent;
+    color: var(--ink-action);
+    box-shadow: none;
     white-space: nowrap;
     cursor: pointer;
     transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease,
-      color 0.15s ease,
-      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
       transform 0.1s ease;
 
     &:hover:not(:disabled) {
-      border-color: var(--olive-border);
-      background-color: var(--surface);
-      color: var(--olive-text);
+      background-color: var(--ink-action);
+      border-color: var(--ink-action);
+      color: var(--on-action);
     }
     &:active:not(:disabled) {
       transform: translateY(1px);
     }
     &:focus-visible {
-      outline: 2px solid var(--olive);
+      outline: 2px solid var(--ink-action);
       outline-offset: 2px;
     }
     &:disabled {
@@ -10043,8 +10215,27 @@ form.panel-points-form {
     }
   }
 
+  /* Fase 1 do redesign de Perfil — o wrapper de-boxado (--profile) não
+     participa do "density pass" de .community-card acima; reafirma seu
+     próprio respiro e volta ao layout horizontal do cabeçalho. */
+  .community-card--profile {
+    padding: var(--space-4) 0 var(--space-7);
+    gap: var(--space-7);
+  }
+
   .profile-header {
-    gap: var(--space-3);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-5);
+    text-align: left;
+  }
+
+  .profile-header h2 {
+    font-size: 28px;
+  }
+
+  .profile-identity {
+    align-items: flex-start;
   }
 
   .community-card-header {
@@ -10059,10 +10250,10 @@ form.panel-points-form {
   }
 
   .profile-avatar {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
-    font-size: 18px;
+    width: 108px;
+    height: 108px;
+    min-width: 108px;
+    font-size: 38px;
   }
 
   .member-list ul {
@@ -11136,34 +11327,98 @@ form.panel-points-form {
    ===================================================================== */
 
 .profile-city {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: var(--graphite-soft);
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--circula-taupe);
 }
 
 .profile-bio {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--graphite);
+  max-width: 60ch;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--circula-taupe);
   white-space: pre-wrap;
 }
 
+.profile-overview-heading {
+  margin: 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--circula-champagne-line);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
 .profile-overview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-4);
+  margin-top: var(--space-4);
 }
 
 .profile-overview-item {
-  font-size: 13px;
-  color: var(--graphite-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--circula-champagne-line);
 }
 
-.profile-overview-item strong {
-  color: var(--graphite);
+.profile-overview-item:nth-child(2n + 1) {
+  padding-left: 0;
+  border-left: none;
+}
+
+/* Fase 2 — correção de cascata: este override precisa vir DEPOIS da
+   regra-base acima (mesma especificidade); antes vivia dentro do bloco
+   @media compartilhado lá em cima no arquivo, onde uma regra sem media
+   query mais abaixo (esta) sempre vencia, mesmo no desktop. Grade de 4
+   colunas; o fio some só na primeira coluna de cada linha. */
+@media (min-width: 1024px) {
+  .profile-overview {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .profile-overview-item {
+    padding-left: var(--space-5);
+  }
+
+  .profile-overview-item:nth-child(2n + 1) {
+    padding-left: var(--space-5);
+    border-left: 1px solid var(--circula-champagne-line);
+  }
+
+  .profile-overview-item:nth-child(4n + 1) {
+    padding-left: 0;
+    border-left: none;
+  }
+}
+
+.profile-overview-value {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--circula-mocha);
+  font-variant-numeric: tabular-nums;
+}
+
+.profile-overview-label {
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
 }
 
 /* =====================================================================
@@ -13057,6 +13312,13 @@ form.panel-points-form {
 .content-card:hover {
   border-color: var(--ink-action-line);
   box-shadow: var(--shadow-md);
+}
+
+/* Fase 1 do redesign de Perfil — a variante --profile é de-boxada (sem
+   borda/sombra própria); não participa do "lift" de hover acima. */
+.community-card--profile:hover {
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .card--interactive {

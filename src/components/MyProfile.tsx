@@ -86,7 +86,8 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
   }
 
   return (
-    <section className="community-card">
+    <section className="community-card community-card--profile">
+      <p className="profile-eyebrow">Meu perfil</p>
       <div className="profile-header">
         <div className="profile-avatar">
           {profile.avatar_url ? (
@@ -95,7 +96,7 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
             <span>{(profile.full_name ?? 'U').charAt(0).toUpperCase()}</span>
           )}
         </div>
-        <div>
+        <div className="profile-identity">
           <h2>{profile.full_name ?? 'Seu perfil'}</h2>
           {profile.city && <p className="profile-city">{profile.city}</p>}
           <label className="auth-link">
@@ -116,7 +117,7 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
           {profile.interests.length > 0 && (
-            <div className="interest-tags">
+            <div className="interest-tags interest-tags--view">
               {profile.interests.map((interest) => (
                 <span key={interest} className="interest-tag">
                   {interest}
@@ -131,7 +132,7 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
             </p>
           )}
 
-          <button type="button" onClick={startEditing}>
+          <button type="button" className="profile-edit-action" onClick={startEditing}>
             Editar perfil
           </button>
         </>
@@ -207,7 +208,7 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
             <button type="button" className="auth-link" onClick={() => setEditing(false)}>
               Cancelar
             </button>
-            <button type="submit" disabled={saving}>
+            <button type="submit" className="profile-save-action" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
           </div>

@@ -68,10 +68,12 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
   }, [profileId])
 
   return (
-    <section className="community-card">
+    <section className="community-card community-card--profile">
       <button type="button" className="auth-link" onClick={onClose}>
         Fechar
       </button>
+
+      <p className="profile-eyebrow">Perfil</p>
 
       {loading && <p>Carregando perfil...</p>}
 
@@ -87,7 +89,7 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
                 <span>{(profile.full_name ?? 'U').charAt(0).toUpperCase()}</span>
               )}
             </div>
-            <div>
+            <div className="profile-identity">
               <h2>{profile.full_name ?? 'Participante'}</h2>
               {profile.city && <p className="profile-city">{profile.city}</p>}
             </div>
@@ -96,7 +98,7 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
           {profile.interests.length > 0 && (
-            <div className="interest-tags">
+            <div className="interest-tags interest-tags--view">
               {profile.interests.map((interest) => (
                 <span key={interest} className="interest-tag">
                   {interest}
@@ -106,13 +108,17 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
           )}
 
           {overview && (
-            <div className="profile-overview">
-              {OVERVIEW_LABELS.filter(({ key }) => overview[key] > 0).map(({ key, label }) => (
-                <span key={key} className="profile-overview-item">
-                  <strong>{overview[key]}</strong> {label}
-                </span>
-              ))}
-            </div>
+            <>
+              <p className="profile-overview-heading">Atividade no Círcula</p>
+              <div className="profile-overview">
+                {OVERVIEW_LABELS.filter(({ key }) => overview[key] > 0).map(({ key, label }) => (
+                  <div key={key} className="profile-overview-item">
+                    <span className="profile-overview-value">{overview[key]}</span>
+                    <span className="profile-overview-label">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
 
           {onStartConversation && (

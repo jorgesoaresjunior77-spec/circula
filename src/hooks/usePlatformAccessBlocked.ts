@@ -35,7 +35,10 @@ export function usePlatformAccessBlocked(profile: Profile | null) {
     return () => {
       active = false
     }
-  }, [profile])
+    // Só id/role são lidos aqui — dependência restrita de propósito para não
+    // reexecutar a checagem de bloqueio a cada refresh de perfil (nome, bio,
+    // cidade, interesses, avatar), que antes causava remount do Dashboard.
+  }, [profile?.id, profile?.role])
 
   return { blocked, checked }
 }
