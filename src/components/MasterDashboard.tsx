@@ -89,13 +89,13 @@ export function MasterDashboard({ overview, loading, error }: MasterDashboardPro
     <div className="master-dashboard">
       {sections.map((section) => (
         <section key={section.title} className="master-section">
-          <p className="metrics-section-title">{section.title}</p>
-          <div className="metrics-stats">
+          <p className="master-section-title">{section.title}</p>
+          <div className="master-metrics-grid">
             {section.tiles.map((tile) => (
-              <div key={tile.label} className="metric-tile">
-                <p className="metric-tile-value">{tile.value}</p>
-                <p className="metric-tile-label">{tile.label}</p>
-                {tile.hint && <p className="master-tile-hint">{tile.hint}</p>}
+              <div key={tile.label} className="master-metric-tile">
+                <p className="master-metric-tile-value">{tile.value}</p>
+                <p className="master-metric-tile-label">{tile.label}</p>
+                {tile.hint && <p className="master-hint">{tile.hint}</p>}
               </div>
             ))}
           </div>

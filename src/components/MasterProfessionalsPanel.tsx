@@ -19,9 +19,17 @@ const STATUS_LABEL: Record<string, string> = {
   blocked: 'Bloqueada',
 }
 
+const STATUS_TONE: Record<string, 'active' | 'attention' | 'off'> = {
+  active: 'active',
+  past_due: 'attention',
+  canceled: 'off',
+  blocked: 'off',
+}
+
 function ProfessionalCard({ professional }: { professional: PlatformProfessional }) {
   const name = professional.full_name ?? 'Profissional'
   const status = professional.platform_subscription_status
+  const tone = status ? STATUS_TONE[status] : professional.platform_active ? 'active' : 'off'
   return (
     <article className="master-pro-card">
       <div className="master-pro-avatar" aria-hidden="true">
@@ -34,9 +42,7 @@ function ProfessionalCard({ professional }: { professional: PlatformProfessional
       <div className="master-pro-body">
         <div className="master-community-head">
           <p className="master-community-name">{name}</p>
-          <span
-            className={`master-status-pill${professional.platform_active ? '' : ' master-status-pill--off'}`}
-          >
+          <span className={`master-status-pill${tone ? ` master-status-pill--${tone}` : ''}`}>
             {status ? (STATUS_LABEL[status] ?? status) : professional.platform_active ? 'Ativa' : 'Inativa'}
           </span>
         </div>

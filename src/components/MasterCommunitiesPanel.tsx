@@ -20,6 +20,13 @@ const STATUS_LABEL: Record<string, string> = {
   blocked: 'Bloqueada',
 }
 
+const STATUS_TONE: Record<string, 'active' | 'attention' | 'off'> = {
+  active: 'active',
+  past_due: 'attention',
+  canceled: 'off',
+  blocked: 'off',
+}
+
 function CommunityCard({ community }: { community: PlatformCommunity }) {
   const name = community.name || 'Comunidade'
   // Nota: para comunidades com mídia nova (path no bucket privado
@@ -42,7 +49,13 @@ function CommunityCard({ community }: { community: PlatformCommunity }) {
         <div className="master-community-head">
           <p className="master-community-name">{name}</p>
           {community.subscription_status && (
-            <span className="master-status-pill">
+            <span
+              className={`master-status-pill${
+                STATUS_TONE[community.subscription_status]
+                  ? ` master-status-pill--${STATUS_TONE[community.subscription_status]}`
+                  : ''
+              }`}
+            >
               {STATUS_LABEL[community.subscription_status] ?? community.subscription_status}
             </span>
           )}

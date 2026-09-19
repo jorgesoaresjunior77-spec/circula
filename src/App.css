@@ -7452,41 +7452,188 @@ form.panel-points-form {
   color: var(--white);
 }
 
-/* ===== Fase 9 — Painel Master (visão de plataforma) ===== */
+/* ===== Painel Master — redesign editorial (dados só agregados) =====
+   Todas as classes abaixo (`.master-*`) são exclusivas do Painel
+   Master (auditado via grep antes desta mudança) — nada aqui é
+   compartilhado com ProfessionalPanel/RevenuePanel/CommunityMetricsPanel,
+   por isso são redefinidas livremente. Tabs próprias (`.master-tabs`/
+   `.master-tab`) substituem `.panel-tabs`/`.panel-tab` só aqui, sem
+   tocar essas classes (usadas pelo ProfessionalPanel). O card raiz
+   segue em `.community-card.community-card--quiet` (base compartilhada,
+   intocada) — `.professional-panel` foi removida do root do Master. */
 
 .master-panel {
-  gap: var(--space-4);
+  gap: var(--space-5);
+}
+
+.master-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.master-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.master-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  border-bottom: 1px solid var(--circula-champagne-line);
+}
+
+.master-tab {
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  width: auto;
+  padding: 10px 2px 12px;
+  margin: 0 0 -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--circula-taupe);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    color: var(--circula-mocha);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: 2px;
+  }
+}
+
+.master-tab--active {
+  border-bottom-color: var(--ink-action);
+  color: var(--circula-mocha);
+
+  &:hover {
+    color: var(--circula-mocha);
+  }
 }
 
 .master-dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-7);
 }
 
 .master-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
-.master-tile-hint {
+.master-section-title {
+  margin: 0;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--circula-champagne-line);
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.master-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--space-3);
+}
+
+.master-metric-tile {
+  padding: var(--space-4) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--circula-champagne-tint);
+}
+
+.master-metric-tile-value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: var(--display-weight-strong);
+  line-height: 1.15;
+  color: var(--circula-mocha);
+  font-variant-numeric: tabular-nums;
+}
+
+.master-metric-tile-label {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.master-hint {
   margin: 4px 0 0;
   font-size: 11px;
-  color: var(--graphite-soft);
+  color: var(--circula-taupe);
 }
 
 .master-generated {
   margin: 0;
-  font-size: 11px;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.master-status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+    color: var(--graphite);
+  }
+
+  li:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.master-status-value {
+  flex-shrink: 0;
   color: var(--graphite-soft);
-  font-style: italic;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .master-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--space-3);
+
+  @media (min-width: 860px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .master-community-card,
@@ -7494,10 +7641,13 @@ form.panel-points-form {
   display: flex;
   gap: var(--space-3);
   padding: var(--space-4);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--circula-champagne-line);
   border-radius: var(--card-radius);
   background-color: var(--surface);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   @media (min-width: 768px) {
     padding: var(--space-5);
@@ -7512,10 +7662,12 @@ form.panel-points-form {
   overflow: hidden;
   display: grid;
   place-items: center;
-  background-color: var(--rose-100);
-  color: var(--olive-text);
+  background-color: var(--olive-bg);
+  color: var(--circula-mocha);
+  font-family: var(--font-display);
   font-size: 22px;
-  font-weight: 600;
+  font-weight: var(--display-weight-strong);
+  box-shadow: 0 0 0 1px var(--circula-champagne-line);
 
   img {
     width: 100%;
@@ -7533,9 +7685,11 @@ form.panel-points-form {
   display: grid;
   place-items: center;
   background-color: var(--olive-bg);
-  color: var(--olive-text);
+  color: var(--circula-mocha);
+  font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: var(--display-weight-strong);
+  box-shadow: 0 0 0 1px var(--circula-champagne-line);
 
   img {
     width: 100%;
@@ -7563,9 +7717,10 @@ form.panel-points-form {
 
 .master-community-name {
   margin: 0;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--graphite);
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: var(--display-weight-strong);
+  color: var(--circula-mocha);
 }
 
 .master-community-owner,
@@ -7578,15 +7733,28 @@ form.panel-points-form {
 .master-status-pill {
   flex-shrink: 0;
   padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background-color: var(--olive-bg);
-  color: var(--olive-text);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-taupe);
+}
+
+.master-status-pill--active {
+  background-color: var(--ink-action-soft);
+  color: var(--ink-action);
+}
+
+.master-status-pill--attention {
+  background-color: var(--danger-bg);
+  color: var(--danger);
 }
 
 .master-status-pill--off {
-  background-color: var(--sand-deep);
+  background-color: var(--n-200);
   color: var(--graphite-soft);
 }
 
@@ -7602,8 +7770,11 @@ form.panel-points-form {
   color: var(--graphite-soft);
 
   strong {
-    color: var(--olive-text);
+    font-family: var(--font-display);
+    font-weight: var(--display-weight-strong);
+    color: var(--circula-mocha);
     font-size: 15px;
+    font-variant-numeric: tabular-nums;
   }
 }
 

@@ -22,21 +22,29 @@ const TABS: { key: MasterTab; label: string }[] = [
  * (platform_overview / platform_communities / platform_professionals) —
  * a Visão Geral e a aba Plataforma compartilham uma única chamada de
  * `platform_overview`.
+ *
+ * Redesign editorial (`redesign/editorial-avva`): tabs em `.master-tabs`/
+ * `.master-tab`, escopadas e independentes de `.panel-tabs`/`.panel-tab`
+ * (compartilhadas com ProfessionalPanel — não tocadas). `.panel-tab-content`
+ * segue reutilizada (layout genérico, sem regra própria alterada).
  */
 export function MasterPanel() {
   const [activeTab, setActiveTab] = useState<MasterTab>('visao')
   const { overview, loading, error } = usePlatformOverview()
 
   return (
-    <section className="community-card community-card--quiet professional-panel master-panel">
-      <h3>Painel da plataforma — Círcula</h3>
+    <section className="community-card community-card--quiet master-panel">
+      <div className="master-head">
+        <p className="master-eyebrow">Administração</p>
+        <h3>Painel da plataforma — Círcula</h3>
+      </div>
 
-      <div className="panel-tabs">
+      <div className="master-tabs">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
-            className={`panel-tab${activeTab === tab.key ? ' panel-tab--active' : ''}`}
+            className={`master-tab${activeTab === tab.key ? ' master-tab--active' : ''}`}
             onClick={() => setActiveTab(tab.key)}
           >
             {tab.label}
