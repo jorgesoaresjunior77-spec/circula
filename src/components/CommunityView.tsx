@@ -70,7 +70,7 @@ function buildStats(community: CommunityWithMembers, memberCount?: number): Hero
   }
 
   if (!Number.isNaN(founded.getTime()) && Number.isFinite(foundedYear)) {
-    stats.push({ key: 'since', value: String(foundedYear), label: 'desde' })
+    stats.push({ key: 'since', value: `desde ${foundedYear}`, label: '' })
   }
 
   return stats

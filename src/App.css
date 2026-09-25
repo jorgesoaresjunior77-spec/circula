@@ -7744,8 +7744,8 @@ form.panel-points-form {
 }
 
 .master-status-pill--active {
-  background-color: var(--ink-action-soft);
-  color: var(--ink-action);
+  background-color: var(--ink-action);
+  color: var(--on-action);
 }
 
 .master-status-pill--attention {
@@ -11669,11 +11669,21 @@ form.panel-points-form {
   gap: var(--space-2);
   padding: var(--space-3);
   border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 14px;
   position: sticky;
   top: 0;
   background-color: var(--surface);
+}
+
+/* Título vira eyebrow Jost — mesmo padrão de todo cabeçalho de
+   painel/seção do app (ex.: .panel-events-title), em vez do bold
+   sans genérico que ficou daqui do Módulo "plataforma completa". */
+.notification-panel-title {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--graphite-soft);
 }
 
 .notification-list {
@@ -14444,6 +14454,16 @@ button.card:focus-visible {
   z-index: 2;
 }
 
+/* .dashboard-header e .topnav empatam em z-index (ambos só precisam
+   ficar acima da foto) — como o .topnav vem depois no DOM, o empate
+   era resolvido a favor dele, cobrindo o dropdown de notificações
+   (que vive dentro do header) sempre que os dois se sobrepõem na
+   tela. Eleva o header só enquanto o painel estiver aberto — não
+   muda o empilhamento em nenhum outro momento. */
+.dashboard--cover-hero > .dashboard-header:has(.notification-panel) {
+  z-index: 3;
+}
+
 /* O corpo (faixa de trial + toda a HomeToday) comeca abaixo da foto. */
 .dashboard--cover-hero .dashboard-main {
   padding-top: var(--cover-hero-fold);
@@ -14521,6 +14541,19 @@ button.card:focus-visible {
   background-color: rgba(255, 255, 255, 0.1);
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
+}
+
+/* O painel de notificações é uma superfície branca opaca (dropdown),
+   não fica sobre a foto — mas por estar dentro de .dashboard-header no
+   DOM, o botão "Marcar todas como lidas" (.auth-link) herdava o
+   tratamento translúcido acima e ficava com texto branco sobre fundo
+   quase branco, ilegível. Restaura a aparência normal só aqui. */
+.dashboard--cover-hero .notification-panel .auth-link {
+  color: var(--ink-action);
+  background-color: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .dashboard--cover-hero .dashboard-header button:hover:not(:disabled),

@@ -95,7 +95,7 @@ export function NotificationBell({
       {open && (
         <div className="notification-panel" role="dialog" aria-label="Notificações">
           <div className="notification-panel-head">
-            <span>Notificações</span>
+            <span className="notification-panel-title">Notificações</span>
             {unreadCount > 0 && (
               <button type="button" className="auth-link" onClick={() => markAllRead()}>
                 Marcar todas como lidas
