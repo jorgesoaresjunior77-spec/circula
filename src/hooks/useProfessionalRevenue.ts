@@ -3,21 +3,26 @@ import { supabase } from '../lib/supabase'
 import type { BillingCycle, RevenuePeriod, RevenueRow, RevenueSummary } from '../types/billing'
 
 // FASE P1-A — extrato de recebimentos da Professional.
-//
-// Fonte ÚNICA: `public.subscription_payouts` (escrito só pela Edge Function
-// `asaas-webhook`). A RLS (`subscription_payouts_select` = `is_master() OR
-// professional_id = auth.uid() OR owns_community(...)`) já limita as linhas
-// à Professional. Complementa com:
-//   • `subscriptions` — `circula_percent_snapshot`, `billing_cycle_snapshot`,
-//     `profile_id` (Member);   RLS: `owns_community` libera as da comunidade.
-//   • `profiles` — `full_name` do Member;   RLS `profiles_select` libera via
-//     `community_owner_of_profile`.
+// FASE P1-D — mescla DUAS fontes, cada uma escrita só pela Edge Function
+// `asaas-webhook`:
+//   • `subscription_payouts` — assinatura de comunidade. RLS
+//     (`subscription_payouts_select` = `is_master() OR professional_id =
+//     auth.uid() OR owns_community(...)`) já limita as linhas à Professional.
+//     Complementa com `subscriptions` (circula_percent_snapshot,
+//     billing_cycle_snapshot, profile_id do Member) + `profiles` (nome).
+//   • `product_payouts` — venda de produto da Loja (fora do checkout
+//     Hotmart, que não gera pedido interno). RLS
+//     (`product_payouts_select` = `owns_community(...) OR is_master()`)
+//     mesmo padrão. Complementa com `product_orders`
+//     (product_title_snapshot, buyer_profile_id, circula_percent_snapshot
+//     — já tudo no próprio pedido, sem precisar de outra tabela) +
+//     `profiles` (nome de quem comprou).
 //
 // NUNCA lê: walletId, asaas_customer_id, API key, dados bancários, nem
-// linhas de outra comunidade. 3 consultas planas (sem embed) por robustez.
+// linhas de outra comunidade. Consultas planas (sem embed) por robustez.
 // `useProfessionalRevenue(null)` não faz fetch.
 
-interface PayoutRaw {
+interface SubscriptionPayoutRaw {
   id: string
   kind: 'sale' | 'reversal'
   split_model: 'native' | 'ledger'
@@ -36,6 +41,27 @@ interface SubRaw {
   profile_id: string
   circula_percent_snapshot: number | null
   billing_cycle_snapshot: BillingCycle | null
+}
+
+interface ProductPayoutRaw {
+  id: string
+  kind: 'sale' | 'reversal'
+  split_model: 'native' | 'ledger'
+  status: 'paid' | 'pending' | 'reversed'
+  created_at: string
+  reversed_at: string | null
+  gross_amount_cents: number
+  asaas_fee_cents: number
+  circula_fee_cents: number
+  net_amount_cents: number
+  order_id: string
+}
+
+interface OrderRaw {
+  id: string
+  product_title_snapshot: string
+  buyer_profile_id: string
+  circula_percent_snapshot: number | null
 }
 
 function periodStartISO(period: RevenuePeriod): string | null {
@@ -74,52 +100,75 @@ export function useProfessionalRevenue(communityId: string | null) {
     setLoading(true)
     setError(null)
 
-    const { data: payoutData, error: payoutError } = await supabase
-      .from('subscription_payouts')
-      .select(
-        'id, kind, split_model, status, created_at, reversed_at, gross_amount_cents, asaas_fee_cents, circula_fee_cents, net_amount_cents, subscription_id',
-      )
-      .eq('community_id', communityId)
-      .order('created_at', { ascending: false })
+    const [subPayoutsResult, productPayoutsResult] = await Promise.all([
+      supabase
+        .from('subscription_payouts')
+        .select(
+          'id, kind, split_model, status, created_at, reversed_at, gross_amount_cents, asaas_fee_cents, circula_fee_cents, net_amount_cents, subscription_id',
+        )
+        .eq('community_id', communityId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('product_payouts')
+        .select(
+          'id, kind, split_model, status, created_at, reversed_at, gross_amount_cents, asaas_fee_cents, circula_fee_cents, net_amount_cents, order_id',
+        )
+        .eq('community_id', communityId)
+        .order('created_at', { ascending: false }),
+    ])
 
-    if (payoutError) {
+    if (subPayoutsResult.error || productPayoutsResult.error) {
       setError('Não foi possível carregar os recebimentos.')
       setRows([])
       setLoading(false)
       return
     }
 
-    const payouts = (payoutData as PayoutRaw[] | null) ?? []
-    if (payouts.length === 0) {
-      setRows([])
-      setLoading(false)
-      return
-    }
+    const subscriptionPayouts = (subPayoutsResult.data as SubscriptionPayoutRaw[] | null) ?? []
+    const productPayouts = (productPayoutsResult.data as ProductPayoutRaw[] | null) ?? []
 
-    const subIds = [...new Set(payouts.map((p) => p.subscription_id))]
-    const { data: subData } = await supabase
-      .from('subscriptions')
-      .select('id, profile_id, circula_percent_snapshot, billing_cycle_snapshot')
-      .in('id', subIds)
-    const subs = (subData as SubRaw[] | null) ?? []
+    const subIds = [...new Set(subscriptionPayouts.map((p) => p.subscription_id))]
+    const orderIds = [...new Set(productPayouts.map((p) => p.order_id))]
+
+    const [subsResult, ordersResult] = await Promise.all([
+      subIds.length > 0
+        ? supabase
+            .from('subscriptions')
+            .select('id, profile_id, circula_percent_snapshot, billing_cycle_snapshot')
+            .in('id', subIds)
+        : Promise.resolve({ data: [] as SubRaw[] }),
+      orderIds.length > 0
+        ? supabase
+            .from('product_orders')
+            .select('id, product_title_snapshot, buyer_profile_id, circula_percent_snapshot')
+            .in('id', orderIds)
+        : Promise.resolve({ data: [] as OrderRaw[] }),
+    ])
+
+    const subs = (subsResult.data as SubRaw[] | null) ?? []
     const subById = new Map(subs.map((s) => [s.id, s]))
+    const orders = (ordersResult.data as OrderRaw[] | null) ?? []
+    const orderById = new Map(orders.map((o) => [o.id, o]))
 
-    const memberIds = [...new Set(subs.map((s) => s.profile_id))]
+    const payerIds = [
+      ...new Set([...subs.map((s) => s.profile_id), ...orders.map((o) => o.buyer_profile_id)]),
+    ]
     const nameById = new Map<string, string | null>()
-    if (memberIds.length > 0) {
+    if (payerIds.length > 0) {
       const { data: profData } = await supabase
         .from('profiles')
         .select('id, full_name')
-        .in('id', memberIds)
+        .in('id', payerIds)
       for (const p of (profData as { id: string; full_name: string | null }[] | null) ?? []) {
         nameById.set(p.id, p.full_name)
       }
     }
 
-    const mapped: RevenueRow[] = payouts.map((p) => {
+    const subscriptionRows: RevenueRow[] = subscriptionPayouts.map((p) => {
       const sub = subById.get(p.subscription_id)
       return {
         id: p.id,
+        source: 'subscription',
         kind: p.kind,
         splitModel: p.split_model,
         status: p.status,
@@ -133,11 +182,39 @@ export function useProfessionalRevenue(communityId: string | null) {
         circulaPercent: sub?.circula_percent_snapshot ?? null,
         billingCycle: sub?.billing_cycle_snapshot ?? null,
         subscriptionId: p.subscription_id,
+        productTitle: null,
         memberName: sub ? (nameById.get(sub.profile_id) ?? null) : null,
       }
     })
 
-    setRows(mapped)
+    const productRows: RevenueRow[] = productPayouts.map((p) => {
+      const order = orderById.get(p.order_id)
+      return {
+        id: p.id,
+        source: 'product',
+        kind: p.kind,
+        splitModel: p.split_model,
+        status: p.status,
+        createdAt: p.created_at,
+        reversedAt: p.reversed_at,
+        grossCents: p.gross_amount_cents,
+        asaasFeeCents: p.asaas_fee_cents,
+        circulaFeeCents: p.circula_fee_cents,
+        netAmountCents: p.net_amount_cents,
+        netValueCents: Math.max(0, p.gross_amount_cents - p.asaas_fee_cents),
+        circulaPercent: order?.circula_percent_snapshot ?? null,
+        billingCycle: null,
+        subscriptionId: null,
+        productTitle: order?.product_title_snapshot ?? null,
+        memberName: order ? (nameById.get(order.buyer_profile_id) ?? null) : null,
+      }
+    })
+
+    const merged = [...subscriptionRows, ...productRows].sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt),
+    )
+
+    setRows(merged)
     setLoading(false)
   }, [communityId])
 

@@ -1746,3 +1746,61 @@ Cria o CI do Círcula para rodar as validações críticas antes de qualquer mer
 - Re-baseline dos cenários 10/30/60 (atualizar os literais defasados) — tarefa separada; até lá o `baseline-failures.txt` cobre.
 
 ### Sem `db push`, sem `functions deploy`, sem `secrets set`, sem webhook, sem chamada Asaas, sem commit, sem push.
+
+---
+
+## FASE P1-D — RECEBIMENTOS DA LOJA na aba "Recebimentos" (2026-09-26, código + build local; sem migration, sem deploy, sem secret, sem webhook, sem Asaas, sem commit)
+
+Fecha o gap identificado na auditoria pós-redesign: `public.product_payouts` já era escrito de verdade pela `asaas-webhook` desde a Fase Loja (venda de produto fora do checkout Hotmart), mas a aba "Recebimentos" (P1-A) só lia `subscription_payouts` — a Professional não tinha nenhuma visibilidade do que ganhou vendendo produtos. **Somente leitura, nenhuma migration, nenhuma alteração de RLS/schema, nenhuma chamada ao Asaas, `asaas-webhook` intocada.**
+
+### O que muda
+`useProfessionalRevenue` passa a buscar **duas fontes** em paralelo — `subscription_payouts` (como já era) e `product_payouts` (novo) — e mesclá-las numa lista única ordenada por `created_at desc`. Cada linha ganha um discriminador `source: 'subscription' | 'product'`. Os KPIs (`professionalPaidCents`, `professionalPendingCents`, `circulaPaidCents`, `grossPaidCents`, `asaasFeePaidCents`, contagens, `lastPayout`) somam as duas fontes automaticamente — a lógica de soma já era genérica sobre `RevenueRow`, não precisou mudar.
+
+- **Origem de assinatura:** complementada por `subscriptions` (`circula_percent_snapshot`, `billing_cycle_snapshot`, `profile_id`) — como já era.
+- **Origem de produto:** complementada por `product_orders` (`product_title_snapshot`, `buyer_profile_id`, `circula_percent_snapshot`) — tudo já disponível no próprio pedido (snapshot congelado na criação), sem precisar consultar `products`.
+- Nome de quem pagou (`memberName`) vem de `profiles`, numa única consulta com os ids de assinante + comprador combinados.
+- Filtro de período (`30d/90d/year/all`) e ordenação por data continuam funcionando sobre a lista mesclada, sem mudança de lógica.
+
+### RevenuePanel — ajustes mínimos (sem redesign)
+- Coluna "Assinatura" virou **"Origem"**: mostra `Assinatura · {ciclo} · {id curto}` ou `Produto · {título}` (`originLabel()`, função nova e pequena).
+- Coluna "Membro" virou **"Cliente"** (cobre assinante e comprador de produto sem ambiguidade).
+- Texto do estado vazio passou a mencionar produto além de assinatura.
+- Nenhuma classe CSS nova — reaproveita `.revenue-table`/`.metric-tile`/`data-label` já existentes (regra explícita do usuário: sem redesign, só o mínimo para distinguir origem).
+
+### Arquivos alterados
+- `src/types/billing.ts` — `RevenueSource` (novo); `RevenueRow` ganha `source`, `productTitle`; `subscriptionId` passa a `string | null` (nulo nas linhas de produto).
+- `src/hooks/useProfessionalRevenue.ts` — busca `subscription_payouts` + `product_payouts` em paralelo (`Promise.all`), resolve `subscriptions`/`product_orders` em paralelo, uma única consulta de `profiles` para os dois grupos de ids, mescla e ordena.
+- `src/components/RevenuePanel.tsx` — `originLabel()`, cabeçalhos "Origem"/"Cliente", texto do estado vazio.
+- `supabase/tests/rls/82_product_payouts_recebimentos.sql` — novo cenário.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+`asaas-webhook` (continua sendo a única escrita em `product_payouts`/`subscription_payouts`); schema; RLS (`product_payouts_select` = `owns_community(...) OR is_master()`, `product_orders_select` = `buyer_profile_id = auth.uid() OR owns_community(...) OR is_master()` — nenhuma das duas foi tocada); Loja (`ProductManager`/`ProductCard`/checkout Hotmart); assinatura/checkout/billing-daily-sweep/asaas-cancel-subscription; `ProfessionalPanel.tsx` (só consome `RevenuePanel`, sem mudança de aba/roteamento); Master; Feed; deploy (GitHub Pages); `useSocialNotifications.ts`/realtime de notificações (diff de outra sessão, não tocado, conforme instrução explícita do usuário).
+
+### RLS — cenário novo `82_product_payouts_recebimentos.sql`
+Mesma técnica de fixtures sintéticas em transação com `ROLLBACK` (produto + pedido + payout em comunidade real A e em comunidade sintética C — `commC` precisou ser recriada dentro do próprio cenário, pois cada arquivo roda em transação isolada). Cobre:
+- `product_payouts`: Professional vê os próprios (comunidade A); NÃO vê de comunidade alheia (C); Member NÃO vê nenhum; Master vê os dois; anon bloqueado; INSERT/UPDATE/DELETE bloqueados para `authenticated` (só `service_role`, mesmo padrão de `subscription_payouts`).
+- `product_orders` (leitura, caminho novo que o hook passa a usar): Member vê o próprio pedido (comprador); NÃO vê o de outra comunidade; Professional vê o da própria comunidade; NÃO vê o de comunidade alheia; Master vê os dois.
+- **Cuidado de data-count drift:** a asserção de Professional sobre `product_orders` filtra pelo `id` sintético, não por `community_id = A` — a comunidade real "Fluir & Florescer" já tem outros pedidos de produto em produção (mesmo cuidado documentado em `baseline-failures.txt` para os cenários 10/30/60).
+
+Resultado: **15/15 passou** no cenário novo; suíte inteira **245 pass / 9 fail (todas baseline conhecido, zero regressão nova)** via `npm run ci:rls`.
+
+### Riscos
+- **R1:** se um dia existir venda de produto sem `product_orders` correspondente (não deveria — FK `order_id` é `not null` e `on delete cascade`), a linha cai com `productTitle: null` → UI mostra "Produto · produto removido" em vez de quebrar.
+- **R2:** `RevenueRow.subscriptionId` mudou de `string` para `string | null` — único consumidor é o próprio `RevenuePanel` (`originLabel`), já ajustado; nenhum outro arquivo do repositório referenciava esse campo (conferido).
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (aviso de chunk > 500 kB pré-existente, não relacionado).
+- `npx oxlint` → **0 erros, 56 warnings** (mesmo baseline da Fase P1-C — nenhum warning novo; o único aviso em `useProfessionalRevenue.ts` é o padrão `set-state-in-effect` pré-existente em todo o projeto).
+
+### Testes
+- RLS: ver acima — verde, sem regressão.
+- **Teste visual no navegador: NÃO executado nesta sessão** — a extensão Claude in Chrome não conectou. Fica pendente para quando a extensão conectar, ou para conferência manual do usuário: abrir o painel Professional → aba Recebimentos → confirmar que vendas de produto aparecem ao lado de assinaturas, com "Origem" e "Cliente" corretos, e que assinatura continua exatamente como antes.
+- **Sem venda real de produto no banco ainda** (mesma limitação já registrada na P1-A): merge/KPIs foram validados só com fixtures sintéticas em transação com rollback, não com dado de produção.
+
+### Pendências
+- Teste visual real no Chrome (bloqueado por conectividade da extensão nesta sessão).
+- Quando houver venda de produto real confirmada pela Asaas, validar visualmente que a linha aparece corretamente na aba (sem mock, dado real).
+
+### Sem migration, sem `db push`, sem `functions deploy`, sem `secrets set`, sem webhook, sem chamada Asaas, sem commit, sem push.

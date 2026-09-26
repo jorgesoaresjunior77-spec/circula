@@ -83,13 +83,18 @@ export interface PaymentCharge {
 }
 
 // FASE P1-A — aba "Recebimentos" do painel da Professional.
-// Deriva EXCLUSIVAMENTE de `subscription_payouts` (+ `subscriptions` para o
-// snapshot de % e ciclo, + `profiles` para o nome do Member). Nenhum campo
-// sensível (walletId, customer_id, API key) é lido.
+// FASE P1-D — passa a mesclar duas origens: `subscription_payouts`
+// (+ `subscriptions` para o snapshot de % e ciclo) e `product_payouts`
+// (+ `product_orders` para o título do produto e o snapshot de %),
+// ambas complementadas por `profiles` para o nome de quem pagou. Nenhum
+// campo sensível (walletId, customer_id, API key) é lido em nenhuma das
+// duas.
 export type RevenuePeriod = '30d' | '90d' | 'year' | 'all'
+export type RevenueSource = 'subscription' | 'product'
 
 export interface RevenueRow {
   id: string
+  source: RevenueSource
   kind: PayoutKind
   splitModel: SplitModel
   status: PayoutStatus
@@ -101,8 +106,12 @@ export interface RevenueRow {
   netAmountCents: number // valor destinado à Professional
   netValueCents: number // líquido processado (bruto − taxa Asaas)
   circulaPercent: number | null
+  // presentes só quando source === 'subscription'
   billingCycle: BillingCycle | null
-  subscriptionId: string
+  subscriptionId: string | null
+  // presente só quando source === 'product'
+  productTitle: string | null
+  // nome de quem pagou — Member assinante (subscription) ou comprador (product)
   memberName: string | null
 }
 

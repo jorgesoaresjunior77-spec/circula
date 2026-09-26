@@ -1,10 +1,11 @@
 import { useProfessionalBillingAccount } from '../hooks/useProfessionalBillingAccount'
 import { useProfessionalRevenue } from '../hooks/useProfessionalRevenue'
-import type { BillingCycle, PayoutKind, PayoutStatus, RevenuePeriod } from '../types/billing'
+import type { BillingCycle, PayoutKind, PayoutStatus, RevenuePeriod, RevenueRow } from '../types/billing'
 
 // FASE P1-A — aba "Recebimentos" do painel da Professional.
-// Somente leitura. Deriva de `subscription_payouts` (via useProfessionalRevenue).
-// Não faz nenhuma chamada ao Asaas; não expõe walletId/credencial.
+// FASE P1-D — passa a mostrar também vendas de produto da Loja, lado a
+// lado com assinatura (via useProfessionalRevenue). Somente leitura. Não
+// faz nenhuma chamada ao Asaas; não expõe walletId/credencial.
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 const money = (cents: number) => BRL.format(cents / 100)
@@ -30,6 +31,14 @@ function statusLabel(kind: PayoutKind, status: PayoutStatus): { text: string; to
   if (status === 'paid') return { text: 'Pago', tone: 'revenue-badge--paid' }
   if (status === 'pending') return { text: 'Pendente', tone: 'revenue-badge--pending' }
   return { text: status, tone: '' }
+}
+
+function originLabel(row: RevenueRow): string {
+  if (row.source === 'product') {
+    return `Produto · ${row.productTitle ?? 'produto removido'}`
+  }
+  const cycle = (row.billingCycle && CYCLE_LABEL[row.billingCycle]) || 'Assinatura'
+  return `Assinatura · ${cycle} · ${row.subscriptionId?.slice(0, 8) ?? '—'}`
 }
 
 interface RevenuePanelProps {
@@ -104,7 +113,8 @@ export function RevenuePanel({ communityId, communityName }: RevenuePanelProps) 
           {rows.length === 0 ? (
             <p className="revenue-empty">
               Ainda não há recebimentos neste período. Eles aparecem aqui quando um pagamento de
-              assinatura de <strong>{communityName}</strong> é confirmado pela Asaas.
+              assinatura ou de um produto da Loja de <strong>{communityName}</strong> é confirmado
+              pela Asaas.
             </p>
           ) : (
             <div className="revenue-table-wrap">
@@ -112,8 +122,8 @@ export function RevenuePanel({ communityId, communityName }: RevenuePanelProps) 
                 <thead>
                   <tr>
                     <th>Data</th>
-                    <th>Membro</th>
-                    <th>Assinatura</th>
+                    <th>Cliente</th>
+                    <th>Origem</th>
                     <th className="revenue-num">Bruto</th>
                     <th className="revenue-num">Taxa Asaas</th>
                     <th className="revenue-num">Líquido</th>
@@ -129,11 +139,8 @@ export function RevenuePanel({ communityId, communityName }: RevenuePanelProps) 
                     return (
                       <tr key={r.id}>
                         <td data-label="Data">{fmtDate(r.createdAt)}</td>
-                        <td data-label="Membro">{r.memberName ?? '—'}</td>
-                        <td data-label="Assinatura">
-                          {(r.billingCycle && CYCLE_LABEL[r.billingCycle]) || 'Assinatura'} ·{' '}
-                          {r.subscriptionId.slice(0, 8)}
-                        </td>
+                        <td data-label="Cliente">{r.memberName ?? '—'}</td>
+                        <td data-label="Origem">{originLabel(r)}</td>
                         <td data-label="Bruto" className="revenue-num">
                           {money(r.grossCents)}
                         </td>
