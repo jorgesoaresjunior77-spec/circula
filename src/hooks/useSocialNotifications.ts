@@ -7,8 +7,11 @@ import type { NotificationResult, SocialNotification } from '../types/notificati
 // profile_id = auth.uid(); o filtro explícito ativa o índice).
 // useSocialNotifications(null) não faz fetch.
 //
-// Arquitetura preparada para Realtime: `refresh` é estável e pode ser
-// chamada por uma subscription futura sem mudar o resto do hook.
+// Realtime: uma assinatura em `social_notifications` INSERT (filtrada
+// por profile_id, RLS entrega só o que é da usuária) dispara
+// `refresh()` — mesmo padrão já validado em `useConversations.ts`.
+// `social_notifications` está na publicação `supabase_realtime` desde
+// `20260925130000_social_notifications_realtime.sql`.
 
 const NOTIFICATION_SELECT =
   `id,profile_id,actor_profile_id,type,title,body,` +
@@ -54,6 +57,30 @@ export function useSocialNotifications(profileId: string | null) {
   useEffect(() => {
     fetchNotifications()
   }, [fetchNotifications])
+
+  useEffect(() => {
+    if (!profileId) return
+
+    const channel = supabase
+      .channel(`social-notifications-${profileId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'social_notifications',
+          filter: `profile_id=eq.${profileId}`,
+        },
+        () => {
+          fetchNotifications()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [profileId, fetchNotifications])
 
   const unreadCount = useMemo(
     () => notifications.filter((item) => item.read_at === null).length,

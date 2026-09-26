@@ -1804,3 +1804,58 @@ Resultado: **15/15 passou** no cenário novo; suíte inteira **245 pass / 9 fail
 - Quando houver venda de produto real confirmada pela Asaas, validar visualmente que a linha aparece corretamente na aba (sem mock, dado real).
 
 ### Sem migration, sem `db push`, sem `functions deploy`, sem `secrets set`, sem webhook, sem chamada Asaas, sem commit, sem push.
+
+---
+
+## FASE P1-E — REALTIME das notificações sociais (2026-09-26, migration aplicada + `db push` + RLS)
+
+Fecha a ponta solta identificada na auditoria: `useSocialNotifications.ts` e a migration `20260925130000_social_notifications_realtime.sql` já existiam no working tree (de uma sessão anterior) sem terem passado pelo fluxo rastreado do projeto. Esta fase aplica a migration pelo caminho oficial, fecha a lacuna de cobertura de RLS que `social_notifications` nunca teve, e documenta o estado real.
+
+### O que a migration faz
+Adiciona `public.social_notifications` à publicação `supabase_realtime` (`alter publication ... add table`, dentro de um `do $$ if not exists $$` idempotente). Não cria/altera tabela, coluna, função, policy ou grant. `public.messages` já estava na mesma publicação desde `20260831170000`.
+
+### Aplicação — `db push` + `migration list --linked`
+Auditoria prévia já tinha constatado algo incomum: o efeito da migration **já estava ativo em produção** (`social_notifications` já aparecia em `pg_publication_tables`), mas a migration **não estava registrada** em `supabase_migrations.schema_migrations` — indício de que o `ALTER PUBLICATION` tinha sido rodado fora do fluxo (SQL Editor), não via `db push`.
+
+- `supabase migration list --linked` (antes): todas as 46 migrations anteriores com `local == remote`; só `20260925130000` aparecia com `remote` vazio.
+- `supabase db push --linked`: aplicou `20260925130000_social_notifications_realtime.sql` — idempotente, **sem alterar nenhum dado** (a tabela já estava na publicação; a migration só passou a ficar **registrada**).
+- `supabase migration list --linked` (depois): **todas as 47 migrations com `local == remote`** — histórico do projeto e banco real agora sincronizados.
+- Conferência direta de `pg_publication_tables` antes e depois: **inalterada** — só `messages` e `social_notifications`, `puballtables = false` (não é "todas as tabelas").
+
+### RLS — cenário novo `83_social_notifications.sql`
+`social_notifications` existe desde `20260831150000` e nunca tinha cenário próprio nesta suíte. Cobre, com 3 notificações sintéticas (uma por persona real — member, prof, master) em transação com `ROLLBACK`:
+- **SELECT:** cada persona vê só a própria notificação; NÃO vê a de nenhuma outra — inclusive **Master**, que aqui **não tem bypass de plataforma** (a policy `social_notifications_select` não tem ramo `is_master()`, ao contrário de `subscription_payouts`/`product_payouts`; comportamento já registrado em "Dados BLOQUEADOS para o Master" na Fase 9 — testado explicitamente agora). `anon` bloqueado.
+- **UPDATE:** cada persona só marca a PRÓPRIA como lida; tentativa de marcar a de outra é bloqueada pelo `USING`; tentativa de reatribuir `profile_id` (roubar a notificação de outra pessoa) é bloqueada pelo `WITH CHECK`.
+- **INSERT/DELETE:** bloqueados para `authenticated` em qualquer direção (própria ou forjando para outra usuária) — sem policy nem grant, só gatilho `SECURITY DEFINER`/`service_role` escrevem.
+
+Resultado: **17/17 passou** no cenário novo. Suíte inteira: **271 asserções, 11 cenários, 9 fail (todas baseline conhecido, zero regressão nova)** via `npm run ci:rls`.
+
+### `useSocialNotifications.ts` — o que valida
+- **Filtro por usuária:** RLS (`profile_id = auth.uid()`) + filtro explícito do canal (`profile_id=eq.{profileId}`) — dupla trava, confirmada pelo cenário 83.
+- **Sem duplicação:** cada evento de Realtime dispara `fetchNotifications()`, que faz *replace* completo do array (não `append`) — não há como uma notificação aparecer duas vezes na lista.
+- **Sem vazamento:** mesma garantia do item RLS acima; a tabela não tem `community_id`, o destinatário já vem resolvido pelos gatilhos.
+- **Comportamento ao chegar notificação nova:** o canal escuta só `INSERT`, dispara um refetch das últimas 50 — a lista e o contador de não lidas (`unreadCount`, derivado por `useMemo`) atualizam sozinhos, sem reload da página.
+- **Não implementado nesta fase (adiado por decisão do usuário):** fallback `window.addEventListener('focus', refresh)` — existe em `useConversations.ts` como rede de segurança contra eventos perdidos por reconexão do socket; fica como melhoria futura opcional.
+
+### Arquivos alterados
+- `src/hooks/useSocialNotifications.ts` — sem mudança nesta fase (já estava pronto; só validado).
+- `supabase/migrations/20260925130000_social_notifications_realtime.sql` — aplicada via `db push` (sem mudança de conteúdo).
+- `supabase/tests/rls/83_social_notifications.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhuma policy, grant, função ou tabela — nem em `social_notifications`, nem em nenhuma outra. Deploy (GitHub Pages), Hotmart, Asaas, checkout/billing, Loja, Master, Feed. `RevenuePanel`/`useProfessionalRevenue` (Fase P1-D, fechada em commit anterior).
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (aviso de chunk > 500 kB pré-existente, não relacionado).
+- `npx oxlint` → **0 erros, 56 warnings** (mesmo baseline; o único aviso em `useSocialNotifications.ts` é o padrão `set-state-in-effect` pré-existente em todo o projeto).
+
+### Teste funcional no navegador
+**Parcial.** A extensão Claude in Chrome conectou nesta sessão (diferente da tentativa anterior) e o app local (`npm run dev`, apontando para o mesmo Supabase de produção) carregou sem erro de console até a tela de login. **A prova end-to-end completa (sino aberto recebendo notificação ao vivo, sem reload) não foi feita**: exigiria autenticar como uma conta real da plataforma, e nenhuma credencial de teste existe no projeto (`.env.local` só tem a URL/chave pública do Supabase) — entrar com a senha real de produção está fora do que esta sessão pode fazer. **Registrado como pendente**, não simulado.
+
+### Pendências
+- Teste funcional real no navegador com login de usuária de verdade (gerar comentário/reação/etc. numa sessão e ver o sino da outra atualizar ao vivo).
+- Fallback `window.addEventListener('focus', ...)` (adiado, opcional).
+
+### Sem alteração de schema/RLS/grants, sem commit, sem push.
