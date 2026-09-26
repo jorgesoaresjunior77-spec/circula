@@ -1859,3 +1859,53 @@ Nenhuma policy, grant, função ou tabela — nem em `social_notifications`, nem
 - Fallback `window.addEventListener('focus', ...)` (adiado, opcional).
 
 ### Sem alteração de schema/RLS/grants, sem commit, sem push.
+
+---
+
+## FASE P1-F1 — Cobertura RLS de mensagens privadas (2026-09-26, teste puro, nenhuma policy alterada)
+
+Fase exclusivamente de segurança/teste. Fecha a lacuna encontrada na auditoria de prioridades: `public.conversations` e `public.conversation_participants` existem desde `20260831160000_messages_schema.sql` e nunca tiveram cenário de RLS próprio (só existia 1 asserção isolada em `40_master.sql` confirmando que Master não lê `messages`). Nenhum frontend, hook, migration, policy, deploy ou billing foi tocado.
+
+### Auditoria (ao vivo, `pg_policies` + `information_schema`, não só o arquivo de migration)
+- `conversations_select` = `is_conversation_participant(id)` — só participante.
+- `conversation_participants_select` = `is_conversation_participant(conversation_id)` — só participante.
+- `conversation_participants_update_own` = `profile_id = auth.uid()` (USING **e** WITH CHECK) — só a própria linha.
+- **Sem policy de INSERT/DELETE** em nenhuma das duas tabelas para `authenticated`; GRANT confirma: `conversations` só tem `SELECT`, `conversation_participants` só tem `SELECT` + `UPDATE`. Criação é exclusiva da RPC `SECURITY DEFINER` `get_or_create_direct_conversation`, que exige `shares_active_community()`.
+- **Master sem bypass:** nenhuma policy das duas tabelas tem ramo `is_master()`; `shares_active_community()` depende de `community_members`, tabela da qual Master nunca é linha (ela é dona via `communities.owner_id`, não participante) — confirmado por execução (teste 21).
+- Achado estrutural (não específico desta fase): `information_schema.role_table_grants` mostra `TRUNCATE`/`TRIGGER`/`REFERENCES` concedidos a `anon`/`authenticated` em `conversations`/`conversation_participants` — **mesmo padrão confirmado em `profiles`**, ou seja, é um artefato de privilégio padrão do projeto inteiro (não introduzido pela migration de mensagens), inofensivo na prática porque PostgREST/supabase-js não expõe `TRUNCATE` via REST. Registrado como observação, **não corrigido** (fora do escopo desta fase e não específico destas duas tabelas).
+
+### Achado de execução (não é vulnerabilidade — comportamento verificado e documentado)
+Uma leitura isolada do `WITH CHECK` de `conversation_participants_update_own` (`profile_id = auth.uid()`) sugeriria que trocar `conversation_id` da própria linha não seria bloqueado (a coluna não é mencionada). **Testado por execução real (sondagem com `ROLLBACK`, depois formalizada no teste 14 do cenário 84): o PostgreSQL bloqueia essa troca em tempo de execução** (`new row violates row-level security policy for table "conversation_participants"`), mesmo para uma conversa-alvo inexistente. Ou seja: uma usuária **não consegue** "mover" a própria participação para uma conversa alheia e se autoadicionar por essa via. Comportamento confirmado seguro — **nenhuma policy foi alterada**.
+
+### Cenário novo — `supabase/tests/rls/84_conversations.sql`
+Fixtures sintéticas (2 conversas, 4 linhas de participante — member+prof em X, prof+master em Y) em transação com `ROLLBACK`; nenhuma conversa/participante real tocada. **22 asserções, 22 PASS:**
+- **SELECT `conversations`:** member vê X (própria); prof vê X (própria); master (estranha) NÃO vê X; member NÃO vê Y (participa de X, não de Y, mesmo prof estando nas duas); prof vê X e Y (controle positivo); anon bloqueado.
+- **SELECT `conversation_participants`:** member vê os 2 participantes de X; member NÃO vê participantes de Y; master NÃO vê participantes de X; anon bloqueado.
+- **UPDATE `conversation_participants`:** marcar a própria leitura em X permitido; atualizar a linha de terceiro (prof) bloqueado; reatribuir `profile_id` da própria linha bloqueado (WITH CHECK); mover a própria linha de X para Y via `conversation_id` bloqueado (achado acima, formalizado); Master atualizando linha alheia bloqueado (sem bypass).
+- **INSERT:** direto em `conversations` bloqueado; autoadicionar-se em Y bloqueado; forjar entrada do master em X bloqueado — todos sem policy nem GRANT.
+- **DELETE:** remover participação de terceiro bloqueado; remover a própria participação bloqueado (produto não tem fluxo de "sair da conversa" hoje — comportamento atual, não um bug desta fase).
+- **Criação de conversa (RPC):** Master chamando `get_or_create_direct_conversation` levanta exceção (não compartilha comunidade com ninguém); member chamando com prof funciona normalmente (controle positivo, ambas compartilham a comunidade A real).
+
+### Resultado da suíte completa
+`npm run ci:rls` → **12 cenários, 293 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Nenhuma policy foi alterada
+Testado contra as policies reais tal como estão; todas as 22 asserções do cenário 84 passaram no primeiro run. Não houve nenhuma falha real a investigar, logo nenhuma policy foi tocada — exatamente o caminho "se passar, não altere nada" combinado antes de começar.
+
+### Arquivos alterados
+- `supabase/tests/rls/84_conversations.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+`src/hooks/useConversations.ts`/`useConversation.ts`/`Messages.tsx`/`ConversationList.tsx`/`ConversationView.tsx`/`MessageComposer.tsx`; nenhuma migration; nenhuma policy/grant/função; `messages` (fora do escopo desta fase); deploy (GitHub Pages); Asaas; billing; storage.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0** (nenhum arquivo de frontend tocado).
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado nesta fase).
+
+### Pendências
+- Cobertura completa de `public.messages` (hoje só tem 1 asserção isolada, de exclusão do Master) — candidata a uma fase futura (P1-F2), fora do escopo combinado para esta.
+- Achado de GRANT (`TRUNCATE`/`TRIGGER`/`REFERENCES` a `anon`/`authenticated`) é padrão do projeto inteiro, não desta fase — mencionar caso uma auditoria de grants seja priorizada depois.
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
