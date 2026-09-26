@@ -1909,3 +1909,60 @@ Testado contra as policies reais tal como estão; todas as 22 asserções do cen
 - Achado de GRANT (`TRUNCATE`/`TRIGGER`/`REFERENCES` a `anon`/`authenticated`) é padrão do projeto inteiro, não desta fase — mencionar caso uma auditoria de grants seja priorizada depois.
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+---
+
+## FASE P1-F2 — Cobertura RLS de dados financeiros sensíveis (2026-09-26, teste puro, nenhuma policy alterada)
+
+Fase exclusivamente de auditoria/teste. Fecha 3 das 15 tabelas sem cobertura de RLS identificadas na auditoria de prioridades: `billing_customer_data` (CPF/CNPJ), `asaas_customers` (vínculo com Asaas) e `product_entitlements` (acesso a produto pago — a mais sensível das três, decide quem acessa conteúdo digital pago).
+
+### Auditoria (ao vivo, `pg_policies` + `information_schema`)
+- **`billing_customer_data`** (`20260825221926`): `profile_id` UNIQUE + FK `profiles`, sem `community_id`. `SELECT` = `profile_id = auth.uid() OR is_master()`; `INSERT`/`UPDATE` = só a própria (`with check profile_id = auth.uid()`); **sem policy de DELETE**. GRANT a `authenticated`: SELECT+INSERT+UPDATE (sem DELETE — nem `service_role` tem; a linha só some por `CASCADE` de `profiles`).
+- **`asaas_customers`** (`20260829120000`): mesmo formato (`profile_id` UNIQUE + FK, sem `community_id`). `SELECT` = `profile_id = auth.uid() OR is_master()`; **sem NENHUMA policy de escrita**. GRANT a `authenticated`: **somente SELECT** — nem a própria dona insere/atualiza/apaga; só `service_role` (webhook) escreve.
+- **`product_entitlements`** (`20260829120000`): `order_id` UNIQUE (FK `product_orders`), `product_id` (FK `products`), `profile_id` (FK `profiles`), `community_id` (FK `communities`), `revoked_at` nullable (campo real de revogação). `SELECT` = `profile_id = auth.uid() OR owns_community(community_id) OR is_master()`; GRANT a `authenticated`: **somente SELECT** — concessão/revogação é exclusiva do servidor. Função `has_product_access(product_id)` (`STABLE SECURITY DEFINER`) é o gate real de acesso ao conteúdo: filtra `revoked_at is null`, algo que a policy de SELECT **não** faz (a linha revogada continua visível para dona/dona-da-comunidade/master — é histórico, não é o controle de acesso).
+- **Sem FK/view entre `billing_customer_data` e `asaas_customers`** — único ponto em comum é `profile_id`; nenhum caminho indireto de vazamento existe além do que cada RLS já cobre isoladamente.
+- **Master tem bypass EXPLÍCITO e intencional** nas 3 tabelas (`is_master()` no `SELECT`) — confirmado por execução como comportamento real do produto, não uma falha. Sem bypass de escrita em nenhuma: os grants de INSERT/UPDATE/DELETE não distinguem Master de qualquer outro profile autenticado.
+- **`owns_community()` em `product_entitlements`** é bypass por design (mesmo padrão de `product_payouts`, P1-D): a dona da comunidade precisa ver quem tem acesso aos produtos dela.
+
+### Arquivos criados
+- `supabase/tests/rls/85_billing_customer_data.sql` — cobre **`billing_customer_data` + `asaas_customers`** no mesmo arquivo (decisão técnica: schema quase idêntico, mesma dupla que a Edge Function `connect-asaas-account` cruza; ver comentário no topo do arquivo). **20/20 PASS.**
+- `supabase/tests/rls/86_product_entitlements.sql` — dedicado, por ser estruturalmente mais complexo (`community_id`, revogação) e o mais sensível dos três. **15/15 PASS.**
+
+### `85_billing_customer_data.sql` — cobertura
+`billing_customer_data`: dona vê a própria linha; outra usuária não vê; Master vê (bypass by design); anon bloqueado; INSERT só da própria (Master, sem linha prévia, insere a sua — controle positivo; `member` forjando linha do Master é bloqueado); UPDATE só da própria (terceiro bloqueado; reatribuir `profile_id` para "transferir" a linha é bloqueado pelo `WITH CHECK`); DELETE bloqueado para todos (sem policy/grant).
+`asaas_customers`: mesmo padrão de isolamento de leitura (dona/outra/Master/anon); **toda escrita bloqueada para qualquer persona**, inclusive a própria dona — contraste deliberado com `billing_customer_data`, testado e confirmado.
+**Nota de dados reais:** os testes de SELECT/UPDATE reaproveitam as linhas reais já existentes de `member`/`prof` (leitura seguras + escrita sempre desfeita em `ROLLBACK`); os testes de INSERT usam `master`, que não tinha linha prévia em nenhuma das duas tabelas — evita falso-negativo por conflito de `UNIQUE profile_id`.
+
+### `86_product_entitlements.sql` — cobertura
+Fixtures sintéticas (2 produtos, 3 pedidos, 3 entitlements — mesma técnica de `82_product_payouts_recebimentos.sql`; nenhuma das 3 personas tinha entitlement prévia real, conferido antes de escrever o cenário): dona consulta o próprio acesso; usuária genuinamente estranha (nem dona da comunidade, nem Master) não vê entitlement alheia; dona de comunidade vê as entitlements da própria comunidade (by design, não vazamento); Master vê tudo (by design); anon bloqueado. **Escrita:** criar entitlement para si mesma sem ter comprado, reatribuir `profile_id` de entitlement alheia, reativar entitlement revogada, e até a dona da comunidade tentando revogar via UPDATE direto — **todos bloqueados** (sem GRANT de INSERT/UPDATE para `authenticated`, nem para Master). **Revogação:** a linha revogada continua visível para quem tem permissão de leitura (histórico), mas `has_product_access()` corretamente retorna `false` para quem está revogado e `true` para quem tem entitlement ativa — provado com a MESMA persona e o MESMO produto em estados diferentes (Master: revogada → `false`; Member: ativa → `true`; Professional: nunca comprou → `false`).
+
+### Erros de construção de teste encontrados e corrigidos (não são vulnerabilidades)
+Duas iterações foram necessárias no cenário 86 antes de fechar verde — ambas investigadas e confirmadas como erro de teste, não falha de RLS, antes de qualquer correção:
+1. **`expect_bool` sem o prefixo `select`:** as 3 chamadas a `has_product_access()` retornavam `ERR` (exceção de sintaxe — `EXECUTE` exige uma instrução completa, não só a chamada da função). Corrigido para `format('select public.has_product_access(%L)', ...)`, no padrão já usado em `10_member_active.sql`/`30_professional.sql`.
+2. **Teste de isolamento mal desenhado:** uma asserção esperava que `prof` não visse nenhuma entitlement da comunidade C, mas a única entitlement de C (E2) pertence à própria `prof` — ela a vê legitimamente por `profile_id = auth.uid()`, não por vazamento. Removida e substituída por comentário explicando por que o teste correto de isolamento (já existente) usa `member`, que é genuinamente estranha a essa comunidade.
+Nenhuma policy foi tocada em nenhum dos dois casos — a suíte já estava correta; os testes é que precisavam de ajuste.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **14 cenários, 328 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Nenhuma policy foi alterada
+Após corrigir os dois erros de construção de teste acima, todas as 35 asserções novas (20 + 15) passaram contra as policies reais tal como estão. Nenhuma falha real de RLS foi encontrada — nada foi tocado em schema, policy ou grant.
+
+### Arquivos modificados
+- `supabase/tests/rls/85_billing_customer_data.sql` — novo.
+- `supabase/tests/rls/86_product_entitlements.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhum frontend, hook, componente, migration, policy, grant, webhook, Asaas, billing logic, deploy (GitHub Pages), Vercel.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### Pendências
+- Restam 12 das 15 tabelas sem cobertura identificadas na auditoria de prioridades (`community_card_images`, `conversation_participants`/`conversations` já fechadas na P1-F1; `help_request_replies`, `notifications` de billing, `platform_split_settings`, `point_accounts`, `product_order_status_history`, `professional_billing_accounts`, `revenue_split_rules`, `subscription_status_history`, `webhook_events`) — candidatas a uma fase futura (P1-F3), fora do escopo combinado para esta.
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
