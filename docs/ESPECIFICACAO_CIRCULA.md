@@ -2103,3 +2103,50 @@ Nenhum frontend, hook, componente, migration, policy, grant, `create_product_ord
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## FASE P1-F3.1 (fechamento) — Split & Pricing: `billing_plans` (2026-09-28, teste puro, nenhuma policy alterada)
+
+Quarta e última tabela do cluster Split & Pricing — fecha P1-F3.1. `public.billing_plans` é o catálogo de planos de assinatura da plataforma (`subscriptions.plan_id`/`next_plan_id` referenciam esta tabela).
+
+### Auditoria (ao vivo, `information_schema` + `pg_constraint` + `pg_policies` + `pg_get_functiondef`)
+- **Estrutura**: `id` uuid pk · `subject` (`subscription_subject`: `'platform'` ou `'community'`) · `code` text UNIQUE · `name` · `price_cents` int (check > 0) · `billing_cycle` · `is_active` boolean default true · timestamps. **Sem `community_id`** — catálogo GLOBAL; `subject` distingue o TIPO de assinante (Professional paga a plataforma = `'platform'`; Member paga a comunidade = `'community'`), não uma comunidade específica. 6 planos reais: 3 `platform` (Professional mensal/semestral/anual) + 3 `community` (Member mensal/semestral/anual). **Sem relação com `products`** (mesma conclusão do cenário 89 — catálogos independentes).
+- **Policies**: `billing_plans_select` = `true` (SEM restrição de role — qualquer `authenticated` lê o catálogo inteiro; intencional, é preço público do produto, diferente de `revenue_split_rules`/`platform_split_settings` que são comissão interna) · `billing_plans_write` (`ALL`, cobre INSERT/UPDATE/DELETE juntos, `WITH CHECK`) = `is_master()`.
+- **GRANTs**: `anon` nenhum (nem SELECT); `authenticated` CRUD completo (INSERT/SELECT/UPDATE/DELETE — RLS é a única linha de defesa para escrita, mesmo padrão de `products`); `service_role` tem SELECT explícito (diferente de 87/88, sem impacto de segurança).
+- **Relação com `subscriptions`**: FK `plan_id`/`next_plan_id` sem `ON DELETE` explícito (= RESTRICT — plano referenciado por qualquer assinatura não pode ser apagado). Alterações de `price_cents`/`is_active` **não afetam assinaturas existentes**: `subscriptions` tem `price_cents_snapshot`/`billing_cycle_snapshot`/`currency_snapshot` próprios, congelados na criação — `billing_plans` só influencia assinaturas novas/renovações futuras (fluxo não reproduzido aqui, fora de escopo).
+- **SECURITY DEFINER**: `create_community_trial`, `create_platform_trial` e `handle_new_user` leem `billing_plans`, mas as 3 são funções de **TRIGGER** (`RETURNS trigger`) — não chamáveis via RPC pelo cliente, sem caminho indireto explorável. Nenhuma escreve em `billing_plans` (confirmado no código). `platform_overview()` também lê (campo `plans`), já gated por `is_master()` (confirmado em 88) — como o SELECT direto já é aberto a qualquer `authenticated`, não introduz vazamento novo; não retestado aqui para não duplicar 88.
+
+### Sondagem mínima (antes do teste formal)
+18 probes ad-hoc rodadas contra as policies reais antes de escrever `90_*.sql`: SELECT como member/prof/master/anon; INSERT como member/prof/anon/master; UPDATE de preço e de `is_active` como member/prof/master; DELETE como member/prof/master (usando a técnica de "insert-então-delete na mesma instrução" documentada em `_framework.sql` para testar a capacidade de DELETE do Master sem esbarrar no `ON DELETE RESTRICT` dos planos reais, todos referenciados por assinaturas). **18/18 bateram com o comportamento esperado** — nenhuma vulnerabilidade, nenhum ajuste necessário antes do teste formal.
+
+### Arquivo criado
+- `supabase/tests/rls/90_billing_plans.sql` — **18/18 PASS.**
+
+### Cobertura
+**SELECT**: qualquer `authenticated` (member/prof/master) vê os 6 planos reais — sem distinção de role, é preço público; isolamento por comunidade não se aplica (sem `community_id`); anon bloqueado. **Escrita — INSERT**: bloqueado para member/prof/anon, permitido para master. **UPDATE (preço)**: bloqueado para member/prof, permitido para master. **UPDATE (`is_active`)**: mesmo padrão. Ownership/`community_id`: não aplicável (colunas inexistentes). **DELETE**: bloqueado para member/prof; master consegue apagar (testado com plano sintético, para não esbarrar no `RESTRICT` dos planos reais em uso). **Integridade de cobrança**: mesmo a Professional dona da comunidade real A não pode alterar um plano que afeta TODAS as comunidades da plataforma simultaneamente (não só a própria) — risco inverso e maior do que "manipular plano de outra comunidade", já que o catálogo é global.
+
+### Nenhuma policy foi alterada
+Todas as 18 asserções passaram contra as policies reais tal como estão, na primeira execução. Nenhuma falha real foi encontrada.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **18 cenários, 404 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Arquivos modificados
+- `supabase/tests/rls/90_billing_plans.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhum frontend, hook, componente, migration, policy, grant, funções de trigger, `platform_overview()`, webhook, Asaas, billing logic, deploy (GitHub Pages), Vercel. Os 6 planos reais foram lidos livremente e tiveram escritas de teste sempre desfeitas em `ROLLBACK` (inclusive as permitidas para Master).
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **exit 0, 0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### P1-F3.1 — CLUSTER FECHADO
+`revenue_split_rules` (87, 17/17) + `platform_split_settings` (88, 20/20) + `products` (89, 21/21) + `billing_plans` (90, 18/18) = **76 asserções novas**, todas verdes na primeira execução formal, **nenhuma policy alterada em nenhuma das 4 tabelas**. Achado principal do cluster: `revenue_split_rules` não é órfã (comentário de migration desatualizado) e é a fonte primária de comissão da plataforma; nenhuma das 4 tabelas tinha vulnerabilidade de RLS.
+
+### Pendências
+- Restam 8 tabelas de P1-F3: `professional_billing_accounts`, `webhook_events`, `product_order_status_history`, `subscription_status_history` (P1-F3.2 — PII financeira & auditoria); `help_request_replies`, `notifications` de billing, `point_accounts`, `community_card_images` (P1-F3.3 — social/conteúdo residual).
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
