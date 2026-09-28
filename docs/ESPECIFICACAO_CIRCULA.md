@@ -2197,3 +2197,51 @@ Nenhum frontend, hook, componente, migration, policy, grant, Edge Function (`con
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## FASE P1-F3.2 (continuação) — `webhook_events` (2026-09-28, teste puro, nenhuma policy/grant/Edge Function alterada)
+
+Segunda tabela da P1-F3.2. `public.webhook_events` guarda o payload bruto de cada evento recebido do Asaas — dado financeiro sensível. Tabela sem nenhuma policy de RLS (confirmado: `pg_policies` devolve 0 linhas).
+
+### Auditoria (ao vivo — schema E execução real, não presumida)
+- **Estrutura**: `id` uuid pk · `asaas_event_id` text UNIQUE (idempotência) · `event_type` · `payload jsonb` · `received_at` · `processed_at` (nullable). Sem FK — a ligação com `subscriptions`/`payment_charges`/`product_orders` é feita dentro da Edge Function, não no schema.
+- **RLS**: habilitada. **Policies: zero.**
+- **GRANTs** (todos os roles verificados, não só anon/authenticated/service_role): `anon` e `authenticated` **idênticos** — só `TRUNCATE,REFERENCES,TRIGGER` (nada de SELECT/INSERT/UPDATE/DELETE); `service_role` INSERT+UPDATE (**sem SELECT, sem DELETE**); `postgres` (dono) CRUD completo.
+- **Confirmação por execução real** (não só leitura de `information_schema`, conforme pedido explícito desta fase): `set local role service_role` + tentativa real de cada operação, dentro de transação com `ROLLBACK`, mostrou que `rolbypassrls=true` do `service_role` **não** dispensa o GRANT de tabela (são camadas independentes) — SELECT falha com `permission denied for table webhook_events` mesmo para `service_role`.
+- **Achado operacional fora do escopo de RLS** (reportado, não corrigido — proibido alterar grants/Edge Functions nesta fase): o `INSERT` do `service_role` funciona normalmente (não depende de SELECT). Mas o `UPDATE ... WHERE asaas_event_id = ...` também falha com `permission denied` — Postgres exige privilégio de SELECT nas colunas referenciadas no `WHERE` de um `UPDATE`/`DELETE`, além do `UPDATE` na coluna alterada, e `information_schema.column_privileges` confirma que nenhuma coluna tem SELECT concedido a `service_role`. O código real de `supabase/functions/asaas-webhook/index.ts` (linhas 673-680) faz exatamente esse UPDATE para marcar `processed_at` após processar um evento, e `throw`s o erro se falhar — ou seja, **esse UPDATE falha em produção hoje**, fazendo a função inteira lançar erro ao final de todo processamento bem-sucedido de webhook. O atalho de idempotência em retry (linhas 571-575, um `select('processed_at')`) também falha pela mesma causa, mas o próprio código já trata esse erro como "segue para reprocessar" (comentário no arquivo), preservando a correção pela idempotência dos handlers — só desliga a otimização de pular reprocessamento. **Não é uma falha de RLS/segurança** (nenhum cliente ganha acesso), é um GRANT insuficiente para a própria função interna. Fica registrado aqui para decisão do time; nenhuma alteração foi feita.
+- **SECURITY DEFINER**: nenhuma função SQL referencia `webhook_events` (confirmado ao vivo sobre todas as funções de `public`) — sem caminho indireto.
+- **Edge Functions**: só `asaas-webhook` escreve. Nenhuma outra função/hook/componente referencia a tabela (confirmado por grep).
+- **Master**: **sem bypass nenhum** — diferente de todas as outras 8 tabelas já cobertas na P1-F3 (todas tinham `is_master()` em pelo menos o SELECT). Aqui não há policy nenhuma, logo Master recebe exatamente o mesmo bloqueio total de qualquer outro `authenticated`.
+
+### Sondagem mínima (antes do teste formal)
+Matriz completa 4 operações × 4 personas (member/prof/master/anon) = 16 probes ad-hoc, todas esperando bloqueio total. **16/16 bateram** — confirma deny-all real (schema + execução), nenhuma vulnerabilidade, nenhum ajuste necessário.
+
+### Arquivo criado
+- `supabase/tests/rls/92_webhook_events.sql` — **16/16 PASS.**
+
+### Cobertura
+SELECT bloqueado para member, Professional, Master e anon. INSERT bloqueado para as 4 personas. UPDATE bloqueado para as 4 personas. DELETE bloqueado para as 4 personas. Nenhuma fixture necessária — cenário 100% negativo, roda mesmo com a tabela vazia em produção (nenhum dado criado ou alterado; todo `INSERT`/`UPDATE`/`DELETE` testado é esperado `BLOQUEADO` dentro da transação com `ROLLBACK`).
+
+### Nenhuma policy/grant foi alterada
+Todas as 16 asserções passaram contra o comportamento real (policies + grants), na primeira execução. Deny-all já estava correto — objetivo desta fase foi só criar cobertura de regressão.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **20 cenários, 439 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Arquivos modificados
+- `supabase/tests/rls/92_webhook_events.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhuma policy, grant, Edge Function, migration, dado real. O achado sobre o GRANT insuficiente do `service_role` (acima) foi só reportado, não corrigido — fora do escopo desta fase e explicitamente proibido pela instrução.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **exit 0, 0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### Pendências
+- Restam 6 tabelas de P1-F3: `product_order_status_history`, `subscription_status_history` (fecham P1-F3.2); `help_request_replies`, `notifications` de billing, `point_accounts`, `community_card_images` (P1-F3.3).
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+- **Achado operacional para decisão do time** (fora do escopo de RLS): `service_role` não tem GRANT de SELECT em `webhook_events`, quebrando o UPDATE de `processed_at` em `asaas-webhook/index.ts` (linhas 673-680) e a checagem de idempotência em retry (linhas 571-575) — ver auditoria acima.
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
