@@ -1966,3 +1966,48 @@ Nenhum frontend, hook, componente, migration, policy, grant, webhook, Asaas, bil
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## FASE P1-F3.1 — Split & Pricing: `revenue_split_rules` (2026-09-28, teste puro, nenhuma policy alterada)
+
+Primeira fase concreta de P1-F3, aberta pela auditoria preparatória (12 tabelas sem cobertura executável identificadas ao vivo, não confiando na lista antiga de 15). `revenue_split_rules` foi escolhida como primeiro alvo por ser a de maior blast radius: decide a taxa da Círcula em toda venda de produto.
+
+### Auditoria (ao vivo, `information_schema` + `pg_constraint` + `pg_policies` + `pg_get_functiondef`)
+- **Estrutura**: `id` uuid pk · `min_amount_cents` int not null · `max_amount_cents` int nullable · `circula_percent` numeric not null (`check 0..100`) · `effective_from` timestamptz · `created_by` uuid not null (FK `profiles.id`) · `created_at` timestamptz. **Sem `community_id`** — é configuração GLOBAL da plataforma, não por comunidade; o item "isolamento entre comunidades" do roteiro de teste não se aplica a esta tabela.
+- **3 linhas reais em produção** (faixas 0–100000 / 100001–500000 / 500001+, criadas por `master` em 2026-08-26) — a tabela **não é órfã**, ao contrário do que diz o comentário `-- ÓRFÃ — preservada` na migration baseline (`20260827000000`). Esse comentário está **desatualizado**: é o principal achado da auditoria P1-F3.
+- **Policies**: `revenue_split_rules_select` = `is_master() OR is_professional()` · `revenue_split_rules_insert` (`WITH CHECK`) = `is_master()`. **Sem policy de UPDATE nem de DELETE.**
+- **GRANTs**: `anon` nenhum (nem SELECT); `authenticated` INSERT+SELECT (sem UPDATE/DELETE); `service_role` nenhum grant extra (lê/escreve via BYPASSRLS). A tabela é **estruturalmente imutável por API**: nem Master consegue UPDATE/DELETE via client — não existe GRANT dessas operações para `authenticated`, então a barreira é a camada de GRANT, nem chega a ser a RLS. Versionamento é só por INSERT de nova linha.
+- **`resolve_split(community_id, amount_cents)`** (`STABLE SECURITY DEFINER`) lê esta tabela primeiro, com fallback em `platform_split_settings` se nenhuma faixa casar, para decidir `circula_percent`/`circula_amount_cents`/`professional_amount_cents` de cada venda. É só leitura — nunca escreve em `revenue_split_rules`. `EXECUTE` está **revogado de `anon` e `authenticated`** (confirmado por `has_function_privilege`): só é chamável de dentro de `create_product_order` (também sem `EXECUTE` para client), que só roda via Edge Function server-side. **Nenhum caminho indireto** existe para um cliente ler ou alterar a tabela passando pela função — confirmado por sondagem ao vivo tentando chamar `resolve_split()` direto como `anon`/`member` (bloqueado, `42501`).
+- **`created_by`** (o campo mais próximo de "ownership") **não é validado contra `auth.uid()`** no `WITH CHECK` da policy de INSERT — só `is_master()`. Master consegue atribuir a autoria a outro `profile_id`. Auditado: `created_by` não é lido por nenhuma policy nem por `resolve_split()` para decidir acesso, é só metadado. **Não é vetor de autorização** — documentado como comportamento real, não tratado como vulnerabilidade.
+
+### Sondagem mínima (antes do teste formal)
+11 probes ad-hoc (mesmo framework, mesma transação com `ROLLBACK`) rodadas contra as policies reais antes de escrever `87_*.sql`: SELECT como master/prof/member/anon, INSERT como member/prof/master, UPDATE/DELETE como master, EXECUTE de `resolve_split()` como anon/member. **11/11 bateram com o comportamento esperado das policies auditadas** — nenhuma vulnerabilidade, nenhum ajuste necessário antes do teste formal.
+
+### Arquivo criado
+- `supabase/tests/rls/87_revenue_split_rules.sql` — **17/17 PASS.**
+
+### Cobertura
+Acesso legítimo: master e professional veem as 3 regras reais (leitura de transparência para professional, sem bypass de escrita). Isolamento de role: member não vê nenhuma linha; anon bloqueado (sem GRANT). Escrita: INSERT bloqueado para member/prof/anon, permitido para master (desfeito em `ROLLBACK`); UPDATE e DELETE bloqueados para **todas** as personas, inclusive master (sem GRANT dessas operações para `authenticated` — nem policy existiria para checar). Ownership: master conseguindo atribuir `created_by` a outro profile é testado e documentado como permitido/não-vulnerável. Acesso indireto: `resolve_split()` chamada direto por anon e por member — bloqueada por falta de privilégio de `EXECUTE`, confirmando que não há bypass da policy de SELECT pela função.
+
+### Nenhuma policy foi alterada
+Todas as 17 asserções passaram contra as policies reais tal como estão, na primeira execução. Nenhuma falha real de RLS foi encontrada — nada foi tocado em schema, policy ou grant.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **15 cenários, 345 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Arquivos modificados
+- `supabase/tests/rls/87_revenue_split_rules.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhum frontend, hook, componente, migration, policy, grant, `resolve_split()`, webhook, Asaas, billing logic, deploy (GitHub Pages), Vercel.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **exit 0, 0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### Pendências
+- Restam 11 tabelas de P1-F3 sem cobertura: `platform_split_settings`, `products`, `billing_plans` (fecham P1-F3.1 — cluster Split & Pricing); `professional_billing_accounts`, `webhook_events`, `product_order_status_history`, `subscription_status_history` (P1-F3.2 — PII financeira & auditoria); `help_request_replies`, `notifications` de billing, `point_accounts`, `community_card_images` (P1-F3.3 — social/conteúdo residual).
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
