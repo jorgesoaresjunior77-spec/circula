@@ -2011,3 +2011,49 @@ Nenhum frontend, hook, componente, migration, policy, grant, `resolve_split()`, 
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## FASE P1-F3.1 (continuação) — Split & Pricing: `platform_split_settings` (2026-09-28, teste puro, nenhuma policy alterada)
+
+Segunda tabela do cluster Split & Pricing. `platform_split_settings` é o split DEFAULT da plataforma (Círcula × Professional), usado por `resolve_split()` como fallback quando nenhuma faixa de `revenue_split_rules` casa com o valor da venda.
+
+### Auditoria (ao vivo, `information_schema` + `pg_constraint` + `pg_policies` + `pg_get_functiondef` + `has_function_privilege`)
+- **Estrutura**: `id` uuid pk · `professional_percent` numeric not null (`check 0..100`) · `circula_percent` numeric not null (`check 0..100`) · `CHECK (professional_percent + circula_percent = 100)` · `effective_from` timestamptz · `created_by` uuid not null (FK `profiles.id`) · `created_at` timestamptz. **Sem `community_id`** — mesmo formato de `revenue_split_rules`: configuração GLOBAL, não por comunidade; "isolamento entre comunidades" não se aplica. **1 linha real em produção** (`professional_percent=90`, `circula_percent=10`, `created_by=master`, desde 2026-08-26).
+- **Policies**: `platform_split_settings_select` = `is_master() OR is_professional()` · `platform_split_settings_insert` (`WITH CHECK`) = `is_master()`. **Sem policy de UPDATE nem de DELETE** — idênticas em forma às de `revenue_split_rules`.
+- **GRANTs**: `anon` nenhum; `authenticated` INSERT+SELECT (sem UPDATE/DELETE); `service_role` nenhum grant extra. Mesma imutabilidade estrutural por API que `revenue_split_rules`: nem Master consegue UPDATE/DELETE (sem GRANT dessas operações para `authenticated`).
+- **`resolve_split()`** só lê `professional_percent`/`circula_percent` daqui quando nenhuma faixa de `revenue_split_rules` casa — hoje as 3 faixas de `revenue_split_rules` cobrem contiguamente 0 até infinito, então esse fallback é código morto na prática (observação de negócio, fora do escopo de RLS — não alterado). `EXECUTE` de `resolve_split` continua revogado de `anon`/`authenticated` (mesmo achado do cenário 87).
+- **Achado novo**: `platform_overview()` (`SECURITY DEFINER`, `STABLE`) também lê `platform_split_settings` (`split_professional_percent`/`split_circula_percent`, dentro de um payload agregado) e tem `EXECUTE` concedido a **`anon` e `authenticated`** — diferente de `resolve_split`. Não é uma brecha: a função abre com `if not is_master() then raise exception 'not_authorized'`, mais restritiva que a própria policy de SELECT da tabela (que deixa Professional ler direto). Confirmado por execução: anon/member/prof batem em `RAISE` mesmo com `EXECUTE` concedido; só Master passa.
+- **`created_by`**: mesmo padrão de `revenue_split_rules` — não validado contra `auth.uid()` no `WITH CHECK`, não é lido por nenhuma policy/função para decidir acesso. Não é vetor de autorização.
+
+### Sondagem mínima (antes do teste formal)
+15 probes ad-hoc rodadas contra as policies e funções reais antes de escrever `88_*.sql`: SELECT como master/prof/member/anon, INSERT como member/prof/anon/master, UPDATE/DELETE como master, `EXECUTE platform_overview()` como anon/member/prof/master, `EXECUTE resolve_split()` como member. **15/15 bateram com o comportamento esperado** — nenhuma vulnerabilidade, nenhum ajuste necessário antes do teste formal.
+
+### Arquivo criado
+- `supabase/tests/rls/88_platform_split_settings.sql` — **20/20 PASS.**
+
+### Cobertura
+Acesso legítimo: master e professional veem a única regra real. Isolamento de role: member não vê nenhuma linha; anon bloqueado. Escrita: INSERT bloqueado para member/prof/anon, permitido para master (desfeito em `ROLLBACK`); UPDATE e DELETE bloqueados para todas as personas, inclusive master (camada de GRANT). Ownership: master atribuindo `created_by` a outro profile — permitido, documentado como não-vulnerável. Acesso indireto: `resolve_split()` bloqueado por `EXECUTE` revogado (member); `platform_overview()` — apesar do `EXECUTE` concedido a `anon`/`authenticated`, bloqueado para anon/member/prof pelo gate interno `is_master()`, permitido só para master.
+
+### Nenhuma policy foi alterada
+Todas as 20 asserções passaram contra as policies e funções reais tal como estão, na primeira execução. Nenhuma falha real de RLS foi encontrada.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **16 cenários, 365 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Arquivos modificados
+- `supabase/tests/rls/88_platform_split_settings.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhum frontend, hook, componente, migration, policy, grant, `resolve_split()`, `platform_overview()`, webhook, Asaas, billing logic, deploy (GitHub Pages), Vercel.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **exit 0, 0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### Pendências
+- P1-F3.1 (Split & Pricing) fica com `products` e `billing_plans` restantes.
+- Restam 10 tabelas de P1-F3 no total sem cobertura: `products`, `billing_plans` (fecham P1-F3.1); `professional_billing_accounts`, `webhook_events`, `product_order_status_history`, `subscription_status_history` (P1-F3.2); `help_request_replies`, `notifications` de billing, `point_accounts`, `community_card_images` (P1-F3.3).
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
