@@ -2057,3 +2057,49 @@ Nenhum frontend, hook, componente, migration, policy, grant, `resolve_split()`, 
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## FASE P1-F3.1 (continuação) — Split & Pricing: `products` (2026-09-28, teste puro, nenhuma policy alterada)
+
+Terceira tabela do cluster Split & Pricing. `public.products` é o catálogo de produtos digitais/físicos à venda em cada comunidade — `price_cents` alimenta diretamente `create_product_order()`, que congela o preço no pedido via `resolve_split()`.
+
+### Auditoria (ao vivo, `information_schema` + `pg_constraint` + `pg_policies` + `pg_get_functiondef`)
+- **Estrutura**: `id` uuid pk · `community_id` uuid not null (FK `communities.id`, `ON DELETE CASCADE`) · `created_by` uuid not null (FK `profiles.id`, `ON DELETE CASCADE`) · `type` (check: course/ebook/workshop/event/consultation/physical) · `title` · `price_cents` int ≥ 0 (check: `published` exige `price_cents > 0`) · `currency` (check: só `BRL`) · `status` (check: draft/published/archived) · `max_quantity` · campos de entrega/evento · `checkout_url` (check: https) · timestamps. **Sem relação com `billing_plans`** (catálogo de produto é independente do catálogo de planos de assinatura).
+- **Policies**: `products_select` = `is_master() OR owns_community(community_id) OR (is_community_member(community_id) AND status='published')` · `products_insert` (`WITH CHECK`) = `owns_community(community_id) AND created_by=auth.uid()` · `products_update` (`USING`+`WITH CHECK`) = `owns_community(community_id)` · `products_delete` = `owns_community(community_id)`.
+- **Diferença estrutural chave em relação a 87/88**: o GRANT a `authenticated` aqui é CRUD completo (INSERT/SELECT/UPDATE/DELETE) — a RLS é a ÚNICA linha de defesa, não há trava de GRANT por trás. E, ao contrário de `revenue_split_rules`/`platform_split_settings`, a policy de UPDATE/DELETE **não tem bypass de `is_master()`** — só `owns_community()`. Master vê todo o catálogo (bypass só no SELECT) mas **não pode editar nem apagar** produto de nenhuma Professional — confirmado por execução (bloqueio por `USING`/0 linhas, não por GRANT).
+- **Relações**: `product_orders.product_id` e `product_entitlements.product_id` referenciam `products(id)` com `ON DELETE RESTRICT` — um produto com pedido/entitlement associado não pode ser apagado nem pelo próprio dono, por constraint de banco (não RLS); `product_payouts`/`revenue_split_rules`/`platform_split_settings` não referenciam `products` diretamente, a ponte é `product_orders` (82) e `resolve_split()` (87/88).
+- **SECURITY DEFINER**: só `create_product_order()` lê `products` (trava a linha com `FOR UPDATE` para congelar o preço). `EXECUTE` continua revogado de `anon`/`authenticated` (mesmo achado de 87/88) — sem caminho indireto do cliente.
+- **`anon`**: nenhum GRANT (nem SELECT) — bloqueado antes da RLS, igual às demais tabelas do cluster.
+
+### Sondagens mínimas (antes do teste formal)
+20 probes ad-hoc rodadas contra as policies reais antes de escrever `89_*.sql` (usando fixtures sintéticas de produto em comunidade A real + comunidade C sintética): leitura por dona/membro/outra-comunidade/sem-vínculo/anon/Master; criação autorizada/não-autorizada/com `created_by` forjado; UPDATE de preço/status/`community_id` por dona/outra pessoa/Master; DELETE autorizado/não-autorizado/por Master. **20/20 bateram com o comportamento esperado das policies auditadas** — nenhuma vulnerabilidade, nenhum ajuste necessário antes do teste formal. (Uma primeira tentativa de sondagem usou uma segunda comunidade sintética "B" também de propriedade de `prof`, e falhou com `duplicate key value violates unique constraint "communities_owner_id_key"` — erro de desenho do probe, não da RLS: `prof` já é dona da comunidade real A, redesenhado para reusar A real + só uma comunidade sintética C de propriedade de `master`.)
+
+### Arquivo criado
+- `supabase/tests/rls/89_products.sql` — **21/21 PASS.**
+
+### Cobertura
+**Leitura**: dona vê o próprio rascunho; membro ativo vê o produto publicado real mas não o rascunho da mesma comunidade; isolamento entre comunidades (dona de A não vê produto de C, membro sem vínculo também não); anon bloqueado; Master vê tudo (draft e published, de A e C) por bypass explícito só no SELECT. **Escrita — criação**: dona cria em comunidade própria; bloqueado para quem não é dona (inclusive tentando criar em comunidade alheia) e para `created_by` forjado. **Escrita — UPDATE**: dona altera preço do próprio produto; bloqueado para quem não tem vínculo de dona e **também para Master** (sem bypass de escrita); tentativa de "publicar" rascunho alheio bloqueada; tentativa de mover produto para outra comunidade (`community_id` hijack) bloqueada pelo `WITH CHECK` reavaliando `owns_community()` sobre o valor NOVO. **Integridade comercial**: membro que consegue LER o produto real publicado de A (via bypass de membro ativo) não consegue ALTERAR seu preço — leitura e escrita são gates independentes, testado contra dado de produção real sem nunca escrever de fato. **Escrita — DELETE**: dona apaga o próprio rascunho sintético (sem pedidos associados — um produto com `product_orders`/`product_entitlements` seria travado pelo `ON DELETE RESTRICT` mesmo com RLS permitindo); bloqueado para quem não é dona e para Master.
+
+### Nenhuma policy foi alterada
+Todas as 21 asserções passaram contra as policies reais tal como estão, na primeira execução (após corrigir o desenho do probe, não a RLS). Nenhuma falha real foi encontrada.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **17 cenários, 386 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Arquivos modificados
+- `supabase/tests/rls/89_products.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhum frontend, hook, componente, migration, policy, grant, `create_product_order()`, `resolve_split()`, webhook, Asaas, billing logic, deploy (GitHub Pages), Vercel. Produto real de A (3 pedidos reais associados) foi só lido e teve uma tentativa de escrita sempre bloqueada — nunca alterado de fato.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **exit 0, 0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### Pendências
+- P1-F3.1 (Split & Pricing) fica só com `billing_plans` restante para fechar.
+- Restam 9 tabelas de P1-F3 no total sem cobertura: `billing_plans` (fecha P1-F3.1); `professional_billing_accounts`, `webhook_events`, `product_order_status_history`, `subscription_status_history` (P1-F3.2); `help_request_replies`, `notifications` de billing, `point_accounts`, `community_card_images` (P1-F3.3).
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
