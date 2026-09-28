@@ -2150,3 +2150,50 @@ Nenhum frontend, hook, componente, migration, policy, grant, funções de trigge
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## FASE P1-F3.2 — PII financeira & auditoria: `professional_billing_accounts` (2026-09-28, teste puro, nenhuma policy alterada)
+
+Primeira tabela da P1-F3.2 — a mais crítica das 4 identificadas na auditoria preparatória: único dado tipo "conta bancária" de uma pessoa real no schema, alimenta `resolve_split()` e tem 2 Edge Functions + 1 hook de frontend ativos em produção. Tabela **vazia em produção** hoje (nenhuma Professional real conectou Asaas ainda) — cenário inteiro roda sobre fixtures sintéticas.
+
+### Auditoria (ao vivo, `information_schema` + `pg_constraint` + `pg_policies` + código das Edge Functions/hook)
+- **Estrutura**: `id` uuid pk · `profile_id` uuid not null (FK `profiles.id`, CASCADE, **UNIQUE** — 1 conta por profile) · `asaas_wallet_id` (identificador financeiro Asaas) · `payout_method` (check: `asaas_split`/`manual`, default `manual`) · `verified_at` · `asaas_account_name` · `asaas_account_status` · `verification_method` (check NOT VALID: `api_key`/`deferred`) · `disconnected_at` · timestamps. Colunas `asaas_account_name`/`asaas_account_status`/`verification_method`/`disconnected_at` confirmadas ao vivo — não estavam no levantamento inicial da auditoria P1-F3 (schema evoluiu).
+- **Policies**: `professional_billing_accounts_select` = `profile_id = auth.uid() OR is_master()`. **Sem policy de INSERT/UPDATE/DELETE.**
+- **GRANTs**: `anon` nenhum (nem SELECT); `authenticated` **SOMENTE SELECT** — sem INSERT/UPDATE/DELETE, vale para QUALQUER persona autenticada, inclusive a própria dona e inclusive Master (só o SELECT tem bypass de `is_master()`, a escrita não tem bypass nenhum); `service_role` INSERT+SELECT+UPDATE (**sem DELETE** — nem o server apaga; desconexão é sempre UPDATE zerando campos + `disconnected_at`, nunca DELETE, confirmado no código da Edge Function).
+- **Edge Functions** (únicas escritoras, via `service_role`): `connect-asaas-account` — a Professional cola a API Key da PRÓPRIA conta Asaas, usada só em memória para 3 GETs à Asaas (wallet real, nome/CPF-CNPJ, status), CRUZA o `cpfCnpj` com `billing_customer_data.document_number` do próprio perfil (rejeita com 422 se não bater) e rejeita wallet da própria Círcula (`CIRCULA_WALLET_IDS`) antes do upsert — API Key nunca persistida; `disconnect-asaas-account` — UPDATE escopado a `.eq('profile_id', user.id)` do JWT do chamador (nunca de input do cliente, confirmado lendo o código); `asaas-create-subscription` — só lê.
+- **Hook**: `useProfessionalBillingAccount.ts` — `select('*')` da própria linha via RLS, nunca escreve direto.
+- **`RevenuePanel`/`useProfessionalRevenue.ts` NÃO lê esta tabela** — comentário explícito no código confirma que o extrato de recebimentos usa só `subscription_payouts`/`product_payouts` (já cobertos), nunca `walletId`/dado bancário. Confirmado lendo o código, não presumido.
+- **`resolve_split()`** (SECURITY DEFINER, STABLE) lê `asaas_wallet_id`/`payout_method`/`verified_at` da dona da comunidade para decidir `split_model`. `EXECUTE` revogado de `anon`/`authenticated` (reconfirmado ao vivo nesta auditoria) — sem caminho indireto.
+- Sem relação direta com `communities`/`subscriptions`/`products` (a ponte com `communities` é só via `resolve_split()`).
+
+### Sondagem mínima (antes do teste formal)
+19 probes ad-hoc rodadas contra as policies reais antes de escrever `91_*.sql`, usando 2 contas sintéticas: "Professional A" (persona real `prof`) e "Professional B" (perfil real pré-existente `335783ca-e125-4aaf-91c3-0ded657723fb`, "Teste Profissional 15.1", `role='professional'`, sem linha prévia nesta tabela — usado só como persona via `set_config`, nunca alterado de fato; `profiles` não permite INSERT sintético direto nesta suíte por ter FK para `auth.users`). Cobriu SELECT (própria conta, conta alheia, member, anon, Master), INSERT/UPDATE/DELETE (dona, member, anon, Master), hijack de `profile_id`/`asaas_wallet_id`, e `EXECUTE resolve_split()` direto. **19/19 bateram com o comportamento esperado** — nenhuma vulnerabilidade, nenhum ajuste necessário antes do teste formal.
+
+### Arquivo criado
+- `supabase/tests/rls/91_professional_billing_accounts.sql` — **19/19 PASS.**
+
+### Cobertura
+**Isolamento**: Professional A e Professional B acessam só a própria conta; isolamento mútuo confirmado nas duas direções (A não vê B, B não vê A); member sem vínculo bloqueado; anon bloqueado; Master vê as duas contas (bypass by design, só no SELECT). **Escrita**: INSERT/UPDATE/DELETE bloqueados para TODAS as personas client-side, inclusive a própria dona e inclusive Master — a única via de escrita é `service_role` pelas Edge Functions (comprovado: nem Master tem bypass de escrita, e DELETE é impossível até para `service_role`, sem GRANT nenhum). **Ownership**: tentativa de alterar `profile_id` da própria conta (transferência) bloqueada; tentativa de trocar `asaas_wallet_id` (identificador financeiro) bloqueada; tentativa de um terceiro (member) se apropriar da conta de A via `profile_id` bloqueada. **Dados sensíveis**: identificadores Asaas/wallet de A comprovadamente inacessíveis para Professional B e para member. **Caminho indireto**: `resolve_split()` chamada direto por member e por anon — bloqueada por falta de privilégio de `EXECUTE`, sem bypass da policy de SELECT pela função.
+
+### Nenhuma policy foi alterada
+Todas as 19 asserções passaram contra as policies reais tal como estão, na primeira execução. Nenhuma falha real foi encontrada.
+
+### Resultado da suíte completa
+`npm run ci:rls` → **19 cenários, 423 asserções, 9 FAILs — todas o baseline de drift já conhecido (`baseline-failures.txt`), zero regressão nova.**
+
+### Arquivos modificados
+- `supabase/tests/rls/91_professional_billing_accounts.sql` — novo.
+- `docs/ESPECIFICACAO_CIRCULA.md` — esta seção.
+
+### Não alterado
+Nenhum frontend, hook, componente, migration, policy, grant, Edge Function (`connect-asaas-account`, `disconnect-asaas-account`, `asaas-create-subscription`), `resolve_split()`, Asaas, deploy (GitHub Pages), Vercel. Tabela já estava vazia em produção; nenhum dado real tocado — só o perfil real `335783ca…` foi usado como persona de leitura, nunca escrito.
+
+### tsc / build / lint
+- `npx tsc --noEmit` → **exit 0**.
+- `npm run build` → **exit 0** (mesmo aviso pré-existente de chunk > 500 kB).
+- `npx oxlint` → **exit 0, 0 erros, 56 warnings** (idêntico ao baseline — nenhum código de app foi alterado).
+
+### Pendências
+- Restam 7 tabelas de P1-F3: `webhook_events`, `product_order_status_history`, `subscription_status_history` (fecham P1-F3.2); `help_request_replies`, `notifications` de billing, `point_accounts`, `community_card_images` (P1-F3.3 — social/conteúdo residual).
+- Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
+
+### Sem alteração de policy, sem migration, sem commit, sem push.
