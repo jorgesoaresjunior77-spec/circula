@@ -6,7 +6,6 @@ const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
 
 const CONFIRMED_EVENTS = new Set(['PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'])
 const OVERDUE_EVENTS = new Set(['PAYMENT_OVERDUE'])
-const REOPENABLE_STATUSES = new Set(['trial', 'active', 'past_due'])
 
 // --- Etapa 4.3: pagamento avulso de produto (externalReference = product_order:<order_id>) ---
 const PRODUCT_ORDER_PREFIX = 'product_order:'
@@ -602,59 +601,31 @@ Deno.serve(async (req) => {
         // FASE 16.2.4-B — fluxo financeiro próprio da assinatura de comunidade.
         await handleCommunitySubscriptionEvent(admin, event, payment, subscription)
       } else if (subscription) {
-        // ===== subject='platform' — INALTERADO =====
-        const { error: upsertError } = await admin.from('payment_charges').upsert(
-          {
-            subscription_id: subscription.id,
-            asaas_payment_id: payment.id,
-            status: payment.status,
-            amount_cents: Math.round(payment.value * 100),
-            due_date: payment.dueDate,
-            billing_type: payment.billingType ?? null,
-            invoice_url: payment.invoiceUrl ?? null,
-            paid_at: CONFIRMED_EVENTS.has(event) ? new Date().toISOString() : null,
-          },
-          { onConflict: 'asaas_payment_id' },
-        )
+        // ===== subject='platform' — mutação atômica via RPC =====
+        // process_platform_subscription_payment (migration 20260929120000)
+        // encapsula, numa única transação: claim de idempotência em
+        // webhook_events (FOR UPDATE), SELECT...FOR UPDATE da subscription,
+        // upsert de payment_charges e a transição de subscriptions —
+        // incluindo a marcação de processed_at. Regra de negócio
+        // (CONFIRMED_EVENTS / REOPENABLE_STATUSES / OVERDUE_EVENTS /
+        // base = max(current_period_end, now()) / addCycleMonths)
+        // preservada, inalterada, dentro da função SQL.
+        const { error: rpcError } = await admin.rpc('process_platform_subscription_payment', {
+          p_asaas_event_id: eventId,
+          p_event_type: event,
+          p_payload: payload,
+          p_subscription_id: subscription.id,
+          p_asaas_payment_id: payment.id,
+          p_payment_status: payment.status,
+          p_amount_cents: Math.round(payment.value * 100),
+          p_due_date: payment.dueDate,
+          p_billing_type: payment.billingType ?? null,
+          p_invoice_url: payment.invoiceUrl ?? null,
+        })
 
-        if (upsertError) {
-          console.error('asaas-webhook: falha ao gravar payment_charges', upsertError)
-          throw upsertError
-        }
-
-        if (CONFIRMED_EVENTS.has(event) && REOPENABLE_STATUSES.has(subscription.status)) {
-          const cycle = subscription.billing_plans?.billing_cycle ?? 'MONTHLY'
-          const base = new Date(subscription.current_period_end) > new Date()
-            ? new Date(subscription.current_period_end)
-            : new Date()
-          const nextPeriodEnd = addCycleMonths(base, cycle)
-
-          const { error: reactivateError } = await admin
-            .from('subscriptions')
-            .update({
-              status: 'active',
-              current_period_end: nextPeriodEnd.toISOString(),
-              grace_period_ends_at: null,
-            })
-            .eq('id', subscription.id)
-
-          if (reactivateError) {
-            console.error('asaas-webhook: falha ao reativar subscription', reactivateError)
-            throw reactivateError
-          }
-        } else if (OVERDUE_EVENTS.has(event) && REOPENABLE_STATUSES.has(subscription.status)) {
-          const graceEnds = new Date()
-          graceEnds.setUTCDate(graceEnds.getUTCDate() + 3)
-
-          const { error: pastDueError } = await admin
-            .from('subscriptions')
-            .update({ status: 'past_due', grace_period_ends_at: graceEnds.toISOString() })
-            .eq('id', subscription.id)
-
-          if (pastDueError) {
-            console.error('asaas-webhook: falha ao marcar subscription como past_due', pastDueError)
-            throw pastDueError
-          }
+        if (rpcError) {
+          console.error('asaas-webhook: falha ao processar pagamento platform via RPC', rpcError)
+          throw rpcError
         }
       }
     }
@@ -670,10 +641,14 @@ Deno.serve(async (req) => {
       )
     }
 
+    // .is('processed_at', null): no-op seguro quando o ramo platform já
+    // marcou processed_at dentro da própria transação da RPC acima —
+    // evita sobrescrever redundantemente o timestamp já gravado.
     const { error: processedAtError } = await admin
       .from('webhook_events')
       .update({ processed_at: new Date().toISOString() })
       .eq('asaas_event_id', eventId)
+      .is('processed_at', null)
 
     if (processedAtError) {
       console.error('asaas-webhook: falha ao marcar processed_at', processedAtError)
