@@ -15,14 +15,18 @@
 --     is_master() OR EXISTS(product_orders o WHERE o.id = order_id
 --       AND (o.buyer_profile_id = auth.uid() OR owns_community(o.community_id)))
 --
--- GRANTs auditados ao vivo (information_schema.role_table_grants, antes
--- deste cenário):
+-- GRANTs auditados ao vivo (information_schema.role_table_grants):
 --   product_orders:               anon=nenhum · authenticated=SELECT ·
 --                                  service_role=SELECT,INSERT,UPDATE (SEM DELETE) ·
 --                                  postgres=CRUD completo
 --   product_order_status_history: anon=nenhum · authenticated=SELECT ·
---                                  service_role=SELECT,INSERT (SEM UPDATE, SEM DELETE) ·
+--                                  service_role=SELECT (SEM INSERT, SEM UPDATE, SEM DELETE) ·
 --                                  postgres=CRUD completo
+-- O INSERT de service_role em product_order_status_history existia até
+-- a migration 20260929130000 -- era redundante (o trigger, SECURITY
+-- DEFINER de propriedade de postgres, nunca dependeu dele) e sem
+-- nenhum consumidor real no repositório; foi revogado. Ver auditoria
+-- que precedeu essa migration para as evidências completas.
 -- Ou seja: mesmo Master (que é só `authenticated` com profiles.role=
 -- 'master' — NÃO é um role de Postgres à parte) não tem NENHUM grant de
 -- escrita nas duas tabelas. `owns_community()` só concede SELECT via
@@ -438,13 +442,18 @@ begin
 end $$;
 
 do $$
-declare v_ok boolean; v_code text := ''; v_n bigint;
+declare v_ok boolean; v_code text := '';
 begin
-  -- service_role INSERT direto (fora do trigger) -> superfície real
-  -- HOJE é ALLOWED (grant existe, confirmado por information_schema
-  -- antes deste cenário). Documentado por execução, NÃO corrigido: o
-  -- achado da auditoria anterior (grant dormente, nenhum código usa)
-  -- permanece registrado aqui, não alterado.
+  -- service_role INSERT direto (fora do trigger) -> BLOQUEADO desde a
+  -- migration 20260929130000 (REVOKE INSERT ... FROM service_role).
+  -- Achado da auditoria anterior: esse grant nunca foi necessário para
+  -- o trigger (SECURITY DEFINER, dono postgres, não depende do
+  -- privilégio de quem chamou o UPDATE em product_orders) e nenhum
+  -- código do repositório fazia INSERT direto nesta tabela. Revogado.
+  -- O SELECT de service_role permanece intacto (não tocado por essa
+  -- migration) e o trigger continua criando histórico normalmente
+  -- (provado logo acima, seção do trigger, usando o mesmo service_role
+  -- para o UPDATE em product_orders -- só o INSERT direto mudou).
   execute 'set local role service_role';
   begin
     insert into public.product_order_status_history (order_id, old_status, new_status)
@@ -455,7 +464,27 @@ begin
   end;
   execute 'reset role';
   insert into _r(name,kind,expect,got,ok) values
-    ('94: histórico -- service_role INSERT direto (fora do trigger) -> ALLOWED (grant dormente existente, não usado por código nenhum hoje)',
+    ('94: histórico -- service_role INSERT direto (fora do trigger) -> BLOQUEADO (grant redundante revogado em 20260929130000)',
+     'write','BLOCKED',
+     case when v_ok then 'ALLOWED' else 'BLOCKED('||v_code||')' end, not v_ok);
+end $$;
+
+do $$
+declare v_ok boolean; v_code text := ''; v_n bigint;
+begin
+  -- service_role SELECT -> continua ALLOWED (grant não tocado pela
+  -- migration 20260929130000, que revogou só o INSERT).
+  execute 'set local role service_role';
+  begin
+    select count(*) into v_n from public.product_order_status_history
+      where order_id = '94000000-0000-4000-8000-0000000000e1';
+    v_ok := true;
+  exception when others then
+    v_ok := false; v_code := sqlstate;
+  end;
+  execute 'reset role';
+  insert into _r(name,kind,expect,got,ok) values
+    ('94: histórico -- service_role SELECT -> ALLOWED (grant intacto, não tocado pelo REVOKE do INSERT)',
      'write','ALLOWED',
      case when v_ok then 'ALLOWED' else 'BLOCKED('||v_code||')' end, v_ok);
 end $$;
