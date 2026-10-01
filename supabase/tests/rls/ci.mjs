@@ -56,7 +56,7 @@ try {
 let expectedScenarios
 try {
   expectedScenarios = readdirSync(DIR)
-    .filter((f) => /^\d\d_.*\.sql$/.test(f) && f !== '00_fixtures_check.sql')
+    .filter((f) => /^\d{2,}_.*\.sql$/.test(f) && f !== '00_fixtures_check.sql')
     .sort()
 } catch (err) {
   execError('não consegui listar os cenários em ' + DIR + ' — ' + err.message)
