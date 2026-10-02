@@ -185,6 +185,7 @@ export function EventManager({ communityId, profileId, canManage = true }: Event
                 uid={profileId}
                 value={form.coverImageUrl}
                 onChange={(url) => set('coverImageUrl', url)}
+                recommendedSize="1920 × 1080 px"
               />
             </div>
 

@@ -65,6 +65,7 @@ export function JoyMomentComposer({ communityId, profileId, onSubmit }: JoyMomen
         label="Foto (opcional)"
         value={imageUrl}
         onChange={setImageUrl}
+        recommendedSize="Proporção livre · até 1920 px no lado maior"
       />
 
       {error && <p className="auth-error">{error}</p>}

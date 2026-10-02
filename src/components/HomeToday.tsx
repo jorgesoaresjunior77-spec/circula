@@ -14,7 +14,6 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
-import { DailyMoodCard } from './DailyMoodCard'
 import { JoyMomentsSection } from './JoyMomentsSection'
 import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
@@ -359,10 +358,6 @@ export function HomeToday({
         onJoin={(circleId) => joinCircle(circleId, profile.id)}
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
-
-      {/* Fase 3 — "Como você está hoje?": humor diário privado da usuária.
-          Fase 10: emojis interativos. */}
-      <DailyMoodCard profileId={profile.id} communityId={focusCommunity.id} />
 
       {/* Fase 4 — "Momento de alegria": tabela própria joy_moments, não o
           Feed. Fase 10: sobe com leveza e positividade. */}

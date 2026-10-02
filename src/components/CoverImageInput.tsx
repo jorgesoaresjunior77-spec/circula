@@ -22,6 +22,15 @@ interface CoverImageInputProps {
   id?: string
   label?: string
   disabled?: boolean
+  /** Proporção real do espaço (ex.: '16 / 9', '4 / 5') — só quando
+   *  diverge do frame padrão (16:9). Aplicada inline; não mexe no CSS
+   *  compartilhado nem nos outros usos deste componente. */
+  aspectRatio?: string
+  /** Tamanho de upload recomendado para ESTE espaço específico (ex.:
+   *  '1920 × 1080 px'), calculado a partir do tamanho/proporção real em
+   *  que a imagem é exibida depois de salva. Mostrado só no estado
+   *  vazio — some assim que há preview (local ou já salvo). */
+  recommendedSize?: string
 }
 
 /**
@@ -43,6 +52,8 @@ export function CoverImageInput({
   id,
   label = 'Imagem de capa (opcional)',
   disabled = false,
+  aspectRatio,
+  recommendedSize,
 }: CoverImageInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -100,12 +111,16 @@ export function CoverImageInput({
       <div
         className="cover-image-input-frame"
         data-empty={preview ? undefined : 'true'}
+        style={aspectRatio ? { aspectRatio } : undefined}
       >
         {preview ? (
           <img src={preview} alt="" className="cover-image-input-preview" />
         ) : (
           <span className="cover-image-input-placeholder">
             Nenhuma imagem selecionada
+            {recommendedSize && (
+              <span className="cover-image-input-size-hint">{recommendedSize}</span>
+            )}
           </span>
         )}
         {uploading && <span className="cover-image-input-status">Enviando…</span>}

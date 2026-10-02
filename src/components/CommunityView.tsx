@@ -167,6 +167,8 @@ export function CommunityView({
               onChange={(path) => void saveCover(path ? path : null)}
               disabled={coverSaving}
               label="Imagem de capa"
+              aspectRatio="4 / 1"
+              recommendedSize="1600 × 400 px"
             />
             {coverSaving && <p className="community-hero-cover-saving">Salvando capa…</p>}
             {coverMessage && (

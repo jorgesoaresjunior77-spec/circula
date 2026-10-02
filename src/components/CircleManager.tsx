@@ -102,6 +102,8 @@ export function CircleManager({
               uid={profileId}
               value={coverImageUrl}
               onChange={setCoverImageUrl}
+              aspectRatio="4 / 5"
+              recommendedSize="1080 × 1350 px"
             />
 
             {createError && <p className="auth-error">{createError}</p>}
@@ -158,6 +160,8 @@ export function CircleManager({
                       uid={profileId}
                       value={editCoverImageUrl}
                       onChange={setEditCoverImageUrl}
+                      aspectRatio="4 / 5"
+                      recommendedSize="1080 × 1350 px"
                     />
 
                     <div className="panel-circles-form-actions">

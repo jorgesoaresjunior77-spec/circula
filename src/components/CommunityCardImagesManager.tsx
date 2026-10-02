@@ -71,6 +71,7 @@ export function CommunityCardImagesManager({
                   uid={profileId}
                   label=""
                   onChange={(path) => void handleChange(key, path)}
+                  recommendedSize="1080 × 1350 px"
                 />
                 {/* Orientação discreta, só no Painel da Profissional — nunca
                     chega à Home nem aos membros. */}

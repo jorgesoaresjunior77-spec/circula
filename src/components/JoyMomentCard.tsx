@@ -100,6 +100,7 @@ export function JoyMomentCard({
             label="Foto (opcional)"
             value={imageUrl}
             onChange={setImageUrl}
+            recommendedSize="Proporção livre · até 1920 px no lado maior"
           />
           {error && <p className="auth-error">{error}</p>}
           <div className="joy-card-actions challenge-item-actions">

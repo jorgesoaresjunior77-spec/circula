@@ -243,6 +243,8 @@ export function ChallengeManager({
                 communityId={communityId}
                 uid={profileId}
                 disabled={creating}
+                aspectRatio="4 / 1"
+                recommendedSize="1600 × 400 px"
               />
             </div>
 
@@ -421,6 +423,8 @@ export function ChallengeManager({
                         communityId={communityId}
                         uid={profileId}
                         disabled={savingEdit}
+                        aspectRatio="4 / 1"
+                        recommendedSize="1600 × 400 px"
                       />
                     </div>
 

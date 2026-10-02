@@ -93,6 +93,8 @@ export function CommunityInfoEditor({
         communityId={community.id}
         uid={profileId}
         disabled={saving}
+        aspectRatio="4 / 1"
+        recommendedSize="1600 × 400 px"
       />
 
       <label className="event-form-check">
