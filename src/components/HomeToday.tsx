@@ -14,7 +14,6 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { ChallengeCard } from './ChallengeCard'
-import { JoyMomentsSection } from './JoyMomentsSection'
 import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
@@ -51,6 +50,9 @@ interface HomeTodayProps {
     cover_image_url?: string | null
   }) => Promise<{ error: string | null }>
   onNavigate: (key: NavKey) => void
+  /** D1 — nº de mensagens não lidas (useConversations), para o badge do
+   *  atalho "Mensagens" em "Ir rápido". */
+  unreadMessages?: number
   /**
    * C1 — quando a capa da comunidade em foco está sendo usada como hero
    * fotográfico full-bleed (renderizado pelo Dashboard atrás do
@@ -109,6 +111,7 @@ export function HomeToday({
   memberCounts,
   onCreateCommunity,
   onNavigate,
+  unreadMessages = 0,
   coverHero = false,
   railSummary = null,
 }: HomeTodayProps) {
@@ -294,18 +297,47 @@ export function HomeToday({
     activeChallenges[0] ??
     null
 
-  // --- Atalhos: só destinos que já existem para o papel ----------
-  const shortcuts: { key: NavKey; label: string }[] = [
+  // --- Ir rápido: só destinos que já existem para o papel. D1 —
+  // absorve o antigo "Ir rápido" do trilho lateral (Feed, Eventos,
+  // Mensagens com badge) na mesma linha editorial de atalhos que já
+  // existia aqui; nenhum destino novo. ----------------------------
+  const shortcuts: { key: NavKey; label: string; badge?: number }[] = [
+    { key: 'feed', label: 'Feed' },
     { key: 'comunidades', label: 'Minha comunidade' },
     { key: 'circulos', label: 'Círculos' },
+    { key: 'eventos', label: 'Eventos' },
     ...(profile.role === 'professional'
       ? ([
           { key: 'painel', label: 'Painel' },
           { key: 'loja', label: 'Loja' },
-        ] as { key: NavKey; label: string }[])
+        ] as { key: NavKey; label: string; badge?: number }[])
       : []),
+    { key: 'mensagens', label: 'Mensagens', badge: unreadMessages },
     { key: 'perfil', label: 'Meu perfil' },
   ]
+
+  const quickLinks = (
+    <section className="home-section home-shortcuts-section">
+      <p className="home-shortcuts-eyebrow">Ir rápido</p>
+      <div className="home-shortcuts">
+        {shortcuts.map((shortcut) => (
+          <button
+            key={shortcut.key}
+            type="button"
+            className="home-chip"
+            onClick={() => onNavigate(shortcut.key)}
+          >
+            {shortcut.label}
+            {!!shortcut.badge && (
+              <span className="home-chip-badge">
+                {shortcut.badge > 99 ? '99+' : shortcut.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    </section>
+  )
 
   return (
     <div className="home">
@@ -321,8 +353,15 @@ export function HomeToday({
         <HomeCommunityHeader
           community={focusCommunity}
           memberCount={memberCounts[focusCommunity.id]}
+          pointsBalance={railSummary?.pointsBalance}
+          achievementsCount={railSummary?.achievementsCount}
         />
       )}
+
+      {/* D1 — "Ir rápido": absorve o antigo trilho lateral (removido).
+          Logo após a identidade da comunidade, antes do conteúdo
+          rotativo — acesso rápido sem precisar de uma coluna fixa. */}
+      {quickLinks}
 
       {/* C2 — Faixa editorial de experiências da comunidade, logo abaixo
           do hero. Só dados reais que a Home já tem; cada card leva à ação
@@ -358,10 +397,6 @@ export function HomeToday({
         onJoin={(circleId) => joinCircle(circleId, profile.id)}
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
-
-      {/* Fase 4 — "Momento de alegria": tabela própria joy_moments, não o
-          Feed. Fase 10: sobe com leveza e positividade. */}
-      <JoyMomentsSection profileId={profile.id} communityId={focusCommunity.id} />
 
       <section className="home-summary-card">
         <p className="home-summary-eyebrow">Resumo do dia</p>
@@ -482,23 +517,13 @@ export function HomeToday({
       {/* C3 — "Seus círculos" e "Círculos sugeridos" foram consolidados
           na coleção editorial <HomeCirclesSection> logo abaixo do hero.
           O destino "Círculos" (CircleList / CircleDetail com filtros e
-          entrada/saída) permanece intacto na navegação. */}
+          entrada/saída) permanece intacto na navegação. "Ir rápido"
+          (antigo "Atalhos") subiu para logo após a identidade da
+          comunidade — ver {quickLinks} no topo deste retorno. */}
 
-      <section className="home-section home-shortcuts-section">
-        <p className="home-shortcuts-eyebrow">Atalhos</p>
-        <div className="home-shortcuts">
-          {shortcuts.map((shortcut) => (
-            <button
-              key={shortcut.key}
-              type="button"
-              className="home-chip"
-              onClick={() => onNavigate(shortcut.key)}
-            >
-              {shortcut.label}
-            </button>
-          ))}
-        </div>
-      </section>
+      <p className="home-institutional-note">
+        O Círcula é um espaço de cuidado e amizade entre mulheres.
+      </p>
     </div>
   )
 }

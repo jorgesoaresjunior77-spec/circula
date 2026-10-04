@@ -16,12 +16,13 @@ interface HomeCommunityHeaderProps {
    */
   memberCount?: number
   /**
-   * C1 — modo sobreposição: a capa já está sendo exibida como hero
-   * fotográfico full-bleed pelo Dashboard, atrás do cabeçalho. Aqui
-   * renderizamos só a identidade da comunidade (olho + nome + meta),
-   * sem repetir a foto nem a moldura de card. Mesmos dados e semântica.
+   * D1 — pontos/conquistas da usuária nesta comunidade (vêm de
+   * `useRailSummary`, já calculado pelo Dashboard). Substituem o antigo
+   * cartão "Seu resumo" do trilho lateral: discreto, na própria linha de
+   * metadados da comunidade, nunca competindo com a capa.
    */
-  overlay?: boolean
+  pointsBalance?: number
+  achievementsCount?: number
 }
 
 /**
@@ -47,7 +48,8 @@ interface HomeCommunityHeaderProps {
 export function HomeCommunityHeader({
   community,
   memberCount,
-  overlay = false,
+  pointsBalance,
+  achievementsCount,
 }: HomeCommunityHeaderProps) {
   const embeddedOwner =
     community.community_members.find((member) => member.profile?.id === community.owner_id)
@@ -80,20 +82,15 @@ export function HomeCommunityHeader({
   const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
 
   return (
-    <section
-      className={`home-community-header${overlay ? ' home-community-header--overlay' : ''}`}
-      aria-label="Sua comunidade"
-    >
-      {!overlay && (
-        <div className="home-community-cover" aria-hidden="true">
-          {coverUrl ? (
-            <img src={coverUrl} alt="" />
-          ) : (
-            <span className="home-community-cover-fallback" />
-          )}
-          <img src={circulaIcon} alt="" className="home-community-logo" />
-        </div>
-      )}
+    <section className="home-community-header" aria-label="Sua comunidade">
+      <div className="home-community-cover" aria-hidden="true">
+        {coverUrl ? (
+          <img src={coverUrl} alt="" />
+        ) : (
+          <span className="home-community-cover-fallback" />
+        )}
+        <img src={circulaIcon} alt="" className="home-community-logo" />
+      </div>
 
       <div className="home-community-info">
         <p className="home-community-eyebrow">Você está em</p>
@@ -114,6 +111,12 @@ export function HomeCommunityHeader({
           {count !== null && (
             <span className="home-community-count">
               {count === 1 ? '1 mulher' : `${count} mulheres`}
+            </span>
+          )}
+          {typeof pointsBalance === 'number' && typeof achievementsCount === 'number' && (
+            <span className="home-community-points">
+              {pointsBalance} {pointsBalance === 1 ? 'ponto' : 'pontos'} ·{' '}
+              {achievementsCount} {achievementsCount === 1 ? 'conquista' : 'conquistas'}
             </span>
           )}
         </div>

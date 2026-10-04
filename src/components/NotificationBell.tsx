@@ -3,6 +3,7 @@ import { useSocialNotifications } from '../hooks/useSocialNotifications'
 import type { SocialNotification, SocialNotificationType } from '../types/notification'
 import type { NavKey } from './PrimaryNav'
 import { NotificationList } from './NotificationList'
+import { NotificationBillingStatus } from './NotificationBillingStatus'
 import { BellIcon } from './icons'
 
 interface NotificationBellProps {
@@ -10,6 +11,8 @@ interface NotificationBellProps {
   onNavigate: (key: NavKey) => void
   /** Abrir uma conversa específica (notificações de mensagem direta). */
   onOpenConversation?: (conversationId: string) => void
+  /** D1 — só a Professional tem assinatura de plataforma para avisar. */
+  showBillingStatus?: boolean
 }
 
 // Destino de navegação por tipo — mapeado só para chaves de navegação
@@ -33,6 +36,7 @@ export function NotificationBell({
   profileId,
   onNavigate,
   onOpenConversation,
+  showBillingStatus = false,
 }: NotificationBellProps) {
   const { notifications, loading, error, unreadCount, markRead, markAllRead, refresh } =
     useSocialNotifications(profileId)
@@ -102,6 +106,14 @@ export function NotificationBell({
               </button>
             )}
           </div>
+          {showBillingStatus && (
+            <NotificationBillingStatus
+              onActivate={() => {
+                setOpen(false)
+                onNavigate('painel')
+              }}
+            />
+          )}
           <NotificationList
             notifications={notifications}
             loading={loading}

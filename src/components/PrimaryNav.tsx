@@ -21,9 +21,9 @@ export interface NavItem {
   key: NavKey
   label: string
   Icon: ComponentType<{ size?: number; className?: string }>
-  /** Campo dormente desde a Etapa B2: a barra inferior do mobile foi
-   *  substituída pela folha de navegação, que mostra TODOS os itens.
-   *  Mantido só para não alterar a construção de navItems no Dashboard. */
+  /** D1 — reativado: decide quais destinos aparecem na barra inferior
+   *  fixa do mobile (os demais continuam na folha "Mais"/"Menu", que
+   *  mostra todos os itens). Calculado por papel no Dashboard. */
   inBottomNav: boolean
 }
 
@@ -36,13 +36,15 @@ interface PrimaryNavProps {
 }
 
 /**
- * Navegação primária do Círcula — sem menu lateral, sem barra inferior.
+ * Navegação primária do Círcula — sem menu lateral.
  *
  * Desktop (>= 1024px): barra superior editorial com os itens em linha
- * (Etapa B1). Mobile (< 1024px): a mesma barra recolhe para um botão
- * "Menu" arredondado que abre uma folha/overlay com EXATAMENTE os
- * mesmos itens e destinos. A alternância é 100% CSS; só o aberto/fechado
- * da folha é estado local. Puramente apresentacional: não toca dados,
+ * (Etapa B1), abaixo da marca (e da capa da comunidade, quando há).
+ * Mobile (< 1024px): barra inferior fixa (D1) com os destinos
+ * essenciais (NavItem.inBottomNav) + "Mais"; a pílula "Menu" no topo e
+ * o botão "Mais" da barra abrem a MESMA folha/overlay com todos os
+ * itens e destinos. A alternância é 100% CSS; só o aberto/fechado da
+ * folha é estado local. Puramente apresentacional: não toca dados,
  * hooks de negócio, Supabase ou auth. onNavigate / badges / aria-current
  * / destinos: inalterados.
  */
@@ -50,7 +52,19 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
   const [open, setOpen] = useState(false)
   const sheetId = useId()
   const toggleRef = useRef<HTMLButtonElement>(null)
+  const bottomMoreRef = useRef<HTMLButtonElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
+  // Dois gatilhos possíveis para a mesma folha (pílula "Menu" no topo e
+  // "Mais" na barra inferior) — guarda qual foi usado por último para
+  // devolver o foco a ele quando a folha fecha.
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null)
+
+  // Barra inferior (mobile, < 1024px): só os destinos essenciais
+  // (NavItem.inBottomNav, já calculado por papel no Dashboard — nenhuma
+  // lógica nova aqui). O resto continua acessível pela mesma folha
+  // "Menu" de sempre, agora também abrível por um item "Mais" na barra.
+  const bottomItems = items.filter((item) => item.inBottomNav)
+  const hasOverflow = bottomItems.length < items.length
 
   function badgeFor(key: NavKey) {
     const count = badges?.[key] ?? 0
@@ -68,7 +82,7 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
   useEffect(() => {
     if (!open) return
 
-    const toggle = toggleRef.current
+    const toggle = lastTriggerRef.current ?? toggleRef.current
     const sheet = sheetRef.current
     sheet?.querySelector<HTMLElement>('[data-autofocus]')?.focus()
 
@@ -136,7 +150,10 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={sheetId}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          lastTriggerRef.current = toggleRef.current
+          setOpen(true)
+        }}
       >
         <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
           <path
@@ -148,6 +165,57 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
         </svg>
         <span className="topnav-toggle-label">Menu</span>
       </button>
+
+      {/* Barra inferior fixa (mobile, < 1024px) — mesmos destinos e
+          mesmo onNavigate dos itens acima; só a apresentação muda. */}
+      <div className="bottom-nav">
+        <ul className="bottom-nav-list">
+          {bottomItems.map((item) => (
+            <li key={item.key}>
+              <button
+                type="button"
+                className={`bottom-nav-item${active === item.key ? ' bottom-nav-item--active' : ''}`}
+                aria-current={active === item.key ? 'page' : undefined}
+                onClick={() => onNavigate(item.key)}
+              >
+                <span className="nav-icon-wrap">
+                  <item.Icon size={22} />
+                  {badgeFor(item.key)}
+                </span>
+                <span className="bottom-nav-label">{item.label}</span>
+              </button>
+            </li>
+          ))}
+          {hasOverflow && (
+            <li>
+              <button
+                ref={bottomMoreRef}
+                type="button"
+                className="bottom-nav-item"
+                aria-haspopup="dialog"
+                aria-expanded={open}
+                aria-controls={sheetId}
+                onClick={() => {
+                  lastTriggerRef.current = bottomMoreRef.current
+                  setOpen(true)
+                }}
+              >
+                <span className="nav-icon-wrap">
+                  <svg width="20" height="14" viewBox="0 0 18 12" fill="none" aria-hidden="true">
+                    <path
+                      d="M1 1h16M1 6h16M1 11h16"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>
+                <span className="bottom-nav-label">Mais</span>
+              </button>
+            </li>
+          )}
+        </ul>
+      </div>
 
       {open && (
         <div className="nav-sheet-backdrop" onClick={close}>

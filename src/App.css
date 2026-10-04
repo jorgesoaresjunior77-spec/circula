@@ -500,14 +500,17 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-5);
   width: 100%;
   max-width: 480px;
   margin-inline: auto;
   text-align: left;
-  /* B2 — sem barra inferior fixa no mobile; só um respiro ao final
-     da coluna (+ área segura iOS). */
-  padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  /* D1 — barra inferior fixa no mobile: o respiro final da coluna
+     precisa ser maior que a própria barra (+ área segura iOS), senão
+     o último conteúdo fica escondido atrás dela. */
+  padding-bottom: calc(
+    var(--bottom-nav-h) + var(--space-6) + env(safe-area-inset-bottom, 0px)
+  );
 
   @media (min-width: 768px) {
     max-width: 640px;
@@ -515,28 +518,32 @@
 
   /* B3 — o shell abre. A coluna-fantasma de 216px (menu lateral,
      obsoleta desde a B1, quando a navegação subiu para o topo) sai do
-     grid: acaba a canaleta lateral vazia. A composição passa a usar a
-     medida editorial ampla (--maxw-editorial) numa coluna única; só
-     volta a existir uma segunda coluna real quando o trilho da Home
-     aparece. */
+     grid: acaba a canaleta lateral vazia. D1 — o trilho lateral da Home
+     (>= 1280px) também saiu: a composição usa sempre a medida editorial
+     ampla (--maxw-editorial) numa coluna única, em qualquer largura.
+     Gap vertical mais justo (topo/capa/menu sobem). */
   @media (min-width: 1024px) {
     max-width: var(--maxw-editorial);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     column-gap: var(--space-6);
-    row-gap: var(--space-6);
+    row-gap: var(--space-4);
     align-items: start;
     padding-bottom: 0;
   }
+}
 
-  /* Home com trilho (>= 1280px): a coluna editorial mantém sua medida e
-     o trilho de 300px é ACRESCENTADO ao lado — telas largas ganham uso
-     generoso da largura sem comprimir o conteúdo de leitura. */
-  &.dashboard--rail {
-    @media (min-width: 1280px) {
-      max-width: calc(var(--maxw-editorial) + 300px + var(--space-7));
-      grid-template-columns: minmax(0, 1fr) 300px;
-    }
+/* ===== D1 · Capa da comunidade (card contido) ========================
+   Substitui o hero full-bleed: a capa vira um card dentro da coluna
+   editorial (mesma margem lateral do resto do shell), com altura
+   proporcional (aspect-ratio em .home-community-cover, ~metade da
+   altura antiga), bordas arredondadas e o nome/responsável/contagem
+   abaixo da foto — nunca sobre ela. No desktop ocupa a linha 2 do grid,
+   entre a marca e o menu (que desce para a linha 3). */
+@media (min-width: 1024px) {
+  .dashboard-community-cover {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 }
 
@@ -574,7 +581,8 @@
 .dashboard-header .brand-icon {
   width: 44px;
   height: 44px;
-  border-radius: 13px;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .brand-lockup {
@@ -761,7 +769,7 @@
     /* B3 — grid agora tem 2 colunas reais (1fr + 300px); o trilho ocupa
        a segunda. */
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 4;
     align-self: start;
     position: sticky;
     top: var(--space-5);
@@ -779,12 +787,13 @@
   gap: var(--space-5);
   min-width: 0;
 
-  /* B1/B3 — com a navegação no topo (linha 2 do grid) e a coluna-
-     fantasma do menu removida na B3, o conteúdo ocupa a coluna editorial
-     inteira. Sem trilho, o grid tem uma coluna só. */
+  /* B1/B3/D1 — com a navegação no topo (linha 3 do grid, abaixo da capa
+     quando há) e a coluna-fantasma do menu removida na B3, o conteúdo
+     ocupa a coluna editorial inteira. Sem trilho, o grid tem uma coluna
+     só. */
   @media (min-width: 1024px) {
     grid-column: 1 / -1;
-    grid-row: 3;
+    grid-row: 4;
   }
 }
 
@@ -1222,21 +1231,96 @@
   }
 }
 
+/* --- Barra inferior fixa (mobile, < 1024px) ------------------------
+   Navegação principal como app: fixa na base do viewport, fundo
+   sólido, só os destinos essenciais (NavItem.inBottomNav, já calculado
+   por papel) + "Mais" quando há itens fora da barra — abre a mesma
+   folha .nav-sheet de sempre, nenhum destino novo. Acima do conteúdo
+   (z-index 30, abaixo do backdrop/folha em 40), respeita a área segura
+   do iOS. O respiro inferior correspondente no conteúdo vem de
+   .dashboard (--bottom-nav-h), para nada ficar escondido atrás dela. */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background-color: var(--surface);
+  border-top: 1px solid var(--hairline);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+}
+
+.bottom-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: var(--bottom-nav-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur) var(--ease);
+}
+
+.bottom-nav-item .nav-icon-wrap {
+  color: inherit;
+}
+
+.bottom-nav-item:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: -2px;
+}
+
+.bottom-nav-label {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bottom-nav-item--active {
+  color: var(--ink-action);
+}
+
 @media (min-width: 1024px) {
   .topnav-toggle {
     display: none;
   }
 
-  /* B1 — navegação superior editorial (desktop). Barra horizontal
-     plena na linha 2 do grid (abaixo da marca), transparente, com um
-     único fio hairline embaixo. Cada item é uma pequena peça
-     editorial: Jost tracké em caixa alta, pílula arredondada, fundo
-     quase ausente, contorno só um sussurro, hover com leve elevação.
-     Só tokens da paleta nova; sem cor forte. */
+  .bottom-nav {
+    display: none;
+  }
+
+  /* D1 — navegação superior editorial (desktop). Barra horizontal
+     plena na linha 3 do grid (abaixo da marca e, quando há, da capa da
+     comunidade — linha 2), transparente, com um único fio hairline
+     embaixo. Cada item é uma pequena peça editorial: Jost tracké em
+     caixa alta, pílula arredondada, fundo quase ausente, contorno só um
+     sussurro, hover com leve elevação. Só tokens da paleta nova; sem
+     cor forte. */
   .topnav {
     display: block;
     grid-column: 1 / -1;
-    grid-row: 2;
+    grid-row: 3;
     margin-top: var(--space-2);
     /* neutraliza o padding-top da regra base (mobile) — desktop inalterado */
     padding: 0 0 var(--space-4);
@@ -7793,8 +7877,20 @@ form.panel-points-form {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 5 / 2;
+  /* D1 — 16:9 preserva a proporção sem deformar; o teto de altura por
+     faixa é quem garante o card curto (~metade da altura antiga) em
+     telas largas, onde 16:9 por si só ainda renderiza bem alto. */
+  aspect-ratio: 16 / 9;
+  max-height: 220px;
   background-color: var(--sand);
+
+  @media (min-width: 768px) {
+    max-height: 280px;
+  }
+
+  @media (min-width: 1024px) {
+    max-height: 340px;
+  }
 
   img {
     width: 100%;
@@ -7887,6 +7983,14 @@ form.panel-points-form {
   background: var(--olive-bg);
   color: var(--olive-text);
   font-weight: 500;
+}
+
+/* D1 — pontos/conquistas: texto discreto na linha de metadados, nunca
+   uma pílula/cartão próprio — substitui o antigo "Seu resumo" do trilho
+   lateral sem competir visualmente com a capa. */
+.home-community-points {
+  color: var(--circula-taupe, var(--graphite-soft));
+  font-weight: 400;
 }
 
 /* --- Cabeçalho da comunidade sem capa: mesma linguagem do hero -------
@@ -10900,6 +11004,34 @@ form.panel-points-form {
   border-radius: var(--radius-sm);
 }
 
+/* D1 — badge de não lidas no chip "Mensagens" (herdado do antigo
+   trilho lateral); inline, não absoluto — o chip não é um botão
+   quadrado para ancorar um selo flutuante. */
+.home-chip-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background-color: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+/* D1 — nota institucional discreta (antigo rodapé do trilho lateral):
+   uma linha pequena e silenciosa, sem cartão próprio. */
+.home-institutional-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--circula-taupe, var(--graphite-soft));
+}
+
 @media (min-width: 1024px) {
   .home {
     gap: var(--space-6);
@@ -11720,6 +11852,23 @@ form.panel-points-form {
 
 .notification-item--unread {
   background-color: var(--rose-50);
+}
+
+/* D1 — status de cobrança (antigo PlatformTrialBanner), agora como
+   primeiro item do painel de notificações: mesmo acento lateral por
+   tom que o banner tinha, sem avatar/caixa própria. */
+.notification-item--billing {
+  border-left: 3px solid transparent;
+}
+
+.notification-item--billing-info {
+  border-left-color: var(--olive-border);
+  background-image: linear-gradient(var(--olive-bg), var(--olive-bg));
+}
+
+.notification-item--billing-warn {
+  border-left-color: var(--danger);
+  background-image: linear-gradient(var(--danger-bg), var(--danger-bg));
 }
 
 .notification-avatar {
@@ -14304,343 +14453,9 @@ button.card:focus-visible {
   color: var(--graphite-soft);
 }
 
-
-/* ===================================================================
-   C1 · Comunidade — Hero fotografico full-bleed
-   A capa da comunidade em foco (cover_image_url) deixa de ser um card e
-   passa a ser a fotografia protagonista da entrada da Home: 100% da
-   largura da viewport, de ponta a ponta, sem borda / moldura / card.
-   O cabecalho (logo oficial, "Ola, [nome]", notificacoes, Sair) e o
-   menu B1/B2 FLUTUAM sobre a foto — mesmos elementos e acoes, so
-   recoloridos com branco + translucidez + backdrop-filter minimo +
-   sombra tipografica. A identidade da comunidade (olho, nome grande e
-   leve, responsavel, no de participantes) e ancorada, por posicao
-   absoluta, na base da foto — nunca escapa para o branco, independente
-   do que houver acima (faixa de trial etc.).
-
-   So CSS + props booleanas de passagem (coverHero / overlay). Nada de
-   banco, campo, hook de negocio, RLS, Auth, Billing. CoverImageInput e
-   a edicao de capa pela dona (CommunityView) seguem intactos. Sem
-   PhotoCard / EditorialGallery / Circulos / Wellness / Instagram /
-   parceiros / humor. Ativo so quando ha capa real
-   (Dashboard -> .dashboard--cover-hero). Reduced-motion: sem animacao
-   nova; hovers herdam a guarda global da A2.
-   =================================================================== */
-
-.dashboard--cover-hero {
-  position: relative;
-  /* Altura da foto por breakpoint + folga entre a base da foto e o
-     inicio do corpo (cromo real ~= 190px + um respiro). */
-  --cover-hero-h: clamp(420px, 64vh, 560px);
-  --cover-hero-fold: calc(var(--cover-hero-h) - 190px + var(--space-6));
-}
-
-@media (min-width: 768px) {
-  .dashboard--cover-hero {
-    --cover-hero-h: clamp(460px, 60vh, 640px);
-  }
-}
-
-@media (min-width: 1024px) {
-  .dashboard--cover-hero {
-    --cover-hero-h: clamp(500px, 62vh, 720px);
-  }
-}
-
-/* A foto encosta no topo da viewport — o palco perde o respiro
-   superior do #center so nesta entrada. */
-#center:has(.dashboard--cover-hero) {
-  padding-top: 0;
-}
-
-.cover-hero {
-  position: relative;
-  z-index: 0;
-  width: 100vw;
-  height: var(--cover-hero-h);
-  margin-inline: var(--bleed);
-  overflow: hidden;
-  /* fallback caso a URL assinada falhe: tinta quente escura o bastante
-     para o texto branco seguir legivel. */
-  background: linear-gradient(150deg, var(--n-600), var(--n-800));
-}
-
-.cover-hero-photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 42%;
-  display: block;
-}
-
-/* Nao e caixa: so um veu de contraste, mais denso na base (onde fica o
-   nome) e um fio no topo (onde flutua o cromo). Tinta quente escura,
-   nunca cor. */
-.cover-hero-scrim {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(35, 30, 28, 0.42) 0%, rgba(35, 30, 28, 0) 22%),
-    linear-gradient(
-      0deg,
-      rgba(35, 30, 28, 0.66) 0%,
-      rgba(35, 30, 28, 0.16) 34%,
-      rgba(35, 30, 28, 0) 60%
-    );
-}
-
-/* Identidade ancorada na base da foto, alinhada a coluna de conteudo
-   (mesma sangria lateral do .dashboard em qualquer largura). */
-.cover-hero-identity {
-  position: absolute;
-  inset: auto 0 0 0;
-  z-index: 1;
-  padding-block-end: clamp(20px, 4.5vh, 44px);
-  padding-inline: max(
-    var(--gutter),
-    calc((100% - (var(--maxw-editorial) + 300px + var(--space-7))) / 2)
-  );
-}
-
-.cover-hero-identity .home-community-header--overlay {
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  overflow: visible;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  max-width: var(--maxw-editorial);
-}
-
-.cover-hero-identity .home-community-info {
-  padding: 0;
-  gap: var(--space-2);
-}
-
-.cover-hero-identity .home-community-eyebrow {
-  font-family: var(--font-label);
-  font-weight: var(--eyebrow-weight);
-  letter-spacing: var(--eyebrow-tracking);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.cover-hero-identity .home-community-name {
-  color: var(--c-white);
-  font-weight: var(--display-weight);
-  font-size: clamp(30px, 4.6vw, 58px);
-  line-height: 1.05;
-  letter-spacing: var(--tracking-display);
-  text-shadow: 0 2px 16px rgba(35, 30, 28, 0.5);
-  white-space: normal;
-}
-
-.cover-hero-identity .home-community-meta {
-  margin-top: var(--space-3);
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.cover-hero-identity .home-community-owner {
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.cover-hero-identity .home-community-owner-avatar {
-  background: rgba(255, 255, 255, 0.18);
-  color: var(--c-white);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
-}
-
-.cover-hero-identity .home-community-count {
-  background: rgba(255, 255, 255, 0.16);
-  color: var(--c-white);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-}
-
-/* --- Empilhamento: cromo e corpo acima da foto ------------------- */
-.dashboard--cover-hero > .dashboard-header,
-.dashboard--cover-hero > .topnav,
-.dashboard--cover-hero .dashboard-main,
-.dashboard--cover-hero .dashboard-rail {
-  position: relative;
-  z-index: 2;
-}
-
-/* .dashboard-header e .topnav empatam em z-index (ambos só precisam
-   ficar acima da foto) — como o .topnav vem depois no DOM, o empate
-   era resolvido a favor dele, cobrindo o dropdown de notificações
-   (que vive dentro do header) sempre que os dois se sobrepõem na
-   tela. Eleva o header só enquanto o painel estiver aberto — não
-   muda o empilhamento em nenhum outro momento. */
-.dashboard--cover-hero > .dashboard-header:has(.notification-panel) {
-  z-index: 3;
-}
-
-/* O corpo (faixa de trial + toda a HomeToday) comeca abaixo da foto. */
-.dashboard--cover-hero .dashboard-main {
-  padding-top: var(--cover-hero-fold);
-}
-
-/* Mobile (< 1024): .dashboard e flex-column — o hero precisa ser
-   absoluto para o cromo pousar sobre ele. */
-@media (max-width: 1023px) {
-  .cover-hero {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-inline: 0;
-  }
-}
-
-/* Desktop (>= 1024): o hero e um item do grid cobrindo as linhas do
-   cabecalho, do menu e o topo do conteudo; o trilho reaparece abaixo
-   da foto, alinhado ao corpo. */
-@media (min-width: 1024px) {
-  .cover-hero {
-    grid-column: 1 / -1;
-    grid-row: 1 / 4;
-    align-self: start;
-  }
-
-  .dashboard--cover-hero .dashboard-rail {
-    margin-top: var(--cover-hero-fold);
-  }
-}
-
-/* --- Cabecalho sobre a foto ------------------------------------- */
-.dashboard--cover-hero > .dashboard-header {
-  border-bottom-color: transparent;
-  padding-top: var(--space-4);
-}
-
-@media (min-width: 1024px) {
-  .dashboard--cover-hero > .dashboard-header {
-    padding-top: var(--space-5);
-  }
-}
-
-.dashboard--cover-hero .brand-name,
-.dashboard--cover-hero .brand-tagline {
-  color: var(--c-white);
-  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.55);
-}
-
-/* Contraste do logo oficial sem tocar o asset: so uma sombra projetada
-   discreta para ele nao sumir sobre trechos claros da foto. */
-.dashboard--cover-hero .brand-mark {
-  filter: drop-shadow(0 1px 8px rgba(35, 30, 28, 0.6));
-}
-
-.dashboard--cover-hero .dashboard-user-name,
-.dashboard--cover-hero .dashboard-user-name strong {
-  color: var(--c-white);
-}
-
-.dashboard--cover-hero .dashboard-user-name {
-  text-shadow: 0 1px 5px rgba(35, 30, 28, 0.5);
-}
-
-.dashboard--cover-hero .dashboard-user-avatar {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
-}
-
-/* "Sair" e o sino: pilulas translucidas claras, backdrop minimo. */
-.dashboard--cover-hero .dashboard-header button,
-.dashboard--cover-hero .notification-bell-button {
-  color: var(--c-white);
-  border-color: rgba(255, 255, 255, 0.42);
-  background-color: rgba(255, 255, 255, 0.1);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-}
-
-/* O painel de notificações é uma superfície branca opaca (dropdown),
-   não fica sobre a foto — mas por estar dentro de .dashboard-header no
-   DOM, o botão "Marcar todas como lidas" (.auth-link) herdava o
-   tratamento translúcido acima e ficava com texto branco sobre fundo
-   quase branco, ilegível. Restaura a aparência normal só aqui. */
-.dashboard--cover-hero .notification-panel .auth-link {
-  color: var(--ink-action);
-  background-color: transparent;
-  border-color: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.dashboard--cover-hero .dashboard-header button:hover:not(:disabled),
-.dashboard--cover-hero .notification-bell-button:hover {
-  color: var(--c-white);
-  border-color: rgba(255, 255, 255, 0.72);
-  background-color: rgba(255, 255, 255, 0.18);
-}
-
-.dashboard--cover-hero .dashboard-header button:focus-visible,
-.dashboard--cover-hero .notification-bell-button:focus-visible,
-.dashboard--cover-hero .topnav-item:focus-visible,
-.dashboard--cover-hero .topnav-toggle:focus-visible,
-.dashboard--cover-hero .brand-mark-btn:focus-visible,
-.dashboard--cover-hero .brand-icon-btn:focus-visible {
-  outline-color: var(--c-white);
-}
-
-/* --- Menu B1 (desktop) sobre a foto: so recolore, nao redesenha --- */
-.dashboard--cover-hero .topnav {
-  border-bottom-color: rgba(255, 255, 255, 0.24);
-}
-
-.dashboard--cover-hero .topnav-item {
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.dashboard--cover-hero .topnav-item:hover {
-  color: var(--c-white);
-  background-color: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.28);
-}
-
-.dashboard--cover-hero .topnav-item--active {
-  color: var(--c-white);
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.42);
-}
-
-.dashboard--cover-hero .topnav-item--active .nav-icon-wrap {
-  color: var(--c-white);
-  opacity: 1;
-}
-
-/* --- Menu B2 (mobile): botao "Menu" translucido claro; a folha de
-   navegacao em si nao muda. --- */
-.dashboard--cover-hero .topnav-toggle {
-  color: var(--c-white);
-  border-color: rgba(255, 255, 255, 0.42);
-  background-color: rgba(255, 255, 255, 0.1);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-}
-
-.dashboard--cover-hero .topnav-toggle svg {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-/* Desktop: a saudacao "Bom dia" da HomeToday sai — "Ola, [nome]" ja
-   esta no cabecalho sobre a foto (poucos elementos). No mobile o nome
-   fica oculto no cabecalho (< 600px); a saudacao da HomeToday
-   permanece, agora como primeiro bloco abaixo da foto. */
-@media (min-width: 1024px) {
-  .dashboard--cover-hero .home-greeting {
-    display: none;
-  }
-}
-
 /* ===================================================================
    C2 · Faixa editorial de experiencias da comunidade
-   Logo abaixo do hero C1. Apresentacao horizontal, editorial (branco +
+   Logo abaixo do cabecalho da comunidade. Apresentacao horizontal, editorial (branco +
    areia / bege / rose-mist muito claros, sem borda, sem moldura, sombra
    praticamente inexistente, tipografia leve). Cards ~4:5; foto (quando
    ha, dos dados reais) ocupa o card inteiro. Vaivem horizontal muito
@@ -14685,6 +14500,14 @@ button.card:focus-visible {
   will-change: transform;
 }
 
+/* D1 — ao passar o mouse (ou focar) em qualquer ponto da faixa, o
+   marquee para por inteiro; ao sair, retoma sozinho de onde estava
+   (CSS puro — sem reiniciar o loop). */
+.exp-viewport--marquee:hover .exp-track,
+.exp-viewport--marquee:focus-within .exp-track {
+  animation-play-state: paused;
+}
+
 .exp-seq {
   flex: 0 0 auto;
   list-style: none;
@@ -14712,7 +14535,8 @@ button.card:focus-visible {
 
 .exp-card-item {
   flex: 0 0 auto;
-  width: clamp(186px, 42vw, 244px);
+  /* D1 — cards menores (eram clamp(186px, 42vw, 244px) / 264 / 288) */
+  width: clamp(144px, 34vw, 184px);
   scroll-snap-align: start;
 }
 
@@ -14722,13 +14546,13 @@ button.card:focus-visible {
 
 @media (min-width: 768px) {
   .exp-card-item {
-    width: clamp(216px, 26vw, 264px);
+    width: clamp(160px, 20vw, 196px);
   }
 }
 
 @media (min-width: 1024px) {
   .exp-card-item {
-    width: clamp(232px, 19vw, 288px);
+    width: clamp(172px, 14vw, 212px);
   }
 }
 
@@ -14755,7 +14579,7 @@ button.card:focus-visible {
   flex-direction: column;
   justify-content: flex-end;
   aspect-ratio: 4 / 5;
-  padding: var(--space-4);
+  padding: var(--space-3);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--c-sand);
@@ -14815,14 +14639,14 @@ button.card:focus-visible {
   margin: var(--space-1) 0 0;
   font-family: var(--font-display);
   font-weight: var(--display-weight);
-  font-size: clamp(18px, 1.5vw, 23px);
+  font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.15;
   color: var(--graphite);
 }
 
 .exp-card-meta {
-  margin-top: var(--space-2);
-  font-size: 13px;
+  margin-top: var(--space-1);
+  font-size: 12px;
   font-weight: 300;
   line-height: 1.4;
   color: var(--graphite-soft);
@@ -14942,19 +14766,21 @@ button.card:focus-visible {
 
 .circ-card-item {
   flex: 0 0 auto;
-  width: clamp(196px, 46vw, 240px);
+  /* D1 — mesmo padrão de tamanho da faixa "Círcula Hoje" (eram
+     clamp(196px, 46vw, 240px) / 268 / 292) */
+  width: clamp(144px, 34vw, 184px);
   scroll-snap-align: start;
 }
 
 @media (min-width: 768px) {
   .circ-card-item {
-    width: clamp(220px, 28vw, 268px);
+    width: clamp(160px, 20vw, 196px);
   }
 }
 
 @media (min-width: 1024px) {
   .circ-card-item {
-    width: clamp(236px, 20vw, 292px);
+    width: clamp(172px, 14vw, 212px);
   }
 }
 
@@ -15044,7 +14870,7 @@ button.card:focus-visible {
   margin: 0;
   font-family: var(--font-display);
   font-weight: var(--display-weight);
-  font-size: clamp(17px, 1.5vw, 21px);
+  font-size: clamp(14px, 1.3vw, 17px);
   line-height: 1.14;
   color: var(--graphite);
   opacity: 0.94;
@@ -15053,7 +14879,7 @@ button.card:focus-visible {
 
 .circ-card-meta {
   margin-top: var(--space-1);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 300;
   color: var(--graphite-soft);
   /* discreto de partida, nunca oculto — realca no hover */

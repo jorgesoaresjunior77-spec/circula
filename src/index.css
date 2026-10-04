@@ -192,6 +192,11 @@
 
   --brand-filter: none;
 
+  /* D1 — altura de conteúdo da barra de navegação inferior fixa
+     (mobile). Área segura do iOS é somada por fora (padding próprio
+     da barra + respiro do conteúdo), nunca contada duas vezes aqui. */
+  --bottom-nav-h: 56px;
+
   /* ==========================================================
      NOVO (A2) · Medida editorial, respiro e full-bleed
      Definidos agora; passam a ser CONSUMIDOS a partir da Etapa B.
@@ -436,14 +441,14 @@
      --gutter responsivo (20 → 32 → 44 → 64); a medida de composição
      volta a ser imposta pelos filhos (--maxw-editorial). Espaço
      vertical generoso e crescente — nada de dashboard comprimido. */
-  padding: var(--space-5) var(--gutter) var(--space-8);
+  padding: var(--space-4) var(--gutter) var(--space-8);
 
   @media (min-width: 768px) {
-    padding: var(--space-7) var(--gutter) var(--space-9);
+    padding: var(--space-5) var(--gutter) var(--space-9);
   }
 
   @media (min-width: 1024px) {
-    padding: var(--space-8) var(--gutter) var(--space-10);
+    padding: var(--space-6) var(--gutter) var(--space-10);
   }
 }
 

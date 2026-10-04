@@ -18,17 +18,19 @@ import { InstagramHighlightModal } from './InstagramHighlightModal'
 // navegar por uma rota que já existe, rolar até a seção detalhada, ou
 // (C4.1 — "No Instagram") abrir uma tela editorial no próprio app.
 //
-// Movimento (ajuste): MARQUEE CONTÍNUO E INFINITO — a sequência de
-// cards é renderizada DUAS vezes e o trilho translada de 0 a -50% em
-// loop `linear infinite`. Como as duas metades são idênticas, ao
-// completar -50% a 2ª metade ocupa exatamente a posição visual da 1ª:
-// não há parada, retorno, salto nem intervalo. O movimento não depende
-// de mouse e não pausa no hover (o hover só aplica o micro-zoom do
-// card). No mobile (pointer grosso) e em prefers-reduced-motion o
-// autoplay fica desligado e a faixa continua estática/rolável.
+// Movimento: MARQUEE CONTÍNUO E INFINITO — a sequência de cards é
+// renderizada DUAS vezes e o trilho translada de 0 a -50% em loop
+// `linear infinite`. Como as duas metades são idênticas, ao completar
+// -50% a 2ª metade ocupa exatamente a posição visual da 1ª: não há
+// parada, retorno, salto nem intervalo. D1 — ao passar o mouse (ou
+// focar) em qualquer card, o CSS pausa a faixa inteira
+// (`.exp-viewport--marquee:hover`) por cima do zoom que o card já
+// tinha; ao sair, retoma sozinha. No mobile (pointer grosso) e em
+// prefers-reduced-motion o autoplay fica desligado e a faixa continua
+// estática/rolável.
 
-const SPEED_PX_PER_SEC = 26 // velocidade editorial constante (~20–30 px/s)
-const MIN_DURATION_SEC = 18
+const SPEED_PX_PER_SEC = 40 // D1 — mais rápido (era ~26 px/s)
+const MIN_DURATION_SEC = 12
 
 interface NextEvent {
   id: string

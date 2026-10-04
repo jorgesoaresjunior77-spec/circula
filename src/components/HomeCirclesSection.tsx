@@ -127,7 +127,7 @@ export function HomeCirclesSection({
     let paused = false
     let dir = 1
     let pos = el.scrollLeft
-    const SPEED = 0.4
+    const SPEED = 0.65 // D1 — um pouco mais rápido (era 0.4)
 
     const step = () => {
       if (!paused && el.scrollWidth > el.clientWidth + 4) {

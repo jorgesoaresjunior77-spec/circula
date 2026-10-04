@@ -24,14 +24,12 @@ import { Messages } from './Messages'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { ProfessionalPanel } from './ProfessionalPanel'
-import { PlatformTrialBanner } from './PlatformTrialBanner'
 import { MasterPanel } from './MasterPanel'
 import { MemberCommunityCard } from './MemberCommunityCard'
 import { PendingMembershipRequests } from './PendingMembershipRequests'
 import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { PrimaryNav } from './PrimaryNav'
-import { DashboardRail } from './DashboardRail'
 import { useRailSummary } from '../hooks/useRailSummary'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { NavItem, NavKey } from './PrimaryNav'
@@ -304,13 +302,6 @@ export function Dashboard({
     railActive ? (profile?.id ?? null) : null,
   )
 
-  // C1 — Hero full-bleed da comunidade: a capa da comunidade em foco
-  // vira a fotografia protagonista da entrada da Home. Só quando há capa
-  // real; sem capa, o cabeçalho segue no formato atual. A URL assinada
-  // reusa o mesmo hook de imagem já usado no HomeCommunityHeader — sem
-  // consulta nova, sem campo novo, sem hook de negócio.
-  const { url: heroCoverUrl } = useSignedImageUrl(railCommunity?.cover_image_url ?? null)
-
   // Círculos da comunidade resolvida — só busca quando o destino
   // "Círculos" ou "Eventos" está ativo (useCircles(null) não faz fetch).
   // Eventos reaproveita a mesma resolução de comunidade dos círculos.
@@ -397,6 +388,7 @@ export function Dashboard({
           onCreateCommunity={createCommunity}
           onNavigate={handleNavigate}
           coverHero={coverHero}
+          unreadMessages={totalUnread}
           railSummary={
             railActive
               ? {
@@ -825,39 +817,16 @@ export function Dashboard({
     )
   }
 
-  const showRail =
+  const isHomeFocus =
     !viewingProfileId && effectiveNav === 'inicio' && profile?.role !== 'master'
 
-  // C1 — só ativa o hero fotográfico quando a Home está visível E há uma
-  // capa real para ser protagonista. Sem capa, tudo segue como antes.
-  const coverHero = showRail && !!railCommunity?.cover_image_url
+  // Capa da comunidade em foco: card contido (não mais hero full-bleed),
+  // mostrado só quando há capa real; sem capa, HomeToday segue mostrando
+  // o HomeCommunityHeader no formato sem foto, como antes.
+  const coverHero = isHomeFocus && !!railCommunity?.cover_image_url
 
   return (
-    <section
-      className={`dashboard${showRail ? ' dashboard--rail' : ''}${
-        coverHero ? ' dashboard--cover-hero' : ''
-      }`}
-    >
-      {coverHero && railCommunity && (
-        <div className="cover-hero">
-          {heroCoverUrl && (
-            <img src={heroCoverUrl} alt="" className="cover-hero-photo" />
-          )}
-          <span className="cover-hero-scrim" aria-hidden="true" />
-          {/* Identidade da comunidade ancorada na base da foto — mesmos
-              dados e semântica do HomeCommunityHeader, em modo sobreposição
-              (sem repetir a foto). Renderizado aqui, dentro do hero, para
-              o nome ficar SEMPRE sobre a fotografia, independente do que
-              houver acima (faixa de trial etc.). */}
-          <div className="cover-hero-identity">
-            <HomeCommunityHeader
-              community={railCommunity}
-              memberCount={memberCounts[railCommunity.id]}
-              overlay
-            />
-          </div>
-        </div>
-      )}
+    <section className="dashboard">
       <header className="dashboard-header">
         <div className="brand">
           <button
@@ -891,6 +860,7 @@ export function Dashboard({
               profileId={profile.id}
               onNavigate={handleNavigate}
               onOpenConversation={openConversationById}
+              showBillingStatus={profile.role === 'professional'}
             />
           )}
           <span className="dashboard-user-avatar" aria-hidden="true">
@@ -908,6 +878,17 @@ export function Dashboard({
           </button>
         </div>
       </header>
+
+      {coverHero && railCommunity && (
+        <div className="dashboard-community-cover">
+          <HomeCommunityHeader
+            community={railCommunity}
+            memberCount={memberCounts[railCommunity.id]}
+            pointsBalance={railActive ? railSummary.pointsBalance : undefined}
+            achievementsCount={railActive ? railSummary.achievementsCount : undefined}
+          />
+        </div>
+      )}
 
       <PrimaryNav
         items={navItems}
@@ -929,40 +910,20 @@ export function Dashboard({
           />
         </div>
       ) : (
-        <>
-          <div className="dashboard-main">
-            <div className="community-area">
-              {loading &&
-                (effectiveNav === 'comunidades' && profile?.role === 'member' ? (
-                  <CommunityLoadingSkeleton />
-                ) : (
-                  <p>Carregando comunidade...</p>
-                ))}
+        <div className="dashboard-main">
+          <div className="community-area">
+            {loading &&
+              (effectiveNav === 'comunidades' && profile?.role === 'member' ? (
+                <CommunityLoadingSkeleton />
+              ) : (
+                <p>Carregando comunidade...</p>
+              ))}
 
-              {!loading && error && <p className="auth-error">{error}</p>}
+            {!loading && error && <p className="auth-error">{error}</p>}
 
-              {/* FASE 15.2 (G1) — status do trial de plataforma + CTA de
-                  assinatura, visível em qualquer destino do Professional.
-                  Renderiza null fora dos estados de trial/pendência. */}
-              {!loading && !error && profile?.role === 'professional' && <PlatformTrialBanner />}
-
-              {!loading && !error && renderDestination()}
-            </div>
+            {!loading && !error && renderDestination()}
           </div>
-
-          {showRail && (
-            <DashboardRail
-              communityName={railCommunity?.name}
-              communityCoverUrl={railCommunity?.cover_image_url}
-              memberCount={railCommunity ? memberCounts[railCommunity.id] : undefined}
-              unreadMessages={totalUnread}
-              pointsBalance={railSummary.pointsBalance}
-              achievementsCount={railSummary.achievementsCount}
-              nextEvent={railSummary.nextEvent}
-              onNavigate={handleNavigate}
-            />
-          )}
-        </>
+        </div>
       )}
     </section>
   )
