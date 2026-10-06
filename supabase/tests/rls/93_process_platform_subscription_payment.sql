@@ -68,17 +68,25 @@ begin
     raise exception '93: fixture ausente — billing_plans.code=professional_monthly não encontrado';
   end if;
 
-  -- usa o profile_id do fixture 'member': 'prof'/'master' ja tem uma
-  -- subscription subject='platform' REAL (subscriptions_platform_unique_idx
-  -- e um indice unico parcial em profile_id WHERE subject='platform' AND
-  -- status<>'canceled' — confirmado por execucao real contra o projeto
-  -- linkado antes deste ajuste, ver relatorio). 'member' nao tem
-  -- subscription platform hoje, so a community trial do fixture.
+  -- usa o profile_id do fixture 'master': o profile por tras da chave
+  -- 'member' do framework (94bc64f8-...) nao existe mais em
+  -- public.profiles (conta de teste removida da producao depois que
+  -- este cenario foi escrito) — o INSERT abaixo violava
+  -- subscriptions_profile_id_fkey. 'prof' tambem nao serve: confirmado
+  -- por leitura direta antes deste ajuste, a Professional real (Nutri
+  -- Marluce) JA tem uma subscription subject='platform' genuina
+  -- (status='past_due'), que colidiria com
+  -- subscriptions_platform_unique_idx (indice unico parcial em
+  -- profile_id WHERE subject='platform' AND status<>'canceled').
+  -- 'master' e um profile real sem NENHUMA linha em subscriptions hoje
+  -- (confirmado por leitura direta) — satisfaz a FK e nao colide com
+  -- o indice. A funcao testada nao tem nenhuma regra de negocio
+  -- amarrada ao role do profile dono da subscription.
   insert into public.subscriptions (
     id, subject, profile_id, community_id, plan_id, status,
     trial_ends_at, current_period_start, current_period_end, grace_period_ends_at
   ) values (
-    v_sub_id, 'platform', (select v::uuid from _fx where k = 'member'), null, v_plan_id, 'active',
+    v_sub_id, 'platform', (select v::uuid from _fx where k = 'master'), null, v_plan_id, 'active',
     now() - interval '40 days', now() - interval '10 days', v_base_end, null
   );
 
