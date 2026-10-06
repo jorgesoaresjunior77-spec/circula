@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import type { ReactNode } from 'react'
 import type { Profile } from '../types/profile'
 import type { CommunityWithMembers } from '../types/community'
 import type { HomeActivityItem } from '../types/home'
@@ -22,7 +21,7 @@ import { PointsWidget } from './PointsWidget'
 import { AchievementsStrip } from './AchievementsStrip'
 import { EmptyState } from './EmptyState'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
-import { CommentIcon, HeartIcon, CirclesIcon, CommunitiesIcon, SproutIcon } from './icons'
+import { CommentIcon, HeartIcon, CirclesIcon } from './icons'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -50,9 +49,6 @@ interface HomeTodayProps {
     cover_image_url?: string | null
   }) => Promise<{ error: string | null }>
   onNavigate: (key: NavKey) => void
-  /** D1 — nº de mensagens não lidas (useConversations), para o badge do
-   *  atalho "Mensagens" em "Ir rápido". */
-  unreadMessages?: number
   /**
    * C1 — quando a capa da comunidade em foco está sendo usada como hero
    * fotográfico full-bleed (renderizado pelo Dashboard atrás do
@@ -111,7 +107,6 @@ export function HomeToday({
   memberCounts,
   onCreateCommunity,
   onNavigate,
-  unreadMessages = 0,
   coverHero = false,
   railSummary = null,
 }: HomeTodayProps) {
@@ -243,51 +238,6 @@ export function HomeToday({
     )
   }
 
-  // --- Resumo do dia: só tiles com dado real ------------------------
-  const tiles: {
-    key: string
-    value: number
-    label: string
-    icon: ReactNode
-    onClick: () => void
-  }[] = []
-  if (summary.repliesToMe > 0) {
-    tiles.push({
-      key: 'replies',
-      value: summary.repliesToMe,
-      label: summary.repliesToMe === 1 ? 'resposta para você' : 'respostas para você',
-      icon: <CommentIcon size={16} />,
-      onClick: () => onNavigate('comunidades'),
-    })
-  }
-  if (summary.reactionsToMe > 0) {
-    tiles.push({
-      key: 'reactions',
-      value: summary.reactionsToMe,
-      label: summary.reactionsToMe === 1 ? 'nova interação' : 'novas interações',
-      icon: <HeartIcon size={16} />,
-      onClick: () => onNavigate('comunidades'),
-    })
-  }
-  if (summary.newPosts > 0) {
-    tiles.push({
-      key: 'newPosts',
-      value: summary.newPosts,
-      label: summary.newPosts === 1 ? 'nova publicação' : 'novas publicações',
-      icon: <SproutIcon size={16} />,
-      onClick: () => onNavigate('comunidades'),
-    })
-  }
-  if (summary.newMembers != null && summary.newMembers > 0) {
-    tiles.push({
-      key: 'newMembers',
-      value: summary.newMembers,
-      label: summary.newMembers === 1 ? 'nova participante' : 'novas participantes',
-      icon: <CommunitiesIcon size={16} />,
-      onClick: () => onNavigate('painel'),
-    })
-  }
-
   // --- Desafio em foco -------------------------------------------
   const activeChallenges = challenges.challenges.filter(
     (challenge) => challenge.is_active && challenge.activities.length > 0,
@@ -296,48 +246,6 @@ export function HomeToday({
     activeChallenges.find((challenge) => challenges.myParticipation.has(challenge.id)) ??
     activeChallenges[0] ??
     null
-
-  // --- Ir rápido: só destinos que já existem para o papel. D1 —
-  // absorve o antigo "Ir rápido" do trilho lateral (Feed, Eventos,
-  // Mensagens com badge) na mesma linha editorial de atalhos que já
-  // existia aqui; nenhum destino novo. ----------------------------
-  const shortcuts: { key: NavKey; label: string; badge?: number }[] = [
-    { key: 'feed', label: 'Feed' },
-    { key: 'comunidades', label: 'Minha comunidade' },
-    { key: 'circulos', label: 'Círculos' },
-    { key: 'eventos', label: 'Eventos' },
-    ...(profile.role === 'professional'
-      ? ([
-          { key: 'painel', label: 'Painel' },
-          { key: 'loja', label: 'Loja' },
-        ] as { key: NavKey; label: string; badge?: number }[])
-      : []),
-    { key: 'mensagens', label: 'Mensagens', badge: unreadMessages },
-    { key: 'perfil', label: 'Meu perfil' },
-  ]
-
-  const quickLinks = (
-    <section className="home-section home-shortcuts-section">
-      <p className="home-shortcuts-eyebrow">Ir rápido</p>
-      <div className="home-shortcuts">
-        {shortcuts.map((shortcut) => (
-          <button
-            key={shortcut.key}
-            type="button"
-            className="home-chip"
-            onClick={() => onNavigate(shortcut.key)}
-          >
-            {shortcut.label}
-            {!!shortcut.badge && (
-              <span className="home-chip-badge">
-                {shortcut.badge > 99 ? '99+' : shortcut.badge}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-    </section>
-  )
 
   return (
     <div className="home">
@@ -353,15 +261,9 @@ export function HomeToday({
         <HomeCommunityHeader
           community={focusCommunity}
           memberCount={memberCounts[focusCommunity.id]}
-          pointsBalance={railSummary?.pointsBalance}
-          achievementsCount={railSummary?.achievementsCount}
+          profileId={profile.id}
         />
       )}
-
-      {/* D1 — "Ir rápido": absorve o antigo trilho lateral (removido).
-          Logo após a identidade da comunidade, antes do conteúdo
-          rotativo — acesso rápido sem precisar de uma coluna fixa. */}
-      {quickLinks}
 
       {/* C2 — Faixa editorial de experiências da comunidade, logo abaixo
           do hero. Só dados reais que a Home já tem; cada card leva à ação
@@ -398,38 +300,20 @@ export function HomeToday({
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
 
-      <section className="home-summary-card">
-        <p className="home-summary-eyebrow">Resumo do dia</p>
-        {homeLoading && tiles.length === 0 ? (
-          <p className="home-muted">Carregando resumo...</p>
-        ) : tiles.length > 0 ? (
-          <div className="home-summary-grid">
-            {tiles.map((tile) => (
-              <button
-                key={tile.key}
-                type="button"
-                className="home-stat"
-                onClick={tile.onClick}
-              >
-                <span className="home-stat-icon" aria-hidden="true">
-                  {tile.icon}
-                </span>
-                <span className="home-stat-value">{tile.value}</span>
-                <span className="home-stat-label">{tile.label}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className="home-muted">Tudo em dia por aqui</p>
-        )}
-      </section>
-
-      <section id="home-desafios" className="home-section home-challenge-section">
-        <div className="home-section-head">
-          <h3 className="home-section-title">Seu desafio</h3>
-        </div>
-        {pickedChallenge ? (
-          <div className="challenge-block">
+      {/* D2 — "Seu desafio" / "Sua jornada" / "Suas conquistas" como um
+          trio de cards editoriais (mesma linguagem visual dos cards de
+          Círculo: bordas arredondadas, espaçamento consistente, a
+          informação já visível no próprio card — nada que exija abrir
+          outra tela só para entender o estado atual). Lado a lado
+          sempre que houver espaço (auto-fit), empilha naturalmente no
+          mobile/tablet. IDs preservados para o scroll da faixa
+          "Círcula Hoje" (home-desafios / home-jornada). "Resumo do
+          dia" não existe mais — o estado de cada área já está em cada
+          card. */}
+      <div className="home-trio">
+        <div id="home-desafios" className="home-trio-card">
+          <h3 className="home-trio-card-title">Seu desafio</h3>
+          {pickedChallenge ? (
             <ChallengeCard
               challenge={pickedChallenge}
               currentDay={challenges.currentDays[pickedChallenge.id] ?? 1}
@@ -449,37 +333,29 @@ export function HomeToday({
                 challenges.addComment(pickedChallenge.id, profile.id, content)
               }
             />
-          </div>
-        ) : challenges.loading ? (
-          <p className="home-muted">Carregando desafio...</p>
-        ) : (
-          <EmptyState message="Nenhum desafio ativo agora." />
-        )}
-      </section>
+          ) : challenges.loading ? (
+            <p className="home-muted">Carregando desafio...</p>
+          ) : (
+            <EmptyState message="Nenhum desafio ativo agora." />
+          )}
+        </div>
 
-      {/* Fase 7 / Fase 10 — "Sua jornada": pontos da usuária NESTA
-          comunidade + conquistas. Agrupados numa seção com id para a
-          faixa editorial de experiências (C2) poder rolar até aqui. */}
-      <section id="home-jornada" className="home-jornada">
-        <p className="home-jornada-eyebrow">Sua jornada</p>
-        <PointsWidget
-          communityId={focusCommunity.id}
-          communityName={focusCommunity.name}
-          profileId={profile.id}
-        />
-        <AchievementsStrip communityId={focusCommunity.id} profileId={profile.id} />
-      </section>
+        <div id="home-jornada" className="home-trio-card home-trio-card--flush">
+          <PointsWidget
+            communityId={focusCommunity.id}
+            communityName={focusCommunity.name}
+            profileId={profile.id}
+          />
+        </div>
 
-      {/* A4 — blocos ricos: pergunta/comando do dia, check-in pendente,
-          próximos eventos, destaques da biblioteca, publicações recentes.
-          Cada um só aparece com dado real; tolerância a erro por bloco. */}
-      <HomeHighlights
-        communityId={focusCommunity.id}
-        profileId={profile.id}
-        circles={circles}
-        postsApi={postsApi}
-        onNavigate={onNavigate}
-      />
+        <div className="home-trio-card">
+          <AchievementsStrip communityId={focusCommunity.id} profileId={profile.id} />
+        </div>
+      </div>
+
+      {/* D1 — "Destaques de hoje" (pergunta/comando/check-in/eventos/
+          conteúdo) saiu da Home. Só "Publicações recentes" continua. */}
+      <HomeHighlights profileId={profile.id} postsApi={postsApi} onNavigate={onNavigate} />
 
       <section className="home-section home-activity-section">
         <div className="home-section-head">
@@ -517,9 +393,9 @@ export function HomeToday({
       {/* C3 — "Seus círculos" e "Círculos sugeridos" foram consolidados
           na coleção editorial <HomeCirclesSection> logo abaixo do hero.
           O destino "Círculos" (CircleList / CircleDetail com filtros e
-          entrada/saída) permanece intacto na navegação. "Ir rápido"
-          (antigo "Atalhos") subiu para logo após a identidade da
-          comunidade — ver {quickLinks} no topo deste retorno. */}
+          entrada/saída) permanece intacto na navegação. D4 — "Ir
+          rápido" foi removido da Home (os mesmos destinos já estão no
+          menu principal). */}
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.

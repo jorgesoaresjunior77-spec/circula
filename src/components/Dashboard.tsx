@@ -388,7 +388,6 @@ export function Dashboard({
           onCreateCommunity={createCommunity}
           onNavigate={handleNavigate}
           coverHero={coverHero}
-          unreadMessages={totalUnread}
           railSummary={
             railActive
               ? {
@@ -884,8 +883,8 @@ export function Dashboard({
           <HomeCommunityHeader
             community={railCommunity}
             memberCount={memberCounts[railCommunity.id]}
-            pointsBalance={railActive ? railSummary.pointsBalance : undefined}
-            achievementsCount={railActive ? railSummary.achievementsCount : undefined}
+            profileId={profile?.id}
+            overlay
           />
         </div>
       )}

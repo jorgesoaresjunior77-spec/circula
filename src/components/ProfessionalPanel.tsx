@@ -80,6 +80,7 @@ export function ProfessionalPanel({
 
   return (
     <section className="community-card community-card--quiet professional-panel">
+      <p className="section-label">Painel</p>
       <h3>Painel da comunidade</h3>
 
       <div className="panel-tabs">

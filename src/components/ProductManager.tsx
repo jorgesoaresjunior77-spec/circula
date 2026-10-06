@@ -499,7 +499,10 @@ export function ProductManager({
           </p>
         </div>
       ) : (
-        <h3>Produtos da comunidade</h3>
+        <>
+          <p className="section-label">Loja</p>
+          <h3>Produtos da comunidade</h3>
+        </>
       )}
 
       {canManage && (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import circulaIcon from '../assets/circula-icon.png'
 import { supabase } from '../lib/supabase'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { useCommunityPresence } from '../hooks/useCommunityPresence'
 import type { CommunityMemberProfile, CommunityWithMembers } from '../types/community'
 
 interface HomeCommunityHeaderProps {
@@ -16,13 +16,20 @@ interface HomeCommunityHeaderProps {
    */
   memberCount?: number
   /**
-   * D1 — pontos/conquistas da usuária nesta comunidade (vêm de
-   * `useRailSummary`, já calculado pelo Dashboard). Substituem o antigo
-   * cartão "Seu resumo" do trilho lateral: discreto, na própria linha de
-   * metadados da comunidade, nunca competindo com a capa.
+   * Id de quem está vendo a Home — usado só para entrar no canal de
+   * presença (Supabase Realtime) desta comunidade e mostrar quantas
+   * pessoas estão com a Home aberta agora. Sem este prop, nenhum canal é
+   * aberto e o número de online não aparece (nunca um valor inventado).
    */
-  pointsBalance?: number
-  achievementsCount?: number
+  profileId?: string
+  /**
+   * D2 — modo "vidro sobre a foto": nome/avatar/meta ficam num painel
+   * glassmorphic ancorado na base da fotografia (dentro do card), em
+   * vez de abaixo dela. Só usado pelo Dashboard quando há capa real
+   * (`coverHero`). Sem foto real, o chamador não passa `overlay` e o
+   * layout de sempre (card + texto abaixo) continua intacto.
+   */
+  overlay?: boolean
 }
 
 /**
@@ -48,8 +55,8 @@ interface HomeCommunityHeaderProps {
 export function HomeCommunityHeader({
   community,
   memberCount,
-  pointsBalance,
-  achievementsCount,
+  profileId,
+  overlay = false,
 }: HomeCommunityHeaderProps) {
   const embeddedOwner =
     community.community_members.find((member) => member.profile?.id === community.owner_id)
@@ -80,6 +87,54 @@ export function HomeCommunityHeader({
   const owner = embeddedOwner ?? fetchedOwner
   const count = typeof memberCount === 'number' ? memberCount : null
   const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
+  const onlineCount = useCommunityPresence(profileId ? community.id : null, profileId ?? null)
+
+  const metaRow = (
+    <div className="home-community-meta">
+      {owner && (
+        <span className="home-community-owner">
+          <span className="home-community-owner-avatar" aria-hidden="true">
+            {owner.avatar_url ? (
+              <img src={owner.avatar_url} alt="" />
+            ) : (
+              <span>{(owner.full_name ?? 'N').charAt(0).toUpperCase()}</span>
+            )}
+          </span>
+          com {owner.full_name ?? 'a responsável pela comunidade'}
+        </span>
+      )}
+      {count !== null && (
+        <span className="home-community-count">
+          {count === 1 ? '1 mulher' : `${count} mulheres`}
+        </span>
+      )}
+      {onlineCount > 0 && (
+        <span className="home-community-online">
+          <span className="home-community-online-dot" aria-hidden="true" />
+          {onlineCount === 1 ? '1 online agora' : `${onlineCount} online agora`}
+        </span>
+      )}
+    </div>
+  )
+
+  if (overlay) {
+    return (
+      <section className="home-community-header home-community-header--glass" aria-label="Sua comunidade">
+        <div className="home-community-cover home-community-cover--glass" aria-hidden="true">
+          {coverUrl ? (
+            <img src={coverUrl} alt="" />
+          ) : (
+            <span className="home-community-cover-fallback" />
+          )}
+        </div>
+        <div className="home-community-glass">
+          <p className="home-community-eyebrow">Você está em</p>
+          <h2 className="home-community-name">{community.name}</h2>
+          {metaRow}
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="home-community-header" aria-label="Sua comunidade">
@@ -89,37 +144,12 @@ export function HomeCommunityHeader({
         ) : (
           <span className="home-community-cover-fallback" />
         )}
-        <img src={circulaIcon} alt="" className="home-community-logo" />
       </div>
 
       <div className="home-community-info">
         <p className="home-community-eyebrow">Você está em</p>
         <h2 className="home-community-name">{community.name}</h2>
-        <div className="home-community-meta">
-          {owner && (
-            <span className="home-community-owner">
-              <span className="home-community-owner-avatar" aria-hidden="true">
-                {owner.avatar_url ? (
-                  <img src={owner.avatar_url} alt="" />
-                ) : (
-                  <span>{(owner.full_name ?? 'N').charAt(0).toUpperCase()}</span>
-                )}
-              </span>
-              com {owner.full_name ?? 'a responsável pela comunidade'}
-            </span>
-          )}
-          {count !== null && (
-            <span className="home-community-count">
-              {count === 1 ? '1 mulher' : `${count} mulheres`}
-            </span>
-          )}
-          {typeof pointsBalance === 'number' && typeof achievementsCount === 'number' && (
-            <span className="home-community-points">
-              {pointsBalance} {pointsBalance === 1 ? 'ponto' : 'pontos'} ·{' '}
-              {achievementsCount} {achievementsCount === 1 ? 'conquista' : 'conquistas'}
-            </span>
-          )}
-        </div>
+        {metaRow}
       </div>
     </section>
   )

@@ -69,7 +69,7 @@
   --circula-beige: #b7a99d;
   --circula-champagne: #c8b8a8;
   --circula-black: #151311;
-  --circula-offwhite: #f5f3ef;
+  --circula-offwhite: #f7f4ee;
 
   /* Champagne como ACENTO EDITORIAL — nunca fundo predominante.
      Par tint/line no mesmo padrão de --accent-sand-tint/-line. */
@@ -441,14 +441,14 @@
      --gutter responsivo (20 → 32 → 44 → 64); a medida de composição
      volta a ser imposta pelos filhos (--maxw-editorial). Espaço
      vertical generoso e crescente — nada de dashboard comprimido. */
-  padding: var(--space-4) var(--gutter) var(--space-8);
+  padding: var(--space-3) var(--gutter) var(--space-8);
 
   @media (min-width: 768px) {
-    padding: var(--space-5) var(--gutter) var(--space-9);
+    padding: var(--space-4) var(--gutter) var(--space-9);
   }
 
   @media (min-width: 1024px) {
-    padding: var(--space-6) var(--gutter) var(--space-10);
+    padding: var(--space-4) var(--gutter) var(--space-10);
   }
 }
 

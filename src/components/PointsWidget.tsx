@@ -45,11 +45,15 @@ export function PointsWidget({ communityId, communityName, profileId }: PointsWi
         <>
           <div className="points-widget-figures">
             <div className="points-balance">
-              <span className="points-balance-value">{balance}</span>
+              <span className={`points-balance-value${balance === 0 ? ' points-balance-value--zero' : ''}`}>
+                {balance}
+              </span>
               <span className="points-balance-label">saldo atual</span>
             </div>
             <div className="points-balance points-balance--muted">
-              <span className="points-balance-value">{earned}</span>
+              <span className={`points-balance-value${earned === 0 ? ' points-balance-value--zero' : ''}`}>
+                {earned}
+              </span>
               <span className="points-balance-label">pontos ganhos</span>
             </div>
           </div>

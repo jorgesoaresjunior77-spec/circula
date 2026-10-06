@@ -30,6 +30,15 @@ interface PostCardProps {
   previewComments?: Comment[]
   topLevelCount?: number
   replyCountByComment?: Record<string, number>
+  /**
+   * D3 — "Publicações recentes" da Home: no desktop, a foto fica ao
+   * lado do texto (não embaixo), inteira (object-fit: contain, sem
+   * corte) em vez de preencher um recorte. Só CSS (grid) — a ordem no
+   * DOM não muda, então no mobile continua empilhado normalmente
+   * (avatar+nome → texto → foto). Demais usos de PostCard (Feed,
+   * editorial) não passam essa prop e ficam exatamente como estão.
+   */
+  mediaAside?: boolean
 }
 
 export function PostCard({
@@ -48,6 +57,7 @@ export function PostCard({
   previewComments = [],
   topLevelCount = 0,
   replyCountByComment = {},
+  mediaAside = false,
 }: PostCardProps) {
   const name = post.author?.full_name ?? 'Participante'
   const { url: postImageUrl } = useSignedImageUrl(post.image_url)
@@ -115,6 +125,7 @@ export function PostCard({
   // usos clássicos (HomeHighlights) não passam inlineConversation e
   // continuam com a apresentação de card de sempre — nada muda para eles.
   const editorialVariant = inlineConversation ? ' post-card--editorial' : ''
+  const mediaAsideVariant = mediaAside ? ' post-card--media-aside' : ''
 
   const showClassicComments = !inlineConversation && commentsOpen
   const remainingThreads = Math.max(0, topLevelCount - previewComments.length)
@@ -122,7 +133,8 @@ export function PostCard({
     inlineConversation && !expanded && commentCount > previewComments.length
 
   return (
-    <article className={`post-card${cardVariant}${editorialVariant}`}>
+    <article className={`post-card${cardVariant}${editorialVariant}${mediaAsideVariant}`}>
+      <div className="post-card-body">
       <div className="post-card-header">
         <div className="post-avatar" aria-hidden="true">
           {post.author?.avatar_url ? (
@@ -146,7 +158,7 @@ export function PostCard({
       {isEngagementCommand && post.title && <p className="post-title">{post.title}</p>}
       <p className="post-content">{post.content}</p>
 
-      {postImageUrl && (
+      {!mediaAside && postImageUrl && (
         <img className="post-image" src={postImageUrl} alt="" loading="lazy" />
       )}
 
@@ -241,6 +253,11 @@ export function PostCard({
 
           {canInteract && <CommentForm onSubmit={(text) => onAddComment(text, null)} />}
         </div>
+      )}
+      </div>
+
+      {mediaAside && postImageUrl && (
+        <img className="post-image" src={postImageUrl} alt="" loading="lazy" />
       )}
     </article>
   )

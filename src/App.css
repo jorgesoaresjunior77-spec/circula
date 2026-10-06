@@ -527,7 +527,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     column-gap: var(--space-6);
-    row-gap: var(--space-4);
+    row-gap: var(--space-2);
     align-items: start;
     padding-bottom: 0;
   }
@@ -579,8 +579,8 @@
 }
 
 .dashboard-header .brand-icon {
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   border-radius: 0;
   box-shadow: none;
 }
@@ -628,7 +628,7 @@
 
 .brand-mark {
   display: block;
-  height: 30px;
+  height: 38px;
   width: auto;
   filter: var(--brand-filter);
 }
@@ -1310,21 +1310,17 @@
     display: none;
   }
 
-  /* D1 — navegação superior editorial (desktop). Barra horizontal
-     plena na linha 3 do grid (abaixo da marca e, quando há, da capa da
-     comunidade — linha 2), transparente, com um único fio hairline
-     embaixo. Cada item é uma pequena peça editorial: Jost tracké em
-     caixa alta, pílula arredondada, fundo quase ausente, contorno só um
-     sussurro, hover com leve elevação. Só tokens da paleta nova; sem
-     cor forte. */
+  /* D5 — navegação superior editorial (desktop): solta abaixo da capa,
+     sem card/barra/caixa por trás — só ícone + texto, respiro
+     generoso entre itens, item ativo diferenciado só pela cor + um
+     traço inferior bem fino (nunca uma pílula preenchida). */
   .topnav {
     display: block;
     grid-column: 1 / -1;
     grid-row: 3;
-    margin-top: var(--space-2);
+    margin-top: var(--space-4);
     /* neutraliza o padding-top da regra base (mobile) — desktop inalterado */
     padding: 0 0 var(--space-4);
-    border-bottom: 1px solid var(--circula-champagne-line); /* TESTE — acento champagne */
   }
 
   .topnav-list {
@@ -1334,7 +1330,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-5);
   }
 
   .topnav-item {
@@ -1342,10 +1338,11 @@
     align-items: center;
     gap: var(--space-2);
     min-height: 40px;
-    padding: 8px 16px;
-    border: 1px solid transparent;
-    border-radius: var(--radius-pill);
-    background: transparent;
+    padding: 4px 1px 8px;
+    border: 0;
+    border-bottom: 1.5px solid transparent;
+    border-radius: 0;
+    background: none;
     color: var(--graphite-soft);
     font-family: var(--font-label);
     font-size: 12px;
@@ -1354,17 +1351,10 @@
     text-transform: uppercase;
     white-space: nowrap;
     cursor: pointer;
-    transition:
-      color var(--dur) var(--ease),
-      background-color var(--dur) var(--ease),
-      border-color var(--dur) var(--ease),
-      transform var(--dur-fast) var(--ease-out);
+    transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 
     &:hover {
       color: var(--graphite);
-      background-color: var(--ink-action-soft);
-      border-color: var(--hairline);
-      transform: translateY(-1px);
     }
 
     &:focus-visible {
@@ -1381,8 +1371,8 @@
 
   .topnav-item--active {
     color: var(--ink-action);
-    background-color: var(--ink-action-soft);
-    border-color: var(--ink-action-line);
+    background: none;
+    border-bottom-color: var(--ink-action);
     font-weight: 500;
 
     .nav-icon-wrap {
@@ -1392,8 +1382,6 @@
 
     &:hover {
       color: var(--ink-action);
-      background-color: var(--ink-action-soft);
-      transform: translateY(-1px);
     }
   }
 }
@@ -1713,45 +1701,53 @@
 }
 
 /* Botões "de ação principal" soltos direto no card — formulário ou avulso
-   (ex.: "Entrar" do CommunityView, "Publicar X agora" dos gerenciadores). */
+   (ex.: "Entrar" do CommunityView, "Publicar X agora" dos gerenciadores).
+   Fase 4 — outline primeiro (mesma linguagem de .btn-primary), não mais
+   pílula sólida de largura total: várias telas de Comunidades empilham
+   mais de um desses formulários, e cada tela deve ter no máximo UMA ação
+   preenchida, não várias competindo. */
 .community-card form > button[type='submit'],
 .community-card form > button[type='button']:not(.auth-link),
 .community-card > button[type='button']:not(.auth-link) {
-  /* variação de .btn-primary — largura total dentro do card */
-  font: inherit;
-  font-weight: 500;
-  letter-spacing: 0.005em;
+  font-family: var(--btn-label-font);
+  font-size: var(--btn-label-size);
+  font-weight: var(--btn-label-weight);
+  letter-spacing: var(--btn-label-tracking);
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
   margin-top: var(--space-4);
+  min-height: 44px;
   padding: 12px;
-  border: 1px solid var(--btn-primary-bg-active);
+  border: 1px solid var(--ink-action-line);
   border-radius: var(--radius-pill);
-  background-color: var(--btn-primary-bg);
-  background-image: var(--btn-sheen);
-  color: var(--btn-primary-on);
-  box-shadow: var(--shadow-sm);
+  background-color: transparent;
+  background-image: none;
+  color: var(--ink-action);
+  box-shadow: none;
   cursor: pointer;
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
     transform 0.1s ease;
 
   &:hover:not(:disabled) {
-    background-color: var(--btn-primary-bg-hover);
-    box-shadow: var(--shadow-md);
+    background-color: var(--ink-action);
+    border-color: var(--ink-action);
+    color: var(--on-action);
   }
   &:active:not(:disabled) {
-    background-color: var(--btn-primary-bg-active);
-    box-shadow: var(--shadow-sm);
+    background-color: var(--ink-action-hover);
+    border-color: var(--ink-action-hover);
+    color: var(--on-action);
     transform: translateY(1px);
   }
   &:focus-visible {
-    outline: 2px solid var(--olive);
+    outline: 2px solid var(--ink-action);
     outline-offset: 2px;
   }
   &:disabled {
@@ -2014,7 +2010,7 @@
   padding: 0;
   overflow: hidden;
   border-radius: var(--card-radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   /* sem --zone-wash aqui: o hero é alto demais e a lavagem vertical
      acaba lendo como um card 'rosado'. Fica branco chapado. */
   background-image: none;
@@ -2206,24 +2202,26 @@
 .community-hero-stats {
   display: flex;
   align-items: stretch;
-  border-radius: var(--card-radius-sm);
-  border: 1px solid var(--hairline);
+  gap: var(--space-6);
+  border-radius: 0;
+  border: 0;
   background-color: transparent;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .community-hero-stat {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 4px;
-  padding: var(--space-4) var(--space-3);
-  text-align: center;
+  padding: 0;
+  text-align: left;
 
   & + & {
-    border-left: 1px solid var(--hairline);
+    padding-left: var(--space-6);
+    border-left: 1px solid var(--circula-champagne-line, var(--hairline));
   }
 }
 
@@ -2748,17 +2746,21 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  padding: var(--space-3) 2px;
-  color: var(--graphite-soft);
+  gap: var(--space-2);
+  padding: var(--space-5) 2px;
+  color: var(--circula-taupe, var(--graphite-soft));
 
   svg {
-    color: var(--olive-border);
+    width: 22px;
+    height: 22px;
+    color: var(--circula-champagne, var(--olive-border));
   }
 
   p {
     margin: 0;
-    font-size: 13.5px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 38ch;
   }
 }
 
@@ -2828,6 +2830,20 @@
   background-color: var(--surface);
   box-shadow: var(--shadow-sm);
   text-align: left;
+}
+
+/* D3 — único filho direto do .post-card agora (header/badge/título/
+   texto/ações/conversa moram aqui dentro); repete o mesmo
+   flex-column + gap que o .post-card tinha, então a composição
+   "clássica" (Feed, editorial, Home sem mediaAside) fica
+   PIXEL-IDÊNTICA a antes — só existe pra permitir a foto virar irmã
+   (ao lado, no mediaAside) em vez de ficar presa entre o texto e as
+   ações. */
+.post-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
 }
 
 .post-card-header {
@@ -3049,7 +3065,9 @@
   }
 
   button {
-    /* variação de .btn-primary — inline ao lado do campo */
+    /* Fase 5 — outline primeiro (mesma regra aplicada aos formulários de
+       Comunidades): "Comentar" aparece várias vezes na mesma tela (um
+       por publicação), então não pode ser um CTA preenchido cada vez. */
     font: inherit;
     font-weight: 500;
     letter-spacing: 0.005em;
@@ -3060,31 +3078,33 @@
     width: auto;
     margin: 0;
     padding: 9px 16px;
-    border: 1px solid var(--btn-primary-bg-active);
+    border: 1px solid var(--ink-action-line);
     border-radius: var(--radius-pill);
-    background-color: var(--btn-primary-bg);
-    background-image: var(--btn-sheen);
-    color: var(--btn-primary-on);
-    box-shadow: var(--shadow-sm);
+    background-color: transparent;
+    background-image: none;
+    color: var(--ink-action);
+    box-shadow: none;
     white-space: nowrap;
     cursor: pointer;
     transition:
-      background-color 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
       transform 0.1s ease;
 
     &:hover:not(:disabled) {
-      background-color: var(--btn-primary-bg-hover);
-      box-shadow: var(--shadow-md);
+      background-color: var(--ink-action);
+      border-color: var(--ink-action);
+      color: var(--on-action);
     }
     &:active:not(:disabled) {
-      background-color: var(--btn-primary-bg-active);
-      box-shadow: var(--shadow-sm);
+      background-color: var(--ink-action-hover);
+      border-color: var(--ink-action-hover);
+      color: var(--on-action);
       transform: translateY(1px);
     }
     &:focus-visible {
-      outline: 2px solid var(--olive);
+      outline: 2px solid var(--ink-action);
       outline-offset: 2px;
     }
     &:disabled {
@@ -3288,6 +3308,83 @@
 /* Selo por tipo de conteúdo — cada tipo de publicação especial ganha o
    próprio tom suave (chapado sobre a superfície), para o feed ficar
    fácil de escanear sem competir com o hero. */
+/* D3 — "Publicações recentes" da Home. No JSX a foto é irmã de
+   .post-card-body (depois dele no DOM), pra poder virar coluna própria
+   no desktop. No mobile isso sozinho jogaria a foto DEPOIS das ações
+   (curtir/comentar) — errado (o pedido é avatar+nome → texto → foto).
+   Truque: .post-card-body vira `display:contents` no mobile (some da
+   árvore de caixas, os filhos dele passam a ser filhos diretos do
+   .post-card flex), e cada filho ganha `order` explícito — a foto
+   entra entre o texto e as ações. No desktop .post-card-body volta a
+   ser uma caixa real (flex-column) e vira a coluna de texto ao lado da
+   foto; os `order` daqui dentro deixam de valer (só afetam filhos
+   DIRETOS de um flex container). */
+.post-card--media-aside .post-image {
+  object-fit: contain;
+  /* D4 — menor no mobile também (era 420px de .post-image base) */
+  max-height: 240px;
+}
+
+.post-card--media-aside .post-card-body {
+  display: contents;
+}
+
+.post-card--media-aside .post-card-header {
+  order: 1;
+}
+
+.post-card--media-aside .post-badge,
+.post-card--media-aside .post-title {
+  order: 2;
+}
+
+.post-card--media-aside .post-content {
+  order: 3;
+}
+
+.post-card--media-aside > .post-image {
+  order: 4;
+}
+
+.post-card--media-aside .post-actions {
+  order: 5;
+}
+
+.post-card--media-aside .post-conversation,
+.post-card--media-aside .post-comments {
+  order: 6;
+}
+
+@media (min-width: 768px) {
+  .post-card--media-aside {
+    flex-direction: row;
+    /* Ajuste — texto muito curto (ex.: uma linha) ficava preso no topo
+       da linha, sobrando vazio abaixo dele até a altura da foto.
+       Centralizado, o bloco de texto curto fica no meio da foto em vez
+       de "flutuar" só no topo; com texto longo não muda nada visível
+       (o próprio texto já ocupa quase toda a altura da linha). */
+    align-items: center;
+  }
+
+  .post-card--media-aside .post-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .post-card--media-aside > .post-image {
+    flex: 0 0 auto;
+    width: auto;
+    /* D4 — ~metade do tamanho anterior (era 320/420), pra foto não
+       sobrar espaço vazio abaixo do texto nem dominar o card. */
+    max-width: 160px;
+    max-height: 220px;
+    margin: 0;
+  }
+}
+
 .post-card--question {
   border-color: var(--rose-soft);
   background-image: linear-gradient(var(--rose-soft), var(--rose-soft));
@@ -4126,6 +4223,21 @@
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--olive-text);
+}
+
+/* O "0" da fonte display (Mitr, usada no trio/jornada via
+   --font-display) é desenhado com um traço diagonal fixo no próprio
+   glifo — não é um recurso OpenType opcional, então não dá pra desligar
+   via font-feature-settings. Only troca a fonte no estado zero (classe
+   aplicada pelo próprio componente quando o valor é 0) para a fonte de
+   texto do app, que desenha um zero neutro; qualquer saldo > 0
+   continua no corte display, sem mudar peso/cor/tamanho. */
+span.points-balance-value.points-balance-value--zero {
+  /* Especificidade de propósito (prefixo de elemento) — garante que
+     vence as variações de contexto (.home-trio-card/.home-jornada
+     .points-balance-value, que também sobrescrevem font-family),
+     independente da ordem no arquivo. */
+  font-family: var(--font-body, 'Lato', system-ui, sans-serif);
 }
 
 .points-balance--muted .points-balance-value {
@@ -7906,17 +8018,107 @@ form.panel-points-form {
   background-color: var(--sand-deep);
 }
 
-.home-community-logo {
+/* ===== D2 · Capa com informações em vidro sobre a foto ================
+   Modo `overlay` do HomeCommunityHeader: a foto preenche o card inteiro
+   (sem o bloco de texto abaixo) e um painel glassmorphic fica ancorado
+   na base, dentro da própria imagem — mesma linguagem do chip
+   "Participar" dos cards de Círculo (rgba branco translúcido + blur),
+   só maior. Sem logo Círcula sobre a foto (removido). */
+.home-community-header--glass {
+  position: relative;
+  border-radius: var(--card-radius-lg);
+}
+
+.home-community-cover--glass img {
+  /* D3 — a capa ficou mais baixa; sem isso a pessoa ficaria pequena
+     demais dentro do recorte. Zoom + foco nela (não no céu/paisagem ao
+     redor), sem esticar (mesmo object-fit: cover, só reenquadrado). */
+  object-position: 30% 42%;
+  transform: scale(1.18);
+  transform-origin: 30% 42%;
+}
+
+.home-community-cover--glass {
+  aspect-ratio: auto;
+  /* D3 — ~metade da altura anterior (era 260/320/400) */
+  height: 190px;
+  max-height: none;
+
+  @media (min-width: 768px) {
+    height: 220px;
+  }
+
+  @media (min-width: 1024px) {
+    height: 252px;
+  }
+}
+
+.home-community-glass {
   position: absolute;
-  left: var(--space-4);
-  bottom: -22px;
-  width: 52px;
-  height: 52px;
-  border-radius: 15px;
-  object-fit: cover;
-  border: 3px solid var(--surface);
-  box-shadow: var(--shadow-sm);
-  filter: var(--brand-filter);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Painel mais baixo, colado na base (justify-content: flex-end): o
+     degradê começa bem perto do rodapé da foto e some rápido, pra
+     escurecer só a faixa onde o texto precisa de contraste — a
+     fotografia fica preservada no resto da capa. */
+  min-height: 32%;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  background-image: linear-gradient(
+    0deg,
+    rgba(14, 10, 9, 0.4) 0%,
+    rgba(14, 10, 9, 0.22) 36%,
+    rgba(14, 10, 9, 0.06) 68%,
+    rgba(14, 10, 9, 0) 100%
+  );
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(0deg, #000 52%, transparent 100%);
+  mask-image: linear-gradient(0deg, #000 52%, transparent 100%);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.home-community-header--glass:hover .home-community-glass {
+  background-color: rgba(8, 6, 5, 0.6);
+}
+
+.home-community-header--glass .home-community-eyebrow,
+.home-community-header--glass .home-community-name,
+.home-community-header--glass .home-community-meta,
+.home-community-header--glass .home-community-owner {
+  color: var(--c-white, #fff);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.home-community-header--glass .home-community-eyebrow {
+  /* Ajuste de contraste — o eyebrow é o texto mais discreto do bloco
+     (menor, maiúsculas, já "quieto" por natureza), então é o primeiro a
+     perder legibilidade sobre um trecho claro da foto. Sombra em duas
+     camadas (uma justa e mais opaca pra contorno, outra difusa pra não
+     parecer recortada) em vez de opacidade reduzida ou uma caixa —
+     mantém a leveza do glassmorphism sem virar botão/chip. */
+  opacity: 1;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.55),
+    0 1px 10px rgba(0, 0, 0, 0.35);
+}
+
+.home-community-header--glass .home-community-count,
+.home-community-header--glass .home-community-online {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--c-white, #fff);
+}
+
+.home-community-header--glass .home-community-online-dot {
+  background: var(--c-white, #fff);
+}
+
+.home-community-header--glass .home-community-owner-avatar {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 .home-community-info {
@@ -7985,12 +8187,25 @@ form.panel-points-form {
   font-weight: 500;
 }
 
-/* D1 — pontos/conquistas: texto discreto na linha de metadados, nunca
-   uma pílula/cartão próprio — substitui o antigo "Seu resumo" do trilho
-   lateral sem competir visualmente com a capa. */
-.home-community-points {
-  color: var(--circula-taupe, var(--graphite-soft));
-  font-weight: 400;
+/* Pessoas online agora (Supabase Realtime Presence) — mesma linguagem
+   de pílula do nº de participantes, com um ponto aceso para dar a
+   sensação de "agora". Só aparece com contagem real > 0. */
+.home-community-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--olive-bg);
+  color: var(--olive-text);
+  font-weight: 500;
+}
+
+.home-community-online-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-leaf);
 }
 
 /* --- Cabeçalho da comunidade sem capa: mesma linguagem do hero -------
@@ -8377,6 +8592,120 @@ form.panel-points-form {
   @media (min-width: 768px) {
     padding: var(--space-5);
   }
+}
+
+/* D2 — trio "Seu desafio" / "Sua jornada" / "Suas conquistas": mesma
+   linguagem de card do resto do app (border/radius/shadow tokens
+   idênticos a .challenge-block), lado a lado sempre que houver espaço
+   (auto-fit — sem breakpoint manual), uma coluna só quando não houver.
+   --flush é para quando o filho (PointsWidget) já é um card completo
+   por si só — a célula vira só um contêiner de grid, sem casco
+   duplicado. */
+.home-trio {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.home-trio-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) 0 0;
+  border: 0;
+  border-top: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  min-width: 0;
+}
+
+.home-trio-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--circula-mocha, var(--graphite));
+}
+
+/* "Suas conquistas" (AchievementsStrip) traz o próprio <h3
+   className="home-section-title">; dentro do trio, ele some como
+   eyebrow genérico e passa a ler como manchete, igual às duas colunas
+   vizinhas — mesmo tamanho/peso de .home-trio-card-title. */
+.home-trio-card .home-section-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--circula-mocha, var(--graphite));
+}
+
+.home-trio-card .empty-state {
+  color: var(--circula-taupe, var(--graphite-soft));
+}
+
+.home-trio-card .empty-state svg {
+  color: var(--circula-champagne);
+}
+
+/* PointsWidget ("Sua jornada") dentro do trio perde o próprio casco de
+   card — o hairline do trio já faz essa função — e troca os acentos
+   para a paleta Círcula. */
+.home-trio-card .points-widget {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.home-trio-card .points-widget-icon {
+  background-color: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.home-trio-card .points-widget-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--circula-mocha);
+}
+
+.home-trio-card .points-widget-sub {
+  color: var(--circula-taupe);
+}
+
+.home-trio-card .points-balance-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(22px, 2.4vw, 28px);
+  color: var(--circula-mocha);
+}
+
+.home-trio-card .points-balance--muted .points-balance-value {
+  color: var(--circula-taupe);
+}
+
+.home-trio-card .points-balance-label {
+  color: var(--circula-taupe);
+}
+
+.home-trio-card .points-entry-amount {
+  color: var(--circula-mocha);
+}
+
+/* Selo de conquista — mesma tinta champagne/mocha do resto da Home em
+   vez do véu neutro legado. */
+.home-trio-card .achievements-count {
+  color: var(--circula-taupe);
+}
+
+.home-trio-card .achievement-badge {
+  background-color: var(--circula-champagne-tint);
+  border-color: var(--circula-champagne-line);
+  color: var(--circula-mocha);
 }
 
 .challenge-edit-form,
@@ -9065,22 +9394,34 @@ form.panel-points-form {
   }
 }
 
+/* Fase 4 — outline primeiro, como o resto do Design System: Convite e
+   Adição direta ficam lado a lado na mesma tela, então os dois botões
+   preenchidos competiam entre si. Preenche só no hover/active, igual a
+   .btn-primary. */
 .community-card.community-pro-form button[type='submit'] {
   margin-top: var(--space-2);
-  border: none;
+  width: auto;
+  border: 1px solid var(--circula-mocha);
   border-radius: 999px;
   padding: 10px 24px;
-  background-color: var(--circula-mocha);
-  color: var(--circula-offwhite);
+  background-color: transparent;
+  color: var(--circula-mocha);
   font-family: var(--font-label);
   font-size: 12.5px;
   letter-spacing: 0.06em;
   transition:
     background-color 0.2s ease,
+    color 0.2s ease,
     opacity 0.2s ease;
 
   &:hover:not(:disabled) {
+    background-color: var(--circula-mocha);
+    color: var(--circula-offwhite);
+  }
+  &:active:not(:disabled) {
     background-color: var(--circula-black);
+    border-color: var(--circula-black);
+    color: var(--circula-offwhite);
   }
   &:focus-visible {
     outline: 2px solid var(--circula-mocha);
@@ -9654,7 +9995,7 @@ form.panel-points-form {
   height: 100%;
   display: grid;
   place-items: center;
-  background-color: var(--rose-50);
+  background-color: var(--circula-champagne-tint, var(--rose-50));
   background-image: var(--hero-botanical);
   background-repeat: no-repeat;
   background-position: right -14px bottom -18px;
@@ -9663,11 +10004,32 @@ form.panel-points-form {
   span {
     font-family: var(--font-display);
     font-weight: var(--display-weight);
-    font-size: 44px;
+    font-size: 32px;
     line-height: 1;
-    color: var(--olive);
-    opacity: 0.45;
+    color: var(--circula-mocha, var(--olive));
+    opacity: 0.4;
   }
+}
+
+/* Fase 4 — vitrine de gestão (anfitriã): a lista é uma coluna só, não
+   uma grade como a vitrine de compra (.product-manager--storefront
+   logo abaixo), então o aspect-ratio 16/10 herdado de
+   .product-card-media virava um bloco gigante na largura cheia da
+   coluna editorial. Altura fixa e sóbria + o mesmo casco quieto da
+   vitrine, sem mudar lista/formulário/edição. */
+.product-manager:not(.product-manager--storefront) .product-card {
+  border: 0;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.product-manager:not(.product-manager--storefront) .product-card-media {
+  aspect-ratio: auto;
+  height: 180px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .product-card-chips {
@@ -10629,18 +10991,22 @@ form.panel-points-form {
 
 .home-greeting-title {
   margin: 0;
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 21px;
-  line-height: 1.2;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(23px, 2.8vw, 29px);
+  line-height: 1.15;
   letter-spacing: -0.01em;
-  color: var(--graphite);
+  color: var(--circula-mocha, var(--graphite));
 }
 
 .home-greeting-sub {
   margin: 0;
-  font-size: 13px;
-  color: var(--graphite-soft);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe, var(--graphite-soft));
 }
 
 /* --- Resumo do dia — TESTE: linguagem editorial, sem caixa de
@@ -11035,10 +11401,6 @@ form.panel-points-form {
 @media (min-width: 1024px) {
   .home {
     gap: var(--space-6);
-  }
-
-  .home-greeting-title {
-    font-size: 24px;
   }
 
   .home-summary-card {
@@ -11743,20 +12105,26 @@ form.panel-points-form {
   width: 38px;
   height: 38px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: var(--radius-pill);
-  background-color: var(--surface);
-  color: var(--graphite);
+  background: none;
+  color: var(--graphite-soft);
   cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background-color 0.15s ease;
+  transition: color 0.15s ease;
+}
+
+/* .dashboard-header button dá borda genérica a todo <button> do
+   cabeçalho (ex.: "Sair") — precisamos de mais especificidade (2
+   classes > 1 classe + 1 tag) pra essa regra realmente vencer. */
+.dashboard-header .notification-bell-button {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
 }
 
 .notification-bell-button:hover {
-  border-color: var(--olive-border);
-  color: var(--olive-text);
+  color: var(--graphite);
 }
 
 .notification-bell-button:focus-visible {
@@ -13892,7 +14260,7 @@ button.card:focus-visible {
   }
 
   .brand-mark {
-    height: 46px; /* TESTE — logo maior, mesma proporção (width: auto) */
+    height: 54px; /* logo um pouco maior, mesma proporção (width: auto) */
   }
 }
 
@@ -14013,7 +14381,30 @@ button.card:focus-visible {
 }
 
 .home-highlight-section .home-card-stack {
-  gap: var(--space-4);
+  gap: 0;
+}
+
+/* Publicações recentes — mesma lógica de "Atividade recente": a pilha
+   de cartões (fundo/borda/sombra por item) vira uma lista aberta com
+   hairline champagne separando as publicações, em vez de caixa. O
+   PostCard em si (Feed, Feed de Conversa) não é tocado — escopo
+   estrito a .home-highlight-section .home-card-stack. */
+.home-highlight-section .post-card {
+  padding: var(--space-5) 0;
+  border: 0;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.home-highlight-section .post-card:first-child {
+  padding-top: 0;
+}
+
+.home-highlight-section .post-card:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 /* "Seu desafio" — mesmo tratamento editorial de "Atividade recente" e
@@ -15380,4 +15771,64 @@ button.card:focus-visible {
   font-size: 12px;
   line-height: 1.5;
   color: var(--danger);
+}
+
+/* =====================================================================
+   FASE 6 — REFINAMENTO MOBILE
+   Só CSS; reaproveita os breakpoints existentes (nenhum novo criado).
+   Não toca Supabase, rotas, dados ou componentes .tsx.
+   ===================================================================== */
+
+/* --- Publicações (prioridade alta): a foto nunca é cortada ----------
+   `.post-card--editorial .post-image` (Feed) forçava aspect-ratio 4:3
+   + object-fit: cover do `.post-image` base — qualquer foto fora desse
+   recorte era cortada. No mobile a foto passa a mostrar o enquadramento
+   inteiro (object-fit: contain), com altura dada pela própria imagem
+   até um teto generoso; o fundo neutro só aparece se a foto for extrema
+   o bastante para precisar de "letterbox". Desktop (>= 768px) e o zoom
+   de hover ficam exatamente como estavam. */
+@media (max-width: 767px) {
+  .post-card--editorial .post-image {
+    aspect-ratio: auto;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+    background-color: var(--surface-sunken);
+  }
+}
+
+/* --- Círculos: nome/contagem não pode depender de hover --------------
+   `.circ-card-meta` só chegava a opacidade 1 em `@media (hover:hover)`;
+   em toque (mobile/tablet) não há hover, então o texto nunca saía de
+   0.6 (ainda mais apagado nos cards com foto, por cima do branco
+   translúcido). Em `(hover: none)` o texto já nasce legível. */
+@media (hover: none) {
+  .circ-card-meta {
+    opacity: 1;
+  }
+}
+
+/* --- Áreas de toque confortáveis em ponteiro grosso -------------------
+   Mesmo padrão já usado em `.btn` / `.challenge-day-mark` / botões do
+   header: em vez de redesenhar os componentes, garante min-height >= 44px
+   (ou 40px no chip pequeno de Círculos) só quando o ponteiro é touch —
+   mouse/trackpad mantêm a densidade visual atual. As variantes
+   `.post-card--editorial *` (Feed) têm especificidade maior que as
+   classes base e por isso precisam da própria entrada aqui, senão o
+   padding reduzido delas (4px 2px, min-height: 0) continuaria valendo. */
+@media (pointer: coarse) {
+  .post-reaction,
+  .post-comment-toggle,
+  .save-button,
+  .post-card--editorial .post-reaction,
+  .post-card--editorial .post-comment-toggle,
+  .post-card--editorial .save-button,
+  .points-widget-toggle,
+  .comment-more {
+    min-height: 44px;
+  }
+
+  .circ-card-join {
+    min-height: 40px;
+  }
 }

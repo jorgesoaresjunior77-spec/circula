@@ -1,95 +1,43 @@
-import { useMemo } from 'react'
 import type { NavKey } from './PrimaryNav'
 import type { Post } from '../types/post'
-import type { CircleWithMembers } from '../types/circle'
 import type { usePosts } from '../hooks/usePosts'
-import { useEvents } from '../hooks/useEvents'
-import { useContent } from '../hooks/useContent'
-import { useCheckins } from '../hooks/useCheckins'
-import { isPastEvent } from '../lib/formatEventDate'
 import { PostCard } from './PostCard'
-import { EventCard } from './EventCard'
-import { ContentCard } from './ContentCard'
-import { CheckinResponseForm } from './CheckinResponseForm'
 
-// MÓDULO 6 · A4 — HomeToday v2 (Home rica)
-//
-// Blocos novos da Home, todos alimentados por hooks que já existem
-// (usePosts / useEvents / useContent / useCheckins) e renderizados com
-// os cards que já existem (PostCard / EventCard / ContentCard /
-// CheckinResponseForm). Nenhuma consulta agregadora, nenhuma RPC nova,
-// nenhuma migration. Sem IA, sem placeholder: um bloco só aparece se
-// houver dado real; se a fonte falhar, o hook devolve lista vazia e o
-// bloco some — a tela não quebra. Este componente só é montado quando a
-// HomeToday já tem uma comunidade em foco (communityId garantido).
+// D1 — "Destaques de hoje" (pergunta do dia / comando da comunidade /
+// check-in / próximos eventos / conteúdo para você) saiu da Home por
+// completo. "Publicações recentes" é a única seção que sobrou daqui —
+// mantida a pedido explícito do usuário, só com a composição do
+// PostCard mudada (mediaAside: foto inteira ao lado do texto no
+// desktop). useEvents/useContent/useCheckins NÃO são mais chamados
+// aqui (eram só para os blocos removidos) — os hooks continuam
+// existindo para quem ainda precisa deles, só não são buscados à toa
+// na Home.
 
 const RECENT_POSTS_LIMIT = 4
-const UPCOMING_EVENTS_LIMIT = 3
-const CONTENT_LIMIT = 3
 
 interface HomeHighlightsProps {
-  communityId: string
   profileId: string
-  /** Círculos da comunidade em foco (já carregados na HomeToday). */
-  circles: CircleWithMembers[]
   /**
    * Instância ÚNICA de usePosts, criada na HomeToday e compartilhada com
-   * o "Resumo do dia" (useHomeToday). NÃO instanciar outra aqui — evita
-   * segunda fonte de verdade e a consulta duplicada do feed da comunidade.
+   * o restante da Home. NÃO instanciar outra aqui.
    */
   postsApi: ReturnType<typeof usePosts>
   onNavigate: (key: NavKey) => void
 }
 
-export function HomeHighlights({
-  communityId,
-  profileId,
-  circles,
-  postsApi,
-  onNavigate,
-}: HomeHighlightsProps) {
-  const events = useEvents(communityId)
-  const content = useContent(communityId)
-  const checkins = useCheckins(communityId)
-
-  const circleNameById = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const circle of circles) map.set(circle.id, circle.name)
-    return map
-  }, [circles])
-
+export function HomeHighlights({ profileId, postsApi, onNavigate }: HomeHighlightsProps) {
   // posts já vêm ordenados por created_at desc e restritos ao feed da
-  // comunidade (circle_id nulo) — o mais recente de cada tipo é o find.
+  // comunidade (circle_id nulo).
   const dailyQuestion =
     postsApi.posts.find((p) => p.post_type === 'daily_question') ?? null
   const dailyCommand =
     postsApi.posts.find((p) => p.post_type === 'engagement_command') ?? null
-
   const shownPostIds = new Set(
     [dailyQuestion?.id, dailyCommand?.id].filter((id): id is string => Boolean(id)),
   )
   const recentPosts = postsApi.posts
     .filter((p) => !shownPostIds.has(p.id))
     .slice(0, RECENT_POSTS_LIMIT)
-
-  const upcomingEvents = events.events
-    .filter((e) => e.status !== 'draft' && !isPastEvent(e.starts_at, e.ends_at))
-    .slice()
-    .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
-    .slice(0, UPCOMING_EVENTS_LIMIT)
-
-  // "Conteúdo para você": conteúdos publicados da comunidade (artigo,
-  // dica, material, vídeo, educativo). É só uma faixa da Home, e só
-  // aparece se houver conteúdo real.
-  const contentForYou = content.items
-    .filter((item) => item.status === 'published')
-    .slice(0, CONTENT_LIMIT)
-
-  const pendingCheckin =
-    checkins.instances.find((instance) => {
-      const responses = checkins.responsesByInstance[instance.id] ?? []
-      return !responses.some((r) => r.profile_id === profileId)
-    }) ?? null
 
   const postCardProps = (post: Post) => ({
     post,
@@ -103,130 +51,21 @@ export function HomeHighlights({
     onAddComment: (text: string) => postsApi.addComment(post.id, profileId, text),
   })
 
-  const hasAnything =
-    dailyQuestion ||
-    dailyCommand ||
-    pendingCheckin ||
-    upcomingEvents.length > 0 ||
-    contentForYou.length > 0 ||
-    recentPosts.length > 0
-
-  if (!hasAnything) return null
+  if (recentPosts.length === 0) return null
 
   return (
-    <div className="home-highlights">
-      <p className="home-highlights-eyebrow">Destaques de hoje</p>
-      {dailyQuestion && (
-        <section className="home-section home-highlight-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Pergunta do dia</h3>
-          </div>
-          <PostCard {...postCardProps(dailyQuestion)} />
-        </section>
-      )}
-
-      {dailyCommand && (
-        <section className="home-section home-highlight-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Comando da comunidade</h3>
-          </div>
-          <PostCard {...postCardProps(dailyCommand)} />
-        </section>
-      )}
-
-      {pendingCheckin && (
-        <section className="home-section home-highlight-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Check-in de hoje</h3>
-          </div>
-          <div className="checkin-block">
-            <p className="checkin-prompt">{pendingCheckin.content}</p>
-            <CheckinResponseForm
-              myResponse={undefined}
-              onRespond={(mood, wantsToShare) =>
-                checkins.respondCheckin(pendingCheckin.id, profileId, mood, wantsToShare)
-              }
-              onShare={async (text) => {
-                const result = await checkins.shareCheckin(profileId, text)
-                if (!result.error) postsApi.refresh()
-                return result
-              }}
-            />
-          </div>
-        </section>
-      )}
-
-      {upcomingEvents.length > 0 && (
-        <section className="home-section home-highlight-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Próximos eventos</h3>
-            <button
-              type="button"
-              className="home-section-link"
-              onClick={() => onNavigate('eventos')}
-            >
-              Ver todos
-            </button>
-          </div>
-          <div className="home-card-stack">
-            {upcomingEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                profileId={profileId}
-                circleName={
-                  event.circle_id ? (circleNameById.get(event.circle_id) ?? null) : null
-                }
-                canRsvp
-                onRsvp={() => events.rsvp(event.id, profileId)}
-                onCancelRsvp={() => events.cancelRsvp(event.id, profileId)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {contentForYou.length > 0 && (
-        <section className="home-section home-highlight-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Conteúdo para você</h3>
-          </div>
-          <div className="home-card-stack">
-            {contentForYou.map((item) => (
-              <ContentCard
-                key={item.id}
-                item={item}
-                profileId={profileId}
-                circleName={
-                  item.circle_id ? (circleNameById.get(item.circle_id) ?? null) : null
-                }
-                canLike
-                onToggleLike={(liked) => content.toggleLike(item.id, profileId, liked)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {recentPosts.length > 0 && (
-        <section className="home-section home-highlight-section">
-          <div className="home-section-head">
-            <h3 className="home-section-title">Publicações recentes</h3>
-            <button
-              type="button"
-              className="home-section-link"
-              onClick={() => onNavigate('feed')}
-            >
-              Ver todas
-            </button>
-          </div>
-          <div className="home-card-stack">
-            {recentPosts.map((post) => (
-              <PostCard key={post.id} {...postCardProps(post)} />
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
+    <section className="home-section home-highlight-section">
+      <div className="home-section-head">
+        <h3 className="home-section-title">Publicações recentes</h3>
+        <button type="button" className="home-section-link" onClick={() => onNavigate('feed')}>
+          Ver todas
+        </button>
+      </div>
+      <div className="home-card-stack">
+        {recentPosts.map((post) => (
+          <PostCard key={post.id} {...postCardProps(post)} mediaAside />
+        ))}
+      </div>
+    </section>
   )
 }
