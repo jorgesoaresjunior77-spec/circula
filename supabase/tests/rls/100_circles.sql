@@ -50,6 +50,22 @@
 -- para os testes de isolamento cross-community). Tudo em ROLLBACK --
 -- nada persiste.
 -- =====================================================================
+--
+-- Correção de fixture (pré-existente, igual à do cenário 93 — commit
+-- e677bf9 —, não relacionada às seções novas abaixo): o profile por
+-- trás da chave 'member' do framework (94bc64f8-...) não existe mais
+-- em public.profiles nem em public.community_members de A (conta de
+-- teste removida da produção) — confirmado por leitura direta. Isso
+-- quebra qualquer INSERT real que referencie esse profile_id (FK) e
+-- qualquer checagem de is_community_member(A) feita com esse uid.
+-- `_fx` é uma temp table recriada do zero a cada execução de cenário
+-- (`_framework.sql`, `on commit drop`), então este UPDATE só afeta
+-- ESTE arquivo — nenhum outro cenário da suíte é tocado. Troca para
+-- JR Filmes (51008487-ee5e-4a15-86c9-d10a05596b08): profile real,
+-- role='member', membro ATIVO de verdade da comunidade A hoje
+-- (confirmado por leitura direta), sem nenhuma subscription/círculo
+-- pré-existente que colida com as fixtures sintéticas abaixo.
+update _fx set v = '51008487-ee5e-4a15-86c9-d10a05596b08' where k = 'member';
 
 insert into public.communities (id, owner_id, name, slug, is_discoverable)
 values (pg_temp.fx('commC'), pg_temp.fx('master'),
@@ -114,6 +130,16 @@ select pg_temp.expect_write('100: prof (dona de A) tenta usar created_by de outr
   format('insert into public.community_circles (community_id,name,created_by) values (%L,''[rls-suite] forjado'',%L)',
          pg_temp.fx('commA'), pg_temp.fx('member')), false);
 
+select pg_temp.expect_write('100: master (não é dona de nenhuma comunidade real) tenta criar círculo em A -> BLOQUEADO',
+  pg_temp.fx('master'),
+  format('insert into public.community_circles (community_id,name,created_by) values (%L,''[rls-suite] novo'',%L)',
+         pg_temp.fx('commA'), pg_temp.fx('master')), false);
+
+select pg_temp.expect_write('100: anon tenta criar círculo em A -> BLOQUEADO',
+  null,
+  format('insert into public.community_circles (community_id,name,created_by) values (%L,''[rls-suite] novo'',%L)',
+         pg_temp.fx('commA'), pg_temp.fx('prof')), false);
+
 -- ================= 3. community_circles — UPDATE ========================
 
 select pg_temp.expect_write('100: prof (dona de A) edita o próprio círculo A1 -> PERMITIDO',
@@ -132,6 +158,10 @@ select pg_temp.expect_write('100: prof tenta mover círculo A1 para C via commun
   pg_temp.fx('prof'),
   format('update public.community_circles set community_id = %L where id = %L', pg_temp.fx('commC'), '1001c000-0000-4000-8000-00000000a001'), false);
 
+select pg_temp.expect_write('100: prof (não é dona de C) tenta editar círculo C1 diretamente -> BLOQUEADO',
+  pg_temp.fx('prof'),
+  format('update public.community_circles set name = ''[rls-suite] C1 editado'' where id = %L', '1001c000-0000-4000-8000-00000000c001'), false);
+
 -- ================= 4. community_circles — DELETE ========================
 
 select pg_temp.expect_write('100: member tenta excluir círculo A1 -> BLOQUEADO',
@@ -141,6 +171,10 @@ select pg_temp.expect_write('100: member tenta excluir círculo A1 -> BLOQUEADO'
 select pg_temp.expect_write('100: master tenta excluir círculo A1 -> BLOQUEADO',
   pg_temp.fx('master'),
   format('delete from public.community_circles where id = %L', '1001c000-0000-4000-8000-00000000a001'), false);
+
+select pg_temp.expect_write('100: prof (não é dona de C) tenta excluir círculo C1 diretamente -> BLOQUEADO',
+  pg_temp.fx('prof'),
+  format('delete from public.community_circles where id = %L', '1001c000-0000-4000-8000-00000000c001'), false);
 
 select pg_temp.expect_write('100: prof (dona de A) exclui o próprio círculo A1 -> PERMITIDO',
   pg_temp.fx('prof'),
