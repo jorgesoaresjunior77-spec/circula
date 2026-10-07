@@ -8,7 +8,6 @@ export interface CommunityMetrics {
   posts_count: number
   comments_count: number
   reactions_count: number
-  challenge_progress_count: number
   checkin_responses_count: number
   circle_joins_count: number
 }

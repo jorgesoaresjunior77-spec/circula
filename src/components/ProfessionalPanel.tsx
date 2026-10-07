@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { QuestionBankManager } from './QuestionBankManager'
-import { ChallengeManager } from './ChallengeManager'
 import { CircleManager } from './CircleManager'
 import { EventManager } from './EventManager'
 import { ContentManager } from './ContentManager'
@@ -8,7 +7,6 @@ import { MoodMessageManager } from './MoodMessageManager'
 import { CheckinManager } from './CheckinManager'
 import { EngagementCommandManager } from './EngagementCommandManager'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
-import { PointsPanel } from './PointsPanel'
 import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { AsaasAccountConnect } from './AsaasAccountConnect'
@@ -24,12 +22,10 @@ type PanelTab =
   | 'visao'
   | 'participantes'
   | 'publicacoes'
-  | 'desafios'
   | 'eventos'
   | 'circulos'
   | 'conteudo'
   | 'imagens'
-  | 'pontos'
   | 'metricas'
   | 'produtos'
   | 'assinaturas'
@@ -39,12 +35,10 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
   { key: 'participantes', label: 'Participantes' },
   { key: 'publicacoes', label: 'Publicações' },
-  { key: 'desafios', label: 'Desafios' },
   { key: 'eventos', label: 'Eventos' },
   { key: 'circulos', label: 'Círculos' },
   { key: 'conteudo', label: 'Conteúdo' },
   { key: 'imagens', label: 'Imagens da comunidade' },
-  { key: 'pontos', label: 'Pontos' },
   { key: 'metricas', label: 'Métricas' },
   { key: 'produtos', label: 'Produtos' },
   { key: 'assinaturas', label: 'Assinaturas' },
@@ -128,12 +122,6 @@ export function ProfessionalPanel({
         </div>
       )}
 
-      {activeTab === 'desafios' && (
-        <div className="panel-tab-content">
-          <ChallengeManager communityId={communityId} profileId={profileId} canManage canParticipate />
-        </div>
-      )}
-
       {activeTab === 'eventos' && (
         <div className="panel-tab-content">
           <EventManager communityId={communityId} profileId={profileId} canManage />
@@ -175,12 +163,6 @@ export function ProfessionalPanel({
       {activeTab === 'imagens' && (
         <div className="panel-tab-content">
           <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
-        </div>
-      )}
-
-      {activeTab === 'pontos' && (
-        <div className="panel-tab-content">
-          <PointsPanel communityId={communityId} profileId={profileId} />
         </div>
       )}
 

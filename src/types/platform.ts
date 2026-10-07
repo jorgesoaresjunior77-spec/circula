@@ -27,19 +27,10 @@ export interface PlatformOverview {
   events_total: number
   events_upcoming: number
 
-  challenges_total: number
-  challenges_active: number
-  challenge_completions_total: number
-  challenge_completions_30d: number
-  challenge_days_done_total: number
-
   joy_moments_total: number
   joy_moments_30d: number
 
   checkin_responses_total: number
-
-  points_distributed_total: number
-  points_distributed_30d: number
 
   platform_subs_by_status: Record<string, number>
   community_subs_by_status: Record<string, number>
@@ -75,9 +66,6 @@ export interface PlatformCommunity {
   members_active: number
   members_new_30d: number
   posts_30d: number
-  challenge_completions_30d: number
-  points_30d: number
-  points_total: number
   last_activity_at: string | null
 }
 

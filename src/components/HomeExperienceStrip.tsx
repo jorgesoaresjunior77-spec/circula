@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { ChallengeWithActivities } from '../types/challenge'
 import type { CommunityCardKey } from '../types/communityCards'
 import type { CommunityContent } from '../types/content'
 import type { HomeSummary } from '../types/home'
@@ -40,11 +39,9 @@ interface NextEvent {
 
 interface HomeExperienceStripProps {
   summary: HomeSummary
-  pickedChallenge: ChallengeWithActivities | null
   nextEvent: NextEvent | null
   newPosts: number
   hasPosts: boolean
-  journey: { pointsBalance: number; achievementsCount: number } | null
   /**
    * C4.1 — publicações do Instagram destacadas pela comunidade
    * (community_content publicado, com capa, external_url do Instagram),
@@ -72,31 +69,18 @@ interface Experience {
   ariaLabel: string
 }
 
-function scrollToSection(id: string) {
-  const el = document.getElementById(id)
-  if (!el) return
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-}
-
 export function HomeExperienceStrip({
   summary,
-  pickedChallenge,
   nextEvent,
   newPosts,
   hasPosts,
-  journey,
   instagramPosts,
   cardCovers,
   onNavigate,
 }: HomeExperienceStripProps) {
-  // Só o desafio em foco e o 1º post do Instagram têm imagem
-  // diretamente reutilizável — a capa passa pelo mesmo useSignedImageUrl
-  // do ChallengeCard / ContentCard. São valores únicos, não .map(),
-  // então os hooks no topo são seguros.
-  const { url: challengeCover } = useSignedImageUrl(
-    pickedChallenge?.cover_image_url ?? null,
-  )
+  // Só o 1º post do Instagram tem imagem diretamente reutilizável — a
+  // capa passa pelo mesmo useSignedImageUrl do ContentCard. É um valor
+  // único, não .map(), então o hook no topo é seguro.
   const { url: instagramCover } = useSignedImageUrl(
     instagramPosts[0]?.cover_image_url ?? null,
   )
@@ -134,19 +118,6 @@ export function HomeExperienceStrip({
           : 'Hoje no Círcula — tudo em dia',
     })
 
-    // 2 — Seus desafios (só com um desafio em foco real).
-    if (pickedChallenge) {
-      list.push({
-        key: 'desafios',
-        eyebrow: 'Desafio',
-        title: 'Seus desafios',
-        meta: pickedChallenge.title,
-        image: cardCovers?.desafios ?? challengeCover,
-        onActivate: () => scrollToSection('home-desafios'),
-        ariaLabel: `Seus desafios — ${pickedChallenge.title}`,
-      })
-    }
-
     // 3 — Próximos eventos (só com um próximo evento real).
     if (nextEvent) {
       list.push({
@@ -181,24 +152,6 @@ export function HomeExperienceStrip({
       })
     }
 
-    // 5 — Sua jornada (pontos + conquistas) — só quando o resumo carregou.
-    if (journey) {
-      const { pointsBalance, achievementsCount } = journey
-      list.push({
-        key: 'jornada',
-        eyebrow: 'Você',
-        title: 'Sua jornada',
-        meta: `${pointsBalance} ${
-          pointsBalance === 1 ? 'ponto' : 'pontos'
-        } · ${achievementsCount} ${
-          achievementsCount === 1 ? 'conquista' : 'conquistas'
-        }`,
-        image: cardCovers?.jornada ?? null,
-        onActivate: () => scrollToSection('home-jornada'),
-        ariaLabel: `Sua jornada — ${pointsBalance} pontos, ${achievementsCount} conquistas`,
-      })
-    }
-
     // 6 — No Instagram (C4.1) — só com publicação real destacada. Abre a
     // tela editorial no app; NÃO navega direto para o Instagram.
     if (instagramPosts.length > 0) {
@@ -221,19 +174,7 @@ export function HomeExperienceStrip({
     }
 
     return list
-  }, [
-    summary,
-    pickedChallenge,
-    challengeCover,
-    nextEvent,
-    newPosts,
-    hasPosts,
-    journey,
-    instagramPosts,
-    instagramCover,
-    cardCovers,
-    onNavigate,
-  ])
+  }, [summary, nextEvent, newPosts, hasPosts, instagramPosts, instagramCover, cardCovers, onNavigate])
 
   // Autoplay do marquee: só no desktop com movimento permitido. Em
   // pointer grosso (touch) ou prefers-reduced-motion fica desligado — a

@@ -76,8 +76,6 @@ export function ProfessionalDashboard({
   ]
 
   const activityKpis: { label: string; value: number | string; tab: string }[] = [
-    { label: 'Desafios ativos', value: data.challenges_active, tab: 'desafios' },
-    { label: 'Pontos (30 d)', value: data.points_period, tab: 'pontos' },
     { label: 'Publicações', value: data.posts_count, tab: 'publicacoes' },
   ]
 
@@ -101,14 +99,6 @@ export function ProfessionalDashboard({
       text: `Evento nas próximas 24 h: ${nextEvent.title} — ${formatEventDate(nextEvent.starts_at)}`,
       action: 'Ver',
       tab: 'eventos',
-    })
-  }
-  if (data.challenges_ending_soon > 0) {
-    attention.push({
-      key: 'challenges',
-      text: `${data.challenges_ending_soon} desafio(s) terminando em até 3 dias`,
-      action: 'Ver',
-      tab: 'desafios',
     })
   }
 
@@ -228,7 +218,7 @@ export function ProfessionalDashboard({
           </div>
           <p className="panel-overview-hint">
             Ativas (30 d) = participantes com pelo menos uma ação (publicação, comentário, reação,
-            check-in, desafio ou círculo) nos últimos 30 dias. Novas (30 d) = entraram nos últimos 30
+            check-in ou círculo) nos últimos 30 dias. Novas (30 d) = entraram nos últimos 30
             dias.
           </p>
         </div>
@@ -336,31 +326,6 @@ export function ProfessionalDashboard({
                     <span className="panel-overview-aside">
                       {formatRelativeTime(post.created_at)}
                     </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="panel-overview-note">
-            <div className="panel-overview-note-head">
-              <h4 className="panel-overview-note-title">Pontos</h4>
-              <button type="button" className="auth-link" onClick={() => onOpenTab('pontos')}>
-                Abrir
-              </button>
-            </div>
-            <p className="panel-overview-line">
-              {data.points_period} pontos concedidos nos últimos 30 dias ({data.points_all_time} no
-              total).
-            </p>
-            {data.top_earners.length > 0 && (
-              <ul className="panel-overview-note-list">
-                {data.top_earners.map((earner) => (
-                  <li key={earner.profile_id}>
-                    <span className="panel-dashboard-clip">
-                      {earner.full_name ?? 'Participante'}
-                    </span>
-                    <span className="panel-overview-aside">{earner.balance} pts</span>
                   </li>
                 ))}
               </ul>

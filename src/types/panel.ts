@@ -29,9 +29,6 @@ export interface ParticipantOverview {
   avatar_url: string | null
   status: string
   joined_at: string
-  balance: number
-  challenges_completed: number
-  challenge_days_done: number
   last_activity_at: string | null
 }
 
@@ -40,10 +37,7 @@ export interface PanelExtraMetrics {
   events_upcoming: number
   events_total_period: number
   content_published: number
-  challenge_completions_period: number
   joy_moments_period: number
-  points_period: number
-  points_all_time: number
 }
 
 export interface DashboardEvent {
@@ -59,16 +53,9 @@ export interface DashboardPost {
   author_name: string | null
 }
 
-export interface DashboardTopEarner {
-  profile_id: string
-  full_name: string | null
-  balance: number
-}
-
 /** 16.2.3-E — item da timeline "Atividade recente" (Visão geral). */
 export type DashboardActivityKind =
   | 'member_joined'
-  | 'challenge_created'
   | 'content_published'
 
 export interface DashboardActivityItem {
@@ -87,18 +74,12 @@ export interface ProfessionalDashboardData {
   members_active: number
   members_inactive: number
   members_new: number
-  challenges_active: number
-  /** 16.2.3-F — desafios ativos terminando em até 3 dias. */
-  challenges_ending_soon: number
   /** 16.2.3-F — o próximo evento (upcoming_events[0]) ocorre em ≤ 24 h. */
   next_event_within_24h: boolean
-  points_period: number
-  points_all_time: number
   posts_count: number
   comments_count: number
   reactions_count: number
   upcoming_events: DashboardEvent[]
   recent_posts: DashboardPost[]
-  top_earners: DashboardTopEarner[]
   recent_activity: DashboardActivityItem[]
 }

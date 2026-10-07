@@ -292,9 +292,9 @@ export function Dashboard({
         ? (myCommunities[0] ?? null)
         : null
 
-  // Fase 10 — resumo leve do trilho direito (pontos / conquistas /
-  // próximo evento). Só busca quando faz sentido: member ou professional,
-  // com comunidade, na Home. useRailSummary(null,null) não faz fetch.
+  // Fase 10 — resumo leve do trilho direito (próximo evento). Só busca
+  // quando faz sentido: member ou professional, com comunidade, na Home.
+  // useRailSummary(null,null) não faz fetch.
   const railActive =
     !!railCommunity && profile?.role !== 'master' && activeNav === 'inicio'
   const railSummary = useRailSummary(
@@ -391,8 +391,6 @@ export function Dashboard({
           railSummary={
             railActive
               ? {
-                  pointsBalance: railSummary.pointsBalance,
-                  achievementsCount: railSummary.achievementsCount,
                   nextEvent: railSummary.nextEvent,
                 }
               : null

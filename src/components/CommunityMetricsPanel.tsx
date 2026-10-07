@@ -74,8 +74,8 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
             </div>
 
             <p className="panel-metrics-hint">
-              Ativa = pelo menos uma ação (post, comentário, reação, resposta de check-in, progresso
-              de desafio ou entrada em círculo) nos últimos 30 dias, independente do período abaixo.
+              Ativa = pelo menos uma ação (post, comentário, reação, resposta de check-in ou entrada
+              em círculo) nos últimos 30 dias, independente do período abaixo.
             </p>
           </div>
 
@@ -112,10 +112,6 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
                 <span className="panel-metrics-label">Reações</span>
               </div>
               <div className="panel-metrics-item">
-                <span className="panel-metrics-value">{metrics.challenge_progress_count}</span>
-                <span className="panel-metrics-label">Desafios</span>
-              </div>
-              <div className="panel-metrics-item">
                 <span className="panel-metrics-value">{metrics.checkin_responses_count}</span>
                 <span className="panel-metrics-label">Check-ins</span>
               </div>
@@ -146,16 +142,8 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
                   <span className="panel-metrics-label">Conteúdos publicados</span>
                 </div>
                 <div className="panel-metrics-item">
-                  <span className="panel-metrics-value">{extra.challenge_completions_period}</span>
-                  <span className="panel-metrics-label">Desafios concluídos</span>
-                </div>
-                <div className="panel-metrics-item">
                   <span className="panel-metrics-value">{extra.joy_moments_period}</span>
                   <span className="panel-metrics-label">Momentos de alegria</span>
-                </div>
-                <div className="panel-metrics-item">
-                  <span className="panel-metrics-value">{extra.points_period}</span>
-                  <span className="panel-metrics-label">Pontos no período</span>
                 </div>
               </div>
             )}

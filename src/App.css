@@ -266,13 +266,10 @@
   .community-card form > button:not(.auth-link),
   .community-card > button[type='button']:not(.auth-link),
   .comment-form button,
-  .challenge-card > button,
   .circle-card > button,
   .checkin-share-prompt > button,
   .checkin-share-choice button:not(.auth-link),
   .question-item-actions button,
-  .challenge-item-actions button,
-  .challenge-form-actions button,
   .interest-input-row button,
   .metrics-period-button {
     min-height: 44px;
@@ -3208,19 +3205,15 @@
 }
 
 /* Ação de item de lista — mesma família visual reaproveitada por
-   perguntas, comandos, check-ins, desafios e círculos. */
-.question-item-actions,
-.challenge-item-actions,
-.challenge-form-actions {
+   perguntas, comandos, check-ins e círculos. */
+.question-item-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
 }
 
-.question-item-actions button,
-.challenge-item-actions button,
-.challenge-form-actions button {
+.question-item-actions button {
   /* variação compacta de .btn-secondary */
   font: inherit;
   font-size: 13px;
@@ -3268,8 +3261,7 @@
   }
 }
 
-.question-item-actions button.question-save-button,
-.challenge-item-actions button.challenge-save-button {
+.question-item-actions button.question-save-button {
   /* variação compacta de .btn-primary */
   border-color: var(--btn-primary-bg-active);
   background-color: var(--btn-primary-bg);
@@ -3289,9 +3281,7 @@
   }
 }
 
-.question-item-actions button.question-delete-button,
-.challenge-item-actions button.challenge-delete-button,
-.challenge-form-actions button.challenge-remove-day {
+.question-item-actions button.question-delete-button {
   /* variação compacta de .btn-danger */
   border-color: var(--danger-border);
   color: var(--danger);
@@ -3739,10 +3729,6 @@
 
 /* ===== Painel da Professional ===== */
 
-.challenge-manager {
-  gap: var(--space-4);
-}
-
 .professional-panel {
   gap: var(--space-4);
 }
@@ -4034,384 +4020,13 @@
   }
 }
 
-/* ===== Desafios ===== */
-
-.challenge-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.challenge-form-label {
-  margin: var(--space-2) 0 0;
-  font-size: 14px;
-  color: var(--graphite);
-}
-
-.challenge-activity-draft {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  label {
-    font-size: 13px;
-    color: var(--graphite-soft);
-    margin-top: 6px;
-  }
-}
-
-/* Fase 6 — pontos (so configuracao; a pontuacao real vem depois). */
-.challenge-points-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-2);
-}
-
-.challenge-points-field {
-  display: flex;
-  flex: 1 1 140px;
-  flex-direction: column;
-  gap: 2px;
-}
-
+/* Dica de campo discreta — reusada por ProductManager e InviteMemberForm
+   (o nome vem de onde a classe nasceu; não é exclusiva de Desafios). */
 .challenge-field-hint {
   margin: 4px 0 0;
   font-size: 12px;
   color: var(--graphite-soft);
   font-style: italic;
-}
-
-/* Fase 6 — capa do desafio. Sangra ate a borda do card branco. */
-.challenge-cover {
-  display: block;
-  width: calc(100% + 2 * var(--space-4));
-  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0;
-  height: 168px;
-  object-fit: cover;
-  border-radius: var(--card-radius) var(--card-radius) 0 0;
-
-  @media (min-width: 768px) {
-    width: calc(100% + 2 * var(--space-5));
-    margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
-  }
-}
-
-/* Fase 6 — periodo do desafio ("3 de set – 9 de set"). */
-.challenge-period {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--olive-text);
-}
-
-/* Fase 6 — desafio ainda nao comecou. */
-.challenge-notstarted {
-  margin: 0;
-  font-size: 13px;
-  color: var(--graphite-soft);
-}
-
-/* Fase 6 — botao "Concluir o dia": outline editorial. */
-.challenge-complete-day {
-  align-self: flex-start;
-  padding: 12px 20px;
-  border: 1px solid var(--ink-action-line);
-  border-radius: var(--radius-sm);
-  background-color: transparent;
-  color: var(--ink-action);
-  font-family: var(--btn-label-font);
-  font-size: var(--btn-label-size);
-  font-weight: var(--btn-label-weight);
-  letter-spacing: var(--btn-label-tracking);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    color 0.2s ease,
-    transform 0.12s ease;
-
-  &:hover:not(:disabled) {
-    border-color: var(--ink-action);
-    background-color: var(--ink-action);
-    color: var(--on-action);
-  }
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-}
-
-/* Fase 6 — selo de desafio concluido. */
-.challenge-completed-badge {
-  align-self: flex-start;
-  margin: 0;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background-color: var(--olive-bg);
-  border: 1px solid var(--olive-border);
-  color: var(--olive-text);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* ===== Fase 7 — Pontos ===== */
-
-.points-widget {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--card-radius);
-  background-color: var(--surface);
-  box-shadow: var(--shadow-sm);
-
-  @media (min-width: 768px) {
-    padding: var(--space-5);
-  }
-}
-
-.points-widget-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.points-widget-icon {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  border-radius: 999px;
-  background-color: var(--olive-bg);
-  color: var(--olive-text);
-}
-
-.points-widget-title {
-  margin: 0;
-  font-size: 16px;
-}
-
-.points-widget-sub {
-  margin: 0;
-  font-size: 12px;
-  color: var(--graphite-soft);
-}
-
-.points-widget-figures {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
-.points-balance {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.points-balance-value {
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--olive-text);
-}
-
-/* O "0" da fonte display (Mitr, usada no trio/jornada via
-   --font-display) é desenhado com um traço diagonal fixo no próprio
-   glifo — não é um recurso OpenType opcional, então não dá pra desligar
-   via font-feature-settings. Only troca a fonte no estado zero (classe
-   aplicada pelo próprio componente quando o valor é 0) para a fonte de
-   texto do app, que desenha um zero neutro; qualquer saldo > 0
-   continua no corte display, sem mudar peso/cor/tamanho. */
-span.points-balance-value.points-balance-value--zero {
-  /* Especificidade de propósito (prefixo de elemento) — garante que
-     vence as variações de contexto (.home-trio-card/.home-jornada
-     .points-balance-value, que também sobrescrevem font-family),
-     independente da ordem no arquivo. */
-  font-family: var(--font-body, 'Lato', system-ui, sans-serif);
-}
-
-.points-balance--muted .points-balance-value {
-  color: var(--graphite);
-}
-
-.points-balance-label {
-  font-size: 12px;
-  color: var(--graphite-soft);
-}
-
-.points-widget-recent {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    font-size: 13px;
-    color: var(--graphite);
-  }
-}
-
-.points-widget-empty,
-.points-panel-msg {
-  margin: 0;
-  font-size: 13px;
-  color: var(--graphite-soft);
-}
-
-.points-entry-amount {
-  flex-shrink: 0;
-  font-weight: 600;
-  color: var(--olive-text);
-}
-
-.points-widget-toggle {
-  align-self: flex-start;
-  padding: 10px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background-color: transparent;
-  color: var(--graphite);
-  font-family: var(--btn-label-font);
-  font-size: 10.5px;
-  font-weight: var(--btn-label-weight);
-  letter-spacing: var(--btn-label-tracking);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    color 0.2s ease;
-
-  &:hover {
-    border-color: var(--ink-action-line);
-    background-color: var(--ink-action-soft);
-    color: var(--ink-action);
-  }
-}
-
-.points-history {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.points-entry {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border-radius: var(--card-radius-sm);
-  background-color: var(--surface-sunken);
-}
-
-.points-entry-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.points-entry-reason {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--graphite);
-}
-
-.points-entry-desc {
-  margin: 0;
-  font-size: 12px;
-  color: var(--graphite-soft);
-}
-
-.points-entry-meta {
-  margin: 0;
-  font-size: 11px;
-  color: var(--graphite-soft);
-}
-
-/* Painel da Nutri */
-.points-panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.points-reason-breakdown,
-.points-member-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.points-reason-breakdown li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  font-size: 13px;
-  color: var(--graphite);
-}
-
-.points-config-form,
-.points-award-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.points-config-form {
-  flex-flow: row wrap;
-  align-items: end;
-  gap: var(--space-3);
-}
-
-.points-member-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.points-member-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  width: 100%;
-  padding: var(--space-3);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--card-radius-sm);
-  background-color: var(--surface);
-  font: inherit;
-  color: var(--graphite);
-  cursor: pointer;
-}
-
-.points-member-ledger {
-  padding-left: var(--space-3);
 }
 
 /* ===== Fase 8 — Painel Professional completo ===== */
@@ -6003,372 +5618,6 @@ span.points-balance-value.points-balance-value--zero {
   .panel-content-submit {
     align-self: stretch;
     text-align: center;
-  }
-}
-
-/* ===================================================================
-   Painel · Desafios — redesign editorial
-   Seções planas: sem community-card, sem .challenge-block, sem borda,
-   sem sombra. Cabeçalho + "Criar um desafio" (form em 3 grupos) +
-   "Desafios da comunidade" (lista vertical com respiro). Cada item
-   hospeda o <ChallengeCard> INTOCADO; abaixo dele, ações como links.
-   Inativo = item esmaecido + marcador Jost discreto. Só tokens
-   existentes; escopo total sob .panel-challenges-*. Nenhuma classe
-   global compartilhada é redefinida — apenas 1 override LOCALIZADO da
-   capa dentro de .panel-challenges-item (a regra global de
-   .challenge-cover fica intacta, para a Home).
-   =================================================================== */
-
-.panel-challenges {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
-/* --- Cabeçalho --------------------------------------------- */
-.panel-challenges-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  max-width: 64ch;
-}
-
-.panel-challenges-title {
-  margin: 0;
-  font-family: var(--font-label);
-  font-size: var(--eyebrow-size);
-  font-weight: var(--eyebrow-weight);
-  letter-spacing: var(--eyebrow-tracking);
-  text-transform: uppercase;
-  color: var(--graphite-soft);
-}
-
-.panel-challenges-intro {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--graphite-soft);
-}
-
-/* --- Seção (Criar / Lista) ------------------------------- */
-.panel-challenges-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.panel-challenges-eyebrow {
-  margin: 0;
-  font-family: var(--font-label);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--graphite);
-}
-
-.panel-challenges-muted {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 13px;
-  color: var(--graphite-soft);
-}
-
-/* --- Formulário editorial (criar + editar) --------------- */
-.panel-challenges-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  max-width: 640px;
-}
-
-.panel-challenges-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.panel-challenges-form-group-title {
-  margin: 0;
-  font-family: var(--font-label);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--graphite-soft);
-}
-
-.panel-challenges-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.panel-challenges-label {
-  font-family: var(--font-label);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--graphite-soft);
-}
-
-.panel-challenges-form input,
-.panel-challenges-form textarea,
-.panel-challenges-form select {
-  font: inherit;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 13px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--graphite);
-  resize: vertical;
-  transition:
-    border-color var(--dur-fast) var(--ease),
-    box-shadow var(--dur-fast) var(--ease);
-}
-
-.panel-challenges-form input::placeholder,
-.panel-challenges-form textarea::placeholder {
-  color: var(--graphite-soft);
-  opacity: 0.7;
-}
-
-.panel-challenges-form input:focus,
-.panel-challenges-form textarea:focus,
-.panel-challenges-form select:focus {
-  outline: none;
-  border-color: var(--ink-action-line);
-  box-shadow: 0 0 0 3px var(--ink-action-soft);
-}
-
-.panel-challenges-form-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-}
-
-@media (min-width: 560px) {
-  .panel-challenges-form-row {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.panel-challenges-hint {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--graphite-soft);
-}
-
-/* dias */
-.panel-challenges-day {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.panel-challenges-day-label {
-  font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--graphite-soft);
-}
-
-.panel-challenges-day-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  margin-top: var(--space-1);
-}
-
-.panel-challenges-form-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.panel-challenges-submit {
-  align-self: flex-start;
-  font-family: var(--font-label);
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  padding: 9px 20px;
-  border: 1px solid var(--ink-action-line);
-  border-radius: var(--radius-pill);
-  background: none;
-  color: var(--ink-action);
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease),
-    border-color var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease);
-}
-
-.panel-challenges-submit:hover:not(:disabled) {
-  background: var(--ink-action);
-  border-color: var(--ink-action);
-  color: var(--on-action);
-}
-
-.panel-challenges-submit:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.panel-challenges-submit:focus-visible {
-  outline: 2px solid var(--ink-action);
-  outline-offset: 2px;
-}
-
-/* --- Lista de desafios ---------------------------------- */
-.panel-challenges-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
-.panel-challenges-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.panel-challenges-item--inactive {
-  opacity: 0.6;
-}
-
-/* Override LOCALIZADO da capa — sem .challenge-block, as margens
-   negativas do .challenge-cover global não fazem sentido aqui. A regra
-   global permanece intacta (Home). */
-.panel-challenges-item .challenge-cover {
-  width: 100%;
-  margin: 0;
-  border-radius: var(--radius-lg);
-}
-
-/* ações abaixo do card, alinhadas à direita */
-.panel-challenges-item-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: var(--space-2) var(--space-4);
-}
-
-.panel-challenges-flag {
-  margin-right: auto;
-  align-self: center;
-  font-family: var(--font-label);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--graphite-soft);
-  background: var(--surface-sunken);
-  padding: 3px 9px;
-  border-radius: var(--radius-pill);
-}
-
-.panel-challenges-inactive-note {
-  margin: 0;
-  font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.03em;
-  color: var(--graphite-soft);
-  text-align: right;
-}
-
-/* --- Ações como links editoriais ---------------------- */
-.panel-challenges-action {
-  padding: 3px 2px;
-  border: 0;
-  background: none;
-  font-family: var(--font-label);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: var(--ink-action);
-  text-decoration: underline;
-  text-decoration-color: var(--ink-action-line);
-  text-underline-offset: 4px;
-  cursor: pointer;
-  transition:
-    color var(--dur-fast) var(--ease),
-    text-decoration-color var(--dur-fast) var(--ease);
-}
-
-.panel-challenges-action:hover:not(:disabled) {
-  color: var(--ink-action-hover);
-  text-decoration-color: currentColor;
-}
-
-.panel-challenges-action:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.panel-challenges-action:focus-visible {
-  outline: 2px solid var(--ink-action);
-  outline-offset: 2px;
-}
-
-.panel-challenges-action--primary {
-  font-weight: 600;
-}
-
-.panel-challenges-action--muted {
-  color: var(--graphite-soft);
-  text-decoration-color: var(--border);
-}
-
-.panel-challenges-action--muted:hover:not(:disabled) {
-  color: var(--graphite);
-}
-
-.panel-challenges-action--delete {
-  color: var(--graphite-soft);
-  text-decoration-color: var(--border);
-}
-
-.panel-challenges-action--delete:hover:not(:disabled) {
-  color: var(--danger);
-  text-decoration-color: var(--danger-border);
-}
-
-/* edição inline: um pouco menos de gap que o form de criação */
-.panel-challenges-edit {
-  gap: var(--space-4);
-}
-
-/* --- Responsivo -------------------------------------- */
-@media (max-width: 560px) {
-  .panel-challenges {
-    gap: var(--space-7);
-  }
-  .panel-challenges-list {
-    gap: var(--space-7);
-  }
-  .panel-challenges-submit {
-    align-self: stretch;
-    text-align: center;
-  }
-  .panel-challenges-item-actions {
-    justify-content: flex-start;
-  }
-  .panel-challenges-inactive-note {
-    text-align: left;
   }
 }
 
@@ -8273,75 +7522,6 @@ form.panel-points-form {
   font-weight: 400;
 }
 
-/* --- Conquistas --- */
-.achievements-count {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--olive-text);
-}
-
-.achievements-strip {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.achievement-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--surface-sunken);
-  border: 1px solid var(--border-soft);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--graphite);
-}
-
-.achievement-badge-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.achievement-next {
-  margin-top: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.achievement-next-label {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--graphite);
-}
-
-.achievement-next-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-sunken);
-  overflow: hidden;
-}
-
-.achievement-next-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--ink-action);
-  transition: width 0.4s ease;
-}
-
-.achievement-next-meta {
-  margin: 0;
-  font-size: 11px;
-  color: var(--graphite-soft);
-}
-
 /* --- Trilho direito: resumo Fase 10 --- */
 .rail-summary {
   display: flex;
@@ -8523,8 +7703,7 @@ form.panel-points-form {
   .mood-option--on .mood-option-face,
   .brand-icon-btn:hover .brand-icon,
   .brand-icon,
-  .card--interactive:hover,
-  .achievement-next-fill {
+  .card--interactive:hover {
     transition: none;
     animation: none;
     transform: none;
@@ -8553,9 +7732,8 @@ form.panel-points-form {
   }
 }
 
-/* Desafio e Círculo: cada bloco é um card completo — abriga o conteúdo
-   E as ações/formulários irmãos numa só composição, sem fragmentar. */
-.challenge-block,
+/* Círculo: o bloco é um card completo — abriga o conteúdo E as
+   ações/formulários irmãos numa só composição, sem fragmentar. */
 .circle-block {
   display: flex;
   flex-direction: column;
@@ -8571,121 +7749,6 @@ form.panel-points-form {
   }
 }
 
-/* D2 — trio "Seu desafio" / "Sua jornada" / "Suas conquistas": mesma
-   linguagem de card do resto do app (border/radius/shadow tokens
-   idênticos a .challenge-block), lado a lado sempre que houver espaço
-   (auto-fit — sem breakpoint manual), uma coluna só quando não houver.
-   --flush é para quando o filho (PointsWidget) já é um card completo
-   por si só — a célula vira só um contêiner de grid, sem casco
-   duplicado. */
-.home-trio {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-4);
-  align-items: start;
-}
-
-.home-trio-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5) 0 0;
-  border: 0;
-  border-top: 1px solid var(--circula-champagne-line);
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  min-width: 0;
-}
-
-.home-trio-card-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 17px;
-  color: var(--circula-mocha, var(--graphite));
-}
-
-/* "Suas conquistas" (AchievementsStrip) traz o próprio <h3
-   className="home-section-title">; dentro do trio, ele some como
-   eyebrow genérico e passa a ler como manchete, igual às duas colunas
-   vizinhas — mesmo tamanho/peso de .home-trio-card-title. */
-.home-trio-card .home-section-title {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--circula-mocha, var(--graphite));
-}
-
-.home-trio-card .empty-state {
-  color: var(--circula-taupe, var(--graphite-soft));
-}
-
-.home-trio-card .empty-state svg {
-  color: var(--circula-champagne);
-}
-
-/* PointsWidget ("Sua jornada") dentro do trio perde o próprio casco de
-   card — o hairline do trio já faz essa função — e troca os acentos
-   para a paleta Círcula. */
-.home-trio-card .points-widget {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.home-trio-card .points-widget-icon {
-  background-color: var(--circula-champagne-tint);
-  color: var(--circula-mocha);
-}
-
-.home-trio-card .points-widget-title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 17px;
-  color: var(--circula-mocha);
-}
-
-.home-trio-card .points-widget-sub {
-  color: var(--circula-taupe);
-}
-
-.home-trio-card .points-balance-value {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(22px, 2.4vw, 28px);
-  color: var(--circula-mocha);
-}
-
-.home-trio-card .points-balance--muted .points-balance-value {
-  color: var(--circula-taupe);
-}
-
-.home-trio-card .points-balance-label {
-  color: var(--circula-taupe);
-}
-
-.home-trio-card .points-entry-amount {
-  color: var(--circula-mocha);
-}
-
-/* Selo de conquista — mesma tinta champagne/mocha do resto da Home em
-   vez do véu neutro legado. */
-.home-trio-card .achievements-count {
-  color: var(--circula-taupe);
-}
-
-.home-trio-card .achievement-badge {
-  background-color: var(--circula-champagne-tint);
-  border-color: var(--circula-champagne-line);
-  color: var(--circula-mocha);
-}
-
-.challenge-edit-form,
 .circle-edit-form {
   display: flex;
   flex-direction: column;
@@ -8719,18 +7782,10 @@ form.panel-points-form {
   }
 }
 
-.challenge-inactive-note {
-  margin: 0;
-  font-size: 12px;
-  color: var(--graphite-soft);
-  font-style: italic;
-}
-
-.challenge-card,
 .circle-card {
-  /* Conteúdo do card. O casco completo agora é .challenge-block /
-     .circle-block (que também abriga ações e formulários). Aqui só a
-     composição interna: título > descrição > progresso > ações. */
+  /* Conteúdo do card. O casco completo agora é .circle-block (que
+     também abriga ações e formulários). Aqui só a composição interna:
+     título > descrição > progresso > ações. */
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -8738,94 +7793,6 @@ form.panel-points-form {
   h3 {
     margin: 0;
   }
-}
-
-/* --- Desafio: cabeçalho + anel de progresso real ---------------- */
-.challenge-card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.challenge-card-heading {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.challenge-ring {
-  position: relative;
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-}
-
-.challenge-ring-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.challenge-ring-track {
-  fill: none;
-  stroke: var(--rose-100);
-  stroke-width: 4;
-}
-
-.challenge-ring-fill {
-  fill: none;
-  stroke: var(--olive);
-  stroke-width: 4;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.45s ease;
-}
-
-.challenge-ring-value {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--olive-text);
-}
-
-/* --- Desafio: "Dia X de Y" + atividade de hoje, em evidência --- */
-.challenge-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: var(--space-3);
-  border-radius: var(--card-radius-sm);
-  background-color: var(--surface-sunken);
-}
-
-/* --- Desafio: trilha de dias, elevada ------------------------- */
-.challenge-track {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.challenge-track-label {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--olive-text);
-}
-
-.challenge-card-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border-soft);
 }
 
 /* --- Círculo: linha limpa com pilha de avatares reais --------- */
@@ -8905,7 +7872,6 @@ form.panel-points-form {
   color: var(--graphite-soft);
 }
 
-.challenge-card > button,
 .circle-card > button {
   /* variação de .btn-primary — inline, alinhado à esquerda no card */
   font: inherit;
@@ -8954,122 +7920,6 @@ form.panel-points-form {
     box-shadow: none;
     transform: none;
   }
-}
-
-.challenge-description {
-  margin: 0;
-  font-size: 14px;
-  color: var(--graphite-soft);
-}
-
-.challenge-day-indicator {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--graphite-soft);
-}
-
-.challenge-day-current {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 17px;
-  color: var(--graphite);
-}
-
-.challenge-today-activity {
-  margin: 0;
-  font-family: var(--font-display);
-  color: var(--graphite);
-  font-size: 16px;
-}
-
-.challenge-stats {
-  margin: 0;
-  font-size: 13px;
-  color: var(--graphite-soft);
-}
-
-/* Trilha de dias em folha — assinatura visual do desafio: broto (bloqueado),
-   folha em destaque (hoje), folha aberta preenchida (concluído). */
-.challenge-day-track {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin-top: 4px;
-}
-
-.challenge-day-mark {
-  font: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  width: auto;
-  min-width: 42px;
-  padding: 7px 6px;
-  margin: 0;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background-color: var(--surface);
-  color: var(--graphite-soft);
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    transform 0.1s ease;
-
-  &:hover:not(:disabled) {
-    border-color: var(--olive-border);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--olive);
-    outline-offset: 2px;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-}
-
-.challenge-day-mark-label {
-  font-size: 10.5px;
-  letter-spacing: 0.02em;
-}
-
-@media (pointer: coarse) {
-  .challenge-day-mark {
-    min-height: 44px;
-  }
-}
-
-/* Estados: pendente (base), concluído (folha cheia), bloqueado (fio
-   tracejado esmaecido), atual (anel de acento — sobrevive a qualquer
-   fundo, então "hoje" continua lendo como hoje mesmo se concluído). */
-.challenge-day-mark--completed {
-  color: var(--leaf-text);
-  border-color: var(--leaf-soft);
-  background-color: var(--leaf-soft);
-}
-
-.challenge-day-mark--locked {
-  color: var(--graphite-soft);
-  border-style: dashed;
-  background-color: transparent;
-  opacity: 0.55;
-}
-
-.challenge-day-mark--today {
-  color: var(--olive-text);
-  border-color: var(--olive);
-  box-shadow: 0 0 0 1px var(--olive);
-  font-weight: 500;
 }
 
 /* ===== Círculos ===== */
@@ -10759,13 +9609,10 @@ form.panel-points-form {
 .community-card form > button[type='button']:not(.auth-link),
 .community-card > button[type='button']:not(.auth-link),
 .comment-form button,
-.challenge-card > button,
 .circle-card > button,
 .checkin-share-prompt > button,
 .checkin-share-choice button:not(.auth-link),
 .question-item-actions button,
-.challenge-item-actions button,
-.challenge-form-actions button,
 .interest-input-row button,
 .metrics-period-button,
 .checkin-mood-button,
@@ -10913,8 +9760,7 @@ form.panel-points-form {
     gap: 8px;
   }
 
-  /* Desafios e Círculos: blocos agora são cards — respiro pleno. */
-  .challenge-manager,
+  /* Círculos: o bloco agora é card — respiro pleno. */
   .circle-manager {
     gap: var(--space-4);
   }
@@ -14048,7 +12894,6 @@ form.panel-points-form {
 .card:hover,
 .community-card:hover,
 .post-card:hover,
-.challenge-card:hover,
 .product-card:hover,
 .event-card:hover,
 .master-community-card:hover,
@@ -14141,13 +12986,6 @@ button.card:active {
     font-size: 10.5px;
     letter-spacing: -0.01em;
   }
-}
-
-/* ---- Acento azul-pérola: uso comedido em selos de informação ------ */
-.achievement-badge {
-  background-color: var(--sky-bg);
-  border-color: var(--sky-border);
-  color: var(--sky-text);
 }
 
 .home-community-count {
@@ -14257,7 +13095,6 @@ button.card:focus-visible {
   .dashboard-main .home-community-header,
   .dashboard-main .home-circle-row,
   .dashboard-main .home-card-stack,
-  .dashboard-main .challenge-block,
   .dashboard-main .mood-card {
     max-width: none;
   }
@@ -14382,127 +13219,6 @@ button.card:focus-visible {
 .home-highlight-section .post-card:last-child {
   padding-bottom: 0;
   border-bottom: 0;
-}
-
-/* "Seu desafio" — mesmo tratamento editorial de "Atividade recente" e
-   HomeHighlights: fio champagne hairline no topo (sem caixa envolvendo
-   a seção), título vira manchete Mitr Light em Mocha. Escopo estrito a
-   .home-challenge-section — o ChallengeCard (.challenge-block/
-   .challenge-card) não é tocado, nem aqui nem globalmente; ele segue
-   com o próprio casco de card, igual ao Painel e a qualquer outro
-   lugar em que é reaproveitado. */
-.home-challenge-section {
-  padding-top: var(--space-6);
-  border-top: 1px solid var(--circula-champagne-line);
-  gap: var(--space-4);
-}
-
-.home-challenge-section .home-section-title {
-  font-family: var(--font-display);
-  font-weight: var(--display-weight);
-  font-size: clamp(20px, 2.4vw, 26px);
-  line-height: 1.15;
-  letter-spacing: var(--tracking-display);
-  text-transform: none;
-  color: var(--circula-mocha);
-}
-
-.home-challenge-section .home-muted,
-.home-challenge-section .empty-state {
-  color: var(--circula-taupe);
-}
-
-.home-challenge-section .empty-state svg {
-  color: var(--circula-champagne);
-}
-
-/* "Sua jornada" — mesma linguagem editorial: fio champagne no topo,
-   eyebrow Jost/Taupe (como "Resumo do dia" e "Atalhos") em vez de
-   manchete, já que PointsWidget/AchievementsStrip são blocos de dado
-   curto, não conteúdo rico. Escopo estrito a .home-jornada:
-   PointsWidget e AchievementsStrip continuam sendo os MESMOS
-   componentes (mesmos hooks/dados/handlers) em qualquer outra tela
-   (ex.: MemberCommunityCard) — lá seguem com o casco de card padrão,
-   intocado. Aqui só perdem a caixa/sombra de dashboard e trocam os
-   acentos fora da paleta (olive/sky) por mocha/taupe/champagne. */
-.home-jornada {
-  padding-top: var(--space-6);
-  border-top: 1px solid var(--circula-champagne-line);
-  gap: var(--space-4);
-}
-
-.home-jornada-eyebrow {
-  margin: 0;
-  font-family: var(--font-label);
-  font-size: var(--eyebrow-size);
-  font-weight: var(--eyebrow-weight);
-  letter-spacing: var(--eyebrow-tracking);
-  text-transform: uppercase;
-  color: var(--circula-taupe);
-}
-
-.home-jornada .points-widget {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.home-jornada .points-widget-icon {
-  background-color: var(--circula-champagne-tint);
-  color: var(--circula-mocha);
-}
-
-.home-jornada .points-widget-title {
-  color: var(--circula-mocha);
-}
-
-.home-jornada .points-widget-sub {
-  color: var(--circula-taupe);
-}
-
-.home-jornada .points-balance-value {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(22px, 2.4vw, 30px);
-  color: var(--circula-mocha);
-}
-
-.home-jornada .points-balance--muted .points-balance-value {
-  color: var(--circula-taupe);
-}
-
-.home-jornada .points-balance-label {
-  color: var(--circula-taupe);
-}
-
-.home-jornada .points-entry-amount {
-  color: var(--circula-mocha);
-}
-
-/* Respiro extra entre o bloco de pontos e as conquistas — além do gap
-   base de .home-jornada. */
-.home-jornada .achievements-section {
-  margin-top: var(--space-4);
-}
-
-.home-jornada .home-section-title {
-  color: var(--circula-taupe);
-}
-
-.home-jornada .achievements-count {
-  color: var(--circula-taupe);
-}
-
-.home-jornada .achievement-badge {
-  background-color: var(--circula-champagne-tint);
-  border-color: var(--circula-champagne-line);
-  color: var(--circula-mocha);
-}
-
-.home-jornada .achievement-next-fill {
-  background: var(--circula-mocha);
 }
 
 /* "Como você está hoje?" (DailyMoodCard) — era o elemento mais
@@ -15046,19 +13762,6 @@ button.card:focus-visible {
 
 .exp-card--photo.exp-card:focus-visible .exp-card-frame {
   outline-color: var(--c-white);
-}
-
-/* alvos de rolagem das experiencias sem rota propria */
-#home-desafios,
-#home-jornada {
-  scroll-margin-top: var(--space-8);
-}
-
-.home-jornada {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-  min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

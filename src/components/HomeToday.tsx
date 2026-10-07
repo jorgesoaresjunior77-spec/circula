@@ -4,7 +4,6 @@ import type { CommunityWithMembers } from '../types/community'
 import type { HomeActivityItem } from '../types/home'
 import type { NavKey } from './PrimaryNav'
 import { useCircles } from '../hooks/useCircles'
-import { useChallenges } from '../hooks/useChallenges'
 import { usePosts } from '../hooks/usePosts'
 import { useContent } from '../hooks/useContent'
 import { useHomeToday } from '../hooks/useHomeToday'
@@ -12,13 +11,10 @@ import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
-import { ChallengeCard } from './ChallengeCard'
 import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
-import { PointsWidget } from './PointsWidget'
-import { AchievementsStrip } from './AchievementsStrip'
 import { EmptyState } from './EmptyState'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { CommentIcon, HeartIcon, CirclesIcon } from './icons'
@@ -30,9 +26,8 @@ import { CommentIcon, HeartIcon, CirclesIcon } from './icons'
 // Composição visual guiada pelas referências em
 // identidadevisual/ExemplosPainel/ (phone 1 da imagem 1 e painel
 // central da imagem 2). Lógica e dados inalterados: mesmos hooks
-// (useCircles / useChallenges / useHomeToday), mesmas condições, mesmo
-// ChallengeCard reutilizado. Não toca no Feed, comunidades, círculos,
-// produtos, checkout ou billing.
+// (useCircles / useHomeToday), mesmas condições. Não toca no Feed,
+// comunidades, círculos, produtos, checkout ou billing.
 
 interface HomeTodayProps {
   profile: Profile
@@ -57,13 +52,11 @@ interface HomeTodayProps {
    */
   coverHero?: boolean
   /**
-   * C2 — resumo leve já calculado pelo Dashboard (useRailSummary): saldo
-   * de pontos, nº de conquistas e o próximo evento. Alimenta a faixa
-   * editorial de experiências sem nenhuma consulta nova aqui.
+   * C2 — resumo leve já calculado pelo Dashboard (useRailSummary): o
+   * próximo evento. Alimenta a faixa editorial de experiências sem
+   * nenhuma consulta nova aqui.
    */
   railSummary?: {
-    pointsBalance: number
-    achievementsCount: number
     nextEvent: { id: string; title: string; starts_at: string } | null
   } | null
 }
@@ -136,8 +129,6 @@ export function HomeToday({
   // Feed nunca montam ao mesmo tempo.
   const postsApi = usePosts(communityId, profile.id)
 
-  const challenges = useChallenges(communityId, profile.id)
-
   // C4.1 — "No Instagram": publicações que a comunidade cadastrou como
   // community_content com link do Instagram + capa. useContent já existe
   // (não é hook novo); a HomeExperienceStrip recebe a lista filtrada e
@@ -153,32 +144,21 @@ export function HomeToday({
   // mantém o fallback editorial atual. Não muda a origem dos dados.
   const { images: cardImagePaths } = useCommunityCardImages(communityId)
   const { url: cardCoverHoje } = useSignedImageUrl(cardImagePaths.hoje ?? null)
-  const { url: cardCoverDesafios } = useSignedImageUrl(cardImagePaths.desafios ?? null)
   const { url: cardCoverEventos } = useSignedImageUrl(cardImagePaths.eventos ?? null)
   const { url: cardCoverComunidade } = useSignedImageUrl(
     cardImagePaths.comunidade ?? null,
   )
-  const { url: cardCoverJornada } = useSignedImageUrl(cardImagePaths.jornada ?? null)
   const { url: cardCoverInstagram } = useSignedImageUrl(
     cardImagePaths.instagram ?? null,
   )
   const cardCovers = useMemo(
     () => ({
       hoje: cardCoverHoje,
-      desafios: cardCoverDesafios,
       eventos: cardCoverEventos,
       comunidade: cardCoverComunidade,
-      jornada: cardCoverJornada,
       instagram: cardCoverInstagram,
     }),
-    [
-      cardCoverHoje,
-      cardCoverDesafios,
-      cardCoverEventos,
-      cardCoverComunidade,
-      cardCoverJornada,
-      cardCoverInstagram,
-    ],
+    [cardCoverHoje, cardCoverEventos, cardCoverComunidade, cardCoverInstagram],
   )
 
   const myCircles = useMemo(
@@ -238,15 +218,6 @@ export function HomeToday({
     )
   }
 
-  // --- Desafio em foco -------------------------------------------
-  const activeChallenges = challenges.challenges.filter(
-    (challenge) => challenge.is_active && challenge.activities.length > 0,
-  )
-  const pickedChallenge =
-    activeChallenges.find((challenge) => challenges.myParticipation.has(challenge.id)) ??
-    activeChallenges[0] ??
-    null
-
   return (
     <div className="home">
       {greeting}
@@ -271,18 +242,9 @@ export function HomeToday({
           em "No Instagram", abrir a tela editorial no app — C4.1). */}
       <HomeExperienceStrip
         summary={summary}
-        pickedChallenge={pickedChallenge}
         nextEvent={railSummary?.nextEvent ?? null}
         newPosts={summary.newPosts}
         hasPosts={postsApi.posts.length > 0}
-        journey={
-          railSummary
-            ? {
-                pointsBalance: railSummary.pointsBalance,
-                achievementsCount: railSummary.achievementsCount,
-              }
-            : null
-        }
         instagramPosts={instagramPosts}
         cardCovers={cardCovers}
         onNavigate={onNavigate}
@@ -299,59 +261,6 @@ export function HomeToday({
         onJoin={(circleId) => joinCircle(circleId, profile.id)}
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
-
-      {/* D2 — "Seu desafio" / "Sua jornada" / "Suas conquistas" como um
-          trio de cards editoriais (mesma linguagem visual dos cards de
-          Círculo: bordas arredondadas, espaçamento consistente, a
-          informação já visível no próprio card — nada que exija abrir
-          outra tela só para entender o estado atual). Lado a lado
-          sempre que houver espaço (auto-fit), empilha naturalmente no
-          mobile/tablet. IDs preservados para o scroll da faixa
-          "Círcula Hoje" (home-desafios / home-jornada). "Resumo do
-          dia" não existe mais — o estado de cada área já está em cada
-          card. */}
-      <div className="home-trio">
-        <div id="home-desafios" className="home-trio-card">
-          <h3 className="home-trio-card-title">Seu desafio</h3>
-          {pickedChallenge ? (
-            <ChallengeCard
-              challenge={pickedChallenge}
-              currentDay={challenges.currentDays[pickedChallenge.id] ?? 1}
-              participantCount={challenges.participantCounts[pickedChallenge.id] ?? 0}
-              todayCompletedCount={challenges.todayCompletedCounts[pickedChallenge.id] ?? 0}
-              isParticipating={challenges.myParticipation.has(pickedChallenge.id)}
-              isCompleted={challenges.myCompletions.has(pickedChallenge.id)}
-              canParticipate
-              profileId={profile.id}
-              commentCount={challenges.commentCounts[pickedChallenge.id] ?? 0}
-              comments={challenges.commentsByChallenge[pickedChallenge.id]}
-              onJoin={() => challenges.joinChallenge(pickedChallenge.id, profile.id)}
-              onProgressChange={() => challenges.refreshCounts(pickedChallenge.id)}
-              onCompletionChange={() => challenges.refreshCompletions(pickedChallenge.id)}
-              onOpenComments={() => challenges.fetchComments(pickedChallenge.id)}
-              onAddComment={(content) =>
-                challenges.addComment(pickedChallenge.id, profile.id, content)
-              }
-            />
-          ) : challenges.loading ? (
-            <p className="home-muted">Carregando desafio...</p>
-          ) : (
-            <EmptyState message="Nenhum desafio ativo agora." />
-          )}
-        </div>
-
-        <div id="home-jornada" className="home-trio-card home-trio-card--flush">
-          <PointsWidget
-            communityId={focusCommunity.id}
-            communityName={focusCommunity.name}
-            profileId={profile.id}
-          />
-        </div>
-
-        <div className="home-trio-card">
-          <AchievementsStrip communityId={focusCommunity.id} profileId={profile.id} />
-        </div>
-      </div>
 
       {/* D1 — "Destaques de hoje" (pergunta/comando/check-in/eventos/
           conteúdo) saiu da Home. Só "Publicações recentes" continua. */}

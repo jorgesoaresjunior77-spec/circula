@@ -74,12 +74,6 @@ function CommunityCard({ community }: { community: PlatformCommunity }) {
           <span className="master-figure">
             <strong>{community.posts_30d}</strong> posts (30d)
           </span>
-          <span className="master-figure">
-            <strong>{community.challenge_completions_30d}</strong> conclusões (30d)
-          </span>
-          <span className="master-figure">
-            <strong>{community.points_30d}</strong> pontos (30d)
-          </span>
         </div>
       </div>
     </article>

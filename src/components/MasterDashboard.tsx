@@ -61,26 +61,12 @@ export function MasterDashboard({ overview, loading, error }: MasterDashboardPro
     {
       title: 'Engajamento',
       tiles: [
-        { label: 'Desafios', value: o.challenges_total, hint: `${o.challenges_active} ativos` },
-        {
-          label: 'Conclusões de desafio',
-          value: o.challenge_completions_total,
-          hint: `${o.challenge_completions_30d} nos 30d`,
-        },
-        { label: 'Dias de desafio marcados', value: o.challenge_days_done_total },
         { label: 'Respostas de check-in', value: o.checkin_responses_total },
         {
           label: 'Momentos de alegria',
           value: o.joy_moments_total,
           hint: `${o.joy_moments_30d} nos 30d`,
         },
-      ],
-    },
-    {
-      title: 'Pontos (agregado)',
-      tiles: [
-        { label: 'Distribuídos (total)', value: o.points_distributed_total },
-        { label: 'Distribuídos (30d)', value: o.points_distributed_30d },
       ],
     },
   ]

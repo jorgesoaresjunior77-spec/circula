@@ -22,7 +22,6 @@ const OVERVIEW_LABELS: { key: keyof ProfileOverview; label: string }[] = [
   { key: 'posts', label: 'publicações' },
   { key: 'comments', label: 'comentários' },
   { key: 'circles', label: 'círculos' },
-  { key: 'challenges', label: 'desafios' },
   { key: 'content', label: 'conteúdos' },
   { key: 'events', label: 'eventos' },
 ]

@@ -25,8 +25,7 @@ function activityLabel(iso: string | null): string {
 
 /**
  * Linha editorial plana (redesign): avatar circular + nome com hierarquia
- * (Mitr), metadados discretos (Jost) e pontos/desafios/dias em linha, com
- * os números em Mitr. Sem caixa, sem borda, sem sombra. Nenhum dado mudou.
+ * (Mitr) e metadados discretos (Jost). Sem caixa, sem borda, sem sombra.
  */
 function ParticipantRow({ participant }: { participant: ParticipantOverview }) {
   const name = participant.full_name ?? 'Participante'
@@ -44,18 +43,6 @@ function ParticipantRow({ participant }: { participant: ParticipantOverview }) {
         <p className="panel-members-meta">
           Participa desde {joinedLabel(participant.joined_at)} ·{' '}
           {activityLabel(participant.last_activity_at)}
-        </p>
-        <p className="panel-members-figures">
-          <span>
-            <span className="panel-members-figure-num">{participant.balance}</span> pontos
-          </span>
-          <span>
-            <span className="panel-members-figure-num">{participant.challenges_completed}</span>{' '}
-            desafios
-          </span>
-          <span>
-            <span className="panel-members-figure-num">{participant.challenge_days_done}</span> dias
-          </span>
         </p>
       </div>
     </article>

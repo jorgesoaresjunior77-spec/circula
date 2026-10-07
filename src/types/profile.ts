@@ -21,7 +21,6 @@ export interface ProfileOverview {
   posts: number
   comments: number
   circles: number
-  challenges: number
   content: number
   events: number
 }

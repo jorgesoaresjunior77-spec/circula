@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { useAchievements } from './useAchievements'
 
-// Fase 10 — resumo leve para o trilho direito da Home (>= 1280px).
-// Reaproveita useAchievements (saldo de pontos + nº de conquistas) e
-// acrescenta só o PRÓXIMO evento. Sem migration, sem RPC, read-only.
-// useRailSummary(null) não busca.
+// Fase 10 — resumo leve para a Home: só o PRÓXIMO evento. Sem migration,
+// sem RPC, read-only. useRailSummary(null) não busca.
+//
+// Saldo de pontos e nº de conquistas saíram daqui junto com a remoção
+// das funcionalidades de Pontos/Conquistas (Etapa A) — o hook mantém o
+// nome para minimizar o diff nos chamadores (Dashboard.tsx/HomeToday.tsx),
+// mas agora só cobre o próximo evento, que não pertence a nenhuma das
+// três funcionalidades removidas.
 
 interface NextEvent {
   id: string
@@ -14,15 +17,11 @@ interface NextEvent {
 }
 
 export function useRailSummary(communityId: string | null, profileId: string | null) {
-  const { unlockedCount, pointsBalance, loading: achLoading } = useAchievements(
-    communityId,
-    profileId,
-  )
   const [nextEvent, setNextEvent] = useState<NextEvent | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchNextEvent = useCallback(async () => {
-    if (!communityId) {
+    if (!communityId || !profileId) {
       setNextEvent(null)
       setLoading(false)
       return
@@ -42,16 +41,14 @@ export function useRailSummary(communityId: string | null, profileId: string | n
 
     setNextEvent((data as NextEvent | null) ?? null)
     setLoading(false)
-  }, [communityId])
+  }, [communityId, profileId])
 
   useEffect(() => {
     fetchNextEvent()
   }, [fetchNextEvent])
 
   return {
-    pointsBalance,
-    achievementsCount: unlockedCount,
     nextEvent,
-    loading: loading || achLoading,
+    loading,
   }
 }
