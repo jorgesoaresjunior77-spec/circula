@@ -8058,32 +8058,15 @@ form.panel-points-form {
   left: 0;
   right: 0;
   bottom: 0;
-  /* Painel mais baixo, colado na base (justify-content: flex-end): o
-     degradê começa bem perto do rodapé da foto e some rápido, pra
-     escurecer só a faixa onde o texto precisa de contraste — a
-     fotografia fica preservada no resto da capa. */
+  /* Painel colado na base (justify-content: flex-end) — só posiciona o
+     texto; sem scrim/blur atrás (nem em hover): a fotografia fica
+     limpa e o contraste vem do text-shadow abaixo. */
   min-height: 32%;
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   gap: 4px;
-  background-image: linear-gradient(
-    0deg,
-    rgba(14, 10, 9, 0.4) 0%,
-    rgba(14, 10, 9, 0.22) 36%,
-    rgba(14, 10, 9, 0.06) 68%,
-    rgba(14, 10, 9, 0) 100%
-  );
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  -webkit-mask-image: linear-gradient(0deg, #000 52%, transparent 100%);
-  mask-image: linear-gradient(0deg, #000 52%, transparent 100%);
-  transition: background-color var(--dur) var(--ease);
-}
-
-.home-community-header--glass:hover .home-community-glass {
-  background-color: rgba(8, 6, 5, 0.6);
 }
 
 .home-community-header--glass .home-community-eyebrow,
@@ -8091,20 +8074,14 @@ form.panel-points-form {
 .home-community-header--glass .home-community-meta,
 .home-community-header--glass .home-community-owner {
   color: var(--c-white, #fff);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
-}
-
-.home-community-header--glass .home-community-eyebrow {
-  /* Ajuste de contraste — o eyebrow é o texto mais discreto do bloco
-     (menor, maiúsculas, já "quieto" por natureza), então é o primeiro a
-     perder legibilidade sobre um trecho claro da foto. Sombra em duas
-     camadas (uma justa e mais opaca pra contorno, outra difusa pra não
-     parecer recortada) em vez de opacidade reduzida ou uma caixa —
-     mantém a leveza do glassmorphism sem virar botão/chip. */
-  opacity: 1;
+  /* Sem scrim atrás do texto — duas camadas: uma justa e mais opaca
+     pra separar a letra da foto, outra bem mais difusa e fraca só pra
+     suavizar a borda (sem virar contorno grosso nem glow). Tom quente
+     (mesmo rgba do scrim que esta capa usava antes), não preto puro —
+     consistente com a paleta editorial do resto do app. */
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.55),
-    0 1px 10px rgba(0, 0, 0, 0.35);
+    0 1px 2px rgba(14, 10, 9, 0.5),
+    0 2px 8px rgba(14, 10, 9, 0.3);
 }
 
 .home-community-header--glass .home-community-count,
