@@ -12721,6 +12721,28 @@ button.card:active {
   gap: var(--space-6);
 }
 
+/* AJUSTE VISUAL — no mobile, só no Início (única tela com a capa
+   cobrindo o topo): o conjunto capa → pílula "Menu" → "Boa tarde"
+   somava ~112px de vão (gap do shell duas vezes + padding da pílula).
+   Aproxima sem reduzir a área de toque da pílula (mantém 44px) e sem
+   tocar as outras telas (sem capa, o :has() não bate). */
+@media (max-width: 1023px) {
+  .dashboard:has(.dashboard-community-cover) .topnav {
+    margin-top: calc(-1 * var(--space-2));
+    margin-bottom: calc(-1 * var(--space-2));
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+  }
+
+  /* Mesma lógica para "Boa tarde, Nutri" → cards: o gap uniforme do
+     .home (56px no mobile) ficava longo demais logo após o título;
+     aproxima só esse vão, sem alterar o respiro entre as demais
+     seções da Home. */
+  .home-greeting {
+    margin-bottom: calc(-1 * var(--space-6));
+  }
+}
+
 /* ---- Foco de teclado visível e consistente em elementos novos ---- */
 .card--interactive:focus-visible,
 a.card:focus-visible,
@@ -13306,6 +13328,33 @@ button.card:focus-visible {
   to {
     transform: translate3d(-50%, 0, 0);
   }
+}
+
+/* AJUSTE VISUAL — com só 3–4 experiências reais (bem menos do que o
+   marquee foi pensado para rolar), a sequência cabia inteira na
+   viewport e a trilha ficava encostada à esquerda, sobrando um vão
+   vazio grande à direita (também visível ao emular mobile mantendo o
+   mouse, já que o marquee só depende de pointer:fine). Sem tocar o
+   componente: a animação para, a 2ª sequência (clone aria-hidden, só
+   existia para o loop) fica oculta, e os cards — do mesmo tamanho de
+   sempre — se distribuem por toda a largura disponível. Se não
+   couberem, a rolagem horizontal já existente assume. */
+.exp-viewport--marquee {
+  overflow-x: auto;
+}
+
+.exp-viewport--marquee .exp-track {
+  animation: none;
+  width: 100%;
+}
+
+.exp-viewport--marquee .exp-seq[aria-hidden='true'] {
+  display: none;
+}
+
+.exp-viewport--marquee .exp-seq:not([aria-hidden]) {
+  width: 100%;
+  justify-content: space-evenly;
 }
 
 .exp-card-item {
