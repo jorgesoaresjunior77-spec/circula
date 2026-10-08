@@ -44,12 +44,6 @@ select pg_temp.expect_count('master: NÃO lê community_content',
 select pg_temp.expect_count('master: NÃO lê joy_moments',
   pg_temp.fx('master'), 'select count(*) from public.joy_moments', 0);
 
-select pg_temp.expect_count('master: NÃO lê challenge_progress',
-  pg_temp.fx('master'), 'select count(*) from public.challenge_progress', 0);
-
-select pg_temp.expect_count('master: NÃO lê challenge_completions',
-  pg_temp.fx('master'), 'select count(*) from public.challenge_completions', 0);
-
 select pg_temp.expect_bool('master: can_view_post(postA) = false',
   pg_temp.fx('master'),
   format('select public.can_view_post(%L)', pg_temp.fx('postA')), false);
@@ -65,8 +59,6 @@ select pg_temp.expect_count('master: NÃO lê checkin_responses',
   pg_temp.fx('master'), 'select count(*) from public.checkin_responses', 0);
 select pg_temp.expect_count('master: NÃO lê help_requests',
   pg_temp.fx('master'), 'select count(*) from public.help_requests', 0);
-select pg_temp.expect_count('master: NÃO lê point_ledger',
-  pg_temp.fx('master'), 'select count(*) from public.point_ledger', 0);
 select pg_temp.expect_count('master: NÃO lê messages',
   pg_temp.fx('master'), 'select count(*) from public.messages', 0);
 

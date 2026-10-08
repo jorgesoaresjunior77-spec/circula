@@ -22,7 +22,6 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   post_reaction: 'comunidades',
   circle_join: 'circulos',
   event_rsvp: 'eventos',
-  challenge_comment: 'inicio',
   direct_message: 'mensagens',
   // 16.2.4-A — ciclo de entrada de membros.
   // A solicitação vai para a dona (Painel → Participantes / "Precisa de

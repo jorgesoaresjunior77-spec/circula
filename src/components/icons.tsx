@@ -201,35 +201,6 @@ export function UserIcon({ size = 20, className }: IconProps) {
   )
 }
 
-/** Marcador de dia em forma de folha — trilha de progresso de desafios. */
-export function LeafDayMark({ size = 22, state }: { size?: number; state: 'locked' | 'today' | 'completed' }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      opacity={state === 'locked' ? 0.4 : 1}
-    >
-      <g transform="rotate(-45 12 12)">
-        <ellipse
-          cx="12"
-          cy="12"
-          rx="8.4"
-          ry="5"
-          stroke="currentColor"
-          strokeWidth={state === 'today' ? 1.7 : 1.35}
-          fill={state === 'completed' ? 'currentColor' : 'none'}
-          fillOpacity={state === 'completed' ? 0.3 : 0}
-        />
-        <path d="M4 12h16" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-      </g>
-    </svg>
-  )
-}
-
 // SALVOS — mesmo padrão do HeartIcon: caminho sempre presente,
 // preenchimento controlado por --bookmark-fill-opacity via CSS.
 export function BookmarkIcon({ size = 17, className }: IconProps) {

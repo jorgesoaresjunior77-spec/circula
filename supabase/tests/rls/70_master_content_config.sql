@@ -42,9 +42,6 @@ insert into public.community_questions (id, community_id, content, created_by)
 values ('daaaaaaa-0000-4000-8000-00000000a008', pg_temp.fx('commA'), '[rls-suite] pergunta A', pg_temp.fx('prof'));
 
 -- ---------- fixtures em B (sintética, alheia ao Master) ---------------
-insert into public.community_challenges (id, community_id, created_by, title, starts_on, ends_on)
-values ('deeeeeee-0000-4000-8000-00000000b001', pg_temp.fx('commB'), pg_temp.fx('member'), '[rls-suite] desafio B', current_date, current_date + 7);
-
 insert into public.community_circles (id, community_id, name, created_by)
 values ('deeeeeee-0000-4000-8000-00000000b002', pg_temp.fx('commB'), '[rls-suite] Circulo B', pg_temp.fx('member'));
 
@@ -75,16 +72,7 @@ values ('deeeeeee-0000-4000-8000-00000000b010', pg_temp.fx('commB'), '[rls-suite
 insert into public.community_content (id, community_id, created_by, type, title, status)
 values ('deeeeeee-0000-4000-8000-00000000b011', pg_temp.fx('commB'), pg_temp.fx('member'), 'article', '[rls-suite] conteudo B', 'published');
 
--- ---------- dependentes de B (para as 6 policies via can_view_*) ------
-insert into public.challenge_participants (challenge_id, profile_id)
-values ('deeeeeee-0000-4000-8000-00000000b001', pg_temp.fx('member'));
-
-insert into public.challenge_comments (challenge_id, author_id, content)
-values ('deeeeeee-0000-4000-8000-00000000b001', pg_temp.fx('member'), '[rls-suite] comentario desafio B');
-
-insert into public.challenge_activities (challenge_id, day_number, content)
-values ('deeeeeee-0000-4000-8000-00000000b001', 1, '[rls-suite] atividade dia 1 B');
-
+-- ---------- dependentes de B (para as policies via can_view_*) --------
 insert into public.circle_members (circle_id, profile_id)
 values ('deeeeeee-0000-4000-8000-00000000b002', pg_temp.fx('member'));
 
@@ -98,8 +86,6 @@ values ('deeeeeee-0000-4000-8000-00000000b007', pg_temp.fx('member'));
 -- 1) Master = 0 acesso nas 9 tabelas de config/conteúdo (comunidade
 --    alheia B) -----------------------------------------------------
 -- =====================================================================
-select pg_temp.expect_count('1: master NAO le community_challenges de B',
-  pg_temp.fx('master'), format('select count(*) from public.community_challenges where community_id=%L', pg_temp.fx('commB')), 0);
 select pg_temp.expect_count('1: master NAO le community_checkins de B',
   pg_temp.fx('master'), format('select count(*) from public.community_checkins where community_id=%L', pg_temp.fx('commB')), 0);
 select pg_temp.expect_count('1: master NAO le checkin_instances de B',
@@ -118,10 +104,8 @@ select pg_temp.expect_count('1: master NAO le engagement_command_instances de B'
   pg_temp.fx('master'), format('select count(*) from public.engagement_command_instances where community_id=%L', pg_temp.fx('commB')), 0);
 
 -- =====================================================================
--- 2-5) can_view_challenge/circle/content/event = false p/ Master em B
+-- 3-5) can_view_circle/content/event = false p/ Master em B
 -- =====================================================================
-select pg_temp.expect_bool('2: can_view_challenge(B) = false p/ master',
-  pg_temp.fx('master'), 'select public.can_view_challenge(''deeeeeee-0000-4000-8000-00000000b001'')', false);
 select pg_temp.expect_bool('3: can_view_circle(B) = false p/ master',
   pg_temp.fx('master'), 'select public.can_view_circle(''deeeeeee-0000-4000-8000-00000000b002'')', false);
 select pg_temp.expect_bool('4: can_view_content(B) = false p/ master',
@@ -132,14 +116,8 @@ select pg_temp.expect_bool('5b: can_view_event(B, rascunho) = false p/ master',
   pg_temp.fx('master'), 'select public.can_view_event(''deeeeeee-0000-4000-8000-00000000b008'')', false);
 
 -- =====================================================================
--- 6) as 6 tabelas dependentes também ficam inacessíveis a Master p/ B
+-- 6) as tabelas dependentes também ficam inacessíveis a Master p/ B
 -- =====================================================================
-select pg_temp.expect_count('6: master NAO le challenge_participants de B',
-  pg_temp.fx('master'), 'select count(*) from public.challenge_participants where challenge_id=''deeeeeee-0000-4000-8000-00000000b001''', 0);
-select pg_temp.expect_count('6: master NAO le challenge_comments de B',
-  pg_temp.fx('master'), 'select count(*) from public.challenge_comments where challenge_id=''deeeeeee-0000-4000-8000-00000000b001''', 0);
-select pg_temp.expect_count('6: master NAO le challenge_activities de B',
-  pg_temp.fx('master'), 'select count(*) from public.challenge_activities where challenge_id=''deeeeeee-0000-4000-8000-00000000b001''', 0);
 select pg_temp.expect_count('6: master NAO le circle_members de B',
   pg_temp.fx('master'), 'select count(*) from public.circle_members where circle_id=''deeeeeee-0000-4000-8000-00000000b002''', 0);
 select pg_temp.expect_count('6: master NAO le content_likes de B',
@@ -166,8 +144,6 @@ select pg_temp.expect_bool('7: member le community_mood_messages reais de A (>=1
   pg_temp.fx('member'), format('select (count(*) >= 1) from public.community_mood_messages where community_id=%L', pg_temp.fx('commA')), true);
 select pg_temp.expect_count('7: member NAO le community_questions de A (nem membro tem essa policy)',
   pg_temp.fx('member'), 'select count(*) from public.community_questions where id=''daaaaaaa-0000-4000-8000-00000000a008''', 0);
-select pg_temp.expect_bool('7: can_view_challenge(A) = true p/ member',
-  pg_temp.fx('member'), format('select public.can_view_challenge(%L)', pg_temp.fx('challA')), true);
 
 -- =====================================================================
 -- 8) Professional (dona real de A) continua funcionando normalmente --

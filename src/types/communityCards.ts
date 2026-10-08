@@ -5,10 +5,8 @@
 
 export type CommunityCardKey =
   | 'hoje'
-  | 'desafios'
   | 'eventos'
   | 'comunidade'
-  | 'jornada'
   | 'instagram'
 
 export interface CommunityCardMeta {
@@ -19,14 +17,8 @@ export interface CommunityCardMeta {
 
 export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
   { key: 'hoje', label: 'Hoje no Círcula', hint: 'A entrada do dia na comunidade.' },
-  { key: 'desafios', label: 'Seus desafios', hint: 'A experiência dos desafios ativos.' },
   { key: 'eventos', label: 'Próximos eventos', hint: 'A agenda da comunidade.' },
   { key: 'comunidade', label: 'Na comunidade', hint: 'O feed e a conversa entre todas.' },
-  {
-    key: 'jornada',
-    label: 'Sua jornada',
-    hint: 'Pontos e conquistas de cada participante.',
-  },
   {
     key: 'instagram',
     label: 'No Instagram',

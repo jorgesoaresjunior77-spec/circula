@@ -43,10 +43,6 @@ select pg_temp.expect_count('member-bloqueado(A): NÃO lê community_content',
   pg_temp.fx('member'),
   format('select count(*) from public.community_content where community_id = %L', pg_temp.fx('commA')), 0);
 
-select pg_temp.expect_count('member-bloqueado(A): NÃO lê challenge (community_challenges)',
-  pg_temp.fx('member'),
-  format('select count(*) from public.community_challenges where community_id = %L', pg_temp.fx('commA')), 0);
-
 select pg_temp.expect_bool('member-bloqueado(A): can_view_post(postA) = false',
   pg_temp.fx('member'),
   format('select public.can_view_post(%L)', pg_temp.fx('postA')), false);

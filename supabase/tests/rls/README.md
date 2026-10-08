@@ -79,10 +79,9 @@ teste, senão `owns_community()` liberaria o acesso).
 ## Tabelas e políticas cobertas
 
 `posts`, `post_comments`, `post_reactions`, `profiles`, `community_members`,
-`community_content`, `joy_moments`, `challenge_progress`,
-`challenge_completions`, `communities`, `community_challenges`,
+`community_content`, `joy_moments`, `communities`,
 `subscriptions`, `daily_mood_entries`, `help_requests`, `saved_items`,
-`checkin_responses`, `point_ledger`, `messages` — SELECT / INSERT /
+`checkin_responses`, `messages` — SELECT / INSERT /
 UPDATE / DELETE conforme aplicável, mais os GRANTs de tabela do role
 `authenticated` (que são a primeira trava, antes da RLS) e as funções
 `SECURITY DEFINER`: `can_view_post`, `owns_community`, `is_master`,

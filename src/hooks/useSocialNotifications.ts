@@ -15,7 +15,7 @@ import type { NotificationResult, SocialNotification } from '../types/notificati
 
 const NOTIFICATION_SELECT =
   `id,profile_id,actor_profile_id,type,title,body,` +
-  `related_post_id,related_comment_id,related_circle_id,related_event_id,related_challenge_id,` +
+  `related_post_id,related_comment_id,related_circle_id,related_event_id,` +
   `related_conversation_id,related_community_id,read_at,created_at,` +
   `actor:profiles!social_notifications_actor_profile_id_fkey(id,full_name,avatar_url)`
 

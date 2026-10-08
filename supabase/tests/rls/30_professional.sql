@@ -28,14 +28,6 @@ select pg_temp.expect_count('prof: SELECT community_members de A (todas)',
   pg_temp.fx('prof'),
   format('select count(*) from public.community_members where community_id = %L', pg_temp.fx('commA')), 2);
 
-select pg_temp.expect_count('prof: SELECT challenge_progress de A (dona vê todos)',
-  pg_temp.fx('prof'),
-  'select count(*) from public.challenge_progress', 5);
-
-select pg_temp.expect_count('prof: SELECT challenge_completions de A (dona vê todos)',
-  pg_temp.fx('prof'),
-  'select count(*) from public.challenge_completions', 1);
-
 select pg_temp.expect_count('prof: SELECT community_content de A',
   pg_temp.fx('prof'),
   format('select count(*) from public.community_content where community_id = %L', pg_temp.fx('commA')), 2);
@@ -58,11 +50,6 @@ select pg_temp.expect_write('prof: INSERT community_content em A',
 select pg_temp.expect_write('prof: UPDATE community_content de A',
   pg_temp.fx('prof'),
   format('update public.community_content set title = ''x'' where id = %L', pg_temp.fx('contentA')), true);
-
-select pg_temp.expect_write('prof: INSERT challenge em A',
-  pg_temp.fx('prof'),
-  format('insert into public.community_challenges(community_id,created_by,title,starts_on,ends_on) values (%L,%L,%L,current_date,current_date+7)',
-         pg_temp.fx('commA'), pg_temp.fx('prof'), '[rls-suite]'), true);
 
 -- Gestão de membros NÃO é feita por UPDATE direto: o role `authenticated`
 -- não tem GRANT UPDATE/DELETE em community_members (apenas INSERT/SELECT).

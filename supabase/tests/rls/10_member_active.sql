@@ -31,10 +31,6 @@ select pg_temp.expect_count('member-ativo: SELECT community_members (só a próp
   pg_temp.fx('member'),
   'select count(*) from public.community_members', 1);
 
-select pg_temp.expect_count('member-ativo: SELECT challenge_progress próprio',
-  pg_temp.fx('member'),
-  format('select count(*) from public.challenge_progress where profile_id = %L', pg_temp.fx('member')), 2);
-
 select pg_temp.expect_bool('member-ativo: can_view_post(postA) = true',
   pg_temp.fx('member'),
   format('select public.can_view_post(%L)', pg_temp.fx('postA')), true);
@@ -47,10 +43,6 @@ select pg_temp.expect_count('member-ativo: profiles visíveis (próprio + quem c
 select pg_temp.expect_count('member-ativo: NÃO lê daily_mood de terceiros',
   pg_temp.fx('member'),
   format('select count(*) from public.daily_mood_entries where profile_id <> %L', pg_temp.fx('member')), 0);
-
-select pg_temp.expect_count('member-ativo: NÃO lê challenge_progress de terceiros',
-  pg_temp.fx('member'),
-  format('select count(*) from public.challenge_progress where profile_id <> %L', pg_temp.fx('member')), 0);
 
 select pg_temp.expect_count('member-ativo: NÃO lê help_requests privados de terceiros (audience=professional)',
   pg_temp.fx('member'),
@@ -100,11 +92,6 @@ select pg_temp.expect_write('member-ativo: INSERT help_request (próprio, em A)'
   pg_temp.fx('member'),
   format('insert into public.help_requests(community_id,profile_id,audience,body) values (%L,%L,''community'',%L)',
          pg_temp.fx('commA'), pg_temp.fx('member'), '[rls-suite] ajuda'), true);
-
-select pg_temp.expect_write('member-ativo: INSERT challenge_progress próprio (dia 3 <= dia atual)',
-  pg_temp.fx('member'),
-  format('delete from public.challenge_progress where challenge_id=%L and profile_id=%L and day_number=3; insert into public.challenge_progress(challenge_id,profile_id,day_number) values (%L,%L,3)',
-         pg_temp.fx('challA'), pg_temp.fx('member'), pg_temp.fx('challA'), pg_temp.fx('member')), true);
 
 -- ---------- ESCRITA — o que o member ATIVO NÃO PODE fazer -------
 select pg_temp.expect_write('member-ativo: NÃO faz UPDATE de post (nenhuma policy de update)',

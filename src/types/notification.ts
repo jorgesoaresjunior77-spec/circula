@@ -3,7 +3,6 @@ export type SocialNotificationType =
   | 'post_reaction'
   | 'circle_join'
   | 'event_rsvp'
-  | 'challenge_comment'
   | 'direct_message'
   | 'membership_requested'
   | 'membership_approved'
@@ -26,7 +25,6 @@ export interface SocialNotification {
   related_comment_id: string | null
   related_circle_id: string | null
   related_event_id: string | null
-  related_challenge_id: string | null
   related_conversation_id: string | null
   related_community_id: string | null
   read_at: string | null

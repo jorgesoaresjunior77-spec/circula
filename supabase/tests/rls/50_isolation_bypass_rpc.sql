@@ -102,10 +102,6 @@ select pg_temp.expect_write('bypass: member DELETE reação de terceiro -> BLOCK
   pg_temp.fx('member'),
   format('delete from public.post_reactions where profile_id = %L', pg_temp.fx('prof')), false);
 
-select pg_temp.expect_write('bypass: member UPDATE challenge_progress de terceiro -> BLOCKED (sem policy update)',
-  pg_temp.fx('member'),
-  format('update public.challenge_progress set day_number = 1 where profile_id = %L', pg_temp.fx('prof')), false);
-
 select pg_temp.expect_write('bypass: member DELETE saved_items de terceiro -> BLOCKED',
   pg_temp.fx('member'),
   format('delete from public.saved_items where profile_id = %L', pg_temp.fx('prof')), false);
