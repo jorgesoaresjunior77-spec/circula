@@ -109,17 +109,43 @@ export function HomeCirclesSection({
 }: HomeCirclesSectionProps) {
   const trackRef = useRef<HTMLUListElement>(null)
 
-  // Deslize horizontal muito sutil, em vaivém, na linguagem da C2. Pausa
-  // ao interagir (mouse, foco, toque) e com a aba oculta. Desligado em
-  // prefers-reduced-motion e em ponteiro grosso (touch) — aí vale o
-  // swipe/scroll nativo. Sem biblioteca.
+  // Item 7 (ajuste visual) — indicador discreto de que há mais círculos
+  // fora da área visível (degradê na borda direita), independente do
+  // vaivém automático estar ligado: também ajuda quem navega só por
+  // swipe (reduced-motion). Some sozinho ao chegar no fim da faixa.
+  const [hasOverflow, setHasOverflow] = useState(false)
+  const [atEnd, setAtEnd] = useState(false)
+
   useEffect(() => {
     const el = trackRef.current
     if (!el) return
-    if (
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      window.matchMedia('(pointer: coarse)').matches
-    ) {
+    const measure = () => {
+      setHasOverflow(el.scrollWidth > el.clientWidth + 4)
+      setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 4)
+    }
+    measure()
+    const onScroll = () => setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 4)
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      observer.disconnect()
+      el.removeEventListener('scroll', onScroll)
+    }
+  }, [circles.length])
+
+  // Deslize horizontal muito sutil, em vaivém, na linguagem da C2. Pausa
+  // ao interagir (mouse, foco ou toque — Pointer Events cobre os dois) e
+  // com a aba oculta. Desligado em prefers-reduced-motion (aí vale só o
+  // swipe/scroll nativo, que continua disponível). Sem biblioteca.
+  // Item 7 — antes também desligava em `pointer: coarse` (touch); como o
+  // movimento já é feito via `scrollLeft` nativo (nunca `transform`), ele
+  // convive bem com o arraste manual em qualquer tipo de ponteiro, então
+  // a restrição saiu.
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return
     }
 
@@ -181,21 +207,24 @@ export function HomeCirclesSection({
       <h2 id="circ-strip-title" className="circ-strip-title">
         Círculos
       </h2>
-      <ul className="circ-track" ref={trackRef}>
-        {circles.map((circle, index) => (
-          <CircleGalleryCard
-            key={circle.id}
-            circle={circle}
-            index={index}
-            isParticipating={circle.members.some(
-              (member) => member.profile_id === profileId,
-            )}
-            onOpen={onOpen}
-            onJoin={onJoin}
-            onLeave={onLeave}
-          />
-        ))}
-      </ul>
+      <div className="circ-track-wrap">
+        <ul className="circ-track" ref={trackRef}>
+          {circles.map((circle, index) => (
+            <CircleGalleryCard
+              key={circle.id}
+              circle={circle}
+              index={index}
+              isParticipating={circle.members.some(
+                (member) => member.profile_id === profileId,
+              )}
+              onOpen={onOpen}
+              onJoin={onJoin}
+              onLeave={onLeave}
+            />
+          ))}
+        </ul>
+        {hasOverflow && !atEnd && <span className="circ-edge-fade" aria-hidden="true" />}
+      </div>
     </section>
   )
 }

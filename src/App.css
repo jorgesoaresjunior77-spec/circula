@@ -757,6 +757,43 @@
   }
 }
 
+/* Item 1 (ajuste visual) — cabeçalho mobile numa única linha: marca à
+   esquerda, sino + avatar + Sair à direita. Antes `.dashboard-header`
+   só tinha `flex-wrap: wrap` (pensado pra não estourar), e a tagline
+   "CONECTANDO MULHERES" (eyebrow com tracking largo) empurrava a área
+   da usuária pra quebrar numa 2ª linha. Trava `nowrap` + encolhe a
+   tagline (com ellipsis de segurança) em vez de depender da quebra.
+   Só <1024px — acima disso a marca vira só o logo (.brand-mark-btn) e
+   este bloco não entra em jogo. */
+@media (max-width: 1023px) {
+  .dashboard-header {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+
+  .dashboard-header .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .brand-lockup {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .brand-tagline {
+    font-size: 8.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dashboard-user {
+    flex: 0 0 auto;
+    gap: var(--space-2);
+  }
+}
+
 .dashboard-rail {
   /* Fase 1 — trilho aparece só a partir de 1280px; abaixo disso a Home
      segue em coluna única e nada do trilho é renderizado visualmente. */
@@ -7014,14 +7051,17 @@
 .home-community-header--glass .home-community-meta,
 .home-community-header--glass .home-community-owner {
   color: var(--c-white, #fff);
-  /* Sem scrim atrás do texto — duas camadas: uma justa e mais opaca
-     pra separar a letra da foto, outra bem mais difusa e fraca só pra
-     suavizar a borda (sem virar contorno grosso nem glow). Tom quente
-     (mesmo rgba do scrim que esta capa usava antes), não preto puro —
-     consistente com a paleta editorial do resto do app. */
+  /* Sem scrim atrás do texto — camadas de text-shadow só, em preto,
+     pra legibilidade sem virar contorno grosso nem glow: uma bem justa
+     e um pouco mais opaca pra definir a letra contra a foto (funciona
+     como um "contorno" sutil, não uma sombra projetada), e duas mais
+     difusas e fracas pra suavizar sobre áreas claras da imagem. Item 2
+     (ajuste visual) — preto puro em vez do tom quente anterior, por
+     pedido explícito; intensidade calibrada pra não ficar pesada. */
   text-shadow:
-    0 1px 2px rgba(14, 10, 9, 0.5),
-    0 2px 8px rgba(14, 10, 9, 0.3);
+    0 0.5px 1px rgba(0, 0, 0, 0.55),
+    0 1px 3px rgba(0, 0, 0, 0.35),
+    0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .home-community-header--glass .home-community-count,
@@ -12721,17 +12761,17 @@ button.card:active {
   gap: var(--space-6);
 }
 
-/* AJUSTE VISUAL — no mobile, só no Início (única tela com a capa
-   cobrindo o topo): o conjunto capa → pílula "Menu" → "Boa tarde"
-   somava ~112px de vão (gap do shell duas vezes + padding da pílula).
-   Aproxima sem reduzir a área de toque da pílula (mantém 44px) e sem
-   tocar as outras telas (sem capa, o :has() não bate). */
+/* Item 3/4 (ajuste visual) — a pílula "Menu" não é mais renderizada na
+   Home mobile (PrimaryNav.showMobileMenuPill=false: a barra inferior
+   fixa já cobre os mesmos destinos + "Mais"). Sem ela, `.topnav` não
+   tem mais nenhum filho visível nesse breakpoint (`.topnav-list` é
+   desktop-only, `.bottom-nav` é `position:fixed`) — zera seu padding
+   pra não sobrar uma faixa vazia no lugar do botão. Substitui o ajuste
+   anterior (que só encolhia o padding em torno da pílula). */
 @media (max-width: 1023px) {
-  .dashboard:has(.dashboard-community-cover) .topnav {
-    margin-top: calc(-1 * var(--space-2));
-    margin-bottom: calc(-1 * var(--space-2));
-    padding-top: var(--space-2);
-    padding-bottom: var(--space-2);
+  .topnav:not(:has(.topnav-toggle)) {
+    padding: 0;
+    min-height: 0;
   }
 
   /* Mesma lógica para "Boa tarde, Nutri" → cards: o gap uniforme do
@@ -13264,9 +13304,15 @@ button.card:focus-visible {
 .exp-strip {
   /* o trilho se move só dentro de si; a página nunca estoura */
   min-width: 0;
+  /* âncora pro degradê de borda (.exp-edge-fade), posicionado absoluto */
+  position: relative;
 }
 
-/* fronteira de recorte — nada da faixa vaza para a página */
+/* fronteira de recorte — nada da faixa vaza para a página. Item 7 —
+   o loop (quando ativo) também roda por cima deste mesmo
+   `overflow-x: auto`, via `scrollLeft` (ver HomeExperienceStrip.tsx) —
+   nunca `transform` —, então o swipe/scroll nativo nunca é desligado,
+   nem em modo marquee. */
 .exp-viewport {
   overflow-x: auto;
   overflow-y: hidden;
@@ -13280,9 +13326,9 @@ button.card:focus-visible {
   display: none;
 }
 
-/* modo marquee: sem rolagem; o trilho translada em loop contínuo */
+/* modo loop: sem scroll-snap (brigaria com o `scrollLeft` incrementado
+   a cada frame) — overflow-x continua `auto` (herdado de .exp-viewport). */
 .exp-viewport--marquee {
-  overflow: hidden;
   scroll-snap-type: none;
 }
 
@@ -13290,19 +13336,6 @@ button.card:focus-visible {
   display: flex;
   width: max-content;
   padding-block: var(--space-2) var(--space-3);
-}
-
-.exp-viewport--marquee .exp-track {
-  animation: exp-marquee var(--exp-marquee-dur, 48s) linear infinite;
-  will-change: transform;
-}
-
-/* D1 — ao passar o mouse (ou focar) em qualquer ponto da faixa, o
-   marquee para por inteiro; ao sair, retoma sozinho de onde estava
-   (CSS puro — sem reiniciar o loop). */
-.exp-viewport--marquee:hover .exp-track,
-.exp-viewport--marquee:focus-within .exp-track {
-  animation-play-state: paused;
 }
 
 .exp-seq {
@@ -13314,47 +13347,25 @@ button.card:focus-visible {
   gap: var(--space-4);
 }
 
-/* a folga entre a 1ª e a 2ª sequência = a mesma folga entre cards, e a
-   translação de -50% cai EXATAMENTE sobre o início da 2ª sequência —
-   loop sem salto, sem retorno e sem espaço vazio */
+/* a folga entre a 1ª e a 2ª sequência = a mesma folga entre cards —
+   o ponto de "corte" do loop (calculado em JS a partir do offsetLeft
+   real dos dois <ul>) cai exatamente no início da 2ª, sem salto. */
 .exp-viewport--marquee .exp-seq {
   padding-right: var(--space-4);
 }
 
-@keyframes exp-marquee {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-/* AJUSTE VISUAL — com só 3–4 experiências reais (bem menos do que o
-   marquee foi pensado para rolar), a sequência cabia inteira na
-   viewport e a trilha ficava encostada à esquerda, sobrando um vão
-   vazio grande à direita (também visível ao emular mobile mantendo o
-   mouse, já que o marquee só depende de pointer:fine). Sem tocar o
-   componente: a animação para, a 2ª sequência (clone aria-hidden, só
-   existia para o loop) fica oculta, e os cards — do mesmo tamanho de
-   sempre — se distribuem por toda a largura disponível. Se não
-   couberem, a rolagem horizontal já existente assume. */
-.exp-viewport--marquee {
-  overflow-x: auto;
-}
-
-.exp-viewport--marquee .exp-track {
-  animation: none;
-  width: 100%;
-}
-
-.exp-viewport--marquee .exp-seq[aria-hidden='true'] {
-  display: none;
-}
-
-.exp-viewport--marquee .exp-seq:not([aria-hidden]) {
-  width: 100%;
-  justify-content: space-evenly;
+/* Item 7 — indicador discreto de que há mais cards fora da viewport
+   (só quando `needsLoop`, ver componente). Degradê até a cor da própria
+   página — nunca um bloco sólido — e `pointer-events: none` pra nunca
+   atrapalhar toque/clique. */
+.exp-edge-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--page-bg) 92%);
 }
 
 .exp-card-item {
@@ -13514,17 +13525,9 @@ button.card:focus-visible {
   .exp-card:hover .exp-card-photo {
     transform: none;
   }
-  /* sem marquee automático — faixa estática e rolável */
-  .exp-viewport--marquee {
-    overflow-x: auto;
-  }
-  .exp-viewport--marquee .exp-track {
-    animation: none;
-    width: auto;
-  }
-  .exp-viewport--marquee .exp-seq {
-    padding-right: 0;
-  }
+  /* Item 7 — o componente já não ativa o loop/clone com reduced-motion
+     (ver `autoplayAllowed` em HomeExperienceStrip.tsx), então `.exp-
+     viewport--marquee` nunca chega a existir aqui; nada a neutralizar. */
 }
 
 /* ===================================================================
@@ -13557,6 +13560,12 @@ button.card:focus-visible {
   color: var(--graphite);
 }
 
+/* Item 7 — âncora pro degradê de borda (.circ-edge-fade), que precisa
+   ficar alinhado só com a faixa de cards (não com o título acima). */
+.circ-track-wrap {
+  position: relative;
+}
+
 .circ-track {
   list-style: none;
   margin: 0;
@@ -13573,6 +13582,19 @@ button.card:focus-visible {
 
 .circ-track::-webkit-scrollbar {
   display: none;
+}
+
+/* Indicador discreto de que há mais círculos fora da viewport — mesma
+   linguagem do .exp-edge-fade. Some sozinho ao chegar no fim da faixa
+   (`atEnd`, calculado no componente) e nunca bloqueia o toque. */
+.circ-edge-fade {
+  position: absolute;
+  top: 0;
+  bottom: var(--space-3);
+  right: 0;
+  width: 40px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--page-bg) 92%);
 }
 
 .circ-card-item {

@@ -276,7 +276,13 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+/* Item 6 (ajuste visual) — o tema escuro automático só entra no
+   desktop (>=1024px). No mobile, o SO costuma estar em dark mode por
+   padrão e a Home ficava com fundo escuro mesmo a marca sendo clara/
+   bege — sem tema escuro pensado para o app nesse tamanho de tela.
+   Nenhum token novo: só restringe quando este bloco já existente se
+   aplica. */
+@media (prefers-color-scheme: dark) and (min-width: 1024px) {
   :root {
     /* Editorial no escuro — tinta quase-branca morna sobre carvão
        morno. Acentos viram véus translúcidos; nada chapado, sem degradê.

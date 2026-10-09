@@ -892,6 +892,7 @@ export function Dashboard({
         active={effectiveNav}
         onNavigate={handleNavigate}
         badges={{ mensagens: totalUnread }}
+        showMobileMenuPill={!isHomeFocus}
       />
 
       {viewingProfileId ? (

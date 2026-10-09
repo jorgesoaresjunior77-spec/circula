@@ -33,6 +33,13 @@ interface PrimaryNavProps {
   onNavigate: (key: NavKey) => void
   /** Contadores opcionais por destino (ex.: mensagens não lidas). */
   badges?: Partial<Record<NavKey, number>>
+  /**
+   * Oculta a pílula "Menu" do topo (mobile) — usado só pela Home, onde
+   * a barra inferior fixa já cobre os destinos essenciais + "Mais" (o
+   * mesmo "nav-sheet" abre por ela). Não afeta o desktop (.topnav-list)
+   * nem a própria barra inferior, que continuam intocados.
+   */
+  showMobileMenuPill?: boolean
 }
 
 /**
@@ -48,7 +55,13 @@ interface PrimaryNavProps {
  * hooks de negócio, Supabase ou auth. onNavigate / badges / aria-current
  * / destinos: inalterados.
  */
-export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProps) {
+export function PrimaryNav({
+  items,
+  active,
+  onNavigate,
+  badges,
+  showMobileMenuPill = true,
+}: PrimaryNavProps) {
   const [open, setOpen] = useState(false)
   const sheetId = useId()
   const toggleRef = useRef<HTMLButtonElement>(null)
@@ -142,29 +155,33 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
         ))}
       </ul>
 
-      {/* Mobile — botão arredondado que abre a folha. Escondido no desktop. */}
-      <button
-        ref={toggleRef}
-        type="button"
-        className="topnav-toggle"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={sheetId}
-        onClick={() => {
-          lastTriggerRef.current = toggleRef.current
-          setOpen(true)
-        }}
-      >
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
-          <path
-            d="M1 1h16M1 6h16M1 11h16"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-          />
-        </svg>
-        <span className="topnav-toggle-label">Menu</span>
-      </button>
+      {/* Mobile — botão arredondado que abre a folha. Escondido no desktop.
+          Na Home (showMobileMenuPill=false) nem chega a renderizar: a
+          barra inferior já tem "Mais" para os mesmos destinos. */}
+      {showMobileMenuPill && (
+        <button
+          ref={toggleRef}
+          type="button"
+          className="topnav-toggle"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={sheetId}
+          onClick={() => {
+            lastTriggerRef.current = toggleRef.current
+            setOpen(true)
+          }}
+        >
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
+            <path
+              d="M1 1h16M1 6h16M1 11h16"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span className="topnav-toggle-label">Menu</span>
+        </button>
+      )}
 
       {/* Barra inferior fixa (mobile, < 1024px) — mesmos destinos e
           mesmo onNavigate dos itens acima; só a apresentação muda. */}

@@ -11,7 +11,6 @@ import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
-import { HomeHighlights } from './HomeHighlights'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
@@ -262,9 +261,11 @@ export function HomeToday({
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
 
-      {/* D1 — "Destaques de hoje" (pergunta/comando/check-in/eventos/
-          conteúdo) saiu da Home. Só "Publicações recentes" continua. */}
-      <HomeHighlights profileId={profile.id} postsApi={postsApi} onNavigate={onNavigate} />
+      {/* D1 — "Destaques de hoje" já tinha saído da Home. Item 5 (ajuste
+          visual) — "Publicações recentes" (HomeHighlights) também saiu:
+          fica exclusiva do Feed (onNavigate('feed')). postsApi continua
+          instanciado aqui — alimenta "Atividade recente" via
+          useHomeToday, e Feed.tsx tem sua própria instância própria. */}
 
       <section className="home-section home-activity-section">
         <div className="home-section-head">
