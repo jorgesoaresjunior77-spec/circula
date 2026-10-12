@@ -876,6 +876,19 @@ export function Dashboard({
         </div>
       </header>
 
+      {/* Redesign da Home, item 2 — a navegação sobe para logo abaixo do
+          logotipo, ANTES do banner (a capa da comunidade, quando há).
+          Troca de ordem só: grid-row de .topnav (2) e
+          .dashboard-community-cover (3) acompanha essa mesma ordem no
+          desktop (App.css); no mobile a ordem no DOM já basta. */}
+      <PrimaryNav
+        items={navItems}
+        active={effectiveNav}
+        onNavigate={handleNavigate}
+        badges={{ mensagens: totalUnread }}
+        showMobileMenuPill={!isHomeFocus}
+      />
+
       {coverHero && railCommunity && (
         <div className="dashboard-community-cover">
           <HomeCommunityHeader
@@ -886,14 +899,6 @@ export function Dashboard({
           />
         </div>
       )}
-
-      <PrimaryNav
-        items={navItems}
-        active={effectiveNav}
-        onNavigate={handleNavigate}
-        badges={{ mensagens: totalUnread }}
-        showMobileMenuPill={!isHomeFocus}
-      />
 
       {viewingProfileId ? (
         <div className="dashboard-main dashboard-main-solo">

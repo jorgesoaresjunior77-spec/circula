@@ -46,7 +46,10 @@
 
   /* ---- Superfícies — o branco carrega a interface ------------- */
   --white: var(--c-white);
-  --page-bg: var(--circula-offwhite); /* TESTE paleta oficial — era var(--n-050) */
+  /* Redesign da Home, item 6 — bege mais intenso, igual em mobile e
+     desktop (o dark-mode auto que diferenciava os dois foi desligado
+     acima). Era var(--circula-offwhite). */
+  --page-bg: var(--circula-page-beige);
   --sand: var(--c-sand);
   --sand-deep: var(--c-beige);
   --beige: var(--c-white); /* superfície de card = branco puro (legado) */
@@ -70,6 +73,10 @@
   --circula-champagne: #c8b8a8;
   --circula-black: #151311;
   --circula-offwhite: #f7f4ee;
+  /* Redesign da Home, item 6 — fundo geral do app, bege mais intenso que
+     o --circula-offwhite acima (que segue existindo só como tinta de
+     texto sobre foto, inalterado). Ponto de partida pedido: #EDE5DA. */
+  --circula-page-beige: #ede5da;
 
   /* Champagne como ACENTO EDITORIAL — nunca fundo predominante.
      Par tint/line no mesmo padrão de --accent-sand-tint/-line. */
@@ -276,123 +283,17 @@
   }
 }
 
-/* Item 6 (ajuste visual) — o tema escuro automático só entra no
-   desktop (>=1024px). No mobile, o SO costuma estar em dark mode por
-   padrão e a Home ficava com fundo escuro mesmo a marca sendo clara/
-   bege — sem tema escuro pensado para o app nesse tamanho de tela.
-   Nenhum token novo: só restringe quando este bloco já existente se
-   aplica. */
-@media (prefers-color-scheme: dark) and (min-width: 1024px) {
-  :root {
-    /* Editorial no escuro — tinta quase-branca morna sobre carvão
-       morno. Acentos viram véus translúcidos; nada chapado, sem degradê.
-       Azul/verde/roxo continuam ELIMINADOS. */
-    --n-050: #17130f;
-    --n-100: rgba(244, 238, 232, 0.04);
-    --n-200: rgba(244, 238, 232, 0.08);
-    --n-300: rgba(244, 238, 232, 0.14);
-    --n-400: rgba(244, 238, 232, 0.24);
-    --n-600: rgba(244, 238, 232, 0.5);
-    --n-700: rgba(244, 238, 232, 0.72);
-    --n-800: #e8e1da;
-    --n-900: #f4eee8;
-
-    --graphite-soft: var(--n-700);
-    --graphite: var(--n-900);
-    --page-bg: var(--n-050);
-    --sand: rgba(244, 238, 232, 0.05);
-    --sand-deep: rgba(244, 238, 232, 0.08);
-    --beige: #201b17;
-
-    --surface: #1e1915;
-    --surface-sunken: rgba(244, 238, 232, 0.04);
-    --zone-wash: linear-gradient(180deg, #1e1915 0%, #241a18 100%);
-
-    --border: rgba(244, 238, 232, 0.13);
-    --border-soft: rgba(244, 238, 232, 0.07);
-    --hairline: rgba(244, 238, 232, 0.09);
-    --code-bg: #2a2320;
-
-    /* Micro-acentos — mesmos matizes da paleta curta, como véus */
-    --accent-sand: #cbb99b;
-    --accent-sand-tint: rgba(203, 185, 155, 0.12);
-    --accent-sand-line: rgba(203, 185, 155, 0.3);
-    --accent-beige: #d3c4a8;
-    --accent-beige-tint: rgba(211, 196, 168, 0.12);
-    --accent-beige-line: rgba(211, 196, 168, 0.3);
-    --accent-rose: #cdb0ad; /* rosé claro acinzentado — sem rosa vivo */
-    --accent-rose-tint: rgba(205, 176, 173, 0.12);
-    --accent-rose-line: rgba(205, 176, 173, 0.3);
-    --accent-leaf: #bcb298; /* folha seca no escuro — cáqui, sem verde */
-    --accent-leaf-tint: rgba(188, 178, 152, 0.12);
-    --accent-leaf-line: rgba(188, 178, 152, 0.3);
-    --accent-sky: var(--accent-leaf);
-    --accent-sky-tint: var(--accent-leaf-tint);
-    --accent-sky-line: var(--accent-leaf-line);
-
-    --ink-action: #e0a8b2;
-    --ink-action-hover: #ecbcc3;
-    --ink-action-soft: rgba(224, 168, 178, 0.14);
-    --ink-action-line: rgba(224, 168, 178, 0.4);
-    --on-action: #241a1c;
-
-    /* Rampa de rosas LEGADA — véus + médios claros p/ contraste */
-    --rose-50: rgba(224, 168, 178, 0.1);
-    --rose-100: rgba(224, 168, 178, 0.16);
-    --rose-200: rgba(224, 168, 178, 0.24);
-    --rose-300: #d9a4ac;
-    --rose-400: #e0a8b2;
-    --rose-500: var(--accent-rose);
-    --rose-600: #ecbcc3;
-    --rose-700: #f2dfe0;
-    --rose-800: var(--ink-action);
-
-    --olive-soft: var(--surface-sunken);
-    --olive: var(--ink-action);
-    --olive-text: #e7c8cc; /* link/texto interativo — sussurro plum */
-    --olive-bg: rgba(244, 238, 232, 0.05);
-    --olive-border: var(--border);
-    --leaf-soft: var(--surface-sunken);
-    --leaf-text: rgba(244, 238, 232, 0.7);
-    --rose-soft: var(--surface-sunken);
-    --rose-text: rgba(244, 238, 232, 0.7);
-    --straw-soft: var(--surface-sunken);
-    --straw-text: rgba(244, 238, 232, 0.7);
-
-    --sky-50: var(--n-100);
-    --sky-100: var(--n-100);
-    --sky-200: var(--n-200);
-    --sky-400: var(--n-300);
-    --sky-600: var(--accent-leaf);
-    --sky-text: rgba(244, 238, 232, 0.72);
-    --sky-bg: var(--accent-leaf-tint);
-    --sky-border: var(--accent-leaf-line);
-
-    --cta-gradient: var(--ink-action);
-    --cta-gradient-hover: var(--ink-action-hover);
-    --cta-on: var(--on-action);
-    --cta-on-ink: var(--graphite);
-    --cta-ring: rgba(224, 168, 178, 0.4);
-
-    --danger: #d99a90;
-    --danger-border: rgba(217, 154, 144, 0.36);
-    --danger-bg: rgba(217, 154, 144, 0.12);
-
-    --shadow-sm:
-      rgba(0, 0, 0, 0.34) 0 1px 4px,
-      rgba(0, 0, 0, 0.36) 0 8px 22px -10px;
-    --shadow-md:
-      rgba(0, 0, 0, 0.38) 0 4px 14px -4px,
-      rgba(0, 0, 0, 0.42) 0 18px 40px -14px;
-    --shadow-lg:
-      rgba(0, 0, 0, 0.44) 0 8px 24px -6px,
-      rgba(0, 0, 0, 0.48) 0 32px 66px -20px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+/* Redesign da Home, item 6 (fundo bege em todo o app) — o tema escuro
+   automático (que antes só entrava no desktop >=1024px, deixando o
+   mobile sempre claro) foi DESLIGADO por inteiro: o pedido explícito
+   era eliminar a diferença de fundo entre mobile e desktop, e isso só é
+   seguro sem perda de legibilidade desligando o bloco todo — mudar só
+   `--page-bg` e manter `--graphite`/`--graphite-soft` invertendo pra
+   tinta quase-branca deixaria o texto do corpo (fora dos cards brancos)
+   ilegível sobre o fundo bege claro. Resultado: a identidade editorial
+   clara (bege/terroso/off-white) do mobile agora também é a do desktop,
+   em qualquer preferência de sistema. Os tokens de dark mode em si
+   (Item 6 anterior) saíram — nenhum consumidor restante. */
 
 /* NOVO (A2) · Respeitar quem pede menos movimento — fundação global.
    Zera as durações de microinteração e neutraliza transições/animações

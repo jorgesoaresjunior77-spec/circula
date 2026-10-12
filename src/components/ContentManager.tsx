@@ -9,6 +9,7 @@ import type {
   ContentType,
 } from '../types/content'
 import { CONTENT_TYPE_LABEL } from '../types/content'
+import { isInstagramUrl } from '../lib/instagramContent'
 import { ContentCard } from './ContentCard'
 import { CoverImageInput } from './CoverImageInput'
 import { EmptyState } from './EmptyState'
@@ -124,6 +125,15 @@ export function ContentManager({
     setFormError(null)
   }
 
+  // Auditoria do redesign da Home, item 2 — esta capa é compartilhada
+  // por TODO tipo de conteúdo: a biblioteca geral exibe em 16:9
+  // (.content-card-cover, ContentCard.tsx), mas quando o link externo é
+  // do Instagram, o mesmo item também aparece na faixa "No Instagram"
+  // da Home, em 4:5 (.exp-card-frame). A recomendação de tamanho muda
+  // só nesse caso — reaproveita o mesmo `isInstagramUrl` do filtro
+  // compartilhado (instagramContent.ts), sem duplicar a lista de hosts.
+  const isInstagramPost = isInstagramUrl(form.externalUrl)
+
   return (
     <section className="panel-content-block panel-content-library">
       <div className="panel-content-block-head">
@@ -231,7 +241,7 @@ export function ContentManager({
               uid={profileId}
               value={form.coverImageUrl}
               onChange={(url) => set('coverImageUrl', url)}
-              recommendedSize="1920 × 1080 px"
+              recommendedSize={isInstagramPost ? '1080 × 1350 px' : '1920 × 1080 px'}
             />
 
             <div className="panel-content-field">

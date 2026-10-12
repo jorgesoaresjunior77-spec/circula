@@ -45,15 +45,18 @@ interface PrimaryNavProps {
 /**
  * Navegação primária do Círcula — sem menu lateral.
  *
- * Desktop (>= 1024px): barra superior editorial com os itens em linha
- * (Etapa B1), abaixo da marca (e da capa da comunidade, quando há).
- * Mobile (< 1024px): barra inferior fixa (D1) com os destinos
- * essenciais (NavItem.inBottomNav) + "Mais"; a pílula "Menu" no topo e
- * o botão "Mais" da barra abrem a MESMA folha/overlay com todos os
- * itens e destinos. A alternância é 100% CSS; só o aberto/fechado da
- * folha é estado local. Puramente apresentacional: não toca dados,
- * hooks de negócio, Supabase ou auth. onNavigate / badges / aria-current
- * / destinos: inalterados.
+ * Redesign da Home, item 2 — navegação ÚNICA em qualquer largura: a
+ * mesma `.topnav-list` (chips compactos, fundo transparente, borda
+ * fina) renderiza logo abaixo da marca, antes do banner — não mais uma
+ * barra de topo no desktop e outra fixa embaixo no mobile. A antiga
+ * barra inferior (`.bottom-nav`), a pílula "Menu" (`.topnav-toggle`) e
+ * a folha de overflow (`.nav-sheet`) continuam montadas aqui (mesmos
+ * destinos/handlers/acessibilidade, nada removido), só ficam ocultas
+ * por CSS em toda largura — ver App.css. No mobile, itens que não
+ * cabem numa linha quebram organizadamente (flex-wrap), sem criar
+ * rolagem horizontal no documento. Puramente apresentacional: não toca
+ * dados, hooks de negócio, Supabase ou auth. onNavigate / badges /
+ * aria-current / destinos: inalterados.
  */
 export function PrimaryNav({
   items,
@@ -134,7 +137,8 @@ export function PrimaryNav({
 
   return (
     <nav className="topnav" aria-label="Navegação principal">
-      {/* Desktop — itens em linha (Etapa B1). Escondido no mobile. */}
+      {/* Redesign da Home, item 2 — lista única de destinos, compacta,
+          visível em qualquer largura (ver .topnav-list em App.css). */}
       <ul className="topnav-list">
         {items.map((item) => (
           <li key={item.key}>
@@ -146,7 +150,7 @@ export function PrimaryNav({
               onClick={() => onNavigate(item.key)}
             >
               <span className="nav-icon-wrap">
-                <item.Icon size={18} />
+                <item.Icon size={14} />
                 {badgeFor(item.key)}
               </span>
               <span className="topnav-label">{item.label}</span>

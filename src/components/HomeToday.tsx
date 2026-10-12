@@ -1,12 +1,9 @@
 import { useMemo } from 'react'
 import type { Profile } from '../types/profile'
 import type { CommunityWithMembers } from '../types/community'
-import type { HomeActivityItem } from '../types/home'
 import type { NavKey } from './PrimaryNav'
 import { useCircles } from '../hooks/useCircles'
-import { usePosts } from '../hooks/usePosts'
 import { useContent } from '../hooks/useContent'
-import { useHomeToday } from '../hooks/useHomeToday'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
@@ -14,19 +11,18 @@ import { CreateCommunityForm } from './CreateCommunityForm'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
-import { EmptyState } from './EmptyState'
-import { formatRelativeTime } from '../lib/formatRelativeTime'
-import { CommentIcon, HeartIcon, CirclesIcon } from './icons'
+import { HomeInstagramStrip } from './HomeInstagramStrip'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
 // Dashboard pessoal do destino "Início" para member e professional.
 // master NÃO chega aqui (o Dashboard exige role !== 'master').
-// Composição visual guiada pelas referências em
-// identidadevisual/ExemplosPainel/ (phone 1 da imagem 1 e painel
-// central da imagem 2). Lógica e dados inalterados: mesmos hooks
-// (useCircles / useHomeToday), mesmas condições. Não toca no Feed,
-// comunidades, círculos, produtos, checkout ou billing.
+//
+// Redesign da Home (item 1/3/5) — "Atividade recente" saiu (a Home não
+// mostra mais publicações/conversas/atividade do Feed; o Feed continua
+// intacto e acessível pela navegação). Em consequência, `usePosts` e
+// `useHomeToday` deixaram de ter qualquer consumidor aqui e saíram
+// também — nenhum dos dois alimentava outra coisa nesta tela.
 
 interface HomeTodayProps {
   profile: Profile
@@ -72,26 +68,6 @@ function firstName(fullName: string | null): string | null {
   return name || null
 }
 
-function activityText(item: HomeActivityItem): string {
-  const who = item.actorName ?? 'Alguém'
-  switch (item.kind) {
-    case 'comment':
-      return `${who} comentou na sua publicação`
-    case 'reaction':
-      return `${who} reagiu à sua publicação`
-    case 'reaction_group':
-      return `${item.count} pessoas reagiram às suas publicações`
-    case 'new_posts':
-      return item.count === 1
-        ? '1 nova publicação na comunidade'
-        : `${item.count} novas publicações na comunidade`
-    case 'circle_join':
-      return `${who} entrou no círculo ${item.circleName ?? ''}`.trim()
-    default:
-      return ''
-  }
-}
-
 export function HomeToday({
   profile,
   communities,
@@ -120,58 +96,22 @@ export function HomeToday({
 
   const { circles, joinCircle, leaveCircle } = useCircles(communityId)
 
-  // A5-cleanup (opção A): instância ÚNICA de usePosts na Home. Alimenta
-  // os blocos ricos (HomeHighlights) E o "Resumo do dia" / "Atividade
-  // recente" (useHomeToday recebe postsApi.posts e deixa de fazer as
-  // consultas #1 = ids das minhas publicações e #2 = publicações novas
-  // 24h). Feed.tsx tem a própria instância e não é afetado — HomeToday e
-  // Feed nunca montam ao mesmo tempo.
-  const postsApi = usePosts(communityId, profile.id)
-
-  // C4.1 — "No Instagram": publicações que a comunidade cadastrou como
-  // community_content com link do Instagram + capa. useContent já existe
-  // (não é hook novo); a HomeExperienceStrip recebe a lista filtrada e
-  // só mostra o card quando há publicação real.
+  // No Instagram — publicações que a comunidade cadastrou como
+  // community_content com link do Instagram + capa (useContent já
+  // existe, sem consulta nova). Alimenta a faixa <HomeInstagramStrip>.
   const { items: contentItems } = useContent(communityId)
   const instagramPosts = useMemo(
     () => filterInstagramContent(contentItems),
     [contentItems],
   )
 
-  // Imagens (só VISUAIS) que a Profissional cadastrou no Painel para as
-  // capas dos 6 cards de experiência. Sem imagem cadastrada -> o card
-  // mantém o fallback editorial atual. Não muda a origem dos dados.
+  // Capa (só VISUAL) que a Profissional cadastrou no Painel para o card
+  // "Eventos" — único dos 6 cards fixos de Círcula Hoje cuja chave
+  // segue válida no CHECK de community_card_images (ver
+  // HomeExperienceStrip.tsx). Sem imagem cadastrada -> fallback
+  // editorial (sem foto).
   const { images: cardImagePaths } = useCommunityCardImages(communityId)
-  const { url: cardCoverHoje } = useSignedImageUrl(cardImagePaths.hoje ?? null)
-  const { url: cardCoverEventos } = useSignedImageUrl(cardImagePaths.eventos ?? null)
-  const { url: cardCoverComunidade } = useSignedImageUrl(
-    cardImagePaths.comunidade ?? null,
-  )
-  const { url: cardCoverInstagram } = useSignedImageUrl(
-    cardImagePaths.instagram ?? null,
-  )
-  const cardCovers = useMemo(
-    () => ({
-      hoje: cardCoverHoje,
-      eventos: cardCoverEventos,
-      comunidade: cardCoverComunidade,
-      instagram: cardCoverInstagram,
-    }),
-    [cardCoverHoje, cardCoverEventos, cardCoverComunidade, cardCoverInstagram],
-  )
-
-  const myCircles = useMemo(
-    () => circles.filter((circle) => circle.members.some((m) => m.profile_id === profile.id)),
-    [circles, profile.id],
-  )
-
-  const {
-    summary,
-    recentActivity,
-    loading: homeTodayLoading,
-  } = useHomeToday(profile, communityId, myCircles, postsApi.posts)
-
-  const homeLoading = homeTodayLoading || postsApi.loading
+  const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
 
   const greetingName = firstName(profile.full_name)
   const greeting = (
@@ -235,17 +175,12 @@ export function HomeToday({
         />
       )}
 
-      {/* C2 — Faixa editorial de experiências da comunidade, logo abaixo
-          do hero. Só dados reais que a Home já tem; cada card leva à ação
-          que já existe (rota existente, rolar até a seção detalhada ou,
-          em "No Instagram", abrir a tela editorial no app — C4.1). */}
+      {/* Redesign da Home (item 3) — "Círcula Hoje": 6 destinos fixos de
+          navegação (Meu Perfil, Help Nutri, Eventos, Loja, Comunidades,
+          Círculos), sempre presentes. */}
       <HomeExperienceStrip
-        summary={summary}
         nextEvent={railSummary?.nextEvent ?? null}
-        newPosts={summary.newPosts}
-        hasPosts={postsApi.posts.length > 0}
-        instagramPosts={instagramPosts}
-        cardCovers={cardCovers}
+        eventosCover={eventosCover}
         onNavigate={onNavigate}
       />
 
@@ -261,51 +196,11 @@ export function HomeToday({
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
 
-      {/* D1 — "Destaques de hoje" já tinha saído da Home. Item 5 (ajuste
-          visual) — "Publicações recentes" (HomeHighlights) também saiu:
-          fica exclusiva do Feed (onNavigate('feed')). postsApi continua
-          instanciado aqui — alimenta "Atividade recente" via
-          useHomeToday, e Feed.tsx tem sua própria instância própria. */}
-
-      <section className="home-section home-activity-section">
-        <div className="home-section-head">
-          <h3 className="home-section-title">Atividade recente</h3>
-        </div>
-        {homeLoading && recentActivity.length === 0 ? (
-          <p className="home-muted">Carregando atividade...</p>
-        ) : recentActivity.length > 0 ? (
-          <ul className="home-activity">
-            {recentActivity.map((item) => (
-              <li key={item.id} className="home-activity-item">
-                <span className="home-activity-avatar" aria-hidden="true">
-                  {item.actorAvatarUrl ? (
-                    <img src={item.actorAvatarUrl} alt="" />
-                  ) : item.actorName ? (
-                    <span>{item.actorName.charAt(0).toUpperCase()}</span>
-                  ) : item.kind === 'circle_join' ? (
-                    <CirclesIcon size={16} />
-                  ) : item.kind === 'comment' ? (
-                    <CommentIcon size={16} />
-                  ) : (
-                    <HeartIcon size={16} />
-                  )}
-                </span>
-                <span className="home-activity-text">{activityText(item)}</span>
-                <span className="home-activity-time">{formatRelativeTime(item.at)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState message="Sem novidades por enquanto." />
-        )}
-      </section>
-
-      {/* C3 — "Seus círculos" e "Círculos sugeridos" foram consolidados
-          na coleção editorial <HomeCirclesSection> logo abaixo do hero.
-          O destino "Círculos" (CircleList / CircleDetail com filtros e
-          entrada/saída) permanece intacto na navegação. D4 — "Ir
-          rápido" foi removido da Home (os mesmos destinos já estão no
-          menu principal). */}
+      {/* Redesign da Home (item 5) — "No Instagram": terceira faixa,
+          logo abaixo de Círculos. Mesmos dados do C4.1 (community_content
+          publicado + link do Instagram), sem publicação real -> não
+          renderiza. */}
+      <HomeInstagramStrip posts={instagramPosts} />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.

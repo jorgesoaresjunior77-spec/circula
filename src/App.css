@@ -36,12 +36,17 @@
   --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%236b6560' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --field-bg: #201b17;
-    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%23b6a89f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  }
-}
+/* Auditoria do redesign da Home — o Círcula fica no tema claro sempre
+   (fundo bege uniforme, `src/index.css`), independente da preferência
+   de tema do sistema. Este bloco deixava `--field-bg` quase preto
+   (#201b17) com `--graphite` (texto dentro de `.field`) sem nenhum
+   contraponto de dark mode — campo ilegível (marrom sobre quase-preto)
+   em qualquer largura. Removido por inteiro: o `--select-chevron`
+   escuro existia só para combinar com esse `--field-bg` escuro: sem
+   ele, o ícone claro ficaria com contraste ruim sobre o campo agora
+   sempre claro. Nenhum tema escuro alternativo entra no lugar — os
+   campos usam só os tokens claros acima, em qualquer preferência de
+   sistema.*/
 
 /* --- Base compartilhada --------------------------------------------- */
 /* Linguagem editorial: rótulo Jost maiúsculo tracké, canto discreto,
@@ -502,12 +507,11 @@
   max-width: 480px;
   margin-inline: auto;
   text-align: left;
-  /* D1 — barra inferior fixa no mobile: o respiro final da coluna
-     precisa ser maior que a própria barra (+ área segura iOS), senão
-     o último conteúdo fica escondido atrás dela. */
-  padding-bottom: calc(
-    var(--bottom-nav-h) + var(--space-6) + env(safe-area-inset-bottom, 0px)
-  );
+  /* Redesign da Home, item 2 — a barra inferior fixa saiu de vista (a
+     navegação virou uma lista única no topo); o respiro extra que
+     reservava espaço pra ela não é mais necessário, só a área segura
+     do iOS por baixo do conteúdo. */
+  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
 
   @media (min-width: 768px) {
     max-width: 640px;
@@ -535,12 +539,13 @@
    editorial (mesma margem lateral do resto do shell), com altura
    proporcional (aspect-ratio em .home-community-cover, ~metade da
    altura antiga), bordas arredondadas e o nome/responsável/contagem
-   abaixo da foto — nunca sobre ela. No desktop ocupa a linha 2 do grid,
-   entre a marca e o menu (que desce para a linha 3). */
+   abaixo da foto — nunca sobre ela. Redesign da Home, item 2: o menu
+   subiu para a linha 2 (logo abaixo da marca), então a capa desceu
+   para a linha 3, sempre depois da navegação. */
 @media (min-width: 1024px) {
   .dashboard-community-cover {
     grid-column: 1 / -1;
-    grid-row: 2;
+    grid-row: 3;
   }
 }
 
@@ -1060,27 +1065,97 @@
 }
 
 /* ===== Navegação primária ========================================
-   Um componente <PrimaryNav> renderiza os dois elementos; o CSS
-   alterna: barra superior editorial no desktop (linha do topo, plena
-   largura) e barra inferior fixa com "+" central no mobile.
-   Etapa B1: só o desktop virou barra no topo — o mobile segue igual. */
-
-/* --- Mobile (< 1024px): a barra recolhe para um botão "Menu" ------ */
+   Redesign da Home, item 2 — navegação ÚNICA (nada de duplicar menus):
+   a mesma lista `.topnav-list` renderiza em qualquer largura, logo
+   abaixo do logotipo e antes do banner (ver `.topnav` no grid de
+   `.dashboard`, mais abaixo, e a ordem no JSX de Dashboard.tsx). A
+   antiga barra inferior fixa (`.bottom-nav`), o botão "Menu" solto
+   (`.topnav-toggle`) e a folha de overflow (`.nav-sheet`) saem de vista
+   em TODA largura — o componente continua montando essa marcação (sem
+   risco de remover lógica/acessibilidade), só não aparece mais, porque
+   todos os destinos já cabem na lista única, com quebra organizada no
+   mobile (sem rolagem horizontal no documento). */
 .topnav {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: var(--space-3) 0 var(--space-4);
+  padding: var(--space-2) 0 var(--space-3);
 }
 
-/* No mobile os itens vivem só dentro da folha .nav-sheet. */
+/* Lista única de destinos — chips compactos, fundo transparente, fio
+   fino e discreto; o hover acende só a borda (nunca preenche). Quebra
+   em várias linhas quando não cabe (mobile); larguras estreitas nunca
+   criam rolagem horizontal no documento, só dentro da própria lista se
+   algum dia for preciso (overflow-x fica disponível via o mesmo
+   princípio das faixas de cards). */
 .topnav-list {
-  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
 }
 
-/* Botão "Menu" — pílula Jost, fundo transparente, fio muito sutil. */
-.topnav-toggle {
+.topnav-item {
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--graphite-soft);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+
+  &:hover {
+    color: var(--graphite);
+    border-color: var(--ink-action-line);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: 2px;
+  }
+}
+
+.topnav-item .nav-icon-wrap {
+  flex: 0 0 auto;
+  color: currentColor;
+  opacity: 0.8;
+}
+
+.topnav-item--active {
+  color: var(--ink-action);
+  border-color: var(--ink-action-line);
+  font-weight: 500;
+
+  .nav-icon-wrap {
+    color: var(--ink-action);
+    opacity: 1;
+  }
+
+  &:hover {
+    border-color: var(--ink-action);
+  }
+}
+
+/* Botão "Menu" — pílula Jost, fundo transparente, fio muito sutil.
+   Marcação preservada (acessibilidade/folha de overflow), mas escondida
+   em toda largura — ver comentário no topo de `.topnav`. */
+.topnav-toggle {
+  display: none;
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
@@ -1265,15 +1340,12 @@
   }
 }
 
-/* --- Barra inferior fixa (mobile, < 1024px) ------------------------
-   Navegação principal como app: fixa na base do viewport, fundo
-   sólido, só os destinos essenciais (NavItem.inBottomNav, já calculado
-   por papel) + "Mais" quando há itens fora da barra — abre a mesma
-   folha .nav-sheet de sempre, nenhum destino novo. Acima do conteúdo
-   (z-index 30, abaixo do backdrop/folha em 40), respeita a área segura
-   do iOS. O respiro inferior correspondente no conteúdo vem de
-   .dashboard (--bottom-nav-h), para nada ficar escondido atrás dela. */
+/* --- Barra inferior fixa — DESLIGADA (redesign da Home, item 2) -----
+   Marcação preservada (mesmos destinos/handlers/acessibilidade), mas
+   escondida em toda largura: a navegação virou uma lista única no topo
+   (.topnav-list), não mais duplicada numa barra fixa embaixo. */
 .bottom-nav {
+  display: none;
   position: fixed;
   left: 0;
   right: 0;
@@ -1335,88 +1407,17 @@
   color: var(--ink-action);
 }
 
+/* Posição no grid de `.dashboard` (desktop, >=1024px): logo abaixo do
+   masthead (linha 1) e ANTES da capa da comunidade, que desceu para a
+   linha 3 (ver `.dashboard-community-cover`) — "abaixo do logotipo,
+   antes do banner" vale tanto com capa quanto sem. Estilo dos itens é
+   o mesmo em qualquer largura (regras base acima). */
 @media (min-width: 1024px) {
-  .topnav-toggle {
-    display: none;
-  }
-
-  .bottom-nav {
-    display: none;
-  }
-
-  /* D5 — navegação superior editorial (desktop): solta abaixo da capa,
-     sem card/barra/caixa por trás — só ícone + texto, respiro
-     generoso entre itens, item ativo diferenciado só pela cor + um
-     traço inferior bem fino (nunca uma pílula preenchida). */
   .topnav {
-    display: block;
     grid-column: 1 / -1;
-    grid-row: 3;
-    margin-top: var(--space-4);
-    /* neutraliza o padding-top da regra base (mobile) — desktop inalterado */
-    padding: 0 0 var(--space-4);
-  }
-
-  .topnav-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-5);
-  }
-
-  .topnav-item {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: 40px;
-    padding: 4px 1px 8px;
-    border: 0;
-    border-bottom: 1.5px solid transparent;
-    border-radius: 0;
-    background: none;
-    color: var(--graphite-soft);
-    font-family: var(--font-label);
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
-
-    &:hover {
-      color: var(--graphite);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--ink-action);
-      outline-offset: 2px;
-    }
-  }
-
-  .topnav-item .nav-icon-wrap {
-    flex: 0 0 auto;
-    color: currentColor;
-    opacity: 0.7;
-  }
-
-  .topnav-item--active {
-    color: var(--ink-action);
-    background: none;
-    border-bottom-color: var(--ink-action);
-    font-weight: 500;
-
-    .nav-icon-wrap {
-      color: var(--ink-action);
-      opacity: 1;
-    }
-
-    &:hover {
-      color: var(--ink-action);
-    }
+    grid-row: 2;
+    margin-top: var(--space-2);
+    padding: 0 0 var(--space-3);
   }
 }
 
@@ -12761,23 +12762,13 @@ button.card:active {
   gap: var(--space-6);
 }
 
-/* Item 3/4 (ajuste visual) — a pílula "Menu" não é mais renderizada na
-   Home mobile (PrimaryNav.showMobileMenuPill=false: a barra inferior
-   fixa já cobre os mesmos destinos + "Mais"). Sem ela, `.topnav` não
-   tem mais nenhum filho visível nesse breakpoint (`.topnav-list` é
-   desktop-only, `.bottom-nav` é `position:fixed`) — zera seu padding
-   pra não sobrar uma faixa vazia no lugar do botão. Substitui o ajuste
-   anterior (que só encolhia o padding em torno da pílula). */
+/* Item 3/4 (ajuste visual) — "Boa tarde, Nutri" → cards: o gap uniforme
+   do .home (56px no mobile) ficava longo demais logo após o título;
+   aproxima só esse vão, sem alterar o respiro entre as demais seções
+   da Home. Redesign da Home, item 2 — a regra irmã que zerava o
+   padding de `.topnav` sem a pílula "Menu" saiu: `.topnav-list` agora
+   é sempre visível (nunca mais um `.topnav` vazio nesse breakpoint). */
 @media (max-width: 1023px) {
-  .topnav:not(:has(.topnav-toggle)) {
-    padding: 0;
-    min-height: 0;
-  }
-
-  /* Mesma lógica para "Boa tarde, Nutri" → cards: o gap uniforme do
-     .home (56px no mobile) ficava longo demais logo após o título;
-     aproxima só esse vão, sem alterar o respiro entre as demais
-     seções da Home. */
   .home-greeting {
     margin-bottom: calc(-1 * var(--space-6));
   }
@@ -13477,6 +13468,21 @@ button.card:focus-visible {
   font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.15;
   color: var(--graphite);
+}
+
+/* Correção pontual — faixa "No Instagram" (HomeInstagramStrip.tsx): a
+   frase é o único texto sobre a foto (sem .exp-card-meta por baixo), e
+   vem de um campo livre cadastrado pela Profissional, sem limite de
+   tamanho. Clampa em 2 linhas com reticências — nunca estoura o frame
+   (aspect-ratio 4/5 já fixa a altura do card, com ou sem clamp; isto só
+   evita o corte abrupto do texto em si). Classe adicional, só para não
+   alterar `.exp-card-title` nas outras faixas (Círcula Hoje), que já
+   usam títulos curtos e fixos. */
+.exp-card-title--clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .exp-card-meta {

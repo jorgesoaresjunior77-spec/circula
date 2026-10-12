@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CommunityCardKey } from '../types/communityCards'
-import type { CommunityContent } from '../types/content'
-import type { HomeSummary } from '../types/home'
 import type { NavKey } from './PrimaryNav'
-import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { formatEventDate } from '../lib/formatEventDate'
-import { InstagramHighlightModal } from './InstagramHighlightModal'
 
-// C2 — Faixa editorial de experiências da comunidade.
+// C2 — Faixa editorial "Círcula Hoje".
 //
-// Apresentação horizontal e editorial das experiências que a Home já
-// tem em dados REAIS. Não instancia hook de negócio novo e não busca
-// nada: recebe tudo pronto da HomeToday. Uma experiência só entra na
-// faixa quando há dado real. Cada card preserva a ação já existente:
-// navegar por uma rota que já existe, rolar até a seção detalhada, ou
-// (C4.1 — "No Instagram") abrir uma tela editorial no próprio app.
+// Redesign da Home — lista FIXA de 6 destinos de navegação (Meu Perfil,
+// Help Nutri, Eventos, Loja, Comunidades, Círculos), sempre presentes,
+// e não mais condicionados a dado real existir (o antigo "Hoje no
+// Círcula"/"Na comunidade"/"No Instagram" saíram daqui — Instagram
+// agora é a própria faixa <HomeInstagramStrip>, abaixo de Círculos).
+// Só "Eventos" tem meta dinâmica (próximo evento, quando há) e capa
+// opcional cadastrada no Painel — é a única chave que segue válida no
+// CHECK de `community_card_images` (ver HomeToday.tsx); os outros 5
+// cards não têm capa configurável (fora de escopo adicionar novas
+// chaves ao CHECK/migration).
 //
 // Movimento: LOOP CONTÍNUO E INFINITO via `scrollLeft` nativo (não
 // `transform`) — a sequência de cards é renderizada duas vezes e um
@@ -23,9 +22,7 @@ import { InstagramHighlightModal } from './InstagramHighlightModal'
 // idênticas, então o "salto" é invisível). Por rodar em cima do mesmo
 // `scrollLeft` que o swipe nativo usa, os dois nunca competem: tocar ou
 // clicar pausa o loop (Pointer Events — cobre mouse e toque) e ele
-// retoma de onde o scroll manual deixou. Item 7 — antes só rodava fora
-// de `pointer: coarse` (touch); como não há mais `transform` brigando
-// com o scroll nativo, essa restrição saiu. Só entra em cena quando o
+// retoma de onde o scroll manual deixou. Só entra em cena quando o
 // conteúdo realmente excede a viewport (`needsLoop`) — com poucos cards
 // a faixa fica estática, sem clone nem animação. Em
 // prefers-reduced-motion o autoplay fica desligado (clone também não
@@ -40,24 +37,13 @@ interface NextEvent {
 }
 
 interface HomeExperienceStripProps {
-  summary: HomeSummary
   nextEvent: NextEvent | null
-  newPosts: number
-  hasPosts: boolean
   /**
-   * C4.1 — publicações do Instagram destacadas pela comunidade
-   * (community_content publicado, com capa, external_url do Instagram),
-   * já filtrado na HomeToday. Vazio -> a experiência "No Instagram" não
-   * aparece.
+   * Capa (só VISUAL) cadastrada pela Profissional no Painel para o card
+   * "Eventos", já assinada. Ausente/null -> o card mantém o fallback
+   * editorial (sem foto). Não muda a origem do dado do evento.
    */
-  instagramPosts: CommunityContent[]
-  /**
-   * Capas (só VISUAIS) cadastradas pela Profissional no Painel, já
-   * assinadas. Uma capa por experiência (mesma chave do `key` do card).
-   * Ausente/null -> o card mantém o fallback editorial atual. Não muda a
-   * origem dos dados de nenhum card.
-   */
-  cardCovers?: Partial<Record<CommunityCardKey, string | null>>
+  eventosCover?: string | null
   onNavigate: (key: NavKey) => void
 }
 
@@ -72,111 +58,71 @@ interface Experience {
 }
 
 export function HomeExperienceStrip({
-  summary,
   nextEvent,
-  newPosts,
-  hasPosts,
-  instagramPosts,
-  cardCovers,
+  eventosCover,
   onNavigate,
 }: HomeExperienceStripProps) {
-  // Só o 1º post do Instagram tem imagem diretamente reutilizável — a
-  // capa passa pelo mesmo useSignedImageUrl do ContentCard. É um valor
-  // único, não .map(), então o hook no topo é seguro.
-  const { url: instagramCover } = useSignedImageUrl(
-    instagramPosts[0]?.cover_image_url ?? null,
-  )
-
-  const [instagramOpen, setInstagramOpen] = useState(false)
-  const instagramCardRef = useRef<HTMLButtonElement>(null)
-
-  function closeInstagram() {
-    setInstagramOpen(false)
-    instagramCardRef.current?.focus()
-  }
-
-  const experiences = useMemo<Experience[]>(() => {
-    const list: Experience[] = []
-
-    // 1 — Hoje no Círcula (Resumo do dia; sempre presente na Home).
-    const todayCount =
-      summary.repliesToMe +
-      summary.reactionsToMe +
-      summary.newPosts +
-      (summary.newMembers ?? 0)
-    list.push({
-      key: 'hoje',
-      eyebrow: 'Hoje',
-      title: 'Hoje no Círcula',
-      meta:
-        todayCount > 0
-          ? `${todayCount} ${todayCount === 1 ? 'novidade' : 'novidades'}`
-          : 'Tudo em dia',
-      image: cardCovers?.hoje ?? null,
-      onActivate: () => onNavigate('comunidades'),
-      ariaLabel:
-        todayCount > 0
-          ? `Hoje no Círcula — ${todayCount} novidades`
-          : 'Hoje no Círcula — tudo em dia',
-    })
-
-    // 3 — Próximos eventos (só com um próximo evento real).
-    if (nextEvent) {
-      list.push({
+  const experiences = useMemo<Experience[]>(
+    () => [
+      {
+        key: 'perfil',
+        eyebrow: 'Perfil',
+        title: 'Meu Perfil',
+        meta: 'Seus dados e preferências',
+        image: null,
+        onActivate: () => onNavigate('perfil'),
+        ariaLabel: 'Meu Perfil',
+      },
+      {
+        key: 'help-nutri',
+        eyebrow: 'Ajuda',
+        title: 'Help Nutri',
+        meta: 'Fale com a nutricionista',
+        image: null,
+        onActivate: () => onNavigate('mensagens'),
+        ariaLabel: 'Help Nutri — fale com a nutricionista',
+      },
+      {
         key: 'eventos',
         eyebrow: 'Agenda',
-        title: 'Próximos eventos',
-        meta: `${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`,
-        image: cardCovers?.eventos ?? null,
+        title: 'Eventos',
+        meta: nextEvent
+          ? `${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`
+          : 'A agenda da comunidade',
+        image: eventosCover ?? null,
         onActivate: () => onNavigate('eventos'),
-        ariaLabel: `Próximos eventos — ${nextEvent.title}`,
-      })
-    }
-
-    // 4 — Na comunidade (feed) — só se houver publicações reais.
-    if (hasPosts) {
-      list.push({
-        key: 'comunidade',
-        eyebrow: 'Comunidade',
-        title: 'Na comunidade',
-        meta:
-          newPosts > 0
-            ? `${newPosts} ${newPosts === 1 ? 'nova publicação' : 'novas publicações'}`
-            : 'Feed da comunidade',
-        image: cardCovers?.comunidade ?? null,
-        onActivate: () => onNavigate('feed'),
-        ariaLabel:
-          newPosts > 0
-            ? `Na comunidade — ${newPosts} ${
-                newPosts === 1 ? 'nova publicação' : 'novas publicações'
-              }`
-            : 'Na comunidade — feed',
-      })
-    }
-
-    // 6 — No Instagram (C4.1) — só com publicação real destacada. Abre a
-    // tela editorial no app; NÃO navega direto para o Instagram.
-    if (instagramPosts.length > 0) {
-      const count = instagramPosts.length
-      list.push({
-        key: 'instagram',
-        eyebrow: 'Instagram',
-        title: 'No Instagram',
-        meta: count === 1 ? instagramPosts[0].title : `${count} publicações`,
-        // Capa do conteúdo primeiro; a imagem cadastrada no Painel é o
-        // fallback quando não houver capa específica (C4.1: modal
-        // inalterado, sempre com a capa de cada post).
-        image: instagramCover ?? cardCovers?.instagram ?? null,
-        onActivate: () => setInstagramOpen(true),
-        ariaLabel:
-          count === 1
-            ? `No Instagram — ${instagramPosts[0].title}`
-            : `No Instagram — ${count} publicações`,
-      })
-    }
-
-    return list
-  }, [summary, nextEvent, newPosts, hasPosts, instagramPosts, instagramCover, cardCovers, onNavigate])
+        ariaLabel: nextEvent ? `Eventos — ${nextEvent.title}` : 'Eventos',
+      },
+      {
+        key: 'loja',
+        eyebrow: 'Loja',
+        title: 'Loja',
+        meta: 'Produtos e novidades',
+        image: null,
+        onActivate: () => onNavigate('loja'),
+        ariaLabel: 'Loja',
+      },
+      {
+        key: 'comunidades',
+        eyebrow: 'Comunidades',
+        title: 'Comunidades',
+        meta: 'Encontre seu espaço',
+        image: null,
+        onActivate: () => onNavigate('comunidades'),
+        ariaLabel: 'Comunidades',
+      },
+      {
+        key: 'circulos',
+        eyebrow: 'Círculos',
+        title: 'Círculos',
+        meta: 'Pequenos grupos da comunidade',
+        image: null,
+        onActivate: () => onNavigate('circulos'),
+        ariaLabel: 'Círculos',
+      },
+    ],
+    [nextEvent, eventosCover, onNavigate],
+  )
 
   // Autoplay permitido: só prefers-reduced-motion decide (não mais o
   // tipo de ponteiro — ver comentário no topo do arquivo).
@@ -265,8 +211,6 @@ export function HomeExperienceStrip({
     }
   }, [marquee])
 
-  if (experiences.length === 0) return null
-
   const renderCard = (exp: Experience, clone: boolean) => (
     <li key={clone ? `${exp.key}-clone` : exp.key} className="exp-card-item">
       <button
@@ -276,8 +220,6 @@ export function HomeExperienceStrip({
         aria-label={clone ? undefined : exp.ariaLabel}
         aria-hidden={clone ? true : undefined}
         tabIndex={clone ? -1 : undefined}
-        aria-haspopup={!clone && exp.key === 'instagram' ? 'dialog' : undefined}
-        ref={!clone && exp.key === 'instagram' ? instagramCardRef : undefined}
       >
         <span className="exp-card-frame">
           {exp.image && <img src={exp.image} alt="" className="exp-card-photo" />}
@@ -290,7 +232,7 @@ export function HomeExperienceStrip({
   )
 
   return (
-    <section className="exp-strip" aria-label="Experiências da comunidade">
+    <section className="exp-strip" aria-label="Círcula Hoje">
       <div
         className={`exp-viewport${marquee ? ' exp-viewport--marquee' : ''}`}
         ref={viewportRef}
@@ -307,10 +249,6 @@ export function HomeExperienceStrip({
         </div>
       </div>
       {needsLoop && <span className="exp-edge-fade" aria-hidden="true" />}
-
-      {instagramOpen && (
-        <InstagramHighlightModal posts={instagramPosts} onClose={closeInstagram} />
-      )}
     </section>
   )
 }
