@@ -507,10 +507,10 @@
   max-width: 480px;
   margin-inline: auto;
   text-align: left;
-  /* Redesign da Home, item 2 — a barra inferior fixa saiu de vista (a
-     navegação virou uma lista única no topo); o respiro extra que
-     reservava espaço pra ela não é mais necessário, só a área segura
-     do iOS por baixo do conteúdo. */
+  /* Base (desktop, >= 1024px, sem barra inferior fixa): só a área
+     segura do iOS por baixo do conteúdo. No mobile (< 1024px), o
+     bloco `@media (max-width: 1023px)` perto de `.bottom-nav` soma
+     `--bottom-nav-h` aqui, para a barra fixa nunca cobrir conteúdo. */
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
 
   @media (min-width: 768px) {
@@ -1065,16 +1065,21 @@
 }
 
 /* ===== Navegação primária ========================================
-   Redesign da Home, item 2 — navegação ÚNICA (nada de duplicar menus):
-   a mesma lista `.topnav-list` renderiza em qualquer largura, logo
+   Desktop (>= 1024px): `.topnav-list` — a mesma lista de sempre, logo
    abaixo do logotipo e antes do banner (ver `.topnav` no grid de
-   `.dashboard`, mais abaixo, e a ordem no JSX de Dashboard.tsx). A
-   antiga barra inferior fixa (`.bottom-nav`), o botão "Menu" solto
-   (`.topnav-toggle`) e a folha de overflow (`.nav-sheet`) saem de vista
-   em TODA largura — o componente continua montando essa marcação (sem
-   risco de remover lógica/acessibilidade), só não aparece mais, porque
-   todos os destinos já cabem na lista única, com quebra organizada no
-   mobile (sem rolagem horizontal no documento). */
+   `.dashboard`, mais abaixo, e a ordem no JSX de Dashboard.tsx).
+   Inalterada por esta mudança.
+
+   Mobile (< 1024px): barra inferior fixa estilo Instagram — reativa a
+   marcação de `.bottom-nav` que já existia (mesmos destinos, mesmo
+   onNavigate, mesma folha de overflow "Mais"/`.nav-sheet`, nenhum
+   handler novo nem duplicado). `.topnav-list` fica oculta nesse
+   breakpoint e `.topnav` tem o padding zerado para não deixar uma
+   faixa vazia onde a lista costumava aparecer. Ver bloco
+   `@media (max-width: 1023px)` logo após `.bottom-nav-item--active`. O
+   botão "Menu" solto (`.topnav-toggle`) continua escondido em qualquer
+   largura — a barra inferior já tem seu próprio "Mais" para a mesma
+   ação; manter os dois duplicaria a navegação. */
 .topnav {
   display: flex;
   align-items: center;
@@ -1340,10 +1345,12 @@
   }
 }
 
-/* --- Barra inferior fixa — DESLIGADA (redesign da Home, item 2) -----
-   Marcação preservada (mesmos destinos/handlers/acessibilidade), mas
-   escondida em toda largura: a navegação virou uma lista única no topo
-   (.topnav-list), não mais duplicada numa barra fixa embaixo. */
+/* --- Barra inferior fixa (mobile, < 1024px) --------------------------
+   Reativada — ver `@media (max-width: 1023px)` logo abaixo de
+   `.bottom-nav-item--active`, que troca este `display: none` por
+   `block` só nesse breakpoint. No desktop (>= 1024px) continua
+   escondida: a navegação lá é só `.topnav-list`. Mesmos
+   destinos/handlers/acessibilidade de sempre — nada duplicado. */
 .bottom-nav {
   display: none;
   position: fixed;
@@ -1405,6 +1412,37 @@
 
 .bottom-nav-item--active {
   color: var(--ink-action);
+}
+
+/* Mobile (< 1024px) — troca a lista única do topo pela barra inferior
+   fixa: `.topnav-list` some, `.topnav` perde o padding (sem isso
+   sobraria uma faixa vazia onde a lista aparecia) e `.bottom-nav` entra
+   em cena. O botão "Menu" solto (`.topnav-toggle`) permanece escondido
+   — a barra já tem "Mais" para a mesma ação. Margens de segurança
+   laterais (notch/cantos arredondados em paisagem) somam-se ao
+   padding-bottom que `.bottom-nav` já tinha. `.dashboard` reserva
+   `--bottom-nav-h` (56px) de respiro extra embaixo para a barra fixa
+   nunca cobrir cards, formulários ou botões do conteúdo. */
+@media (max-width: 1023px) {
+  .topnav-list {
+    display: none;
+  }
+
+  .topnav {
+    padding: 0;
+  }
+
+  .bottom-nav {
+    display: block;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .dashboard {
+    padding-bottom: calc(
+      var(--space-6) + var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px)
+    );
+  }
 }
 
 /* Posição no grid de `.dashboard` (desktop, >=1024px): logo abaixo do
@@ -12765,9 +12803,10 @@ button.card:active {
 /* Item 3/4 (ajuste visual) — "Boa tarde, Nutri" → cards: o gap uniforme
    do .home (56px no mobile) ficava longo demais logo após o título;
    aproxima só esse vão, sem alterar o respiro entre as demais seções
-   da Home. Redesign da Home, item 2 — a regra irmã que zerava o
-   padding de `.topnav` sem a pílula "Menu" saiu: `.topnav-list` agora
-   é sempre visível (nunca mais um `.topnav` vazio nesse breakpoint). */
+   da Home. (O `.topnav` vazio nesse breakpoint voltou a ser um caso
+   real desde a reativação da barra inferior fixa — ver
+   `@media (max-width: 1023px)` perto de `.bottom-nav`, que zera o
+   padding de `.topnav` só quando `.topnav-list` está escondida.) */
 @media (max-width: 1023px) {
   .home-greeting {
     margin-bottom: calc(-1 * var(--space-6));
