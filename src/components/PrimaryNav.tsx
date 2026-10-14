@@ -6,6 +6,11 @@ import circulaIcon from '../assets/circula-icon.png'
 export type NavKey =
   | 'inicio'
   | 'feed'
+  // 'comunidades' permanece no tipo (mesmo padrão de 'salvos' abaixo):
+  // reorganização do menu removeu o destino — gestão de comunidade
+  // mora no Painel, Member chega ao conteúdo pelo Feed — mas nenhum
+  // componente/hook que dependa do tipo precisa mudar. Nunca mais
+  // empurrado para `navItems` em Dashboard.tsx.
   | 'comunidades'
   | 'circulos'
   | 'eventos'
@@ -191,22 +196,28 @@ export function PrimaryNav({
           mesmo onNavigate dos itens acima; só a apresentação muda. */}
       <div className="bottom-nav">
         <ul className="bottom-nav-list">
-          {bottomItems.map((item) => (
-            <li key={item.key}>
-              <button
-                type="button"
-                className={`bottom-nav-item${active === item.key ? ' bottom-nav-item--active' : ''}`}
-                aria-current={active === item.key ? 'page' : undefined}
-                onClick={() => onNavigate(item.key)}
-              >
-                <span className="nav-icon-wrap">
-                  <item.Icon size={22} />
-                  {badgeFor(item.key)}
-                </span>
-                <span className="bottom-nav-label">{item.label}</span>
-              </button>
-            </li>
-          ))}
+          {bottomItems.map((item) => {
+            // Reorganização do menu — Feed é o destino central da barra
+            // (Início/Feed/Painel/Perfil), um pouco maior que os demais.
+            // Só apresentação (ícone/rótulo); handler e destino iguais.
+            const isFeed = item.key === 'feed'
+            return (
+              <li key={item.key}>
+                <button
+                  type="button"
+                  className={`bottom-nav-item${active === item.key ? ' bottom-nav-item--active' : ''}${isFeed ? ' bottom-nav-item--feed' : ''}`}
+                  aria-current={active === item.key ? 'page' : undefined}
+                  onClick={() => onNavigate(item.key)}
+                >
+                  <span className="nav-icon-wrap">
+                    <item.Icon size={isFeed ? 26 : 22} />
+                    {badgeFor(item.key)}
+                  </span>
+                  <span className="bottom-nav-label">{item.label}</span>
+                </button>
+              </li>
+            )
+          })}
           {hasOverflow && (
             <li>
               <button

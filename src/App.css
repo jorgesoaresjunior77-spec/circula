@@ -1414,6 +1414,15 @@
   color: var(--ink-action);
 }
 
+/* Reorganização do menu (item 3) — Feed é o destino central da barra
+   (Início/Feed/Painel/Perfil nesta ordem — mais próximo do centro
+   possível com nº par de itens para a Professional; centro exato para
+   o Member, que não vê "Painel"). Ícone já vem maior via prop `size`
+   (PrimaryNav.tsx); aqui só o rótulo acompanha em peso. */
+.bottom-nav-item--feed .bottom-nav-label {
+  font-weight: 700;
+}
+
 /* Mobile (< 1024px) — troca a lista única do topo pela barra inferior
    fixa: `.topnav-list` some, `.topnav` perde o padding (sem isso
    sobraria uma faixa vazia onde a lista aparecia) e `.bottom-nav` entra
@@ -13524,6 +13533,34 @@ button.card:focus-visible {
   overflow: hidden;
 }
 
+/* Reorganização da Home (item 1) — vaga vazia da faixa "No Instagram"
+   quando não há publicação cadastrada ainda: mesmo tamanho/proporção
+   do card real (.exp-card-frame, aspect-ratio 4/5 herdado), borda
+   tracejada + fundo quieto, mesma linguagem do estado vazio de
+   CoverImageInput (.cover-image-input-frame[data-empty]). Não é um
+   link nem um botão — nada para onde ir ainda. */
+.exp-card--empty {
+  cursor: default;
+
+  .exp-card-frame {
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    background: var(--surface-sunken);
+    border: 1px dashed var(--border);
+  }
+
+  .exp-card-eyebrow {
+    opacity: 0.6;
+  }
+}
+
+.exp-card-empty-label {
+  font-size: 12px;
+  color: var(--graphite-soft);
+  opacity: 0.75;
+}
+
 .exp-card-meta {
   margin-top: var(--space-1);
   font-size: 12px;
@@ -13593,6 +13630,12 @@ button.card:focus-visible {
 
 .circ-strip {
   min-width: 0;
+  /* Reorganização da Home (item 4) — aproxima um pouco de "Círcula
+     Hoje" (seção anterior, sem título próprio), puxando contra o
+     gap uniforme de `.home` (--space-7). Não mexe no gap seguinte
+     (Círculos -> "No Instagram" continua no mesmo --space-7 de
+     sempre — mesma proporção/padrão de espaçamento entre as duas). */
+  margin-top: calc(-1 * var(--space-4));
 }
 
 .circ-strip-title {

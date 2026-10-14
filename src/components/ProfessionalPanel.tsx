@@ -16,7 +16,12 @@ import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
 import { CommunityCardImagesManager } from './CommunityCardImagesManager'
-import type { CommunityUpdateInput, CommunityWithMembers } from '../types/community'
+import type {
+  AddMemberResult,
+  CommunityUpdateInput,
+  CommunityWithMembers,
+  InviteMemberResult,
+} from '../types/community'
 
 type PanelTab =
   | 'visao'
@@ -59,6 +64,11 @@ interface ProfessionalPanelProps {
     communityId: string,
     patch: CommunityUpdateInput,
   ) => Promise<{ error: string | null }>
+  /** Reorganização do menu — Convite/Adição direta de membro (antes no
+   *  destino "Comunidades", removido) moram na aba Participantes.
+   *  Mesmos handlers de useCommunity, só repassados por aqui agora. */
+  onInviteMember: (email: string, fullName: string) => Promise<InviteMemberResult>
+  onAddMember: (email: string) => Promise<AddMemberResult>
 }
 
 export function ProfessionalPanel({
@@ -69,6 +79,8 @@ export function ProfessionalPanel({
   onApproveMembership,
   onRejectMembership,
   onUpdateCommunity,
+  onInviteMember,
+  onAddMember,
 }: ProfessionalPanelProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('visao')
 
@@ -112,6 +124,8 @@ export function ProfessionalPanel({
             community={community}
             onApprove={onApproveMembership}
             onReject={onRejectMembership}
+            onInvite={onInviteMember}
+            onAdd={onAddMember}
           />
         </div>
       )}
@@ -192,8 +206,9 @@ export function ProfessionalPanel({
 
       {activeTab === 'recebimentos' && (
         <div className="panel-tab-content">
-          {/* FASE P1-A — extrato de recebimentos da assinatura da comunidade
-              (só leitura; deriva de subscription_payouts). */}
+          {/* FASE P1-A/P1-D — extrato de recebimentos da comunidade (só
+              leitura): consolida assinaturas (subscription_payouts) e
+              vendas de produto da Loja (product_payouts). */}
           <RevenuePanel communityId={communityId} communityName={community.name} />
         </div>
       )}

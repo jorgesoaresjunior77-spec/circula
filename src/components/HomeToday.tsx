@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { Profile } from '../types/profile'
-import type { CommunityWithMembers } from '../types/community'
+import type { CommunityWithMembers, JoinResult } from '../types/community'
 import type { NavKey } from './PrimaryNav'
 import { useCircles } from '../hooks/useCircles'
 import { useContent } from '../hooks/useContent'
@@ -8,6 +8,7 @@ import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
+import { CommunityView } from './CommunityView'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
@@ -38,6 +39,10 @@ interface HomeTodayProps {
     description: string
     cover_image_url?: string | null
   }) => Promise<{ error: string | null }>
+  /** Reorganização do menu — descoberta de comunidade (antes no destino
+   *  "Comunidades", removido) virou parte deste fallback. Mesmo
+   *  `joinCommunity` de sempre (useCommunity), só chamado daqui agora. */
+  onJoinCommunity: (communityId: string) => Promise<JoinResult>
   onNavigate: (key: NavKey) => void
   /**
    * C1 — quando a capa da comunidade em foco está sendo usada como hero
@@ -74,6 +79,7 @@ export function HomeToday({
   discoverableCommunities,
   memberCounts,
   onCreateCommunity,
+  onJoinCommunity,
   onNavigate,
   coverHero = false,
   railSummary = null,
@@ -138,21 +144,33 @@ export function HomeToday({
   }
 
   if (!focusCommunity) {
+    // Reorganização do menu — a descoberta de comunidade (antes um
+    // destino de nav próprio, "Comunidades") vive aqui agora: é o único
+    // lugar em que um Member sem nenhuma comunidade ainda precisa dela.
+    // Mesmos dados (`discoverableCommunities`, já carregado por
+    // useCommunity) e mesmo `onJoin` de sempre — só o local mudou.
     return (
       <div className="home">
         {greeting}
         <section className="community-card">
           <p>Você ainda não faz parte de nenhuma comunidade.</p>
-          {discoverableCommunities.length > 0 && (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => onNavigate('comunidades')}
-            >
-              Descobrir comunidades
-            </button>
-          )}
         </section>
+        {discoverableCommunities.length > 0 && (
+          <section className="home-section">
+            <h3 className="home-section-title">Descobrir comunidades</h3>
+            <div className="community-grid">
+              {discoverableCommunities.map((community) => (
+                <CommunityView
+                  key={community.id}
+                  community={community}
+                  memberCount={memberCounts[community.id]}
+                  onJoin={() => onJoinCommunity(community.id)}
+                  variant="grid"
+                />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     )
   }
@@ -175,9 +193,9 @@ export function HomeToday({
         />
       )}
 
-      {/* Redesign da Home (item 3) — "Círcula Hoje": 6 destinos fixos de
-          navegação (Meu Perfil, Help Nutri, Eventos, Loja, Comunidades,
-          Círculos), sempre presentes. */}
+      {/* Redesign da Home (item 3) — "Círcula Hoje": 5 destinos fixos de
+          navegação (Meu Perfil, Help Nutri, Eventos, Loja, Círculos),
+          sempre presentes. */}
       <HomeExperienceStrip
         nextEvent={railSummary?.nextEvent ?? null}
         eventosCover={eventosCover}
@@ -198,8 +216,8 @@ export function HomeToday({
 
       {/* Redesign da Home (item 5) — "No Instagram": terceira faixa,
           logo abaixo de Círculos. Mesmos dados do C4.1 (community_content
-          publicado + link do Instagram), sem publicação real -> não
-          renderiza. */}
+          publicado + link do Instagram); sem publicação real, mostra
+          vagas vazias no lugar (item 1 da reorganização). */}
       <HomeInstagramStrip posts={instagramPosts} />
 
       <p className="home-institutional-note">

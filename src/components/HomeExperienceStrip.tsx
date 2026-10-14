@@ -4,11 +4,13 @@ import { formatEventDate } from '../lib/formatEventDate'
 
 // C2 — Faixa editorial "Círcula Hoje".
 //
-// Redesign da Home — lista FIXA de 6 destinos de navegação (Meu Perfil,
-// Help Nutri, Eventos, Loja, Comunidades, Círculos), sempre presentes,
-// e não mais condicionados a dado real existir (o antigo "Hoje no
-// Círcula"/"Na comunidade"/"No Instagram" saíram daqui — Instagram
-// agora é a própria faixa <HomeInstagramStrip>, abaixo de Círculos).
+// Redesign da Home — lista FIXA de 5 destinos de navegação (Meu Perfil,
+// Help Nutri, Eventos, Loja, Círculos), sempre presentes, e não mais
+// condicionados a dado real existir (o antigo "Hoje no Círcula"/"Na
+// comunidade"/"No Instagram" saíram daqui — Instagram agora é a própria
+// faixa <HomeInstagramStrip>, abaixo de Círculos). "Comunidades" saiu
+// (reorganização da navegação): a gestão da comunidade mora no Painel da
+// Professional; o Member chega ao conteúdo pelo Feed.
 // Só "Eventos" tem meta dinâmica (próximo evento, quando há) e capa
 // opcional cadastrada no Painel — é a única chave que segue válida no
 // CHECK de `community_card_images` (ver HomeToday.tsx); os outros 5
@@ -101,15 +103,6 @@ export function HomeExperienceStrip({
         image: null,
         onActivate: () => onNavigate('loja'),
         ariaLabel: 'Loja',
-      },
-      {
-        key: 'comunidades',
-        eyebrow: 'Comunidades',
-        title: 'Comunidades',
-        meta: 'Encontre seu espaço',
-        image: null,
-        onActivate: () => onNavigate('comunidades'),
-        ariaLabel: 'Comunidades',
       },
       {
         key: 'circulos',

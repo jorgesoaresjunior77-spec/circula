@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
@@ -7,9 +7,6 @@ import { useCommunity } from '../hooks/useCommunity'
 import { useCircles } from '../hooks/useCircles'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { CommunityView } from './CommunityView'
-import { MemberList } from './MemberList'
-import { AddMemberForm } from './AddMemberForm'
-import { InviteMemberForm } from './InviteMemberForm'
 import { MyProfile } from './MyProfile'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
@@ -23,10 +20,28 @@ import { NotificationBell } from './NotificationBell'
 import { Messages } from './Messages'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
-import { ProfessionalPanel } from './ProfessionalPanel'
-import { MasterPanel } from './MasterPanel'
+// Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
+// os papéis professional/master, respectivamente — carregados sob
+// demanda em vez de entrarem no bundle inicial de toda usuária (ver
+// Suspense em volta de renderDestination() mais abaixo). Named export
+// adaptado para `default` porque React.lazy exige esse formato.
+//
+// ProductManager NÃO entra nesse padrão (Fase 4 do code-splitting):
+// testado como lazy() e o próprio Rollup confirmou, via o aviso
+// INEFFECTIVE_DYNAMIC_IMPORT, que o módulo não sai do chunk principal —
+// ele também é importado estaticamente por MemberCommunityCard.tsx (card
+// padrão do Member) e por ProfessionalPanel.tsx, então fica alcançável
+// de forma estática por outros caminhos de qualquer jeito. Revertido
+// para import estático simples: sem esses dois outros pontos também
+// virarem sob-demanda, o lazy() aqui só adiciona overhead sem adiar
+// nenhum byte real.
+const ProfessionalPanel = lazy(() =>
+  import('./ProfessionalPanel').then((m) => ({ default: m.ProfessionalPanel })),
+)
+const MasterPanel = lazy(() =>
+  import('./MasterPanel').then((m) => ({ default: m.MasterPanel })),
+)
 import { MemberCommunityCard } from './MemberCommunityCard'
-import { PendingMembershipRequests } from './PendingMembershipRequests'
 import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { PrimaryNav } from './PrimaryNav'
@@ -36,7 +51,6 @@ import type { NavItem, NavKey } from './PrimaryNav'
 import {
   CalendarIcon,
   CirclesIcon,
-  CommunitiesIcon,
   FeedIcon,
   HomeIcon,
   MessageIcon,
@@ -44,43 +58,6 @@ import {
   StoreIcon,
   UserIcon,
 } from './icons'
-
-// Fase 7 — só a quantidade para preencher a largura da grade real
-// (.community-grid vira 3 colunas no desktop); puramente decorativo.
-const COMMUNITY_LOADING_KEYS = ['a', 'b', 'c']
-
-// Skeleton editorial exclusivo da tela Comunidades do Member (Fase 7).
-// Puramente apresentacional — nenhum dado novo, nenhuma lógica; usado
-// só quando `effectiveNav === 'comunidades'` e `profile.role ===
-// 'member'` durante o `loading` já existente de useCommunity. O
-// Professional continua com o texto genérico de sempre (item 5 da
-// fase: nenhum estado novo para ele).
-function CommunityLoadingSkeleton() {
-  return (
-    <div className="community-loading" aria-hidden="true">
-      <span className="community-loading-line community-loading-line--heading" />
-      <div className="community-grid">
-        {COMMUNITY_LOADING_KEYS.map((key) => (
-          <div key={`minhas-${key}`} className="community-loading-card">
-            <span className="community-loading-media" />
-            <span className="community-loading-line community-loading-line--title" />
-            <span className="community-loading-line community-loading-line--meta" />
-          </div>
-        ))}
-      </div>
-      <span className="community-loading-line community-loading-line--heading" />
-      <div className="community-grid">
-        {COMMUNITY_LOADING_KEYS.map((key) => (
-          <div key={`descobrir-${key}`} className="community-loading-card">
-            <span className="community-loading-media" />
-            <span className="community-loading-line community-loading-line--title" />
-            <span className="community-loading-line community-loading-line--meta" />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 interface CommunityPickerOptionProps {
   community: CommunityWithMembers
@@ -231,17 +208,21 @@ export function Dashboard({
       Icon: FeedIcon,
       inBottomNav: true,
     })
-    navItems.push({
-      key: 'comunidades',
-      label: 'Comunidades',
-      Icon: CommunitiesIcon,
-      inBottomNav: true,
-    })
+    // Reorganização do menu — "Comunidades" não existe mais como
+    // destino independente: a gestão da comunidade mora no Painel
+    // (abas Visão geral/Participantes, ver ProfessionalPanel.tsx) e o
+    // Member chega ao conteúdo pelo Feed. Mantemos a NavKey 'comunidades'
+    // no tipo (mesmo padrão dormente já usado para 'salvos'), mas ela
+    // nunca mais é empurrada para `navItems`.
     navItems.push({
       key: 'circulos',
       label: 'Círculos',
       Icon: CirclesIcon,
-      inBottomNav: true,
+      // Navegação principal agora é só Início/Feed/Painel/Perfil —
+      // Círculos sai da barra inferior direta e passa a viver na folha
+      // "Mais", junto de Eventos/Loja/Mensagens (mesmo mecanismo de
+      // sempre, nenhum handler novo).
+      inBottomNav: false,
     })
     navItems.push({
       key: 'eventos',
@@ -386,6 +367,7 @@ export function Dashboard({
           discoverableCommunities={discoverableCommunities}
           memberCounts={memberCounts}
           onCreateCommunity={createCommunity}
+          onJoinCommunity={joinCommunity}
           onNavigate={handleNavigate}
           coverHero={coverHero}
           railSummary={
@@ -632,63 +614,13 @@ export function Dashboard({
             onApproveMembership={approveMembershipRequest}
             onRejectMembership={rejectMembershipRequest}
             onUpdateCommunity={updateCommunity}
+            // Reorganização do menu — Convite/Adição direta de membro
+            // (antes no destino "Comunidades", removido) agora moram na
+            // aba Participantes do Painel. Mesmos handlers de sempre
+            // (useCommunity), só o local de montagem mudou.
+            onInviteMember={(email, fullName) => inviteMember(community.id, email, fullName)}
+            onAddMember={(email) => addMember(community.id, email)}
           />
-        )
-      }
-
-      if (effectiveNav === 'comunidades') {
-        return (
-          <>
-            <div className="community-masthead">
-              <p className="community-masthead-eyebrow">Comunidades</p>
-              <h1 className="community-masthead-title">Sua comunidade, em um só lugar</h1>
-              <p className="community-masthead-intro">
-                Acompanhe pedidos de entrada, convide novas pessoas e conheça quem já faz
-                parte de {community.name}.
-              </p>
-            </div>
-
-            <div className="community-pro-hero">
-              <CommunityView
-                community={community}
-                memberCount={memberCounts[community.id]}
-                badge="Você é a anfitriã desta comunidade"
-                onSetCover={(url) => setCommunityCover(community.id, url)}
-                ownerId={profile.id}
-              />
-            </div>
-
-            <div className="community-pro-block">
-              <PendingMembershipRequests
-                communityId={community.id}
-                communityName={community.name}
-                members={community.community_members}
-                onApprove={approveMembershipRequest}
-                onReject={rejectMembershipRequest}
-                variant="editorial"
-              />
-            </div>
-
-            <div className="community-pro-block">
-              <p className="community-pro-block-eyebrow">Convite</p>
-              <InviteMemberForm
-                onInvite={(email, fullName) => inviteMember(community.id, email, fullName)}
-              />
-            </div>
-
-            <div className="community-pro-block">
-              <p className="community-pro-block-eyebrow">Adição direta</p>
-              <AddMemberForm onAdd={(email) => addMember(community.id, email)} />
-            </div>
-
-            <div className="community-pro-block">
-              <p className="community-pro-block-eyebrow">Comunidade</p>
-              <MemberList
-                members={community.community_members}
-                onSelectMember={setViewingProfileId}
-              />
-            </div>
-          </>
         )
       }
 
@@ -721,76 +653,10 @@ export function Dashboard({
       return <MasterPanel />
     }
 
-    // member
-    if (effectiveNav === 'comunidades') {
-      return (
-        <>
-          <div className="community-masthead">
-            <p className="community-masthead-eyebrow">Comunidades</p>
-            <h1 className="community-masthead-title">Encontre seu espaço no Círcula</h1>
-            <p className="community-masthead-intro">
-              Cada comunidade é um jeito diferente de viver o Círcula — escolha onde já
-              está, ou descubra um novo espaço para chamar de seu.
-            </p>
-          </div>
-
-          {myCommunities.length > 0 ? (
-            <>
-              <p className="section-label">Minhas comunidades</p>
-              <div className="community-grid">
-                {myCommunities.map((community) => (
-                  <CommunityView
-                    key={community.id}
-                    community={community}
-                    memberCount={memberCounts[community.id]}
-                    variant="grid"
-                  />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="community-empty">
-              <p className="community-empty-eyebrow">Minhas comunidades</p>
-              <p className="community-empty-title">
-                Você ainda não participa de nenhuma comunidade
-              </p>
-              <p className="community-empty-text">
-                Descubra abaixo um espaço que combine com o seu momento.
-              </p>
-            </div>
-          )}
-
-          {discoverableCommunities.length > 0 ? (
-            <>
-              <p className="section-label">Descobrir comunidades</p>
-              <div className="community-grid">
-                {discoverableCommunities.map((community) => (
-                  <CommunityView
-                    key={community.id}
-                    community={community}
-                    memberCount={memberCounts[community.id]}
-                    onJoin={() => joinCommunity(community.id)}
-                    variant="grid"
-                  />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="community-empty">
-              <p className="community-empty-eyebrow">Descobrir comunidades</p>
-              <p className="community-empty-title">
-                Nenhuma comunidade nova para descobrir agora
-              </p>
-              <p className="community-empty-text">
-                Você já faz parte de tudo que temos por perto. Volte em breve para ver
-                novidades.
-              </p>
-            </div>
-          )}
-        </>
-      )
-    }
-
+    // member — "Comunidades" como destino próprio saiu (reorganização do
+    // menu): o conteúdo é acessado pelo Feed. A descoberta de novas
+    // comunidades (antes só alcançável por aqui) virou parte do fallback
+    // "sem comunidade" de HomeToday.tsx, não um destino de nav.
     return (
       <>
         <p className="section-label">Minha comunidade</p>
@@ -915,16 +781,13 @@ export function Dashboard({
       ) : (
         <div className="dashboard-main">
           <div className="community-area">
-            {loading &&
-              (effectiveNav === 'comunidades' && profile?.role === 'member' ? (
-                <CommunityLoadingSkeleton />
-              ) : (
-                <p>Carregando comunidade...</p>
-              ))}
+            {loading && <p>Carregando comunidade...</p>}
 
             {!loading && error && <p className="auth-error">{error}</p>}
 
-            {!loading && !error && renderDestination()}
+            {!loading && !error && (
+              <Suspense fallback={<p>Carregando...</p>}>{renderDestination()}</Suspense>
+            )}
           </div>
         </div>
       )}

@@ -256,7 +256,7 @@
 
   font: 16px/1.7 var(--font-body);
   letter-spacing: normal;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--graphite-soft);
   background: var(--page-bg);
   font-synthesis: none;

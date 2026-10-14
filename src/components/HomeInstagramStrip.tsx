@@ -13,7 +13,8 @@ import { isInstagramUrl } from '../lib/instagramContent'
 // Instagram — a Profissional cadastra/edita os 6 posts (frase = título,
 // imagem = capa, link = link externo) pelo Painel → Conteúdo
 // (<ContentManager>), que já existe. Sem publicação real cadastrada, a
-// faixa inteira não aparece — nunca um card falso ou link genérico.
+// faixa continua visível (vagas vazias, ver EMPTY_SLOTS) — nunca um
+// card falso ou link genérico.
 //
 // Diferença chave em relação a <HomeExperienceStrip>: aqui o clique
 // ABRE A PUBLICAÇÃO NO INSTAGRAM (nova aba), não navega dentro do app —
@@ -23,6 +24,11 @@ import { isInstagramUrl } from '../lib/instagramContent'
 
 const SPEED_PX_PER_SEC = 40
 const MAX_CARDS = 6
+// Reorganização da Home (item 1) — sem publicação real cadastrada, a
+// faixa continua visível (tamanho/proporção/espaçamento reservados),
+// com este nº de vagas vazias em vez de sumir. Puramente decorativo:
+// nenhum dado inventado, nenhum link, nenhuma imagem.
+const EMPTY_SLOTS = 3
 
 interface HomeInstagramStripProps {
   /** Já filtrado (filterInstagramContent) na HomeToday — publicados, com
@@ -162,7 +168,36 @@ export function HomeInstagramStrip({ posts }: HomeInstagramStripProps) {
     }
   }, [marquee])
 
-  if (items.length === 0) return null
+  // Reorganização da Home (item 1) — a seção fica visível mesmo sem
+  // publicação cadastrada: vagas vazias no tamanho/proporção previstos,
+  // sem marquee/loop (poucos cards, nada a percorrer) e sem link (não
+  // há para onde abrir). Com publicação real, segue o comportamento de
+  // sempre (abaixo).
+  if (items.length === 0) {
+    return (
+      <section className="exp-strip" aria-labelledby="insta-strip-title">
+        <h2 id="insta-strip-title" className="circ-strip-title">
+          No Instagram
+        </h2>
+        <div className="exp-viewport">
+          <div className="exp-track">
+            <ul className="exp-seq" aria-hidden="true">
+              {Array.from({ length: EMPTY_SLOTS }, (_, i) => (
+                <li key={i} className="exp-card-item">
+                  <div className="exp-card exp-card--empty">
+                    <span className="exp-card-frame">
+                      <span className="exp-card-eyebrow">Instagram</span>
+                      <span className="exp-card-empty-label">Em breve</span>
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="exp-strip" aria-labelledby="insta-strip-title">

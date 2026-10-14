@@ -17,9 +17,15 @@ interface NotificationBellProps {
 
 // Destino de navegação por tipo — mapeado só para chaves de navegação
 // que já existem, sem reestruturar a navegação.
+//
+// Reorganização do menu — 'comunidades' não é mais um destino alcançável
+// (navItems nunca o inclui). post_comment/post_reaction/membership_* iam
+// para lá antes; agora vão para 'feed' (onde a publicação/comunidade
+// realmente aparece para a Member) — mesma lógica de "chave que já
+// existe", só atualizada para o destino que continua de pé.
 const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
-  post_comment: 'comunidades',
-  post_reaction: 'comunidades',
+  post_comment: 'feed',
+  post_reaction: 'feed',
   circle_join: 'circulos',
   event_rsvp: 'eventos',
   direct_message: 'mensagens',
@@ -27,8 +33,8 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   // A solicitação vai para a dona (Painel → Participantes / "Precisa de
   // atenção"); aprovação e rejeição vão para a Member (sua comunidade).
   membership_requested: 'painel',
-  membership_approved: 'comunidades',
-  membership_rejected: 'comunidades',
+  membership_approved: 'feed',
+  membership_rejected: 'inicio',
 }
 
 export function NotificationBell({

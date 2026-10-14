@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import { ParticipantsPanel } from './ParticipantsPanel'
 import { PendingMembershipRequests } from './PendingMembershipRequests'
+import { InviteMemberForm } from './InviteMemberForm'
+import { AddMemberForm } from './AddMemberForm'
 import { EmptyState } from './EmptyState'
-import type { CommunityMember, CommunityWithMembers } from '../types/community'
+import type {
+  AddMemberResult,
+  CommunityMember,
+  CommunityWithMembers,
+  InviteMemberResult,
+} from '../types/community'
 
 // 16.2.3-D — aba "Participantes" com filtro por status.
 //
@@ -45,6 +52,10 @@ interface CommunityMembersPanelProps {
   community: CommunityWithMembers
   onApprove: (communityId: string, profileId: string) => Promise<{ error: string | null }>
   onReject: (communityId: string, profileId: string) => Promise<{ error: string | null }>
+  /** Reorganização do menu — convidar/adicionar membro (antes no destino
+   *  "Comunidades", removido) agora vive aqui, ao lado do roster. */
+  onInvite: (email: string, fullName: string) => Promise<InviteMemberResult>
+  onAdd: (email: string) => Promise<AddMemberResult>
 }
 
 /** Linha somente-leitura para membros bloqueados: avatar, nome, data, status. */
@@ -73,8 +84,11 @@ export function CommunityMembersPanel({
   community,
   onApprove,
   onReject,
+  onInvite,
+  onAdd,
 }: CommunityMembersPanelProps) {
   const [filter, setFilter] = useState<MemberFilter>('todas')
+  const [showAddMember, setShowAddMember] = useState(false)
 
   const pending = community.community_members.filter((m) => m.status === 'pending')
   const blocked = community.community_members.filter((m) => m.status === 'blocked')
@@ -90,7 +104,24 @@ export function CommunityMembersPanel({
         <p className="panel-members-lede">
           Quem faz parte da sua comunidade — e quem está esperando para entrar.
         </p>
+        <button
+          type="button"
+          className="auth-link"
+          onClick={() => setShowAddMember((open) => !open)}
+        >
+          {showAddMember ? 'Fechar' : 'Convidar ou adicionar participante'}
+        </button>
       </header>
+
+      {/* Reorganização do menu — convite (quem ainda não tem conta) e
+          adição direta (quem já tem) moravam no antigo destino
+          "Comunidades"; mesmos componentes/handlers de sempre. */}
+      {showAddMember && (
+        <div className="panel-members-section panel-members-add">
+          <InviteMemberForm onInvite={onInvite} />
+          <AddMemberForm onAdd={onAdd} />
+        </div>
+      )}
 
       <div
         className="panel-members-filter"
