@@ -110,6 +110,10 @@ interface DashboardProps {
     error: string | null
   }>
   onUploadAvatar: (file: File) => Promise<{ error: string | null }>
+  /** Perfil (item 10) — upload cru de uma foto da galeria (bucket
+   *  `avatars`, mesmo de sempre); devolve a URL pública, não toca
+   *  `profiles` — MyProfile persiste o array via onUpdateProfile. */
+  onUploadGalleryPhoto: (file: File) => Promise<{ url: string | null; error: string | null }>
   activeNav: NavKey
   onNavigate: (key: NavKey) => void
 }
@@ -119,6 +123,7 @@ export function Dashboard({
   onSignOut,
   onUpdateProfile,
   onUploadAvatar,
+  onUploadGalleryPhoto,
   activeNav,
   onNavigate,
 }: DashboardProps) {
@@ -408,7 +413,12 @@ export function Dashboard({
 
     if (effectiveNav === 'perfil') {
       return (
-        <MyProfile profile={profile} onUpdate={onUpdateProfile} onUploadAvatar={onUploadAvatar} />
+        <MyProfile
+          profile={profile}
+          onUpdate={onUpdateProfile}
+          onUploadAvatar={onUploadAvatar}
+          onUploadGalleryPhoto={onUploadGalleryPhoto}
+        />
       )
     }
 

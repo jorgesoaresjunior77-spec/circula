@@ -8,6 +8,9 @@ export interface Profile {
   interests: string[]
   bio: string | null
   city: string | null
+  /** Perfil (item 10) — até 12 fotos, URLs públicas do bucket `avatars`
+   *  (mesmo bucket do avatar), ordem = ordem de exibição na grade. */
+  gallery_photos: string[]
 }
 
 export interface ProfileUpdateInput {
@@ -15,6 +18,7 @@ export interface ProfileUpdateInput {
   interests?: string[]
   bio?: string | null
   city?: string | null
+  gallery_photos?: string[]
 }
 
 export interface ProfileOverview {

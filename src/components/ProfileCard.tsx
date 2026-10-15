@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { ProfileOverview } from '../types/profile'
+import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
+import { ProfileGallery } from './ProfileGallery'
 
 interface ViewedProfile {
   id: string
@@ -9,6 +11,7 @@ interface ViewedProfile {
   interests: string[]
   bio: string | null
   city: string | null
+  gallery_photos: string[]
 }
 
 interface ProfileCardProps {
@@ -40,7 +43,7 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
 
     supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, interests, bio, city')
+      .select('id, full_name, avatar_url, interests, bio, city, gallery_photos')
       .eq('id', profileId)
       .single()
       .then(({ data, error: fetchError }) => {
@@ -96,13 +99,53 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
 
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
-          {profile.interests.length > 0 && (
-            <div className="interest-tags interest-tags--view">
-              {profile.interests.map((interest) => (
-                <span key={interest} className="interest-tag">
-                  {interest}
-                </span>
-              ))}
+          {/* Item 9 — "Um pouco sobre mim": mesma regra de visibilidade
+              de sempre (RLS de `profiles`, já aplicada na query acima) —
+              aqui só separa visualmente os itens da lista sugerida dos
+              interesses em texto livre. */}
+          {(() => {
+            const aboutMe = ABOUT_ME_OPTIONS.filter((option) =>
+              profile.interests.includes(option),
+            )
+            return (
+              aboutMe.length > 0 && (
+                <div className="profile-about-me">
+                  <p className="profile-section-label">Um pouco sobre ela</p>
+                  <div className="interest-tags interest-tags--view">
+                    {aboutMe.map((item) => (
+                      <span key={item} className="interest-tag">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )
+            )
+          })()}
+
+          {(() => {
+            const freeform = profile.interests.filter(
+              (interest) => !(ABOUT_ME_OPTIONS as readonly string[]).includes(interest),
+            )
+            return (
+              freeform.length > 0 && (
+                <div className="interest-tags interest-tags--view">
+                  {freeform.map((interest) => (
+                    <span key={interest} className="interest-tag">
+                      {interest}
+                    </span>
+                  ))}
+                </div>
+              )
+            )
+          })()}
+
+          {/* Item 10 — galeria (só leitura): visível se houver fotos,
+              mesma RLS de `profiles` de sempre — nada novo de permissão. */}
+          {profile.gallery_photos.length > 0 && (
+            <div className="profile-gallery-section">
+              <p className="profile-section-label">Fotos</p>
+              <ProfileGallery photos={profile.gallery_photos} />
             </div>
           )}
 

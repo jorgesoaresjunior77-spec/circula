@@ -111,13 +111,16 @@ export function HomeToday({
     [contentItems],
   )
 
-  // Capa (só VISUAL) que a Profissional cadastrou no Painel para o card
-  // "Eventos" — único dos 6 cards fixos de Círcula Hoje cuja chave
-  // segue válida no CHECK de community_card_images (ver
-  // HomeExperienceStrip.tsx). Sem imagem cadastrada -> fallback
-  // editorial (sem foto).
+  // Capas (só VISUAL) que a Profissional cadastrou no Painel para os 6
+  // cards fixos de Círcula Hoje — ver types/communityCards.ts pro mapa
+  // completo chave legada -> destino atual. Sem imagem cadastrada ->
+  // fallback editorial (sem foto), como sempre.
   const { images: cardImagePaths } = useCommunityCardImages(communityId)
+  const { url: perfilCover } = useSignedImageUrl(cardImagePaths.hoje ?? null)
+  const { url: helpNutriCover } = useSignedImageUrl(cardImagePaths.desafios ?? null)
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
+  const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
+  const { url: circulosCover } = useSignedImageUrl(cardImagePaths.instagram ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
   const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
@@ -201,10 +204,20 @@ export function HomeToday({
           sempre presentes. */}
       <HomeExperienceStrip
         nextEvent={railSummary?.nextEvent ?? null}
+        perfilCover={perfilCover}
+        helpNutriCover={helpNutriCover}
         eventosCover={eventosCover}
+        lojaCover={lojaCover}
+        circulosCover={circulosCover}
         receitasCover={receitasCover}
         onNavigate={onNavigate}
       />
+
+      {/* Ajustes visuais (item 1) — linha fininha entre as 3 seções. Só
+          antes de Círculos quando a seção realmente renderiza algo
+          (HomeCirclesSection devolve null sem círculo cadastrado) —
+          nunca um separador "órfão" antes de uma seção vazia. */}
+      {circles.length > 0 && <hr className="home-section-divider" />}
 
       {/* C3 — Círculos da comunidade como coleção editorial, logo após a
           faixa de experiências. Só dados existentes (useCircles já
@@ -217,6 +230,10 @@ export function HomeToday({
         onJoin={(circleId) => joinCircle(circleId, profile.id)}
         onLeave={(circleId) => leaveCircle(circleId, profile.id)}
       />
+
+      {/* <HomeInstagramStrip> sempre renderiza (6 espaços fixos, vazios
+          ou não) — este separador nunca fica órfão. */}
+      <hr className="home-section-divider" />
 
       {/* Redesign da Home (item 5) — "No Instagram": terceira faixa,
           logo abaixo de Círculos. Mesmos dados do C4.1 (community_content

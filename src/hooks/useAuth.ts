@@ -74,7 +74,7 @@ export function useAuth() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, role, full_name, avatar_url, interests, bio, city')
+      .select('id, role, full_name, avatar_url, interests, bio, city, gallery_photos')
       .eq('id', session.user.id)
       .single()
 
@@ -133,6 +133,29 @@ export function useAuth() {
     return { error: null }
   }
 
+  // Perfil (item 10) — upload "cru" de uma foto da galeria: só manda o
+  // arquivo pro bucket `avatars` (mesmo de sempre, mesma policy por
+  // prefixo `<uid>/...`) e devolve a URL pública. NÃO toca
+  // `gallery_photos` — quem chama decide onde a URL entra no array
+  // (inclusão/substituição) e persiste via `updateProfile`, exatamente
+  // como `CoverImageInput` + `createCircle`/`renameCircle` já fazem
+  // noutras telas.
+  async function uploadGalleryPhoto(file: File) {
+    if (!session) return { url: null, error: 'Sem sessão ativa.' }
+
+    const extension = file.name.split('.').pop() ?? 'jpg'
+    const path = `${session.user.id}/gallery/${Date.now()}.${extension}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: false })
+
+    if (uploadError) return { url: null, error: uploadError.message }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    return { url: data.publicUrl, error: null as string | null }
+  }
+
   return {
     session,
     profile,
@@ -144,5 +167,6 @@ export function useAuth() {
     signOut,
     updateProfile,
     uploadAvatar,
+    uploadGalleryPhoto,
   }
 }

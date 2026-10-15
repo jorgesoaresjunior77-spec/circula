@@ -12,12 +12,11 @@ import { formatEventDate } from '../lib/formatEventDate'
 // "Comunidades" saiu (reorganização da navegação): a gestão da
 // comunidade mora no Painel da Professional; o Member chega ao
 // conteúdo pelo Feed.
-// "Eventos" e "Receitas" têm capa opcional cadastrada no Painel — são
-// as únicas chaves que seguem válidas no CHECK de
-// `community_card_images` (ver HomeToday.tsx; Receitas reusa a chave
-// legada 'jornada'); os demais cards não têm capa configurável (fora de
-// escopo adicionar novas chaves ao CHECK/migration). Só "Eventos" tem
-// meta dinâmica (próximo evento, quando há).
+// Painel → Imagens da comunidade (item 7) — os 6 cards têm capa
+// configurável, cada um numa chave legada distinta do CHECK de
+// `community_card_images` (ver types/communityCards.ts pro mapa
+// completo chave -> destino; nenhuma migration nova). Só "Eventos" tem
+// meta dinâmica (próximo evento, quando há) — os demais têm texto fixo.
 //
 // Movimento: LOOP CONTÍNUO E INFINITO via `scrollLeft` nativo (não
 // `transform`) — a sequência de cards é renderizada duas vezes e um
@@ -43,12 +42,15 @@ interface NextEvent {
 interface HomeExperienceStripProps {
   nextEvent: NextEvent | null
   /**
-   * Capa (só VISUAL) cadastrada pela Profissional no Painel para o card
-   * "Eventos", já assinada. Ausente/null -> o card mantém o fallback
-   * editorial (sem foto). Não muda a origem do dado do evento.
+   * Capas (só VISUAL) cadastradas pela Profissional no Painel, já
+   * assinadas. Ausente/null -> o card mantém o fallback editorial (sem
+   * foto). Nenhuma muda a origem do dado do card correspondente.
    */
+  perfilCover?: string | null
+  helpNutriCover?: string | null
   eventosCover?: string | null
-  /** Idem, para o card "Receitas" (ajustes de navegação). */
+  lojaCover?: string | null
+  circulosCover?: string | null
   receitasCover?: string | null
   onNavigate: (key: NavKey) => void
 }
@@ -65,7 +67,11 @@ interface Experience {
 
 export function HomeExperienceStrip({
   nextEvent,
+  perfilCover,
+  helpNutriCover,
   eventosCover,
+  lojaCover,
+  circulosCover,
   receitasCover,
   onNavigate,
 }: HomeExperienceStripProps) {
@@ -76,7 +82,7 @@ export function HomeExperienceStrip({
         eyebrow: 'Perfil',
         title: 'Meu Perfil',
         meta: 'Seus dados e preferências',
-        image: null,
+        image: perfilCover ?? null,
         onActivate: () => onNavigate('perfil'),
         ariaLabel: 'Meu Perfil',
       },
@@ -85,7 +91,7 @@ export function HomeExperienceStrip({
         eyebrow: 'Ajuda',
         title: 'Help Nutri',
         meta: 'Fale com a nutricionista',
-        image: null,
+        image: helpNutriCover ?? null,
         onActivate: () => onNavigate('mensagens'),
         ariaLabel: 'Help Nutri — fale com a nutricionista',
       },
@@ -105,7 +111,7 @@ export function HomeExperienceStrip({
         eyebrow: 'Loja',
         title: 'Loja',
         meta: 'Produtos e novidades',
-        image: null,
+        image: lojaCover ?? null,
         onActivate: () => onNavigate('loja'),
         ariaLabel: 'Loja',
       },
@@ -114,7 +120,7 @@ export function HomeExperienceStrip({
         eyebrow: 'Círculos',
         title: 'Círculos',
         meta: 'Pequenos grupos da comunidade',
-        image: null,
+        image: circulosCover ?? null,
         onActivate: () => onNavigate('circulos'),
         ariaLabel: 'Círculos',
       },
@@ -128,7 +134,16 @@ export function HomeExperienceStrip({
         ariaLabel: 'Receitas',
       },
     ],
-    [nextEvent, eventosCover, receitasCover, onNavigate],
+    [
+      nextEvent,
+      perfilCover,
+      helpNutriCover,
+      eventosCover,
+      lojaCover,
+      circulosCover,
+      receitasCover,
+      onNavigate,
+    ],
   )
 
   // Autoplay permitido: só prefers-reduced-motion decide (não mais o

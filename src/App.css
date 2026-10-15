@@ -204,9 +204,12 @@
   outline-color: #fff;
 }
 
-/* Texto/eyebrow sobre fotografia — mesma lógica de contraste. */
+/* Texto/eyebrow sobre fotografia — mesma lógica de contraste. Ajustes
+   visuais (item 2) — contorno fininho somado ao shadow, mesmo padrão de
+   .exp-card--photo / .circ-card--photo. */
 .text-on-photo {
   color: #fff;
+  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.5);
   text-shadow: 0 1px 12px rgba(20, 16, 14, 0.45);
 }
 
@@ -1161,6 +1164,13 @@
    1023px)` logo abaixo de `.bottom-nav-item--feed`, que troca este
    `display: none` por `flex` só nesse breakpoint. No desktop (>= 1024px)
    continua escondida: a navegação lá é só `.topnav-list`. */
+/* Ajustes visuais (item 4) — "vidro líquido": fundo translúcido com
+   blur, um fio de brilho na borda superior (como a tensão superficial
+   de uma gota) e um leve degradê para dar volume de água, em vez de
+   fundo sólido chapado. Posição, dimensões, cantos, sombra e distância
+   das bordas seguras continuam exatamente como aprovado — só a
+   APARÊNCIA muda. Fallback sem `backdrop-filter` (Firefox < 103 etc.):
+   fundo quase opaco, sem blur — ainda legível, só sem o efeito. */
 .bottom-nav {
   display: none;
   position: fixed;
@@ -1169,10 +1179,42 @@
   transform: translateX(-50%);
   z-index: 30;
   max-width: calc(100vw - 2 * var(--space-5));
-  background-color: var(--surface);
-  border: 1px solid var(--hairline);
+  background: rgba(253, 251, 247, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-md);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .bottom-nav {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.62) 0%,
+      rgba(253, 251, 247, 0.4) 55%,
+      rgba(253, 251, 247, 0.5) 100%
+    );
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+      var(--shadow-md);
+  }
+
+  /* Reflexo suave no topo da cápsula — sheen discreto, nunca um brilho
+     forte. `pointer-events: none` pra nunca interceptar toque/clique. */
+  .bottom-nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0) 30%
+    );
+  }
 }
 
 .bottom-nav-list {
@@ -3680,6 +3722,54 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+/* Item 5 — seção "Participantes" dentro de Visão geral: separada da
+   Visão geral acima por um fio + respiro extra, nunca uma caixa nova. */
+.panel-overview-section-divider {
+  padding-top: var(--space-7);
+  border-top: 1px solid var(--hairline);
+}
+
+/* Item 6 — sub-abas internas de "Assinaturas" (Assinaturas/Recebimentos).
+   Pílulas pequenas, deliberadamente mais discretas que `.panel-tab`
+   (abas de 1º nível) — comunicam "estou dentro de uma aba", não um
+   nível de navegação igual. */
+.panel-subtabs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.panel-subtab {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--graphite-soft);
+  cursor: pointer;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+
+  &:hover {
+    color: var(--graphite);
+    border-color: var(--ink-action-line);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: 2px;
+  }
+}
+
+.panel-subtab--active {
+  color: var(--ink-action);
+  border-color: var(--ink-action-line);
+  background-color: var(--ink-action-soft);
 }
 
 .panel-placeholder {
@@ -9404,6 +9494,21 @@
   text-align: left;
 }
 
+/* Ajustes visuais (item 1) — separador fininho entre "Hoje no Círcula" /
+   "Círculos" / "Publicações do Instagram". Quase imperceptível: cor mais
+   leve que o --hairline já usado no resto do app. O espaçamento antes/
+   depois vem de graça do `gap` do flex `.home` (mesmo valor em qualquer
+   largura); aqui só a cor e o inset lateral, simétrico, que nunca
+   encosta nas bordas da tela — adapta sozinho porque é relativo à
+   largura de `.home` (já responsiva via `.dashboard`). */
+.home-section-divider {
+  width: 100%;
+  max-width: calc(100% - var(--space-6) * 2);
+  margin: 0 auto;
+  border: 0;
+  border-top: 1px solid var(--border-soft);
+}
+
 /* --- Saudação ------------------------------------------------------ */
 .home-greeting {
   display: flex;
@@ -10430,6 +10535,288 @@
   line-height: 1.7;
   color: var(--circula-taupe);
   white-space: pre-wrap;
+}
+
+/* Item 9 — "Um pouco sobre mim". Modo leitura: rótulo pequeno acima das
+   tags selecionadas (reaproveita .interest-tags--view, que já traz o
+   fio superior). */
+.profile-about-me {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.profile-section-label {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.profile-about-me .interest-tags--view {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Modo edição: fieldset com as 15 caixas de seleção. Escopado sob
+   `.community-card--profile form` pra vencer a regra geral de
+   `form label` (uppercase/margin grande, feita pros rótulos de campo
+   como "Nome completo") sem alterar essa regra compartilhada. */
+.community-card--profile form .profile-about-me-field {
+  margin-top: var(--space-5);
+  padding: 0;
+  border: 0;
+}
+
+.community-card--profile form .profile-about-me-field legend {
+  padding: 0;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.profile-field-hint {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--graphite-soft);
+}
+
+.about-me-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2) var(--space-4);
+}
+
+.community-card--profile form .about-me-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--graphite);
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    margin-top: 2px;
+    accent-color: var(--ink-action);
+    cursor: pointer;
+  }
+}
+
+/* =====================================================================
+   Item 10 — Galeria de fotos do perfil (até 12, 4:5, grade de 3
+   colunas SEMPRE — desktop e mobile, pedido explícito). Miniaturas
+   pequenas e uniformes; ampliação em overlay de tela cheia.
+   ===================================================================== */
+.profile-gallery-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.profile-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.profile-gallery-slot {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--surface-sunken);
+}
+
+.profile-gallery-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--dur) var(--ease);
+  }
+
+  &:hover img,
+  &:focus-visible img {
+    transform: scale(1.04);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: -2px;
+  }
+}
+
+/* Ações (Substituir/Remover) — visíveis sempre no touch, só no hover/foco
+   em ponteiro fino, pra não poluir a miniatura pequena à toa. */
+.profile-gallery-slot-actions {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  gap: 1px;
+  opacity: 1;
+
+  button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 5px 4px;
+    border: 0;
+    background: rgba(20, 16, 14, 0.55);
+    color: #fff;
+    font-family: var(--font-label);
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+
+    &:hover:not(:disabled) {
+      background: rgba(20, 16, 14, 0.75);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: -2px;
+    }
+  }
+}
+
+@media (hover: hover) {
+  .profile-gallery-slot-actions {
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .profile-gallery-slot:hover .profile-gallery-slot-actions,
+  .profile-gallery-slot:focus-within .profile-gallery-slot-actions {
+    opacity: 1;
+  }
+}
+
+.profile-gallery-slot--add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border);
+  color: var(--graphite-soft);
+  cursor: pointer;
+  transition:
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+
+  &:hover:not(:disabled) {
+    border-color: var(--ink-action-line);
+    color: var(--ink-action);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-action);
+    outline-offset: 2px;
+  }
+}
+
+.profile-gallery-add-status {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.profile-gallery-hint {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--graphite-soft);
+}
+
+/* Ampliação — overlay de tela cheia, fecha no X, no fundo ou no Esc
+   (handler em ProfileGallery.tsx). */
+.profile-gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background-color: rgba(20, 16, 14, 0.9);
+  cursor: zoom-out;
+  animation: galleryLightboxIn var(--dur) var(--ease) both;
+}
+
+@keyframes galleryLightboxIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.profile-gallery-lightbox-img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  cursor: default;
+}
+
+.profile-gallery-lightbox-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: background-color var(--dur) var(--ease);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
 }
 
 .profile-overview-heading {
@@ -13317,6 +13704,12 @@ button.card:focus-visible {
   /* acima do ::after/scrim (que não é alterado) */
   z-index: 1;
   color: var(--c-white);
+  /* Ajustes visuais (item 2) — contorno fininho (text-stroke) somado ao
+     text-shadow já existente: junto, lê como uma borda escura discreta
+     ao redor da letra, não um glow nem negrito artificial. Suportes
+     sem -webkit-text-stroke (ex. Firefox < 120) ignoram a propriedade e
+     ficam só com o shadow de sempre — degrada bem. */
+  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
 }
 
@@ -13631,11 +14024,15 @@ button.card:focus-visible {
 .circ-card--photo .circ-card-title {
   color: var(--c-white);
   opacity: 0.96;
+  /* Ajustes visuais (item 2) — mesmo contorno fininho do .exp-card--photo,
+     somado ao text-shadow já existente. */
+  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
 }
 
 .circ-card--photo .circ-card-meta {
   color: rgba(255, 255, 255, 0.9);
+  -webkit-text-stroke: 0.3px rgba(20, 16, 14, 0.45);
   text-shadow: 0 1px 5px rgba(35, 30, 28, 0.4);
 }
 

@@ -1,14 +1,19 @@
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
+import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
+import { ProfileGallery } from './ProfileGallery'
 
 interface MyProfileProps {
   profile: Profile
   onUpdate: (input: ProfileUpdateInput) => Promise<{ error: string | null }>
   onUploadAvatar: (file: File) => Promise<{ error: string | null }>
+  /** Item 10 — upload cru de uma foto da galeria (bucket `avatars`);
+   *  devolve a URL pública, não toca `profiles`. */
+  onUploadGalleryPhoto: (file: File) => Promise<{ url: string | null; error: string | null }>
 }
 
-export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps) {
+export function MyProfile({ profile, onUpdate, onUploadAvatar, onUploadGalleryPhoto }: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
   const [bio, setBio] = useState(profile.bio ?? '')
@@ -20,6 +25,11 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
     null,
   )
+  // Item 10 — galeria: independente do modo de edição do resto do
+  // formulário, igual ao avatar ("Trocar foto" já funciona fora do
+  // `editing`). `galleryBusyIndex` identifica qual vaga está enviando
+  // (desabilita só aquele slot, não a galeria inteira).
+  const [galleryBusyIndex, setGalleryBusyIndex] = useState<number | null>(null)
 
   function startEditing() {
     setFullName(profile.full_name ?? '')
@@ -40,6 +50,15 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
 
   function removeInterest(value: string) {
     setInterests(interests.filter((item) => item !== value))
+  }
+
+  // Item 9 — "Um pouco sobre mim": marcar/desmarcar um item sugerido é o
+  // mesmo add/remove de sempre em `interests`, só partindo de uma lista
+  // fixa em vez de texto livre.
+  function toggleAboutMe(value: string) {
+    setInterests((prev) =>
+      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value],
+    )
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -85,6 +104,67 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
     setMessage({ type: 'success', text: 'Foto atualizada.' })
   }
 
+  // Item 10 — galeria: upload "cru" (onUploadGalleryPhoto, bucket
+  // `avatars`) seguido de persistir o array via onUpdate, exatamente
+  // como CoverImageInput + createCircle/renameCircle já fazem noutras
+  // telas. `profile.gallery_photos` é sempre a fonte da verdade — o
+  // pai (Dashboard/useAuth) recarrega o perfil após cada onUpdate.
+  async function handleGalleryAdd(file: File) {
+    setGalleryBusyIndex(profile.gallery_photos.length)
+    setMessage(null)
+
+    const { url, error: uploadError } = await onUploadGalleryPhoto(file)
+    if (uploadError || !url) {
+      setGalleryBusyIndex(null)
+      setMessage({ type: 'error', text: 'Não foi possível enviar a foto agora. Tente novamente.' })
+      return
+    }
+
+    const { error } = await onUpdate({ gallery_photos: [...profile.gallery_photos, url] })
+    setGalleryBusyIndex(null)
+    if (error) {
+      setMessage({ type: 'error', text: 'Não foi possível salvar a foto agora. Tente novamente.' })
+      return
+    }
+    setMessage({ type: 'success', text: 'Foto adicionada.' })
+  }
+
+  async function handleGalleryReplace(index: number, file: File) {
+    setGalleryBusyIndex(index)
+    setMessage(null)
+
+    const { url, error: uploadError } = await onUploadGalleryPhoto(file)
+    if (uploadError || !url) {
+      setGalleryBusyIndex(null)
+      setMessage({ type: 'error', text: 'Não foi possível enviar a foto agora. Tente novamente.' })
+      return
+    }
+
+    const next = [...profile.gallery_photos]
+    next[index] = url
+    const { error } = await onUpdate({ gallery_photos: next })
+    setGalleryBusyIndex(null)
+    if (error) {
+      setMessage({ type: 'error', text: 'Não foi possível salvar a foto agora. Tente novamente.' })
+      return
+    }
+    setMessage({ type: 'success', text: 'Foto atualizada.' })
+  }
+
+  async function handleGalleryRemove(index: number) {
+    setGalleryBusyIndex(index)
+    setMessage(null)
+
+    const next = profile.gallery_photos.filter((_, i) => i !== index)
+    const { error } = await onUpdate({ gallery_photos: next })
+    setGalleryBusyIndex(null)
+    if (error) {
+      setMessage({ type: 'error', text: 'Não foi possível remover a foto agora. Tente novamente.' })
+      return
+    }
+    setMessage({ type: 'success', text: 'Foto removida.' })
+  }
+
   return (
     <section className="community-card community-card--profile">
       <p className="profile-eyebrow">Meu perfil</p>
@@ -112,19 +192,65 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
         </div>
       </div>
 
+      {/* Item 10 — galeria de fotos: sempre visível e editável, fora do
+          `editing` do resto do formulário (mesmo padrão do avatar). */}
+      <div className="profile-gallery-section">
+        <p className="profile-section-label">Minhas fotos</p>
+        <ProfileGallery
+          photos={profile.gallery_photos}
+          editable
+          busyIndex={galleryBusyIndex}
+          onAdd={handleGalleryAdd}
+          onReplace={handleGalleryReplace}
+          onRemove={handleGalleryRemove}
+        />
+      </div>
+
       {!editing ? (
         <>
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
-          {profile.interests.length > 0 && (
-            <div className="interest-tags interest-tags--view">
-              {profile.interests.map((interest) => (
-                <span key={interest} className="interest-tag">
-                  {interest}
-                </span>
-              ))}
-            </div>
-          )}
+          {/* Item 9 — "Um pouco sobre mim": só os itens da lista sugerida
+              que a usuária marcou. Opcional — some por completo sem
+              nenhum marcado, nunca uma seção vazia. */}
+          {(() => {
+            const aboutMe = ABOUT_ME_OPTIONS.filter((option) =>
+              profile.interests.includes(option),
+            )
+            return (
+              aboutMe.length > 0 && (
+                <div className="profile-about-me">
+                  <p className="profile-section-label">Um pouco sobre mim</p>
+                  <div className="interest-tags interest-tags--view">
+                    {aboutMe.map((item) => (
+                      <span key={item} className="interest-tag">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )
+            )
+          })()}
+
+          {/* Interesses em texto livre — segue existindo, só sem repetir
+              os itens que já aparecem em "Um pouco sobre mim" acima. */}
+          {(() => {
+            const freeform = profile.interests.filter(
+              (interest) => !(ABOUT_ME_OPTIONS as readonly string[]).includes(interest),
+            )
+            return (
+              freeform.length > 0 && (
+                <div className="interest-tags interest-tags--view">
+                  {freeform.map((interest) => (
+                    <span key={interest} className="interest-tag">
+                      {interest}
+                    </span>
+                  ))}
+                </div>
+              )
+            )
+          })()}
 
           {message && (
             <p className={message.type === 'success' ? 'auth-success' : 'auth-error'}>
@@ -164,20 +290,46 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar }: MyProfileProps)
             placeholder="Uma apresentação curta para as outras mulheres."
           />
 
-          <label htmlFor="profile-interest">Interesses</label>
+          {/* Item 9 — "Um pouco sobre mim": caixas de seleção, várias
+              marcáveis, opcional (nenhuma obrigatória). Marcar/desmarcar
+              só chama `toggleAboutMe`, que lê/grava o mesmo array
+              `interests` de sempre — persistência idêntica à de
+              "Interesses" abaixo, mesmo `onUpdate` no submit. */}
+          <fieldset className="profile-about-me-field">
+            <legend>Um pouco sobre mim</legend>
+            <p className="profile-field-hint">
+              Opcional — marque o que quiser compartilhar com as outras mulheres.
+            </p>
+            <div className="about-me-options">
+              {ABOUT_ME_OPTIONS.map((option) => (
+                <label key={option} className="about-me-option">
+                  <input
+                    type="checkbox"
+                    checked={interests.includes(option)}
+                    onChange={() => toggleAboutMe(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <label htmlFor="profile-interest">Outros interesses</label>
           <div className="interest-tags">
-            {interests.map((interest) => (
-              <span key={interest} className="interest-tag">
-                {interest}
-                <button
-                  type="button"
-                  onClick={() => removeInterest(interest)}
-                  aria-label={`Remover ${interest}`}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
+            {interests
+              .filter((interest) => !(ABOUT_ME_OPTIONS as readonly string[]).includes(interest))
+              .map((interest) => (
+                <span key={interest} className="interest-tag">
+                  {interest}
+                  <button
+                    type="button"
+                    onClick={() => removeInterest(interest)}
+                    aria-label={`Remover ${interest}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
           </div>
           <div className="interest-input-row">
             <input

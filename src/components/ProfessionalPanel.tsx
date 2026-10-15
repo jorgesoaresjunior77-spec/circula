@@ -25,6 +25,13 @@ import type {
   InviteMemberResult,
 } from '../types/community'
 
+// Painel profissional (item 5/6) — "Participantes" deixou de ser aba
+// própria: a gestão de participantes agora mora dentro de "Visão geral"
+// (ver render abaixo, seção com id="panel-participants-section").
+// "Recebimentos" também deixou de ser aba própria: virou uma sub-aba
+// interna de "Assinaturas" (ver `assinaturasSubTab`). As duas chaves
+// seguem existindo no tipo só para o `onOpenTab` dos KPIs de
+// ProfessionalDashboard continuar funcionando sem mudar lá.
 type PanelTab =
   | 'visao'
   | 'participantes'
@@ -40,7 +47,6 @@ type PanelTab =
 
 const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
-  { key: 'participantes', label: 'Participantes' },
   { key: 'publicacoes', label: 'Publicações' },
   { key: 'eventos', label: 'Eventos' },
   { key: 'circulos', label: 'Círculos' },
@@ -48,6 +54,12 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'metricas', label: 'Métricas' },
   { key: 'produtos', label: 'Produtos' },
+  { key: 'assinaturas', label: 'Assinaturas' },
+]
+
+type AssinaturasSubTab = 'assinaturas' | 'recebimentos'
+
+const ASSINATURAS_SUBTABS: { key: AssinaturasSubTab; label: string }[] = [
   { key: 'assinaturas', label: 'Assinaturas' },
   { key: 'recebimentos', label: 'Recebimentos' },
 ]
@@ -85,6 +97,30 @@ export function ProfessionalPanel({
   onAddMember,
 }: ProfessionalPanelProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('visao')
+  const [assinaturasSubTab, setAssinaturasSubTab] = useState<AssinaturasSubTab>('assinaturas')
+
+  // Item 5 — "Participantes" não é mais uma aba própria: os KPIs/atalhos
+  // de ProfessionalDashboard (onOpenTab('participantes')) continuam
+  // chamando com a mesma chave de sempre, mas aqui ela vira "ficar em
+  // Visão geral e rolar até a seção de participantes" em vez de trocar
+  // de aba. "Recebimentos" idem — vira sub-aba dentro de "Assinaturas".
+  function handleOpenTab(tab: string) {
+    if (tab === 'participantes') {
+      setActiveTab('visao')
+      requestAnimationFrame(() => {
+        document
+          .getElementById('panel-participants-section')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+      return
+    }
+    if (tab === 'recebimentos') {
+      setActiveTab('assinaturas')
+      setAssinaturasSubTab('recebimentos')
+      return
+    }
+    setActiveTab(tab as PanelTab)
+  }
 
   return (
     <section className="community-card community-card--quiet professional-panel">
@@ -109,26 +145,33 @@ export function ProfessionalPanel({
           <ProfessionalDashboard
             community={community}
             profileId={profileId}
-            onOpenTab={(tab) => setActiveTab(tab as PanelTab)}
+            onOpenTab={handleOpenTab}
             onUpdateCommunity={onUpdateCommunity}
           />
-        </div>
-      )}
 
-      {activeTab === 'participantes' && (
-        <div className="panel-tab-content">
-          {/* 16.2.3-C/D — roster por status (Todas/Ativas/Pendentes/Bloqueadas).
-              "Ativas" mantém o ParticipantsPanel (RPC community_participants_overview);
-              "Pendentes"/"Bloqueadas" leem community.community_members já carregado.
-              Aprovar/rejeitar segue nas RPCs approve/reject_membership_request. */}
-          <CommunityMembersPanel
-            communityId={communityId}
-            community={community}
-            onApprove={onApproveMembership}
-            onReject={onRejectMembership}
-            onInvite={onInviteMember}
-            onAdd={onAddMember}
-          />
+          {/* Item 5 — Participantes deixou de ser aba própria: os dados
+              gerais (acima) vêm primeiro, a gestão de participantes fica
+              numa seção clara, separada, logo abaixo. Mesmo componente,
+              mesmas props/handlers de sempre — só o local de montagem
+              mudou. `id` é o alvo do scroll de `handleOpenTab`. */}
+          <section
+            id="panel-participants-section"
+            className="panel-overview-section-divider"
+            aria-label="Participantes"
+          >
+            {/* 16.2.3-C/D — roster por status (Todas/Ativas/Pendentes/Bloqueadas).
+                "Ativas" mantém o ParticipantsPanel (RPC community_participants_overview);
+                "Pendentes"/"Bloqueadas" leem community.community_members já carregado.
+                Aprovar/rejeitar segue nas RPCs approve/reject_membership_request. */}
+            <CommunityMembersPanel
+              communityId={communityId}
+              community={community}
+              onApprove={onApproveMembership}
+              onReject={onRejectMembership}
+              onInvite={onInviteMember}
+              onAdd={onAddMember}
+            />
+          </section>
         </div>
       )}
 
@@ -202,22 +245,41 @@ export function ProfessionalPanel({
 
       {activeTab === 'assinaturas' && (
         <div className="panel-tab-content">
-          <SubscriptionPanel subject="platform" />
-          {/* FASE 16.1 — onboarding financeiro: conectar a conta Asaas
-              recebedora do split 90/10. Só a anfitriã chega ao painel. */}
-          <AsaasAccountConnect enabled />
-          {/* FASE 16.1-P — preço da assinatura da própria comunidade
-              (piso R$ 14,90, validado no servidor). */}
-          <CommunityPriceSettings communityId={communityId} />
-        </div>
-      )}
+          {/* Item 6 — Assinaturas e Recebimentos viraram uma única opção
+              no Painel, com sub-abas internas. Mesmos componentes,
+              mesmos dados/cálculos/regras financeiras de sempre — só a
+              navegação (uma aba a menos) mudou. */}
+          <div className="panel-subtabs">
+            {ASSINATURAS_SUBTABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`panel-subtab${assinaturasSubTab === tab.key ? ' panel-subtab--active' : ''}`}
+                onClick={() => setAssinaturasSubTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-      {activeTab === 'recebimentos' && (
-        <div className="panel-tab-content">
-          {/* FASE P1-A/P1-D — extrato de recebimentos da comunidade (só
-              leitura): consolida assinaturas (subscription_payouts) e
-              vendas de produto da Loja (product_payouts). */}
-          <RevenuePanel communityId={communityId} communityName={community.name} />
+          {assinaturasSubTab === 'assinaturas' && (
+            <>
+              <SubscriptionPanel subject="platform" />
+              {/* FASE 16.1 — onboarding financeiro: conectar a conta Asaas
+                  recebedora do split 90/10. Só a anfitriã chega ao painel. */}
+              <AsaasAccountConnect enabled />
+              {/* FASE 16.1-P — preço da assinatura da própria comunidade
+                  (piso R$ 14,90, validado no servidor). */}
+              <CommunityPriceSettings communityId={communityId} />
+            </>
+          )}
+
+          {assinaturasSubTab === 'recebimentos' && (
+            // FASE P1-A/P1-D — extrato de recebimentos da comunidade (só
+            // leitura): consolida assinaturas (subscription_payouts) e
+            // vendas de produto da Loja (product_payouts).
+            <RevenuePanel communityId={communityId} communityName={community.name} />
+          )}
         </div>
       )}
     </section>

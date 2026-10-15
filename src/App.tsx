@@ -20,6 +20,7 @@ function App() {
     signOut,
     updateProfile,
     uploadAvatar,
+    uploadGalleryPhoto,
   } = useAuth()
   const { blocked, checked } = usePlatformAccessBlocked(profile)
 
@@ -53,6 +54,7 @@ function App() {
           onSignOut={signOut}
           onUpdateProfile={updateProfile}
           onUploadAvatar={uploadAvatar}
+          onUploadGalleryPhoto={uploadGalleryPhoto}
           activeNav={activeNav}
           onNavigate={setActiveNav}
         />

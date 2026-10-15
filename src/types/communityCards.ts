@@ -2,18 +2,34 @@
 // pela Profissional no Painel). SÓ visual — não muda a origem dos dados
 // de nenhum card.
 //
-// Redesign da Home — "Círcula Hoje" é uma lista fixa de destinos de
-// navegação (ver HomeExperienceStrip.tsx); só as chaves que o CHECK de
-// `community_card_images` (migration 20260924120000) já permite ganham
-// capa configurável aqui — sem alterar essa migration (fora de escopo).
-// 'eventos' é o card "Eventos". Ajustes de navegação — "Receitas" reusa
-// a chave legada 'jornada' (um dos 6 nomes originais do CHECK, sem
-// nenhum card ativo há tempos) só para guardar essa capa; o rótulo no
-// Painel já mostra "Receitas". Meu Perfil/Help Nutri/Loja/Círculos não
-// têm chave própria — adicionar exigiria alterar o CHECK, fora de
-// escopo aqui.
+// Redesign da Home — "Círcula Hoje" é uma lista fixa de 6 destinos de
+// navegação (ver HomeExperienceStrip.tsx): Meu Perfil, Help Nutri,
+// Eventos, Loja, Círculos, Receitas. Painel → Imagens da comunidade
+// (item 7) — TODOS os 6 ganham capa configurável aqui, reaproveitando
+// as 6 chaves que o CHECK de `community_card_images` (migration
+// 20260924120000) já permite — sem alterar essa migration/CHECK (fora
+// de escopo): as chaves eram nomes de cards antigos ("hoje", "seus
+// desafios", "eventos", "na comunidade", "sua jornada", "instagram"),
+// nenhum deles com card ativo há tempos; aqui elas só guardam o PATH da
+// capa, sem nenhum efeito além da imagem em si. O rótulo mostrado no
+// Painel (abaixo) é sempre o do destino ATUAL, não o nome antigo.
+// Mapa (chave -> destino atual):
+//   eventos    -> Eventos    (já era este antes)
+//   jornada    -> Receitas   (ajustes de navegação anterior)
+//   hoje       -> Meu Perfil
+//   desafios   -> Help Nutri
+//   comunidade -> Loja
+//   instagram  -> Círculos   (NÃO confundir com a seção separada
+//                             "Publicações do Instagram" — essa usa
+//                             community_content, nunca esta tabela)
 
-export type CommunityCardKey = 'eventos' | 'jornada'
+export type CommunityCardKey =
+  | 'eventos'
+  | 'jornada'
+  | 'hoje'
+  | 'desafios'
+  | 'comunidade'
+  | 'instagram'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -22,7 +38,11 @@ export interface CommunityCardMeta {
 }
 
 export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
+  { key: 'hoje', label: 'Meu Perfil', hint: 'Atalho para os dados e preferências da usuária.' },
+  { key: 'desafios', label: 'Help Nutri', hint: 'Atalho para falar com a nutricionista.' },
   { key: 'eventos', label: 'Eventos', hint: 'A agenda da comunidade.' },
+  { key: 'comunidade', label: 'Loja', hint: 'Produtos e novidades da comunidade.' },
+  { key: 'instagram', label: 'Círculos', hint: 'Pequenos grupos da comunidade.' },
   { key: 'jornada', label: 'Receitas', hint: 'A biblioteca de receitas da comunidade.' },
 ]
 
