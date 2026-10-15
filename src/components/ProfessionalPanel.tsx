@@ -16,6 +16,8 @@ import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
 import { CommunityCardImagesManager } from './CommunityCardImagesManager'
+import { CircleImagesManager } from './CircleImagesManager'
+import { InstagramSlotsManager } from './InstagramSlotsManager'
 import type {
   AddMemberResult,
   CommunityUpdateInput,
@@ -175,8 +177,14 @@ export function ProfessionalPanel({
       )}
 
       {activeTab === 'imagens' && (
-        <div className="panel-tab-content">
+        <div className="panel-tab-content panel-images-sections">
+          {/* Ajustes de navegação (item 5) — três seções bem separadas:
+              A. Hoje no Círcula, B. Círculos, C. Publicações do
+              Instagram. Cada uma reaproveita sua própria estrutura de
+              dados já existente; nenhuma mistura de campos entre elas. */}
           <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
+          <CircleImagesManager communityId={communityId} profileId={profileId} />
+          <InstagramSlotsManager communityId={communityId} profileId={profileId} />
         </div>
       )}
 

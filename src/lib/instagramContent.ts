@@ -28,15 +28,16 @@ export function isInstagramUrl(raw: string | null): boolean {
 
 /**
  * Publicações do Instagram destacadas pela comunidade: itens de
- * `community_content` publicados, com capa real, cujo `external_url` é do
- * Instagram. Sem item que se qualifique -> lista vazia -> a experiência
- * "No Instagram" simplesmente não aparece na faixa.
+ * `community_content` publicados cujo `external_url` é do Instagram.
+ *
+ * Ajustes de navegação — a capa deixou de ser exigida: o Painel (seção
+ * "Publicações do Instagram") só pede o link, sem imagem/título/
+ * descrição. A faixa <HomeInstagramStrip> já lida com a ausência de
+ * capa (sem <img>, só o selo "Instagram"). Sem item que se qualifique ->
+ * lista vazia -> a faixa mostra as vagas vazias de sempre.
  */
 export function filterInstagramContent(items: CommunityContent[]): CommunityContent[] {
   return items.filter(
-    (item) =>
-      item.status === 'published' &&
-      !!item.cover_image_url &&
-      isInstagramUrl(item.external_url),
+    (item) => item.status === 'published' && isInstagramUrl(item.external_url),
   )
 }

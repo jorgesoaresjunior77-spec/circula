@@ -46,10 +46,9 @@ export function CommunityCardImagesManager({
   return (
     <div className="card-images-manager">
       <header className="card-images-head">
-        <h4 className="card-images-title">Imagens da comunidade</h4>
+        <h4 className="card-images-title">Hoje no Círcula</h4>
         <p className="card-images-desc">
-          Escolha as imagens que representam as principais experiências da sua
-          comunidade.
+          Escolha a imagem de cada card fixo da Home.
         </p>
         <p className="card-images-format">{COMMUNITY_CARD_IMAGE_FORMAT}</p>
       </header>

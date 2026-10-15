@@ -4,18 +4,20 @@ import { formatEventDate } from '../lib/formatEventDate'
 
 // C2 — Faixa editorial "Círcula Hoje".
 //
-// Redesign da Home — lista FIXA de 5 destinos de navegação (Meu Perfil,
-// Help Nutri, Eventos, Loja, Círculos), sempre presentes, e não mais
-// condicionados a dado real existir (o antigo "Hoje no Círcula"/"Na
-// comunidade"/"No Instagram" saíram daqui — Instagram agora é a própria
-// faixa <HomeInstagramStrip>, abaixo de Círculos). "Comunidades" saiu
-// (reorganização da navegação): a gestão da comunidade mora no Painel da
-// Professional; o Member chega ao conteúdo pelo Feed.
-// Só "Eventos" tem meta dinâmica (próximo evento, quando há) e capa
-// opcional cadastrada no Painel — é a única chave que segue válida no
-// CHECK de `community_card_images` (ver HomeToday.tsx); os outros 5
-// cards não têm capa configurável (fora de escopo adicionar novas
-// chaves ao CHECK/migration).
+// Redesign da Home — lista FIXA de destinos de navegação (Meu Perfil,
+// Help Nutri, Eventos, Loja, Círculos, Receitas), sempre presentes, e
+// não mais condicionados a dado real existir (o antigo "Hoje no
+// Círcula"/"Na comunidade"/"No Instagram" saíram daqui — Instagram
+// agora é a própria faixa <HomeInstagramStrip>, abaixo de Círculos).
+// "Comunidades" saiu (reorganização da navegação): a gestão da
+// comunidade mora no Painel da Professional; o Member chega ao
+// conteúdo pelo Feed.
+// "Eventos" e "Receitas" têm capa opcional cadastrada no Painel — são
+// as únicas chaves que seguem válidas no CHECK de
+// `community_card_images` (ver HomeToday.tsx; Receitas reusa a chave
+// legada 'jornada'); os demais cards não têm capa configurável (fora de
+// escopo adicionar novas chaves ao CHECK/migration). Só "Eventos" tem
+// meta dinâmica (próximo evento, quando há).
 //
 // Movimento: LOOP CONTÍNUO E INFINITO via `scrollLeft` nativo (não
 // `transform`) — a sequência de cards é renderizada duas vezes e um
@@ -46,6 +48,8 @@ interface HomeExperienceStripProps {
    * editorial (sem foto). Não muda a origem do dado do evento.
    */
   eventosCover?: string | null
+  /** Idem, para o card "Receitas" (ajustes de navegação). */
+  receitasCover?: string | null
   onNavigate: (key: NavKey) => void
 }
 
@@ -62,6 +66,7 @@ interface Experience {
 export function HomeExperienceStrip({
   nextEvent,
   eventosCover,
+  receitasCover,
   onNavigate,
 }: HomeExperienceStripProps) {
   const experiences = useMemo<Experience[]>(
@@ -113,8 +118,17 @@ export function HomeExperienceStrip({
         onActivate: () => onNavigate('circulos'),
         ariaLabel: 'Círculos',
       },
+      {
+        key: 'receitas',
+        eyebrow: 'Receitas',
+        title: 'Receitas',
+        meta: 'A biblioteca de receitas da comunidade',
+        image: receitasCover ?? null,
+        onActivate: () => onNavigate('receitas'),
+        ariaLabel: 'Receitas',
+      },
     ],
-    [nextEvent, eventosCover, onNavigate],
+    [nextEvent, eventosCover, receitasCover, onNavigate],
   )
 
   // Autoplay permitido: só prefers-reduced-motion decide (não mais o

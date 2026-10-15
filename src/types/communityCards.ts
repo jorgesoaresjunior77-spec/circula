@@ -2,18 +2,18 @@
 // pela Profissional no Painel). SÓ visual — não muda a origem dos dados
 // de nenhum card.
 //
-// Redesign da Home — "Círcula Hoje" agora é uma lista fixa de 6 destinos
-// de navegação (ver HomeExperienceStrip.tsx); "Eventos" é o único que
-// segue com capa configurável, porque é a única chave que o CHECK de
-// `community_card_images` (migration 20260924120000) já permite para os
-// destinos novos (Meu Perfil, Help Nutri, Loja, Comunidades, Círculos
-// não têm chave própria — adicionar exigiria alterar essa migration,
-// fora de escopo aqui). 'hoje'/'comunidade'/'instagram' saíram da lista
-// editável porque os cards que usavam essas capas não existem mais na
-// Home; linhas já cadastradas com essas chaves continuam no banco,
-// apenas sem efeito visual.
+// Redesign da Home — "Círcula Hoje" é uma lista fixa de destinos de
+// navegação (ver HomeExperienceStrip.tsx); só as chaves que o CHECK de
+// `community_card_images` (migration 20260924120000) já permite ganham
+// capa configurável aqui — sem alterar essa migration (fora de escopo).
+// 'eventos' é o card "Eventos". Ajustes de navegação — "Receitas" reusa
+// a chave legada 'jornada' (um dos 6 nomes originais do CHECK, sem
+// nenhum card ativo há tempos) só para guardar essa capa; o rótulo no
+// Painel já mostra "Receitas". Meu Perfil/Help Nutri/Loja/Círculos não
+// têm chave própria — adicionar exigiria alterar o CHECK, fora de
+// escopo aqui.
 
-export type CommunityCardKey = 'eventos'
+export type CommunityCardKey = 'eventos' | 'jornada'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -23,6 +23,7 @@ export interface CommunityCardMeta {
 
 export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
   { key: 'eventos', label: 'Eventos', hint: 'A agenda da comunidade.' },
+  { key: 'jornada', label: 'Receitas', hint: 'A biblioteca de receitas da comunidade.' },
 ]
 
 export const COMMUNITY_CARD_KEYS = COMMUNITY_CARD_META.map((c) => c.key)

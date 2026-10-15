@@ -49,6 +49,7 @@ import { useRailSummary } from '../hooks/useRailSummary'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { NavItem, NavKey } from './PrimaryNav'
 import {
+  BookIcon,
   CalendarIcon,
   CirclesIcon,
   FeedIcon,
@@ -58,6 +59,8 @@ import {
   StoreIcon,
   UserIcon,
 } from './icons'
+import { useContent } from '../hooks/useContent'
+import { ContentLibrary } from './ContentLibrary'
 
 interface CommunityPickerOptionProps {
   community: CommunityWithMembers
@@ -219,15 +222,25 @@ export function Dashboard({
       label: 'Círculos',
       Icon: CirclesIcon,
       // Navegação principal agora é só Início/Feed/Painel/Perfil —
-      // Círculos sai da barra inferior direta e passa a viver na folha
-      // "Mais", junto de Eventos/Loja/Mensagens (mesmo mecanismo de
-      // sempre, nenhum handler novo).
+      // Círculos sai da barra inferior fixa e passa a viver nos cards de
+      // "Hoje no Círcula" na Home (HomeExperienceStrip), além do chip do
+      // desktop. Mesmo mecanismo de sempre, nenhum handler novo.
       inBottomNav: false,
     })
     navItems.push({
       key: 'eventos',
       label: 'Eventos',
       Icon: CalendarIcon,
+      inBottomNav: false,
+    })
+    // Ajustes de navegação — "Receitas" ganha um card próprio em "Hoje
+    // no Círcula" (reusa 100% a Biblioteca já existente: community_content
+    // type='recipe', ContentLibrary/ContentManager). Mesma resolução de
+    // comunidade de círculos/eventos/loja.
+    navItems.push({
+      key: 'receitas',
+      label: 'Receitas',
+      Icon: BookIcon,
       inBottomNav: false,
     })
     // Fase 13 — Loja acessível também à Member (antes só existia como
@@ -284,11 +297,14 @@ export function Dashboard({
   )
 
   // Círculos da comunidade resolvida — só busca quando o destino
-  // "Círculos" ou "Eventos" está ativo (useCircles(null) não faz fetch).
-  // Eventos reaproveita a mesma resolução de comunidade dos círculos.
+  // "Círculos", "Eventos" ou "Receitas" está ativo (useCircles(null) não
+  // faz fetch). Eventos/Receitas reaproveitam a mesma resolução de
+  // comunidade dos círculos; Receitas usa `circles` só para o nome do
+  // círculo de cada item (ContentLibrary).
   const circlesActive =
     effectiveNav === 'circulos' ||
-    effectiveNav === 'eventos'
+    effectiveNav === 'eventos' ||
+    effectiveNav === 'receitas'
   const {
     circles,
     loading: circlesLoading,
@@ -304,6 +320,15 @@ export function Dashboard({
     rsvp: eventRsvp,
     cancelRsvp: eventCancelRsvp,
   } = useEvents(effectiveNav === 'eventos' ? resolvedCirclesCommunityId : null)
+
+  // Receitas — reusa 100% a Biblioteca (community_content type='recipe').
+  // useContent(null) não faz fetch.
+  const {
+    items: contentItems,
+    loading: contentLoading,
+    error: contentError,
+    toggleLike: toggleContentLike,
+  } = useContent(effectiveNav === 'receitas' ? resolvedCirclesCommunityId : null)
 
   // Módulo 7 — Salvos: DESPRIORIZADO na Fase 1. O hook fica dormente
   // (profileId null = sem fetch) e os botões "Salvar" saem de
@@ -558,6 +583,46 @@ export function Dashboard({
       )
     }
 
+    // Ajustes de navegação — Receitas: reusa 100% a Biblioteca já
+    // existente (community_content type='recipe'), só travando o filtro
+    // de tipo (ContentLibrary lockType) e o rótulo da seção. Member vê
+    // só publicado (RLS); Professional também cria/edita pela aba
+    // Conteúdo do Painel (ContentManager já lista todos os tipos).
+    if (effectiveNav === 'receitas') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+
+      if (!resolvedCirclesCommunityId) {
+        return (
+          <>
+            {renderCommunityPicker(
+              'Receitas · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
+          </>
+        )
+      }
+
+      return (
+        <ContentLibrary
+          items={contentItems}
+          loading={contentLoading}
+          error={contentError}
+          profileId={profile.id}
+          circles={circles}
+          canLike={profile.role !== 'master'}
+          communityName={
+            circlesRelevantCommunities.length > 1 ? circlesCommunity?.name : undefined
+          }
+          heading="Receitas"
+          lockType="recipe"
+          onToggleLike={(id, liked) => toggleContentLike(id, profile.id, liked)}
+        />
+      )
+    }
+
     // Fase 13 — Loja: destino único para dona (gerencia) e Member
     // (compra), mesmo componente/lógica de sempre (ProductManager),
     // só decidindo canManage/canBuy pelo papel. RLS de `products` já
@@ -752,7 +817,6 @@ export function Dashboard({
         active={effectiveNav}
         onNavigate={handleNavigate}
         badges={{ mensagens: totalUnread }}
-        showMobileMenuPill={!isHomeFocus}
       />
 
       {coverHero && railCommunity && (

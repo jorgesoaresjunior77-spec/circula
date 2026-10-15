@@ -6,15 +6,14 @@ import { isInstagramUrl } from '../lib/instagramContent'
 // Faixa editorial "No Instagram" — item 5 do redesign da Home.
 //
 // Reaproveita 100% a infraestrutura existente de `community_content`
-// (C4.1 — mesmo filtro `filterInstagramContent` já usado antes para a
-// experiência única "No Instagram"): nenhuma tabela, campo, migration
-// ou painel administrativo novo. Cada publicação é um item de
-// `community_content` publicado, com capa real e `external_url` do
-// Instagram — a Profissional cadastra/edita os 6 posts (frase = título,
-// imagem = capa, link = link externo) pelo Painel → Conteúdo
-// (<ContentManager>), que já existe. Sem publicação real cadastrada, a
-// faixa continua visível (vagas vazias, ver EMPTY_SLOTS) — nunca um
-// card falso ou link genérico.
+// (mesmo filtro `filterInstagramContent`, em lib/instagramContent.ts):
+// nenhuma tabela, campo ou migration nova. Cada publicação é um item de
+// `community_content` publicado com `external_url` do Instagram — a
+// Profissional cadastra o link pela seção "Publicações do Instagram" do
+// Painel (6 espaços numerados 1–6, InstagramSlotsManager.tsx), que pede
+// SÓ o link (sem imagem/título/descrição obrigatórios). Sempre 6
+// espaços na faixa: publicações reais primeiro, o restante como vaga
+// vazia — nunca um card falso ou link genérico.
 //
 // Diferença chave em relação a <HomeExperienceStrip>: aqui o clique
 // ABRE A PUBLICAÇÃO NO INSTAGRAM (nova aba), não navega dentro do app —
@@ -23,16 +22,16 @@ import { isInstagramUrl } from '../lib/instagramContent'
 // demais faixas — ver comentário completo em HomeExperienceStrip.tsx.
 
 const SPEED_PX_PER_SEC = 40
-const MAX_CARDS = 6
-// Reorganização da Home (item 1) — sem publicação real cadastrada, a
-// faixa continua visível (tamanho/proporção/espaçamento reservados),
-// com este nº de vagas vazias em vez de sumir. Puramente decorativo:
-// nenhum dado inventado, nenhum link, nenhuma imagem.
-const EMPTY_SLOTS = 3
+// Ajustes de navegação (item 4) — SEMPRE 6 espaços, publicados ou não:
+// os reais primeiro, o restante como vaga vazia (nunca um card
+// inventado). Antes só mostrava vagas vazias quando não havia NENHUMA
+// publicação real; agora o preenchimento completa até 6 em qualquer
+// combinação.
+const TOTAL_SLOTS = 6
 
 interface HomeInstagramStripProps {
-  /** Já filtrado (filterInstagramContent) na HomeToday — publicados, com
-   *  capa real e link do Instagram. */
+  /** Já filtrado (filterInstagramContent) na HomeToday — publicados,
+   *  com link do Instagram (capa opcional). */
   posts: CommunityContent[]
 }
 
@@ -46,12 +45,17 @@ function InstagramCard({ post, clone }: { post: CommunityContent; clone: boolean
   // ou inválido não vira um <a> clicável quebrado (sem href, sem
   // target/rel) — o card continua aparecendo, só sem a ação de clique.
   const href = isInstagramUrl(post.external_url) ? post.external_url : null
+  // Ajustes de navegação — a capa deixou de ser obrigatória; o Painel
+  // (seção "Publicações do Instagram") só pede o link, então o título
+  // pode vir vazio (publicação cadastrada pelo campo único de URL). Sem
+  // título, o card mostra só a foto (quando há) e o selo "Instagram".
+  const hasTitle = post.title.trim().length > 0
 
   const content = (
     <span className="exp-card-frame">
       {coverUrl && <img src={coverUrl} alt="" className="exp-card-photo" />}
       <span className="exp-card-eyebrow">Instagram</span>
-      <span className="exp-card-title exp-card-title--clamp">{post.title}</span>
+      {hasTitle && <span className="exp-card-title exp-card-title--clamp">{post.title}</span>}
     </span>
   )
 
@@ -76,7 +80,7 @@ function InstagramCard({ post, clone }: { post: CommunityContent; clone: boolean
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={clone ? undefined : `No Instagram — ${post.title}`}
+        aria-label={clone ? undefined : hasTitle ? `No Instagram — ${post.title}` : 'No Instagram'}
         aria-hidden={clone ? true : undefined}
         tabIndex={clone ? -1 : undefined}
       >
@@ -86,8 +90,22 @@ function InstagramCard({ post, clone }: { post: CommunityContent; clone: boolean
   )
 }
 
+function EmptyInstagramCard({ clone }: { clone: boolean }) {
+  return (
+    <li className="exp-card-item">
+      <div className="exp-card exp-card--empty" aria-hidden={clone ? true : undefined}>
+        <span className="exp-card-frame">
+          <span className="exp-card-eyebrow">Instagram</span>
+          <span className="exp-card-empty-label">Em breve</span>
+        </span>
+      </div>
+    </li>
+  )
+}
+
 export function HomeInstagramStrip({ posts }: HomeInstagramStripProps) {
-  const items = useMemo(() => posts.slice(0, MAX_CARDS), [posts])
+  const items = useMemo(() => posts.slice(0, TOTAL_SLOTS), [posts])
+  const emptyCount = TOTAL_SLOTS - items.length
 
   const [autoplayAllowed, setAutoplayAllowed] = useState(
     () => typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -168,37 +186,10 @@ export function HomeInstagramStrip({ posts }: HomeInstagramStripProps) {
     }
   }, [marquee])
 
-  // Reorganização da Home (item 1) — a seção fica visível mesmo sem
-  // publicação cadastrada: vagas vazias no tamanho/proporção previstos,
-  // sem marquee/loop (poucos cards, nada a percorrer) e sem link (não
-  // há para onde abrir). Com publicação real, segue o comportamento de
-  // sempre (abaixo).
-  if (items.length === 0) {
-    return (
-      <section className="exp-strip" aria-labelledby="insta-strip-title">
-        <h2 id="insta-strip-title" className="circ-strip-title">
-          No Instagram
-        </h2>
-        <div className="exp-viewport">
-          <div className="exp-track">
-            <ul className="exp-seq" aria-hidden="true">
-              {Array.from({ length: EMPTY_SLOTS }, (_, i) => (
-                <li key={i} className="exp-card-item">
-                  <div className="exp-card exp-card--empty">
-                    <span className="exp-card-frame">
-                      <span className="exp-card-eyebrow">Instagram</span>
-                      <span className="exp-card-empty-label">Em breve</span>
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-    )
-  }
-
+  // Ajustes de navegação (item 4) — sempre 6 espaços: as publicações
+  // reais primeiro, o restante como vaga vazia (nunca um card inventado,
+  // nunca menos de 6 no total). Marquee/loop considera a sequência toda
+  // (reais + vazias) do mesmo jeito que as outras faixas.
   return (
     <section className="exp-strip" aria-labelledby="insta-strip-title">
       <h2 id="insta-strip-title" className="circ-strip-title">
@@ -213,11 +204,17 @@ export function HomeInstagramStrip({ posts }: HomeInstagramStripProps) {
             {items.map((post) => (
               <InstagramCard key={post.id} post={post} clone={false} />
             ))}
+            {Array.from({ length: emptyCount }, (_, i) => (
+              <EmptyInstagramCard key={`empty-${i}`} clone={false} />
+            ))}
           </ul>
           {marquee && (
             <ul className="exp-seq" aria-hidden="true" ref={cloneSeqRef}>
               {items.map((post) => (
                 <InstagramCard key={`${post.id}-clone`} post={post} clone />
+              ))}
+              {Array.from({ length: emptyCount }, (_, i) => (
+                <EmptyInstagramCard key={`empty-${i}-clone`} clone />
               ))}
             </ul>
           )}

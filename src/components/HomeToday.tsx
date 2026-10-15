@@ -118,6 +118,9 @@ export function HomeToday({
   // editorial (sem foto).
   const { images: cardImagePaths } = useCommunityCardImages(communityId)
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
+  // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
+  // legada 'jornada' (ver types/communityCards.ts).
+  const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
 
   const greetingName = firstName(profile.full_name)
   const greeting = (
@@ -199,6 +202,7 @@ export function HomeToday({
       <HomeExperienceStrip
         nextEvent={railSummary?.nextEvent ?? null}
         eventosCover={eventosCover}
+        receitasCover={receitasCover}
         onNavigate={onNavigate}
       />
 

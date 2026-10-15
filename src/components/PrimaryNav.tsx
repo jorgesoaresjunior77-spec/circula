@@ -1,7 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
 import type { ComponentType } from 'react'
-import { CloseIcon } from './icons'
-import circulaIcon from '../assets/circula-icon.png'
 
 export type NavKey =
   | 'inicio'
@@ -14,6 +11,7 @@ export type NavKey =
   | 'comunidades'
   | 'circulos'
   | 'eventos'
+  | 'receitas'
   // 'salvos' permanece no tipo: destino desativado da navegação primária
   // na Fase 1 (Módulo 7 despriorizado), código mantido dormente.
   | 'salvos'
@@ -26,9 +24,9 @@ export interface NavItem {
   key: NavKey
   label: string
   Icon: ComponentType<{ size?: number; className?: string }>
-  /** D1 — reativado: decide quais destinos aparecem na barra inferior
-   *  fixa do mobile (os demais continuam na folha "Mais"/"Menu", que
-   *  mostra todos os itens). Calculado por papel no Dashboard. */
+  /** Decide quais destinos aparecem na cápsula fixa do mobile (os demais
+   *  continuam alcançáveis pelos cards da Home e pelos chips do desktop
+   *  — ver HomeExperienceStrip). Calculado por papel no Dashboard. */
   inBottomNav: boolean
 }
 
@@ -38,54 +36,25 @@ interface PrimaryNavProps {
   onNavigate: (key: NavKey) => void
   /** Contadores opcionais por destino (ex.: mensagens não lidas). */
   badges?: Partial<Record<NavKey, number>>
-  /**
-   * Oculta a pílula "Menu" do topo (mobile) — usado só pela Home, onde
-   * a barra inferior fixa já cobre os destinos essenciais + "Mais" (o
-   * mesmo "nav-sheet" abre por ela). Não afeta o desktop (.topnav-list)
-   * nem a própria barra inferior, que continuam intocados.
-   */
-  showMobileMenuPill?: boolean
 }
 
 /**
- * Navegação primária do Círcula — sem menu lateral.
+ * Navegação primária do Círcula — sem menu lateral e sem folha de
+ * overflow.
  *
- * Redesign da Home, item 2 — navegação ÚNICA em qualquer largura: a
- * mesma `.topnav-list` (chips compactos, fundo transparente, borda
- * fina) renderiza logo abaixo da marca, antes do banner — não mais uma
- * barra de topo no desktop e outra fixa embaixo no mobile. A antiga
- * barra inferior (`.bottom-nav`), a pílula "Menu" (`.topnav-toggle`) e
- * a folha de overflow (`.nav-sheet`) continuam montadas aqui (mesmos
- * destinos/handlers/acessibilidade, nada removido), só ficam ocultas
- * por CSS em toda largura — ver App.css. No mobile, itens que não
- * cabem numa linha quebram organizadamente (flex-wrap), sem criar
- * rolagem horizontal no documento. Puramente apresentacional: não toca
- * dados, hooks de negócio, Supabase ou auth. onNavigate / badges /
- * aria-current / destinos: inalterados.
+ * Ajustes de navegação (item 1) — o botão "Menu" (três risquinhos) e a
+ * folha "Mais" saíram por completo: a barra inferior fixa do mobile
+ * (cápsula flutuante, estilo Netflix/Prime Video) é a ÚNICA navegação
+ * principal, com exatamente os destinos marcados `inBottomNav` (Início/
+ * Feed/Painel/Perfil para quem tem Painel; Início/Feed/Perfil para as
+ * demais). Os destinos que não cabem na cápsula (Círculos, Eventos,
+ * Loja, Receitas, Mensagens) continuam acessíveis pelos cards fixos de
+ * "Hoje no Círcula" na Home (HomeExperienceStrip) — nenhuma tela ficou
+ * sem acesso, só mudou o caminho. No desktop (>= 1024px), `.topnav-list`
+ * continua mostrando todos os destinos como chips, inalterada.
  */
-export function PrimaryNav({
-  items,
-  active,
-  onNavigate,
-  badges,
-  showMobileMenuPill = true,
-}: PrimaryNavProps) {
-  const [open, setOpen] = useState(false)
-  const sheetId = useId()
-  const toggleRef = useRef<HTMLButtonElement>(null)
-  const bottomMoreRef = useRef<HTMLButtonElement>(null)
-  const sheetRef = useRef<HTMLDivElement>(null)
-  // Dois gatilhos possíveis para a mesma folha (pílula "Menu" no topo e
-  // "Mais" na barra inferior) — guarda qual foi usado por último para
-  // devolver o foco a ele quando a folha fecha.
-  const lastTriggerRef = useRef<HTMLButtonElement | null>(null)
-
-  // Barra inferior (mobile, < 1024px): só os destinos essenciais
-  // (NavItem.inBottomNav, já calculado por papel no Dashboard — nenhuma
-  // lógica nova aqui). O resto continua acessível pela mesma folha
-  // "Menu" de sempre, agora também abrível por um item "Mais" na barra.
+export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProps) {
   const bottomItems = items.filter((item) => item.inBottomNav)
-  const hasOverflow = bottomItems.length < items.length
 
   function badgeFor(key: NavKey) {
     const count = badges?.[key] ?? 0
@@ -93,57 +62,9 @@ export function PrimaryNav({
     return <span className="nav-badge">{count > 99 ? '99+' : count}</span>
   }
 
-  function close() {
-    setOpen(false)
-  }
-
-  // Enquanto a folha está aberta: foco entra nela, ESC e Tab tratados,
-  // rolagem do fundo travada. Ao fechar, o foco volta para o botão.
-  // Respeita prefers-reduced-motion via CSS (sem animação por JS).
-  useEffect(() => {
-    if (!open) return
-
-    const toggle = lastTriggerRef.current ?? toggleRef.current
-    const sheet = sheetRef.current
-    sheet?.querySelector<HTMLElement>('[data-autofocus]')?.focus()
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.stopPropagation()
-        setOpen(false)
-        return
-      }
-      if (event.key !== 'Tab' || !sheet) return
-      const focusables = sheet.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      )
-      if (focusables.length === 0) return
-      const first = focusables[0]
-      const last = focusables[focusables.length - 1]
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
-      }
-    }
-
-    document.addEventListener('keydown', onKeyDown, true)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown, true)
-      document.body.style.overflow = previousOverflow
-      toggle?.focus()
-    }
-  }, [open])
-
   return (
     <nav className="topnav" aria-label="Navegação principal">
-      {/* Redesign da Home, item 2 — lista única de destinos, compacta,
-          visível em qualquer largura (ver .topnav-list em App.css). */}
+      {/* Desktop — lista única de destinos, chips compactos. */}
       <ul className="topnav-list">
         {items.map((item) => (
           <li key={item.key}>
@@ -164,42 +85,12 @@ export function PrimaryNav({
         ))}
       </ul>
 
-      {/* Mobile — botão arredondado que abre a folha. Escondido no desktop.
-          Na Home (showMobileMenuPill=false) nem chega a renderizar: a
-          barra inferior já tem "Mais" para os mesmos destinos. */}
-      {showMobileMenuPill && (
-        <button
-          ref={toggleRef}
-          type="button"
-          className="topnav-toggle"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          aria-controls={sheetId}
-          onClick={() => {
-            lastTriggerRef.current = toggleRef.current
-            setOpen(true)
-          }}
-        >
-          <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
-            <path
-              d="M1 1h16M1 6h16M1 11h16"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-            />
-          </svg>
-          <span className="topnav-toggle-label">Menu</span>
-        </button>
-      )}
-
-      {/* Barra inferior fixa (mobile, < 1024px) — mesmos destinos e
-          mesmo onNavigate dos itens acima; só a apresentação muda. */}
+      {/* Mobile (< 1024px) — cápsula flutuante fixa, única navegação. */}
       <div className="bottom-nav">
         <ul className="bottom-nav-list">
           {bottomItems.map((item) => {
-            // Reorganização do menu — Feed é o destino central da barra
-            // (Início/Feed/Painel/Perfil), um pouco maior que os demais.
-            // Só apresentação (ícone/rótulo); handler e destino iguais.
+            // Feed é o destino central da cápsula — ícone um pouco maior
+            // e mais escuro que os demais (diferença sutil).
             const isFeed = item.key === 'feed'
             return (
               <li key={item.key}>
@@ -218,87 +109,8 @@ export function PrimaryNav({
               </li>
             )
           })}
-          {hasOverflow && (
-            <li>
-              <button
-                ref={bottomMoreRef}
-                type="button"
-                className="bottom-nav-item"
-                aria-haspopup="dialog"
-                aria-expanded={open}
-                aria-controls={sheetId}
-                onClick={() => {
-                  lastTriggerRef.current = bottomMoreRef.current
-                  setOpen(true)
-                }}
-              >
-                <span className="nav-icon-wrap">
-                  <svg width="20" height="14" viewBox="0 0 18 12" fill="none" aria-hidden="true">
-                    <path
-                      d="M1 1h16M1 6h16M1 11h16"
-                      stroke="currentColor"
-                      strokeWidth="1.4"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
-                <span className="bottom-nav-label">Mais</span>
-              </button>
-            </li>
-          )}
         </ul>
       </div>
-
-      {open && (
-        <div className="nav-sheet-backdrop" onClick={close}>
-          <div
-            ref={sheetRef}
-            id={sheetId}
-            className="nav-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Navegação"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="nav-sheet-head">
-              <img src={circulaIcon} alt="Círcula" className="nav-sheet-mark" />
-              <button
-                type="button"
-                className="nav-sheet-close"
-                onClick={close}
-                aria-label="Fechar menu"
-                data-autofocus
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-
-            <ul className="nav-sheet-list">
-              {items.map((item) => (
-                <li key={item.key}>
-                  <button
-                    type="button"
-                    className={`nav-sheet-item${
-                      active === item.key ? ' nav-sheet-item--active' : ''
-                    }`}
-                    aria-current={active === item.key ? 'page' : undefined}
-                    onClick={() => {
-                      onNavigate(item.key)
-                      close()
-                    }}
-                  >
-                    <span className="nav-icon-wrap">
-                      <item.Icon size={20} />
-                      {badgeFor(item.key)}
-                    </span>
-                    <span className="nav-sheet-label">{item.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </nav>
   )
 }

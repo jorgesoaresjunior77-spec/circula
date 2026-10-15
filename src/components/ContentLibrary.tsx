@@ -28,6 +28,7 @@ interface ContentLibraryProps {
 
 const TYPE_FILTERS: ('all' | ContentType)[] = [
   'all',
+  'recipe',
   'article',
   'tip',
   'material',

@@ -1,4 +1,5 @@
 export type ContentType =
+  | 'recipe'
   | 'article'
   | 'tip'
   | 'material'
@@ -8,6 +9,7 @@ export type ContentType =
 export type ContentStatus = 'draft' | 'published' | 'archived'
 
 export const CONTENT_TYPE_LABEL: Record<ContentType, string> = {
+  recipe: 'Receita',
   article: 'Artigo',
   tip: 'Dica',
   material: 'Material',
