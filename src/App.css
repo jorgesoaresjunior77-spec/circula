@@ -576,9 +576,26 @@
   }
 }
 
-/* --- Marca ------------------------------------------------------- */
+/* --- Marca ---------------------------------------------------------
+   Correção do logo (item 6) — ícone + "Círcula" formam a 1ª linha
+   (.brand-row); "conectando mulheres" é a 2ª linha, direto em .brand
+   (não em .brand-row), por isso começa na MESMA margem esquerda do
+   ícone — "alinhada ao conjunto", não recuada só sob a palavra. Mesmo
+   tratamento em mobile e desktop (só o tamanho de fonte varia); o modo
+   antigo, que troca pastilha+wordmark por só a imagem do logo oficial
+   a partir de 1024px (.brand-mark/.brand-mark-btn), saiu por completo —
+   um único layout em qualquer largura. */
 .dashboard-header .brand {
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
   gap: var(--space-3);
   min-width: 0;
 }
@@ -588,13 +605,6 @@
   height: 50px;
   border-radius: 0;
   box-shadow: none;
-}
-
-.brand-lockup {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
 }
 
 .brand-name {
@@ -611,64 +621,17 @@
   }
 }
 
-/* Tagline como eyebrow editorial — Jost maiúsculo tracké. */
+/* Tagline como eyebrow editorial — Jost, SEM caixa alta: a frase deve
+   ler exatamente "conectando mulheres" (caixa baixa), por isso
+   `text-transform: none` em vez do eyebrow padrão do sistema. */
 .brand-tagline {
-  margin: 2px 0 0;
+  margin: 1px 0 0;
   font-family: var(--font-label);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: var(--eyebrow-weight);
-  letter-spacing: var(--eyebrow-tracking);
-  text-transform: var(--eyebrow-transform);
+  letter-spacing: 0.06em;
+  text-transform: none;
   color: var(--circula-taupe); /* TESTE — texto secundário */
-}
-
-/* B1 — logo oficial (circula-logo.png) na navegação superior do
-   desktop, onde há espaço adequado. No mobile a marca segue como
-   pastilha + wordmark (.brand-icon + .brand-lockup). O asset NÃO é
-   redesenhado nem tratado — só exibido. Seletor com a especificidade
-   de `.dashboard-header button` para vencer o casco herdado do "Sair". */
-.dashboard-header .brand-mark-btn {
-  display: none;
-}
-
-.brand-mark {
-  display: block;
-  height: 38px;
-  width: auto;
-  filter: var(--brand-filter);
-}
-
-@media (min-width: 1024px) {
-  .dashboard-header .brand-icon-btn,
-  .dashboard-header .brand-lockup {
-    display: none;
-  }
-
-  .dashboard-header .brand-mark-btn {
-    display: inline-flex;
-    align-items: center;
-    min-height: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    box-shadow: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: transform var(--dur) var(--ease-out);
-  }
-
-  .dashboard-header .brand-mark-btn:hover {
-    transform: translateY(-1px);
-  }
-
-  .dashboard-header .brand-mark-btn:active {
-    transform: none;
-  }
-
-  .dashboard-header .brand-mark-btn:focus-visible {
-    outline: 2px solid var(--ink-action);
-    outline-offset: 3px;
-  }
 }
 
 /* --- Área da usuária ------------------------------------------- */
@@ -766,13 +729,12 @@
 }
 
 /* Item 1 (ajuste visual) — cabeçalho mobile numa única linha: marca à
-   esquerda, sino + avatar + Sair à direita. Antes `.dashboard-header`
-   só tinha `flex-wrap: wrap` (pensado pra não estourar), e a tagline
-   "CONECTANDO MULHERES" (eyebrow com tracking largo) empurrava a área
-   da usuária pra quebrar numa 2ª linha. Trava `nowrap` + encolhe a
-   tagline (com ellipsis de segurança) em vez de depender da quebra.
-   Só <1024px — acima disso a marca vira só o logo (.brand-mark-btn) e
-   este bloco não entra em jogo. */
+   esquerda, sino + avatar + Sair à direita. `.dashboard-header` trava
+   `nowrap` + encolhe a tagline (com ellipsis de segurança) em vez de
+   depender de quebra. Correção do logo (item 6) — a marca agora é
+   igual em qualquer largura (sem o modo "só logo" exclusivo do
+   desktop), então este bloco só ajusta tamanho/overflow, não troca
+   layout. */
 @media (max-width: 1023px) {
   .dashboard-header {
     flex-wrap: nowrap;
@@ -784,9 +746,13 @@
     min-width: 0;
   }
 
-  .brand-lockup {
+  .brand-row {
     min-width: 0;
+  }
+
+  .brand-name {
     overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .brand-tagline {
@@ -13062,21 +13028,10 @@ button.card:focus-visible {
    editorial de apoio.
    =================================================================== */
 
-/* 1 · MARCA — no desktop aparece SÓ o logo oficial (circula-logo.png).
-   A pastilha-ícone segue reservada a mobile/favicon. Esta regra, por
-   vir por último no arquivo, anula o `display: inline-flex` sem media
-   de `.dashboard-header .brand-icon-btn` (linha ~4427) que derrotava o
-   `display: none` da B1. Presença do logo levemente maior para não
-   sumir no branco — a arte do asset não muda. */
-@media (min-width: 1024px) {
-  .dashboard-header .brand-icon-btn {
-    display: none;
-  }
-
-  .brand-mark {
-    height: 54px; /* logo um pouco maior, mesma proporção (width: auto) */
-  }
-}
+/* 1 · MARCA — correção do logo (item 6) removeu o modo "só a imagem do
+   logo oficial" exclusivo do desktop: a pastilha-ícone + "Círcula" +
+   "conectando mulheres" agora é o único layout, em qualquer largura
+   (ver ".dashboard-header .brand" mais acima). Nada a anular aqui. */
 
 /* 2 · MEDIDA DE LEITURA — o palco continua amplo; só o TEXTO recebe
    medida. Blocos textuais/administrativos da Home recuam para ~68ch
@@ -13541,24 +13496,24 @@ button.card:focus-visible {
    Logo abaixo do cabecalho da comunidade. Apresentacao horizontal, editorial (branco +
    areia / bege / rose-mist muito claros, sem borda, sem moldura, sombra
    praticamente inexistente, tipografia leve). Cards ~4:5; foto (quando
-   ha, dos dados reais) ocupa o card inteiro. Vaivem horizontal muito
-   suave que pausa na interacao; desligado em reduced-motion e touch. A
-   faixa rola SO dentro de si — nunca cria overflow horizontal na
-   pagina. So CSS + um componente de apresentacao; nenhum dado novo.
+   ha, dos dados reais) ocupa o card inteiro.
+   Correção da rolagem (item 2) — SEM autoplay/vaivém automático. O
+   ciclo contínuo e o arrasto de mouse vêm de useDragCarousel
+   (hooks/useDragCarousel.ts), compartilhado com a faixa "Círculos"
+   (C3, abaixo). A faixa rola SÓ dentro de si — nunca cria overflow
+   horizontal na página. So CSS + um componente de apresentacao;
+   nenhum dado novo.
    =================================================================== */
 
 .exp-strip {
   /* o trilho se move só dentro de si; a página nunca estoura */
   min-width: 0;
-  /* âncora pro degradê de borda (.exp-edge-fade), posicionado absoluto */
-  position: relative;
 }
 
-/* fronteira de recorte — nada da faixa vaza para a página. Item 7 —
-   o loop (quando ativo) também roda por cima deste mesmo
-   `overflow-x: auto`, via `scrollLeft` (ver HomeExperienceStrip.tsx) —
-   nunca `transform` —, então o swipe/scroll nativo nunca é desligado,
-   nem em modo marquee. */
+/* fronteira de recorte — nada da faixa vaza para a página. O ciclo
+   contínuo (quando ativo) roda por cima deste mesmo `overflow-x: auto`,
+   via `scrollLeft` (useDragCarousel) — nunca `transform` —, então o
+   swipe/scroll nativo nunca é desligado. */
 .exp-viewport {
   overflow-x: auto;
   overflow-y: hidden;
@@ -13572,9 +13527,27 @@ button.card:focus-visible {
   display: none;
 }
 
-/* modo loop: sem scroll-snap (brigaria com o `scrollLeft` incrementado
-   a cada frame) — overflow-x continua `auto` (herdado de .exp-viewport). */
-.exp-viewport--marquee {
+/* Afordance de arrasto — só nas faixas que usam useDragCarousel (Seu
+   Círcula de Hoje / Círculos); a faixa "No Instagram" não ganha esta
+   classe e mantém só o swipe/scroll nativo, sem prometer um arrasto de
+   mouse que ali não existe. */
+.exp-viewport--draggable {
+  cursor: grab;
+}
+
+.exp-viewport--draggable.exp-viewport--dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Ciclo contínuo ativo (há cópias da sequência) — desliga o
+   scroll-snap: ele tentaria "assentar" num card ao fim de um swipe no
+   mesmo instante em que a correção de posição do ciclo (useDragCarousel)
+   também move `scrollLeft`, e os dois disputando a mesma propriedade é
+   que causava salto perceptível. Sem clones (sequência cabe inteira na
+   viewport), o snap volta via `.exp-viewport` normal — não há ciclo
+   para conflitar. */
+.exp-viewport--looping {
   scroll-snap-type: none;
 }
 
@@ -13593,36 +13566,11 @@ button.card:focus-visible {
   gap: var(--space-4);
 }
 
-/* a folga entre a 1ª e a 2ª sequência = a mesma folga entre cards —
-   o ponto de "corte" do loop (calculado em JS a partir do offsetLeft
-   real dos dois <ul>) cai exatamente no início da 2ª, sem salto. */
-.exp-viewport--marquee .exp-seq {
-  padding-right: var(--space-4);
-}
-
-/* Item 7 — indicador discreto de que há mais cards fora da viewport
-   (só quando `needsLoop`, ver componente). Degradê até a cor da própria
-   página — nunca um bloco sólido — e `pointer-events: none` pra nunca
-   atrapalhar toque/clique. */
-.exp-edge-fade {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 40px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--page-bg) 92%);
-}
-
 .exp-card-item {
   flex: 0 0 auto;
   /* D1 — cards menores (eram clamp(186px, 42vw, 244px) / 264 / 288) */
   width: clamp(144px, 34vw, 184px);
   scroll-snap-align: start;
-}
-
-.exp-viewport--marquee .exp-card-item {
-  scroll-snap-align: none;
 }
 
 @media (min-width: 768px) {
@@ -13731,6 +13679,22 @@ button.card:focus-visible {
   color: var(--graphite);
 }
 
+/* Correção dos cards (item 1) — "Seu Círcula de Hoje": o nome é o ÚNICO
+   texto do card (eyebrow e meta saíram — ver HomeExperienceStrip.tsx) e
+   precisa ler bem sobre QUALQUER imagem, não só quando há foto. Por
+   isso é sempre branco com contorno preto mais grosso que o padrão da
+   faixa (0.9px vs. 0.4px), escopado a `.exp-strip--hoje` para não
+   mudar outras faixas que reusam `.exp-card-title` (ex.: "No
+   Instagram", que mantém o comportamento de sempre — branco só sobre
+   foto). Mesma especificidade do bloco ".exp-card--photo .exp-card-
+   title" acima; por vir depois no arquivo, prevalece nos dois casos
+   (com ou sem foto). */
+.exp-strip--hoje .exp-card-title {
+  color: var(--c-white);
+  -webkit-text-stroke: 0.9px rgba(18, 14, 12, 0.75);
+  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.55);
+}
+
 /* Correção pontual — faixa "No Instagram" (HomeInstagramStrip.tsx): a
    frase é o único texto sobre a foto (sem .exp-card-meta por baixo), e
    vem de um campo livre cadastrado pela Profissional, sem limite de
@@ -13820,9 +13784,9 @@ button.card:focus-visible {
   .exp-card:hover .exp-card-photo {
     transform: none;
   }
-  /* Item 7 — o componente já não ativa o loop/clone com reduced-motion
-     (ver `autoplayAllowed` em HomeExperienceStrip.tsx), então `.exp-
-     viewport--marquee` nunca chega a existir aqui; nada a neutralizar. */
+  /* Rolagem (item 2) — nenhuma animação automática em jogo (useDragCarousel
+     não anima nada por conta própria; só reage a gesto do usuário), então
+     não há nada a neutralizar aqui para quem prefere menos movimento. */
 }
 
 /* ===================================================================
@@ -13833,12 +13797,16 @@ button.card:focus-visible {
    linha, sem sombra forte. Card ~4:5 com a capa do Circulo (dado real,
    escolhido pelo criador) como protagonista; sem capa, composicao
    tipografica em tinta clara. Titulo/contagem discretos, realce suave
-   no hover (nao no toque). Faixa horizontal com deslize automatico
-   muito sutil na linguagem da C2 — pausa na interacao, respeita
-   reduced-motion, rola so dentro de si (sem overflow horizontal da
-   pagina). So CSS + um componente de apresentacao; nenhum dado novo.
-   Handlers preservados: abrir -> destino Circulos; joinCircle /
-   leaveCircle.
+   no hover (nao no toque).
+   Correção da rolagem (item 2) — mesmo useDragCarousel da faixa "Seu
+   Círcula de Hoje" (C2): ciclo contínuo nos dois sentidos, arrasto de
+   mouse, swipe nativo, SEM autoplay/vaivém automático. Estrutura
+   .circ-viewport (rola) > .circ-track (fileira) > .circ-seq (a lista
+   real + cópias quando o ciclo está ativo), no mesmo padrão de
+   .exp-viewport/.exp-track/.exp-seq.
+   Correção dos cards de Círculos (item 3) — sem botão "Entrar"/"Sair"
+   no card: abrir leva direto à página DAQUELE círculo (CircleDetail),
+   onde seguir/deixar de seguir continua disponível.
    =================================================================== */
 
 .circ-strip {
@@ -13861,41 +13829,33 @@ button.card:focus-visible {
   color: var(--graphite);
 }
 
-/* Item 7 — âncora pro degradê de borda (.circ-edge-fade), que precisa
-   ficar alinhado só com a faixa de cards (não com o título acima). */
-.circ-track-wrap {
-  position: relative;
-}
-
-.circ-track {
-  list-style: none;
-  margin: 0;
-  padding: var(--space-1) 0 var(--space-3);
-  display: flex;
-  gap: var(--space-4);
+/* fronteira de recorte — nada da faixa vaza para a página. */
+.circ-viewport {
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
 
-.circ-track::-webkit-scrollbar {
+.circ-viewport::-webkit-scrollbar {
   display: none;
 }
 
-/* Indicador discreto de que há mais círculos fora da viewport — mesma
-   linguagem do .exp-edge-fade. Some sozinho ao chegar no fim da faixa
-   (`atEnd`, calculado no componente) e nunca bloqueia o toque. */
-.circ-edge-fade {
-  position: absolute;
-  top: 0;
-  bottom: var(--space-3);
-  right: 0;
-  width: 40px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--page-bg) 92%);
+.circ-track {
+  display: flex;
+  width: max-content;
+  padding: var(--space-1) 0 var(--space-3);
+}
+
+.circ-seq {
+  flex: 0 0 auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-4);
 }
 
 .circ-card-item {
@@ -14052,63 +14012,10 @@ button.card:focus-visible {
   }
 }
 
-/* participar / sair: um unico chip translucido, sempre acessivel */
-.circ-card-join {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  z-index: 3;
-  pointer-events: auto;
-  min-height: 32px;
-  padding: 6px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.44);
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.14);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  color: var(--c-white);
-  font-family: var(--font-label);
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background-color var(--dur) var(--ease),
-    border-color var(--dur) var(--ease);
-}
-
-/* sobre tinta clara (card sem foto) o chip vira tinta de acao */
-.circ-card:not(.circ-card--photo) .circ-card-join {
-  border-color: var(--ink-action-line);
-  background: var(--ink-action-soft);
-  color: var(--ink-action);
-}
-
-.circ-card-join:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: rgba(255, 255, 255, 0.72);
-}
-
-.circ-card:not(.circ-card--photo) .circ-card-join:hover:not(:disabled) {
-  background: var(--ink-action);
-  border-color: var(--ink-action);
-  color: var(--on-action);
-}
-
-.circ-card-join:focus-visible {
-  outline: 2px solid var(--c-white);
-  outline-offset: 2px;
-}
-
-.circ-card:not(.circ-card--photo) .circ-card-join:focus-visible {
-  outline-color: var(--ink-action);
-}
-
-.circ-card-join:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
+/* Correção dos cards de Círculos (item 3) — o chip "Participar"/"Sair"
+   que vivia aqui (.circ-card-join) saiu: o card só abre a página do
+   Círculo; seguir/deixar de seguir agora vive inteiramente dentro do
+   CircleDetail (.circle-detail-actions), que já tinha essa ação. */
 
 @media (prefers-reduced-motion: reduce) {
   .circ-card-frame,
@@ -14130,7 +14037,9 @@ button.card:focus-visible {
 /* ===================================================================
    C4.1 · "No Instagram" integrado à faixa de experiencias
    O card "No Instagram" e apenas mais uma experiencia da faixa da C2 —
-   reusa .exp-card / .exp-card--photo, o mesmo marquee, a mesma estetica.
+   reusa .exp-card / .exp-card--photo, a mesma estetica (sem o ciclo
+   contínuo/arrasto do useDragCarousel: HomeInstagramStrip.tsx já tem
+   seus próprios 6 espaços fixos, sempre numa sequência só).
    Nao ha faixa nem trilho proprio (o bloco .ig-strip da C4 foi
    removido). Ao clicar, abre esta tela editorial dentro do app; so o
    botao "Ver no Instagram" leva ao external_url real.
@@ -14667,9 +14576,5 @@ button.card:focus-visible {
   .post-card--editorial .save-button,
   .comment-more {
     min-height: 44px;
-  }
-
-  .circ-card-join {
-    min-height: 40px;
   }
 }

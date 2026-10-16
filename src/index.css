@@ -75,8 +75,11 @@
   --circula-offwhite: #f7f4ee;
   /* Redesign da Home, item 6 — fundo geral do app, bege mais intenso que
      o --circula-offwhite acima (que segue existindo só como tinta de
-     texto sobre foto, inalterado). Ponto de partida pedido: #EDE5DA. */
-  --circula-page-beige: #ede5da;
+     texto sobre foto, inalterado). Ponto de partida pedido: #EDE5DA.
+     Correção da capa (item 5) — um pouco mais claro que esse ponto de
+     partida, igual em mobile e desktop (única variável global; nenhuma
+     regra por dispositivo). */
+  --circula-page-beige: #f3ece1;
 
   /* Champagne como ACENTO EDITORIAL — nunca fundo predominante.
      Par tint/line no mesmo padrão de --accent-sand-tint/-line. */

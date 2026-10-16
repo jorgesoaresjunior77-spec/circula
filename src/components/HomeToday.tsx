@@ -45,6 +45,13 @@ interface HomeTodayProps {
   onJoinCommunity: (communityId: string) => Promise<JoinResult>
   onNavigate: (key: NavKey) => void
   /**
+   * Correção dos cards de Círculos — abre a página de UM círculo
+   * específico (CircleDetail), em vez da lista genérica de Círculos.
+   * Implementado pelo Dashboard: resolve a comunidade certa e seleciona
+   * o círculo antes de navegar.
+   */
+  onOpenCircle: (circleId: string) => void
+  /**
    * C1 — quando a capa da comunidade em foco está sendo usada como hero
    * fotográfico full-bleed (renderizado pelo Dashboard atrás do
    * cabeçalho), o HomeCommunityHeader entra em modo sobreposição: só a
@@ -81,6 +88,7 @@ export function HomeToday({
   onCreateCommunity,
   onJoinCommunity,
   onNavigate,
+  onOpenCircle,
   coverHero = false,
   railSummary = null,
 }: HomeTodayProps) {
@@ -100,7 +108,7 @@ export function HomeToday({
       : (myCommunities[0] ?? null)
   const communityId = focusCommunity?.id ?? null
 
-  const { circles, joinCircle, leaveCircle } = useCircles(communityId)
+  const { circles } = useCircles(communityId)
 
   // No Instagram — publicações que a comunidade cadastrou como
   // community_content com link do Instagram + capa (useContent já
@@ -111,16 +119,19 @@ export function HomeToday({
     [contentItems],
   )
 
-  // Capas (só VISUAL) que a Profissional cadastrou no Painel para os 6
-  // cards fixos de Círcula Hoje — ver types/communityCards.ts pro mapa
-  // completo chave legada -> destino atual. Sem imagem cadastrada ->
-  // fallback editorial (sem foto), como sempre.
+  // Capas (só VISUAL) que a Profissional cadastrou no Painel para os
+  // cards fixos de "Seu Círcula de hoje" — ver types/communityCards.ts
+  // pro mapa completo chave legada -> destino atual. Sem imagem
+  // cadastrada -> fallback editorial (sem foto), como sempre.
+  // Correção dos cards duplicados — a chave legada 'instagram' (que
+  // guardava a capa do antigo card "Círculos" nesta faixa) saiu: o
+  // destino Círculos não aparece mais aqui (tem sua própria seção
+  // editorial, <HomeCirclesSection>, com a capa de cada Círculo real).
   const { images: cardImagePaths } = useCommunityCardImages(communityId)
   const { url: perfilCover } = useSignedImageUrl(cardImagePaths.hoje ?? null)
   const { url: helpNutriCover } = useSignedImageUrl(cardImagePaths.desafios ?? null)
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
   const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
-  const { url: circulosCover } = useSignedImageUrl(cardImagePaths.instagram ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
   const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
@@ -192,23 +203,19 @@ export function HomeToday({
           identidade é renderizada pelo Dashboard DENTRO do hero (sobre a
           foto); aqui ela sai para não duplicar. */}
       {!coverHero && (
-        <HomeCommunityHeader
-          community={focusCommunity}
-          memberCount={memberCounts[focusCommunity.id]}
-          profileId={profile.id}
-        />
+        <HomeCommunityHeader community={focusCommunity} profileId={profile.id} />
       )}
 
-      {/* Redesign da Home (item 3) — "Círcula Hoje": 5 destinos fixos de
-          navegação (Meu Perfil, Help Nutri, Eventos, Loja, Círculos),
-          sempre presentes. */}
+      {/* Redesign da Home (item 3) — "Seu Círcula de hoje": destinos fixos
+          de navegação (Meu Perfil, Help Nutri, Eventos, Loja, Receitas),
+          sempre presentes. "Círculos" não entra aqui — tem a própria
+          seção editorial abaixo (<HomeCirclesSection>). */}
       <HomeExperienceStrip
         nextEvent={railSummary?.nextEvent ?? null}
         perfilCover={perfilCover}
         helpNutriCover={helpNutriCover}
         eventosCover={eventosCover}
         lojaCover={lojaCover}
-        circulosCover={circulosCover}
         receitasCover={receitasCover}
         onNavigate={onNavigate}
       />
@@ -221,15 +228,11 @@ export function HomeToday({
 
       {/* C3 — Círculos da comunidade como coleção editorial, logo após a
           faixa de experiências. Só dados existentes (useCircles já
-          instanciado); abrir leva ao destino "Círculos" como antes;
-          joinCircle / leaveCircle preservados. */}
-      <HomeCirclesSection
-        circles={circles}
-        profileId={profile.id}
-        onOpen={() => onNavigate('circulos')}
-        onJoin={(circleId) => joinCircle(circleId, profile.id)}
-        onLeave={(circleId) => leaveCircle(circleId, profile.id)}
-      />
+          instanciado). Correção dos cards de Círculos — abrir leva
+          direto à página DAQUELE círculo (CircleDetail), onde seguir/
+          deixar de seguir continua disponível; o card deixou de ter
+          botão de Entrar/Sair próprio. */}
+      <HomeCirclesSection circles={circles} onOpen={onOpenCircle} />
 
       {/* <HomeInstagramStrip> sempre renderiza (6 espaços fixos, vazios
           ou não) — este separador nunca fica órfão. */}

@@ -7,15 +7,6 @@ import type { CommunityMemberProfile, CommunityWithMembers } from '../types/comm
 interface HomeCommunityHeaderProps {
   community: CommunityWithMembers
   /**
-   * Nº REAL de participantes da comunidade em foco — vem de
-   * `useCommunity.memberCounts` (RPC `community_member_count`). É
-   * obrigatório para uma Member: o array `community_members` embutido é
-   * filtrado pela RLS (`community_members_select` só devolve a própria
-   * linha), então `community_members.length` daria "1" para qualquer
-   * Member. Nunca usar o length do embed como contagem.
-   */
-  memberCount?: number
-  /**
    * Id de quem está vendo a Home — usado só para entrar no canal de
    * presença (Supabase Realtime) desta comunidade e mostrar quantas
    * pessoas estão com a Home aberta agora. Sem este prop, nenhum canal é
@@ -44,7 +35,6 @@ interface HomeCommunityHeaderProps {
  *   - nome / capa / owner_id  → a própria linha de `community` (focus
  *     community escolhida na HomeToday a partir das comunidades em que a
  *     Member participa);
- *   - nº de participantes      → prop `memberCount` (RPC);
  *   - profissional responsável → o perfil de `community.owner_id`: já
  *     vem no embed quando quem olha é a dona/Master; para uma Member a
  *     RLS de `community_members` esconde a linha da dona, então buscamos
@@ -54,7 +44,6 @@ interface HomeCommunityHeaderProps {
  */
 export function HomeCommunityHeader({
   community,
-  memberCount,
   profileId,
   overlay = false,
 }: HomeCommunityHeaderProps) {
@@ -85,10 +74,14 @@ export function HomeCommunityHeader({
   }, [community.owner_id, embeddedOwner])
 
   const owner = embeddedOwner ?? fetchedOwner
-  const count = typeof memberCount === 'number' ? memberCount : null
   const { url: coverUrl } = useSignedImageUrl(community.cover_image_url)
   const onlineCount = useCommunityPresence(profileId ? community.id : null, profileId ?? null)
 
+  // Correção do banner — a contagem de mulheres saiu do banner principal
+  // da capa (`home-community-count`). Demais elementos (capa, nome,
+  // responsável, online agora) preservados; `memberCount` fica só na
+  // assinatura por compatibilidade com quem ainda o passa (Dashboard,
+  // HomeToday), sem efeito aqui.
   const metaRow = (
     <div className="home-community-meta">
       {owner && (
@@ -101,11 +94,6 @@ export function HomeCommunityHeader({
             )}
           </span>
           com {owner.full_name ?? 'a responsável pela comunidade'}
-        </span>
-      )}
-      {count !== null && (
-        <span className="home-community-count">
-          {count === 1 ? '1 mulher' : `${count} mulheres`}
         </span>
       )}
       {onlineCount > 0 && (

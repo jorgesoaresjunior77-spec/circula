@@ -1,6 +1,5 @@
 import { Suspense, lazy, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
-import circulaLogo from '../assets/circula-logo.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import type { CommunityWithMembers } from '../types/community'
 import { useCommunity } from '../hooks/useCommunity'
@@ -383,6 +382,22 @@ export function Dashboard({
     onNavigate(key)
   }
 
+  // Correção dos cards de Círculos — abrir um card da faixa "Círculos"
+  // da Home vai direto à página DAQUELE círculo (CircleDetail), não à
+  // lista genérica. `railCommunity` é a mesma comunidade em foco que a
+  // HomeToday usa para montar essa faixa (idêntica resolução: a própria
+  // para professional, a primeira em que participa para member) — por
+  // isso serve para resolver o contexto de comunidade dos círculos sem
+  // nenhuma consulta nova. Usa `onNavigate` (não `handleNavigate`): este
+  // último zera `selectedCircleId` ao navegar para 'circulos', o que
+  // desfaria a seleção que estamos fazendo aqui.
+  function openCircleFromHome(circleId: string) {
+    if (!railCommunity) return
+    setCirclesCommunityId(railCommunity.id)
+    setSelectedCircleId(circleId)
+    onNavigate('circulos')
+  }
+
   function renderDestination() {
     if (!profile) return null
 
@@ -399,6 +414,7 @@ export function Dashboard({
           onCreateCommunity={createCommunity}
           onJoinCommunity={joinCommunity}
           onNavigate={handleNavigate}
+          onOpenCircle={openCircleFromHome}
           coverHero={coverHero}
           railSummary={
             railActive
@@ -766,30 +782,26 @@ export function Dashboard({
   return (
     <section className="dashboard">
       <header className="dashboard-header">
+        {/* Correção do logo (item 6) — ícone + "Círcula" formam a 1ª
+            linha visual; "conectando mulheres" é a 2ª linha, alinhada
+            ao conjunto (começa na mesma margem do ícone, não recuada
+            só sob a palavra). Mesmo tratamento em mobile e desktop —
+            o logo oficial em imagem (circula-logo.png), que antes
+            substituía tudo isso no desktop, saiu: um único layout,
+            responsivo por tamanho de fonte (ver App.css). */}
         <div className="brand">
-          <button
-            type="button"
-            className="brand-icon-btn"
-            onClick={() => handleNavigate('inicio')}
-            aria-label="Ir para o Início"
-          >
-            <img src={circulaIcon} alt="" className="brand-icon" />
-          </button>
-          <div className="brand-lockup">
+          <div className="brand-row">
+            <button
+              type="button"
+              className="brand-icon-btn"
+              onClick={() => handleNavigate('inicio')}
+              aria-label="Ir para o Início"
+            >
+              <img src={circulaIcon} alt="" className="brand-icon" />
+            </button>
             <h1 className="brand-name">Círcula</h1>
-            <p className="brand-tagline">Conectando Mulheres</p>
           </div>
-          {/* B1 — logo oficial na navegação superior (desktop, onde há
-              espaço). Mesma ação "ir para o Início". No mobile a marca
-              segue como pastilha + wordmark acima. */}
-          <button
-            type="button"
-            className="brand-mark-btn"
-            onClick={() => handleNavigate('inicio')}
-            aria-label="Ir para o Início"
-          >
-            <img src={circulaLogo} alt="Círcula" className="brand-mark" />
-          </button>
+          <p className="brand-tagline">conectando mulheres</p>
         </div>
 
         <div className="dashboard-user">
@@ -831,12 +843,7 @@ export function Dashboard({
 
       {coverHero && railCommunity && (
         <div className="dashboard-community-cover">
-          <HomeCommunityHeader
-            community={railCommunity}
-            memberCount={memberCounts[railCommunity.id]}
-            profileId={profile?.id}
-            overlay
-          />
+          <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
         </div>
       )}
 

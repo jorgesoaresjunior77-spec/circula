@@ -1,37 +1,36 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo } from 'react'
 import type { NavKey } from './PrimaryNav'
 import { formatEventDate } from '../lib/formatEventDate'
+import { useDragCarousel, LOOP_EXTRA_COPIES } from '../hooks/useDragCarousel'
 
-// C2 — Faixa editorial "Círcula Hoje".
+// C2 — Faixa editorial "Seu Círcula de hoje".
 //
-// Redesign da Home — lista FIXA de destinos de navegação (Meu Perfil,
-// Help Nutri, Eventos, Loja, Círculos, Receitas), sempre presentes, e
-// não mais condicionados a dado real existir (o antigo "Hoje no
-// Círcula"/"Na comunidade"/"No Instagram" saíram daqui — Instagram
-// agora é a própria faixa <HomeInstagramStrip>, abaixo de Círculos).
-// "Comunidades" saiu (reorganização da navegação): a gestão da
-// comunidade mora no Painel da Professional; o Member chega ao
-// conteúdo pelo Feed.
-// Painel → Imagens da comunidade (item 7) — os 6 cards têm capa
-// configurável, cada um numa chave legada distinta do CHECK de
-// `community_card_images` (ver types/communityCards.ts pro mapa
-// completo chave -> destino; nenhuma migration nova). Só "Eventos" tem
-// meta dinâmica (próximo evento, quando há) — os demais têm texto fixo.
+// Lista FIXA de destinos de navegação, sempre presentes: Meu Perfil,
+// Help Nutri, Eventos, Loja, Receitas. "Círculos" NÃO aparece aqui —
+// tem a sua própria coleção editorial (<HomeCirclesSection>, logo
+// abaixo) e apareceria duplicado se também estivesse nesta faixa.
+// Painel → Imagens da comunidade — cada card tem capa configurável,
+// numa chave legada do CHECK de `community_card_images` (ver
+// types/communityCards.ts pro mapa completo chave -> destino). Só
+// "Eventos" tem meta dinâmica (próximo evento) — ela some do card
+// (ver "Correção dos cards" abaixo), mas ainda informa o aria-label.
 //
-// Movimento: LOOP CONTÍNUO E INFINITO via `scrollLeft` nativo (não
-// `transform`) — a sequência de cards é renderizada duas vezes e um
-// `requestAnimationFrame` incrementa `viewport.scrollLeft`; ao passar do
-// fim da 1ª sequência, subtrai a mesma largura (as duas metades são
-// idênticas, então o "salto" é invisível). Por rodar em cima do mesmo
-// `scrollLeft` que o swipe nativo usa, os dois nunca competem: tocar ou
-// clicar pausa o loop (Pointer Events — cobre mouse e toque) e ele
-// retoma de onde o scroll manual deixou. Só entra em cena quando o
-// conteúdo realmente excede a viewport (`needsLoop`) — com poucos cards
-// a faixa fica estática, sem clone nem animação. Em
-// prefers-reduced-motion o autoplay fica desligado (clone também não
-// renderiza) e a faixa continua estática/rolável por swipe.
-
-const SPEED_PX_PER_SEC = 40 // D1 — mesma velocidade de antes
+// Correção dos cards duplicados — a causa real era o próprio mecanismo
+// de autoplay: a faixa clonava a sequência inteira (`exp-seq` duplicado)
+// e um `requestAnimationFrame` empurrava `scrollLeft` sem parar,
+// deixando os MESMOS 5 cards visíveis duas vezes seguidas na tela. O
+// autoplay saiu por completo (ver useDragCarousel) — zero clone fora do
+// gesto de arrasto, e mesmo esse clone nunca fica ao lado do original
+// na área visível (só entra quando a sequência excede a viewport).
+//
+// Correção dos cards (texto) — eyebrow e meta saíram do card: só o
+// nome. Texto branco com contorno (text-stroke) mais grosso que antes,
+// para ler em qualquer foto (ver .exp-card-title no App.css).
+//
+// Rolagem — useDragCarousel (compartilhado com <HomeCirclesSection>):
+// ciclo contínuo nos dois sentidos via `scrollLeft` nativo, arrasto de
+// mouse no desktop, swipe nativo no toque, sem autoplay. Ver o hook
+// para o mecanismo completo.
 
 interface NextEvent {
   id: string
@@ -50,19 +49,17 @@ interface HomeExperienceStripProps {
   helpNutriCover?: string | null
   eventosCover?: string | null
   lojaCover?: string | null
-  circulosCover?: string | null
   receitasCover?: string | null
   onNavigate: (key: NavKey) => void
 }
 
 interface Experience {
   key: string
-  eyebrow: string
   title: string
-  meta: string
+  /** Só para o aria-label — não aparece como texto visível no card. */
+  ariaLabel: string
   image: string | null
   onActivate: () => void
-  ariaLabel: string
 }
 
 export function HomeExperienceStrip({
@@ -71,7 +68,6 @@ export function HomeExperienceStrip({
   helpNutriCover,
   eventosCover,
   lojaCover,
-  circulosCover,
   receitasCover,
   onNavigate,
 }: HomeExperienceStripProps) {
@@ -79,159 +75,46 @@ export function HomeExperienceStrip({
     () => [
       {
         key: 'perfil',
-        eyebrow: 'Perfil',
         title: 'Meu Perfil',
-        meta: 'Seus dados e preferências',
         image: perfilCover ?? null,
         onActivate: () => onNavigate('perfil'),
         ariaLabel: 'Meu Perfil',
       },
       {
         key: 'help-nutri',
-        eyebrow: 'Ajuda',
         title: 'Help Nutri',
-        meta: 'Fale com a nutricionista',
         image: helpNutriCover ?? null,
         onActivate: () => onNavigate('mensagens'),
         ariaLabel: 'Help Nutri — fale com a nutricionista',
       },
       {
         key: 'eventos',
-        eyebrow: 'Agenda',
         title: 'Eventos',
-        meta: nextEvent
-          ? `${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`
-          : 'A agenda da comunidade',
         image: eventosCover ?? null,
         onActivate: () => onNavigate('eventos'),
-        ariaLabel: nextEvent ? `Eventos — ${nextEvent.title}` : 'Eventos',
+        ariaLabel: nextEvent
+          ? `Eventos — ${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`
+          : 'Eventos',
       },
       {
         key: 'loja',
-        eyebrow: 'Loja',
         title: 'Loja',
-        meta: 'Produtos e novidades',
         image: lojaCover ?? null,
         onActivate: () => onNavigate('loja'),
         ariaLabel: 'Loja',
       },
       {
-        key: 'circulos',
-        eyebrow: 'Círculos',
-        title: 'Círculos',
-        meta: 'Pequenos grupos da comunidade',
-        image: circulosCover ?? null,
-        onActivate: () => onNavigate('circulos'),
-        ariaLabel: 'Círculos',
-      },
-      {
         key: 'receitas',
-        eyebrow: 'Receitas',
         title: 'Receitas',
-        meta: 'A biblioteca de receitas da comunidade',
         image: receitasCover ?? null,
         onActivate: () => onNavigate('receitas'),
         ariaLabel: 'Receitas',
       },
     ],
-    [
-      nextEvent,
-      perfilCover,
-      helpNutriCover,
-      eventosCover,
-      lojaCover,
-      circulosCover,
-      receitasCover,
-      onNavigate,
-    ],
+    [nextEvent, perfilCover, helpNutriCover, eventosCover, lojaCover, receitasCover, onNavigate],
   )
 
-  // Autoplay permitido: só prefers-reduced-motion decide (não mais o
-  // tipo de ponteiro — ver comentário no topo do arquivo).
-  const [autoplayAllowed, setAutoplayAllowed] = useState(
-    () => typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
-  useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const update = () => setAutoplayAllowed(!reduce.matches)
-    update()
-    reduce.addEventListener('change', update)
-    return () => reduce.removeEventListener('change', update)
-  }, [])
-
-  // needsLoop: só vale clonar a sequência e animar quando ela realmente
-  // excede a viewport — com poucos cards a faixa cabe inteira e fica
-  // estática (nada a "percorrer", então também sem indicador de borda).
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const seqRef = useRef<HTMLUListElement>(null)
-  const cloneSeqRef = useRef<HTMLUListElement>(null)
-  const [needsLoop, setNeedsLoop] = useState(false)
-  useEffect(() => {
-    const viewport = viewportRef.current
-    const seq = seqRef.current
-    if (!viewport || !seq) return
-    const measure = () => setNeedsLoop(seq.scrollWidth > viewport.clientWidth + 4)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(viewport)
-    observer.observe(seq)
-    return () => observer.disconnect()
-  }, [experiences.length])
-
-  const marquee = autoplayAllowed && needsLoop
-
-  // Loop via scrollLeft — ver comentário no topo do arquivo. Só roda
-  // quando `marquee` está de pé (autoplay permitido + conteúdo excede a
-  // viewport); pausa em qualquer interação e retoma de onde parou.
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport || !marquee) return
-
-    let raf = 0
-    let paused = false
-    const SPEED = SPEED_PX_PER_SEC / 60
-
-    const step = () => {
-      if (!paused) {
-        const loopWidth =
-          (cloneSeqRef.current?.offsetLeft ?? 0) - (seqRef.current?.offsetLeft ?? 0)
-        if (loopWidth > 0) {
-          viewport.scrollLeft += SPEED
-          if (viewport.scrollLeft >= loopWidth) {
-            viewport.scrollLeft -= loopWidth
-          }
-        }
-      }
-      raf = requestAnimationFrame(step)
-    }
-    const pause = () => {
-      paused = true
-    }
-    const resume = () => {
-      paused = false
-    }
-    const onVisibility = () => {
-      paused = document.hidden
-    }
-
-    viewport.addEventListener('pointerenter', pause)
-    viewport.addEventListener('pointerleave', resume)
-    viewport.addEventListener('pointerdown', pause)
-    viewport.addEventListener('focusin', pause)
-    viewport.addEventListener('focusout', resume)
-    document.addEventListener('visibilitychange', onVisibility)
-    raf = requestAnimationFrame(step)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      viewport.removeEventListener('pointerenter', pause)
-      viewport.removeEventListener('pointerleave', resume)
-      viewport.removeEventListener('pointerdown', pause)
-      viewport.removeEventListener('focusin', pause)
-      viewport.removeEventListener('focusout', resume)
-      document.removeEventListener('visibilitychange', onVisibility)
-    }
-  }, [marquee])
+  const { viewportRef, seqRef, loop, dragging } = useDragCarousel(experiences.length)
 
   const renderCard = (exp: Experience, clone: boolean) => (
     <li key={clone ? `${exp.key}-clone` : exp.key} className="exp-card-item">
@@ -245,32 +128,30 @@ export function HomeExperienceStrip({
       >
         <span className="exp-card-frame">
           {exp.image && <img src={exp.image} alt="" className="exp-card-photo" />}
-          <span className="exp-card-eyebrow">{exp.eyebrow}</span>
           <span className="exp-card-title">{exp.title}</span>
-          <span className="exp-card-meta">{exp.meta}</span>
         </span>
       </button>
     </li>
   )
 
   return (
-    <section className="exp-strip" aria-label="Círcula Hoje">
+    <section className="exp-strip exp-strip--hoje" aria-label="Seu Círcula de Hoje">
       <div
-        className={`exp-viewport${marquee ? ' exp-viewport--marquee' : ''}`}
+        className={`exp-viewport exp-viewport--draggable${loop ? ' exp-viewport--looping' : ''}${dragging ? ' exp-viewport--dragging' : ''}`}
         ref={viewportRef}
       >
         <div className="exp-track">
           <ul className="exp-seq" ref={seqRef}>
             {experiences.map((exp) => renderCard(exp, false))}
           </ul>
-          {marquee && (
-            <ul className="exp-seq" aria-hidden="true" ref={cloneSeqRef}>
-              {experiences.map((exp) => renderCard(exp, true))}
-            </ul>
-          )}
+          {loop &&
+            Array.from({ length: LOOP_EXTRA_COPIES }, (_, copy) => (
+              <ul className="exp-seq" aria-hidden="true" key={`copy-${copy}`}>
+                {experiences.map((exp) => renderCard(exp, true))}
+              </ul>
+            ))}
         </div>
       </div>
-      {needsLoop && <span className="exp-edge-fade" aria-hidden="true" />}
     </section>
   )
 }
