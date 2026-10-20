@@ -10,8 +10,44 @@ import type {
   ToggleReactionResult,
 } from '../types/post'
 
-const POST_SELECT =
+// Select de sempre (schema anterior ao Meu Jardim) — continua
+// funcionando sozinho mesmo que a migration do Jardim nunca tenha
+// rodado neste banco.
+const POST_SELECT_BASE =
   'id,community_id,circle_id,author_id,content,image_url,created_at,post_type,question_id,title,engagement_command_id,author:profiles(id,full_name,avatar_url)'
+
+// Meu Jardim — garden_daily_post/garden_share são embeds 1:1 (FK com
+// UNIQUE em post_id) só preenchidos quando post_type casa; ausentes em
+// todos os outros tipos de post (sem custo, sem mudança para o resto
+// do Feed/Home/SavedItems) quando as tabelas existem.
+const POST_SELECT_GARDEN =
+  POST_SELECT_BASE +
+  ',garden_daily_post:garden_daily_posts(id,challenge_id,challenge_day_id,message,challenge:garden_challenges(title),challenge_day:garden_challenge_days(day_number,title,icon,instructions)),' +
+  'garden_share:garden_shares(id,challenge_id,challenge_day_id,challenge_title,day_number,day_title,days_completed,total_days,color_one,color_two)'
+
+// Enquanto a migration 20261018120000_garden_meu_jardim.sql não for
+// aplicada, garden_daily_posts/garden_shares não existem e o embed
+// acima falha — não com "coluna inexistente" (42703, caso de
+// useAuth.ts), mas com um erro de RELACIONAMENTO do PostgREST, porque
+// o embed é resolvido via FK entre tabelas, não via lista de colunas.
+// Guardado no MÓDULO (não por instância do hook): uma vez detectado,
+// toda consulta seguinte de QUALQUER tela que use usePosts (Feed,
+// Home, SavedItems) já pede direto o select sem os embeds, em vez de
+// repetir o 400 a cada render. Reseta sozinho no próximo carregamento
+// da página (ex.: depois que a migration for aplicada).
+let gardenEmbedsAvailable: boolean | null = null
+
+function isMissingGardenRelationError(error: { code?: string; message?: string }): boolean {
+  const code = error.code ?? ''
+  const message = error.message ?? ''
+  return (
+    code === 'PGRST200' || // PostgREST: relacionamento não encontrado no schema cache
+    code === 'PGRST205' || // PostgREST: tabela não encontrada no schema cache
+    message.includes('schema cache') ||
+    message.includes('garden_daily_posts') ||
+    message.includes('garden_shares')
+  )
+}
 
 const COMMENT_SELECT =
   'id,post_id,author_id,content,created_at,parent_comment_id,author:profiles(id,full_name,avatar_url)'
@@ -163,11 +199,45 @@ export function usePosts(
     [viewerId, inlineConversation],
   )
 
-  const buildScopedQuery = useCallback(() => {
-    let query = supabase.from('posts').select(POST_SELECT).eq('community_id', communityId)
-    query = circleId ? query.eq('circle_id', circleId) : query.is('circle_id', null)
-    return query.order('created_at', { ascending: false })
-  }, [communityId, circleId])
+  const buildScopedQuery = useCallback(
+    (select: string) => {
+      let query = supabase.from('posts').select(select).eq('community_id', communityId)
+      query = circleId ? query.eq('circle_id', circleId) : query.is('circle_id', null)
+      return query.order('created_at', { ascending: false })
+    },
+    [communityId, circleId],
+  )
+
+  // Tenta o select com os embeds do Meu Jardim; se o banco ainda não
+  // tiver as tabelas (ver isMissingGardenRelationError), cai pro select
+  // de sempre — o resto do Feed (texto, imagem, reações, comentários)
+  // continua funcionando normalmente. Qualquer OUTRO erro (rede, RLS,
+  // comunidade inexistente) não é escondido: volta como está, para o
+  // `error`/`fetchError` de sempre ser mostrado.
+  const fetchPostsPage = useCallback(
+    async (range?: [number, number]) => {
+      const run = (select: string) => {
+        let query = buildScopedQuery(select)
+        if (range) query = query.range(range[0], range[1])
+        return query
+      }
+
+      if (gardenEmbedsAvailable !== false) {
+        const result = await run(POST_SELECT_GARDEN)
+        if (!result.error) {
+          gardenEmbedsAvailable = true
+          return result
+        }
+        if (!isMissingGardenRelationError(result.error)) {
+          return result
+        }
+        gardenEmbedsAvailable = false
+      }
+
+      return run(POST_SELECT_BASE)
+    },
+    [buildScopedQuery],
+  )
 
   const fetchPosts = useCallback(async () => {
     if (!communityId) {
@@ -189,10 +259,7 @@ export function usePosts(
     setError(null)
     pageRef.current = 0
 
-    let query = buildScopedQuery()
-    if (pageSize) query = query.range(0, pageSize - 1)
-
-    const { data, error: fetchError } = await query
+    const { data, error: fetchError } = await fetchPostsPage(pageSize ? [0, pageSize - 1] : undefined)
 
     if (fetchError) {
       setError(fetchError.message)
@@ -212,7 +279,7 @@ export function usePosts(
     )
 
     setLoading(false)
-  }, [communityId, pageSize, buildScopedQuery, fetchEngagement])
+  }, [communityId, pageSize, fetchPostsPage, fetchEngagement])
 
   useEffect(() => {
     fetchPosts()
@@ -226,7 +293,7 @@ export function usePosts(
     const from = nextPage * pageSize
     const to = from + pageSize - 1
 
-    const { data, error: fetchError } = await buildScopedQuery().range(from, to)
+    const { data, error: fetchError } = await fetchPostsPage([from, to])
 
     if (fetchError) {
       setLoadingMore(false)
@@ -245,7 +312,7 @@ export function usePosts(
       'append',
     )
     setLoadingMore(false)
-  }, [communityId, pageSize, hasMore, loadingMore, buildScopedQuery, fetchEngagement])
+  }, [communityId, pageSize, hasMore, loadingMore, fetchPostsPage, fetchEngagement])
 
   async function createPost(
     authorId: string,

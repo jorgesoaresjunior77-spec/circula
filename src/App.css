@@ -14578,3 +14578,332 @@ button.card:focus-visible {
     min-height: 44px;
   }
 }
+
+/* ===================================================================
+   Meu Jardim — desafios de atividades diárias
+   ---------------------------------------------------------------------
+   Reaproveita 100% o sistema de botões/campos e os prefixos
+   panel-content, panel-events e panel-subtab já existentes (ver
+   CheckinManager/EventManager/ProfessionalPanel) — só as classes
+   abaixo são novas: badge de status, swatches de cor, grade/detalhe de
+   desafio do Member, timeline de dias e os dois cards editoriais do
+   Feed.
+   =================================================================== */
+
+.garden-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--leaf-soft);
+  color: var(--leaf-text);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: var(--space-2);
+}
+
+.garden-status-badge--draft {
+  background: var(--straw-soft);
+  color: var(--straw-text);
+}
+
+.garden-status-badge--enrolled {
+  margin-left: 0;
+  margin-top: var(--space-2);
+}
+
+/* --- Cores pessoais --------------------------------------------- */
+.garden-color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.garden-color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.garden-color-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 6px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--graphite-soft);
+  cursor: pointer;
+}
+
+.garden-color-swatch--active {
+  border-color: var(--ink-action-line);
+  background: var(--ink-action-soft);
+  color: var(--ink-action);
+}
+
+.garden-color-swatch-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--garden-swatch-color, var(--n-400));
+  flex: 0 0 auto;
+}
+
+/* --- Grade/detalhe do Member -------------------------------------- */
+.garden-member-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.garden-challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.garden-challenge-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+}
+
+.garden-challenge-card-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  background: var(--surface-sunken);
+  color: var(--n-600);
+}
+
+.garden-challenge-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.garden-challenge-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3);
+}
+
+.garden-challenge-card-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.garden-challenge-card-desc,
+.garden-challenge-card-meta {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--n-700);
+}
+
+.garden-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.garden-detail-title {
+  margin: 0;
+}
+
+.garden-detail-desc {
+  margin: 0;
+  color: var(--n-700);
+}
+
+/* --- Timeline de dias ----------------------------------------------- */
+.garden-day-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.garden-day {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+}
+
+.garden-day--future {
+  opacity: 0.55;
+}
+
+.garden-day--today {
+  border-color: var(--ink-action-line);
+}
+
+.garden-day--done {
+  background: var(--leaf-soft);
+}
+
+.garden-day-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.garden-day-number {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--n-700);
+}
+
+.garden-day-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.garden-day-instructions {
+  margin: 0;
+  font-size: 13px;
+  color: var(--n-700);
+}
+
+.garden-day-complete {
+  align-self: flex-start;
+  border: 1px solid var(--ink-action-line);
+  background: transparent;
+  color: var(--ink-action);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.garden-day-done-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.garden-day-done-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--leaf-text);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.garden-day-share-toggle {
+  border: none;
+  background: none;
+  color: var(--ink-action);
+  font-size: 12.5px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.garden-share-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* --- Cards editoriais do Feed ---------------------------------------- */
+.post-card--garden {
+  border-color: var(--leaf-soft);
+  background-image: linear-gradient(var(--leaf-soft), var(--leaf-soft));
+}
+
+.garden-feed-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-3);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+}
+
+.garden-feed-card-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--n-700);
+}
+
+.garden-feed-card-challenge {
+  margin: 0;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.garden-feed-card-day {
+  margin: 0;
+  color: var(--graphite-soft);
+}
+
+.garden-feed-card-instructions,
+.garden-feed-card-message {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--n-700);
+}
+
+.garden-feed-card--share {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--garden-share-color-1, var(--n-400)) 22%, var(--surface)),
+    color-mix(in srgb, var(--garden-share-color-2, var(--n-400)) 22%, var(--surface))
+  );
+}
+
+.garden-share-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.garden-share-progress-bar {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.garden-share-progress-fill {
+  height: 100%;
+  background: var(--garden-share-color-1, var(--ink-action));
+  border-radius: var(--radius-pill);
+}
+
+.garden-share-progress-label {
+  font-size: 11.5px;
+  color: var(--n-700);
+  white-space: nowrap;
+}

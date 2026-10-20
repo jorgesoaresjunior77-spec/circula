@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { QuestionBankManager } from './QuestionBankManager'
 import { CircleManager } from './CircleManager'
 import { EventManager } from './EventManager'
+import { GardenChallengeManager } from './GardenChallengeManager'
 import { ContentManager } from './ContentManager'
 import { MoodMessageManager } from './MoodMessageManager'
 import { CheckinManager } from './CheckinManager'
@@ -37,6 +38,7 @@ type PanelTab =
   | 'participantes'
   | 'publicacoes'
   | 'eventos'
+  | 'jardim'
   | 'circulos'
   | 'conteudo'
   | 'imagens'
@@ -49,6 +51,7 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
   { key: 'publicacoes', label: 'Publicações' },
   { key: 'eventos', label: 'Eventos' },
+  { key: 'jardim', label: 'Meu Jardim' },
   { key: 'circulos', label: 'Círculos' },
   { key: 'conteudo', label: 'Conteúdo' },
   { key: 'imagens', label: 'Imagens da comunidade' },
@@ -184,6 +187,16 @@ export function ProfessionalPanel({
       {activeTab === 'eventos' && (
         <div className="panel-tab-content">
           <EventManager communityId={communityId} profileId={profileId} canManage />
+        </div>
+      )}
+
+      {activeTab === 'jardim' && (
+        <div className="panel-tab-content">
+          <GardenChallengeManager
+            communityId={communityId}
+            profileId={profileId}
+            onPublished={onFeedRefresh}
+          />
         </div>
       )}
 

@@ -15,6 +15,8 @@ const POST_TYPE_LABEL: Record<string, string> = {
   daily_question: 'Pergunta do dia',
   checkin_share: 'Check-in',
   engagement_command: 'Comando da comunidade',
+  garden_daily: 'Meu Jardim · incentivo',
+  garden_share: 'Meu Jardim · conclusão',
 }
 
 /**

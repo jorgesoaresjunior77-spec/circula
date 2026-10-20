@@ -22,6 +22,18 @@ const INITIAL_INVITE_ERROR =
     ? 'Este convite expirou ou já foi utilizado. Peça um novo convite à responsável pela comunidade.'
     : null
 
+// Meu Jardim — garden_color_one/garden_color_two só existem no banco
+// depois que a migration 20261018120000_garden_meu_jardim.sql for
+// aplicada. `PROFILE_SELECT_BASE` é o select de sempre (sem as 2
+// colunas novas); `PROFILE_SELECT_GARDEN` tenta trazê-las também.
+const PROFILE_SELECT_BASE = 'id, role, full_name, avatar_url, interests, bio, city, gallery_photos'
+const PROFILE_SELECT_GARDEN = `${PROFILE_SELECT_BASE}, garden_color_one, garden_color_two`
+// Código Postgres de "coluna inexistente" (42703), repassado pelo
+// PostgREST em error.code — é o único caso em que vale tentar de novo
+// sem as colunas novas. Qualquer outro erro (rede, RLS, sessão) não é
+// escondido: cai no mesmo `setProfile(null)` de sempre.
+const UNDEFINED_COLUMN_ERROR_CODE = '42703'
+
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -74,11 +86,36 @@ export function useAuth() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, role, full_name, avatar_url, interests, bio, city, gallery_photos')
+      .select(PROFILE_SELECT_GARDEN)
       .eq('id', session.user.id)
       .single()
 
-    setProfile(error ? null : data)
+    if (!error) {
+      setProfile(data)
+      return
+    }
+
+    // Banco ainda sem garden_color_one/garden_color_two (migration do
+    // Meu Jardim pendente de aplicação) — refaz a consulta sem elas,
+    // para não perder full_name/avatar/etc. só por causa de 2 colunas
+    // opcionais que ainda não existem. As duas ficam `null` (mesmo
+    // valor que teriam recém-criadas, já que a coluna é nullable).
+    if (error.code === UNDEFINED_COLUMN_ERROR_CODE) {
+      const fallback = await supabase
+        .from('profiles')
+        .select(PROFILE_SELECT_BASE)
+        .eq('id', session.user.id)
+        .single()
+
+      setProfile(
+        fallback.error
+          ? null
+          : { ...fallback.data, garden_color_one: null, garden_color_two: null },
+      )
+      return
+    }
+
+    setProfile(null)
   }, [session])
 
   useEffect(() => {

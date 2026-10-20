@@ -6,6 +6,8 @@ import { CommentList } from './CommentList'
 import { CommentThread } from './CommentThread'
 import { CommentForm } from './CommentForm'
 import { HeartIcon, CommentIcon, BookmarkIcon } from './icons'
+import { GardenDailyPostCard } from './GardenDailyPostCard'
+import { GardenShareCard } from './GardenShareCard'
 
 interface PostCardProps {
   post: Post
@@ -114,13 +116,22 @@ export function PostCard({
   const isDailyQuestion = post.post_type === 'daily_question'
   const isCheckinShare = post.post_type === 'checkin_share'
   const isEngagementCommand = post.post_type === 'engagement_command'
+  // Meu Jardim — card editorial próprio (seção abaixo), não o
+  // post-content padrão. Cai de volta no padrão (texto simples) se o
+  // post não tiver a linha companheira (garden_daily_post/garden_share)
+  // carregada — mesma tolerância já usada por daily_question/
+  // engagement_command para posts "órfãos".
+  const isGardenDaily = post.post_type === 'garden_daily' && !!post.garden_daily_post
+  const isGardenShare = post.post_type === 'garden_share' && !!post.garden_share
   const cardVariant = isDailyQuestion
     ? ' post-card--question'
     : isCheckinShare
       ? ' post-card--checkin'
       : isEngagementCommand
         ? ' post-card--command'
-        : ''
+        : isGardenDaily || isGardenShare
+          ? ' post-card--garden'
+          : ''
   // Composição editorial do Feed de Conversa (redesign). A Home e demais
   // usos clássicos (HomeHighlights) não passam inlineConversation e
   // continuam com a apresentação de card de sempre — nada muda para eles.
@@ -156,7 +167,14 @@ export function PostCard({
       )}
 
       {isEngagementCommand && post.title && <p className="post-title">{post.title}</p>}
-      <p className="post-content">{post.content}</p>
+
+      {isGardenDaily && post.garden_daily_post ? (
+        <GardenDailyPostCard summary={post.garden_daily_post} />
+      ) : isGardenShare && post.garden_share ? (
+        <GardenShareCard share={post.garden_share} content={post.content} />
+      ) : (
+        <p className="post-content">{post.content}</p>
+      )}
 
       {!mediaAside && postImageUrl && (
         <img className="post-image" src={postImageUrl} alt="" loading="lazy" />

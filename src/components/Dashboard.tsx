@@ -55,11 +55,13 @@ import {
   HomeIcon,
   MessageIcon,
   PanelIcon,
+  SproutIcon,
   StoreIcon,
   UserIcon,
 } from './icons'
 import { useContent } from '../hooks/useContent'
 import { ContentLibrary } from './ContentLibrary'
+import { GardenMemberView } from './GardenMemberView'
 
 interface CommunityPickerOptionProps {
   community: CommunityWithMembers
@@ -245,6 +247,15 @@ export function Dashboard({
       key: 'receitas',
       label: 'Receitas',
       Icon: BookIcon,
+      inBottomNav: false,
+    })
+    // Meu Jardim — desafios de atividades diárias. Mesma resolução de
+    // comunidade de círculos/eventos/receitas (community-picker quando
+    // houver mais de uma relevante).
+    navItems.push({
+      key: 'jardim',
+      label: 'Meu Jardim',
+      Icon: SproutIcon,
       inBottomNav: false,
     })
     // Fase 13 — Loja acessível também à Member (antes só existia como
@@ -645,6 +656,39 @@ export function Dashboard({
           heading="Receitas"
           lockType="recipe"
           onToggleLike={(id, liked) => toggleContentLike(id, profile.id, liked)}
+        />
+      )
+    }
+
+    // Meu Jardim — Member participa, marca atividades concluídas e
+    // compartilha no feed. Mesma resolução de comunidade de círculos/
+    // eventos/receitas. Hook próprio (useGardenMember), autocontido
+    // dentro de GardenMemberView — mesmo molde de CircleManager/
+    // EventManager dentro do Painel.
+    if (effectiveNav === 'jardim') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+
+      if (!resolvedCirclesCommunityId) {
+        return (
+          <>
+            {renderCommunityPicker(
+              'Meu Jardim · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
+          </>
+        )
+      }
+
+      return (
+        <GardenMemberView
+          communityId={resolvedCirclesCommunityId}
+          profileId={profile.id}
+          profile={profile}
+          onUpdateProfile={onUpdateProfile}
+          onShared={refreshFeed}
         />
       )
     }
