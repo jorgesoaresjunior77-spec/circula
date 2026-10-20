@@ -187,6 +187,12 @@ export function GardenMemberView({
             >
               {enrolling ? 'Entrando...' : 'Participar deste desafio'}
             </button>
+          ) : api.daysLoading[selected.id] ? (
+            <p className="panel-content-muted">Carregando atividades...</p>
+          ) : api.daysError[selected.id] ? (
+            <p className="auth-error">
+              Não foi possível carregar as atividades deste desafio: {api.daysError[selected.id]}
+            </p>
           ) : days.length === 0 ? (
             <p className="panel-content-muted">Nenhuma atividade cadastrada ainda.</p>
           ) : (
