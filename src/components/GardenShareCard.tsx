@@ -1,6 +1,7 @@
 import type { GardenShareSummary } from '../types/post'
 import { GARDEN_COLOR_HEX } from '../types/garden'
 import type { GardenColor } from '../types/profile'
+import { GardenProgressWheel } from './GardenProgressWheel'
 
 interface GardenShareCardProps {
   share: GardenShareSummary
@@ -22,7 +23,6 @@ function hexOf(color: string | null): string | null {
 export function GardenShareCard({ share, content }: GardenShareCardProps) {
   const colorOne = hexOf(share.color_one) ?? '#c9b48f'
   const colorTwo = hexOf(share.color_two) ?? colorOne
-  const percent = share.total_days > 0 ? Math.round((share.days_completed / share.total_days) * 100) : 0
   const trimmedContent = content?.trim()
 
   return (
@@ -40,13 +40,17 @@ export function GardenShareCard({ share, content }: GardenShareCardProps) {
       </div>
       <p className="garden-feed-card-challenge">{share.challenge_title}</p>
       <p className="garden-feed-card-day">{share.day_title}</p>
-      <div className="garden-share-progress">
-        <div className="garden-share-progress-bar">
-          <div className="garden-share-progress-fill" style={{ width: `${percent}%` }} />
-        </div>
-        <span className="garden-share-progress-label">
-          {share.days_completed}/{share.total_days} dias · {percent}%
-        </span>
+      <div className="garden-progress-row">
+        <GardenProgressWheel
+          completed={share.days_completed}
+          total={share.total_days}
+          colorOne={colorOne}
+          colorTwo={colorTwo}
+          size={64}
+        />
+        <p className="garden-progress-summary">
+          {share.days_completed} de {share.total_days} dias concluídos
+        </p>
       </div>
       {trimmedContent && <p className="garden-feed-card-message">{trimmedContent}</p>}
     </div>

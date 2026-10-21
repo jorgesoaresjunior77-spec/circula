@@ -14815,6 +14815,16 @@ button.card:focus-visible {
   font-weight: 600;
 }
 
+/* Estado "já compartilhei esta conclusão" — substitui o composer
+   (ver item 3 da auditoria: nunca os dois ao mesmo tempo). */
+.garden-day-shared-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--graphite-soft);
+  font-size: 12.5px;
+}
+
 .garden-day-share-toggle {
   border: none;
   background: none;
@@ -14881,29 +14891,107 @@ button.card:focus-visible {
   );
 }
 
-.garden-share-progress {
+/* --- Roda de progresso (camada 1 — desafio atual) ------------------
+   Mesmo componente (GardenProgressWheel) usado ao vivo na tela do
+   desafio e, com dados de snapshot, no card de compartilhamento do
+   Feed — por isso as cores vêm sempre via prop/gradiente SVG, nunca
+   fixas aqui. */
+.garden-wheel {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.garden-wheel-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.garden-wheel-track {
+  fill: none;
+  stroke: var(--surface-sunken);
+  stroke-width: 9;
+}
+
+.garden-wheel-fill {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
+}
+
+.garden-wheel-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+  font-family: var(--font-display);
+  color: var(--graphite);
+}
+
+.garden-wheel-center strong {
+  font-weight: var(--display-weight);
+  font-size: 1.6em;
+}
+
+.garden-wheel-center small {
+  font-size: 0.7em;
+  color: var(--graphite-soft);
+}
+
+.garden-progress-row {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  margin-top: 2px;
+  gap: var(--space-4);
 }
 
-.garden-share-progress-bar {
-  flex: 1 1 auto;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+.garden-progress-summary {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--graphite);
 }
 
-.garden-share-progress-fill {
-  height: 100%;
-  background: var(--garden-share-color-1, var(--ink-action));
-  border-radius: var(--radius-pill);
+.garden-feed-card .garden-wheel {
+  margin: var(--space-1) 0;
 }
 
-.garden-share-progress-label {
-  font-size: 11.5px;
-  color: var(--n-700);
-  white-space: nowrap;
+/* --- "Meu histórico" (item 5.2) — recolhida por padrão ------------- */
+.garden-history {
+  margin-top: var(--space-2);
+}
+
+.garden-history-toggle {
+  padding: 0;
+}
+
+.garden-history-body {
+  margin-top: var(--space-3);
+}
+
+.garden-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.garden-history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+}
+
+.garden-history-item-title {
+  margin: 0 0 2px;
+  font-weight: 600;
+  color: var(--graphite);
 }

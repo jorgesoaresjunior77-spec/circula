@@ -6,7 +6,7 @@ import { useDragCarousel, LOOP_EXTRA_COPIES } from '../hooks/useDragCarousel'
 // C2 — Faixa editorial "Seu Círcula de hoje".
 //
 // Lista FIXA de destinos de navegação, sempre presentes: Meu Perfil,
-// Help Nutri, Eventos, Loja, Receitas. "Círculos" NÃO aparece aqui —
+// Help Nutri, Eventos, Loja, Receitas, Meu Jardim. "Círculos" NÃO aparece aqui —
 // tem a sua própria coleção editorial (<HomeCirclesSection>, logo
 // abaixo) e apareceria duplicado se também estivesse nesta faixa.
 // Painel → Imagens da comunidade — cada card tem capa configurável,
@@ -52,6 +52,19 @@ interface HomeExperienceStripProps {
   receitasCover?: string | null
   onNavigate: (key: NavKey) => void
 }
+
+/**
+ * Item 2 da auditoria — "Meu Jardim" não tinha NENHUM caminho de
+ * navegação em telas < 1024px (fora da cápsula fixa, de propósito — só
+ * Início/Feed/Painel/Perfil cabem nela) nem nos cards fixos desta
+ * faixa. Entra aqui pelo mesmo mecanismo dos outros 5 (onNavigate com a
+ * NavKey já existente, 'jardim') — sem rota nova, sem tocar a cápsula.
+ * Sem chave legada livre em CommunityCardKey para uma capa configurável
+ * (as 6 que o CHECK do banco aceita já estão todas em uso — ver
+ * types/communityCards.ts) — por ora o card nasce sem foto, no mesmo
+ * fallback editorial (fundo pastel + título) que qualquer um destes
+ * cards já usa quando a Profissional ainda não cadastrou uma capa.
+ */
 
 interface Experience {
   key: string
@@ -109,6 +122,13 @@ export function HomeExperienceStrip({
         image: receitasCover ?? null,
         onActivate: () => onNavigate('receitas'),
         ariaLabel: 'Receitas',
+      },
+      {
+        key: 'jardim',
+        title: 'Meu Jardim',
+        image: null,
+        onActivate: () => onNavigate('jardim'),
+        ariaLabel: 'Meu Jardim',
       },
     ],
     [nextEvent, perfilCover, helpNutriCover, eventosCover, lojaCover, receitasCover, onNavigate],

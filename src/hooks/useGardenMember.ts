@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { gardenErrorMessage } from '../types/garden'
+import { buildGardenHistory, gardenErrorMessage } from '../types/garden'
 import type {
   GardenChallenge,
   GardenChallengeDay,
   GardenCompletion,
   GardenEnrollment,
+  GardenHistoryEntry,
   GardenResult,
 } from '../types/garden'
 
@@ -41,6 +42,11 @@ export function useGardenMember(communityId: string | null, profileId: string | 
   const [daysError, setDaysError] = useState<Record<string, string | null>>({})
   /** Contador de sequência por desafio — ao terminar, uma chamada só aplica seu resultado se ainda for a mais recente para aquele desafio (mesmo padrão de useGardenChallenges.ts). */
   const daysRequestSeq = useRef<Record<string, number>>({})
+
+  /** "Meu histórico" (desafios arquivados com algum compartilhamento meu) — busca sob demanda, só quando a seção é aberta pela primeira vez (ver fetchHistory). `null` = nunca buscado. */
+  const [history, setHistory] = useState<GardenHistoryEntry[] | null>(null)
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
 
   const fetchAll = useCallback(async () => {
     if (!communityId || !profileId) {
@@ -209,6 +215,86 @@ export function useGardenMember(communityId: string | null, profileId: string | 
     return { error: null }
   }
 
+  /**
+   * "Meu histórico" — desafios já ARQUIVADOS nos quais eu compartilhei
+   * ao menos uma conclusão. Construído só a partir de `garden_shares`
+   * (profile_id = eu): essa tabela já guarda, congelado, tudo que a
+   * tela precisa mostrar (título, dia, progresso, cores) — nunca
+   * precisa reconsultar `garden_challenges`/`garden_challenge_days` para
+   * os DADOS exibidos.
+   *
+   * A única outra consulta é para DISTINGUIR "arquivado" de "ainda
+   * publicado": a RLS de `garden_challenges` só deixa um Member comum
+   * enxergar linhas com status='published' — então um challenge_id que
+   * NÃO volta nessa segunda consulta só pode estar arquivado (nunca
+   * 'draft': só existe `garden_shares` para desafios que já foram
+   * publicados, e published->archived é a única transição possível a
+   * partir daí). Os que ainda estão publicados ficam de fora do
+   * histórico de propósito — já aparecem na lista normal de desafios.
+   *
+   * Sob demanda (chamada só quando a seção é aberta), não no fetchAll —
+   * evita uma consulta que a maioria das sessões nunca vai precisar.
+   */
+  const fetchHistory = useCallback(async () => {
+    if (!profileId) return
+
+    setHistoryLoading(true)
+    setHistoryError(null)
+
+    try {
+      const { data: shareRows, error: shareError } = await supabase
+        .from('garden_shares')
+        .select('challenge_id,challenge_title,days_completed,total_days,color_one,color_two,created_at')
+        .eq('profile_id', profileId)
+        .order('created_at', { ascending: false })
+
+      if (shareError) {
+        // Não mexe em `history` — igual a daysError em fetchDays, uma
+        // falha nunca pode parecer "histórico vazio" (que é só
+        // `history: []`, caminho explícito logo abaixo).
+        setHistoryError(shareError.message)
+        return
+      }
+
+      const rows = shareRows ?? []
+      if (rows.length === 0) {
+        setHistory([])
+        return
+      }
+
+      const challengeIds = [...new Set(rows.map((r) => r.challenge_id))]
+      const { data: publishedRows, error: publishedError } = await supabase
+        .from('garden_challenges')
+        .select('id')
+        .in('id', challengeIds)
+
+      if (publishedError) {
+        setHistoryError(publishedError.message)
+        return
+      }
+
+      const stillPublishedIds = new Set(((publishedRows as { id: string }[] | null) ?? []).map((r) => r.id))
+
+      setHistory(buildGardenHistory(rows, stillPublishedIds))
+    } catch (err) {
+      // Exceção de verdade (rejeição de rede, CORS, etc.), não um
+      // {error} do PostgREST — mesmo cuidado de fetchDays: sem isto,
+      // historyLoading ficaria travado em `true` para sempre, e a seção
+      // pareceria carregar pra sempre em vez de mostrar um erro.
+      const message = err instanceof Error ? err.message : 'Não foi possível carregar seu histórico agora.'
+      setHistoryError(message)
+    } finally {
+      // Único lugar que desliga o loading — roda em QUALQUER desfecho
+      // (sucesso, {error} do Supabase ou exceção lançada), então nunca
+      // fica travado em `true`. `history` só é tocado nos ramos de
+      // sucesso acima; se a tentativa falhar, `history` continua como
+      // estava (`null` numa primeira tentativa) — é esse `null` que diz
+      // pro toggle em GardenHistorySection que vale tentar de novo na
+      // próxima expansão (ver GardenMemberView.tsx).
+      setHistoryLoading(false)
+    }
+  }, [profileId])
+
   return {
     challenges,
     loading,
@@ -223,6 +309,10 @@ export function useGardenMember(communityId: string | null, profileId: string | 
     fetchDays,
     completeDay,
     shareCompletion,
+    history,
+    historyLoading,
+    historyError,
+    fetchHistory,
     refresh: fetchAll,
   }
 }

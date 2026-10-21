@@ -50,6 +50,73 @@ export interface GardenCompletion {
   completed_at: string
 }
 
+/**
+ * Uma entrada de "Meu histórico" (Member) — um desafio ARQUIVADO no qual
+ * a própria pessoa tem pelo menos um compartilhamento. Construída 100%
+ * a partir do snapshot congelado em `garden_shares` (nunca de
+ * `garden_challenges`/`garden_challenge_days`, que a RLS não deixa um
+ * Member comum ler quando o desafio já não está mais `published`) — ver
+ * useGardenMember.fetchHistory. Por isso NÃO cobre conclusões que nunca
+ * foram compartilhadas em um desafio hoje arquivado: sem uma linha de
+ * `garden_shares`, não há título/duração acessível para exibir, e este
+ * tipo não inventa esse dado.
+ */
+export interface GardenHistoryEntry {
+  challengeId: string
+  challengeTitle: string
+  daysCompleted: number
+  totalDays: number
+  colorOne: GardenColor | null
+  colorTwo: GardenColor | null
+  lastSharedAt: string
+}
+
+/** Formato cru de uma linha de `garden_shares` usada para montar o histórico (ver buildGardenHistory). */
+export interface GardenShareHistoryRow {
+  challenge_id: string
+  challenge_title: string
+  days_completed: number
+  total_days: number
+  color_one: string | null
+  color_two: string | null
+  created_at: string
+}
+
+/**
+ * Função pura (sem Supabase, sem React) — separada de
+ * useGardenMember.fetchHistory só para poder testar a regra de negócio
+ * isoladamente: "um desafio entra no histórico só se NÃO estiver mais
+ * publicado, e só com o compartilhamento mais recente dele".
+ *
+ * Pré-condição do chamador: `shareRows` já vem ordenado por
+ * `created_at` DESCENDENTE (mesma ordem que a query em
+ * useGardenMember.fetchHistory já pede ao Supabase) — é o que garante
+ * que "a primeira ocorrência de cada challenge_id" seja a mais recente.
+ */
+export function buildGardenHistory(
+  shareRows: readonly GardenShareHistoryRow[],
+  stillPublishedChallengeIds: ReadonlySet<string>,
+): GardenHistoryEntry[] {
+  const byChallenge = new Map<string, GardenHistoryEntry>()
+
+  for (const row of shareRows) {
+    if (stillPublishedChallengeIds.has(row.challenge_id)) continue // ainda publicado — não é "histórico"
+    if (byChallenge.has(row.challenge_id)) continue // já guardamos o compartilhamento mais recente deste desafio
+
+    byChallenge.set(row.challenge_id, {
+      challengeId: row.challenge_id,
+      challengeTitle: row.challenge_title,
+      daysCompleted: row.days_completed,
+      totalDays: row.total_days,
+      colorOne: row.color_one as GardenColor | null,
+      colorTwo: row.color_two as GardenColor | null,
+      lastSharedAt: row.created_at,
+    })
+  }
+
+  return [...byChallenge.values()]
+}
+
 /** Formulário de criação/edição do desafio (Painel · Meu Jardim). */
 export interface GardenChallengeInput {
   title: string
