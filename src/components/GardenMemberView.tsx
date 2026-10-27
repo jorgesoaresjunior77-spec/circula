@@ -4,9 +4,10 @@ import { useGardenMember } from '../hooks/useGardenMember'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { GardenColorPicker } from './GardenColorPicker'
 import { GardenProgressWheel } from './GardenProgressWheel'
+import { GardenJourneyRing } from './GardenJourneyRing'
 import { EmptyState } from './EmptyState'
 import { SproutIcon, CheckIcon } from './icons'
-import { GARDEN_COLOR_HEX } from '../types/garden'
+import { GARDEN_COLOR_HEX, computeGardenJourneyStats, formatGardenJourneySummary } from '../types/garden'
 import type { GardenChallenge } from '../types/garden'
 import type { GardenColor, Profile, ProfileUpdateInput } from '../types/profile'
 
@@ -139,6 +140,21 @@ export function GardenMemberView({
   const myColorOneHex = profile?.garden_color_one ? GARDEN_COLOR_HEX[profile.garden_color_one] : null
   const myColorTwoHex = profile?.garden_color_two ? GARDEN_COLOR_HEX[profile.garden_color_two] : null
 
+  // Camada 2 (Etapa N) — jornada acumulada, só com dado real já em mãos
+  // do hook (sem nenhuma consulta nova): ver a doc de GardenJourneyInput
+  // em types/garden.ts para a regra exata e a limitação conhecida
+  // (desafio arquivado nunca compartilhado não entra na soma).
+  const journeyStats = computeGardenJourneyStats({
+    liveCompletions: api.myCompletions,
+    liveTotalDaysByChallenge: Object.fromEntries(
+      Object.entries(api.daysByChallenge).map(([challengeId, challengeDays]) => [
+        challengeId,
+        challengeDays.length,
+      ]),
+    ),
+    historyEntries: api.history ?? [],
+  })
+
   function selectChallenge(challenge: GardenChallenge) {
     setSelectedId(challenge.id)
     setActionError(null)
@@ -172,7 +188,22 @@ export function GardenMemberView({
   }
 
   if (api.loading) return <p className="panel-content-muted">Carregando Meu Jardim...</p>
-  if (api.error) return <p className="auth-error">{api.error}</p>
+
+  // Fase E (Etapa M) — faltava uma forma de tentar de novo depois de uma
+  // falha ao carregar os desafios: antes a tela ficava presa nessa
+  // mensagem para sempre, sem nenhum botão — só recarregar a página
+  // inteira resolvia. `api.refresh` já existe no hook (é o mesmo
+  // `fetchAll` usado no mount); só faltava expô-lo aqui.
+  if (api.error) {
+    return (
+      <div className="garden-member-view">
+        <p className="auth-error">{api.error}</p>
+        <button type="button" className="panel-content-action" onClick={() => api.refresh()}>
+          Tentar novamente
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="garden-member-view">
@@ -181,6 +212,31 @@ export function GardenMemberView({
           Receitas, que recebem o deles via prop) — sem isto a tela não
           tinha NENHUM texto identificando em que seção a pessoa está. */}
       <p className="section-label">Meu Jardim</p>
+
+      {/*
+       * Etapa AA (Finding 2) — falha ao carregar inscrições/conclusões não é
+       * tão grave quanto falhar a lista de desafios (api.error, acima, trava
+       * a tela inteira) — os desafios e os dias de cada um continuam
+       * carregando normalmente. Mas sem este aviso, a participante não teria
+       * nenhum sinal de que o selo "Participando", a roda de progresso ou o
+       * botão "Marcar como concluído" podem estar refletindo dados antigos
+       * (preservados pelo hook) em vez de uma falha real confirmada — mesma
+       * mensagem única mesmo se as duas consultas falharem, para não
+       * duplicar aviso.
+       */}
+      {(api.enrollmentsError || api.completionsError) && (
+        <>
+          <p className="auth-error">
+            Não foi possível confirmar sua inscrição e seu progresso agora:{' '}
+            {api.enrollmentsError ?? api.completionsError}
+          </p>
+          <div className="panel-content-form-actions">
+            <button type="button" className="panel-content-action" onClick={() => api.refresh()}>
+              Tentar novamente
+            </button>
+          </div>
+        </>
+      )}
 
       {profile && (
         <GardenColorPicker
@@ -207,15 +263,26 @@ export function GardenMemberView({
               nunca durante carregamento/erro, e nunca com total=0. */}
           {myEnrollment && !api.daysLoading[selected.id] && !api.daysError[selected.id] && days.length > 0 && (
             <div className="garden-progress-row">
-              <GardenProgressWheel
-                completed={completedDaysCount}
-                total={totalDaysCount}
-                colorOne={myColorOneHex}
-                colorTwo={myColorTwoHex}
+              {/* Etapa N — roda em camadas: anel interno = este desafio
+                  (ao vivo), anel externo = jornada acumulada (ver
+                  computeGardenJourneyStats). O card do Feed e "Meu
+                  histórico" continuam com GardenProgressWheel sozinho —
+                  um desafio arquivado não tem "progresso atual". */}
+              <GardenJourneyRing
+                current={{
+                  completed: completedDaysCount,
+                  total: totalDaysCount,
+                  colorOne: myColorOneHex,
+                  colorTwo: myColorTwoHex,
+                }}
+                journey={journeyStats}
               />
-              <p className="garden-progress-summary">
-                {completedDaysCount} de {totalDaysCount} dias concluídos
-              </p>
+              <div>
+                <p className="garden-progress-summary">
+                  {completedDaysCount} de {totalDaysCount} dias concluídos
+                </p>
+                <p className="garden-journey-summary-journey">{formatGardenJourneySummary(journeyStats)}</p>
+              </div>
             </div>
           )}
 

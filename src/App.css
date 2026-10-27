@@ -3703,6 +3703,7 @@
    nível de navegação igual. */
 .panel-subtabs {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
@@ -14994,4 +14995,246 @@ button.card:focus-visible {
   margin: 0 0 2px;
   font-weight: 600;
   color: var(--graphite);
+}
+
+/* ===================================================================
+   Meu Jardim — Etapa N (roda em camadas, templates de incentivo e
+   mobile-first real)
+   ---------------------------------------------------------------------
+   Nada abaixo introduz cor nova: tudo reaproveita os tokens já
+   existentes (--circula-mocha/taupe/beige/champagne/black, já ligados a
+   --graphite/--ink-action em index.css) — a "paleta premium" pedida já
+   era a paleta do app, só faltava aplicá-la com mais intenção aqui.
+   =================================================================== */
+
+/* --- Roda em camadas (GardenJourneyRing) ----------------------------
+   Anel externo = jornada acumulada (champagne, mais fino, sempre visível
+   mesmo vazio — só o traço de fundo, nunca "some"). Anel interno = igual
+   ao GardenProgressWheel original, cores do desafio/perfil via prop. */
+.garden-journey-ring {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.garden-journey-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.garden-journey-ring-outer-track {
+  fill: none;
+  stroke: var(--circula-champagne-tint);
+  stroke-width: 5;
+}
+
+.garden-journey-ring-outer-fill {
+  fill: none;
+  stroke: var(--circula-champagne);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
+}
+
+.garden-journey-ring-inner-track {
+  fill: none;
+  stroke: var(--surface-sunken);
+  stroke-width: 9;
+}
+
+.garden-journey-ring-inner-fill {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
+}
+
+.garden-journey-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+  font-family: var(--font-display);
+  color: var(--graphite);
+}
+
+.garden-journey-ring-center strong {
+  font-weight: var(--display-weight);
+  font-size: 1.5em;
+}
+
+.garden-journey-ring-center small {
+  font-size: 0.65em;
+  color: var(--graphite-soft);
+}
+
+.garden-journey-summary {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--graphite);
+}
+
+.garden-journey-summary-journey {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+/* --- Templates de incentivo (seis modelos, Etapa N) -------------------
+   Base compartilhada + uma classe por variante, só mudando o acento
+   (cor/peso do eyebrow) — mesma receita de .garden-feed-card--share
+   (cor via variável, nunca hardcoded em duplicata). */
+.garden-incentive-template {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-4);
+  border-radius: var(--card-radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--garden-incentive-accent, var(--ink-action));
+}
+
+.garden-incentive-template-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--garden-incentive-accent, var(--ink-action));
+}
+
+.garden-incentive-template-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 1.05rem;
+  color: var(--graphite);
+}
+
+.garden-incentive-template-message {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--n-700);
+  white-space: pre-wrap;
+}
+
+.garden-incentive-template-author {
+  margin: var(--space-1) 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.garden-incentive-template--motivacao { --garden-incentive-accent: var(--ink-action); }
+.garden-incentive-template--reflexao { --garden-incentive-accent: var(--circula-taupe); }
+.garden-incentive-template--conquista { --garden-incentive-accent: var(--leaf-text); }
+.garden-incentive-template--habito { --garden-incentive-accent: var(--circula-mocha); }
+.garden-incentive-template--acolhimento { --garden-incentive-accent: var(--accent-rose); }
+.garden-incentive-template--celebracao { --garden-incentive-accent: var(--circula-black); }
+
+/* --- Seletor dos 6 templates no composer de incentivo (Etapa O/P) ---
+   <fieldset>/<legend> para o grupo ter nome acessível nativo, sem
+   repetir o texto do rótulo visível num aria-label separado — por
+   padrão o <fieldset> traz borda/padding/margin do navegador, que
+   este reset remove para manter o mesmo ritmo de .panel-content-field. */
+.garden-incentive-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+/* Mesma receita de .garden-color-swatches (pill selecionável); reusa
+   as variáveis --garden-incentive-accent já definidas acima por
+   template, então cada pill nasce com a cor da sua categoria. */
+.garden-incentive-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.garden-incentive-picker-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--garden-incentive-accent, var(--graphite-soft));
+  cursor: pointer;
+}
+
+.garden-incentive-picker-option--active {
+  border-color: var(--garden-incentive-accent, var(--ink-action-line));
+  background: color-mix(in srgb, var(--garden-incentive-accent, var(--ink-action)) 14%, var(--surface));
+}
+
+/* --- Mobile-first real: toque, legibilidade e sem overflow ----------- */
+
+/* Mesmo padrão já usado em Feed/Círculos (ver linha ~14562): só quando o
+   ponteiro é touch, garante alvo de toque confortável sem mudar a
+   densidade visual no desktop. */
+@media (pointer: coarse) {
+  .garden-day-complete,
+  .garden-day-share-toggle,
+  .garden-history-toggle,
+  .garden-color-swatch,
+  .garden-incentive-picker-option {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Nunca força rolagem horizontal: 1 card de desafio por linha bem
+     antes do que o minmax(220px,...) original garantiria sozinho. */
+  .garden-challenge-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .garden-progress-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .garden-journey-ring,
+  .garden-wheel {
+    width: 76px !important;
+    height: 76px !important;
+  }
+
+  .garden-journey-ring-center strong,
+  .garden-wheel-center strong {
+    font-size: 1.3em;
+  }
+
+  .garden-history-item {
+    align-items: flex-start;
+  }
+
+  .garden-incentive-template {
+    padding: var(--space-3);
+  }
+}
+
+/* Progresso é informação, não decoração — sem isto, quem pede menos
+   movimento ainda veria o arco "saltar" de 0 ao valor real no primeiro
+   render de cada roda. */
+@media (prefers-reduced-motion: reduce) {
+  .garden-wheel-fill,
+  .garden-journey-ring-inner-fill,
+  .garden-journey-ring-outer-fill {
+    transition: none;
+  }
 }

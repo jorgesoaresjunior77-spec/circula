@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { buildGardenHistory, gardenErrorMessage } from './garden'
+import {
+  buildGardenHistory,
+  gardenErrorMessage,
+  computeGardenJourneyStats,
+  formatGardenJourneySummary,
+} from './garden'
 import type { GardenShareHistoryRow } from './garden'
 
 /**
@@ -119,6 +124,121 @@ describe('gardenErrorMessage — "already_shared" (item 3, defesa em profundidad
   it('reconhece o código mesmo embutido em texto adicional do Postgres/PostgREST', () => {
     expect(gardenErrorMessage('ERROR: raise exception already_shared (SQLSTATE P0001)')).toBe(
       'Esta conclusão já foi compartilhada no feed.',
+    )
+  })
+})
+
+/**
+ * `computeGardenJourneyStats` — Camada 2 da roda (Etapa N), "jornada
+ * acumulada". Função pura: nunca toca Supabase, recebe só o que o hook
+ * já teria em mãos sem nenhuma consulta nova. Cobre explicitamente a
+ * regra "não contar a mesma conclusão duas vezes" e a limitação
+ * documentada (desafio arquivado nunca compartilhado não entra na soma).
+ */
+describe('computeGardenJourneyStats', () => {
+  it('soma 1 dia por conclusão viva, sem desafio concluído quando o total do desafio é desconhecido', () => {
+    const result = computeGardenJourneyStats({
+      liveCompletions: [{ challenge_id: 'c1' }, { challenge_id: 'c1' }],
+      liveTotalDaysByChallenge: {}, // desafio nunca aberto — total desconhecido
+      historyEntries: [],
+    })
+
+    expect(result).toEqual({ totalDaysCompleted: 2, challengesFinished: 0 })
+  })
+
+  it('conta um desafio ao vivo como concluído só quando completed >= total conhecido', () => {
+    const result = computeGardenJourneyStats({
+      liveCompletions: [{ challenge_id: 'c1' }, { challenge_id: 'c1' }, { challenge_id: 'c1' }],
+      liveTotalDaysByChallenge: { c1: 3 },
+      historyEntries: [],
+    })
+
+    expect(result).toEqual({ totalDaysCompleted: 3, challengesFinished: 1 })
+  })
+
+  it('não conta como concluído um desafio ao vivo ainda em andamento (completed < total)', () => {
+    const result = computeGardenJourneyStats({
+      liveCompletions: [{ challenge_id: 'c1' }, { challenge_id: 'c1' }],
+      liveTotalDaysByChallenge: { c1: 5 },
+      historyEntries: [],
+    })
+
+    expect(result).toEqual({ totalDaysCompleted: 2, challengesFinished: 0 })
+  })
+
+  it('soma os dias e desafios concluídos do histórico (arquivados compartilhados)', () => {
+    const result = computeGardenJourneyStats({
+      liveCompletions: [],
+      liveTotalDaysByChallenge: {},
+      historyEntries: [
+        { daysCompleted: 10, totalDays: 10 }, // concluído
+        { daysCompleted: 4, totalDays: 9 }, // não concluído
+      ],
+    })
+
+    expect(result).toEqual({ totalDaysCompleted: 14, challengesFinished: 1 })
+  })
+
+  it('combina desafios ao vivo e do histórico sem misturar as contagens', () => {
+    const result = computeGardenJourneyStats({
+      liveCompletions: [{ challenge_id: 'c1' }, { challenge_id: 'c1' }],
+      liveTotalDaysByChallenge: { c1: 2 },
+      historyEntries: [{ daysCompleted: 5, totalDays: 5 }],
+    })
+
+    expect(result).toEqual({ totalDaysCompleted: 7, challengesFinished: 2 })
+  })
+
+  it('múltiplos desafios ao vivo diferentes são contados separadamente (não soma tudo num "challenge" só)', () => {
+    const result = computeGardenJourneyStats({
+      liveCompletions: [
+        { challenge_id: 'c1' },
+        { challenge_id: 'c1' },
+        { challenge_id: 'c2' },
+        { challenge_id: 'c2' },
+      ],
+      liveTotalDaysByChallenge: { c1: 2, c2: 2 },
+      historyEntries: [],
+    })
+
+    expect(result).toEqual({ totalDaysCompleted: 4, challengesFinished: 2 })
+  })
+
+  it('sem nenhum dado, devolve zero em tudo (sem inventar progresso)', () => {
+    expect(computeGardenJourneyStats({ liveCompletions: [], liveTotalDaysByChallenge: {}, historyEntries: [] })).toEqual(
+      { totalDaysCompleted: 0, challengesFinished: 0 },
+    )
+  })
+})
+
+describe('formatGardenJourneySummary', () => {
+  it('estado inicial honesto quando não há nada acumulado (sem "0 dias")', () => {
+    expect(formatGardenJourneySummary({ totalDaysCompleted: 0, challengesFinished: 0 })).toBe(
+      'Sua jornada no Círcula está começando',
+    )
+  })
+
+  it('singular/plural correto para 1 dia, sem desafios concluídos', () => {
+    expect(formatGardenJourneySummary({ totalDaysCompleted: 1, challengesFinished: 0 })).toBe(
+      'Jornada no Círcula: 1 dia concluído',
+    )
+  })
+
+  it('plural correto para vários dias, sem desafios concluídos', () => {
+    expect(formatGardenJourneySummary({ totalDaysCompleted: 5, challengesFinished: 0 })).toBe(
+      'Jornada no Círcula: 5 dias concluídos',
+    )
+  })
+
+  it('inclui desafios concluídos (singular) quando houver', () => {
+    expect(formatGardenJourneySummary({ totalDaysCompleted: 10, challengesFinished: 1 })).toBe(
+      'Jornada no Círcula: 10 dias concluídos · 1 desafio concluído',
+    )
+  })
+
+  it('inclui desafios concluídos (plural) quando houver mais de um', () => {
+    expect(formatGardenJourneySummary({ totalDaysCompleted: 20, challengesFinished: 2 })).toBe(
+      'Jornada no Círcula: 20 dias concluídos · 2 desafios concluídos',
     )
   })
 })

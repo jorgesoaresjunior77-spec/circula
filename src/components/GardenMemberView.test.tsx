@@ -113,19 +113,24 @@ interface ApiOverrides {
   myEnrollments?: GardenEnrollment[]
   myCompletions?: GardenCompletion[]
   mySharedCompletionIds?: Set<string>
+  enrollmentsError?: string | null
+  completionsError?: string | null
   history?: GardenHistoryEntry[] | null
   historyLoading?: boolean
   historyError?: string | null
+  error?: string | null
 }
 
 function makeApi(overrides: ApiOverrides = {}): ReturnType<typeof useGardenMember> {
   return {
     challenges: [CHALLENGE],
     loading: false,
-    error: null,
+    error: overrides.error ?? null,
     myEnrollments: overrides.myEnrollments ?? [ENROLLMENT],
     myCompletions: overrides.myCompletions ?? ([] as GardenCompletion[]),
     mySharedCompletionIds: overrides.mySharedCompletionIds ?? new Set<string>(),
+    enrollmentsError: overrides.enrollmentsError ?? null,
+    completionsError: overrides.completionsError ?? null,
     enroll: vi.fn(),
     daysByChallenge: overrides.daysByChallenge ?? {},
     daysLoading: overrides.daysLoading ?? {},
@@ -323,8 +328,13 @@ describe('GardenMemberView — Item 4: roda de progresso (dados ao vivo)', () =>
     })
 
     expect(screen.getByText('1 de 2 dias concluídos')).toBeInTheDocument()
+    // Etapa N — GardenJourneyRing substituiu o GardenProgressWheel solo
+    // aqui; o rótulo acessível agora descreve as duas camadas (desafio
+    // atual + jornada acumulada) num único role="img".
     expect(
-      screen.getByRole('img', { name: 'Progresso do desafio: 50%, 1 de 2 dias concluídos' }),
+      screen.getByRole('img', {
+        name: 'Desafio atual: 50%, 1 de 2 dias concluídos. Jornada no Círcula: 1 dia concluído.',
+      }),
     ).toBeInTheDocument()
   })
 
@@ -336,7 +346,41 @@ describe('GardenMemberView — Item 4: roda de progresso (dados ao vivo)', () =>
     })
 
     expect(screen.queryByText(/dias concluídos/)).not.toBeInTheDocument()
-    expect(screen.queryByRole('img', { name: /Progresso do desafio/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: /Desafio atual/ })).not.toBeInTheDocument()
+  })
+
+  it('mostra o resumo da jornada acumulada (Camada 2) somando conclusões de desafios diferentes', () => {
+    const OTHER_COMPLETION: GardenCompletion = {
+      id: 'completion-2',
+      challenge_id: 'other-challenge',
+      challenge_day_id: 'other-day',
+      enrollment_id: 'other-enrollment',
+      profile_id: 'member-1',
+      completed_at: '2020-02-01T00:00:00.000Z',
+    }
+
+    renderAndSelectChallenge({
+      daysLoading: { [CHALLENGE.id]: false },
+      daysError: { [CHALLENGE.id]: null },
+      daysByChallenge: { [CHALLENGE.id]: [DAY_1, DAY_2] },
+      // A conclusão de "other-challenge" não pertence ao desafio selecionado
+      // (não aparece no "X de 2" do desafio atual), mas ainda soma na jornada.
+      myCompletions: [COMPLETION_DAY_1, OTHER_COMPLETION],
+    })
+
+    expect(screen.getByText('1 de 2 dias concluídos')).toBeInTheDocument()
+    expect(screen.getByText('Jornada no Círcula: 2 dias concluídos')).toBeInTheDocument()
+  })
+
+  it('estado inicial honesto da jornada quando não há nenhuma conclusão acumulada além da atual', () => {
+    renderAndSelectChallenge({
+      daysLoading: { [CHALLENGE.id]: false },
+      daysError: { [CHALLENGE.id]: null },
+      daysByChallenge: { [CHALLENGE.id]: [DAY_1] },
+      myCompletions: [],
+    })
+
+    expect(screen.getByText('Sua jornada no Círcula está começando')).toBeInTheDocument()
   })
 })
 
@@ -413,5 +457,85 @@ describe('GardenMemberView — Item 5: resumo e "Meu histórico"', () => {
     renderAndSelectChallenge()
 
     expect(screen.queryByRole('button', { name: /Meu histórico/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('GardenMemberView — Etapa M: nova tentativa após falha ao carregar os desafios', () => {
+  beforeEach(() => {
+    mockedUseGardenMember.mockReset()
+  })
+
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('mostra a mensagem de erro e um botão "Tentar novamente" quando api.error está preenchido', () => {
+    renderRoot({ error: 'Falha de rede' })
+
+    expect(screen.getByText('Falha de rede')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument()
+  })
+
+  it('chama api.refresh ao clicar em "Tentar novamente"', () => {
+    const api = renderRoot({ error: 'Falha de rede' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
+
+    expect(api.refresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('não mostra o grid de desafios nem o histórico enquanto houver erro (não mistura os dois estados)', () => {
+    renderRoot({ error: 'Falha de rede' })
+
+    expect(screen.queryByText('Desafio de teste')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Meu histórico/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('GardenMemberView — Etapa AA: erro ao carregar inscrições/conclusões não bloqueia a tela', () => {
+  beforeEach(() => {
+    mockedUseGardenMember.mockReset()
+  })
+
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('mostra um aviso com "Tentar novamente" quando só enrollmentsError está preenchido, sem esconder o grid de desafios', () => {
+    renderRoot({ enrollmentsError: 'Falha ao confirmar inscrição' })
+
+    expect(screen.getByText(/Falha ao confirmar inscrição/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument()
+    // Diferente do erro principal (api.error), este NÃO bloqueia a tela —
+    // o grid de desafios continua visível.
+    expect(screen.getByText('Desafio de teste')).toBeInTheDocument()
+  })
+
+  it('mostra um aviso quando só completionsError está preenchido', () => {
+    renderRoot({ completionsError: 'Falha ao confirmar conclusões' })
+
+    expect(screen.getByText(/Falha ao confirmar conclusões/)).toBeInTheDocument()
+  })
+
+  it('quando as duas falham, mostra só uma mensagem (a de inscrições), sem duplicar', () => {
+    renderRoot({ enrollmentsError: 'Erro de inscrições', completionsError: 'Erro de conclusões' })
+
+    expect(screen.getByText(/Erro de inscrições/)).toBeInTheDocument()
+    expect(screen.queryByText(/Erro de conclusões/)).not.toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Tentar novamente' })).toHaveLength(1)
+  })
+
+  it('chama api.refresh ao clicar em "Tentar novamente" deste aviso', () => {
+    const api = renderRoot({ enrollmentsError: 'Falha ao confirmar inscrição' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
+
+    expect(api.refresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('sem nenhum dos dois erros, não mostra o aviso', () => {
+    renderRoot()
+
+    expect(screen.queryByRole('button', { name: 'Tentar novamente' })).not.toBeInTheDocument()
   })
 })
