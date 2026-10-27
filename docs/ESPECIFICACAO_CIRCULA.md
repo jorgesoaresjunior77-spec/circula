@@ -2244,4 +2244,59 @@ Nenhuma policy, grant, Edge Function, migration, dado real. O achado sobre o GRA
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 - **Achado operacional para decisão do time** (fora do escopo de RLS): `service_role` não tem GRANT de SELECT em `webhook_events`, quebrando o UPDATE de `processed_at` em `asaas-webhook/index.ts` (linhas 673-680) e a checagem de idempotência em retry (linhas 571-575) — ver auditoria acima.
 
+## Módulo Meu Jardim — desafios de atividades diárias (2026-10; base commitada, aba "Publicar incentivo" e roda de duas camadas ainda locais sem commit)
+
+Desafios de atividades diárias dentro de uma comunidade: a Professional cria e gerencia o desafio, a Member se inscreve e completa dias liberados, compartilha conclusões no feed, e a Professional pode publicar uma mensagem de incentivo (com apoio de templates visuais e biblioteca estática de sugestões) através de um RPC já existente, sem nenhuma mudança de schema.
+
+### Estado commitado (histórico Git)
+- `dbed5b1` — feat: adiciona Meu Jardim — desafios de atividades diárias com participação e compartilhamento no feed (CRUD de desafio/dias, inscrição, conclusão, compartilhamento no feed).
+- `6f3ec42` — fix: trata falha de carregamento e concorrência em `fetchDays` do Meu Jardim (lado do membro).
+- `2edb5d5` — feat: roda de progresso de uma camada (`GardenProgressWheel`), "Meu histórico" de desafios arquivados e correção de compartilhamento duplicado.
+
+Estes três commits estão fechados e, segundo validação já registrada em sessão anterior, considerados concluídos.
+
+### Estado local NÃO commitado (nesta sessão, working tree)
+Ainda sem commit — não deve ser descrito como publicado/em produção:
+- Aba "Publicar incentivo" dentro de `GardenChallengeManager.tsx` (visão da Professional): seletor de 6 templates de tom, biblioteca estática de mensagens sugeridas, pré-visualização e publicação do incentivo.
+- `src/components/GardenIncentiveTemplates.tsx` (novo, não rastreado) — componentes `GardenIncentiveCard` (pré-visualização) e `GardenIncentiveMessageLibrary` (lista de sugestões).
+- `src/components/GardenJourneyRing.tsx` (novo, não rastreado) — roda de jornada em duas camadas, usada em `GardenMemberView.tsx` junto da `GardenProgressWheel` já commitada.
+- Ajustes em `src/types/garden.ts`, `src/hooks/useGardenChallenges.ts`, `src/hooks/useGardenMember.ts`, `src/components/GardenMemberView.tsx`, `src/App.css` que dão suporte ao que está acima.
+- Testes novos, não commitados: `GardenChallengeManager.test.tsx`, `GardenIncentiveTemplates.test.tsx`, `GardenJourneyRing.test.tsx`, `useGardenChallenges.test.ts` (mais ampliações em `GardenMemberView.test.tsx`/`useGardenMember.test.ts`/`garden.test.ts`, que já existiam e foram estendidos).
+
+### Gestão de desafios pela Professional (`useGardenChallenges.ts`)
+CRUD de desafio (`createChallenge`/`updateChallenge`), geração de dias só em rascunho (`generateDays` → RPC `garden_generate_challenge_days`), publicação (`publishChallenge` → RPC `garden_publish_challenge`), arquivamento (`archiveChallenge`) e exclusão (`deleteChallenge`, bloqueada no banco por FK `RESTRICT` quando já há histórico — erro Postgres `23503` traduzido para mensagem amigável). Participantes/progresso (`fetchProgress`) carregam inscrições (`garden_enrollments`) e conclusões (`garden_completions`) do desafio sob demanda.
+
+### Participação e progresso dos membros (`useGardenMember.ts`)
+`fetchAll` lista os desafios publicados da comunidade (a RLS já restringe o SELECT, o cliente não repete o filtro), as inscrições/conclusões da própria pessoa e quais conclusões já foram compartilhadas (`mySharedCompletionIds`, usado para bloquear compartilhamento duplicado na UI). `enroll` é tolerante a "já inscrita" (mesmo padrão de `useEvents.rsvp`). `completeDay` chama o RPC `garden_complete_day`; `shareCompletion` chama `garden_share_completion`. "Meu histórico" (`fetchHistory`, sob demanda) é construído só a partir do snapshot congelado em `garden_shares` — nunca reconsulta `garden_challenges`/`garden_challenge_days` de um desafio já arquivado, porque a RLS bloqueia esse SELECT para uma Member comum.
+
+### Roda de jornada em duas camadas (`GardenJourneyRing.tsx` — local, não commitado)
+Anel interno = progresso do desafio atual (mesma lógica/proporção da `GardenProgressWheel` já commitada, que continua sendo usada isoladamente no snapshot do Feed e em "Meu histórico", onde só essa camada faz sentido). Anel externo = jornada acumulada no Círcula, somando dias concluídos em desafios publicados abertos (`useGardenMember`) com os de desafios arquivados compartilhados (histórico via `garden_shares`) — `computeGardenJourneyStats`/`formatGardenJourneySummary` em `types/garden.ts`. A camada externa usa uma escala DECLARADA (1 dia concluído = 1% visual, até um teto de 100 dias) e nunca exibe percentual dela própria — só a contagem real ("X dias · Y desafios concluídos") — justamente para não insinuar uma meta que não existe. Limitação registrada no próprio código: um desafio arquivado concluído mas nunca compartilhado não entra nessa soma, porque a RLS não permite reler o total de dias de um desafio não publicado sem esse registro de compartilhamento.
+
+### Templates visuais e biblioteca estática de mensagens de incentivo (local, não commitado)
+Seis categorias de tom em `GARDEN_INCENTIVE_TEMPLATES` (`types/garden.ts`): motivação, reflexão, conquista, hábito, acolhimento, celebração — não são "templates originais" de alguma referência visual anterior (confirmado: nenhuma referência recuperável existe no projeto); são categorias aprovadas nesta etapa. `GARDEN_INCENTIVE_MESSAGE_LIBRARY` traz 4 sugestões de mensagem por categoria, texto estático escrito nesta etapa **sem IA ou serviço externo** — consistente com a regra de produto de que o Círcula nunca gera conteúdo por IA (ver "Regras de Produto" e "Automações sem IA" no topo deste documento). As mensagens nunca afirmam algo específico sobre uma participante, não fazem promessa de emagrecimento/alegação médica e não inventam nome/resultado. Escolher um template ou consultar a biblioteca nunca chama o Supabase; aplicar uma sugestão (`onApply`) só preenche o campo de texto, que continua 100% editável.
+
+### Pré-visualização e publicação de incentivo via RPC existente
+`GardenIncentiveCard` é puramente apresentacional (nunca chama Supabase) e só aparece quando há um dia selecionado e mensagem não vazia. A publicação continua usando o RPC já existente `garden_publish_daily_post(challengeDayId, message)` — sem nenhuma mudança de schema; o template escolhido é só uma ajuda visual de composição no cliente e **nunca é persistido** (se no futuro for preciso saber qual template foi usado, por exemplo para analytics de engajamento por tom, isso exigiria uma coluna nova, fora deste ciclo).
+
+### Tratamento de erros, estados de carregamento e preservação de formulário
+- `daysError`/`participantsError`/`completionsError` (Professional) e `daysError`/`enrollmentsError`/`completionsError`/`historyError` (Member) distinguem "falhou ao carregar" de "carregou e está vazio" — nenhuma falha de rede é interpretada como lista vazia.
+- Exceções reais (rejeição de rede, etc.), não só `{error}` do PostgREST, são capturadas em todos os `fetch*` — antes dessas correções, `loading` podia travar em `true` para sempre; hoje todo caminho tem um `finally` que desliga o carregamento.
+- Trocar de dia/desafio com texto de incentivo digitado e não salvo pede confirmação (`window.confirm`, via `isDirtyIncentiveMessage`) antes de descartar; o mesmo vale para edição de dia em andamento (`isDirtyDayForm`). Aplicar uma sugestão da biblioteca sobre texto já digitado também pede confirmação antes de sobrescrever.
+
+### Concorrência isolada por desafio
+Buscas de dias (`daysRequestSeq`) e de participantes/conclusões (`progressRequestSeq`) têm um contador de sequência **por `challengeId`** nos dois hooks (Professional e Member), além de um contador global para a busca principal de desafios (`challengesRequestSeq`/`fetchAllRequestSeq`). Uma resposta antiga nunca sobrescreve uma mais nova para o mesmo desafio, mesmo que chegue depois — por exemplo, trocar de desafio rapidamente ou clicar "Tentar novamente" duas vezes não causa dados cruzados entre desafios nem uma resposta obsoleta reabrindo um loading já encerrado.
+
+### Estado real dos testes
+`npx vitest run` da suíte completa do projeto (11 arquivos de teste no total, não só os do módulo: `garden.test.ts`, `useGardenChallenges.test.ts`, `useGardenMember.test.ts`, `GardenChallengeManager.test.tsx`, `GardenMemberView.test.tsx`, `GardenIncentiveTemplates.test.tsx`, `GardenJourneyRing.test.tsx`, `GardenProgressWheel.test.tsx`, `GardenShareCard.test.tsx`, `HomeExperienceStrip.test.tsx`, `PrimaryNav.test.tsx`) → **197 testes, 11 arquivos, zero falhas, zero testes ignorados** (sessão de 2026-10-27), incluindo os 77 testes de `GardenChallengeManager.test.tsx` que cobrem especificamente a aba "Publicar incentivo". Todos os hooks (`useGardenChallenges`/`useGardenMember`) são mockados (`vi.mock`) nos testes de componente — **nenhuma chamada real ao Supabase ocorre na suíte**. `npx tsc -b` → exit 0 (typecheck completo do projeto, sem erros), na mesma sessão.
+
+### Limitações de validação manual (pendente, registrado explicitamente)
+A validação visual manual em navegador da aba "Publicar incentivo" (seleção de template, seleção de mensagem da biblioteca, edição, atualização da pré-visualização, cancelamento de substituição, exibição de erros) **não foi realizada** — nem nesta sessão, nem confirmada em sessão anterior. Bloqueio identificado e registrado nesta mesma sessão: o ambiente local (`.env.local`, lido por `src/lib/supabase.ts`) aponta para o único projeto Supabase existente (`kdqtanqywjpwbnjedafn.supabase.co`) — o mesmo usado pela aplicação real, sem `.env` alternativo nem projeto de staging configurado. Sem um ambiente isolado de teste confirmado, a validação manual em navegador foi deliberadamente não realizada, aguardando autorização explícita sobre como proceder (por exemplo, validação só de leitura/visual sem clicar em "Publicar"). Risco adicional registrado para quando essa validação for autorizada: o passo de cancelar a substituição de mensagem depende de `window.confirm` (diálogo nativo do navegador), que pode interromper uma sessão de automação de navegador.
+
+### Pendências
+- Decidir se/quando commitar a aba "Publicar incentivo", a roda de duas camadas e os testes novos listados acima — hoje só existem no working tree local.
+- Validação manual em navegador da aba "Publicar incentivo", condicionada à decisão sobre ambiente de teste (ver limitação acima).
+- Persistir qual template foi escolhido exigiria coluna nova — fora deste ciclo (decisão já registrada no código, não uma pendência ativa).
+
+### Sem alteração de Supabase, banco, migrations, RLS ou autenticação nesta etapa. Sem commit, sem push, sem deploy.
+
 ### Sem alteração de policy, sem migration, sem commit, sem push.
