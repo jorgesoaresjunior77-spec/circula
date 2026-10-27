@@ -56,6 +56,35 @@ export function useGardenChallenges(communityId: string | null) {
     Record<string, GardenCompletion[]>
   >({})
   const [progressLoading, setProgressLoading] = useState<Record<string, boolean>>({})
+  /**
+   * Etapa X — erro da última busca de participantes/conclusões por desafio,
+   * mesmo papel de `daysError` para `fetchDays`: distingue "falhou ao
+   * carregar" de "carregou e não há participantes/conclusões". `null` = sem
+   * erro (nunca buscou, ainda carregando, ou carregou com sucesso). Dois
+   * estados (em vez de um só) porque são duas consultas independentes — a
+   * aba "Progresso" decide como combiná-los na exibição.
+   */
+  const [participantsError, setParticipantsError] = useState<Record<string, string | null>>({})
+  const [completionsError, setCompletionsError] = useState<Record<string, string | null>>({})
+  /**
+   * Etapa X — contador de sequência por desafio para participantes+conclusões,
+   * mesmo padrão de `daysRequestSeq`: `fetchProgress` incrementa antes de
+   * buscar; `fetchParticipants`/`fetchCompletions` só aplicam seu resultado
+   * (dado, erro ou exceção) se ainda forem a chamada mais recente para aquele
+   * desafio — evita que uma resposta antiga (de uma troca de desafio ou de um
+   * "Tentar novamente" anterior) sobrescreva uma mais nova que já terminou.
+   */
+  const progressRequestSeq = useRef<Record<string, number>>({})
+  /**
+   * Etapa AA (Finding 1) — sequência da busca principal de desafios (não é
+   * estado — não precisa re-render). Sem chave por id porque há só UM fluxo
+   * de "challenges" por vez (diferente de daysRequestSeq/progressRequestSeq,
+   * que são por desafio). Protege contra uma resposta antiga sobrescrever o
+   * resultado de uma chamada mais nova — ex.: clicar em "Tentar novamente"
+   * duas vezes rápido, ou uma troca de comunidade enquanto a busca anterior
+   * ainda está em voo.
+   */
+  const challengesRequestSeq = useRef(0)
 
   const fetchChallenges = useCallback(async () => {
     if (!communityId) {
@@ -64,24 +93,46 @@ export function useGardenChallenges(communityId: string | null) {
       return
     }
 
+    const seq = ++challengesRequestSeq.current
+    const isLatest = () => challengesRequestSeq.current === seq
+
     setLoading(true)
     setError(null)
 
-    const { data, error: fetchError } = await supabase
-      .from('garden_challenges')
-      .select(CHALLENGE_SELECT)
-      .eq('community_id', communityId)
-      .order('created_at', { ascending: false })
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('garden_challenges')
+        .select(CHALLENGE_SELECT)
+        .eq('community_id', communityId)
+        .order('created_at', { ascending: false })
 
-    if (fetchError) {
-      setError(fetchError.message)
+      if (!isLatest()) return
+
+      if (fetchError) {
+        setError(fetchError.message)
+        setChallenges([])
+        return
+      }
+
+      setChallenges((data as unknown as GardenChallenge[] | null) ?? [])
+    } catch (err) {
+      // Etapa AA (Finding 1) — exceção de verdade (rejeição de rede, etc.),
+      // não um {error} do PostgREST. Antes, nada aqui era capturado:
+      // `loading` ficava travado em `true` para sempre e a tela de
+      // "Desafios da comunidade" nunca saía de "Carregando desafios..." —
+      // sem nenhum jeito de perceber a falha ou tentar de novo. Mesmo
+      // tratamento (cai no mesmo canal `error` de sempre) já usado em
+      // `fetchDays`/`fetchParticipants`/`fetchCompletions` para esse
+      // cenário.
+      if (!isLatest()) return
+      const message = err instanceof Error ? err.message : 'Não foi possível carregar os desafios agora.'
+      setError(message)
       setChallenges([])
-      setLoading(false)
-      return
+    } finally {
+      if (isLatest()) {
+        setLoading(false)
+      }
     }
-
-    setChallenges((data as unknown as GardenChallenge[] | null) ?? [])
-    setLoading(false)
   }, [communityId])
 
   useEffect(() => {
@@ -273,42 +324,88 @@ export function useGardenChallenges(communityId: string | null) {
     return { error: null }
   }
 
-  const fetchParticipants = useCallback(async (challengeId: string) => {
-    const { data, error: fetchError } = await supabase
-      .from('garden_enrollments')
-      .select(ENROLLMENT_SELECT)
-      .eq('challenge_id', challengeId)
-      .order('enrolled_at', { ascending: false })
+  /**
+   * Etapa X — `seq` vem de `fetchProgress` (única chamadora): aplica dado,
+   * erro ou exceção só se `progressRequestSeq.current[challengeId]` ainda for
+   * esse `seq` no momento em que a resposta chega (mesmo princípio de
+   * `fetchDays`/`isLatest`). Não é mais exportada fora do hook — nunca foi
+   * (só `fetchProgress` é devolvida), então mudar sua assinatura interna não
+   * afeta nenhum consumidor existente.
+   */
+  const fetchParticipants = useCallback(async (challengeId: string, seq: number) => {
+    const isLatest = () => progressRequestSeq.current[challengeId] === seq
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('garden_enrollments')
+        .select(ENROLLMENT_SELECT)
+        .eq('challenge_id', challengeId)
+        .order('enrolled_at', { ascending: false })
 
-    if (fetchError) return { error: fetchError.message }
+      if (!isLatest()) return
 
-    setParticipantsByChallenge((prev) => ({
-      ...prev,
-      [challengeId]: (data as unknown as GardenEnrollment[] | null) ?? [],
-    }))
-    return { error: null }
+      if (fetchError) {
+        setParticipantsError((prev) => ({ ...prev, [challengeId]: fetchError.message }))
+        return
+      }
+
+      setParticipantsByChallenge((prev) => ({
+        ...prev,
+        [challengeId]: (data as unknown as GardenEnrollment[] | null) ?? [],
+      }))
+    } catch (err) {
+      if (!isLatest()) return
+      const message = err instanceof Error ? err.message : 'Não foi possível carregar os participantes agora.'
+      setParticipantsError((prev) => ({ ...prev, [challengeId]: message }))
+    }
   }, [])
 
-  const fetchCompletions = useCallback(async (challengeId: string) => {
-    const { data, error: fetchError } = await supabase
-      .from('garden_completions')
-      .select(COMPLETION_SELECT)
-      .eq('challenge_id', challengeId)
+  const fetchCompletions = useCallback(async (challengeId: string, seq: number) => {
+    const isLatest = () => progressRequestSeq.current[challengeId] === seq
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('garden_completions')
+        .select(COMPLETION_SELECT)
+        .eq('challenge_id', challengeId)
 
-    if (fetchError) return { error: fetchError.message }
+      if (!isLatest()) return
 
-    setCompletionsByChallenge((prev) => ({
-      ...prev,
-      [challengeId]: (data as unknown as GardenCompletion[] | null) ?? [],
-    }))
-    return { error: null }
+      if (fetchError) {
+        setCompletionsError((prev) => ({ ...prev, [challengeId]: fetchError.message }))
+        return
+      }
+
+      setCompletionsByChallenge((prev) => ({
+        ...prev,
+        [challengeId]: (data as unknown as GardenCompletion[] | null) ?? [],
+      }))
+    } catch (err) {
+      if (!isLatest()) return
+      const message = err instanceof Error ? err.message : 'Não foi possível carregar as conclusões agora.'
+      setCompletionsError((prev) => ({ ...prev, [challengeId]: message }))
+    }
   }, [])
 
-  /** Carrega participantes + conclusões de uma vez (aba "Progresso" do desafio). */
+  /**
+   * Carrega participantes + conclusões de uma vez (aba "Progresso" do
+   * desafio). Etapa X — ganhou o mesmo contador de sequência de `fetchDays`
+   * (`progressRequestSeq`): reabrir a aba ou clicar em "Tentar novamente"
+   * enquanto uma busca anterior ainda está em voo não deixa a resposta antiga
+   * desligar `progressLoading` por cima da busca mais nova.
+   */
   async function fetchProgress(challengeId: string) {
+    const seq = (progressRequestSeq.current[challengeId] ?? 0) + 1
+    progressRequestSeq.current[challengeId] = seq
+    const isLatest = () => progressRequestSeq.current[challengeId] === seq
+
     setProgressLoading((prev) => ({ ...prev, [challengeId]: true }))
-    await Promise.all([fetchParticipants(challengeId), fetchCompletions(challengeId)])
-    setProgressLoading((prev) => ({ ...prev, [challengeId]: false }))
+    setParticipantsError((prev) => ({ ...prev, [challengeId]: null }))
+    setCompletionsError((prev) => ({ ...prev, [challengeId]: null }))
+
+    await Promise.all([fetchParticipants(challengeId, seq), fetchCompletions(challengeId, seq)])
+
+    if (isLatest()) {
+      setProgressLoading((prev) => ({ ...prev, [challengeId]: false }))
+    }
   }
 
   async function publishDailyPost(
@@ -342,6 +439,8 @@ export function useGardenChallenges(communityId: string | null) {
     participantsByChallenge,
     completionsByChallenge,
     progressLoading,
+    participantsError,
+    completionsError,
     fetchProgress,
     publishDailyPost,
     refresh: fetchChallenges,

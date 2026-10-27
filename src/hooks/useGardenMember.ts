@@ -35,6 +35,18 @@ export function useGardenMember(communityId: string | null, profileId: string | 
   const [myEnrollments, setMyEnrollments] = useState<GardenEnrollment[]>([])
   const [myCompletions, setMyCompletions] = useState<GardenCompletion[]>([])
   const [mySharedCompletionIds, setMySharedCompletionIds] = useState<Set<string>>(new Set())
+  /**
+   * Etapa AA (Finding 2) — erro da última busca de inscrições/conclusões da
+   * própria participante dentro de `fetchAll`, mesmo papel de `daysError`:
+   * distingue "falhou ao carregar" de "carregou e realmente não há
+   * nenhuma". `null` = sem erro (nunca buscou, ainda carregando, ou
+   * carregou com sucesso). Dois estados porque são duas consultas
+   * independentes dentro do mesmo `fetchAll` — GardenMemberView.tsx decide
+   * como combiná-los na exibição (mesmo princípio de
+   * `participantsError`/`completionsError` em useGardenChallenges.ts).
+   */
+  const [enrollmentsError, setEnrollmentsError] = useState<string | null>(null)
+  const [completionsError, setCompletionsError] = useState<string | null>(null)
 
   const [daysByChallenge, setDaysByChallenge] = useState<Record<string, GardenChallengeDay[]>>({})
   const [daysLoading, setDaysLoading] = useState<Record<string, boolean>>({})
@@ -48,78 +60,135 @@ export function useGardenMember(communityId: string | null, profileId: string | 
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyError, setHistoryError] = useState<string | null>(null)
 
+  /**
+   * Etapa AA (Finding 1) — sequência da busca principal (não é estado — não
+   * precisa re-render). Sem chave por id porque há só UM fluxo de "tudo" por
+   * vez (diferente de `daysRequestSeq`, que é por desafio). Protege contra
+   * uma resposta antiga sobrescrever uma mais nova — ex.: clicar em "Tentar
+   * novamente" duas vezes rápido, ou `enroll()`/`completeDay()` chamando
+   * `fetchAll()` de novo enquanto uma chamada anterior (ou um retry manual)
+   * ainda está em voo.
+   */
+  const fetchAllRequestSeq = useRef(0)
+
   const fetchAll = useCallback(async () => {
     if (!communityId || !profileId) {
       setChallenges([])
       setMyEnrollments([])
       setMyCompletions([])
       setMySharedCompletionIds(new Set())
+      setEnrollmentsError(null)
+      setCompletionsError(null)
       setLoading(false)
       return
     }
+
+    const seq = ++fetchAllRequestSeq.current
+    const isLatest = () => fetchAllRequestSeq.current === seq
 
     setLoading(true)
     setError(null)
+    setEnrollmentsError(null)
+    setCompletionsError(null)
 
-    const { data, error: fetchError } = await supabase
-      .from('garden_challenges')
-      .select(CHALLENGE_SELECT)
-      .eq('community_id', communityId)
-      .order('starts_on', { ascending: true })
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('garden_challenges')
+        .select(CHALLENGE_SELECT)
+        .eq('community_id', communityId)
+        .order('starts_on', { ascending: true })
 
-    if (fetchError) {
-      setError(fetchError.message)
-      setChallenges([])
-      setLoading(false)
-      return
-    }
+      if (!isLatest()) return
 
-    const list = (data as unknown as GardenChallenge[] | null) ?? []
-    setChallenges(list)
+      if (fetchError) {
+        setError(fetchError.message)
+        setChallenges([])
+        return
+      }
 
-    if (list.length > 0) {
-      const challengeIds = list.map((c) => c.id)
+      const list = (data as unknown as GardenChallenge[] | null) ?? []
+      setChallenges(list)
 
-      const [enrollmentsResult, completionsResult] = await Promise.all([
-        supabase
-          .from('garden_enrollments')
-          .select('id,challenge_id,profile_id,enrolled_at')
-          .eq('profile_id', profileId)
-          .in('challenge_id', challengeIds),
-        supabase
-          .from('garden_completions')
-          .select('id,challenge_id,challenge_day_id,enrollment_id,profile_id,completed_at')
-          .eq('profile_id', profileId)
-          .in('challenge_id', challengeIds),
-      ])
+      if (list.length > 0) {
+        const challengeIds = list.map((c) => c.id)
 
-      const enrollments = (enrollmentsResult.data as unknown as GardenEnrollment[] | null) ?? []
-      const completions = (completionsResult.data as unknown as GardenCompletion[] | null) ?? []
-      setMyEnrollments(enrollments)
-      setMyCompletions(completions)
+        const [enrollmentsResult, completionsResult] = await Promise.all([
+          supabase
+            .from('garden_enrollments')
+            .select('id,challenge_id,profile_id,enrolled_at')
+            .eq('profile_id', profileId)
+            .in('challenge_id', challengeIds),
+          supabase
+            .from('garden_completions')
+            .select('id,challenge_id,challenge_day_id,enrollment_id,profile_id,completed_at')
+            .eq('profile_id', profileId)
+            .in('challenge_id', challengeIds),
+        ])
 
-      if (completions.length > 0) {
-        const { data: shareRows } = await supabase
-          .from('garden_shares')
-          .select('completion_id')
-          .eq('profile_id', profileId)
-          .in(
-            'completion_id',
-            completions.map((c) => c.id),
-          )
-        setMySharedCompletionIds(
-          new Set(((shareRows as { completion_id: string }[] | null) ?? []).map((r) => r.completion_id)),
-        )
+        if (!isLatest()) return
+
+        /**
+         * Etapa AA (Finding 2) — antes, `(result.data ?? [])` tratava um
+         * `.error` de qualquer uma das duas consultas exatamente como
+         * "zero inscrições"/"zero conclusões" — indistinguível de uma
+         * participante genuinamente sem nenhuma. Agora cada uma é checada e
+         * aplicada de forma independente: em caso de erro, o estado
+         * anterior (dados válidos de um `fetchAll` passado, ou vazio na
+         * primeira carga) é preservado — só o branch de sucesso chama os
+         * setters de dados, nunca o de erro.
+         */
+        if (enrollmentsResult.error) {
+          setEnrollmentsError(enrollmentsResult.error.message)
+        } else {
+          setMyEnrollments((enrollmentsResult.data as unknown as GardenEnrollment[] | null) ?? [])
+        }
+
+        if (completionsResult.error) {
+          setCompletionsError(completionsResult.error.message)
+        } else {
+          const completions = (completionsResult.data as unknown as GardenCompletion[] | null) ?? []
+          setMyCompletions(completions)
+
+          if (completions.length > 0) {
+            const { data: shareRows } = await supabase
+              .from('garden_shares')
+              .select('completion_id')
+              .eq('profile_id', profileId)
+              .in(
+                'completion_id',
+                completions.map((c) => c.id),
+              )
+            if (!isLatest()) return
+            setMySharedCompletionIds(
+              new Set(((shareRows as { completion_id: string }[] | null) ?? []).map((r) => r.completion_id)),
+            )
+          } else {
+            setMySharedCompletionIds(new Set())
+          }
+        }
       } else {
+        setMyEnrollments([])
+        setMyCompletions([])
         setMySharedCompletionIds(new Set())
       }
-    } else {
-      setMyEnrollments([])
-      setMyCompletions([])
-      setMySharedCompletionIds(new Set())
+    } catch (err) {
+      // Etapa AA (Finding 1) — exceção de verdade (rejeição de rede, etc.),
+      // não um {error} do PostgREST, em qualquer ponto do fluxo acima.
+      // Antes, nada aqui era capturado: `loading` ficava travado em `true`
+      // para sempre e a tela do Meu Jardim nunca saía de "Carregando Meu
+      // Jardim...". Tratada como falha do carregamento PRINCIPAL (mesmo
+      // canal de `error` que o `{error}` normal da consulta de desafios já
+      // usa) — reaproveita o botão "Tentar novamente" de tela cheia que já
+      // existe em GardenMemberView.tsx para esse estado, sem precisar de
+      // nenhuma UI nova.
+      if (!isLatest()) return
+      const message = err instanceof Error ? err.message : 'Não foi possível carregar o Meu Jardim agora.'
+      setError(message)
+    } finally {
+      if (isLatest()) {
+        setLoading(false)
+      }
     }
-
-    setLoading(false)
   }, [communityId, profileId])
 
   useEffect(() => {
@@ -302,6 +371,8 @@ export function useGardenMember(communityId: string | null, profileId: string | 
     myEnrollments,
     myCompletions,
     mySharedCompletionIds,
+    enrollmentsError,
+    completionsError,
     enroll,
     daysByChallenge,
     daysLoading,

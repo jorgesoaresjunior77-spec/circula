@@ -321,3 +321,234 @@ describe('useGardenMember.fetchHistory', () => {
     })
   })
 })
+
+/**
+ * Etapa AA — audita e corrige os Findings 1 e 2 da Etapa Z:
+ * - Finding 1: `fetchAll` (carregamento principal da participante) não
+ *   tinha `try/catch` nenhum — uma exceção de verdade (rejeição de rede)
+ *   deixava `loading` travado em `true` para sempre, sem erro nenhum.
+ * - Finding 2: `garden_enrollments`/`garden_completions` tinham seu
+ *   `.error` ignorado (`data ?? []`) — uma falha de consulta era
+ *   indistinguível de "realmente não há nenhuma".
+ * Mesmo padrão de mock desta suíte (Supabase real mockado, não o hook).
+ */
+describe('useGardenMember.fetchAll (Etapa AA)', () => {
+  beforeEach(() => {
+    fromMock.mockReset()
+  })
+
+  afterEach(() => {
+    cleanup()
+  })
+
+  const ENROLLMENT_ROW = {
+    id: 'enroll-1',
+    challenge_id: 'challenge-1',
+    profile_id: 'member-1',
+    enrolled_at: '2026-10-19T00:00:00.000Z',
+  }
+  const COMPLETION_ROW = {
+    id: 'completion-1',
+    challenge_id: 'challenge-1',
+    challenge_day_id: 'day-1',
+    enrollment_id: 'enroll-1',
+    profile_id: 'member-1',
+    completed_at: '2026-10-19T00:00:00.000Z',
+  }
+
+  describe('Finding 1 — exceção inesperada', () => {
+    it('1. exceção ao carregar os desafios: loading termina em false e error é preenchido (recuperável)', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainReject(new Error('Failed to fetch'))
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.loading).toBe(false)
+      expect(result.current.error).toBe('Failed to fetch')
+    })
+
+    it('usa uma mensagem padrão quando o valor lançado não é um Error de verdade', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainReject('algo quebrou, sem ser um Error')
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.error).toBe('Não foi possível carregar o Meu Jardim agora.')
+      expect(result.current.loading).toBe(false)
+    })
+  })
+
+  describe('Finding 2 — erros de inscrições/conclusões distintos de lista vazia', () => {
+    it('2. erro ao carregar inscrições: enrollmentsError preenchido, não tratado como "não inscrita"', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainResult({ data: [{ id: 'challenge-1' }], error: null })
+        if (table === 'garden_enrollments') {
+          return chainResult({ data: null, error: { message: 'permission denied' } })
+        }
+        if (table === 'garden_completions') return chainResult({ data: [], error: null })
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.enrollmentsError).toBe('permission denied')
+      expect(result.current.loading).toBe(false)
+    })
+
+    it('3. erro ao carregar conclusões: completionsError preenchido, não tratado como "nenhum dia concluído"', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainResult({ data: [{ id: 'challenge-1' }], error: null })
+        if (table === 'garden_enrollments') return chainResult({ data: [], error: null })
+        if (table === 'garden_completions') {
+          return chainResult({ data: null, error: { message: 'timeout' } })
+        }
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.completionsError).toBe('timeout')
+      expect(result.current.loading).toBe(false)
+    })
+
+    it('5. falha em inscrições com conclusões válidas: os dados válidos de conclusões são preservados', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainResult({ data: [{ id: 'challenge-1' }], error: null })
+        if (table === 'garden_enrollments') {
+          return chainResult({ data: null, error: { message: 'permission denied' } })
+        }
+        if (table === 'garden_completions') return chainResult({ data: [COMPLETION_ROW], error: null })
+        if (table === 'garden_shares') return chainResult({ data: [], error: null })
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.enrollmentsError).toBe('permission denied')
+      expect(result.current.completionsError).toBeNull()
+      expect(result.current.myCompletions).toEqual([COMPLETION_ROW])
+    })
+
+    it('6. falha em conclusões com inscrições válidas: as inscrições válidas são preservadas', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainResult({ data: [{ id: 'challenge-1' }], error: null })
+        if (table === 'garden_enrollments') return chainResult({ data: [ENROLLMENT_ROW], error: null })
+        if (table === 'garden_completions') {
+          return chainResult({ data: null, error: { message: 'timeout' } })
+        }
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.completionsError).toBe('timeout')
+      expect(result.current.enrollmentsError).toBeNull()
+      expect(result.current.myEnrollments).toEqual([ENROLLMENT_ROW])
+    })
+
+    it('7. falha simultânea nas duas consultas: as duas são registradas de forma independente', async () => {
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainResult({ data: [{ id: 'challenge-1' }], error: null })
+        if (table === 'garden_enrollments') {
+          return chainResult({ data: null, error: { message: 'erro de inscrições' } })
+        }
+        if (table === 'garden_completions') {
+          return chainResult({ data: null, error: { message: 'erro de conclusões' } })
+        }
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+
+      expect(result.current.enrollmentsError).toBe('erro de inscrições')
+      expect(result.current.completionsError).toBe('erro de conclusões')
+    })
+
+    it('8. nova tentativa bem-sucedida: enrollmentsError desaparece e myEnrollments é atualizado', async () => {
+      let enrollmentsCall = 0
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') return chainResult({ data: [{ id: 'challenge-1' }], error: null })
+        if (table === 'garden_enrollments') {
+          enrollmentsCall += 1
+          return enrollmentsCall === 1
+            ? chainResult({ data: null, error: { message: 'permission denied' } })
+            : chainResult({ data: [ENROLLMENT_ROW], error: null })
+        }
+        if (table === 'garden_completions') return chainResult({ data: [], error: null })
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+      await act(async () => {})
+      expect(result.current.enrollmentsError).toBe('permission denied')
+
+      await act(async () => {
+        await result.current.refresh()
+      })
+
+      expect(result.current.enrollmentsError).toBeNull()
+      expect(result.current.myEnrollments).toEqual([ENROLLMENT_ROW])
+    })
+  })
+
+  describe('Concorrência', () => {
+    it('9. solicitações sobrepostas: uma resposta antiga de fetchAll não sobrescreve o resultado de uma chamada mais nova', async () => {
+      let resolveFirstChallenges: (value: { data: unknown; error: unknown }) => void = () => {}
+      const pendingChallengesBuilder: {
+        select: ReturnType<typeof vi.fn>
+        eq: ReturnType<typeof vi.fn>
+        order: ReturnType<typeof vi.fn>
+        then: (resolve: (value: { data: unknown; error: unknown }) => void) => Promise<void>
+      } = {
+        select: vi.fn(),
+        eq: vi.fn(),
+        order: vi.fn(),
+        then: (resolve) =>
+          new Promise<{ data: unknown; error: unknown }>((res) => {
+            resolveFirstChallenges = res
+          }).then(resolve),
+      }
+      pendingChallengesBuilder.select.mockReturnValue(pendingChallengesBuilder)
+      pendingChallengesBuilder.eq.mockReturnValue(pendingChallengesBuilder)
+      pendingChallengesBuilder.order.mockReturnValue(pendingChallengesBuilder)
+
+      let challengesCall = 0
+      fromMock.mockImplementation((table: string) => {
+        if (table === 'garden_challenges') {
+          challengesCall += 1
+          return challengesCall === 1
+            ? pendingChallengesBuilder
+            : chainResult({ data: [{ id: 'challenge-2' }], error: null })
+        }
+        if (table === 'garden_enrollments') return chainResult({ data: [], error: null })
+        if (table === 'garden_completions') return chainResult({ data: [], error: null })
+        throw new Error(`tabela inesperada nesta consulta: ${table}`)
+      })
+
+      const { result } = renderHook(() => useGardenMember('community-1', 'member-1'))
+
+      // A 1ª busca (do mount) fica pendurada; dispara a 2ª manualmente antes dela terminar.
+      await act(async () => {
+        await result.current.refresh()
+      })
+      expect(result.current.challenges).toEqual([{ id: 'challenge-2' }])
+
+      // Resolve a 1ª (obsoleta) DEPOIS — não pode sobrescrever o resultado da 2ª.
+      await act(async () => {
+        resolveFirstChallenges({ data: [{ id: 'challenge-1-stale' }], error: null })
+      })
+      expect(result.current.challenges).toEqual([{ id: 'challenge-2' }])
+    })
+  })
+})
