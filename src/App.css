@@ -13554,6 +13554,10 @@ button.card:focus-visible {
 
 .exp-track {
   display: flex;
+  /* Sem isto, a cópia do ciclo (.exp-seq seguinte) encosta direto no
+     último card da cópia anterior — zero espaço na emenda, "colando"
+     os dois, porque o `gap` abaixo só vale DENTRO de cada .exp-seq. */
+  gap: var(--space-4);
   width: max-content;
   padding-block: var(--space-2) var(--space-3);
 }
@@ -13696,6 +13700,18 @@ button.card:focus-visible {
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.55);
 }
 
+/* Pedido do usuário — escrita sempre branca (acima, já valia) também
+   precisa de contraste no fundo mesmo quando NÃO há foto (tinta sólida
+   clara: rosa/areia/etc.) — sem isto o branco quase não lê sobre essas
+   cores claras. Mesma sombra degradê de `.exp-card--photo`, só que sem
+   depender da classe `--photo`: aqui vale pra TODO card desta faixa. */
+.exp-strip--hoje .exp-card-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(35, 30, 28, 0.5) 0%, rgba(35, 30, 28, 0.08) 44%, rgba(35, 30, 28, 0) 68%);
+}
+
 /* Correção pontual — faixa "No Instagram" (HomeInstagramStrip.tsx): a
    frase é o único texto sobre a foto (sem .exp-card-meta por baixo), e
    vem de um campo livre cadastrado pela Profissional, sem limite de
@@ -13812,12 +13828,13 @@ button.card:focus-visible {
 
 .circ-strip {
   min-width: 0;
-  /* Reorganização da Home (item 4) — aproxima um pouco de "Círcula
-     Hoje" (seção anterior, sem título próprio), puxando contra o
-     gap uniforme de `.home` (--space-7). Não mexe no gap seguinte
+  /* Reorganização da Home (item 4) — aproxima de "Círcula Hoje" (seção
+     anterior, sem título próprio), puxando contra o gap uniforme de
+     `.home` (--space-7). Pedido explícito do usuário para aproximar
+     ainda mais: de --space-4 para --space-6. Não mexe no gap seguinte
      (Círculos -> "No Instagram" continua no mesmo --space-7 de
      sempre — mesma proporção/padrão de espaçamento entre as duas). */
-  margin-top: calc(-1 * var(--space-4));
+  margin-top: calc(-1 * var(--space-6));
 }
 
 .circ-strip-title {
@@ -13846,6 +13863,9 @@ button.card:focus-visible {
 
 .circ-track {
   display: flex;
+  /* Mesma correção de .exp-track — sem isto a emenda entre cópias do
+     ciclo "cola" o último card de uma na primeira da próxima. */
+  gap: var(--space-4);
   width: max-content;
   padding: var(--space-1) 0 var(--space-3);
 }
@@ -13917,8 +13937,11 @@ button.card:focus-visible {
   transition: transform var(--dur-slow) var(--ease-out);
 }
 
-/* overlay extremamente sutil, so nos cards com foto */
-.circ-card--photo .circ-card-frame::after {
+/* Pedido do usuário — escrita sempre branca (ver .circ-card-title/-meta
+   abaixo) precisa de contraste mesmo nos cards sem foto (tinta sólida
+   clara) — por isso a sombra degradê agora vale pra TODO card, não só
+   `--photo`. */
+.circ-card-frame::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -13967,8 +13990,14 @@ button.card:focus-visible {
   font-weight: var(--display-weight);
   font-size: clamp(14px, 1.3vw, 17px);
   line-height: 1.14;
-  color: var(--graphite);
-  opacity: 0.94;
+  /* Pedido do usuário — sempre branca (antes só sobre foto), com o
+     mesmo contorno fininho + sombra que já garantia leitura sobre foto;
+     combinada com o degradê de .circ-card-frame::after (agora também
+     sem depender de --photo), lê bem sobre qualquer tinta de fundo. */
+  color: var(--c-white);
+  opacity: 0.96;
+  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
+  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
   transition: opacity var(--dur) var(--ease);
 }
 
@@ -13976,25 +14005,12 @@ button.card:focus-visible {
   margin-top: var(--space-1);
   font-size: 11.5px;
   font-weight: 300;
-  color: var(--graphite-soft);
-  /* discreto de partida, nunca oculto — realca no hover */
-  opacity: 0.6;
-  transition: opacity var(--dur) var(--ease);
-}
-
-.circ-card--photo .circ-card-title {
-  color: var(--c-white);
-  opacity: 0.96;
-  /* Ajustes visuais (item 2) — mesmo contorno fininho do .exp-card--photo,
-     somado ao text-shadow já existente. */
-  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
-  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
-}
-
-.circ-card--photo .circ-card-meta {
   color: rgba(255, 255, 255, 0.9);
   -webkit-text-stroke: 0.3px rgba(20, 16, 14, 0.45);
   text-shadow: 0 1px 5px rgba(35, 30, 28, 0.4);
+  /* discreto de partida, nunca oculto — realca no hover */
+  opacity: 0.6;
+  transition: opacity var(--dur) var(--ease);
 }
 
 @media (hover: hover) {

@@ -1,15 +1,26 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 
-// Rolagem infinita MANUAL dos carrosséis horizontais da capa
+// Rolagem infinita dos carrosséis horizontais da capa
 // (HomeExperienceStrip · "Seu Círcula de Hoje" e HomeCirclesSection ·
-// "Círculos"). Uma implementação só, compartilhada pelas duas faixas —
-// antes cada uma tinha o seu mecanismo, e os dois eram de AUTOPLAY
-// (marquee por requestAnimationFrame num caso, vaivém no outro).
+// "Círculos"). Uma implementação só, compartilhada pelas duas faixas.
 //
-// O que mudou e por quê:
-//   · Nenhum movimento automático. Nada se move sem a pessoa mover —
-//     sem autoplay, sem animação, sem vaivém. O rAF saiu por completo.
+// Movimento automático (marquee) — pedido explícito do usuário: os
+// cards avançam sozinhos, sempre no mesmo sentido (nunca vaivém), e só
+// param enquanto o mouse estiver sobre a faixa (desktop) ou o dedo
+// estiver tocando-a (mobile); ao soltar/afastar, o movimento retoma.
+// Roda via `requestAnimationFrame` incrementando `scrollLeft` a um
+// ritmo fixo (px/s, independente do framerate) — NUNCA a mesma causa do
+// bug antigo de cards duplicados (aquele era um `exp-seq` clonado fora
+// do mecanismo de ciclo abaixo, sem o `wrap()` que mantém a cópia
+// visível sempre centrada). Aqui o autoplay só gira o MESMO `scrollLeft`
+// que o arrasto/scroll nativo já usa, e chama o mesmo `wrap()` — por
+// isso nunca há duas cópias visíveis ao mesmo tempo. Desliga por
+// completo quando a sequência cabe inteira na viewport (`loop` falso —
+// não há para onde avançar) e quando a pessoa prefere menos movimento
+// (`prefers-reduced-motion: reduce`).
+//
+// O que mudou e por quê (ciclo contínuo, herdado da versão anterior):
 //   · Ciclo contínuo nos DOIS sentidos: a sequência é renderizada 3x e
 //     a posição de rolagem é mantida sempre na cópia do meio. Ao passar
 //     de meia sequência para qualquer lado, somamos/subtraímos
@@ -35,6 +46,14 @@ import type { RefObject } from 'react'
 /** Distância (px) a partir da qual o gesto é arrasto, não clique. */
 const DRAG_THRESHOLD = 4
 
+/** Ritmo do avanço automático — calmo, não deve parecer "correria". */
+const AUTOPLAY_PX_PER_SEC = 32
+
+/** Pausa residual (ms) após soltar o toque, antes de retomar — dá tempo
+ *  da inércia nativa do swipe (scroll momentum) assentar, evitando que
+ *  o autoplay e a inércia disputem o mesmo `scrollLeft` ao mesmo tempo. */
+const RESUME_AFTER_TOUCH_MS = 400
+
 export interface DragCarousel {
   /** Contêiner que rola (`overflow-x: auto`). */
   viewportRef: RefObject<HTMLDivElement | null>
@@ -54,6 +73,19 @@ export function useDragCarousel(itemCount: number): DragCarousel {
   const centeredRef = useRef(false)
   const [loop, setLoop] = useState(false)
   const [dragging, setDragging] = useState(false)
+  /** Espelha `loop` em ref — o efeito do autoplay roda uma única vez
+   *  (deps `[]`, junto do arrasto) e precisa ler o valor mais recente
+   *  dentro do próprio `requestAnimationFrame`, sem recriar listeners a
+   *  cada vez que `loop` muda. */
+  const loopRef = useRef(false)
+  /** Autoplay pausado — mouse sobre a faixa (desktop) ou dedo tocando
+   *  (mobile). Ref, não estado: muda a cada quadro potencialmente, não
+   *  precisa (e não deve) re-renderizar o componente. */
+  const pausedRef = useRef(false)
+
+  useEffect(() => {
+    loopRef.current = loop
+  }, [loop])
 
   // Medida: a sequência excede a viewport? É o único gatilho do ciclo
   // (e, portanto, das cópias no DOM). Quando liga, a posição inicial
@@ -114,6 +146,47 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     let lastX = 0
     let travelled = 0
     let swallowClick = false
+    let resumeTimer: ReturnType<typeof setTimeout> | null = null
+
+    const pauseAutoplay = () => {
+      if (resumeTimer !== null) {
+        clearTimeout(resumeTimer)
+        resumeTimer = null
+      }
+      pausedRef.current = true
+    }
+
+    const resumeAutoplay = (delayMs = 0) => {
+      if (resumeTimer !== null) clearTimeout(resumeTimer)
+      if (delayMs <= 0) {
+        pausedRef.current = false
+        return
+      }
+      resumeTimer = setTimeout(() => {
+        pausedRef.current = false
+        resumeTimer = null
+      }, delayMs)
+    }
+
+    // Desktop: o mouse só precisa estar sobre a faixa, sem precisar
+    // clicar, para pausar o avanço automático.
+    const onPointerEnter = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') pauseAutoplay()
+    }
+    const onPointerLeave = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') resumeAutoplay()
+    }
+
+    // Mobile: o toque pausa ao encostar o dedo; ao soltar, dá uma folga
+    // (RESUME_AFTER_TOUCH_MS) antes de retomar, pra não disputar o
+    // `scrollLeft` com a inércia do swipe que o navegador continua
+    // aplicando por conta própria depois do dedo já ter saído.
+    const onTouchStart = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') pauseAutoplay()
+    }
+    const onTouchEnd = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') resumeAutoplay(RESUME_AFTER_TOUCH_MS)
+    }
 
     const onPointerDown = (event: PointerEvent) => {
       // Toque e caneta: rolagem nativa (com inércia). Só o mouse, que
@@ -170,6 +243,37 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       if (activePointer === null) wrap()
     }
 
+    // Avanço automático — só existe se a pessoa não pedir menos
+    // movimento; a verificação é feita uma vez (não reage a uma troca
+    // de preferência em tempo real, o mesmo compromisso já aceito pelas
+    // transições em CSS do resto do app).
+    // `matchMedia` não existe em todo ambiente (ex.: jsdom nos testes,
+    // sem polyfill) — sem a checagem, o efeito inteiro lançava e os
+    // testes quebravam antes de chegar a qualquer asserção.
+    const allowMotion =
+      typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let rafId: number | null = null
+    let lastFrameTime: number | null = null
+
+    const tick = (time: number) => {
+      if (lastFrameTime === null) lastFrameTime = time
+      const deltaSeconds = (time - lastFrameTime) / 1000
+      lastFrameTime = time
+
+      if (loopRef.current && !pausedRef.current && activePointer === null) {
+        viewport.scrollLeft += AUTOPLAY_PX_PER_SEC * deltaSeconds
+        wrap()
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+
+    if (allowMotion) rafId = requestAnimationFrame(tick)
+
+    viewport.addEventListener('pointerenter', onPointerEnter)
+    viewport.addEventListener('pointerleave', onPointerLeave)
+    viewport.addEventListener('pointerdown', onTouchStart)
+    viewport.addEventListener('pointerup', onTouchEnd)
+    viewport.addEventListener('pointercancel', onTouchEnd)
     viewport.addEventListener('pointerdown', onPointerDown)
     viewport.addEventListener('pointermove', onPointerMove)
     viewport.addEventListener('pointerup', endDrag)
@@ -179,6 +283,13 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     viewport.addEventListener('scroll', onScroll, { passive: true })
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      if (resumeTimer !== null) clearTimeout(resumeTimer)
+      viewport.removeEventListener('pointerenter', onPointerEnter)
+      viewport.removeEventListener('pointerleave', onPointerLeave)
+      viewport.removeEventListener('pointerdown', onTouchStart)
+      viewport.removeEventListener('pointerup', onTouchEnd)
+      viewport.removeEventListener('pointercancel', onTouchEnd)
       viewport.removeEventListener('pointerdown', onPointerDown)
       viewport.removeEventListener('pointermove', onPointerMove)
       viewport.removeEventListener('pointerup', endDrag)
