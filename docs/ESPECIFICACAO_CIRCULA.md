@@ -169,6 +169,8 @@ A pergunta aparece no feed como uma publicação especial da comunidade.
 
 ## 6. Sistema de Desafios
 
+> **Nota de implementação (2026-10):** este requisito foi implementado pela primeira vez via `community_challenges`/`challenge_activities` (ver "Etapa concluída: FASE 3 — Desafios" e "Etapa concluída: Fase 6 — Desafios enriquecidos"), e essa implementação foi **removida do banco de produção** pelas migrations `20261007120000_remove_challenges_points_fields_from_shared_functions.sql` e `20261008120000_remove_challenges_points_tables_etapa_b.sql` (ambas aplicadas). O requisito em si continua válido e hoje é atendido pelo módulo **Meu Jardim** (ver "Módulo Meu Jardim — desafios de atividades diárias").
+
 A dona da comunidade poderá criar desafios.
 
 Exemplo:
@@ -192,6 +194,8 @@ O sistema libera automaticamente uma atividade por dia.
 As participantes podem marcar "Concluído" e acompanhar seu progresso.
 
 ## 7. Desafios Coletivos
+
+> **Nota de implementação (2026-10):** mesma observação da seção 6 — a implementação original (`community_challenges`) foi removida do banco (migrations `20261007120000`/`20261008120000`, aplicadas); o módulo **Meu Jardim** é quem atende este requisito hoje (participantes/progresso por desafio).
 
 Os desafios devem mostrar quantas mulheres estão participando.
 
@@ -1084,6 +1088,8 @@ Objetivo: tornar o destino "Início" uma Home realmente rica em dados reais, sem
 
 ## Etapa concluída: Fase 6 — Desafios enriquecidos
 
+> **REMOVIDO (2026-10).** As tabelas e funções descritas nesta seção (`community_challenges`, `challenge_activities`, `challenge_progress`, `challenge_completions` e as colunas de pontos associadas) foram **excluídas do banco de produção** pelas migrations `20261007120000_remove_challenges_points_fields_from_shared_functions.sql` e `20261008120000_remove_challenges_points_tables_etapa_b.sql` (ambas aplicadas, confirmadas via `supabase migration list --linked`). O código correspondente no frontend também não existe mais. Esta seção permanece como registro histórico da decisão e do trabalho feito na época; a funcionalidade de desafios hoje é provida pelo módulo **Meu Jardim** (ver seção própria), que não reutiliza nenhuma destas tabelas.
+
 Enriquece os Desafios (seções 6 e 7) sem trocar o mecanismo já validado na FASE 3: **cada dia continua sendo uma linha em `challenge_activities` com `content` próprio** (Dia 1 "beber 2 litros de água", Dia 2 "caminhar 30 minutos"…). O que a Fase 6 acrescenta: capa, período real com início/fim, edição das atividades pela Nutri, registro de conclusão por participante e **a estrutura (só as colunas) do sistema de pontos** — a pontuação em si é exclusivamente da Fase 7.
 
 **Decisões aprovadas pelo usuário antes da implementação:**
@@ -1204,6 +1210,8 @@ Os desafios de teste criados durante a validação ("F6 TESTE 1 dia" e "F6 TESTE
 3. Teste negativo de isolamento entre comunidades (precisa de uma segunda comunidade real autorizada).
 
 ## Etapa em revisão: Fase 7 — Sistema de pontos (código pronto, migration NÃO aplicada)
+
+> **REMOVIDO (2026-10).** A migration `20260904120000_points_system.sql` descrita nesta seção **nunca foi aplicada** e não deve mais ser aplicada — as tabelas de que ela dependia (`community_challenges`, `challenge_completions`, `challenge_progress`) foram excluídas do banco de produção pelas migrations `20261007120000_remove_challenges_points_fields_from_shared_functions.sql` e `20261008120000_remove_challenges_points_tables_etapa_b.sql` (ambas aplicadas). Os arquivos de frontend citados abaixo (`src/types/points.ts`, `usePoints.ts`, `PointsWidget.tsx`, `PointsHistory.tsx`, `PointsPanel.tsx`) não existem mais no código. Esta seção permanece como registro histórico do desenho que foi aprovado e depois descontinuado — nenhuma funcionalidade de pontos existe hoje no produto.
 
 Sistema real de pontos **por comunidade**, com saldo, histórico append-only auditável e preparação para descontos futuros na loja. **Resgate NÃO faz parte desta fase** — nenhum checkout / produto / desconto é tocado.
 
@@ -2244,7 +2252,9 @@ Nenhuma policy, grant, Edge Function, migration, dado real. O achado sobre o GRA
 - Cobertura completa de `public.messages` continua pendente (registrado desde a P1-F1).
 - **Achado operacional para decisão do time** (fora do escopo de RLS): `service_role` não tem GRANT de SELECT em `webhook_events`, quebrando o UPDATE de `processed_at` em `asaas-webhook/index.ts` (linhas 673-680) e a checagem de idempotência em retry (linhas 571-575) — ver auditoria acima.
 
-## Módulo Meu Jardim — desafios de atividades diárias (2026-10; base commitada, aba "Publicar incentivo" e roda de duas camadas ainda locais sem commit)
+> **Atualização (2026-10): corrigido.** A migration `supabase/migrations/20260928120000_webhook_events_service_role_select.sql` concede o GRANT de SELECT faltante ao `service_role` nesta tabela. Confirmado via `supabase migration list --linked` que esta migration já está aplicada ao banco remoto. O achado operacional acima ("não corrigido") está desatualizado — a correção já existe e já foi aplicada; não foi reconfirmado nesta atualização se o comportamento do `asaas-webhook` em produção já reflete o GRANT corrigido (isso dependeria de reler o código/logs da função, fora do escopo desta correção documental).
+
+## Módulo Meu Jardim — desafios de atividades diárias (2026-10; base, aba "Publicar incentivo" e roda de duas camadas — tudo commitado e publicado)
 
 Desafios de atividades diárias dentro de uma comunidade: a Professional cria e gerencia o desafio, a Member se inscreve e completa dias liberados, compartilha conclusões no feed, e a Professional pode publicar uma mensagem de incentivo (com apoio de templates visuais e biblioteca estática de sugestões) através de um RPC já existente, sem nenhuma mudança de schema.
 
@@ -2255,13 +2265,19 @@ Desafios de atividades diárias dentro de uma comunidade: a Professional cria e 
 
 Estes três commits estão fechados e, segundo validação já registrada em sessão anterior, considerados concluídos.
 
-### Estado local NÃO commitado (nesta sessão, working tree)
-Ainda sem commit — não deve ser descrito como publicado/em produção:
+**Atualização (2026-10-27): commitado e publicado.** Os recursos abaixo, registrados nesta seção como trabalho local da sessão, foram desde então consolidados em três novos commits e enviados ao `origin/main`:
+- `b15d44d` — fix: reforça robustez e concorrência no Meu Jardim.
+- `4921304` — feat: adiciona incentivos e roda de jornada ao Meu Jardim.
+- `d57bbb7` — docs: documenta o módulo Meu Jardim.
+
+O deploy automático (GitHub Actions → GitHub Pages) desse push foi confirmado com sucesso, no SHA exato de `d57bbb7`. A lista de arquivos abaixo é mantida como registro do que cada recurso envolveu; "não rastreado"/"não commitado" descreve o estado da sessão em que foi escrito, não o estado atual.
+
+### Arquivos envolvidos (commitados em `b15d44d`/`4921304`)
 - Aba "Publicar incentivo" dentro de `GardenChallengeManager.tsx` (visão da Professional): seletor de 6 templates de tom, biblioteca estática de mensagens sugeridas, pré-visualização e publicação do incentivo.
-- `src/components/GardenIncentiveTemplates.tsx` (novo, não rastreado) — componentes `GardenIncentiveCard` (pré-visualização) e `GardenIncentiveMessageLibrary` (lista de sugestões).
-- `src/components/GardenJourneyRing.tsx` (novo, não rastreado) — roda de jornada em duas camadas, usada em `GardenMemberView.tsx` junto da `GardenProgressWheel` já commitada.
+- `src/components/GardenIncentiveTemplates.tsx` — componentes `GardenIncentiveCard` (pré-visualização) e `GardenIncentiveMessageLibrary` (lista de sugestões).
+- `src/components/GardenJourneyRing.tsx` — roda de jornada em duas camadas, usada em `GardenMemberView.tsx` junto da `GardenProgressWheel` já commitada anteriormente.
 - Ajustes em `src/types/garden.ts`, `src/hooks/useGardenChallenges.ts`, `src/hooks/useGardenMember.ts`, `src/components/GardenMemberView.tsx`, `src/App.css` que dão suporte ao que está acima.
-- Testes novos, não commitados: `GardenChallengeManager.test.tsx`, `GardenIncentiveTemplates.test.tsx`, `GardenJourneyRing.test.tsx`, `useGardenChallenges.test.ts` (mais ampliações em `GardenMemberView.test.tsx`/`useGardenMember.test.ts`/`garden.test.ts`, que já existiam e foram estendidos).
+- Testes: `GardenChallengeManager.test.tsx`, `GardenIncentiveTemplates.test.tsx`, `GardenJourneyRing.test.tsx`, `useGardenChallenges.test.ts` (mais ampliações em `GardenMemberView.test.tsx`/`useGardenMember.test.ts`/`garden.test.ts`, que já existiam e foram estendidos).
 
 ### Gestão de desafios pela Professional (`useGardenChallenges.ts`)
 CRUD de desafio (`createChallenge`/`updateChallenge`), geração de dias só em rascunho (`generateDays` → RPC `garden_generate_challenge_days`), publicação (`publishChallenge` → RPC `garden_publish_challenge`), arquivamento (`archiveChallenge`) e exclusão (`deleteChallenge`, bloqueada no banco por FK `RESTRICT` quando já há histórico — erro Postgres `23503` traduzido para mensagem amigável). Participantes/progresso (`fetchProgress`) carregam inscrições (`garden_enrollments`) e conclusões (`garden_completions`) do desafio sob demanda.
@@ -2269,10 +2285,10 @@ CRUD de desafio (`createChallenge`/`updateChallenge`), geração de dias só em 
 ### Participação e progresso dos membros (`useGardenMember.ts`)
 `fetchAll` lista os desafios publicados da comunidade (a RLS já restringe o SELECT, o cliente não repete o filtro), as inscrições/conclusões da própria pessoa e quais conclusões já foram compartilhadas (`mySharedCompletionIds`, usado para bloquear compartilhamento duplicado na UI). `enroll` é tolerante a "já inscrita" (mesmo padrão de `useEvents.rsvp`). `completeDay` chama o RPC `garden_complete_day`; `shareCompletion` chama `garden_share_completion`. "Meu histórico" (`fetchHistory`, sob demanda) é construído só a partir do snapshot congelado em `garden_shares` — nunca reconsulta `garden_challenges`/`garden_challenge_days` de um desafio já arquivado, porque a RLS bloqueia esse SELECT para uma Member comum.
 
-### Roda de jornada em duas camadas (`GardenJourneyRing.tsx` — local, não commitado)
+### Roda de jornada em duas camadas (`GardenJourneyRing.tsx` — commitado em `4921304`, publicado)
 Anel interno = progresso do desafio atual (mesma lógica/proporção da `GardenProgressWheel` já commitada, que continua sendo usada isoladamente no snapshot do Feed e em "Meu histórico", onde só essa camada faz sentido). Anel externo = jornada acumulada no Círcula, somando dias concluídos em desafios publicados abertos (`useGardenMember`) com os de desafios arquivados compartilhados (histórico via `garden_shares`) — `computeGardenJourneyStats`/`formatGardenJourneySummary` em `types/garden.ts`. A camada externa usa uma escala DECLARADA (1 dia concluído = 1% visual, até um teto de 100 dias) e nunca exibe percentual dela própria — só a contagem real ("X dias · Y desafios concluídos") — justamente para não insinuar uma meta que não existe. Limitação registrada no próprio código: um desafio arquivado concluído mas nunca compartilhado não entra nessa soma, porque a RLS não permite reler o total de dias de um desafio não publicado sem esse registro de compartilhamento.
 
-### Templates visuais e biblioteca estática de mensagens de incentivo (local, não commitado)
+### Templates visuais e biblioteca estática de mensagens de incentivo (commitado em `4921304`, publicado)
 Seis categorias de tom em `GARDEN_INCENTIVE_TEMPLATES` (`types/garden.ts`): motivação, reflexão, conquista, hábito, acolhimento, celebração — não são "templates originais" de alguma referência visual anterior (confirmado: nenhuma referência recuperável existe no projeto); são categorias aprovadas nesta etapa. `GARDEN_INCENTIVE_MESSAGE_LIBRARY` traz 4 sugestões de mensagem por categoria, texto estático escrito nesta etapa **sem IA ou serviço externo** — consistente com a regra de produto de que o Círcula nunca gera conteúdo por IA (ver "Regras de Produto" e "Automações sem IA" no topo deste documento). As mensagens nunca afirmam algo específico sobre uma participante, não fazem promessa de emagrecimento/alegação médica e não inventam nome/resultado. Escolher um template ou consultar a biblioteca nunca chama o Supabase; aplicar uma sugestão (`onApply`) só preenche o campo de texto, que continua 100% editável.
 
 ### Pré-visualização e publicação de incentivo via RPC existente
@@ -2293,8 +2309,8 @@ Buscas de dias (`daysRequestSeq`) e de participantes/conclusões (`progressReque
 A validação visual manual em navegador da aba "Publicar incentivo" (seleção de template, seleção de mensagem da biblioteca, edição, atualização da pré-visualização, cancelamento de substituição, exibição de erros) **não foi realizada** — nem nesta sessão, nem confirmada em sessão anterior. Bloqueio identificado e registrado nesta mesma sessão: o ambiente local (`.env.local`, lido por `src/lib/supabase.ts`) aponta para o único projeto Supabase existente (`kdqtanqywjpwbnjedafn.supabase.co`) — o mesmo usado pela aplicação real, sem `.env` alternativo nem projeto de staging configurado. Sem um ambiente isolado de teste confirmado, a validação manual em navegador foi deliberadamente não realizada, aguardando autorização explícita sobre como proceder (por exemplo, validação só de leitura/visual sem clicar em "Publicar"). Risco adicional registrado para quando essa validação for autorizada: o passo de cancelar a substituição de mensagem depende de `window.confirm` (diálogo nativo do navegador), que pode interromper uma sessão de automação de navegador.
 
 ### Pendências
-- Decidir se/quando commitar a aba "Publicar incentivo", a roda de duas camadas e os testes novos listados acima — hoje só existem no working tree local.
-- Validação manual em navegador da aba "Publicar incentivo", condicionada à decisão sobre ambiente de teste (ver limitação acima).
+- ~~Decidir se/quando commitar a aba "Publicar incentivo", a roda de duas camadas e os testes novos listados acima~~ — **resolvido em 2026-10-27**: commitado (`b15d44d`/`4921304`/`d57bbb7`) e publicado.
+- Validação manual em navegador da aba "Publicar incentivo" — **continua pendente**, condicionada à decisão sobre ambiente de teste (ver limitação acima). Não foi realizada nesta correção documental.
 - Persistir qual template foi escolhido exigiria coluna nova — fora deste ciclo (decisão já registrada no código, não uma pendência ativa).
 
 ### Sem alteração de Supabase, banco, migrations, RLS ou autenticação nesta etapa. Sem commit, sem push, sem deploy.
