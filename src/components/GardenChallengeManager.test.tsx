@@ -707,6 +707,140 @@ describe('GardenChallengeManager — lista de desafios (Etapa R)', () => {
   })
 })
 
+describe('GardenChallengeManager — erro de ação (publish/archive/delete) associado ao desafio (Etapa AD)', () => {
+  afterEach(() => {
+    cleanup()
+    vi.clearAllMocks()
+  })
+
+  it('erro de publicação por ausência de dias aparece junto ao desafio, como alerta acessível', async () => {
+    const publishChallenge = vi.fn().mockResolvedValue({ error: 'Cadastre pelo menos um dia antes de publicar.' })
+    mockApi({ challenges: [DRAFT_CHALLENGE], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+
+    await vi.waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('Cadastre pelo menos um dia antes de publicar.'),
+    )
+    const row = screen.getByText(DRAFT_CHALLENGE.title).closest('.panel-events-item') as HTMLElement
+    expect(within(row).getByRole('alert')).toHaveTextContent('Cadastre pelo menos um dia antes de publicar.')
+  })
+
+  it('erro de permissão ("not_authorized" já traduzido) aparece junto ao desafio', async () => {
+    const publishChallenge = vi.fn().mockResolvedValue({ error: 'Você não tem permissão para esta ação.' })
+    mockApi({ challenges: [DRAFT_CHALLENGE], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+
+    await vi.waitFor(() => expect(screen.getByText('Você não tem permissão para esta ação.')).toBeInTheDocument())
+  })
+
+  it('erro de status incompatível ("challenge_not_draft" já traduzido) aparece junto ao desafio', async () => {
+    const publishChallenge = vi
+      .fn()
+      .mockResolvedValue({ error: 'Só é possível fazer isso enquanto o desafio está em rascunho.' })
+    mockApi({ challenges: [DRAFT_CHALLENGE], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+
+    await vi.waitFor(() =>
+      expect(screen.getByText('Só é possível fazer isso enquanto o desafio está em rascunho.')).toBeInTheDocument(),
+    )
+  })
+
+  it('isolamento: o erro de publicar o desafio A não aparece na linha do desafio B', async () => {
+    const B = { ...DRAFT_CHALLENGE, id: 'challenge-b', title: 'Desafio B' }
+    const publishChallenge = vi.fn().mockResolvedValue({ error: 'Cadastre pelo menos um dia antes de publicar.' })
+    mockApi({ challenges: [DRAFT_CHALLENGE, B], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Publicar' })[0])
+    await vi.waitFor(() =>
+      expect(screen.getByText('Cadastre pelo menos um dia antes de publicar.')).toBeInTheDocument(),
+    )
+
+    const rowA = screen.getByText(DRAFT_CHALLENGE.title).closest('.panel-events-item') as HTMLElement
+    const rowB = screen.getByText(B.title).closest('.panel-events-item') as HTMLElement
+    expect(within(rowA).getByRole('alert')).toBeInTheDocument()
+    expect(within(rowB).queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('isolamento: arquivar com sucesso o desafio B não limpa (nem toca) o erro de publicar já mostrado em A', async () => {
+    const B = { ...DRAFT_CHALLENGE, id: 'challenge-b', title: 'Desafio B' }
+    const publishChallenge = vi.fn().mockResolvedValue({ error: 'Cadastre pelo menos um dia antes de publicar.' })
+    const archiveChallenge = vi.fn().mockResolvedValue({ error: null })
+    mockApi({ challenges: [DRAFT_CHALLENGE, B], publishChallenge, archiveChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Publicar' })[0])
+    await vi.waitFor(() =>
+      expect(screen.getByText('Cadastre pelo menos um dia antes de publicar.')).toBeInTheDocument(),
+    )
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Arquivar' })[1])
+    await vi.waitFor(() => expect(archiveChallenge).toHaveBeenCalledWith(B.id))
+
+    // O erro de A, de uma ação totalmente diferente, continua intacto.
+    expect(screen.getByText('Cadastre pelo menos um dia antes de publicar.')).toBeInTheDocument()
+  })
+
+  it('iniciar uma nova tentativa de publicar no mesmo desafio limpa o erro anterior imediatamente', async () => {
+    let resolveSecond!: (value: { error: string | null }) => void
+    const publishChallenge = vi
+      .fn()
+      .mockResolvedValueOnce({ error: 'Cadastre pelo menos um dia antes de publicar.' })
+      .mockImplementationOnce(
+        () => new Promise<{ error: string | null }>((resolve) => { resolveSecond = resolve }),
+      )
+    mockApi({ challenges: [DRAFT_CHALLENGE], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+    await vi.waitFor(() =>
+      expect(screen.getByText('Cadastre pelo menos um dia antes de publicar.')).toBeInTheDocument(),
+    )
+
+    // Dias foram gerados e a profissional tenta publicar de novo: o erro antigo
+    // desaparece assim que a nova tentativa começa, não só se/quando ela suceder.
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+    expect(screen.queryByText('Cadastre pelo menos um dia antes de publicar.')).not.toBeInTheDocument()
+
+    resolveSecond({ error: null })
+    await vi.waitFor(() => expect(publishChallenge).toHaveBeenCalledTimes(2))
+  })
+
+  it('sem regressão: o botão volta a "Publicar" (habilitado) depois do erro, sem ficar travado em "Publicando..."', async () => {
+    const publishChallenge = vi.fn().mockResolvedValue({ error: 'Cadastre pelo menos um dia antes de publicar.' })
+    mockApi({ challenges: [DRAFT_CHALLENGE], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+
+    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Publicar' })).not.toBeDisabled())
+    expect(screen.queryByRole('button', { name: 'Publicando...' })).not.toBeInTheDocument()
+  })
+
+  it('sem regressão: "Publicando..." aparece e desabilita a linha enquanto a RPC está em voo', async () => {
+    let resolvePublish!: (value: { error: string | null }) => void
+    const publishChallenge = vi.fn(
+      () => new Promise<{ error: string | null }>((resolve) => { resolvePublish = resolve }),
+    )
+    mockApi({ challenges: [DRAFT_CHALLENGE], publishChallenge })
+    render(<GardenChallengeManager communityId="community-1" profileId="prof-1" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar' }))
+
+    expect(screen.getByRole('button', { name: 'Publicando...' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Editar' })).toBeDisabled()
+
+    resolvePublish({ error: null })
+    await vi.waitFor(() => expect(screen.queryByRole('button', { name: 'Publicando...' })).not.toBeInTheDocument())
+  })
+})
+
 describe('GardenChallengeManager — exclusão do desafio em edição no formulário principal (Etapa AB — Finding 3)', () => {
   afterEach(() => {
     cleanup()

@@ -759,6 +759,7 @@ function ChallengeRow({
   challenge,
   expanded,
   busyAction,
+  actionError,
   onToggleExpand,
   onStartEdit,
   onAction,
@@ -769,6 +770,8 @@ function ChallengeRow({
   challenge: GardenChallenge
   expanded: boolean
   busyAction: 'publish' | 'archive' | 'delete' | null
+  /** Etapa AD — erro da última ação (publish/archive/delete) deste desafio especificamente, não do painel inteiro (ver `actionErrorByChallenge` no ancestral). `null` = sem erro para este desafio. */
+  actionError: string | null
   onToggleExpand: (challenge: GardenChallenge) => void
   onStartEdit: (challenge: GardenChallenge) => void
   onAction: (action: 'publish' | 'archive' | 'delete', challenge: GardenChallenge) => void
@@ -837,6 +840,18 @@ function ChallengeRow({
         </div>
       </div>
 
+      {/* Etapa AD — associada visualmente a ESTE desafio (dentro da sua própria
+       * linha), não mais a uma mensagem única no topo da lista inteira: com
+       * vários desafios na tela, a profissional não tinha como saber a qual
+       * deles um erro de publicar/arquivar/excluir se referia. `role="alert"`
+       * garante que leitores de tela anunciem o erro no momento em que ele
+       * aparece, mesmo sem o foco estar nesta linha. */}
+      {actionError && (
+        <p className="auth-error" role="alert">
+          {actionError}
+        </p>
+      )}
+
       {expanded && (
         <ChallengeDetail ref={onDetailRef} challenge={challenge} api={api} onPublished={onPublished} />
       )}
@@ -869,7 +884,21 @@ export function GardenChallengeManager({ communityId, profileId, onPublished }: 
   const [busy, setBusy] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [actionError, setActionError] = useState<string | null>(null)
+  /**
+   * Etapa AD — erro da última ação (publish/archive/delete) POR DESAFIO
+   * (`Record<challengeId, mensagem | null>`), não um valor único para o
+   * painel inteiro. Antes, um erro ao publicar/arquivar/excluir QUALQUER
+   * desafio aparecia numa única mensagem no topo de "Desafios da
+   * comunidade" — com vários desafios na lista, nada a associava
+   * visualmente a qual deles o erro pertencia, e ela permanecia visível
+   * mesmo depois de outra ação (bem-sucedida ou não) em OUTRO desafio.
+   * Mesmo padrão de `actionBusyByChallenge` abaixo: cada desafio só lê/
+   * limpa a própria entrada, então a ação de um nunca afeta o erro
+   * (nem o estado de "em andamento") mostrado para outro.
+   */
+  const [actionErrorByChallenge, setActionErrorByChallenge] = useState<Record<string, string | null>>(
+    {},
+  )
   /**
    * Etapa AC (Finding 4) — qual ação (publish/archive/delete) está em
    * andamento, POR DESAFIO (`Record<challengeId, ação | null>`), não um
@@ -1010,7 +1039,10 @@ export function GardenChallengeManager({ communityId, profileId, onPublished }: 
     // RPC (ou outra, sobre o mesmo desafio) duas vezes em paralelo.
     if (actionBusyByChallenge[challenge.id]) return
 
-    setActionError(null)
+    // Etapa AD — limpa só o erro DESTE desafio ao iniciar uma nova ação
+    // sobre ele (nunca o de outro desafio, que `actionErrorByChallenge`
+    // mantém numa chave separada).
+    setActionErrorByChallenge((prev) => ({ ...prev, [challenge.id]: null }))
     setActionBusyByChallenge((prev) => ({ ...prev, [challenge.id]: action }))
     const result =
       action === 'publish'
@@ -1030,7 +1062,7 @@ export function GardenChallengeManager({ communityId, profileId, onPublished }: 
     setActionBusyByChallenge((prev) => ({ ...prev, [challenge.id]: null }))
 
     if (result.error) {
-      setActionError(result.error)
+      setActionErrorByChallenge((prev) => ({ ...prev, [challenge.id]: result.error }))
       return
     }
 
@@ -1204,8 +1236,6 @@ export function GardenChallengeManager({ communityId, profileId, onPublished }: 
           <EmptyState message="Nenhum desafio criado ainda." />
         )}
 
-        {actionError && <p className="auth-error">{actionError}</p>}
-
         {!loading && !error && challenges.length > 0 && (
           <div className="panel-events-list">
             {orderedChallenges.map((challenge, index) => (
@@ -1217,6 +1247,7 @@ export function GardenChallengeManager({ communityId, profileId, onPublished }: 
                   challenge={challenge}
                   expanded={expandedId === challenge.id}
                   busyAction={actionBusyByChallenge[challenge.id] ?? null}
+                  actionError={actionErrorByChallenge[challenge.id] ?? null}
                   onToggleExpand={toggleExpand}
                   onStartEdit={startEdit}
                   onAction={handleAction}

@@ -129,6 +129,68 @@ describe('gardenErrorMessage — "already_shared" (item 3, defesa em profundidad
 })
 
 /**
+ * Etapa AD — códigos levantados por `garden_publish_challenge`
+ * (`garden_generate_challenge_days` também levanta os 3 primeiros) e
+ * devolvidos como `rpcError.message` ao hook. Mesma defesa em
+ * profundidade do bloco "already_shared" acima: confirma que cada
+ * `raise exception '<codigo>'` do Postgres chega como mensagem amigável
+ * à profissional, nunca o código cru — tanto puro quanto embutido no
+ * texto adicional que o PostgREST costuma anexar.
+ */
+describe('gardenErrorMessage — códigos de publicação de desafio (Etapa AD)', () => {
+  it('traduz "challenge_not_found"', () => {
+    expect(gardenErrorMessage('challenge_not_found')).toBe('Desafio não encontrado.')
+  })
+
+  it('traduz "not_authorized"', () => {
+    expect(gardenErrorMessage('not_authorized')).toBe('Você não tem permissão para esta ação.')
+  })
+
+  it('traduz "challenge_not_draft"', () => {
+    expect(gardenErrorMessage('challenge_not_draft')).toBe(
+      'Só é possível fazer isso enquanto o desafio está em rascunho.',
+    )
+  })
+
+  it('traduz "challenge_has_no_days"', () => {
+    expect(gardenErrorMessage('challenge_has_no_days')).toBe('Cadastre pelo menos um dia antes de publicar.')
+  })
+
+  it('reconhece cada código mesmo embutido no texto adicional do Postgres/PostgREST', () => {
+    expect(gardenErrorMessage('ERROR: raise exception challenge_has_no_days (SQLSTATE P0001)')).toBe(
+      'Cadastre pelo menos um dia antes de publicar.',
+    )
+    expect(gardenErrorMessage('ERROR: raise exception not_authorized (SQLSTATE P0001)')).toBe(
+      'Você não tem permissão para esta ação.',
+    )
+  })
+})
+
+/**
+ * Etapa AD — comportamento de fallback: nenhum destes casos pode nunca
+ * vazar um código cru ou travar sem mensagem nenhuma.
+ */
+describe('gardenErrorMessage — fallback para mensagens desconhecidas (Etapa AD)', () => {
+  it('mensagem padrão para um código que não está no mapa', () => {
+    expect(gardenErrorMessage('algum_erro_nao_mapeado')).toBe(
+      'Não foi possível concluir a ação agora. Tente novamente.',
+    )
+  })
+
+  it('mensagem padrão para string vazia', () => {
+    expect(gardenErrorMessage('')).toBe('Não foi possível concluir a ação agora. Tente novamente.')
+  })
+
+  it('mensagem padrão para null', () => {
+    expect(gardenErrorMessage(null)).toBe('Não foi possível concluir a ação agora. Tente novamente.')
+  })
+
+  it('mensagem padrão para undefined', () => {
+    expect(gardenErrorMessage(undefined)).toBe('Não foi possível concluir a ação agora. Tente novamente.')
+  })
+})
+
+/**
  * `computeGardenJourneyStats` — Camada 2 da roda (Etapa N), "jornada
  * acumulada". Função pura: nunca toca Supabase, recebe só o que o hook
  * já teria em mãos sem nenhuma consulta nova. Cobre explicitamente a

@@ -6,10 +6,10 @@ import { useGardenChallenges } from './useGardenChallenges'
 // hook inteiro, como em GardenChallengeManager.test.tsx) — é o que permite
 // testar a PRÓPRIA lógica de `fetchChallenges`, incluindo o tratamento de
 // exceção e a proteção contra respostas obsoletas (Etapa AA).
-const { fromMock } = vi.hoisted(() => ({ fromMock: vi.fn() }))
+const { fromMock, rpcMock } = vi.hoisted(() => ({ fromMock: vi.fn(), rpcMock: vi.fn() }))
 
 vi.mock('../lib/supabase', () => ({
-  supabase: { from: fromMock },
+  supabase: { from: fromMock, rpc: rpcMock },
 }))
 
 /** Builder encadeável mínimo (select/eq/order) que RESOLVE como a Promise que o código espera de volta do Supabase (sucesso OU {error} do PostgREST). */
@@ -173,5 +173,97 @@ describe('useGardenChallenges.fetchChallenges (Etapa AA — Finding 1)', () => {
       resolveFirst({ data: [{ id: 'challenge-1-stale' }], error: null })
     })
     expect(result.current.challenges).toEqual([{ id: 'challenge-2' }])
+  })
+})
+
+/**
+ * Etapa AD — testa a implementação REAL de `publishChallenge`: a chamada à
+ * RPC `garden_publish_challenge` e os dois caminhos que ela pode seguir
+ * (sucesso: refaz `fetchChallenges`; erro: devolve a mensagem já traduzida
+ * por `gardenErrorMessage`, sem refazer a busca). Mesmo padrão de mocks de
+ * `../lib/supabase` do describe acima — `rpcMock` cobre o `supabase.rpc`
+ * que `fetchChallenges` (via `.from()`) não exercita.
+ */
+describe('useGardenChallenges.publishChallenge (Etapa AD)', () => {
+  afterEach(() => {
+    cleanup()
+    fromMock.mockReset()
+    rpcMock.mockReset()
+  })
+
+  it('RPC concluída com sucesso: devolve { error: null } e a lista é atualizada (fetchChallenges roda de novo)', async () => {
+    let call = 0
+    fromMock.mockImplementation(() => {
+      call += 1
+      return call === 1
+        ? chainResult({ data: [{ id: 'challenge-1', status: 'draft' }], error: null })
+        : chainResult({ data: [{ id: 'challenge-1', status: 'published' }], error: null })
+    })
+    rpcMock.mockResolvedValue({ data: null, error: null })
+
+    const { result } = renderHook(() => useGardenChallenges('community-1'))
+    await act(async () => {})
+    expect(result.current.challenges).toEqual([{ id: 'challenge-1', status: 'draft' }])
+
+    let publishResult: { error: string | null } = { error: 'not set' }
+    await act(async () => {
+      publishResult = await result.current.publishChallenge('challenge-1')
+    })
+
+    expect(rpcMock).toHaveBeenCalledWith('garden_publish_challenge', { p_challenge_id: 'challenge-1' })
+    expect(publishResult).toEqual({ error: null })
+    // A lista reflete o novo status — prova de que fetchChallenges rodou de novo após o sucesso.
+    expect(result.current.challenges).toEqual([{ id: 'challenge-1', status: 'published' }])
+  })
+
+  it('RPC retornando erro (sem dias): traduz via gardenErrorMessage e NÃO refaz fetchChallenges — a lista permanece a mesma', async () => {
+    fromMock.mockReturnValue(chainResult({ data: [{ id: 'challenge-1', status: 'draft' }], error: null }))
+    rpcMock.mockResolvedValue({ data: null, error: { message: 'challenge_has_no_days' } })
+
+    const { result } = renderHook(() => useGardenChallenges('community-1'))
+    await act(async () => {})
+    const fromCallsBeforePublish = fromMock.mock.calls.length
+
+    let publishResult: { error: string | null } = { error: 'not set' }
+    await act(async () => {
+      publishResult = await result.current.publishChallenge('challenge-1')
+    })
+
+    expect(publishResult).toEqual({ error: 'Cadastre pelo menos um dia antes de publicar.' })
+    // Nenhuma nova busca de desafios — fetchChallenges só roda no caminho de sucesso (ver código do hook).
+    expect(fromMock.mock.calls.length).toBe(fromCallsBeforePublish)
+    expect(result.current.challenges).toEqual([{ id: 'challenge-1', status: 'draft' }])
+  })
+
+  it('RPC retornando erro de permissão (not_authorized): também traduzido, lista intocada', async () => {
+    fromMock.mockReturnValue(chainResult({ data: [{ id: 'challenge-1', status: 'draft' }], error: null }))
+    rpcMock.mockResolvedValue({ data: null, error: { message: 'not_authorized' } })
+
+    const { result } = renderHook(() => useGardenChallenges('community-1'))
+    await act(async () => {})
+
+    let publishResult: { error: string | null } = { error: 'not set' }
+    await act(async () => {
+      publishResult = await result.current.publishChallenge('challenge-1')
+    })
+
+    expect(publishResult).toEqual({ error: 'Você não tem permissão para esta ação.' })
+    expect(result.current.challenges).toEqual([{ id: 'challenge-1', status: 'draft' }])
+  })
+
+  it('RPC retornando erro de status incompatível (challenge_not_draft): também traduzido, lista intocada', async () => {
+    fromMock.mockReturnValue(chainResult({ data: [{ id: 'challenge-1', status: 'published' }], error: null }))
+    rpcMock.mockResolvedValue({ data: null, error: { message: 'challenge_not_draft' } })
+
+    const { result } = renderHook(() => useGardenChallenges('community-1'))
+    await act(async () => {})
+
+    let publishResult: { error: string | null } = { error: 'not set' }
+    await act(async () => {
+      publishResult = await result.current.publishChallenge('challenge-1')
+    })
+
+    expect(publishResult).toEqual({ error: 'Só é possível fazer isso enquanto o desafio está em rascunho.' })
+    expect(result.current.challenges).toEqual([{ id: 'challenge-1', status: 'published' }])
   })
 })
