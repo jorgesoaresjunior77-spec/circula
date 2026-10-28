@@ -5,20 +5,26 @@ import type { RefObject } from 'react'
 // (HomeExperienceStrip · "Seu Círcula de Hoje" e HomeCirclesSection ·
 // "Círculos"). Uma implementação só, compartilhada pelas duas faixas.
 //
-// Movimento automático (marquee) — pedido explícito do usuário: os
-// cards avançam sozinhos, sempre no mesmo sentido (nunca vaivém), e só
-// param enquanto o mouse estiver sobre a faixa (desktop) ou o dedo
-// estiver tocando-a (mobile); ao soltar/afastar, o movimento retoma.
-// Roda via `requestAnimationFrame` incrementando `scrollLeft` a um
-// ritmo fixo (px/s, independente do framerate) — NUNCA a mesma causa do
-// bug antigo de cards duplicados (aquele era um `exp-seq` clonado fora
-// do mecanismo de ciclo abaixo, sem o `wrap()` que mantém a cópia
-// visível sempre centrada). Aqui o autoplay só gira o MESMO `scrollLeft`
-// que o arrasto/scroll nativo já usa, e chama o mesmo `wrap()` — por
-// isso nunca há duas cópias visíveis ao mesmo tempo. Desliga por
-// completo quando a sequência cabe inteira na viewport (`loop` falso —
-// não há para onde avançar) e quando a pessoa prefere menos movimento
-// (`prefers-reduced-motion: reduce`).
+// Movimento automático (marquee) — pedido explícito do usuário, e só
+// no DESKTOP: os cards avançam sozinhos, sempre no mesmo sentido
+// (nunca vaivém), e pausam enquanto o mouse estiver sobre a faixa,
+// retomando quando ele sai. No MOBILE não existe movimento automático
+// nenhum — só o toque/arrasto manual move os cards (ver `allowMotion`:
+// o gate é por tipo de ponteiro, `hover:hover` + `pointer:fine`, não
+// por largura de tela — um touch screen largo continua sem autoplay, e
+// uma janela de desktop estreita continua com ele). Roda via
+// `requestAnimationFrame` incrementando `scrollLeft` a um ritmo fixo
+// (px/s, independente do framerate) — NUNCA a mesma causa do bug antigo
+// de cards duplicados (aquele era um `exp-seq` clonado fora do
+// mecanismo de ciclo abaixo, sem o `wrap()` que mantém a cópia visível
+// sempre centrada). Aqui o autoplay só gira o MESMO `scrollLeft` que o
+// arrasto/scroll nativo já usa, e chama o mesmo `wrap()` — por isso
+// nunca há duas cópias visíveis ao mesmo tempo. Desliga por completo
+// quando a sequência cabe inteira na viewport (`loop` falso — não há
+// para onde avançar) e quando a pessoa prefere menos movimento
+// (`prefers-reduced-motion: reduce`). A pausa por toque (`onTouchStart`/
+// `onTouchEnd`) fica no código mesmo assim — cobre o caso raro de um
+// notebook com tela touch E mouse, onde o autoplay está ativo.
 //
 // O que mudou e por quê (ciclo contínuo, herdado da versão anterior):
 //   · Ciclo contínuo nos DOIS sentidos: a sequência é renderizada 3x e
@@ -243,15 +249,23 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       if (activePointer === null) wrap()
     }
 
-    // Avanço automático — só existe se a pessoa não pedir menos
-    // movimento; a verificação é feita uma vez (não reage a uma troca
-    // de preferência em tempo real, o mesmo compromisso já aceito pelas
-    // transições em CSS do resto do app).
-    // `matchMedia` não existe em todo ambiente (ex.: jsdom nos testes,
-    // sem polyfill) — sem a checagem, o efeito inteiro lançava e os
-    // testes quebravam antes de chegar a qualquer asserção.
+    // Avanço automático — SÓ no desktop (pedido explícito do usuário:
+    // "não executar movimento automático no mobile"). O critério não é
+    // largura de tela (uma janela de desktop pode ser estreita, e um
+    // tablet largo continua sendo tocado, não "mouseado") — é o tipo de
+    // ponteiro: `hover:hover` + `pointer:fine` só é verdade com mouse/
+    // trackpad de precisão, nunca em touch puro. Combinado com
+    // `prefers-reduced-motion`, que também desliga o avanço. A
+    // verificação é feita uma vez (não reage a uma troca de preferência
+    // em tempo real, o mesmo compromisso já aceito pelas transições em
+    // CSS do resto do app). `matchMedia` não existe em todo ambiente
+    // (ex.: jsdom nos testes, sem polyfill) — sem a checagem, o efeito
+    // inteiro lançava e os testes quebravam antes de chegar a qualquer
+    // asserção.
     const allowMotion =
-      typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let rafId: number | null = null
     let lastFrameTime: number | null = null
 

@@ -845,7 +845,15 @@ export function Dashboard({
             </button>
             <h1 className="brand-name">Círcula</h1>
           </div>
-          <p className="brand-tagline">conectando mulheres</p>
+          {/* Pedido do usuário — a frase preenche exatamente a largura
+              do conjunto ícone+"Círcula" (ver .brand/.brand-tagline em
+              App.css): duas palavras como itens de um flex
+              `justify-content: space-between`, nunca uma só string —
+              é o espaço ENTRE elas que cresce, a fonte não muda. */}
+          <p className="brand-tagline">
+            <span>conectando</span>
+            <span>mulheres</span>
+          </p>
         </div>
 
         <div className="dashboard-user">

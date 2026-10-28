@@ -14,6 +14,9 @@ interface NextEvent {
   id: string
   title: string
   starts_at: string
+  /** Cards editoriais da Home (HomeEditorialCards) — imagem/tipo do próprio evento, além do já usado título/data. */
+  cover_image_url: string | null
+  is_online: boolean | null
 }
 
 export function useRailSummary(communityId: string | null, profileId: string | null) {
@@ -31,7 +34,7 @@ export function useRailSummary(communityId: string | null, profileId: string | n
 
     const { data } = await supabase
       .from('community_events')
-      .select('id,title,starts_at')
+      .select('id,title,starts_at,cover_image_url,is_online')
       .eq('community_id', communityId)
       .neq('status', 'draft')
       .gte('starts_at', new Date().toISOString())

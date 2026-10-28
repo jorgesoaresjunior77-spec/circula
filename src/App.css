@@ -505,7 +505,10 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  /* Pedido do usuário — aproximar o banner (capa da comunidade) da
+     marca no topo; era --space-5 (20px) entre o cabeçalho e o resto do
+     conteúdo. */
+  gap: var(--space-4);
   width: 100%;
   max-width: 480px;
   margin-inline: auto;
@@ -584,10 +587,17 @@
    tratamento em mobile e desktop (só o tamanho de fonte varia); o modo
    antigo, que troca pastilha+wordmark por só a imagem do logo oficial
    a partir de 1024px (.brand-mark/.brand-mark-btn), saiu por completo —
-   um único layout em qualquer largura. */
+   um único layout em qualquer largura.
+   Pedido do usuário (largura da tagline) — `display: grid` com uma só
+   coluna `max-content`: a coluna (e a caixa do grid) ficam exatamente
+   do tamanho do item mais largo (`.brand-row`), mesmo que o flex pai
+   (`.dashboard-header`) dê a `.brand` uma caixa maior (ex.: `flex:1 1
+   auto` no mobile) — o espaço extra sobra DEPOIS da coluna, nunca a
+   estica. `.brand-tagline`, por padrão do grid (`justify-items:
+   stretch`), ocupa essa mesma largura. */
 .dashboard-header .brand {
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: max-content;
   justify-content: flex-start;
   gap: 2px;
   min-width: 0;
@@ -596,7 +606,9 @@
 .brand-row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  /* Pedido do usuário — ícone e palavra mais próximos (era --space-3 =
+     12px), mas sem encostar. */
+  gap: var(--space-2);
   min-width: 0;
 }
 
@@ -610,21 +622,35 @@
 .brand-name {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: var(--display-weight);
-  font-size: 22px;
+  /* Pedido do usuário — ~10% mais pesada. Mitr só carrega os pesos
+     200/300/400/500/600 (ver index.html) — não é uma fonte variável,
+     então 330 (300 * 1.1) não existe como arquivo e o navegador
+     renderizaria idêntico a 300. 400 é o passo realmente disponível
+     mais próximo acima de 300 — respeita a "família tipográfica já
+     utilizada e os pesos realmente disponíveis", como pedido. */
+  font-weight: 400;
+  /* Pedido do usuário — ~20% maior (era 22px/24px). */
+  font-size: 26px;
   line-height: 1.05;
   letter-spacing: 0;
   color: var(--graphite);
 
   @media (min-width: 1024px) {
-    font-size: 24px;
+    font-size: 29px;
   }
 }
 
 /* Tagline como eyebrow editorial — Jost, SEM caixa alta: a frase deve
    ler exatamente "conectando mulheres" (caixa baixa), por isso
-   `text-transform: none` em vez do eyebrow padrão do sistema. */
+   `text-transform: none` em vez do eyebrow padrão do sistema. Pedido do
+   usuário — as duas palavras se espalham para preencher exatamente a
+   largura de `.brand-row` (ver regra do `.brand` acima) via
+   `justify-content: space-between` sobre os dois `<span>` da palavra
+   (ver Dashboard.tsx) — o espaçamento entre elas que cresce, nunca o
+   tamanho da fonte, então a tipografia não se distorce. */
 .brand-tagline {
+  display: flex;
+  justify-content: space-between;
   margin: 1px 0 0;
   font-family: var(--font-label);
   font-size: 10.5px;
@@ -9456,7 +9482,11 @@
 .home {
   display: flex;
   flex-direction: column;
-  gap: var(--space-7);
+  /* Sobrescrito mais abaixo no arquivo ("3 · DESDASHBOARDIZAÇÃO") para
+     --space-5 — alinhado aqui também, pra não haver dois valores
+     diferentes escritos pro mesmo gap (o de baixo é quem realmente
+     vale, por vir depois). */
+  gap: var(--space-5);
   min-width: 0;
   text-align: left;
 }
@@ -13057,9 +13087,14 @@ button.card:focus-visible {
 
 /* 3 · DESDASHBOARDIZAÇÃO — os wrappers GENÉRICOS deixam de ser cartão.
    Os componentes ricos (ChallengeCard, CircleCard, mood, capa, pontos,
-   conquistas) não são tocados aqui — ficam para a C1. */
+   conquistas) não são tocados aqui — ficam para a C1.
+   Pedido do usuário — Home excessivamente espaçada: este `gap` (que
+   prevalece sobre o --space-7 da definição-base de `.home`, por vir
+   depois no arquivo) separava CADA bloco (saudação, capa, faixas,
+   divisores, nota institucional) por 56px. Reduzido para 20px — ainda
+   dá respiro/distinção entre seções, sem o vão exagerado. */
 .home {
-  gap: var(--space-8);
+  gap: var(--space-5);
 }
 
 /* "Resumo do dia" — TESTE: fio superior em champagne no lugar do
@@ -13573,8 +13608,12 @@ button.card:focus-visible {
 
 .exp-card-item {
   flex: 0 0 auto;
-  /* D1 — cards menores (eram clamp(186px, 42vw, 244px) / 264 / 288) */
-  width: clamp(144px, 34vw, 184px);
+  /* Pedido do usuário — 3 cards por vez no mobile, sempre que a largura
+     permitir: largura = (largura útil da tela − 2 gutters da página −
+     2 gaps entre os 3 cards) / 3. `clamp` só protege os extremos (não
+     ficar menor que dá pra ler, nem crescer demais numa tela estreita
+     que já caiba 3 com folga). */
+  width: clamp(100px, calc((100vw - 2 * var(--gutter) - 2 * var(--space-4)) / 3), 140px);
   scroll-snap-align: start;
 }
 
@@ -13830,11 +13869,14 @@ button.card:focus-visible {
   min-width: 0;
   /* Reorganização da Home (item 4) — aproxima de "Círcula Hoje" (seção
      anterior, sem título próprio), puxando contra o gap uniforme de
-     `.home` (--space-7). Pedido explícito do usuário para aproximar
-     ainda mais: de --space-4 para --space-6. Não mexe no gap seguinte
-     (Círculos -> "No Instagram" continua no mesmo --space-7 de
-     sempre — mesma proporção/padrão de espaçamento entre as duas). */
-  margin-top: calc(-1 * var(--space-6));
+     `.home` (hoje --space-5 = 20px, depois da redução geral de
+     espaçamento da Home). Recalibrado para não ultrapassar esse gap
+     (um valor de pull maior que o próprio gap faria as duas seções SE
+     SOBREPOREM) — sobra ~8px de respiro antes de Círculos, menor que o
+     gap padrão de 20px entre as outras seções, de propósito. Não mexe
+     no gap seguinte (Círculos -> "No Instagram" continua no padrão
+     normal de sempre). */
+  margin-top: calc(-1 * var(--space-3));
 }
 
 .circ-strip-title {
@@ -13881,9 +13923,8 @@ button.card:focus-visible {
 
 .circ-card-item {
   flex: 0 0 auto;
-  /* D1 — mesmo padrão de tamanho da faixa "Círcula Hoje" (eram
-     clamp(196px, 46vw, 240px) / 268 / 292) */
-  width: clamp(144px, 34vw, 184px);
+  /* Mesma correção de .exp-card-item — 3 cards por vez no mobile. */
+  width: clamp(100px, calc((100vw - 2 * var(--gutter) - 2 * var(--space-4)) / 3), 140px);
   scroll-snap-align: start;
 }
 
@@ -14048,6 +14089,170 @@ button.card:focus-visible {
   }
   .circ-card-meta {
     opacity: 1;
+  }
+}
+
+/* ===================================================================
+   Cards editoriais — Receitas / Eventos / Loja (pedido do usuário)
+   Depois da faixa "No Instagram" (ver HomeEditorialCards.tsx). NÃO são
+   versões maiores dos cards compactos dos carrosséis acima — além do
+   tamanho, a diferença é de CONTEÚDO: cada card é uma vitrine de UM
+   item real em destaque (evento/receita/produto, com seus próprios
+   dados), nunca um rótulo genérico de categoria. Imagem de destaque
+   numa região própria no topo, informações textuais numa região
+   própria embaixo — nunca texto sobreposto à foto. Mesma linguagem
+   visual do cabeçalho da comunidade (.home-community-header/-cover):
+   borda fina, sombra suave, canto grande. Altura da imagem menor que a
+   capa principal da comunidade — são 3 cards secundários empilhados,
+   não um hero; mantém a Home compacta (pedido do usuário na mesma
+   etapa), mas maior que os cards compactos dos carrosséis (ver
+   .exp-card-frame/.circ-card-frame), para a leitura de hierarquia
+   (eyebrow · tag de tipo · título · subtítulo · nota · CTA) ter espaço
+   de respirar. */
+.home-editorial-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.home-editorial-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur) var(--ease);
+}
+
+.home-editorial-card-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 180px;
+  background: var(--sand);
+
+  @media (min-width: 768px) {
+    max-height: 210px;
+  }
+
+  @media (min-width: 1024px) {
+    max-height: 240px;
+  }
+}
+
+.home-editorial-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-editorial-card-media-fallback {
+  position: absolute;
+  inset: 0;
+  background: var(--sand-deep);
+}
+
+.home-editorial-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+}
+
+.home-editorial-card-eyebrow {
+  font-family: var(--font-label);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--circula-taupe, var(--graphite-soft));
+}
+
+/* "Tipo" do item em destaque (Online/Presencial do evento, categoria da
+   receita, tipo do produto) — pill de destaque, distinto do eyebrow
+   (nome fixo da categoria/destino): mesma linguagem de `.content-card-
+   type`, cor de ação em vez de neutra, porque é informação do item, não
+   só um rótulo de seção. `align-self: flex-start` (não some a largura
+   toda) porque é uma etiqueta curta. */
+.home-editorial-card-tag {
+  align-self: flex-start;
+  margin-top: 1px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--olive-bg);
+  color: var(--olive-text);
+}
+
+.home-editorial-card-title {
+  margin-top: 3px;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-strong);
+  font-size: clamp(17px, 1.8vw, 21px);
+  line-height: 1.25;
+  color: var(--graphite);
+}
+
+.home-editorial-card-subtitle {
+  margin-top: 1px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--graphite-soft);
+}
+
+/* Nota secundária ("+N outras receitas"/"+N outros produtos") — some
+   quando só existe o item em destaque, nunca um contador fictício. */
+.home-editorial-card-footer {
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--graphite-soft);
+}
+
+.home-editorial-card-cta {
+  margin-top: var(--space-2);
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--ink-action);
+}
+
+@media (hover: hover) {
+  .home-editorial-card:hover,
+  .home-editorial-card:focus-visible {
+    transform: translateY(-2px);
+  }
+}
+
+.home-editorial-card:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-editorial-card {
+    transition: none;
+  }
+  .home-editorial-card:hover,
+  .home-editorial-card:focus-visible {
+    transform: none;
   }
 }
 

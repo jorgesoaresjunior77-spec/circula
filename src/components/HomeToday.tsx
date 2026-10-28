@@ -6,6 +6,7 @@ import { useCircles } from '../hooks/useCircles'
 import { useContent } from '../hooks/useContent'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { useProducts } from '../hooks/useProducts'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { CommunityView } from './CommunityView'
@@ -13,6 +14,7 @@ import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
 import { HomeInstagramStrip } from './HomeInstagramStrip'
+import { HomeEditorialCards } from './HomeEditorialCards'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -64,7 +66,13 @@ interface HomeTodayProps {
    * nenhuma consulta nova aqui.
    */
   railSummary?: {
-    nextEvent: { id: string; title: string; starts_at: string } | null
+    nextEvent: {
+      id: string
+      title: string
+      starts_at: string
+      cover_image_url: string | null
+      is_online: boolean | null
+    } | null
   } | null
 }
 
@@ -118,6 +126,30 @@ export function HomeToday({
     () => filterInstagramContent(contentItems),
     [contentItems],
   )
+  // Cards editoriais (Receitas/Eventos/Loja) — finalização (pedido do
+  // usuário): cada card passa a destacar UM item real (a receita/produto
+  // mais recente publicado; o evento já é "o próximo", via railSummary),
+  // em vez de só uma contagem genérica. `contentItems`/`products` já
+  // carregados acima/abaixo (sem consulta nova) e ambos já vêm ordenados
+  // por created_at DESC (useContent/useProducts) — o primeiro item
+  // publicado de cada tipo já É o mais recente, sem reordenar aqui.
+  const featuredRecipe = useMemo(
+    () => contentItems.find((item) => item.type === 'recipe' && item.status === 'published') ?? null,
+    [contentItems],
+  )
+  const recipesCount = useMemo(
+    () => contentItems.filter((item) => item.type === 'recipe' && item.status === 'published').length,
+    [contentItems],
+  )
+  const { products } = useProducts(communityId)
+  const featuredProduct = useMemo(
+    () => products.find((product) => product.status === 'published') ?? null,
+    [products],
+  )
+  const productsCount = useMemo(
+    () => products.filter((product) => product.status === 'published').length,
+    [products],
+  )
 
   // Capas (só VISUAL) que a Profissional cadastrou no Painel para os
   // cards fixos de "Seu Círcula de hoje" — ver types/communityCards.ts
@@ -135,6 +167,14 @@ export function HomeToday({
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
   const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
+  // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
+  // quando existe, prevalece sobre a capa genérica da categoria acima
+  // (fallback em HomeEditorialCards.tsx); mesma assinatura de
+  // EventCard.tsx/ContentCard.tsx para esses dois tipos. Produto NÃO
+  // passa por aqui — ProductCard.tsx usa `cover_image_url` direto, sem
+  // assinatura, então HomeEditorialCards faz o mesmo.
+  const { url: nextEventCover } = useSignedImageUrl(railSummary?.nextEvent?.cover_image_url ?? null)
+  const { url: featuredRecipeCover } = useSignedImageUrl(featuredRecipe?.cover_image_url ?? null)
 
   const greetingName = firstName(profile.full_name)
   const greeting = (
@@ -243,6 +283,28 @@ export function HomeToday({
           publicado + link do Instagram); sem publicação real, mostra
           vagas vazias no lugar (item 1 da reorganização). */}
       <HomeInstagramStrip posts={instagramPosts} />
+
+      {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
+          depois da faixa do Instagram (ver HomeEditorialCards.tsx).
+          Vitrines de conteúdo em destaque: cada um mostra UM item real
+          (a foto/dados do próprio evento/receita/produto), não mais só
+          um rótulo genérico de categoria — essa é a diferença proposital
+          em relação aos atalhos compactos de "Seu Círcula de hoje", que
+          continuam levando aos mesmos destinos. */}
+      <hr className="home-section-divider" />
+      <HomeEditorialCards
+        receitasCover={receitasCover}
+        eventosCover={eventosCover}
+        lojaCover={lojaCover}
+        nextEvent={railSummary?.nextEvent ?? null}
+        nextEventCover={nextEventCover}
+        recipesCount={recipesCount}
+        featuredRecipe={featuredRecipe}
+        featuredRecipeCover={featuredRecipeCover}
+        productsCount={productsCount}
+        featuredProduct={featuredProduct}
+        onNavigate={onNavigate}
+      />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.
