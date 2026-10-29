@@ -547,7 +547,21 @@
    altura antiga), bordas arredondadas e o nome/responsável/contagem
    abaixo da foto — nunca sobre ela. Redesign da Home, item 2: o menu
    subiu para a linha 2 (logo abaixo da marca), então a capa desceu
-   para a linha 3, sempre depois da navegação. */
+   para a linha 3, sempre depois da navegação.
+   Pedido do usuário — espaço entre o banner e a saudação ("Bom dia,
+   Seu Círcula de hoje") um pouco maior. `.dashboard` já tem um `gap`
+   uniforme entre TODOS os seus filhos diretos (header/nav/banner/main)
+   — aumentar esse gap mudaria também header↔nav e nav↔banner, que não
+   foi pedido. Em vez disso, soma-se aqui, só depois do banner (via
+   margin-bottom, que no flex soma ao gap do pai em vez de substituí-lo
+   — e só existe quando `.dashboard-community-cover` de fato renderiza,
+   isto é, só no caso com banner).
+   Pedido do usuário (refinamento) — esse respiro, moderadamente maior
+   (era --space-3 = 12px). */
+.dashboard-community-cover {
+  margin-bottom: var(--space-5);
+}
+
 @media (min-width: 1024px) {
   .dashboard-community-cover {
     grid-column: 1 / -1;
@@ -588,16 +602,18 @@
    antigo, que troca pastilha+wordmark por só a imagem do logo oficial
    a partir de 1024px (.brand-mark/.brand-mark-btn), saiu por completo —
    um único layout em qualquer largura.
-   Pedido do usuário (largura da tagline) — `display: grid` com uma só
-   coluna `max-content`: a coluna (e a caixa do grid) ficam exatamente
-   do tamanho do item mais largo (`.brand-row`), mesmo que o flex pai
-   (`.dashboard-header`) dê a `.brand` uma caixa maior (ex.: `flex:1 1
-   auto` no mobile) — o espaço extra sobra DEPOIS da coluna, nunca a
-   estica. `.brand-tagline`, por padrão do grid (`justify-items:
-   stretch`), ocupa essa mesma largura. */
+   Pedido do usuário (revisão) — a versão anterior usava `display: grid`
+   com 1 coluna `max-content` para forçar `.brand-tagline` a ocupar
+   exatamente a largura de `.brand-row`, suporte de um truque de
+   `justify-content: space-between` entre as 2 palavras que foi
+   removido (ver .brand-tagline abaixo) — sem ele, não há mais motivo
+   para fixar essa largura: um `flex column` simples já alinha as duas
+   linhas pela mesma margem esquerda, que é o que "alinhado ao
+   conjunto" significa. */
 .dashboard-header .brand {
-  display: grid;
-  grid-template-columns: max-content;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 2px;
   min-width: 0;
@@ -642,22 +658,34 @@
 
 /* Tagline como eyebrow editorial — Jost, SEM caixa alta: a frase deve
    ler exatamente "conectando mulheres" (caixa baixa), por isso
-   `text-transform: none` em vez do eyebrow padrão do sistema. Pedido do
-   usuário — as duas palavras se espalham para preencher exatamente a
-   largura de `.brand-row` (ver regra do `.brand` acima) via
-   `justify-content: space-between` sobre os dois `<span>` da palavra
-   (ver Dashboard.tsx) — o espaçamento entre elas que cresce, nunca o
-   tamanho da fonte, então a tipografia não se distorce. */
+   `text-transform: none` em vez do eyebrow padrão do sistema.
+   Pedido do usuário (revisão) — a versão anterior esticava o ESPAÇO
+   ENTRE as duas palavras (flex + justify-content: space-between sobre
+   2 <span>, ver Dashboard.tsx) para preencher a largura de `.brand-row`:
+   ficou pequena e lia como 2 palavras separadas artificialmente, não
+   uma frase. Removido — agora é texto único, espaçamento ENTRE palavras
+   normal (herdado, nunca alterado aqui); é o tamanho da fonte e o
+   letter-spacing (entre LETRAS, sutil e uniforme) que ajustam a largura
+   da frase, sem distorcer a tipografia. */
 .brand-tagline {
-  display: flex;
-  justify-content: space-between;
-  margin: 1px 0 0;
+  margin: 2px 0 0;
   font-family: var(--font-label);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: var(--eyebrow-weight);
-  letter-spacing: 0.06em;
+  /* Pedido do usuário (refinamento) — frase um pouco maior, com mais
+     espaço entre LETRAS (sutil); o espaço ENTRE AS DUAS PALAVRAS, que
+     ficava largo demais só por herdar o espaço normal da fonte +
+     letter-spacing somado ao caractere de espaço, é encurtado à parte
+     via `word-spacing` negativo — a frase volta a ler como uma frase
+     só, não duas palavras soltas. */
+  letter-spacing: 0.09em;
+  word-spacing: -0.12em;
   text-transform: none;
   color: var(--circula-taupe); /* TESTE — texto secundário */
+
+  @media (min-width: 1024px) {
+    font-size: 14px;
+  }
 }
 
 /* --- Área da usuária ------------------------------------------- */
@@ -782,7 +810,8 @@
   }
 
   .brand-tagline {
-    font-size: 8.5px;
+    font-size: 9.5px;
+    word-spacing: -0.08em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -13676,16 +13705,24 @@ button.card:focus-visible {
   transition: transform var(--dur-slow) var(--ease-out);
 }
 
-/* overlay extremamente sutil, so nos cards com foto */
+/* Pedido do usuário (refinamento) — escurece só a região de baixo, onde
+   o texto fica (`.exp-card-frame` é `justify-content: flex-end`), com
+   transição mais gradual (4 paradas em vez de 3) e confinada a uma
+   faixa menor da foto (transparente a partir de 52%, era 68% — quase a
+   metade de cima da imagem fica 100% intocada, contra ~1/3 antes).
+   Pico um pouco mais escuro na borda inferior (0.62, era 0.5) para dar
+   contraste suficiente mesmo sobre fotos claras, sem precisar escurecer
+   mais a foto como um todo. */
 .exp-card--photo .exp-card-frame::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(35, 30, 28, 0.5) 0%,
-    rgba(35, 30, 28, 0.08) 44%,
-    rgba(35, 30, 28, 0) 68%
+    rgba(20, 16, 14, 0.62) 0%,
+    rgba(20, 16, 14, 0.42) 18%,
+    rgba(20, 16, 14, 0.16) 36%,
+    rgba(20, 16, 14, 0) 52%
   );
 }
 
@@ -13723,6 +13760,19 @@ button.card:focus-visible {
   color: var(--graphite);
 }
 
+/* Pedido do usuário — espaço entre a saudação ("Bom dia, Seu Círcula de
+   hoje") e o início dos cards desta faixa um pouco maior. `.home` tem
+   um `gap` uniforme entre TODOS os seus filhos — mudá-lo afetaria
+   também as relações entre as outras seções (Círculos, Instagram,
+   cards editoriais), que não foi pedido. `margin-top` aqui soma ao gap
+   do `.home`, só nesta relação específica (greeting -> esta faixa),
+   sem tocar `.home` nem nenhuma outra seção.
+   Pedido do usuário (refinamento) — esse respiro, moderadamente maior
+   (era --space-2 = 8px). */
+.exp-strip--hoje {
+  margin-top: var(--space-4);
+}
+
 /* Correção dos cards (item 1) — "Seu Círcula de Hoje": o nome é o ÚNICO
    texto do card (eyebrow e meta saíram — ver HomeExperienceStrip.tsx) e
    precisa ler bem sobre QUALQUER imagem, não só quando há foto. Por
@@ -13742,13 +13792,21 @@ button.card:focus-visible {
 /* Pedido do usuário — escrita sempre branca (acima, já valia) também
    precisa de contraste no fundo mesmo quando NÃO há foto (tinta sólida
    clara: rosa/areia/etc.) — sem isto o branco quase não lê sobre essas
-   cores claras. Mesma sombra degradê de `.exp-card--photo`, só que sem
-   depender da classe `--photo`: aqui vale pra TODO card desta faixa. */
+   cores claras. Mesmo degradê (refinado) de `.exp-card--photo` acima,
+   só que sem depender da classe `--photo`: aqui vale pra TODO card
+   desta faixa — tratamento consistente entre cards com foto e com
+   fundo sólido, como pedido. */
 .exp-strip--hoje .exp-card-frame::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(35, 30, 28, 0.5) 0%, rgba(35, 30, 28, 0.08) 44%, rgba(35, 30, 28, 0) 68%);
+  background: linear-gradient(
+    0deg,
+    rgba(20, 16, 14, 0.62) 0%,
+    rgba(20, 16, 14, 0.42) 18%,
+    rgba(20, 16, 14, 0.16) 36%,
+    rgba(20, 16, 14, 0) 52%
+  );
 }
 
 /* Correção pontual — faixa "No Instagram" (HomeInstagramStrip.tsx): a
@@ -13981,16 +14039,23 @@ button.card:focus-visible {
 /* Pedido do usuário — escrita sempre branca (ver .circ-card-title/-meta
    abaixo) precisa de contraste mesmo nos cards sem foto (tinta sólida
    clara) — por isso a sombra degradê agora vale pra TODO card, não só
-   `--photo`. */
+   `--photo`.
+   Pedido do usuário (refinamento) — mesmo degradê (refinado) usado em
+   `.exp-card--photo`/`.exp-strip--hoje`: escurece só a região de baixo
+   (onde o texto fica), transição mais gradual, confinada a uma faixa
+   menor da foto (transparente a partir de 52%, era 74%), pico um pouco
+   mais escuro na borda inferior para contraste suficiente sem escurecer
+   a foto inteira. Tratamento consistente entre as duas faixas. */
 .circ-card-frame::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(35, 30, 28, 0.54) 0%,
-    rgba(35, 30, 28, 0.06) 48%,
-    rgba(35, 30, 28, 0) 74%
+    rgba(20, 16, 14, 0.62) 0%,
+    rgba(20, 16, 14, 0.42) 18%,
+    rgba(20, 16, 14, 0.16) 36%,
+    rgba(20, 16, 14, 0) 52%
   );
 }
 
@@ -14112,7 +14177,15 @@ button.card:focus-visible {
 .home-editorial-cards {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  /* Pedido do usuário (refinamento) — espaçamento vertical entre os 3
+     cards, ligeiramente maior (era --space-4 = 16px). */
+  gap: var(--space-5);
+  /* Pedido do usuário — um pouco mais de respiro antes/depois desta
+     seção (entre ela e o divisor do Instagram acima, e entre ela e a
+     nota institucional abaixo), além do gap uniforme de `.home` —
+     escopado aqui, não em `.home`, para não alterar as outras relações
+     entre seções. */
+  margin-block: var(--space-2);
 }
 
 .home-editorial-card {

@@ -48,6 +48,25 @@ import type { RefObject } from 'react'
 // `transform`), então rolagem por roda, trackpad, swipe e teclado
 // continuam funcionando sem concorrência, e os cards seguem sendo
 // botões/links normais, focáveis por Tab.
+//
+// Encaixe em slot ao soltar o toque (ajuste mobile) — o scroll nativo
+// por toque (swipe) não tinha NENHUM assentamento: a rolagem com
+// inércia do navegador podia parar em qualquer ponto, inclusive com um
+// card cortado pela metade. `scroll-snap` nativo não serve aqui — já
+// está desligado de propósito enquanto o ciclo contínuo está ativo
+// (`.exp-viewport--looping`, ver App.css), porque ele disputaria o
+// mesmo `scrollLeft` que o `wrap()` abaixo também escreve a cada
+// instante, causando o salto visível que o CSS já documenta. Em vez
+// disso, o PRÓPRIO `wrap()`/`scrollLeft` é reaproveitado: depois que os
+// eventos `scroll` de origem TOUCH páram de chegar por
+// `SETTLE_DEBOUNCE_MS` (sinal de que a inércia nativa já assentou),
+// `settle()` arredonda a posição atual para o múltiplo mais próximo de
+// `cardSlotRef` (a largura real de UM card + gap, medida no DOM) e
+// anima uma correção curta até lá — nunca um salto abrupto, nunca mais
+// de uma correção por gesto (o debounce reseta a cada evento `scroll`
+// enquanto a inércia ainda está rolando). Só gestos de TOQUE acionam
+// isto (`lastPointerType`) — arrasto de mouse e autoplay no desktop
+// continuam exatamente como eram, sem nenhum assentamento.
 
 /** Distância (px) a partir da qual o gesto é arrasto, não clique. */
 const DRAG_THRESHOLD = 4
@@ -59,6 +78,19 @@ const AUTOPLAY_PX_PER_SEC = 32
  *  da inércia nativa do swipe (scroll momentum) assentar, evitando que
  *  o autoplay e a inércia disputem o mesmo `scrollLeft` ao mesmo tempo. */
 const RESUME_AFTER_TOUCH_MS = 400
+
+/** Tempo (ms) sem nenhum evento `scroll` de origem touch até considerar
+ *  a inércia do swipe assentada e tentar o encaixe no slot mais
+ *  próximo. Curto o bastante para não parecer um atraso, longo o
+ *  bastante para não disparar no meio da rolagem com inércia ainda em
+ *  andamento (que dispara eventos `scroll` com bem menos intervalo que
+ *  isto entre si). */
+const SETTLE_DEBOUNCE_MS = 140
+
+/** Duração (ms) da animação de encaixe no slot — curta e suave, nunca
+ *  um salto; ignorada (correção instantânea) quando `prefers-reduced-
+ *  motion: reduce`. */
+const SETTLE_DURATION_MS = 220
 
 export interface DragCarousel {
   /** Contêiner que rola (`overflow-x: auto`). */
@@ -76,6 +108,11 @@ export function useDragCarousel(itemCount: number): DragCarousel {
   const seqRef = useRef<HTMLUListElement | null>(null)
   /** Largura de uma sequência + a folga até a próxima (0 = sem ciclo). */
   const loopWidthRef = useRef(0)
+  /** Largura real de UM card + o gap até o próximo, medida no DOM (0 =
+   *  ainda não medida, ou sequência curta demais para ter 2 itens).
+   *  Usada só pelo encaixe em slot do toque (`settle`, no efeito
+   *  principal abaixo) — nunca pelo layout em si. */
+  const cardSlotRef = useRef(0)
   const centeredRef = useRef(false)
   const [loop, setLoop] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -103,6 +140,19 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     if (!viewport || !seq) return
 
     const measure = () => {
+      // Largura real de UM card + gap (slot), a partir dos 2 primeiros
+      // itens da sequência REAL — sempre que houver pelo menos 2, ciclo
+      // ligado ou não (um valor "sem ciclo" ainda pode precisar de
+      // encaixe: sequência maior que a viewport, mas não o bastante
+      // pra disparar o ciclo contínuo). Com 0 ou 1 item não há slot
+      // nenhum pra encaixar (nunca cabe "cortado") — fica 0, e o
+      // `settle()` do efeito principal simplesmente não faz nada.
+      const items = seq.children
+      cardSlotRef.current =
+        items.length >= 2
+          ? (items[1] as HTMLElement).offsetLeft - (items[0] as HTMLElement).offsetLeft
+          : 0
+
       const seqWidth = seq.getBoundingClientRect().width
       if (seqWidth <= viewport.clientWidth + 8) {
         loopWidthRef.current = 0
@@ -154,6 +204,88 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     let swallowClick = false
     let resumeTimer: ReturnType<typeof setTimeout> | null = null
 
+    // Encaixe em slot (ajuste mobile) — ver bloco de comentários no topo
+    // do arquivo. `lastPointerType` distingue o gesto que está movendo o
+    // `scrollLeft` agora (ou que moveu por último): só 'touch' arma o
+    // encaixe; nunca 'mouse' (preserva o arrasto/autoplay do desktop
+    // intactos). `touchDown` — dedo ainda na tela: enquanto for true,
+    // nunca tenta encaixar (evita "puxar" o conteúdo de sob o dedo).
+    let lastPointerType: 'mouse' | 'touch' | null = null
+    let touchDown = false
+    let settleTimer: ReturnType<typeof setTimeout> | null = null
+    let snapRafId: number | null = null
+    let isSnapping = false
+
+    const prefersReducedMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    const cancelSnap = () => {
+      if (snapRafId !== null) {
+        cancelAnimationFrame(snapRafId)
+        snapRafId = null
+      }
+      isSnapping = false
+    }
+
+    const clearSettleTimer = () => {
+      if (settleTimer !== null) {
+        clearTimeout(settleTimer)
+        settleTimer = null
+      }
+    }
+
+    // Arredonda a posição atual para o slot (card + gap) mais próximo e
+    // anima uma correção curta até lá. `cardSlotRef` é medido no DOM
+    // (measure(), acima) — reflete a largura REAL de um card em
+    // qualquer breakpoint, nunca um valor calculado às cegas aqui.
+    // Limitado a `[0, scrollWidth - clientWidth]`: nunca cria espaço
+    // vazio depois do último card (relevante quando `loop` é falso —
+    // com o ciclo ligado, `wrap()` já mantém a posição bem longe desses
+    // extremos na prática).
+    const settle = () => {
+      const slot = cardSlotRef.current
+      if (slot <= 0 || activePointer !== null || touchDown) return
+
+      const current = viewport.scrollLeft
+      const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth)
+      let target = Math.round(current / slot) * slot
+      target = Math.max(0, Math.min(target, maxScrollLeft))
+
+      const delta = target - current
+      if (Math.abs(delta) < 0.5) return
+
+      cancelSnap()
+      isSnapping = true
+
+      if (prefersReducedMotion) {
+        viewport.scrollLeft = target
+        wrap()
+        isSnapping = false
+        return
+      }
+
+      const startTime = performance.now()
+      const step = (now: number) => {
+        const t = Math.min(1, (now - startTime) / SETTLE_DURATION_MS)
+        const eased = 1 - (1 - t) ** 3 // ease-out cúbico — some movimento brusco no final
+        viewport.scrollLeft = current + delta * eased
+        wrap()
+        if (t < 1) {
+          snapRafId = requestAnimationFrame(step)
+        } else {
+          snapRafId = null
+          isSnapping = false
+        }
+      }
+      snapRafId = requestAnimationFrame(step)
+    }
+
+    const armSettle = () => {
+      clearSettleTimer()
+      settleTimer = setTimeout(settle, SETTLE_DEBOUNCE_MS)
+    }
+
     const pauseAutoplay = () => {
       if (resumeTimer !== null) {
         clearTimeout(resumeTimer)
@@ -188,16 +320,30 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     // `scrollLeft` com a inércia do swipe que o navegador continua
     // aplicando por conta própria depois do dedo já ter saído.
     const onTouchStart = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') pauseAutoplay()
+      if (event.pointerType !== 'touch') return
+      pauseAutoplay()
+      lastPointerType = 'touch'
+      touchDown = true
+      // Novo toque: qualquer encaixe pendente ou em andamento do gesto
+      // anterior para agora — o dedo assume o `scrollLeft` de volta.
+      clearSettleTimer()
+      cancelSnap()
     }
     const onTouchEnd = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') resumeAutoplay(RESUME_AFTER_TOUCH_MS)
+      if (event.pointerType !== 'touch') return
+      resumeAutoplay(RESUME_AFTER_TOUCH_MS)
+      touchDown = false
+      // Arma já aqui (não só via onScroll): se o dedo soltar sem
+      // nenhuma inércia residual, pode não vir mais nenhum evento
+      // `scroll` — sem isto, o encaixe nunca seria tentado nesse caso.
+      armSettle()
     }
 
     const onPointerDown = (event: PointerEvent) => {
       // Toque e caneta: rolagem nativa (com inércia). Só o mouse, que
       // não tem gesto de arrasto próprio, é tratado aqui.
       if (event.pointerType !== 'mouse' || event.button !== 0) return
+      lastPointerType = 'mouse'
       activePointer = event.pointerId
       lastX = event.clientX
       travelled = 0
@@ -246,7 +392,17 @@ export function useDragCarousel(itemCount: number): DragCarousel {
 
     // Swipe, roda, trackpad, teclado: o ciclo é fechado aqui.
     const onScroll = () => {
+      // Evita reagir aos PRÓPRIOS eventos `scroll` disparados pela
+      // animação de encaixe (`settle`, acima) — ela já chama `wrap()`
+      // a cada quadro por conta própria; rearmar o debounce aqui, no
+      // meio da própria correção, só atrasaria sem motivo.
+      if (isSnapping) return
       if (activePointer === null) wrap()
+      // Rearma o encaixe a cada evento de rolagem de origem touch
+      // (inércia ainda em andamento) — só dispara de fato depois de
+      // `SETTLE_DEBOUNCE_MS` sem nenhum evento novo, isto é, quando a
+      // rolagem já assentou de verdade.
+      if (lastPointerType === 'touch' && !touchDown) armSettle()
     }
 
     // Avanço automático — SÓ no desktop (pedido explícito do usuário:
@@ -299,6 +455,8 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     return () => {
       if (rafId !== null) cancelAnimationFrame(rafId)
       if (resumeTimer !== null) clearTimeout(resumeTimer)
+      clearSettleTimer()
+      cancelSnap()
       viewport.removeEventListener('pointerenter', onPointerEnter)
       viewport.removeEventListener('pointerleave', onPointerLeave)
       viewport.removeEventListener('pointerdown', onTouchStart)

@@ -845,15 +845,15 @@ export function Dashboard({
             </button>
             <h1 className="brand-name">Círcula</h1>
           </div>
-          {/* Pedido do usuário — a frase preenche exatamente a largura
-              do conjunto ícone+"Círcula" (ver .brand/.brand-tagline em
-              App.css): duas palavras como itens de um flex
-              `justify-content: space-between`, nunca uma só string —
-              é o espaço ENTRE elas que cresce, a fonte não muda. */}
-          <p className="brand-tagline">
-            <span>conectando</span>
-            <span>mulheres</span>
-          </p>
+          {/* Pedido do usuário (revisão) — a tentativa anterior esticava o
+              ESPAÇO ENTRE as palavras (flex justify-content:space-between
+              sobre 2 <span>) para preencher a largura do conjunto
+              ícone+"Círcula": lia como duas palavras artificialmente
+              separadas, não uma frase natural. Removido — volta a ser um
+              texto único, espaço entre palavras normal; é a tipografia
+              (tamanho + letter-spacing, ver .brand-tagline em App.css),
+              não o espaçamento entre palavras, que ajusta a largura. */}
+          <p className="brand-tagline">conectando mulheres</p>
         </div>
 
         <div className="dashboard-user">
