@@ -314,3 +314,63 @@ describe('useDragCarousel — encaixe em slot ao soltar o toque (ajuste mobile)'
     expect(viewport.scrollLeft).toBe(610)
   })
 })
+
+/** Correções visuais + carrossel (item 3) — teto de `deltaSeconds` no
+ *  autoplay: se o navegador atrasar um quadro (aba sem foco, trabalho
+ *  pesado na main thread), o PRÓXIMO `requestAnimationFrame` chega com
+ *  um `time` bem mais distante do anterior; sem o teto, aquele único
+ *  quadro tentaria avançar `AUTOPLAY_PX_PER_SEC * deltaSeconds` de uma
+ *  vez — um salto visível. Aqui o `requestAnimationFrame` é capturado
+ *  manualmente (sem `setTimeout`/fake timers) para poder chamar o
+ *  mesmo callback com um `time` arbitrariamente distante do anterior,
+ *  simulando esse atraso com precisão. */
+describe('useDragCarousel — autoplay no desktop (teto de deltaSeconds por quadro)', () => {
+  afterEach(() => {
+    cleanup()
+    vi.unstubAllGlobals()
+  })
+
+  it('depois de um quadro muito atrasado, o avanço daquele quadro fica limitado — nunca um salto de catch-up', () => {
+    // hover:hover + pointer:fine true (desktop/mouse), reduced-motion
+    // false -> allowMotion true, autoplay liga.
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({
+        matches: !query.includes('prefers-reduced-motion'),
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      })),
+    )
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+
+    let tick: ((time: number) => void) | null = null
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      tick = cb as (time: number) => void
+      return 1
+    })
+    vi.stubGlobal('cancelAnimationFrame', () => {})
+
+    const { container } = render(createElement(TestCarousel, { copies: 3 }))
+    const viewport = container.querySelector('[data-testid="viewport"]') as HTMLElement
+    stubLayout(viewport) // força loop=true (3 cópias) — mesmo setup dos outros testes.
+
+    expect(tick).not.toBeNull()
+
+    // 1º quadro: só estabelece lastFrameTime (delta=0 — nenhum motor de
+    // avanço ainda rodou).
+    tick!(0)
+    const afterFirstFrame = viewport.scrollLeft
+
+    // 2º quadro: gap de 5s "reais" (bem maior que qualquer frame normal
+    // a 60fps) — simula o navegador tendo pulado/atrasado quadros.
+    tick!(5000)
+    const advanced = viewport.scrollLeft - afterFirstFrame
+
+    // Sem teto: 32px/s * 5s = 160px num quadro só (o salto perceptível
+    // que este teste existe pra impedir). Com MAX_AUTOPLAY_FRAME_SECONDS
+    // (0.05s): no máximo 32 * 0.05 = 1.6px.
+    expect(advanced).toBeGreaterThan(0)
+    expect(advanced).toBeLessThanOrEqual(1.6 + 1e-6)
+  })
+})

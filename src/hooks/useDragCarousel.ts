@@ -92,6 +92,18 @@ const SETTLE_DEBOUNCE_MS = 140
  *  motion: reduce`. */
 const SETTLE_DURATION_MS = 220
 
+/** Teto (s) do `deltaSeconds` de UM quadro do autoplay — proteção
+ *  contra "salto de catch-up": se o navegador atrasar/pular quadros
+ *  (aba perdendo foco, trabalho pesado na main thread, GC), o próximo
+ *  `requestAnimationFrame` chega com um `time` bem mais distante do
+ *  anterior, e sem este teto o avanço daquele ÚNICO quadro
+ *  (`AUTOPLAY_PX_PER_SEC * deltaSeconds`) tentaria compensar todo o
+ *  tempo perdido de uma vez — um salto visível, abrupto, exatamente o
+ *  tipo de movimento brusco que o autoplay nunca deve ter. Com o teto,
+ *  o pior caso é o avanço ficar mais lento por alguns quadros (nunca
+ *  mais rápido/saltado) até a cadência normal retomar. */
+const MAX_AUTOPLAY_FRAME_SECONDS = 0.05
+
 export interface DragCarousel {
   /** Contêiner que rola (`overflow-x: auto`). */
   viewportRef: RefObject<HTMLDivElement | null>
@@ -427,7 +439,10 @@ export function useDragCarousel(itemCount: number): DragCarousel {
 
     const tick = (time: number) => {
       if (lastFrameTime === null) lastFrameTime = time
-      const deltaSeconds = (time - lastFrameTime) / 1000
+      const deltaSeconds = Math.min(
+        (time - lastFrameTime) / 1000,
+        MAX_AUTOPLAY_FRAME_SECONDS,
+      )
       lastFrameTime = time
 
       if (loopRef.current && !pausedRef.current && activePointer === null) {

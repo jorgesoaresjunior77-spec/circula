@@ -810,8 +810,15 @@
   }
 
   .brand-tagline {
-    font-size: 9.5px;
-    word-spacing: -0.08em;
+    /* Pedido do usuário (correção) — no mobile a frase ficava bem mais
+       estreita que o conjunto ícone+nome acima (9.5px era pequeno
+       demais). Medido via canvas.measureText com a fonte/peso reais
+       (Jost 500) contra a largura real do conjunto no mobile (ícone
+       50px + gap 8px + "Círcula" em Mitr 400 26px ≈ 145px): 13px com
+       este letter-spacing/word-spacing (herdado/ajustado abaixo) fecha
+       em ~142px — ocupa quase toda a largura sem ultrapassá-la. */
+    font-size: 13px;
+    word-spacing: -0.12em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -820,6 +827,21 @@
   .dashboard-user {
     flex: 0 0 auto;
     gap: var(--space-2);
+  }
+
+  /* Pedido do usuário — "Sair" ~20% menor só no mobile (desktop
+     intocado: a regra base, com `min-height`/`padding`/`font-size`
+     maiores, continua valendo lá). `letter-spacing`/`padding` do botão
+     são em `em`/px absolutos — escalam junto com `font-size` aqui (não
+     precisam de recálculo à parte) ou são reduzidos na mesma proporção
+     (~20%) abaixo. `min-height` cai de 44px (pointer:coarse, ver acima
+     — este bloco vem DEPOIS no arquivo e por isso prevalece) para 36px:
+     ~18% menor, não os 20% cheios, para não cair abaixo de uma área de
+     toque ainda confortável. */
+  .dashboard-header button {
+    min-height: 36px;
+    padding: 6px 13px;
+    font-size: 8.5px;
   }
 }
 
@@ -13710,18 +13732,19 @@ button.card:focus-visible {
    transição mais gradual (4 paradas em vez de 3) e confinada a uma
    faixa menor da foto (transparente a partir de 52%, era 68% — quase a
    metade de cima da imagem fica 100% intocada, contra ~1/3 antes).
-   Pico um pouco mais escuro na borda inferior (0.62, era 0.5) para dar
-   contraste suficiente mesmo sobre fotos claras, sem precisar escurecer
-   mais a foto como um todo. */
+   Pico mais escuro na borda inferior (0.72, era 0.62) — reforço de
+   contraste para cobrir fotos reais (enviadas pela Profissional) mais
+   claras do que as de teste, sem precisar escurecer mais a foto como
+   um todo nem alargar a faixa afetada. */
 .exp-card--photo .exp-card-frame::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(20, 16, 14, 0.62) 0%,
-    rgba(20, 16, 14, 0.42) 18%,
-    rgba(20, 16, 14, 0.16) 36%,
+    rgba(20, 16, 14, 0.72) 0%,
+    rgba(20, 16, 14, 0.5) 18%,
+    rgba(20, 16, 14, 0.2) 36%,
     rgba(20, 16, 14, 0) 52%
   );
 }
@@ -13802,9 +13825,9 @@ button.card:focus-visible {
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(20, 16, 14, 0.62) 0%,
-    rgba(20, 16, 14, 0.42) 18%,
-    rgba(20, 16, 14, 0.16) 36%,
+    rgba(20, 16, 14, 0.72) 0%,
+    rgba(20, 16, 14, 0.5) 18%,
+    rgba(20, 16, 14, 0.2) 36%,
     rgba(20, 16, 14, 0) 52%
   );
 }
@@ -13957,6 +13980,21 @@ button.card:focus-visible {
   scrollbar-width: none;
 }
 
+/* Correção (carrossel) — `.circ-viewport` e `.exp-viewport--looping`
+   (classe compartilhada que desliga o scroll-snap durante o ciclo
+   contínuo, ver comentário em useDragCarousel.ts) têm a MESMA
+   especificidade (1 classe cada); como `.circ-viewport` vem depois no
+   arquivo, ele VENCIA e mantinha `scroll-snap-type: x proximity` ativo
+   mesmo com o ciclo ligado — o snap nativo do navegador disputando o
+   `scrollLeft` com o `wrap()` do hook ao mesmo tempo, causando o
+   movimento brusco. `.exp-viewport` nunca sofria disso (sua própria
+   regra de snap vem ANTES de `.exp-viewport--looping`). Specificidade
+   maior aqui (2 classes) garante a desativação sempre que estiver
+   ciclando, para as duas faixas. */
+.circ-viewport.exp-viewport--looping {
+  scroll-snap-type: none;
+}
+
 .circ-viewport::-webkit-scrollbar {
   display: none;
 }
@@ -14052,9 +14090,9 @@ button.card:focus-visible {
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(20, 16, 14, 0.62) 0%,
-    rgba(20, 16, 14, 0.42) 18%,
-    rgba(20, 16, 14, 0.16) 36%,
+    rgba(20, 16, 14, 0.72) 0%,
+    rgba(20, 16, 14, 0.5) 18%,
+    rgba(20, 16, 14, 0.2) 36%,
     rgba(20, 16, 14, 0) 52%
   );
 }
@@ -14101,7 +14139,10 @@ button.card:focus-visible {
      combinada com o degradê de .circ-card-frame::after (agora também
      sem depender de --photo), lê bem sobre qualquer tinta de fundo. */
   color: var(--c-white);
-  opacity: 0.96;
+  /* Pedido do usuário (correção) — era 0.96: quase branco, mas não
+     totalmente. Opacidade plena garante que a cor computada seja
+     mesmo branco puro, não uma mistura com o fundo. */
+  opacity: 1;
   -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
   transition: opacity var(--dur) var(--ease);
@@ -14229,6 +14270,17 @@ button.card:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Pedido do usuário — enquadramento melhor no contêiner 16:9: fotos
+     de evento/receita/produto costumam vir em retrato ou quadradas (o
+     restante do app recomenda 4:5), então um `cover` centralizado corta
+     bastante topo/base. Sem saber o sujeito real da foto, o viés mais
+     seguro é puxar o ponto focal para o terço superior (onde rosto/prato
+     tende a estar), nunca para a base — reduz corte de cabeça/topo do
+     prato sem exigir reenquadramento manual. Os banners editoriais
+     próprios (community_card_images, chaves *_grande) recomendam 16:9
+     — enviados nessa proporção, este `object-position` quase não entra
+     em jogo (a foto já cabe quase inteira). */
+  object-position: 50% 30%;
 }
 
 .home-editorial-card-media-fallback {
@@ -14692,16 +14744,14 @@ button.card:focus-visible {
   color: var(--graphite);
 }
 
-.card-images-field .cover-image-input-placeholder::after {
-  content: '4:5 · até 5 MB';
-  display: block;
-  margin-top: var(--space-1);
-  font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--graphite-soft);
-}
+/* Correções visuais + Painel de imagens (item 4) — o texto fixo "4:5 ·
+   até 5 MB" que existia aqui (::after) ficava ERRADO para os novos
+   campos 16:9 (banners editoriais) — era texto de CSS, alheio ao
+   `aspectRatio`/`recommendedSize` reais passados por cada
+   `CoverImageInput`. Removido sem perda de informação: o tamanho
+   recomendado de CADA campo já aparece correto duas vezes (o
+   `.cover-image-input-size-hint` dentro do quadro, que respeita
+   `recommendedSize`, e o `.card-images-guide` logo abaixo do botão). */
 
 /* Orientação discreta ao lado de cada campo (só no Painel). */
 .card-images-guide {
@@ -14817,6 +14867,15 @@ button.card:focus-visible {
 .insta-slot-form-actions {
   display: flex;
   gap: var(--space-2);
+}
+
+/* Correções visuais + Painel de imagens (item 5) — imagem própria do
+   espaço, sempre visível abaixo do link (editando-o ou não). Só um
+   respiro: o `CoverImageInput` já traz todo o resto do próprio estilo. */
+.insta-slot-image {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-soft);
 }
 
 /* =====================================================================

@@ -60,6 +60,9 @@ function baseProps() {
     receitasCover: null,
     eventosCover: null,
     lojaCover: null,
+    eventosCoverGrande: null,
+    receitasCoverGrande: null,
+    lojaCoverGrande: null,
     nextEvent: null,
     nextEventCover: null,
     recipesCount: 0,
@@ -317,5 +320,70 @@ describe('HomeEditorialCards — acessibilidade e estrutura (sem texto sobrepost
 
     const img = cardButtonWith('Roda de conversa').querySelector('img')
     expect(img).toHaveAttribute('alt', '')
+  })
+})
+
+describe('HomeEditorialCards — banners editoriais grandes (item 4, independentes das capas dos cards compactos)', () => {
+  afterEach(() => {
+    cleanup()
+    vi.clearAllMocks()
+  })
+
+  it('eventosCoverGrande tem prioridade máxima, mesmo com foto do próprio evento e capa genérica também cadastradas', () => {
+    render(
+      <HomeEditorialCards
+        {...baseProps()}
+        nextEvent={NEXT_EVENT}
+        eventosCoverGrande="https://example.com/banner-eventos.jpg"
+        nextEventCover="https://example.com/evento-proprio.jpg"
+        eventosCover="https://example.com/capa-generica.jpg"
+      />,
+    )
+
+    const img = cardButtonWith('Roda de conversa').querySelector('img')
+    expect(img).toHaveAttribute('src', 'https://example.com/banner-eventos.jpg')
+  })
+
+  it('receitasCoverGrande tem prioridade máxima sobre a foto da própria receita e a capa genérica', () => {
+    render(
+      <HomeEditorialCards
+        {...baseProps()}
+        featuredRecipe={RECIPE}
+        receitasCoverGrande="https://example.com/banner-receitas.jpg"
+        featuredRecipeCover="https://example.com/receita-propria.jpg"
+        receitasCover="https://example.com/capa-generica.jpg"
+      />,
+    )
+
+    const img = cardButtonWith('Panqueca de banana').querySelector('img')
+    expect(img).toHaveAttribute('src', 'https://example.com/banner-receitas.jpg')
+  })
+
+  it('lojaCoverGrande tem prioridade máxima sobre a foto do próprio produto e a capa genérica', () => {
+    render(
+      <HomeEditorialCards
+        {...baseProps()}
+        featuredProduct={PRODUCT}
+        lojaCoverGrande="https://example.com/banner-loja.jpg"
+        lojaCover="https://example.com/capa-generica.jpg"
+      />,
+    )
+
+    const img = cardButtonWith('Guia de receitas').querySelector('img')
+    expect(img).toHaveAttribute('src', 'https://example.com/banner-loja.jpg')
+  })
+
+  it('sem nenhum banner editorial cadastrado, a cascata de fallback atual continua intacta', () => {
+    render(
+      <HomeEditorialCards
+        {...baseProps()}
+        nextEvent={NEXT_EVENT}
+        nextEventCover="https://example.com/evento-proprio.jpg"
+        eventosCover="https://example.com/capa-generica.jpg"
+      />,
+    )
+
+    const img = cardButtonWith('Roda de conversa').querySelector('img')
+    expect(img).toHaveAttribute('src', 'https://example.com/evento-proprio.jpg')
   })
 })

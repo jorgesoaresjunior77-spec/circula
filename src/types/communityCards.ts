@@ -30,6 +30,16 @@
 // NÃO confundir com a seção separada "Publicações do Instagram", que
 // usa community_content, nunca esta tabela.
 
+// Correções visuais + Painel de imagens (item 4) — três chaves NOVAS
+// para os banners editoriais grandes de Eventos/Receitas/Loja
+// (<HomeEditorialCards>), independentes das capas dos cards compactos
+// acima. AINDA NÃO EXISTEM no CHECK de `community_card_images`
+// (migration 20260924120000 — só aceita hoje/desafios/eventos/
+// comunidade/jornada/instagram) — region abaixo (EDITORIAL_CARD_META)
+// e o restante do código já estão prontos para usá-las, mas a escrita
+// vai falhar (CHECK constraint) até a migration que adiciona estas 3
+// chaves ao `array[...]` ser aplicada no banco remoto. Ver relatório da
+// sessão para a migration preparada (não executada) e a justificativa.
 export type CommunityCardKey =
   | 'eventos'
   | 'jornada'
@@ -37,6 +47,9 @@ export type CommunityCardKey =
   | 'desafios'
   | 'comunidade'
   | 'instagram'
+  | 'eventos_grande'
+  | 'jornada_grande'
+  | 'comunidade_grande'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -56,3 +69,37 @@ export const COMMUNITY_CARD_KEYS = COMMUNITY_CARD_META.map((c) => c.key)
 
 export const COMMUNITY_CARD_IMAGE_FORMAT =
   'Formato recomendado: retrato 4:5 (ex.: 1080 × 1350 px). JPG, PNG ou WebP, até 5 MB. Outras proporções são aceitas, mas podem aparecer recortadas.'
+
+// Banners editoriais grandes (Receitas/Eventos/Loja na Home, ver
+// HomeEditorialCards.tsx) — independentes das capas acima. Reusam as
+// MESMAS chaves legadas como prefixo (eventos/jornada/comunidade, que
+// já mapeiam para Eventos/Receitas/Loja) com o sufixo `_grande`, só
+// para deixar a relação óbvia; não têm nenhuma outra ligação com as
+// capas dos cards compactos — a Profissional pode cadastrar uma sem
+// mexer na outra.
+export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
+  {
+    key: 'eventos_grande',
+    label: 'Eventos',
+    hint: 'Banner grande da vitrine de Eventos na Home — independente da capa do card compacto acima.',
+  },
+  {
+    key: 'jornada_grande',
+    label: 'Receitas',
+    hint: 'Banner grande da vitrine de Receitas na Home — independente da capa do card compacto acima.',
+  },
+  {
+    key: 'comunidade_grande',
+    label: 'Loja',
+    hint: 'Banner grande da vitrine da Loja na Home — independente da capa do card compacto acima.',
+  },
+]
+
+export const EDITORIAL_CARD_KEYS = EDITORIAL_CARD_META.map((c) => c.key)
+
+// O contêiner real (.home-editorial-card-media, App.css) é 16:9 — bem
+// diferente do 4:5 dos cards compactos. Recomendar o mesmo formato do
+// contêiner é o que realmente minimiza corte (object-fit: cover só
+// precisa agir quando a proporção enviada diverge desta).
+export const EDITORIAL_CARD_IMAGE_FORMAT =
+  'Formato recomendado: paisagem 16:9 (ex.: 1600 × 900 px). JPG, PNG ou WebP, até 5 MB. Outras proporções são aceitas, mas podem aparecer recortadas.'

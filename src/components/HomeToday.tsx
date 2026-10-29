@@ -175,6 +175,14 @@ export function HomeToday({
   // assinatura, então HomeEditorialCards faz o mesmo.
   const { url: nextEventCover } = useSignedImageUrl(railSummary?.nextEvent?.cover_image_url ?? null)
   const { url: featuredRecipeCover } = useSignedImageUrl(featuredRecipe?.cover_image_url ?? null)
+  // Correções visuais (item 4) — banners editoriais grandes, independentes
+  // das capas dos cards compactos acima (chaves *_grande, ver
+  // types/communityCards.ts). Prioridade máxima em HomeEditorialCards —
+  // na ausência delas, a cascata de fallback atual (foto do item em
+  // destaque -> capa do card compacto) segue intocada.
+  const { url: eventosCoverGrande } = useSignedImageUrl(cardImagePaths.eventos_grande ?? null)
+  const { url: receitasCoverGrande } = useSignedImageUrl(cardImagePaths.jornada_grande ?? null)
+  const { url: lojaCoverGrande } = useSignedImageUrl(cardImagePaths.comunidade_grande ?? null)
 
   const greetingName = firstName(profile.full_name)
   const greeting = (
@@ -296,6 +304,9 @@ export function HomeToday({
         receitasCover={receitasCover}
         eventosCover={eventosCover}
         lojaCover={lojaCover}
+        eventosCoverGrande={eventosCoverGrande}
+        receitasCoverGrande={receitasCoverGrande}
+        lojaCoverGrande={lojaCoverGrande}
         nextEvent={railSummary?.nextEvent ?? null}
         nextEventCover={nextEventCover}
         recipesCount={recipesCount}

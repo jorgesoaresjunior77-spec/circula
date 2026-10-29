@@ -4,6 +4,7 @@ import { useContent } from '../hooks/useContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { isInstagramUrl } from '../lib/instagramContent'
 import type { CommunityContent } from '../types/content'
+import { CoverImageInput } from './CoverImageInput'
 
 // Ajustes de navegação (item 5C) — "Imagens da comunidade" > Publicações
 // do Instagram.
@@ -11,12 +12,23 @@ import type { CommunityContent } from '../types/content'
 // Reaproveita 100% `community_content` (mesma tabela de sempre, sem
 // migration nova): cada espaço é um item publicado com `external_url`
 // do Instagram. Diferença em relação à Biblioteca/ContentManager: aqui
-// a Profissional só informa o LINK — nenhum campo de imagem, título ou
-// descrição aparece. Por baixo, o item é salvo com título vazio e sem
-// capa (a Home já lida bem com os dois ausentes, ver HomeInstagramStrip
-// e InstagramCard). 6 espaços fixos, numerados 1–6: os já cadastrados
+// a Profissional só informa o LINK — nenhum campo de título ou
+// descrição aparece. Por baixo, o item é salvo com título vazio (a Home
+// já lida bem com título ausente, ver HomeInstagramStrip e
+// InstagramCard). 6 espaços fixos, numerados 1–6: os já cadastrados
 // aparecem na ordem em que foram criados; o próximo link preenchido
 // sempre ocupa o primeiro espaço vazio.
+//
+// Correções visuais + Painel de imagens (item 5) — imagem própria por
+// espaço: `cover_image_url` JÁ EXISTE na linha (campo genérico de
+// `community_content`, usado por receita/evento/etc.) — nenhuma
+// migration, nenhum campo novo; só faltava o upload na UI. Reusa o
+// MESMO `CoverImageInput` do resto do app (upload direto para
+// `community-media`, devolve o PATH). Só aparece depois que o link já
+// foi salvo (precisa de uma linha para atualizar) — o espaço vazio
+// continua pedindo só o link primeiro, como antes. HomeInstagramStrip
+// JÁ exibe `cover_image_url` quando presente (nenhuma mudança do lado
+// da Home) — essa é a ÚNICA peça que faltava.
 
 const TOTAL_SLOTS = 6
 
@@ -37,19 +49,40 @@ function slotPreviewLabel(url: string): string {
 interface SlotProps {
   index: number
   item: CommunityContent | null
+  communityId: string
+  profileId: string
   onSave: (url: string) => Promise<{ error: string | null }>
   onRemove: () => Promise<{ error: string | null }>
+  /** Correções visuais + Painel de imagens (item 5) — grava o novo PATH
+   *  (ou `''` ao remover) em `cover_image_url`, preservando o link e o
+   *  resto da linha. Só chamado quando `item` já existe. */
+  onImageSave: (path: string) => Promise<{ error: string | null }>
 }
 
-function InstagramSlot({ index, item, onSave, onRemove }: SlotProps) {
+function InstagramSlot({
+  index,
+  item,
+  communityId,
+  profileId,
+  onSave,
+  onRemove,
+  onImageSave,
+}: SlotProps) {
   const { url: coverUrl } = useSignedImageUrl(item?.cover_image_url ?? null)
   const [editing, setEditing] = useState(false)
   const [url, setUrl] = useState(item?.external_url ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imageError, setImageError] = useState(false)
 
   const isEmpty = !item
   const showForm = isEmpty || editing
+
+  async function handleImageChange(path: string) {
+    setImageError(false)
+    const result = await onImageSave(path)
+    if (result.error) setImageError(true)
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -157,6 +190,30 @@ function InstagramSlot({ index, item, onSave, onRemove }: SlotProps) {
             {error}
           </p>
         )}
+
+        {/* Correções visuais + Painel de imagens (item 5) — imagem
+            própria do espaço. Só depois que o link já existe (precisa de
+            uma linha para atualizar); o espaço vazio pede o link
+            primeiro, como antes. Mesmo `CoverImageInput` de sempre —
+            upload, preview e troca já vêm prontos dele. */}
+        {item && (
+          <div className="insta-slot-image">
+            <CoverImageInput
+              value={item.cover_image_url ?? ''}
+              communityId={communityId}
+              uid={profileId}
+              label="Imagem própria (opcional)"
+              onChange={(path) => void handleImageChange(path)}
+              aspectRatio="4 / 5"
+              recommendedSize="1080 × 1350 px"
+            />
+            {imageError && (
+              <p className="card-images-error" role="alert">
+                Não foi possível salvar a imagem agora. Tente novamente.
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </li>
   )
@@ -181,8 +238,9 @@ export function InstagramSlotsManager({ communityId, profileId }: InstagramSlots
       <header className="card-images-head">
         <h4 className="card-images-title">Publicações do Instagram</h4>
         <p className="card-images-desc">
-          Cole o link de cada publicação. Só o link — sem imagem, título ou
-          descrição.
+          Cole o link de cada publicação. Depois de salvo, você pode enviar
+          uma imagem própria para o card — sem ela, a Home mostra só o selo
+          "Instagram".
         </p>
       </header>
 
@@ -196,6 +254,8 @@ export function InstagramSlotsManager({ communityId, profileId }: InstagramSlots
               key={item?.id ?? `empty-${index}`}
               index={index}
               item={item}
+              communityId={communityId}
+              profileId={profileId}
               onSave={async (url) => {
                 if (item) {
                   return updateContent(item.id, {
@@ -221,6 +281,19 @@ export function InstagramSlotsManager({ communityId, profileId }: InstagramSlots
               onRemove={async () => {
                 if (!item) return { error: null }
                 return deleteContent(item.id)
+              }}
+              onImageSave={async (path) => {
+                if (!item) return { error: null }
+                return updateContent(item.id, {
+                  type: item.type,
+                  title: item.title,
+                  summary: item.summary,
+                  body: item.body,
+                  cover_image_url: path || null,
+                  external_url: item.external_url,
+                  category: item.category,
+                  status: 'published',
+                })
               }}
             />
           ))}

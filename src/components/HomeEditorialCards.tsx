@@ -82,6 +82,15 @@ interface HomeEditorialCardsProps {
   receitasCover?: string | null
   eventosCover?: string | null
   lojaCover?: string | null
+  /** Correções visuais (item 4) — banner editorial grande, independente
+   *  da capa do card compacto (`eventosCover`/`receitasCover`/
+   *  `lojaCover` acima) e da foto do item em destaque. Prioridade
+   *  máxima quando cadastrado (Painel → Imagens da comunidade → Banners
+   *  editoriais grandes); ausente, a cascata de fallback atual segue
+   *  intocada. */
+  eventosCoverGrande?: string | null
+  receitasCoverGrande?: string | null
+  lojaCoverGrande?: string | null
   nextEvent: NextEvent | null
   /** Foto do PRÓPRIO evento (já assinada, se o path exigir) — prioridade sobre `eventosCover`. */
   nextEventCover?: string | null
@@ -100,6 +109,9 @@ export function HomeEditorialCards({
   receitasCover,
   eventosCover,
   lojaCover,
+  eventosCoverGrande,
+  receitasCoverGrande,
+  lojaCoverGrande,
   nextEvent,
   nextEventCover,
   recipesCount,
@@ -118,7 +130,7 @@ export function HomeEditorialCards({
         : nextEvent.is_online
           ? 'Online'
           : 'Presencial',
-      image: nextEventCover ?? eventosCover ?? null,
+      image: eventosCoverGrande ?? nextEventCover ?? eventosCover ?? null,
       title: nextEvent ? nextEvent.title : 'Nenhum evento agendado',
       subtitle: nextEvent ? formatEventDate(nextEvent.starts_at) : 'Fique de olho — novos eventos aparecem aqui',
       footer: null,
@@ -129,7 +141,7 @@ export function HomeEditorialCards({
       key: 'receitas',
       eyebrow: 'Receitas',
       tag: featuredRecipe?.category ?? null,
-      image: featuredRecipeCover ?? receitasCover ?? null,
+      image: receitasCoverGrande ?? featuredRecipeCover ?? receitasCover ?? null,
       title: featuredRecipe ? featuredRecipe.title : 'Receitas da comunidade',
       subtitle: featuredRecipe
         ? (featuredRecipe.summary ?? null)
@@ -142,7 +154,7 @@ export function HomeEditorialCards({
       key: 'loja',
       eyebrow: 'Loja',
       tag: featuredProduct ? PRODUCT_TYPE_LABELS[featuredProduct.type] : null,
-      image: featuredProduct?.cover_image_url ?? lojaCover ?? null,
+      image: lojaCoverGrande ?? featuredProduct?.cover_image_url ?? lojaCover ?? null,
       title: featuredProduct ? featuredProduct.title : 'Loja da comunidade',
       subtitle: featuredProduct
         ? formatPriceBRL(featuredProduct.price_cents)
