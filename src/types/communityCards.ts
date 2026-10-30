@@ -33,13 +33,10 @@
 // Correções visuais + Painel de imagens (item 4) — três chaves NOVAS
 // para os banners editoriais grandes de Eventos/Receitas/Loja
 // (<HomeEditorialCards>), independentes das capas dos cards compactos
-// acima. AINDA NÃO EXISTEM no CHECK de `community_card_images`
-// (migration 20260924120000 — só aceita hoje/desafios/eventos/
-// comunidade/jornada/instagram) — region abaixo (EDITORIAL_CARD_META)
-// e o restante do código já estão prontos para usá-las, mas a escrita
-// vai falhar (CHECK constraint) até a migration que adiciona estas 3
-// chaves ao `array[...]` ser aplicada no banco remoto. Ver relatório da
-// sessão para a migration preparada (não executada) e a justificativa.
+// acima. Adicionadas ao CHECK de `community_card_images` pela migration
+// 20261029120000 (aditiva, já aplicada e validada no banco remoto) —
+// EDITORIAL_CARD_META abaixo e o restante do código já usam as 3 chaves
+// normalmente.
 export type CommunityCardKey =
   | 'eventos'
   | 'jornada'

@@ -17,12 +17,9 @@ import { CoverImageInput } from './CoverImageInput'
 // `community_card_images`, então as duas listas de chaves nunca se
 // pisam; só a UI é duas seções separadas, por clareza.
 //
-// IMPORTANTE — as chaves *_grande ainda NÃO existem no CHECK da tabela
-// (migration 20260924120000). Até a migration que as adiciona ser
-// aplicada no banco remoto, `setImage`/`clearImage` aqui devolvem erro
-// (constraint violation) — o aviso de erro já existente no card cobre
-// esse caso (mesma UX de qualquer outra falha de rede/RLS, sem mensagem
-// especial). Ver relatório da sessão para a migration preparada.
+// As chaves *_grande já existem no CHECK da tabela (migration
+// 20261029120000, aditiva, aplicada e validada no banco remoto) —
+// `setImage`/`clearImage` funcionam normalmente para elas.
 
 interface EditorialCardImagesManagerProps {
   communityId: string

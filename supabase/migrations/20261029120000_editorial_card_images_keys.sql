@@ -1,10 +1,7 @@
 -- =====================================================================
 -- Banners editoriais grandes — 3 novas chaves em community_card_images
 -- =====================================================================
--- NÃO APLICADA AINDA — escrita para a sessão de "Correções visuais e
--- melhorias no painel de imagens", aguardando autorização explícita do
--- usuário antes de rodar contra o banco remoto (ver relatório da
--- sessão).
+-- APLICADA e validada no banco remoto (2026-10-29).
 --
 -- Contexto: a Profissional pediu imagens PRÓPRIAS para os 3 banners
 -- grandes de Receitas/Eventos/Loja na Home (<HomeEditorialCards>),
