@@ -31,3 +31,6 @@ identidadevisual/emojis 3d/
 # imagens-fonte dos cards (material de origem, nao vai para o git)
 identidadevisual/Cards/
 identidadevisual/Meu Jardim/
+
+# configuracao local do Claude Code
+.claude/
