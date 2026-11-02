@@ -27,3 +27,7 @@ identidadevisual/emojis 3d/
 
 # rascunhos locais
 .scratch/
+
+# imagens-fonte dos cards (material de origem, nao vai para o git)
+identidadevisual/Cards/
+identidadevisual/Meu Jardim/
