@@ -52,6 +52,9 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{}')
           echo "HTTP ${code}"
-          cat /tmp/sweep.json || true
-          echo
+          # so as contagens; nunca o corpo bruto (em erro 5xx ele traz a mensagem da excecao)
+          if [ "${code}" = "200" ]; then
+            jq -c '{blocked_trial, blocked_grace, blocked_canceled, notifications_created}' /tmp/sweep.json || echo "resposta sem contagens"
+          fi
+          rm -f /tmp/sweep.json
           test "${code}" = "200"
