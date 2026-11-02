@@ -89,6 +89,7 @@ export function NotificationBell({
     <div className="notification-bell" ref={containerRef}>
       <button
         type="button"
+        id="tour-notification-bell"
         className="notification-bell-button"
         aria-label={
           unreadCount > 0

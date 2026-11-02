@@ -25,6 +25,30 @@ export interface Profile {
    *  de um compartilhamento de conclusão no momento em que é feito. */
   garden_color_one: GardenColor | null
   garden_color_two: GardenColor | null
+  /** Etapa 8/9 (evolução/gamificação) — `undefined` SÓ enquanto a
+   *  migration preparada (não aplicada ainda) não tiver rodado no
+   *  remoto (ver useAuth.refreshProfile, fallback em cascata); nunca
+   *  defina manualmente como `undefined` em código novo — depois da
+   *  migration aplicada, é sempre `OnboardingAnswers | null`.
+   *  Onboarding/tour NUNCA aparecem enquanto for `undefined` (ver
+   *  Dashboard.tsx) — é o sinal de "coluna ainda não existe no banco",
+   *  diferente de `null` ("existe, mas ainda não concluído"). */
+  onboarding_answers?: OnboardingAnswers | null
+  onboarding_completed_at?: string | null
+  tour_completed_at?: string | null
+}
+
+/** Etapa 8 (evolução/gamificação) — respostas do onboarding. Tudo
+ *  opcional: nenhuma pergunta é obrigatória (pedido explícito do
+ *  usuário). `interesses` NÃO mora aqui — reaproveita 100%
+ *  `profiles.interests` (mesmo array já usado em "Um pouco sobre mim",
+ *  ABOUT_ME_OPTIONS), por isso não é campo deste tipo. */
+export interface OnboardingAnswers {
+  preferred_name?: string
+  current_moment?: string
+  participation_style?: string[]
+  why_joined?: string
+  expectations?: string
 }
 
 export interface ProfileUpdateInput {
@@ -35,6 +59,9 @@ export interface ProfileUpdateInput {
   gallery_photos?: string[]
   garden_color_one?: GardenColor | null
   garden_color_two?: GardenColor | null
+  onboarding_answers?: OnboardingAnswers
+  onboarding_completed_at?: string
+  tour_completed_at?: string
 }
 
 export interface ProfileOverview {

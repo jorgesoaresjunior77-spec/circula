@@ -17,6 +17,9 @@ interface MyProfileProps {
    *  `null` (ex.: Master, que não participa de comunidade) omite o
    *  bloco inteiro — o resto do perfil funciona exatamente igual. */
   communityId: string | null
+  /** Etapa 9 (evolução/gamificação) — "Deixar uma opção para acessar o
+   *  tutorial novamente", pedido explícito do usuário. */
+  onRestartTour: () => void
 }
 
 export function MyProfile({
@@ -25,6 +28,7 @@ export function MyProfile({
   onUploadAvatar,
   onUploadGalleryPhoto,
   communityId,
+  onRestartTour,
 }: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
@@ -282,9 +286,16 @@ export function MyProfile({
             </p>
           )}
 
-          <button type="button" className="profile-edit-action" onClick={startEditing}>
-            Editar perfil
-          </button>
+          <div className="profile-actions-row">
+            <button type="button" className="profile-edit-action" onClick={startEditing}>
+              Editar perfil
+            </button>
+            {/* Etapa 9 — rever o tour guiado quando quiser, sem esperar
+                um novo onboarding (que só acontece uma vez). */}
+            <button type="button" className="auth-link" onClick={onRestartTour}>
+              Rever o tour do Círcula
+            </button>
+          </div>
         </>
       ) : (
         <form onSubmit={handleSubmit}>

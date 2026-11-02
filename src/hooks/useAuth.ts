@@ -28,6 +28,13 @@ const INITIAL_INVITE_ERROR =
 // colunas novas); `PROFILE_SELECT_GARDEN` tenta trazê-las também.
 const PROFILE_SELECT_BASE = 'id, role, full_name, avatar_url, interests, bio, city, gallery_photos'
 const PROFILE_SELECT_GARDEN = `${PROFILE_SELECT_BASE}, garden_color_one, garden_color_two`
+// Etapa 8/9 (evolução/gamificação) — onboarding_answers/onboarding_completed_at/
+// tour_completed_at só existem depois que a migration preparada (NÃO
+// aplicada ainda) rodar no remoto. Mesmo padrão de fallback por coluna
+// inexistente já usado acima para garden_color_one/two — 3o nível, não
+// 2o: tenta com as colunas novas, cai para PROFILE_SELECT_GARDEN (sem
+// elas) se a 42703 disparar.
+const PROFILE_SELECT_ONBOARDING = `${PROFILE_SELECT_GARDEN}, onboarding_answers, onboarding_completed_at, tour_completed_at`
 // Código Postgres de "coluna inexistente" (42703), repassado pelo
 // PostgREST em error.code — é o único caso em que vale tentar de novo
 // sem as colunas novas. Qualquer outro erro (rede, RLS, sessão) não é
@@ -86,7 +93,7 @@ export function useAuth() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select(PROFILE_SELECT_GARDEN)
+      .select(PROFILE_SELECT_ONBOARDING)
       .eq('id', session.user.id)
       .single()
 
@@ -95,23 +102,48 @@ export function useAuth() {
       return
     }
 
-    // Banco ainda sem garden_color_one/garden_color_two (migration do
-    // Meu Jardim pendente de aplicação) — refaz a consulta sem elas,
-    // para não perder full_name/avatar/etc. só por causa de 2 colunas
-    // opcionais que ainda não existem. As duas ficam `null` (mesmo
-    // valor que teriam recém-criadas, já que a coluna é nullable).
+    // Banco ainda sem onboarding_answers/onboarding_completed_at/
+    // tour_completed_at (migration da Etapa 8/9 pendente de aplicação)
+    // — refaz sem elas. Propositalmente NÃO preenche as 3 com um valor
+    // default (nem `null`): ficam `undefined` no objeto, e é esse
+    // `undefined` (coluna nunca confirmada) que o Dashboard usa para
+    // NUNCA mostrar o onboarding/tour enquanto a migration não tiver
+    // sido aplicada — sem isto, toda sessão veria o onboarding de novo
+    // a cada carregamento (a conclusão nunca conseguiria ser salva).
     if (error.code === UNDEFINED_COLUMN_ERROR_CODE) {
-      const fallback = await supabase
+      const gardenResult = await supabase
         .from('profiles')
-        .select(PROFILE_SELECT_BASE)
+        .select(PROFILE_SELECT_GARDEN)
         .eq('id', session.user.id)
         .single()
 
-      setProfile(
-        fallback.error
-          ? null
-          : { ...fallback.data, garden_color_one: null, garden_color_two: null },
-      )
+      if (!gardenResult.error) {
+        setProfile(gardenResult.data)
+        return
+      }
+
+      // Banco também ainda sem garden_color_one/garden_color_two
+      // (migration do Meu Jardim pendente) — mesmo princípio, mais um
+      // nível: refaz sem elas. As duas ficam `null` (coluna nullable,
+      // mesmo valor que teriam recém-criadas) — diferente das 3 de
+      // onboarding/tour acima, GardenColorPicker já sabe lidar com
+      // `null` sem gatear nenhuma tela por trás disso.
+      if (gardenResult.error.code === UNDEFINED_COLUMN_ERROR_CODE) {
+        const baseResult = await supabase
+          .from('profiles')
+          .select(PROFILE_SELECT_BASE)
+          .eq('id', session.user.id)
+          .single()
+
+        setProfile(
+          baseResult.error
+            ? null
+            : { ...baseResult.data, garden_color_one: null, garden_color_two: null },
+        )
+        return
+      }
+
+      setProfile(null)
       return
     }
 

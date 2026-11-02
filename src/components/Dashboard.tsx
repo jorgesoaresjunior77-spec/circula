@@ -12,6 +12,8 @@ import { Feed } from './Feed'
 import { CircleList } from './CircleList'
 import { CircleDetail } from './CircleDetail'
 import { CircleRequestForm } from './CircleRequestForm'
+import { Onboarding } from './Onboarding'
+import { Tour } from './Tour'
 import { EventList } from './EventList'
 import { useEvents } from '../hooks/useEvents'
 import { SavedItems } from './SavedItems'
@@ -151,6 +153,9 @@ export function Dashboard({
   // (um flag de mais, já que os dois nunca ficam ativos ao mesmo tempo:
   // abrir um sempre fecha o outro — ver handleNavigate/handlers abaixo).
   const [showNewCircleForm, setShowNewCircleForm] = useState(false)
+  // Etapa 9 (evolução/gamificação) — tour guiado: disparado pelo fim do
+  // onboarding (Etapa 8) ou manualmente ("Rever o tour" no Perfil).
+  const [showTour, setShowTour] = useState(false)
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
   const [circlesCommunityId, setCirclesCommunityId] = useState<string | null>(null)
 
@@ -467,6 +472,7 @@ export function Dashboard({
           onUploadAvatar={onUploadAvatar}
           onUploadGalleryPhoto={onUploadGalleryPhoto}
           communityId={railCommunity?.id ?? null}
+          onRestartTour={() => setShowTour(true)}
         />
       )
     }
@@ -957,6 +963,33 @@ export function Dashboard({
         </div>
       )}
 
+      {/* Etapa 8 (evolução/gamificação) — onboarding de boas-vindas, só
+          para Member (quem de fato ingressa numa comunidade) e só
+          quando `onboarding_completed_at` é EXPLICITAMENTE `null` —
+          nunca quando `undefined` (migration preparada, ainda não
+          aplicada; ver nota em types/profile.ts e useAuth.refreshProfile). */}
+      {profile && profile.role === 'member' && profile.onboarding_completed_at === null && (
+        <Onboarding
+          profile={profile}
+          onUpdateProfile={onUpdateProfile}
+          onDone={() => {}}
+          onStartTour={() => setShowTour(true)}
+        />
+      )}
+
+      {/* Etapa 9 — tour guiado, disparado ao concluir o onboarding
+          (onStartTour acima) ou manualmente ("Rever o tour" no Perfil,
+          ver handleRestartTour). */}
+      {showTour && (
+        <Tour
+          onNavigate={handleNavigate}
+          onDone={() => {
+            setShowTour(false)
+            if (profile?.tour_completed_at === undefined) return // migration ainda não aplicada
+            void onUpdateProfile({ tour_completed_at: new Date().toISOString() })
+          }}
+        />
+      )}
     </section>
   )
 }

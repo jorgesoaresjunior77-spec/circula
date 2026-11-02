@@ -71,6 +71,7 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
           <li key={item.key}>
             <button
               type="button"
+              id={`tour-nav-desktop-${item.key}`}
               className={`topnav-item${active === item.key ? ' topnav-item--active' : ''}`}
               aria-current={active === item.key ? 'page' : undefined}
               title={item.label}
@@ -97,6 +98,7 @@ export function PrimaryNav({ items, active, onNavigate, badges }: PrimaryNavProp
               <li key={item.key}>
                 <button
                   type="button"
+                  id={`tour-nav-mobile-${item.key}`}
                   className={`bottom-nav-item${active === item.key ? ' bottom-nav-item--active' : ''}${isFeed ? ' bottom-nav-item--feed' : ''}`}
                   aria-current={active === item.key ? 'page' : undefined}
                   onClick={() => onNavigate(item.key)}
