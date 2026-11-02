@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 identidadevisual/emojis 3d/
+
+# rascunhos locais
+.scratch/

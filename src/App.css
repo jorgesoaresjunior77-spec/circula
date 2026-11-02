@@ -621,7 +621,10 @@
 
 .brand-row {
   display: flex;
-  align-items: center;
+  /* Pedido do usuário (evolução/gamificação, item 2.5) — "Círcula" deve
+     ficar alinhado pela parte INFERIOR do ícone, não centralizado. A
+     distância horizontal (gap) não muda, só o eixo vertical. */
+  align-items: flex-end;
   /* Pedido do usuário — ícone e palavra mais próximos (era --space-3 =
      12px), mas sem encostar. */
   gap: var(--space-2);
@@ -7992,6 +7995,358 @@
   }
 }
 
+.community-card.community-pro-form textarea {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  padding: 8px 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--circula-black);
+  resize: vertical;
+  transition: border-color 0.2s ease;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--circula-mocha);
+  }
+}
+
+/* Etapa 4 (evolução/gamificação) — Convidar pelo WhatsApp: chips de
+   sugestão de mensagem (CommunityInviteWhatsApp.tsx), mesmo molde visual
+   pílula/borda do resto do Painel (ver button[type=submit] acima), só
+   compacto e sem preencher por padrão — preenche só quando a sugestão
+   escolhida é a que está no campo de texto agora. */
+.invite-whatsapp-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+.invite-whatsapp-chip {
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: none;
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--circula-taupe);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    border-color: var(--circula-mocha);
+    color: var(--circula-mocha);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+}
+
+.invite-whatsapp-chip--active {
+  border-color: var(--circula-mocha);
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+}
+
+.invite-whatsapp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.invite-whatsapp-copy,
+.invite-whatsapp-share {
+  width: auto;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+}
+
+.invite-whatsapp-copy {
+  border: 1px solid var(--circula-champagne-line);
+  background: none;
+  color: var(--circula-taupe);
+
+  &:hover:not(:disabled) {
+    border-color: var(--circula-mocha);
+    color: var(--circula-mocha);
+  }
+}
+
+.invite-whatsapp-share {
+  border: 1px solid var(--circula-mocha);
+  background-color: transparent;
+  color: var(--circula-mocha);
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-mocha);
+    color: var(--circula-offwhite);
+  }
+}
+
+/* --- Etapa 5 (evolução/experiência/gamificação) — Solicitação de novo
+   Círculo: form (member) + revisão (Profissional). Mesmo casco
+   .community-card do resto do app; campos com molde próprio (label
+   maiúscula discreta + input/textarea com só borda inferior), igual ao
+   já usado em .community-pro-form, só escopado aqui para não alterar
+   nada daquele bloco. --- */
+.circle-request-card {
+  gap: var(--space-4);
+}
+
+.circle-request-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 22px;
+  color: var(--circula-mocha);
+}
+
+.circle-request-intro {
+  margin: 0;
+  color: var(--graphite-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.circle-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.circle-request-form label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--circula-taupe);
+}
+
+.circle-request-form input,
+.circle-request-form textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  padding: 8px 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--circula-black);
+  resize: vertical;
+  transition: border-color 0.2s ease;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--circula-mocha);
+  }
+}
+
+.circle-request-form button[type='submit'] {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+  border: 1px solid var(--circula-mocha);
+  border-radius: 999px;
+  padding: 10px 28px;
+  background-color: transparent;
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-mocha);
+    color: var(--circula-offwhite);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.circle-request-confirmation {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--c-rose-mist);
+  text-align: left;
+}
+
+.circle-request-confirmation-title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 17px;
+  color: var(--circula-mocha);
+}
+
+.circle-request-confirmation p {
+  margin: 0;
+  color: var(--graphite-soft);
+  font-size: 14px;
+}
+
+.circle-request-confirmation-name {
+  margin-top: var(--space-2) !important;
+  font-style: italic;
+  color: var(--circula-mocha) !important;
+}
+
+/* --- revisão (Painel → Círculos) --- */
+.circle-request-review {
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--circula-champagne-line);
+}
+
+.circle-request-review-list {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.circle-request-review-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.circle-request-review-row--approved {
+  border-color: var(--c-sage, var(--circula-champagne-line));
+}
+
+.circle-request-review-row--rejected {
+  opacity: 0.7;
+}
+
+.circle-request-review-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.circle-request-review-name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 16px;
+  color: var(--circula-mocha);
+}
+
+.circle-request-review-author {
+  display: block;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+
+.circle-request-review-status {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--c-beige);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--circula-mocha);
+}
+
+.circle-request-review-image {
+  width: 160px;
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.circle-request-review-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+
+  dt {
+    font-family: var(--font-label);
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--circula-taupe);
+  }
+  dd {
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: var(--graphite);
+  }
+}
+
+.circle-request-review-row label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--circula-taupe);
+}
+
+.circle-request-review-row textarea {
+  width: 100%;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-sm);
+  background: none;
+  padding: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  resize: vertical;
+}
+
+.circle-request-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
 /* --- membros: lista plana editorial --------------------------------- */
 .member-list--editorial {
   padding: 0;
@@ -10672,6 +11027,23 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+/* Etapa 7 (evolução/gamificação) — Meu Jardim compacto no perfil, mesmo
+   espaçamento/rótulo da galeria logo abaixo, por consistência. */
+.profile-garden-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Etapa 9 (evolução/gamificação) — "Rever o tour" ao lado de "Editar
+   perfil", sem mudar o estilo de nenhum dos dois botões. */
+.profile-actions-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
 
 .profile-gallery-grid {
@@ -13703,7 +14075,10 @@ button.card:focus-visible {
   flex-direction: column;
   justify-content: flex-end;
   aspect-ratio: 4 / 5;
-  padding: var(--space-3);
+  /* Padronização dos cards (item 2.2) — mesmo padding de .circ-card-frame
+     (Círculos é a referência de dimensão/espaçamento pedida), era
+     --space-3. */
+  padding: var(--space-4);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--c-sand);
@@ -13727,16 +14102,21 @@ button.card:focus-visible {
   transition: transform var(--dur-slow) var(--ease-out);
 }
 
-/* Pedido do usuário (refinamento) — escurece só a região de baixo, onde
-   o texto fica (`.exp-card-frame` é `justify-content: flex-end`), com
-   transição mais gradual (4 paradas em vez de 3) e confinada a uma
-   faixa menor da foto (transparente a partir de 52%, era 68% — quase a
-   metade de cima da imagem fica 100% intocada, contra ~1/3 antes).
-   Pico mais escuro na borda inferior (0.72, era 0.62) — reforço de
-   contraste para cobrir fotos reais (enviadas pela Profissional) mais
-   claras do que as de teste, sem precisar escurecer mais a foto como
-   um todo nem alargar a faixa afetada. */
-.exp-card--photo .exp-card-frame::after {
+/* Padronização dos cards (item 2.1) — escrita sempre branca, com sombra/
+   gradiente escuro discreto atrás do texto (nunca contorno preto na
+   letra) e aparência consistente entre TODOS os cards desta faixa, com
+   ou sem foto própria (fundo sólido claro ou fotografia, clara ou
+   escura). Antes era condicional a `--photo` (card com foto) ou só à
+   faixa `--hoje`; unificado para qualquer card real (exclui só
+   `--empty`, que mantém o visual tracejado/neutro de vaga vazia —
+   nunca o tratamento escuro, que não combina com um placeholder).
+   Mesmo degradê já usado em .circ-card-frame::after (Círculos é a
+   referência) — escurece só a região de baixo, onde o texto fica
+   (`.exp-card-frame` é `justify-content: flex-end`), transição
+   gradual, confinada a uma faixa menor do card (transparente a partir
+   de 52%), pico mais escuro na borda inferior (0.72) para contraste
+   suficiente mesmo sobre fotos claras. */
+.exp-card:not(.exp-card--empty) .exp-card-frame::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -13749,19 +14129,15 @@ button.card:focus-visible {
   );
 }
 
-.exp-card--photo .exp-card-eyebrow,
-.exp-card--photo .exp-card-title,
-.exp-card--photo .exp-card-meta {
+.exp-card:not(.exp-card--empty) .exp-card-eyebrow,
+.exp-card:not(.exp-card--empty) .exp-card-title,
+.exp-card:not(.exp-card--empty) .exp-card-meta {
   position: relative;
   /* acima do ::after/scrim (que não é alterado) */
   z-index: 1;
   color: var(--c-white);
-  /* Ajustes visuais (item 2) — contorno fininho (text-stroke) somado ao
-     text-shadow já existente: junto, lê como uma borda escura discreta
-     ao redor da letra, não um glow nem negrito artificial. Suportes
-     sem -webkit-text-stroke (ex. Firefox < 120) ignoram a propriedade e
-     ficam só com o shadow de sempre — degrada bem. */
-  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
+  /* Nenhum -webkit-text-stroke — pedido do usuário (item 2.1): nenhum
+     contorno preto na letra, só o shadow para legibilidade. */
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
 }
 
@@ -13796,43 +14172,13 @@ button.card:focus-visible {
   margin-top: var(--space-4);
 }
 
-/* Correção dos cards (item 1) — "Seu Círcula de Hoje": o nome é o ÚNICO
-   texto do card (eyebrow e meta saíram — ver HomeExperienceStrip.tsx) e
-   precisa ler bem sobre QUALQUER imagem, não só quando há foto. Por
-   isso é sempre branco com contorno preto mais grosso que o padrão da
-   faixa (0.9px vs. 0.4px), escopado a `.exp-strip--hoje` para não
-   mudar outras faixas que reusam `.exp-card-title` (ex.: "No
-   Instagram", que mantém o comportamento de sempre — branco só sobre
-   foto). Mesma especificidade do bloco ".exp-card--photo .exp-card-
-   title" acima; por vir depois no arquivo, prevalece nos dois casos
-   (com ou sem foto). */
-.exp-strip--hoje .exp-card-title {
-  color: var(--c-white);
-  -webkit-text-stroke: 0.9px rgba(18, 14, 12, 0.75);
-  text-shadow: 0 1px 6px rgba(35, 30, 28, 0.55);
-}
+/* Padronização dos cards (item 2.1) — o tratamento de texto/scrim de
+   "Seu Círcula de Hoje" e "No Instagram" agora é o mesmo bloco único
+   `.exp-card:not(.exp-card--empty)` acima (sem -webkit-text-stroke,
+   sempre branco, sempre com o mesmo degradê) — nada específico de
+   `.exp-strip--hoje` precisa mais existir aqui.
 
-/* Pedido do usuário — escrita sempre branca (acima, já valia) também
-   precisa de contraste no fundo mesmo quando NÃO há foto (tinta sólida
-   clara: rosa/areia/etc.) — sem isto o branco quase não lê sobre essas
-   cores claras. Mesmo degradê (refinado) de `.exp-card--photo` acima,
-   só que sem depender da classe `--photo`: aqui vale pra TODO card
-   desta faixa — tratamento consistente entre cards com foto e com
-   fundo sólido, como pedido. */
-.exp-strip--hoje .exp-card-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    0deg,
-    rgba(20, 16, 14, 0.72) 0%,
-    rgba(20, 16, 14, 0.5) 18%,
-    rgba(20, 16, 14, 0.2) 36%,
-    rgba(20, 16, 14, 0) 52%
-  );
-}
-
-/* Correção pontual — faixa "No Instagram" (HomeInstagramStrip.tsx): a
+   Correção pontual — faixa "No Instagram" (HomeInstagramStrip.tsx): a
    frase é o único texto sobre a foto (sem .exp-card-meta por baixo), e
    vem de um campo livre cadastrado pela Profissional, sem limite de
    tamanho. Clampa em 2 linhas com reticências — nunca estoura o frame
@@ -13948,16 +14294,15 @@ button.card:focus-visible {
 
 .circ-strip {
   min-width: 0;
-  /* Reorganização da Home (item 4) — aproxima de "Círcula Hoje" (seção
-     anterior, sem título próprio), puxando contra o gap uniforme de
-     `.home` (hoje --space-5 = 20px, depois da redução geral de
-     espaçamento da Home). Recalibrado para não ultrapassar esse gap
-     (um valor de pull maior que o próprio gap faria as duas seções SE
-     SOBREPOREM) — sobra ~8px de respiro antes de Círculos, menor que o
-     gap padrão de 20px entre as outras seções, de propósito. Não mexe
-     no gap seguinte (Círculos -> "No Instagram" continua no padrão
-     normal de sempre). */
-  margin-top: calc(-1 * var(--space-3));
+  /* Padronização dos títulos (item 2.4) — pedido do usuário: o título
+     "Círculos" deve ficar à MESMA distância da linha superior que "No
+     Instagram" fica da dele. "No Instagram" (.exp-strip) não tem
+     nenhum ajuste de margin-top próprio — usa só o gap uniforme de
+     `.home` (--space-5). O pull negativo que existia aqui (herdado de
+     uma fase anterior da Home) deixava "Círculos" mais perto da seção
+     de cima do que "No Instagram" fica — removido para igualar as
+     duas, sem tocar no gap padrão de `.home` nem em nenhuma outra
+     relação de espaçamento. */
 }
 
 .circ-strip-title {
@@ -14143,7 +14488,8 @@ button.card:focus-visible {
      totalmente. Opacidade plena garante que a cor computada seja
      mesmo branco puro, não uma mistura com o fundo. */
   opacity: 1;
-  -webkit-text-stroke: 0.4px rgba(20, 16, 14, 0.55);
+  /* Nenhum -webkit-text-stroke — pedido do usuário (item 2.1): nenhum
+     contorno preto na letra, só o shadow para legibilidade. */
   text-shadow: 0 1px 6px rgba(35, 30, 28, 0.42);
   transition: opacity var(--dur) var(--ease);
 }
@@ -14153,7 +14499,6 @@ button.card:focus-visible {
   font-size: 11.5px;
   font-weight: 300;
   color: rgba(255, 255, 255, 0.9);
-  -webkit-text-stroke: 0.3px rgba(20, 16, 14, 0.45);
   text-shadow: 0 1px 5px rgba(35, 30, 28, 0.4);
   /* discreto de partida, nunca oculto — realca no hover */
   opacity: 0.6;
@@ -14174,6 +14519,35 @@ button.card:focus-visible {
   .circ-card:focus-within .circ-card-meta {
     opacity: 1;
   }
+}
+
+/* Etapa 5 (evolução/experiência/gamificação) — card fixo "Novo Círculo",
+   mesma dimensão/proporção dos cards reais (.circ-card-item/-frame,
+   sem nenhuma mudança nelas); só o conteúdo visual muda, para ler
+   claramente como uma AÇÃO (sugerir), não um Círculo existente: ícone
+   de "+" centralizado num medalhão contornado, sobre o mesmo fundo
+   claro alternado (reaproveita `background` padrão, sem tint
+   específico) — o degradê + texto branco do rodapé (.circ-card-frame,
+   .circ-card-title) continuam intocados, por consistência visual com
+   os demais cards da faixa. */
+.circ-card--new .circ-card-new-icon {
+  position: absolute;
+  /* Acima da faixa do degradê (transparente a partir de 52%, ver
+     .circ-card-frame::after) — este card nunca tem foto, então ali é
+     sempre o fundo claro sólido (--c-sand); ícone escuro, não branco,
+     para contraste correto sobre fundo claro. */
+  top: 36%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--circula-mocha);
+  color: var(--circula-mocha);
 }
 
 /* Correção dos cards de Círculos (item 3) — o chip "Participar"/"Sair"
@@ -14611,6 +14985,255 @@ button.card:focus-visible {
     opacity: 0;
     transform: translateY(12px) scale(0.985);
   }
+}
+
+/* ===================================================================
+   Etapa 8 (evolução/experiência/gamificação) — Onboarding (Onboarding.tsx)
+   Mesmo backdrop de .ig-modal-backdrop (reaproveitado); caixa própria,
+   mais estreita/alta (wizard de 1 coluna, não galeria 2 colunas).
+   =================================================================== */
+.onboarding-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--c-white);
+  box-shadow: var(--shadow-lg);
+  animation: igModalIn var(--dur-slow) var(--ease-out) both;
+}
+
+.onboarding-modal-progress {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.onboarding-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--circula-champagne-line);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.onboarding-dot--active {
+  background: var(--circula-mocha);
+}
+
+.onboarding-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 140px;
+}
+
+.onboarding-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 21px;
+  color: var(--circula-mocha);
+  text-align: center;
+}
+
+.onboarding-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite-soft);
+  text-align: center;
+}
+
+.onboarding-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--circula-taupe);
+}
+
+.onboarding-input,
+.onboarding-textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--circula-champagne-line);
+  border-radius: 0;
+  background: none;
+  padding: 8px 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--circula-black);
+  resize: vertical;
+  transition: border-color 0.2s ease;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--circula-mocha);
+  }
+}
+
+.onboarding-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.onboarding-chip {
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--graphite);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    border-color: var(--circula-mocha);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--circula-mocha);
+    outline-offset: 2px;
+  }
+}
+
+.onboarding-chip--active {
+  border-color: var(--circula-mocha);
+  background-color: var(--circula-mocha);
+  color: var(--circula-offwhite);
+}
+
+.onboarding-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--circula-champagne-line);
+}
+
+.onboarding-modal-actions-nav {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.onboarding-next {
+  border: 1px solid var(--circula-mocha);
+  border-radius: 999px;
+  padding: 10px 24px;
+  background-color: transparent;
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--circula-mocha);
+    color: var(--circula-offwhite);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* ===================================================================
+   Etapa 9 (evolução/experiência/gamificação) — Tour guiado (Tour.tsx)
+   Spotlight real sobre elementos da interface: um "buraco" recortado
+   via box-shadow gigante (não um recorte de máscara/clip-path — mais
+   barato e com fallback visual trivial se o navegador não suportar
+   nada exótico: só um retângulo com sombra, sempre funciona).
+   =================================================================== */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.tour-overlay-dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(35, 30, 28, 0.6);
+}
+
+.tour-spotlight {
+  position: fixed;
+  z-index: 1;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(35, 30, 28, 0.6);
+  pointer-events: none;
+  transition:
+    top 0.25s ease,
+    left 0.25s ease,
+    width 0.25s ease,
+    height 0.25s ease;
+}
+
+.tour-card {
+  position: fixed;
+  z-index: 2;
+  width: min(288px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--c-white);
+  box-shadow: var(--shadow-lg);
+  transition:
+    top 0.25s ease,
+    left 0.25s ease;
+}
+
+.tour-card-step {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--circula-taupe);
+}
+
+.tour-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 17px;
+  color: var(--circula-mocha);
+}
+
+.tour-card-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--graphite-soft);
+}
+
+.tour-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.tour-card-nav {
+  display: flex;
+  gap: var(--space-2);
 }
 
 /* ===================================================================
@@ -15428,6 +16051,182 @@ button.card:focus-visible {
   font-family: var(--font-body);
   font-size: 13.5px;
   color: var(--graphite);
+}
+
+/* ===================================================================
+   Etapa 6 (evolução/experiência/gamificação) — desafio mensal (bolinhas
+   coloridas por atividade + progresso) e progressão anual (12 marcos).
+   =================================================================== */
+.garden-monthly-ring,
+.garden-annual-ring {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.garden-monthly-ring-svg,
+.garden-annual-ring-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.garden-monthly-ring-track {
+  fill: none;
+  stroke: var(--surface-sunken);
+  stroke-width: 7;
+}
+
+.garden-monthly-ring-fill {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
+}
+
+.garden-monthly-ring-dot {
+  stroke-width: 1.5;
+  transition:
+    fill var(--dur) var(--ease),
+    stroke-width var(--dur) var(--ease);
+}
+
+.garden-monthly-ring-center,
+.garden-annual-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-family: var(--font-display);
+  color: var(--graphite);
+  text-align: center;
+}
+
+.garden-monthly-ring-center strong,
+.garden-annual-ring-center strong {
+  font-weight: var(--display-weight);
+  font-size: 1.5em;
+}
+
+.garden-monthly-ring-center small,
+.garden-annual-ring-center small {
+  font-size: 0.62em;
+  color: var(--graphite-soft);
+}
+
+.garden-annual-ring-pending {
+  font-size: 0.6em;
+  line-height: 1.3;
+  color: var(--graphite-soft);
+}
+
+.garden-annual-ring-track {
+  fill: none;
+  stroke: var(--surface-sunken);
+  stroke-width: 2;
+  stroke-dasharray: 2 4;
+}
+
+.garden-annual-ring-mark {
+  fill: var(--surface);
+  stroke: var(--circula-champagne-line);
+  stroke-width: 1.5;
+  transition:
+    fill var(--dur) var(--ease),
+    stroke var(--dur) var(--ease);
+}
+
+.garden-annual-ring-mark--lit {
+  fill: var(--circula-mocha);
+  stroke: var(--circula-mocha);
+}
+
+.garden-evolution-rings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.garden-evolution-ring-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.garden-evolution-ring-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.garden-evolution-activity-list {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.garden-evolution-activity-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--circula-champagne-line);
+}
+
+.garden-evolution-activity-row:last-child {
+  border-bottom: none;
+}
+
+.garden-evolution-activity-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.garden-evolution-activity-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.garden-evolution-activity-name {
+  display: block;
+  font-size: 13.5px;
+  color: var(--graphite);
+}
+
+.garden-evolution-activity-hint {
+  display: block;
+  font-size: 11.5px;
+  color: var(--graphite-soft);
+}
+
+.garden-evolution-activity-points {
+  flex-shrink: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--circula-mocha);
+}
+
+.garden-evolution-achievement {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--c-rose-mist);
+  font-size: 14px;
+  color: var(--circula-mocha);
+  text-align: center;
 }
 
 .garden-journey-summary-journey {
