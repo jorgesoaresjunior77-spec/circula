@@ -1,3 +1,11 @@
+# ATENCAO: este arquivo descreve o ambiente LOCAL de desenvolvimento
+# (supabase start). NAO use `supabase config push` com ele: o comando
+# aplica as secoes [auth], [storage] etc. direto no projeto remoto, sem
+# pedir confirmacao quando roda sem terminal interativo, e sobrescreve
+# site_url, redirect URLs, MFA e limites de e-mail de producao.
+# A configuracao de Auth/Storage de producao so e alterada pelo painel
+# do Supabase.
+
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
