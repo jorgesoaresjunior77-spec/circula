@@ -16067,6 +16067,14 @@ button.card:focus-visible {
 .garden-annual-ring-svg {
   width: 100%;
   height: 100%;
+  /* as bolinhas ficam a 46 do centro com raio 5.5–7: passam do viewBox
+     (0–100) e eram cortadas na borda do SVG */
+  overflow: visible;
+}
+
+.garden-monthly-ring,
+.garden-annual-ring {
+  margin: 4px;
 }
 
 .garden-monthly-ring-track {
@@ -16105,7 +16113,10 @@ button.card:focus-visible {
 
 .garden-monthly-ring-center strong,
 .garden-annual-ring-center strong {
-  font-weight: var(--display-weight);
+  /* a fonte de display desenha o 0 com traço (parecia "∅"); números usam a
+     fonte de rótulo, de algarismos limpos */
+  font-family: var(--font-label);
+  font-weight: 600;
   font-size: 1.5em;
 }
 
