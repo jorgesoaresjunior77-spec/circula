@@ -20,6 +20,7 @@ import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
 import { CircleImagesManager } from './CircleImagesManager'
 import { InstagramSlotsManager } from './InstagramSlotsManager'
+import { CommunityInviteWhatsApp } from './CommunityInviteWhatsApp'
 import type {
   AddMemberResult,
   CommunityUpdateInput,
@@ -175,6 +176,17 @@ export function ProfessionalPanel({
               onInvite={onInviteMember}
               onAdd={onAddMember}
             />
+          </section>
+
+          {/* Etapa 4 (evolução/gamificação) — convidar mulheres de fora do
+              Círcula pelo WhatsApp, ao lado dos outros dois mecanismos de
+              convite (convite por e-mail e adição direta, dentro de
+              CommunityMembersPanel acima). */}
+          <section
+            className="panel-overview-section-divider"
+            aria-label="Convidar pelo WhatsApp"
+          >
+            <CommunityInviteWhatsApp communityName={community.name} />
           </section>
         </div>
       )}
