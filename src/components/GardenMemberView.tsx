@@ -5,6 +5,7 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { GardenColorPicker } from './GardenColorPicker'
 import { GardenProgressWheel } from './GardenProgressWheel'
 import { GardenJourneyRing } from './GardenJourneyRing'
+import { GardenEvolutionSection } from './GardenEvolutionSection'
 import { EmptyState } from './EmptyState'
 import { SproutIcon, CheckIcon } from './icons'
 import { GARDEN_COLOR_HEX, computeGardenJourneyStats, formatGardenJourneySummary } from '../types/garden'
@@ -212,6 +213,11 @@ export function GardenMemberView({
           Receitas, que recebem o deles via prop) — sem isto a tela não
           tinha NENHUM texto identificando em que seção a pessoa está. */}
       <p className="section-label">Meu Jardim</p>
+
+      {/* Etapa 6.4 (evolução/gamificação) — desafio mensal (pontuação) e
+          progressão anual, sempre visíveis aqui (independente de qual
+          desafio autoral da Profissional esteja selecionado abaixo). */}
+      <GardenEvolutionSection communityId={communityId} profileId={profileId} />
 
       {/*
        * Etapa AA (Finding 2) — falha ao carregar inscrições/conclusões não é

@@ -466,6 +466,7 @@ export function Dashboard({
           onUpdate={onUpdateProfile}
           onUploadAvatar={onUploadAvatar}
           onUploadGalleryPhoto={onUploadGalleryPhoto}
+          communityId={railCommunity?.id ?? null}
         />
       )
     }

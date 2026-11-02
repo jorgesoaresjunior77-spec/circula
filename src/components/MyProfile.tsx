@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from 'react'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
+import { GardenEvolutionSection } from './GardenEvolutionSection'
 
 interface MyProfileProps {
   profile: Profile
@@ -11,9 +12,20 @@ interface MyProfileProps {
   /** Item 10 — upload cru de uma foto da galeria (bucket `avatars`);
    *  devolve a URL pública, não toca `profiles`. */
   onUploadGalleryPhoto: (file: File) => Promise<{ url: string | null; error: string | null }>
+  /** Etapa 7 (evolução/gamificação) — comunidade em foco, só para
+   *  resolver a evolução do Meu Jardim aqui (GardenEvolutionSection).
+   *  `null` (ex.: Master, que não participa de comunidade) omite o
+   *  bloco inteiro — o resto do perfil funciona exatamente igual. */
+  communityId: string | null
 }
 
-export function MyProfile({ profile, onUpdate, onUploadAvatar, onUploadGalleryPhoto }: MyProfileProps) {
+export function MyProfile({
+  profile,
+  onUpdate,
+  onUploadAvatar,
+  onUploadGalleryPhoto,
+  communityId,
+}: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
   const [bio, setBio] = useState(profile.bio ?? '')
@@ -191,6 +203,18 @@ export function MyProfile({ profile, onUpdate, onUploadAvatar, onUploadGalleryPh
           </label>
         </div>
       </div>
+
+      {/* Etapa 7 (evolução/gamificação) — identidade visual do Meu
+          Jardim, círculo mensal + anual, progresso atual e meses
+          concluídos, compacto (sem a lista de atividades/histórico
+          detalhado, que já vive na página Meu Jardim). Omitido por
+          completo sem comunidade em foco (Master). */}
+      {communityId && (
+        <div className="profile-garden-section">
+          <p className="profile-section-label">Meu Jardim</p>
+          <GardenEvolutionSection communityId={communityId} profileId={profile.id} compact />
+        </div>
+      )}
 
       {/* Item 10 — galeria de fotos: sempre visível e editável, fora do
           `editing` do resto do formulário (mesmo padrão do avatar). */}
