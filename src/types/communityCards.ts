@@ -47,6 +47,7 @@ export type CommunityCardKey =
   | 'eventos_grande'
   | 'jornada_grande'
   | 'comunidade_grande'
+  | 'jardim'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -60,6 +61,12 @@ export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
   { key: 'eventos', label: 'Eventos', hint: 'A agenda da comunidade.' },
   { key: 'comunidade', label: 'Loja', hint: 'Produtos e novidades da comunidade.' },
   { key: 'jornada', label: 'Receitas', hint: 'A biblioteca de receitas da comunidade.' },
+  /** Etapa 3.2 (evolução/gamificação) — chave nova, aberta pela migration
+   *  20261030120000 (preparada, NÃO aplicada — ver Etapa 10). Até a
+   *  migration ser aplicada no remoto, `setImage`/`clearImage` para esta
+   *  chave devolvem erro de constraint (mesma UX de qualquer outra
+   *  falha, sem mensagem especial). */
+  { key: 'jardim', label: 'Meu Jardim', hint: 'Atalho para o Meu Jardim — evolução e desafios.' },
 ]
 
 export const COMMUNITY_CARD_KEYS = COMMUNITY_CARD_META.map((c) => c.key)

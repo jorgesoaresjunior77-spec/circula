@@ -175,6 +175,9 @@ export function HomeToday({
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
   const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
+  // Etapa 3.2 (evolução/gamificação) — capa do card "Meu Jardim", chave
+  // `jardim` (migration 20261030120000, preparada e não aplicada).
+  const { url: jardimCover } = useSignedImageUrl(cardImagePaths.jardim ?? null)
   // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
   // quando existe, prevalece sobre a capa genérica da categoria acima
   // (fallback em HomeEditorialCards.tsx); mesma assinatura de
@@ -273,6 +276,7 @@ export function HomeToday({
         eventosCover={eventosCover}
         lojaCover={lojaCover}
         receitasCover={receitasCover}
+        jardimCover={jardimCover}
         onNavigate={onNavigate}
       />
 

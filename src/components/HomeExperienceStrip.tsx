@@ -50,6 +50,10 @@ interface HomeExperienceStripProps {
   eventosCover?: string | null
   lojaCover?: string | null
   receitasCover?: string | null
+  /** Etapa 3.2 (evolução/gamificação) — capa própria do card "Meu
+   *  Jardim", cadastrada pela Profissional em Painel → Imagens da
+   *  comunidade (chave `jardim`, migration 20261030120000). */
+  jardimCover?: string | null
   onNavigate: (key: NavKey) => void
 }
 
@@ -59,11 +63,10 @@ interface HomeExperienceStripProps {
  * Início/Feed/Painel/Perfil cabem nela) nem nos cards fixos desta
  * faixa. Entra aqui pelo mesmo mecanismo dos outros 5 (onNavigate com a
  * NavKey já existente, 'jardim') — sem rota nova, sem tocar a cápsula.
- * Sem chave legada livre em CommunityCardKey para uma capa configurável
- * (as 6 que o CHECK do banco aceita já estão todas em uso — ver
- * types/communityCards.ts) — por ora o card nasce sem foto, no mesmo
- * fallback editorial (fundo pastel + título) que qualquer um destes
- * cards já usa quando a Profissional ainda não cadastrou uma capa.
+ * Etapa 3.2 (evolução/gamificação) — ganhou capa própria configurável
+ * (`jardimCover`, chave `jardim`), mesmo mecanismo dos outros 5 cards
+ * desta faixa; até a migration 20261030120000 ser aplicada no remoto,
+ * continua caindo no mesmo fallback editorial (fundo pastel + título).
  */
 
 interface Experience {
@@ -82,6 +85,7 @@ export function HomeExperienceStrip({
   eventosCover,
   lojaCover,
   receitasCover,
+  jardimCover,
   onNavigate,
 }: HomeExperienceStripProps) {
   const experiences = useMemo<Experience[]>(
@@ -126,12 +130,21 @@ export function HomeExperienceStrip({
       {
         key: 'jardim',
         title: 'Meu Jardim',
-        image: null,
+        image: jardimCover ?? null,
         onActivate: () => onNavigate('jardim'),
         ariaLabel: 'Meu Jardim',
       },
     ],
-    [nextEvent, perfilCover, helpNutriCover, eventosCover, lojaCover, receitasCover, onNavigate],
+    [
+      nextEvent,
+      perfilCover,
+      helpNutriCover,
+      eventosCover,
+      lojaCover,
+      receitasCover,
+      jardimCover,
+      onNavigate,
+    ],
   )
 
   const { viewportRef, seqRef, loop, dragging } = useDragCarousel(experiences.length)
