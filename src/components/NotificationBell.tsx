@@ -35,6 +35,9 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   membership_requested: 'painel',
   membership_approved: 'feed',
   membership_rejected: 'inicio',
+  // Etapa 5 — a solicitação de Círculo vai para a dona revisar (Painel →
+  // Círculos, CircleRequestReview.tsx).
+  circle_request: 'painel',
 }
 
 export function NotificationBell({

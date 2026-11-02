@@ -7,6 +7,9 @@ export type SocialNotificationType =
   | 'membership_requested'
   | 'membership_approved'
   | 'membership_rejected'
+  /** Etapa 5 (evolução/experiência/gamificação) — nova solicitação de
+   *  Círculo; migration 20261030130000, preparada e não aplicada. */
+  | 'circle_request'
 
 export interface NotificationActor {
   id: string
@@ -27,6 +30,7 @@ export interface SocialNotification {
   related_event_id: string | null
   related_conversation_id: string | null
   related_community_id: string | null
+  related_circle_request_id: string | null
   read_at: string | null
   created_at: string
   actor: NotificationActor | null

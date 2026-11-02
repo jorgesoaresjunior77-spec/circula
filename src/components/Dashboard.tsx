@@ -11,6 +11,7 @@ import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
 import { CircleList } from './CircleList'
 import { CircleDetail } from './CircleDetail'
+import { CircleRequestForm } from './CircleRequestForm'
 import { EventList } from './EventList'
 import { useEvents } from '../hooks/useEvents'
 import { SavedItems } from './SavedItems'
@@ -145,6 +146,11 @@ export function Dashboard({
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
   const [feedRefreshToken, setFeedRefreshToken] = useState(0)
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
+  // Etapa 5 (evolução/experiência/gamificação) — formulário de
+  // solicitação de novo Círculo, mesmo padrão de `selectedCircleId`
+  // (um flag de mais, já que os dois nunca ficam ativos ao mesmo tempo:
+  // abrir um sempre fecha o outro — ver handleNavigate/handlers abaixo).
+  const [showNewCircleForm, setShowNewCircleForm] = useState(false)
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
   const [circlesCommunityId, setCirclesCommunityId] = useState<string | null>(null)
 
@@ -389,7 +395,10 @@ export function Dashboard({
 
   // Ao clicar em "Círculos" na navegação, sempre volta para a lista.
   function handleNavigate(key: NavKey) {
-    if (key === 'circulos') setSelectedCircleId(null)
+    if (key === 'circulos') {
+      setSelectedCircleId(null)
+      setShowNewCircleForm(false)
+    }
     onNavigate(key)
   }
 
@@ -406,6 +415,17 @@ export function Dashboard({
     if (!railCommunity) return
     setCirclesCommunityId(railCommunity.id)
     setSelectedCircleId(circleId)
+    setShowNewCircleForm(false)
+    onNavigate('circulos')
+  }
+
+  // Etapa 5 — mesmo mecanismo de openCircleFromHome, só que abre o
+  // formulário de solicitação em vez de um Círculo específico.
+  function openNewCircleFormFromHome() {
+    if (!railCommunity) return
+    setCirclesCommunityId(railCommunity.id)
+    setSelectedCircleId(null)
+    setShowNewCircleForm(true)
     onNavigate('circulos')
   }
 
@@ -426,6 +446,7 @@ export function Dashboard({
           onJoinCommunity={joinCommunity}
           onNavigate={handleNavigate}
           onOpenCircle={openCircleFromHome}
+          onRequestNewCircle={profile.role === 'member' ? openNewCircleFormFromHome : undefined}
           coverHero={coverHero}
           railSummary={
             railActive
@@ -545,6 +566,16 @@ export function Dashboard({
               setCirclesCommunityId,
             )}
           </>
+        )
+      }
+
+      if (showNewCircleForm) {
+        return (
+          <CircleRequestForm
+            communityId={resolvedCirclesCommunityId}
+            profileId={profile.id}
+            onBack={() => setShowNewCircleForm(false)}
+          />
         )
       }
 
@@ -924,6 +955,7 @@ export function Dashboard({
           </div>
         </div>
       )}
+
     </section>
   )
 }

@@ -1,6 +1,7 @@
 import type { CircleWithMembers } from '../types/circle'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useDragCarousel, LOOP_EXTRA_COPIES } from '../hooks/useDragCarousel'
+import { PlusIcon } from './icons'
 
 // C3 — Círculos editoriais na comunidade.
 //
@@ -28,6 +29,43 @@ interface HomeCirclesSectionProps {
   circles: CircleWithMembers[]
   /** Abre a página daquele círculo específico (CircleDetail). */
   onOpen: (circleId: string) => void
+  /** Etapa 5 (evolução/experiência/gamificação) — abre o formulário de
+   *  solicitação de um novo Círculo (CircleRequestForm). `undefined`
+   *  omite o card "Novo Círculo" por completo (ex.: Master, que não
+   *  participa de comunidade). */
+  onRequestNewCircle?: () => void
+}
+
+/** Card fixo "Novo Círculo" — mesma identidade visual/dimensão dos
+ *  cards reais (reusa .circ-card-frame/.circ-card-text), só com um
+ *  ícone de "+" no lugar da foto e abrindo o formulário de solicitação
+ *  em vez de um Círculo existente. Nunca clonado pelo ciclo contínuo —
+ *  fica de fora de `circles`, sempre o último item real da sequência
+ *  (ver render abaixo). */
+function NewCircleCard({ onActivate, clone }: { onActivate: () => void; clone: boolean }) {
+  return (
+    <li className="circ-card-item">
+      <article className="circ-card circ-card--new">
+        <div className="circ-card-frame">
+          <span className="circ-card-new-icon" aria-hidden="true">
+            <PlusIcon size={22} />
+          </span>
+          <button
+            type="button"
+            className="circ-card-open"
+            onClick={onActivate}
+            aria-label={clone ? undefined : 'Sugerir um novo círculo'}
+            aria-hidden={clone ? true : undefined}
+            tabIndex={clone ? -1 : undefined}
+          />
+          <div className="circ-card-text">
+            <h3 className="circ-card-title">Novo Círculo</h3>
+            <span className="circ-card-meta">Sugira um grupo</span>
+          </div>
+        </div>
+      </article>
+    </li>
+  )
 }
 
 interface CircleGalleryCardProps {
@@ -74,10 +112,15 @@ function CircleGalleryCard({ circle, index, clone, onOpen }: CircleGalleryCardPr
   )
 }
 
-export function HomeCirclesSection({ circles, onOpen }: HomeCirclesSectionProps) {
-  const { viewportRef, seqRef, loop, dragging } = useDragCarousel(circles.length)
+export function HomeCirclesSection({ circles, onOpen, onRequestNewCircle }: HomeCirclesSectionProps) {
+  // +1 pelo card fixo "Novo Círculo" (quando presente) — precisa entrar
+  // na contagem que decide se o ciclo contínuo liga (useDragCarousel
+  // mede a largura real da sequência inteira; se o card novo ficasse de
+  // fora da contagem, o hook não re-mediria ao ele aparecer/sumir).
+  const itemCount = circles.length + (onRequestNewCircle ? 1 : 0)
+  const { viewportRef, seqRef, loop, dragging } = useDragCarousel(itemCount)
 
-  if (circles.length === 0) return null
+  if (itemCount === 0) return null
 
   const renderSeq = (clone: boolean, key?: string) => (
     <ul className="circ-seq" aria-hidden={clone || undefined} key={key} ref={clone ? undefined : seqRef}>
@@ -90,6 +133,13 @@ export function HomeCirclesSection({ circles, onOpen }: HomeCirclesSectionProps)
           onOpen={onOpen}
         />
       ))}
+      {onRequestNewCircle && (
+        <NewCircleCard
+          key={clone ? `new-circle-${key}` : 'new-circle'}
+          onActivate={onRequestNewCircle}
+          clone={clone}
+        />
+      )}
     </ul>
   )
 

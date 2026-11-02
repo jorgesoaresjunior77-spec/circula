@@ -54,6 +54,13 @@ interface HomeTodayProps {
    */
   onOpenCircle: (circleId: string) => void
   /**
+   * Etapa 5 (evolução/experiência/gamificação) — abre o formulário de
+   * solicitação de novo Círculo. `undefined` (ex.: Professional, que já
+   * cria Círculos direto no Painel) omite o card "Novo Círculo" da
+   * faixa, sem mudar mais nada em <HomeCirclesSection>.
+   */
+  onRequestNewCircle?: () => void
+  /**
    * C1 — quando a capa da comunidade em foco está sendo usada como hero
    * fotográfico full-bleed (renderizado pelo Dashboard atrás do
    * cabeçalho), o HomeCommunityHeader entra em modo sobreposição: só a
@@ -97,6 +104,7 @@ export function HomeToday({
   onJoinCommunity,
   onNavigate,
   onOpenCircle,
+  onRequestNewCircle,
   coverHero = false,
   railSummary = null,
 }: HomeTodayProps) {
@@ -280,7 +288,11 @@ export function HomeToday({
           direto à página DAQUELE círculo (CircleDetail), onde seguir/
           deixar de seguir continua disponível; o card deixou de ter
           botão de Entrar/Sair próprio. */}
-      <HomeCirclesSection circles={circles} onOpen={onOpenCircle} />
+      <HomeCirclesSection
+        circles={circles}
+        onOpen={onOpenCircle}
+        onRequestNewCircle={onRequestNewCircle}
+      />
 
       {/* <HomeInstagramStrip> sempre renderiza (6 espaços fixos, vazios
           ou não) — este separador nunca fica órfão. */}

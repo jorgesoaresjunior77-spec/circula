@@ -4,6 +4,7 @@ import { useCircles } from '../hooks/useCircles'
 import { CircleCard } from './CircleCard'
 import { CoverImageInput } from './CoverImageInput'
 import { EmptyState } from './EmptyState'
+import { CircleRequestReview } from './CircleRequestReview'
 
 interface CircleManagerProps {
   communityId: string
@@ -79,6 +80,12 @@ export function CircleManager({
 
       {canManage && (
         <div className="panel-circles-block">
+          {/* Etapa 5.3 (evolução/gamificação) — solicitações de novo
+              Círculo enviadas pelas participantes, antes do formulário de
+              criação de sempre (a sugestão só inspira; criar o Círculo de
+              verdade continua manual, abaixo). */}
+          <CircleRequestReview communityId={communityId} profileId={profileId} />
+
           <h3 className="panel-circles-eyebrow">Criar um círculo</h3>
 
           <form onSubmit={handleCreate} className="panel-circles-form">
