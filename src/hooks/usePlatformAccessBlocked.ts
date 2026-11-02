@@ -3,13 +3,15 @@ import { supabase } from '../lib/supabase'
 import type { Profile } from '../types/profile'
 
 export function usePlatformAccessBlocked(profile: Profile | null) {
+  const profileId = profile?.id
+  const profileRole = profile?.role
   const [blocked, setBlocked] = useState(false)
   const [checked, setChecked] = useState(false)
 
   useEffect(() => {
     let active = true
 
-    if (!profile || profile.role !== 'professional') {
+    if (!profileId || profileRole !== 'professional') {
       setBlocked(false)
       setChecked(true)
       return
@@ -21,7 +23,7 @@ export function usePlatformAccessBlocked(profile: Profile | null) {
       .from('subscriptions')
       .select('status')
       .eq('subject', 'platform')
-      .eq('profile_id', profile.id)
+      .eq('profile_id', profileId)
       .neq('status', 'canceled')
       .order('created_at', { ascending: false })
       .limit(1)
@@ -38,7 +40,7 @@ export function usePlatformAccessBlocked(profile: Profile | null) {
     // Só id/role são lidos aqui — dependência restrita de propósito para não
     // reexecutar a checagem de bloqueio a cada refresh de perfil (nome, bio,
     // cidade, interesses, avatar), que antes causava remount do Dashboard.
-  }, [profile?.id, profile?.role])
+  }, [profileId, profileRole])
 
   return { blocked, checked }
 }
