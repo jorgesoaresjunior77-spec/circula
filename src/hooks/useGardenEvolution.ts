@@ -71,7 +71,15 @@ export function useGardenEvolution(communityId: string | null, profileId: string
   }, [communityId, profileId])
 
   useEffect(() => {
-    fetchAll()
+    // Adia a busca para fora do corpo síncrono do efeito: o fetchAll começa
+    // com setState (loading/limpeza) e isso dentro do efeito força um render extra.
+    let active = true
+    void Promise.resolve().then(() => {
+      if (active) void fetchAll()
+    })
+    return () => {
+      active = false
+    }
   }, [fetchAll])
 
   const period = currentPeriodMonth()
