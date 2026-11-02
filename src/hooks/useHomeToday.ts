@@ -83,6 +83,9 @@ export function useHomeToday(
   const [newMembers, setNewMembers] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // "agora" das janelas de 24h/7d: lido aqui (não dentro dos useMemo, que
+  // precisam ser puros) e renovado a cada busca de dados.
+  const [now, setNow] = useState(() => Date.now())
 
   const viewerId = profile?.id ?? null
   const role = profile?.role ?? null
@@ -106,7 +109,7 @@ export function useHomeToday(
   // 24h, desc. `length` = contagem; `[0]` = a mais recente (para o
   // timestamp do item "novas publicações" na Atividade recente).
   const recentNewPostDates = useMemo(() => {
-    const cutoff = Date.now() - WINDOW_24H_MS
+    const cutoff = now - WINDOW_24H_MS
     return (feedPosts ?? [])
       .map((p) => p.created_at)
       .filter((iso) => {
@@ -114,7 +117,7 @@ export function useHomeToday(
         return !Number.isNaN(t) && t >= cutoff
       })
       .sort((a, b) => b.localeCompare(a))
-  }, [feedPosts])
+  }, [feedPosts, now])
 
   const fetchData = useCallback(async () => {
     if (!viewerId || !communityId) {
@@ -179,6 +182,7 @@ export function useHomeToday(
         : null,
     )
 
+    setNow(Date.now())
     setLoading(false)
   }, [viewerId, role, communityId, myPostIdsKey])
 
@@ -189,7 +193,7 @@ export function useHomeToday(
   const summary = useMemo<HomeSummary>(() => {
     if (!viewerId || !communityId) return EMPTY_SUMMARY
 
-    const cutoff = Date.now() - WINDOW_7D_MS
+    const cutoff = now - WINDOW_7D_MS
     const within7d = (iso: string) => {
       const t = new Date(iso).getTime()
       return !Number.isNaN(t) && t >= cutoff
@@ -201,12 +205,12 @@ export function useHomeToday(
       newPosts: recentNewPostDates.length,
       newMembers,
     }
-  }, [viewerId, communityId, comments, reactions, recentNewPostDates, newMembers])
+  }, [viewerId, communityId, comments, reactions, recentNewPostDates, newMembers, now])
 
   const recentActivity = useMemo<HomeActivityItem[]>(() => {
     if (!viewerId || !communityId) return []
 
-    const cutoff = Date.now() - WINDOW_7D_MS
+    const cutoff = now - WINDOW_7D_MS
     const within7d = (iso: string) => {
       const t = new Date(iso).getTime()
       return !Number.isNaN(t) && t >= cutoff
@@ -276,7 +280,7 @@ export function useHomeToday(
     return items
       .sort((a, b) => b.at.localeCompare(a.at))
       .slice(0, ACTIVITY_LIMIT)
-  }, [viewerId, communityId, comments, reactions, recentNewPostDates, myCircles])
+  }, [viewerId, communityId, comments, reactions, recentNewPostDates, myCircles, now])
 
   return { summary, recentActivity, loading, error }
 }
