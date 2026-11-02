@@ -1,9 +1,14 @@
 import { describe, it, expect, afterEach, vi, beforeEach } from 'vitest'
 import { render, screen, cleanup, fireEvent } from '@testing-library/react'
-import { CommunityInviteWhatsApp } from './CommunityInviteWhatsApp'
+import { CommunityInviteWhatsApp, InviteMessageComposer } from './CommunityInviteWhatsApp'
+import { useInviteLink } from '../hooks/useInviteLink'
+
+vi.mock('../hooks/useInviteLink')
+
+const INVITE_URL = 'https://app.test/circula/?convite=abc123abc123abc123abc123'
 
 // Etapa 4 (evolução/gamificação) — garante que: (1) a mensagem inicial
-// contém o nome real da comunidade e a URL pública do app (nunca um
+// contém o nome real da comunidade e o link de convite (nunca um
 // placeholder genérico); (2) trocar de sugestão SUBSTITUI o texto (nunca
 // concatena) e o texto continua 100% editável depois; (3) "Copiar
 // mensagem" chama navigator.clipboard.writeText com o texto ATUAL do
@@ -22,16 +27,16 @@ describe('CommunityInviteWhatsApp', () => {
     vi.restoreAllMocks()
   })
 
-  it('pré-preenche a mensagem com o nome da comunidade e a URL pública do app', () => {
-    render(<CommunityInviteWhatsApp communityName="Fluir & Florescer" />)
+  it('pré-preenche a mensagem com o nome da comunidade e o link de convite', () => {
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
 
     const textarea = screen.getByLabelText('Mensagem') as HTMLTextAreaElement
     expect(textarea.value).toContain('Fluir & Florescer')
-    expect(textarea.value).toContain(window.location.origin)
+    expect(textarea.value).toContain(INVITE_URL)
   })
 
   it('trocar de sugestão substitui o texto, e o campo continua editável', () => {
-    render(<CommunityInviteWhatsApp communityName="Fluir & Florescer" />)
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
 
     const textarea = screen.getByLabelText('Mensagem') as HTMLTextAreaElement
     const firstMessage = textarea.value
@@ -45,7 +50,7 @@ describe('CommunityInviteWhatsApp', () => {
   })
 
   it('copia exatamente o texto atual do campo (já editado), não a sugestão original', async () => {
-    render(<CommunityInviteWhatsApp communityName="Fluir & Florescer" />)
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
 
     const textarea = screen.getByLabelText('Mensagem')
     fireEvent.change(textarea, { target: { value: 'Texto editado pela profissional.' } })
@@ -57,7 +62,7 @@ describe('CommunityInviteWhatsApp', () => {
   })
 
   it('compartilhar abre um link wa.me com o texto atual codificado, sem afirmar envio', () => {
-    render(<CommunityInviteWhatsApp communityName="Fluir & Florescer" />)
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
 
     const textarea = screen.getByLabelText('Mensagem')
     fireEvent.change(textarea, { target: { value: 'Oi! Vem pro Círcula.' } })
@@ -73,12 +78,58 @@ describe('CommunityInviteWhatsApp', () => {
   })
 
   it('desabilita copiar/compartilhar quando a mensagem fica vazia', () => {
-    render(<CommunityInviteWhatsApp communityName="Fluir & Florescer" />)
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
 
     const textarea = screen.getByLabelText('Mensagem')
     fireEvent.change(textarea, { target: { value: '   ' } })
 
     expect(screen.getByText('Copiar mensagem')).toBeDisabled()
     expect(screen.getByText('Compartilhar no WhatsApp')).toBeDisabled()
+  })
+})
+
+function mockLink(overrides: Partial<ReturnType<typeof useInviteLink>>) {
+  const base = {
+    token: null,
+    url: null,
+    loading: false,
+    busy: false,
+    error: null,
+    create: vi.fn(),
+    regenerate: vi.fn(),
+    revoke: vi.fn(),
+  }
+  vi.mocked(useInviteLink).mockReturnValue({ ...base, ...overrides })
+  return { ...base, ...overrides }
+}
+
+describe('CommunityInviteWhatsApp — link de convite', () => {
+  afterEach(() => cleanup())
+
+  it('sem link ativo oferece gerar um, e não mostra o campo de mensagem', () => {
+    const link = mockLink({})
+    render(<CommunityInviteWhatsApp communityId="c1" communityName="Fluir & Florescer" />)
+
+    expect(screen.queryByLabelText('Mensagem')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText('Gerar link de convite'))
+    expect(link.create).toHaveBeenCalled()
+  })
+
+  it('com link ativo monta a mensagem com o link e permite gerar outro ou desativar', () => {
+    const link = mockLink({ token: 'abc123abc123abc123abc123', url: INVITE_URL })
+    render(<CommunityInviteWhatsApp communityId="c1" communityName="Fluir & Florescer" />)
+
+    expect((screen.getByLabelText('Mensagem') as HTMLTextAreaElement).value).toContain(INVITE_URL)
+
+    fireEvent.click(screen.getByText('Gerar um novo link'))
+    expect(link.regenerate).toHaveBeenCalled()
+    fireEvent.click(screen.getByText('Desativar link'))
+    expect(link.revoke).toHaveBeenCalled()
+  })
+
+  it('mostra a falha de carregamento sem quebrar', () => {
+    mockLink({ error: 'Não foi possível carregar o link de convite.' })
+    render(<CommunityInviteWhatsApp communityId="c1" communityName="Fluir & Florescer" />)
+    expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível carregar')
   })
 })

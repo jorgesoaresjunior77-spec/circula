@@ -5,6 +5,9 @@ import { Login } from './components/Login'
 import { Dashboard } from './components/Dashboard'
 import { ResetPassword } from './components/ResetPassword'
 import { AccessBlockedScreen } from './components/AccessBlockedScreen'
+import { MemberSignup } from './components/MemberSignup'
+import { captureInviteTokenFromUrl } from './lib/inviteToken'
+import { useJoinInvite } from './hooks/useJoinInvite'
 import type { NavKey } from './components/PrimaryNav'
 import './App.css'
 
@@ -28,6 +31,13 @@ function App() {
   // sem router, sem dependência nova. Só o Dashboard o consome.
   const [activeNav, setActiveNav] = useState<NavKey>('inicio')
 
+  // Convite da comunidade por link (WhatsApp): `?convite=<token>`. Sem
+  // sessão mostra o cadastro de participante; com sessão entra na
+  // comunidade antes de abrir o Dashboard.
+  const [inviteToken, setInviteToken] = useState<string | null>(() => captureInviteTokenFromUrl())
+  const [wantsLogin, setWantsLogin] = useState(false)
+  const joinInvite = useJoinInvite(session?.user.id ?? null, inviteToken, () => setInviteToken(null))
+
   // Fase 14.2 — no primeiro acesso via convite não esperamos o check de
   // billing da plataforma: a nova Member vai direto para "Defina sua senha".
   if (initializing || (session && !recoveryMode && !mustSetPassword && !checked)) {
@@ -46,6 +56,20 @@ function App() {
         <ResetPassword mode="invite" invalid onDone={clearInviteState} />
       ) : mustSetPassword && session ? (
         <ResetPassword mode="invite" onDone={clearInviteState} />
+      ) : session && inviteToken && joinInvite.state.status === 'error' ? (
+        <section className="auth-card">
+          <p className="auth-error" role="alert">
+            {joinInvite.state.message}
+          </p>
+          <button type="button" onClick={joinInvite.retry}>
+            Tentar de novo
+          </button>
+          <button type="button" className="auth-link" onClick={joinInvite.dismiss}>
+            Continuar sem entrar
+          </button>
+        </section>
+      ) : session && inviteToken ? (
+        <p>Entrando na comunidade...</p>
       ) : session && blocked ? (
         <AccessBlockedScreen onSignOut={signOut} />
       ) : session ? (
@@ -58,6 +82,8 @@ function App() {
           activeNav={activeNav}
           onNavigate={setActiveNav}
         />
+      ) : inviteToken && !wantsLogin ? (
+        <MemberSignup token={inviteToken} onHaveAccount={() => setWantsLogin(true)} />
       ) : (
         <Login />
       )}

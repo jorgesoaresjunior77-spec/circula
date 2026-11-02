@@ -186,7 +186,7 @@ export function ProfessionalPanel({
             className="panel-overview-section-divider"
             aria-label="Convidar pelo WhatsApp"
           >
-            <CommunityInviteWhatsApp communityName={community.name} />
+            <CommunityInviteWhatsApp communityId={communityId} communityName={community.name} />
           </section>
         </div>
       )}
