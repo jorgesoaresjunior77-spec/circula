@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { evaluatePassword, isPasswordValid } from '../lib/passwordPolicy'
+import { EMAIL_NOT_CONFIRMED_MESSAGE } from '../lib/authErrors'
 import { useInvitePreview } from '../hooks/useInvitePreview'
 import circulaIcon from '../assets/circula-icon.png'
 
@@ -97,10 +98,10 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
 
       {preview.status === 'valid' && needsConfirmation && (
         <>
-          <p>
-            Conta criada! Enviamos um e-mail para você confirmar o endereço. Depois de confirmar,
-            é só entrar e você já fará parte de {preview.communityName}.
+          <p className="auth-error" role="alert">
+            {EMAIL_NOT_CONFIRMED_MESSAGE}
           </p>
+          <p>Depois de confirmar, é só entrar e você já fará parte de {preview.communityName}.</p>
           <button type="button" onClick={onHaveAccount}>
             Ir para o login
           </button>

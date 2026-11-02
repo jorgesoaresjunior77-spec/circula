@@ -73,7 +73,10 @@ describe('MemberSignup', () => {
     render(<MemberSignup token={TOKEN} onHaveAccount={vi.fn()} />)
     fill('Senha1!')
     fireEvent.click(screen.getByText('Criar minha conta'))
-    expect(await screen.findByText(/confirmar o endereço/)).toBeInTheDocument()
+    expect(await screen.findByText(/Seu e-mail ainda não foi confirmado/)).toBeInTheDocument()
+    expect(screen.getByText('Ir para o login')).toBeInTheDocument()
+    // não segue como se tivesse entrado: o formulário some e não há "criando"
+    expect(screen.queryByText('Criar minha conta')).not.toBeInTheDocument()
   })
 
   it('e-mail que já tem conta: mensagem neutra, sem entrar', async () => {

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
+import { signInErrorMessage } from '../lib/authErrors'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
 
@@ -48,7 +49,7 @@ export function Login() {
     })
 
     if (signInError) {
-      setError('E-mail ou senha inválidos.')
+      setError(signInErrorMessage(signInError))
       setLoading(false)
     }
   }
