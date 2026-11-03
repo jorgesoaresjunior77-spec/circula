@@ -107,7 +107,7 @@ export function NewConversation({ myProfileId, onBack, onPick }: NewConversation
                 >
                   <span className="conversation-avatar" aria-hidden="true">
                     {person.avatar_url ? (
-                      <img src={person.avatar_url} alt="" />
+                      <img loading="lazy" decoding="async" src={person.avatar_url} alt="" />
                     ) : (
                       <span>{name.charAt(0).toUpperCase()}</span>
                     )}

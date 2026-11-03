@@ -59,7 +59,7 @@ function EditorialCard({ eyebrow, tag, image, title, subtitle, footer, cta, onAc
     <button type="button" className="home-editorial-card" onClick={onActivate}>
       <span className="home-editorial-card-media">
         {image ? (
-          <img src={image} alt="" className="home-editorial-card-photo" />
+          <img loading="lazy" decoding="async" src={image} alt="" className="home-editorial-card-photo" />
         ) : (
           <span className="home-editorial-card-media-fallback" aria-hidden="true" />
         )}

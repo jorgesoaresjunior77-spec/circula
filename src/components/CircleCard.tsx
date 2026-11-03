@@ -67,7 +67,7 @@ export function CircleCard({
         <div className="circle-card-row">
           {coverUrl ? (
             <span className="circle-card-cover" aria-hidden="true">
-              <img src={coverUrl} alt="" />
+              <img loading="lazy" decoding="async" src={coverUrl} alt="" />
             </span>
           ) : (
             memberCount > 0 && (
@@ -75,7 +75,7 @@ export function CircleCard({
                 {shownAvatars.map((member) => (
                   <span key={member.id} className="circle-avatar">
                     {member.profile?.avatar_url ? (
-                      <img src={member.profile.avatar_url} alt="" />
+                      <img loading="lazy" decoding="async" src={member.profile.avatar_url} alt="" />
                     ) : (
                       <span>{(member.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
                     )}
@@ -130,7 +130,7 @@ export function CircleCard({
         aria-label={`Abrir círculo ${circle.name}`}
       >
         <span className="circle-card-photo">
-          {coverUrl && <img src={coverUrl} alt="" />}
+          {coverUrl && <img loading="lazy" decoding="async" src={coverUrl} alt="" />}
         </span>
 
         <span className="circle-card-info">
@@ -144,7 +144,7 @@ export function CircleCard({
                 {shownAvatars.map((member) => (
                   <span key={member.id} className="circle-card-avatar">
                     {member.profile?.avatar_url ? (
-                      <img src={member.profile.avatar_url} alt="" />
+                      <img loading="lazy" decoding="async" src={member.profile.avatar_url} alt="" />
                     ) : (
                       <span>{(member.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
                     )}

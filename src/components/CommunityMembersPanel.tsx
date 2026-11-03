@@ -65,7 +65,7 @@ function BlockedMemberCard({ member }: { member: CommunityMember }) {
     <article className="panel-members-row">
       <div className="panel-members-avatar" aria-hidden="true">
         {member.profile?.avatar_url ? (
-          <img src={member.profile.avatar_url} alt="" />
+          <img loading="lazy" decoding="async" src={member.profile.avatar_url} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}

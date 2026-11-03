@@ -6,7 +6,7 @@ import { PlusIcon, CloseIcon } from './icons'
 //
 // Grade sempre em 3 colunas (desktop e mobile — pedido explícito),
 // proporção 4:5. Fotos são URLs públicas do bucket `avatars` (mesmo do
-// avatar) — sem assinatura, exibidas direto em <img src>. Modo
+// avatar) — sem assinatura, exibidas direto em <img loading="lazy" decoding="async" src>. Modo
 // `editable`: cada miniatura preenchida ganha "Substituir"/"Remover"; a
 // próxima vaga vazia (até 12) ganha um botão "+" para adicionar. Modo
 // leitura (ProfileCard, perfil de outra pessoa): só grade + ampliação,
@@ -163,7 +163,7 @@ export function ProfileGallery({
           >
             <CloseIcon size={22} />
           </button>
-          <img
+          <img loading="lazy" decoding="async"
             src={photos[lightboxIndex]}
             alt=""
             className="profile-gallery-lightbox-img"

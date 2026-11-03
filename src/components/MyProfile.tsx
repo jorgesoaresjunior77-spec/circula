@@ -188,7 +188,7 @@ export function MyProfile({
       <div className="profile-header">
         <div className="profile-avatar">
           {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt="" />
+            <img loading="lazy" decoding="async" src={profile.avatar_url} alt="" />
           ) : (
             <span>{(profile.full_name ?? 'U').charAt(0).toUpperCase()}</span>
           )}

@@ -90,7 +90,7 @@ function CircleGalleryCard({ circle, index, clone, onOpen }: CircleGalleryCardPr
         data-tint={index % 4}
       >
         <div className="circ-card-frame">
-          {coverUrl && <img src={coverUrl} alt="" className="circ-card-photo" />}
+          {coverUrl && <img loading="lazy" decoding="async" src={coverUrl} alt="" className="circ-card-photo" />}
 
           {/* Abrir ESTE círculo: link esticado sobre todo o card. */}
           <button

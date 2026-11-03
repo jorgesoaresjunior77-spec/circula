@@ -117,7 +117,7 @@ export function ProductCard({
     (isPhysical && product.requires_shipping)
 
   const cover = product.cover_image_url ? (
-    <img src={product.cover_image_url} alt="" className="product-card-image" />
+    <img loading="lazy" decoding="async" src={product.cover_image_url} alt="" className="product-card-image" />
   ) : (
     <div className="product-card-placeholder" aria-hidden="true">
       <span>{product.title.charAt(0).toUpperCase()}</span>

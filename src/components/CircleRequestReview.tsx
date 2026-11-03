@@ -23,7 +23,7 @@ const REVIEW_ORDER: CircleRequestStatus[] = ['pending', 'reviewing', 'approved',
 function RequestImage({ path }: { path: string | null }) {
   const { url } = useSignedImageUrl(path)
   if (!url) return null
-  return <img src={url} alt="Imagem de referência sugerida" className="circle-request-review-image" />
+  return <img loading="lazy" decoding="async" src={url} alt="Imagem de referência sugerida" className="circle-request-review-image" />
 }
 
 function RequestRow({

@@ -100,7 +100,7 @@ export function InstagramHighlightModal({ posts, onClose }: InstagramHighlightMo
         </button>
 
         <div className="ig-modal-photo" aria-hidden="true">
-          {photo && <img src={photo} alt="" />}
+          {photo && <img loading="lazy" decoding="async" src={photo} alt="" />}
         </div>
 
         <div className="ig-modal-body">

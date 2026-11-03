@@ -141,7 +141,7 @@ export function ProfessionalDashboard({
       <section className="panel-overview-identity" aria-label="Informações da comunidade">
         <div className="panel-overview-cover" aria-hidden="true">
           {coverUrl ? (
-            <img src={coverUrl} alt="" />
+            <img loading="lazy" decoding="async" src={coverUrl} alt="" />
           ) : (
             <span className="panel-overview-cover-fallback" />
           )}

@@ -59,7 +59,7 @@ function InstagramCard({ post, clone }: { post: CommunityContent; clone: boolean
 
   const content = (
     <span className="exp-card-frame">
-      {coverUrl && <img src={coverUrl} alt="" className="exp-card-photo" />}
+      {coverUrl && <img loading="lazy" decoding="async" src={coverUrl} alt="" className="exp-card-photo" />}
       <span className="exp-card-eyebrow">Instagram</span>
       {hasTitle && <span className="exp-card-title exp-card-title--clamp">{post.title}</span>}
     </span>

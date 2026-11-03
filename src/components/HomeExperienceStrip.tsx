@@ -160,7 +160,7 @@ export function HomeExperienceStrip({
         tabIndex={clone ? -1 : undefined}
       >
         <span className="exp-card-frame">
-          {exp.image && <img src={exp.image} alt="" className="exp-card-photo" />}
+          {exp.image && <img loading="lazy" decoding="async" src={exp.image} alt="" className="exp-card-photo" />}
           <span className="exp-card-title">{exp.title}</span>
         </span>
       </button>

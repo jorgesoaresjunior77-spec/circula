@@ -54,7 +54,7 @@ export function ConversationList({
               >
                 <span className="conversation-avatar" aria-hidden="true">
                   {item.other_avatar_url ? (
-                    <img src={item.other_avatar_url} alt="" />
+                    <img loading="lazy" decoding="async" src={item.other_avatar_url} alt="" />
                   ) : (
                     <span>{name.charAt(0).toUpperCase()}</span>
                   )}

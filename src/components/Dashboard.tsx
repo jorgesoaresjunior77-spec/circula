@@ -10,16 +10,11 @@ import { MyProfile } from './MyProfile'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
 import { CircleList } from './CircleList'
-import { CircleDetail } from './CircleDetail'
-import { CircleRequestForm } from './CircleRequestForm'
 import { Onboarding } from './Onboarding'
 import { Tour } from './Tour'
-import { EventList } from './EventList'
 import { useEvents } from '../hooks/useEvents'
-import { SavedItems } from './SavedItems'
 import { useSavedItems } from '../hooks/useSavedItems'
 import { NotificationBell } from './NotificationBell'
-import { Messages } from './Messages'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
@@ -63,8 +58,15 @@ import {
   UserIcon,
 } from './icons'
 import { useContent } from '../hooks/useContent'
-import { ContentLibrary } from './ContentLibrary'
-import { GardenMemberView } from './GardenMemberView'
+
+// Destinos acessados sob demanda: saem do pacote inicial (abre mais rápido).
+const Messages = lazy(() => import('./Messages').then((m) => ({ default: m.Messages })))
+const EventList = lazy(() => import('./EventList').then((m) => ({ default: m.EventList })))
+const SavedItems = lazy(() => import('./SavedItems').then((m) => ({ default: m.SavedItems })))
+const ContentLibrary = lazy(() => import('./ContentLibrary').then((m) => ({ default: m.ContentLibrary })))
+const GardenMemberView = lazy(() => import('./GardenMemberView').then((m) => ({ default: m.GardenMemberView })))
+const CircleDetail = lazy(() => import('./CircleDetail').then((m) => ({ default: m.CircleDetail })))
+const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => ({ default: m.CircleRequestForm })))
 
 interface CommunityPickerOptionProps {
   community: CommunityWithMembers
@@ -85,7 +87,7 @@ function CommunityPickerOption({ community, memberCount, onSelect }: CommunityPi
     <button type="button" className="community-picker-card" onClick={onSelect}>
       <span className="community-picker-card-media" aria-hidden="true">
         {coverUrl ? (
-          <img src={coverUrl} alt="" />
+          <img loading="lazy" decoding="async" src={coverUrl} alt="" />
         ) : (
           <span className="community-picker-card-fallback">
             {community.name.charAt(0).toUpperCase()}
@@ -905,7 +907,7 @@ export function Dashboard({
           )}
           <span className="dashboard-user-avatar" aria-hidden="true">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" />
+              <img loading="lazy" decoding="async" src={profile.avatar_url} alt="" />
             ) : (
               <span>{(profile?.full_name ?? 'U').charAt(0).toUpperCase()}</span>
             )}

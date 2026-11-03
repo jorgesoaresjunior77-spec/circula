@@ -34,7 +34,7 @@ function ProfessionalCard({ professional }: { professional: PlatformProfessional
     <article className="master-pro-card">
       <div className="master-pro-avatar" aria-hidden="true">
         {professional.avatar_url ? (
-          <img src={professional.avatar_url} alt="" />
+          <img loading="lazy" decoding="async" src={professional.avatar_url} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}

@@ -88,7 +88,7 @@ export function HomeCommunityHeader({
         <span className="home-community-owner">
           <span className="home-community-owner-avatar" aria-hidden="true">
             {owner.avatar_url ? (
-              <img src={owner.avatar_url} alt="" />
+              <img loading="lazy" decoding="async" src={owner.avatar_url} alt="" />
             ) : (
               <span>{(owner.full_name ?? 'N').charAt(0).toUpperCase()}</span>
             )}
@@ -110,7 +110,7 @@ export function HomeCommunityHeader({
       <section className="home-community-header home-community-header--glass" aria-label="Sua comunidade">
         <div className="home-community-cover home-community-cover--glass" aria-hidden="true">
           {coverUrl ? (
-            <img src={coverUrl} alt="" />
+            <img loading="lazy" decoding="async" src={coverUrl} alt="" />
           ) : (
             <span className="home-community-cover-fallback" />
           )}
@@ -128,7 +128,7 @@ export function HomeCommunityHeader({
     <section className="home-community-header" aria-label="Sua comunidade">
       <div className="home-community-cover" aria-hidden="true">
         {coverUrl ? (
-          <img src={coverUrl} alt="" />
+          <img loading="lazy" decoding="async" src={coverUrl} alt="" />
         ) : (
           <span className="home-community-cover-fallback" />
         )}

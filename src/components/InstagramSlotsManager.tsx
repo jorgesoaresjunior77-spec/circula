@@ -124,7 +124,7 @@ function InstagramSlot({
         {!showForm && item && (
           <div className="insta-slot-preview">
             {coverUrl ? (
-              <img src={coverUrl} alt="" className="insta-slot-preview-img" />
+              <img loading="lazy" decoding="async" src={coverUrl} alt="" className="insta-slot-preview-img" />
             ) : (
               <span className="insta-slot-preview-placeholder" aria-hidden="true">
                 Instagram

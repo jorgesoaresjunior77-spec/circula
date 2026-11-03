@@ -51,7 +51,7 @@ export function ConversationView({
         </button>
         <span className="conversation-avatar" aria-hidden="true">
           {peer?.avatar_url ? (
-            <img src={peer.avatar_url} alt="" />
+            <img loading="lazy" decoding="async" src={peer.avatar_url} alt="" />
           ) : (
             <span>{peerName.charAt(0).toUpperCase()}</span>
           )}

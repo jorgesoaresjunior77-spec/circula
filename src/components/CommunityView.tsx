@@ -148,7 +148,7 @@ export function CommunityView({
     <section className={rootClassName}>
       <div className="community-hero-cover" aria-hidden="true">
         {coverUrl && (
-          <img
+          <img loading="lazy" decoding="async"
             className="community-hero-cover-image"
             src={coverUrl}
             alt=""

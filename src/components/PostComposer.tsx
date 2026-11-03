@@ -103,7 +103,7 @@ export function PostComposer({
       {!expanded && (
         <div className="post-composer-invite">
           <span className="post-composer-avatar" aria-hidden="true">
-            {authorAvatarUrl ? <img src={authorAvatarUrl} alt="" /> : <span>{authorInitial}</span>}
+            {authorAvatarUrl ? <img loading="lazy" decoding="async" src={authorAvatarUrl} alt="" /> : <span>{authorInitial}</span>}
           </span>
           <button type="button" className="post-composer-invite-prompt" onClick={openComposer}>
             Compartilhe algo com a sua comunidade
@@ -128,7 +128,7 @@ export function PostComposer({
 
         {imagePreview ? (
           <div className="post-composer-image">
-            <img src={imagePreview} alt="Pré-visualização da imagem do post" />
+            <img loading="lazy" decoding="async" src={imagePreview} alt="Pré-visualização da imagem do post" />
             <button
               type="button"
               className="auth-link"

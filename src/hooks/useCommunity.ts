@@ -47,6 +47,9 @@ export function useCommunity(profile: Profile | null) {
 
     const list = (data as unknown as CommunityWithMembers[] | null) ?? []
     setCommunities(list)
+    // A contagem de membros chega depois e só preenche o número; a tela não
+    // precisa esperar por ela para mostrar a comunidade.
+    setLoading(false)
 
     const countResults = await Promise.all(
       list.map((community) =>

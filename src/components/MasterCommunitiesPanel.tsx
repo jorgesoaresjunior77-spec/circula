@@ -40,7 +40,7 @@ function CommunityCard({ community }: { community: PlatformCommunity }) {
     <article className="master-community-card">
       <div className="master-community-cover" aria-hidden="true">
         {coverUrl ? (
-          <img src={coverUrl} alt="" />
+          <img loading="lazy" decoding="async" src={coverUrl} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}

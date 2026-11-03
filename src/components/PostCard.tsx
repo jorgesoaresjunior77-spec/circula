@@ -149,7 +149,7 @@ export function PostCard({
       <div className="post-card-header">
         <div className="post-avatar" aria-hidden="true">
           {post.author?.avatar_url ? (
-            <img src={post.author.avatar_url} alt="" />
+            <img loading="lazy" decoding="async" src={post.author.avatar_url} alt="" />
           ) : (
             <span>{name.charAt(0).toUpperCase()}</span>
           )}

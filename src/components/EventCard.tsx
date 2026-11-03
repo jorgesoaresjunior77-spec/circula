@@ -85,10 +85,10 @@ export function EventCard({
               onClick={onSelect}
               aria-label={`Ver detalhes de ${event.title}`}
             >
-              <img src={coverUrl} alt="" />
+              <img loading="lazy" decoding="async" src={coverUrl} alt="" />
             </button>
           ) : (
-            <img src={coverUrl} alt="" />
+            <img loading="lazy" decoding="async" src={coverUrl} alt="" />
           )}
         </div>
       )}
@@ -151,7 +151,7 @@ export function EventCard({
               {shownAvatars.map((p) => (
                 <span key={p.id} className="event-avatar">
                   {p.profile?.avatar_url ? (
-                    <img src={p.profile.avatar_url} alt="" />
+                    <img loading="lazy" decoding="async" src={p.profile.avatar_url} alt="" />
                   ) : (
                     <span>{(p.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
                   )}

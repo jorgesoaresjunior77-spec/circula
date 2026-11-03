@@ -114,7 +114,7 @@ export function CoverImageInput({
         style={aspectRatio ? { aspectRatio } : undefined}
       >
         {preview ? (
-          <img src={preview} alt="" className="cover-image-input-preview" />
+          <img loading="lazy" decoding="async" src={preview} alt="" className="cover-image-input-preview" />
         ) : (
           <span className="cover-image-input-placeholder">
             Nenhuma imagem selecionada

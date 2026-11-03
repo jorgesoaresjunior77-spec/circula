@@ -24,7 +24,7 @@ export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
     <div className={`comment-item comment-item--${variant}`}>
       <div className="comment-avatar" aria-hidden="true">
         {comment.author?.avatar_url ? (
-          <img src={comment.author.avatar_url} alt="" />
+          <img loading="lazy" decoding="async" src={comment.author.avatar_url} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}

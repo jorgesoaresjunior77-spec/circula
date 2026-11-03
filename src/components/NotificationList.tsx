@@ -39,7 +39,7 @@ export function NotificationList({
             >
               <span className="notification-avatar" aria-hidden="true">
                 {item.actor?.avatar_url ? (
-                  <img src={item.actor.avatar_url} alt="" />
+                  <img loading="lazy" decoding="async" src={item.actor.avatar_url} alt="" />
                 ) : (
                   <span>{(actorName ?? '·').charAt(0).toUpperCase()}</span>
                 )}

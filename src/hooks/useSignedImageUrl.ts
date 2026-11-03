@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
 import { isCommunityMediaPath } from '../lib/communityMedia'
+import { getSignedUrl, peekSignedUrl } from '../lib/signedUrlCache'
 
-const BUCKET = 'community-media'
 const DEFAULT_EXPIRES_IN = 3600 // 1 hora
 
 /**
@@ -19,14 +18,16 @@ const DEFAULT_EXPIRES_IN = 3600 // 1 hora
  *    sem permissão, `url` fica `null` e a imagem simplesmente não
  *    aparece (não é tratado como erro de aplicação).
  *
- * Uma instância por imagem, sem cache/batch nesta fase — reavaliar se
- * um dia isso pesar em telas com muitas imagens de uma vez.
+ * Os pedidos passam por lib/signedUrlCache: cache em memória e pedidos
+ * simultâneos juntos numa só chamada ao Storage (antes era uma por imagem).
  */
 export function useSignedImageUrl(
   value: string | null | undefined,
   expiresIn: number = DEFAULT_EXPIRES_IN,
 ) {
-  const [url, setUrl] = useState<string | null>(null)
+  const [url, setUrl] = useState<string | null>(() =>
+    value && isCommunityMediaPath(value) ? peekSignedUrl(value, expiresIn) : null,
+  )
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -44,15 +45,19 @@ export function useSignedImageUrl(
       return
     }
 
+    const cached = peekSignedUrl(value, expiresIn)
+    if (cached) {
+      setUrl(cached)
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
-    supabase.storage
-      .from(BUCKET)
-      .createSignedUrl(value, expiresIn)
-      .then(({ data, error }) => {
-        if (!active) return
-        setUrl(error ? null : (data?.signedUrl ?? null))
-        setLoading(false)
-      })
+    getSignedUrl(value, expiresIn).then((signed) => {
+      if (!active) return
+      setUrl(signed)
+      setLoading(false)
+    })
 
     return () => {
       active = false

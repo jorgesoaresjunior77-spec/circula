@@ -59,7 +59,7 @@ function ModerationRow({
       <div className="panel-post-head">
         <div className="panel-post-avatar" aria-hidden="true">
           {post.author_avatar ? (
-            <img src={post.author_avatar} alt="" />
+            <img loading="lazy" decoding="async" src={post.author_avatar} alt="" />
           ) : (
             <span>{name.charAt(0).toUpperCase()}</span>
           )}

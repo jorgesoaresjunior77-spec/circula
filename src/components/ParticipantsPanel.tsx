@@ -33,7 +33,7 @@ function ParticipantRow({ participant }: { participant: ParticipantOverview }) {
     <article className="panel-members-row">
       <div className="panel-members-avatar" aria-hidden="true">
         {participant.avatar_url ? (
-          <img src={participant.avatar_url} alt="" />
+          <img loading="lazy" decoding="async" src={participant.avatar_url} alt="" />
         ) : (
           <span>{name.charAt(0).toUpperCase()}</span>
         )}

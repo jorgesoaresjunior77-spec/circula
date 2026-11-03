@@ -58,7 +58,7 @@ export function CircleDetail({
       <div className="community-card community-card--highlight community-hero circle-detail-hero">
         <div className="community-hero-cover" aria-hidden="true">
           {coverUrl && (
-            <img
+            <img loading="lazy" decoding="async"
               className="community-hero-cover-image"
               src={coverUrl}
               alt=""
@@ -83,7 +83,7 @@ export function CircleDetail({
               {shownAvatars.map((member) => (
                 <span key={member.id} className="circle-avatar">
                   {member.profile?.avatar_url ? (
-                    <img src={member.profile.avatar_url} alt="" />
+                    <img loading="lazy" decoding="async" src={member.profile.avatar_url} alt="" />
                   ) : (
                     <span>{(member.profile?.full_name ?? 'P').charAt(0).toUpperCase()}</span>
                   )}

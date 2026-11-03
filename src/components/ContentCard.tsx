@@ -50,7 +50,7 @@ export function ContentCard({
     <article className="content-card">
       {coverUrl && (
         <div className="content-card-cover" aria-hidden="true">
-          <img src={coverUrl} alt="" />
+          <img loading="lazy" decoding="async" src={coverUrl} alt="" />
         </div>
       )}
 
