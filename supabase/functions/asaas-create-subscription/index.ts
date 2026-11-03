@@ -1,6 +1,10 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { asaasFetch } from '../_shared/asaas.ts'
+import { offSplitSnapshot, resolveCommunitySplitMode } from '../_shared/communitySplitMode.ts'
+
+// 'off' = sem split nativo (todo o valor fica na plataforma). Ausente = native.
+const COMMUNITY_SPLIT_MODE = resolveCommunitySplitMode(Deno.env.get('COMMUNITY_SPLIT_MODE'))
 
 // =====================================================================
 // FASE 16.2.4-B — Checkout de assinatura de COMUNIDADE (Split nativo 90/10)
@@ -218,57 +222,74 @@ async function handleCommunitySubscription(
     const currency = (priceRow.currency as string | null) ?? 'BRL'
 
     // 7) SPLIT — resolvido no servidor. resolve_split lê a conta da dona.
-    const { data: splitRows, error: splitError } = await admin.rpc('resolve_split', {
-      p_community_id: communityId,
-      p_amount_cents: priceCents,
-    })
-    if (splitError) {
-      // no_data_found => nenhuma regra de split cadastrada
-      const code = splitError.code === 'P0002' ? 'NO_SPLIT_RULE' : 'SPLIT_UNRESOLVED'
-      throw new HttpError(500, 'Não foi possível resolver o rateio da assinatura.', code)
-    }
-    const split = Array.isArray(splitRows) ? splitRows[0] : splitRows
-    if (!split) {
-      throw new HttpError(500, 'Nenhuma regra de rateio configurada.', 'NO_SPLIT_RULE')
-    }
-    const circulaPercent = Number(split.circula_percent)
-    const circulaAmountCents = Number(split.circula_amount_cents)
-    const professionalAmountCents = Number(split.professional_amount_cents)
-    const splitModel = split.split_model as 'native' | 'ledger'
-    const walletId = (split.professional_wallet_id as string | null) ?? null
+    //    COMMUNITY_SPLIT_MODE=off: sem split nativo; 100% do valor cai na
+    //    conta da plataforma e o acerto com a dona é manual, fora do sistema.
+    let circulaPercent: number
+    let circulaAmountCents: number
+    let professionalAmountCents: number
+    let splitModel: 'native' | 'ledger'
+    let walletId: string | null
 
-    // 8) política MVP: só assinatura com Split NATIVO. Sem conta conectada
-    //    da dona -> bloqueia (nada de dinheiro sem destino de repasse).
-    if (splitModel !== 'native' || !walletId) {
-      throw new HttpError(
-        409,
-        'Esta comunidade ainda não está pronta para receber assinaturas: a responsável precisa concluir a conexão da conta de recebimento.',
-        'OWNER_NOT_CONNECTED',
-      )
-    }
+    if (COMMUNITY_SPLIT_MODE === 'off') {
+      const off = offSplitSnapshot(priceCents)
+      circulaPercent = off.circulaPercent
+      circulaAmountCents = off.circulaAmountCents
+      professionalAmountCents = off.professionalAmountCents
+      splitModel = off.splitModel
+      walletId = off.walletId
+    } else {
+      const { data: splitRows, error: splitError } = await admin.rpc('resolve_split', {
+        p_community_id: communityId,
+        p_amount_cents: priceCents,
+      })
+      if (splitError) {
+        // no_data_found => nenhuma regra de split cadastrada
+        const code = splitError.code === 'P0002' ? 'NO_SPLIT_RULE' : 'SPLIT_UNRESOLVED'
+        throw new HttpError(500, 'Não foi possível resolver o rateio da assinatura.', code)
+      }
+      const split = Array.isArray(splitRows) ? splitRows[0] : splitRows
+      if (!split) {
+        throw new HttpError(500, 'Nenhuma regra de rateio configurada.', 'NO_SPLIT_RULE')
+      }
+      circulaPercent = Number(split.circula_percent)
+      circulaAmountCents = Number(split.circula_amount_cents)
+      professionalAmountCents = Number(split.professional_amount_cents)
+      splitModel = split.split_model as 'native' | 'ledger'
+      walletId = (split.professional_wallet_id as string | null) ?? null
 
-    // 9) reconfirmação defensiva da conta da dona (resolve_split não
-    //    checa disconnected_at) + walletId nunca pode ser a emissora.
-    const { data: ownerAccount } = await admin
-      .from('professional_billing_accounts')
-      .select('asaas_wallet_id, payout_method, verified_at, disconnected_at')
-      .eq('profile_id', community.owner_id)
-      .maybeSingle()
-    const accountOk =
-      !!ownerAccount &&
-      ownerAccount.verified_at != null &&
-      ownerAccount.disconnected_at == null &&
-      ownerAccount.payout_method === 'asaas_split' &&
-      ownerAccount.asaas_wallet_id === walletId
-    if (!accountOk) {
-      throw new HttpError(
-        409,
-        'A conta de recebimento da responsável não está ativa.',
-        'OWNER_NOT_CONNECTED',
-      )
-    }
-    if (CIRCULA_WALLET_IDS.includes(walletId.toLowerCase())) {
-      throw new HttpError(422, 'Carteira de destino inválida para o repasse.', 'ISSUER_WALLET')
+      // 8) política MVP: só assinatura com Split NATIVO. Sem conta conectada
+      //    da dona -> bloqueia (nada de dinheiro sem destino de repasse).
+      if (splitModel !== 'native' || !walletId) {
+        throw new HttpError(
+          409,
+          'Esta comunidade ainda não está pronta para receber assinaturas: a responsável precisa concluir a conexão da conta de recebimento.',
+          'OWNER_NOT_CONNECTED',
+        )
+      }
+
+      // 9) reconfirmação defensiva da conta da dona (resolve_split não
+      //    checa disconnected_at) + walletId nunca pode ser a emissora.
+      const { data: ownerAccount } = await admin
+        .from('professional_billing_accounts')
+        .select('asaas_wallet_id, payout_method, verified_at, disconnected_at')
+        .eq('profile_id', community.owner_id)
+        .maybeSingle()
+      const accountOk =
+        !!ownerAccount &&
+        ownerAccount.verified_at != null &&
+        ownerAccount.disconnected_at == null &&
+        ownerAccount.payout_method === 'asaas_split' &&
+        ownerAccount.asaas_wallet_id === walletId
+      if (!accountOk) {
+        throw new HttpError(
+          409,
+          'A conta de recebimento da responsável não está ativa.',
+          'OWNER_NOT_CONNECTED',
+        )
+      }
+      if (CIRCULA_WALLET_IDS.includes(walletId.toLowerCase())) {
+        throw new HttpError(422, 'Carteira de destino inválida para o repasse.', 'ISSUER_WALLET')
+      }
     }
 
     // 10) customer Asaas do Member (alinhado com asaas-create-product-order:
@@ -356,7 +377,7 @@ async function handleCommunitySubscription(
           nextDueDate,
           description: `Círcula — ${community.name}`,
           externalReference,
-          split: [{ walletId, percentualValue: professionalPercent }],
+          ...(walletId ? { split: [{ walletId, percentualValue: professionalPercent }] } : {}),
         }),
       })
     }
