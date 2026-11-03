@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { compressImage, validateImageFile } from '../lib/imageUpload'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 
 // Fase 14.2 — capturado no import, ANTES de o gotrue-js consumir e
@@ -177,8 +178,12 @@ export function useAuth() {
     return { error: null }
   }
 
-  async function uploadAvatar(file: File) {
+  async function uploadAvatar(originalFile: File) {
     if (!session) return { error: 'Sem sessão ativa.' }
+
+    const invalid = validateImageFile(originalFile)
+    if (invalid) return { error: invalid }
+    const file = await compressImage(originalFile)
 
     const extension = file.name.split('.').pop() ?? 'jpg'
     const path = `${session.user.id}/${Date.now()}.${extension}`
@@ -209,8 +214,12 @@ export function useAuth() {
   // (inclusão/substituição) e persiste via `updateProfile`, exatamente
   // como `CoverImageInput` + `createCircle`/`renameCircle` já fazem
   // noutras telas.
-  async function uploadGalleryPhoto(file: File) {
+  async function uploadGalleryPhoto(originalFile: File) {
     if (!session) return { url: null, error: 'Sem sessão ativa.' }
+
+    const invalid = validateImageFile(originalFile)
+    if (invalid) return { url: null, error: invalid }
+    const file = await compressImage(originalFile)
 
     const extension = file.name.split('.').pop() ?? 'jpg'
     const path = `${session.user.id}/gallery/${Date.now()}.${extension}`

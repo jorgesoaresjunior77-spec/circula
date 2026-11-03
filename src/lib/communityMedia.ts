@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { compressImage } from './imageUpload'
 
 /**
  * Fase 12.5B — upload de mídia de comunidade (posts e capas) para o
@@ -59,12 +60,13 @@ export async function uploadCommunityMedia(
     return { path: null, error: 'A imagem precisa ter no máximo 5 MB.' }
   }
 
-  const extension = sanitizeExtension(file.name)
+  const prepared = await compressImage(file)
+  const extension = sanitizeExtension(prepared.name)
   const path = `${communityId}/${kind}/${uid}/${Date.now()}.${extension}`
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
-    .upload(path, file, { upsert: false, contentType: file.type })
+    .upload(path, prepared, { upsert: false, contentType: prepared.type })
 
   if (uploadError) {
     return { path: null, error: uploadError.message }
