@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { evaluatePassword, isPasswordValid } from '../lib/passwordPolicy'
 import { EMAIL_NOT_CONFIRMED_MESSAGE } from '../lib/authErrors'
 import { useInvitePreview } from '../hooks/useInvitePreview'
+import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 
 // Cadastro de participante pelo link de convite da comunidade (enviado
@@ -29,6 +30,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
+  const [accepted, setAccepted] = useState(false)
 
   const rules = evaluatePassword(password)
 
@@ -38,6 +40,10 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
 
     if (!name.trim()) {
       setError('Informe como você gostaria de ser chamada.')
+      return
+    }
+    if (!accepted) {
+      setError('Para criar a conta, aceite os Termos de Uso e a Política de Privacidade.')
       return
     }
     if (!isPasswordValid(password)) {
@@ -51,7 +57,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { full_name: name.trim() }, emailRedirectTo: APP_URL },
+      options: { data: { full_name: name.trim(), ...consentMetadata() }, emailRedirectTo: APP_URL },
     })
     setLoading(false)
 
@@ -158,6 +164,8 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
               </li>
             ))}
           </ul>
+
+          <ConsentCheckbox id="member-signup-consent" checked={accepted} onChange={setAccepted} />
 
           {error && (
             <p className="auth-error" role="alert">

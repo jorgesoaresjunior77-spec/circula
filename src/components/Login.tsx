@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { signInErrorMessage } from '../lib/authErrors'
+import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
 
@@ -34,6 +35,7 @@ export function Login() {
   const [signupName, setSignupName] = useState('')
   const [signupEmail, setSignupEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
+  const [signupAccepted, setSignupAccepted] = useState(false)
   const [signupLoading, setSignupLoading] = useState(false)
   const [signupError, setSignupError] = useState<string | null>(null)
   const [signupNeedsConfirmation, setSignupNeedsConfirmation] = useState(false)
@@ -104,6 +106,10 @@ export function Login() {
       setSignupError('Informe seu nome.')
       return
     }
+    if (!signupAccepted) {
+      setSignupError('Para criar a conta, aceite os Termos de Uso e a Política de Privacidade.')
+      return
+    }
     if (signupPassword.length < SIGNUP_MIN_PASSWORD) {
       setSignupError(`A senha precisa ter pelo menos ${SIGNUP_MIN_PASSWORD} caracteres.`)
       return
@@ -118,7 +124,7 @@ export function Login() {
       email: signupEmail,
       password: signupPassword,
       options: {
-        data: { full_name: signupName.trim(), account_type: 'professional' },
+        data: { full_name: signupName.trim(), account_type: 'professional', ...consentMetadata() },
         emailRedirectTo: APP_URL,
       },
     })
@@ -249,6 +255,8 @@ export function Login() {
               autoComplete="new-password"
               required
             />
+
+            <ConsentCheckbox id="signup-consent" checked={signupAccepted} onChange={setSignupAccepted} />
 
             {signupError && <p className="auth-error">{signupError}</p>}
 
