@@ -4,6 +4,7 @@ import type { Profile, ProfileUpdateInput } from '../types/profile'
 import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
 import { GardenEvolutionSection } from './GardenEvolutionSection'
+import { CommunitySubscriptionCard } from './CommunitySubscriptionCard'
 
 interface MyProfileProps {
   profile: Profile
@@ -400,6 +401,16 @@ export function MyProfile({
             </button>
           </div>
         </form>
+      )}
+
+      {/* A assinatura da comunidade só era alcançável por uma tela que saiu do
+          menu (MemberCommunityCard). Aqui a participante acha onde assinar e
+          regularizar. Só para member: a Profissional paga pelo Painel. */}
+      {profile.role === 'member' && communityId && (
+        <div className="profile-subscription-section">
+          <p className="profile-section-label">Minha assinatura</p>
+          <CommunitySubscriptionCard communityId={communityId} />
+        </div>
       )}
     </section>
   )
