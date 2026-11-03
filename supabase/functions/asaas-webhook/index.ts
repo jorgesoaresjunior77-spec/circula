@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { addCycleMonths } from '../_shared/asaas.ts'
+import { timingSafeEqualStrings } from '../_shared/security.ts'
 
 const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
 
@@ -535,7 +536,7 @@ Deno.serve(async (req) => {
 
   const receivedToken = req.headers.get('asaas-access-token') ?? ''
 
-  if (!WEBHOOK_TOKEN || receivedToken !== WEBHOOK_TOKEN) {
+  if (!WEBHOOK_TOKEN || !timingSafeEqualStrings(receivedToken, WEBHOOK_TOKEN)) {
     return new Response(JSON.stringify({ error: 'Token de webhook inválido.' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
