@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { isValidDocument } from '../lib/brazilianDocument'
 import type {
   CalculatedSubscriptionState,
   DocumentType,
@@ -52,6 +53,9 @@ export function useSubscription({ subject, communityId }: UseSubscriptionOptions
 
     if (digits.length !== expectedLength) {
       return { error: `${documentType} deve ter ${expectedLength} dígitos.` }
+    }
+    if (!isValidDocument(documentType, digits)) {
+      return { error: `${documentType} inválido. Confira os números e tente de novo.` }
     }
 
     const { data: userData } = await supabase.auth.getUser()

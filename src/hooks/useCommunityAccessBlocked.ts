@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Profile } from '../types/profile'
 
-export function useCommunityAccessBlocked(profile: Profile | null, communityId: string) {
+export function useCommunityAccessBlocked(profile: Profile | null, communityId: string | null) {
   const [blocked, setBlocked] = useState(false)
   const [checked, setChecked] = useState(false)
 
   useEffect(() => {
     let active = true
 
-    if (!profile || profile.role !== 'member') {
+    if (!profile || profile.role !== 'member' || !communityId) {
       setBlocked(false)
       setChecked(true)
       return

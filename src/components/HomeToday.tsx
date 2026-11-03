@@ -4,12 +4,14 @@ import type { CommunityWithMembers, JoinResult } from '../types/community'
 import type { NavKey } from './PrimaryNav'
 import { useCircles } from '../hooks/useCircles'
 import { useContent } from '../hooks/useContent'
+import { useCommunityAccessBlocked } from '../hooks/useCommunityAccessBlocked'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useProducts } from '../hooks/useProducts'
 import { filterInstagramContent } from '../lib/instagramContent'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { CommunityView } from './CommunityView'
+import { CommunityAccessBlockedCard } from './CommunityAccessBlockedCard'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
@@ -123,6 +125,9 @@ export function HomeToday({
       ? (communities[0] ?? null)
       : (myCommunities[0] ?? null)
   const communityId = focusCommunity?.id ?? null
+  // Membro bloqueado por cobrança precisa achar o caminho de regularizar
+  // logo na Home (a tela antiga "Minha comunidade" saiu do menu).
+  const { blocked: accessBlocked } = useCommunityAccessBlocked(profile, communityId)
 
   const { circles } = useCircles(communityId)
 
@@ -254,6 +259,8 @@ export function HomeToday({
   return (
     <div className="home">
       {greeting}
+
+      {accessBlocked && <CommunityAccessBlockedCard communityId={focusCommunity.id} />}
 
       {/* Fase 10 — cabeçalho da comunidade: capa, logo, nome, profissional
           responsável e nº de participantes. "Onde estou" claro logo na
