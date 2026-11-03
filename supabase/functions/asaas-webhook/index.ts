@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { addCycleMonths } from '../_shared/asaas.ts'
 import { timingSafeEqualStrings } from '../_shared/security.ts'
+import { classifyWebhookPayload } from '../_shared/webhookPayload.ts'
 import { isNoSplitSubscription } from '../_shared/communitySplitMode.ts'
 
 const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
@@ -550,19 +551,40 @@ Deno.serve(async (req) => {
 
   try {
     const payload = await req.json()
-    const event = payload.event as string | undefined
-    const payment = payload.payment as AsaasPayment | undefined
+    const classified = classifyWebhookPayload(payload)
 
-    if (!event || !payment) {
-      return new Response(JSON.stringify({ error: 'Payload sem event/payment.' }), {
+    if (classified.kind === 'invalid') {
+      return new Response(JSON.stringify({ error: 'Payload sem event.' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const eventId = (payload.id as string | undefined) ?? `${payment.id}:${event}`
-
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+
+    // Evento sem `payment` (ex.: SUBSCRIPTION_*): registra, marca como
+    // processado e responde 200 para o Asaas não pausar a fila de webhooks.
+    if (classified.kind === 'ignore') {
+      const { error: ignoreError } = await admin.from('webhook_events').insert({
+        asaas_event_id: classified.eventId,
+        event_type: classified.event,
+        payload,
+        processed_at: new Date().toISOString(),
+      })
+      if (ignoreError && ignoreError.code !== '23505') {
+        console.error('asaas-webhook: falha ao registrar evento ignorado', ignoreError)
+        throw ignoreError
+      }
+      console.log('asaas-webhook: evento sem payment ignorado', classified.event)
+      return new Response(JSON.stringify({ ok: true, ignored: true }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const event = classified.event
+    const payment = payload.payment as AsaasPayment
+    const eventId = (payload.id as string | undefined) ?? `${payment.id}:${event}`
 
     const { error: insertEventError } = await admin
       .from('webhook_events')
