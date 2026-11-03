@@ -3,7 +3,9 @@ import { corsHeaders } from '../_shared/cors.ts'
 import { asaasFetch } from '../_shared/asaas.ts'
 import { offSplitSnapshot, resolveCommunitySplitMode } from '../_shared/communitySplitMode.ts'
 
-// 'off' = sem split nativo (todo o valor fica na plataforma). Ausente = native.
+// 'off' = sem split nativo (todo o valor fica na plataforma, sem repasse).
+// Ausente = native. O código de split/repasse (aqui, no webhook e no banco)
+// fica no sistema, só desligado por esta flag, para uma eventual 2ª profissional.
 const COMMUNITY_SPLIT_MODE = resolveCommunitySplitMode(Deno.env.get('COMMUNITY_SPLIT_MODE'))
 
 // =====================================================================

@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { addCycleMonths } from '../_shared/asaas.ts'
 import { timingSafeEqualStrings } from '../_shared/security.ts'
+import { isNoSplitSubscription } from '../_shared/communitySplitMode.ts'
 
 const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
 
@@ -75,6 +76,7 @@ async function handleCommunitySubscriptionEvent(
   const circulaPercent = Number(subscription.circula_percent_snapshot ?? 10)
   const splitModel = (subscription.split_model_snapshot as 'native' | 'ledger' | null) ?? 'ledger'
   const status = subscription.status as string
+  const noSplit = isNoSplitSubscription(subscription)
 
   // dona da comunidade — destino (implícito) do repasse
   const { data: community } = await admin
@@ -151,7 +153,10 @@ async function handleCommunitySubscriptionEvent(
   if (isConfirmed) {
     // 1) subscription_payouts (sale) — idempotente pela unique
     //    (subscription_id, payment_charge_id, kind)
-    if (chargeId && ownerId) {
+    // Split desligado (COMMUNITY_SPLIT_MODE=off): 100% plataforma, sem repasse.
+    if (noSplit) {
+      // nada a registrar em subscription_payouts; payment_charges já é a receita
+    } else if (chargeId && ownerId) {
       const grossCents = Number(subscription.price_cents_snapshot ?? valueCents)
       const asaasFeeCents = netCents !== null ? Math.max(0, valueCents - netCents) : 0
       let netAmountCents: number
@@ -263,7 +268,7 @@ async function handleCommunitySubscriptionEvent(
       throw subErr
     }
 
-    if (chargeId && ownerId) {
+    if (!noSplit && chargeId && ownerId) {
       const { data: salePayout } = await admin
         .from('subscription_payouts')
         .select('split_model, gross_amount_cents, asaas_fee_cents, circula_fee_cents, net_amount_cents')
