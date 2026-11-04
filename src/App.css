@@ -16153,6 +16153,48 @@ button.card:focus-visible {
   stroke: var(--circula-mocha);
 }
 
+.garden-evolution-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(224, 177, 152, 0.16), rgba(147, 161, 134, 0.16));
+}
+
+.garden-evolution-hero-text {
+  min-width: 0;
+}
+
+.garden-evolution-hero-stage {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--circula-mocha);
+}
+
+.garden-evolution-hero-hint {
+  margin: var(--space-1) 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--circula-taupe);
+}
+
+.garden-evolution-hero--compact {
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.garden-evolution-hero--compact .garden-evolution-hero-stage {
+  font-size: 18px;
+}
+
+.garden-bloom {
+  flex: none;
+}
+
 .garden-evolution-rings {
   display: flex;
   flex-wrap: wrap;

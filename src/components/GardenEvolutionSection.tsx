@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useGardenEvolution } from '../hooks/useGardenEvolution'
 import { GardenMonthlyRing } from './GardenMonthlyRing'
 import { GardenAnnualRing } from './GardenAnnualRing'
+import { GardenBloom, GARDEN_STAGE_LABEL, gardenStageForPercent } from './GardenBloom'
 import { GARDEN_COLOR_HEX, GARDEN_COLORS } from '../types/garden'
 import {
   GARDEN_MONTHLY_ACTIVITIES,
@@ -47,6 +48,7 @@ export function GardenEvolutionSection({
   )
 
   const progress = computeMonthlyProgress(currentMonthPoints)
+  const stage = gardenStageForPercent(progress.percent)
   const thisMonthAlreadyCompleted = completions.some(
     (c) => c.period_month === currentPeriodMonth(),
   )
@@ -64,6 +66,22 @@ export function GardenEvolutionSection({
 
   return (
     <section className="garden-evolution" aria-label="Evolução no Meu Jardim">
+      <div className={`garden-evolution-hero${compact ? ' garden-evolution-hero--compact' : ''}`}>
+        <GardenBloom
+          stage={stage}
+          size={compact ? 84 : 120}
+          label={`Seu jardim neste mês: ${GARDEN_STAGE_LABEL[stage]}`}
+        />
+        <div className="garden-evolution-hero-text">
+          <p className="garden-evolution-hero-stage">{GARDEN_STAGE_LABEL[stage]}</p>
+          <p className="garden-evolution-hero-hint">
+            {progress.complete
+              ? 'Meta do mês alcançada. Seu jardim está completo.'
+              : `${progress.points} de ${progress.goal} pontos neste mês. Faltam ${progress.remaining}.`}
+          </p>
+        </div>
+      </div>
+
       <div className="garden-evolution-rings">
         <div className="garden-evolution-ring-block">
           <GardenMonthlyRing points={currentMonthPoints} earnedSources={earnedSources} />
