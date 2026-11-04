@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { buildInviteMessageSuggestions } from '../lib/communityInviteMessages'
 import { useInviteLink } from '../hooks/useInviteLink'
+import { buildWhatsAppUrl, normalizeWhatsAppNumber } from '../lib/phone'
 
 // Convidar mulheres para a comunidade pelo WhatsApp (Painel da
 // Profissional). O link é UM por comunidade, gerado aqui, e leva a uma
@@ -8,22 +9,35 @@ import { useInviteLink } from '../hooks/useInviteLink'
 // MemberSignup). A dona pode desativar o link ou gerar outro (o anterior
 // deixa de valer na hora) se ele vazar.
 //
-// O app NUNCA envia nada: compõe o texto, deixa copiar e abre
-// `https://wa.me/?text=...` com a mensagem pronta; o envio acontece no
-// WhatsApp, pela própria Profissional.
+// O app NUNCA envia nada: a Profissional digita o número de WhatsApp da
+// pessoa, o app compõe o texto e abre `https://wa.me/<número>?text=...` com
+// a conversa já aberta e a mensagem pronta; o envio acontece no WhatsApp,
+// pela própria Profissional. Também dá para copiar o texto ou escolher o
+// contato direto no WhatsApp (`wa.me/?text=`).
 interface CommunityInviteWhatsAppProps {
   communityId: string
   communityName: string
+  /** Gera o link sozinho ao abrir, se ainda não houver um ativo (ex.: botão do topo do Painel). */
+  autoCreate?: boolean
+  /** Esconde o título interno quando um botão externo já o anuncia. */
+  showTitle?: boolean
 }
 
 const COPY_RESET_MS = 2000
 
-export function CommunityInviteWhatsApp({ communityId, communityName }: CommunityInviteWhatsAppProps) {
+export function CommunityInviteWhatsApp({ communityId, communityName, autoCreate = false, showTitle = true }: CommunityInviteWhatsAppProps) {
   const link = useInviteLink(communityId)
+  const { loading, url, busy, error, create } = link
+
+  useEffect(() => {
+    if (autoCreate && !loading && !url && !busy && !error) void create()
+    // `create` muda a cada render do hook; só reage a estado, não à identidade
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCreate, loading, url, busy, error])
 
   return (
     <section className="community-card community-pro-form" aria-label="Convidar pelo WhatsApp">
-      <h3>Convidar pelo WhatsApp</h3>
+      {showTitle && <h3>Convidar pelo WhatsApp</h3>}
 
       {link.loading ? (
         <p className="challenge-field-hint">Carregando o link de convite…</p>
@@ -79,6 +93,9 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
   )
   const [message, setMessage] = useState(suggestions[0])
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
+  const [phone, setPhone] = useState('')
+  const number = normalizeWhatsAppNumber(phone)
+  const phoneInvalid = phone.trim() !== '' && number === null
 
   async function handleCopy() {
     try {
@@ -90,6 +107,11 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
     setTimeout(() => setCopyState('idle'), COPY_RESET_MS)
   }
 
+  function handleSendToNumber() {
+    if (!number) return
+    window.open(buildWhatsAppUrl(number, message), '_blank', 'noopener,noreferrer')
+  }
+
   function handleShare() {
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`
     window.open(url, '_blank', 'noopener,noreferrer')
@@ -97,10 +119,31 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
 
   return (
     <>
+      <label htmlFor="invite-whatsapp-phone">WhatsApp da pessoa</label>
+      <input
+        id="invite-whatsapp-phone"
+        className="invite-whatsapp-phone"
+        type="tel"
+        inputMode="tel"
+        autoComplete="off"
+        placeholder="(51) 99999-9999"
+        value={phone}
+        onChange={(event) => setPhone(event.target.value)}
+        aria-invalid={phoneInvalid}
+        aria-describedby="invite-whatsapp-phone-hint"
+      />
+      <p
+        id="invite-whatsapp-phone-hint"
+        className={phoneInvalid ? 'auth-error' : 'challenge-field-hint'}
+        role={phoneInvalid ? 'alert' : undefined}
+      >
+        {phoneInvalid
+          ? 'Número inválido. Digite o DDD e o número, por exemplo (51) 99999-9999.'
+          : 'Com DDD. O WhatsApp abre na conversa dessa pessoa, com a mensagem pronta; o envio é você quem faz, de lá.'}
+      </p>
+
       <p className="challenge-field-hint">
-        Escreva sua própria mensagem ou escolha uma sugestão abaixo — o texto é
-        todo seu, pode editar livremente (mantenha o link). Ao compartilhar, o WhatsApp abre com
-        a mensagem pronta; o envio é feito por você, de lá.
+        A mensagem é toda sua: escolha uma sugestão ou escreva a sua e mantenha o link.
       </p>
 
       <div className="invite-whatsapp-suggestions">
@@ -126,6 +169,14 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
       />
 
       <div className="invite-whatsapp-actions">
+        <button
+          type="button"
+          className="invite-whatsapp-send"
+          onClick={handleSendToNumber}
+          disabled={!number || !message.trim()}
+        >
+          Enviar pelo WhatsApp
+        </button>
         <button
           type="button"
           className="invite-whatsapp-copy"

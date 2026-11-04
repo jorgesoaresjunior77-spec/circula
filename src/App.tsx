@@ -10,6 +10,7 @@ import { captureInviteTokenFromUrl } from './lib/inviteToken'
 import { useJoinInvite } from './hooks/useJoinInvite'
 import type { NavKey } from './components/PrimaryNav'
 import './App.css'
+import './invite-install.css'
 
 function App() {
   const {

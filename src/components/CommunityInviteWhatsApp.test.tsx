@@ -77,6 +77,35 @@ describe('CommunityInviteWhatsApp', () => {
     expect(screen.queryByText(/mensagem enviada/i)).not.toBeInTheDocument()
   })
 
+  it('enviar pelo WhatsApp fica desabilitado sem número e abre a conversa do número digitado', () => {
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
+
+    const send = screen.getByText('Enviar pelo WhatsApp')
+    expect(send).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('WhatsApp da pessoa'), { target: { value: '(51) 99999-8888' } })
+    expect(send).toBeEnabled()
+
+    fireEvent.change(screen.getByLabelText('Mensagem'), { target: { value: 'Oi! Vem pro Círcula.' } })
+    fireEvent.click(send)
+
+    expect(window.open).toHaveBeenCalledWith(
+      `https://wa.me/5551999998888?text=${encodeURIComponent('Oi! Vem pro Círcula.')}`,
+      '_blank',
+      'noopener,noreferrer',
+    )
+  })
+
+  it('número inválido mostra aviso e não deixa enviar', () => {
+    render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
+
+    fireEvent.change(screen.getByLabelText('WhatsApp da pessoa'), { target: { value: '12345' } })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Número inválido')
+    expect(screen.getByText('Enviar pelo WhatsApp')).toBeDisabled()
+    expect(window.open).not.toHaveBeenCalled()
+  })
+
   it('desabilita copiar/compartilhar quando a mensagem fica vazia', () => {
     render(<InviteMessageComposer communityName="Fluir & Florescer" inviteUrl={INVITE_URL} />)
 
@@ -125,6 +154,21 @@ describe('CommunityInviteWhatsApp — link de convite', () => {
     expect(link.regenerate).toHaveBeenCalled()
     fireEvent.click(screen.getByText('Desativar link'))
     expect(link.revoke).toHaveBeenCalled()
+  })
+
+  it('autoCreate gera o link sozinho quando não há link ativo', () => {
+    const link = mockLink({})
+    render(<CommunityInviteWhatsApp communityId="c1" communityName="Fluir & Florescer" autoCreate showTitle={false} />)
+
+    expect(link.create).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('heading', { name: 'Convidar pelo WhatsApp' })).not.toBeInTheDocument()
+  })
+
+  it('autoCreate não gera outro link quando já existe um ativo', () => {
+    const link = mockLink({ token: 'abc123abc123abc123abc123', url: INVITE_URL })
+    render(<CommunityInviteWhatsApp communityId="c1" communityName="Fluir & Florescer" autoCreate />)
+
+    expect(link.create).not.toHaveBeenCalled()
   })
 
   it('mostra a falha de carregamento sem quebrar', () => {

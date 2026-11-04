@@ -20,7 +20,7 @@ import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
 import { CircleImagesManager } from './CircleImagesManager'
 import { InstagramSlotsManager } from './InstagramSlotsManager'
-import { CommunityInviteWhatsApp } from './CommunityInviteWhatsApp'
+import { PanelInviteCta } from './PanelInviteCta'
 import type {
   AddMemberResult,
   CommunityUpdateInput,
@@ -132,6 +132,9 @@ export function ProfessionalPanel({
       <p className="section-label">Painel</p>
       <h3>Painel da comunidade</h3>
 
+      {/* Convite por WhatsApp em destaque, logo abaixo do título e em qualquer aba. */}
+      <PanelInviteCta communityId={communityId} communityName={community.name} />
+
       <div className="panel-tabs">
         {TABS.map((tab) => (
           <button
@@ -178,16 +181,6 @@ export function ProfessionalPanel({
             />
           </section>
 
-          {/* Etapa 4 (evolução/gamificação) — convidar mulheres de fora do
-              Círcula pelo WhatsApp, ao lado dos outros dois mecanismos de
-              convite (convite por e-mail e adição direta, dentro de
-              CommunityMembersPanel acima). */}
-          <section
-            className="panel-overview-section-divider"
-            aria-label="Convidar pelo WhatsApp"
-          >
-            <CommunityInviteWhatsApp communityId={communityId} communityName={community.name} />
-          </section>
         </div>
       )}
 

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { ParticipantsPanel } from './ParticipantsPanel'
 import { PendingMembershipRequests } from './PendingMembershipRequests'
-import { InviteMemberForm } from './InviteMemberForm'
 import { AddMemberForm } from './AddMemberForm'
 import { EmptyState } from './EmptyState'
 import type {
@@ -52,8 +51,9 @@ interface CommunityMembersPanelProps {
   community: CommunityWithMembers
   onApprove: (communityId: string, profileId: string) => Promise<{ error: string | null }>
   onReject: (communityId: string, profileId: string) => Promise<{ error: string | null }>
-  /** Reorganização do menu — convidar/adicionar membro (antes no destino
-   *  "Comunidades", removido) agora vive aqui, ao lado do roster. */
+  /** Convite por e-mail saiu desta tela: o convite agora é por WhatsApp, no
+   *  topo do Painel (ProfessionalPanel). Mantido na assinatura só para não
+   *  mexer na cadeia de props; não é mais usado aqui. */
   onInvite: (email: string, fullName: string) => Promise<InviteMemberResult>
   onAdd: (email: string) => Promise<AddMemberResult>
 }
@@ -84,7 +84,6 @@ export function CommunityMembersPanel({
   community,
   onApprove,
   onReject,
-  onInvite,
   onAdd,
 }: CommunityMembersPanelProps) {
   const [filter, setFilter] = useState<MemberFilter>('todas')
@@ -109,16 +108,13 @@ export function CommunityMembersPanel({
           className="auth-link"
           onClick={() => setShowAddMember((open) => !open)}
         >
-          {showAddMember ? 'Fechar' : 'Convidar ou adicionar participante'}
+          {showAddMember ? 'Fechar' : 'Adicionar quem já tem conta'}
         </button>
       </header>
 
-      {/* Reorganização do menu — convite (quem ainda não tem conta) e
-          adição direta (quem já tem) moravam no antigo destino
-          "Comunidades"; mesmos componentes/handlers de sempre. */}
+      {/* Adição direta de quem já tem conta no Círcula (por e-mail). */}
       {showAddMember && (
         <div className="panel-members-section panel-members-add">
-          <InviteMemberForm onInvite={onInvite} />
           <AddMemberForm onAdd={onAdd} />
         </div>
       )}
