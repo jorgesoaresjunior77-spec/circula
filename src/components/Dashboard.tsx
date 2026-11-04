@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import type { CommunityWithMembers } from '../types/community'
@@ -13,7 +13,7 @@ import { CircleList } from './CircleList'
 import { Onboarding } from './Onboarding'
 import { Tour } from './Tour'
 import { InstallAppGuide } from './InstallAppGuide'
-import { shouldAutoShowInstallGuide } from '../lib/installGuide'
+import { isPastOnboarding, shouldAutoShowInstallGuide } from '../lib/installGuide'
 import { useEvents } from '../hooks/useEvents'
 import { useSavedItems } from '../hooks/useSavedItems'
 import { NotificationBell } from './NotificationBell'
@@ -167,6 +167,16 @@ export function Dashboard({
   function offerInstallGuide() {
     if (shouldAutoShowInstallGuide()) setShowInstallGuide(true)
   }
+  // Quem já terminou o onboarding antes desta sessão não passa pelo fim do
+  // tour: oferece o guia uma vez, no primeiro carregamento do perfil.
+  const installGuideChecked = useRef(false)
+  useEffect(() => {
+    if (installGuideChecked.current || !profile) return
+    installGuideChecked.current = true
+    if (isPastOnboarding(profile)) offerInstallGuide()
+    // offerInstallGuide só lê storage/navegador; roda uma vez por carregamento
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile])
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
   const [circlesCommunityId, setCirclesCommunityId] = useState<string | null>(null)
 

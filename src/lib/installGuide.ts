@@ -48,3 +48,17 @@ export function markInstallGuideSeen(): void {
 export function shouldAutoShowInstallGuide(): boolean {
   return detectInstallPlatform() !== 'other' && !isRunningAsInstalledApp() && !hasSeenInstallGuide()
 }
+
+/**
+ * Quem já tinha terminado o onboarding antes desta sessão não vai passar
+ * pelo fim do tour de novo, então o guia é oferecido uma vez no próximo
+ * acesso. Quem ainda está no onboarding (Member com `onboarding_completed_at`
+ * nulo) recebe o guia no fim do tour. `undefined` = coluna ainda não existe
+ * no banco: trata como quem já passou.
+ */
+export function isPastOnboarding(profile: {
+  role: string
+  onboarding_completed_at?: string | null
+}): boolean {
+  return profile.role !== 'member' || profile.onboarding_completed_at !== null
+}

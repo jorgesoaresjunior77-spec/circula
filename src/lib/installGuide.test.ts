@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import {
   detectInstallPlatform,
   hasSeenInstallGuide,
+  isPastOnboarding,
   markInstallGuideSeen,
   shouldAutoShowInstallGuide,
 } from './installGuide'
@@ -77,5 +78,24 @@ describe('shouldAutoShowInstallGuide', () => {
     stubDevice(ANDROID)
     markInstallGuideSeen()
     expect(shouldAutoShowInstallGuide()).toBe(false)
+  })
+})
+
+describe('isPastOnboarding', () => {
+  it('Member que ainda não fez o onboarding não conta (recebe o guia no fim do tour)', () => {
+    expect(isPastOnboarding({ role: 'member', onboarding_completed_at: null })).toBe(false)
+  })
+
+  it('Member que já concluiu ou pulou o onboarding conta', () => {
+    expect(isPastOnboarding({ role: 'member', onboarding_completed_at: '2026-10-01T00:00:00Z' })).toBe(true)
+  })
+
+  it('Profissional e Master contam, mesmo sem onboarding', () => {
+    expect(isPastOnboarding({ role: 'professional', onboarding_completed_at: null })).toBe(true)
+    expect(isPastOnboarding({ role: 'master', onboarding_completed_at: null })).toBe(true)
+  })
+
+  it('coluna ainda inexistente no banco (undefined) conta como já passou', () => {
+    expect(isPastOnboarding({ role: 'member' })).toBe(true)
   })
 })
