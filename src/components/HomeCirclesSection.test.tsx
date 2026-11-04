@@ -43,7 +43,19 @@ describe('HomeCirclesSection — card "Novo Círculo"', () => {
     expect(screen.queryByText('Novo Círculo')).not.toBeInTheDocument()
   })
 
-  it('aparece como último card, com a mesma estrutura dos reais, e aciona onRequestNewCircle (nunca onOpen)', () => {
+  it('aparece como primeiro card, antes de todos os círculos reais, qualquer que seja o número deles', () => {
+    const many = Array.from({ length: 6 }, (_, i) => ({ ...CIRCLE, id: `circle-${i}`, name: `Círculo ${i}` }))
+    const { container } = render(
+      <HomeCirclesSection circles={many} onOpen={() => {}} onRequestNewCircle={() => {}} />,
+    )
+
+    const items = container.querySelectorAll('li')
+    expect(items).toHaveLength(7)
+    expect(items[0]).toHaveTextContent('Novo Círculo')
+    expect(items[1]).toHaveTextContent('Círculo 0')
+  })
+
+  it('tem a mesma estrutura dos reais e aciona onRequestNewCircle (nunca onOpen)', () => {
     const onOpen = vi.fn()
     const onRequestNewCircle = vi.fn()
     render(

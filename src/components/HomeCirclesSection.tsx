@@ -124,6 +124,16 @@ export function HomeCirclesSection({ circles, onOpen, onRequestNewCircle }: Home
 
   const renderSeq = (clone: boolean, key?: string) => (
     <ul className="circ-seq" aria-hidden={clone || undefined} key={key} ref={clone ? undefined : seqRef}>
+      {/* O card "Novo Círculo" abre a faixa: no fim ele ficava fora da tela
+          assim que a comunidade tinha alguns círculos (a faixa rola na
+          horizontal e no celular não anda sozinha). */}
+      {onRequestNewCircle && (
+        <NewCircleCard
+          key={clone ? `new-circle-${key}` : 'new-circle'}
+          onActivate={onRequestNewCircle}
+          clone={clone}
+        />
+      )}
       {circles.map((circle, index) => (
         <CircleGalleryCard
           key={clone ? `${circle.id}-${key}` : circle.id}
@@ -133,13 +143,6 @@ export function HomeCirclesSection({ circles, onOpen, onRequestNewCircle }: Home
           onOpen={onOpen}
         />
       ))}
-      {onRequestNewCircle && (
-        <NewCircleCard
-          key={clone ? `new-circle-${key}` : 'new-circle'}
-          onActivate={onRequestNewCircle}
-          clone={clone}
-        />
-      )}
     </ul>
   )
 
