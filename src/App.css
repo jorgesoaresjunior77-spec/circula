@@ -16472,3 +16472,166 @@ button.card:focus-visible {
   color: var(--ink-action);
   font-weight: 600;
 }
+
+/* ===================================================================
+   Revista Círcula Woman Magazine — capas empilhadas, leitor e escritório
+   =================================================================== */
+.mag-strip { min-width: 0; }
+
+.mag-strip-next {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-3);
+  font-size: 14px;
+  color: var(--circula-taupe);
+}
+
+/* Edge a edge, como os carrosséis: rola na horizontal se houver muitas. */
+.mag-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding: var(--space-2) 0 var(--space-4);
+}
+.mag-viewport::-webkit-scrollbar { display: none; }
+
+.mag-stack {
+  --mag-w: clamp(150px, 46vw, 260px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Cada capa de trás aparece pela metade (a mais nova fica inteira, na frente). */
+.mag-stack-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--mag-w);
+}
+.mag-stack-item + .mag-stack-item {
+  margin-left: calc(var(--mag-w) * -0.5);
+}
+
+.mag-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: -6px 4px 18px rgba(35, 30, 28, 0.28);
+  transition: transform var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .mag-cover:hover { transform: translateY(-4px); }
+}
+.mag-cover:focus-visible { outline: 2px solid var(--ink-action); outline-offset: 2px; }
+
+.mag-cover-img, .mag-page-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mag-cover-blank, .mag-page-blank { display: block; width: 100%; height: 100%; background: #fff; }
+
+.mag-reader-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 16, 14, 0.82);
+}
+.mag-reader {
+  position: relative;
+  width: min(92vw, 560px);
+  max-height: 96vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+.mag-reader-title { margin: 0; color: #fff; font-size: 14px; text-align: center; }
+.mag-reader-stage { display: flex; align-items: center; gap: var(--space-2); width: 100%; justify-content: center; }
+.mag-reader-page {
+  flex: 0 1 auto;
+  height: min(68vh, 90vw * 1.33);
+  aspect-ratio: 3 / 4;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+}
+.mag-reader-nav {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--circula-mocha);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.mag-reader-nav:disabled { opacity: 0.3; cursor: default; }
+.mag-reader-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--circula-mocha);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.mag-office-btn {
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--circula-mocha);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mag-office {
+  position: fixed;
+  inset: 0;
+  z-index: 1010;
+  background: linear-gradient(135deg, #4a3f3a, #8a7568) center / cover no-repeat;
+}
+.mag-office-veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--gutter);
+  text-align: center;
+  color: #fff;
+  background: rgba(20, 16, 14, 0.38);
+}
+.mag-office-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 44px);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+.mag-office-text { margin: 0; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5); }
+
+.magazine-pages-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.magazine-page-num { display: block; font-size: 13px; margin-bottom: var(--space-1); }
+.magazine-input { width: 100%; padding: 10px 12px; border: 1px solid var(--circula-taupe); border-radius: 8px; margin-bottom: var(--space-2); }

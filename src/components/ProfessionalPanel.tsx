@@ -19,7 +19,7 @@ import { PostsModerationPanel } from './PostsModerationPanel'
 import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
 import { CircleImagesManager } from './CircleImagesManager'
-import { InstagramSlotsManager } from './InstagramSlotsManager'
+import { MagazineManager } from './MagazineManager'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
   AddMemberResult,
@@ -250,7 +250,7 @@ export function ProfessionalPanel({
           <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
           <EditorialCardImagesManager communityId={communityId} profileId={profileId} />
           <CircleImagesManager communityId={communityId} profileId={profileId} />
-          <InstagramSlotsManager communityId={communityId} profileId={profileId} />
+          <MagazineManager communityId={communityId} profileId={profileId} />
         </div>
       )}
 

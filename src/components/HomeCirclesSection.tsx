@@ -34,6 +34,8 @@ interface HomeCirclesSectionProps {
    *  omite o card "Novo Círculo" por completo (ex.: Master, que não
    *  participa de comunidade). */
   onRequestNewCircle?: () => void
+  /** Capa do card "Novo Círculo" (já assinada), cadastrada no Painel. */
+  newCircleCover?: string | null
 }
 
 /** Card fixo "Novo Círculo" — mesma identidade visual/dimensão dos
@@ -42,14 +44,25 @@ interface HomeCirclesSectionProps {
  *  em vez de um Círculo existente. Nunca clonado pelo ciclo contínuo —
  *  fica de fora de `circles`, sempre o último item real da sequência
  *  (ver render abaixo). */
-function NewCircleCard({ onActivate, clone }: { onActivate: () => void; clone: boolean }) {
+function NewCircleCard({
+  onActivate,
+  clone,
+  cover,
+}: {
+  onActivate: () => void
+  clone: boolean
+  cover?: string | null
+}) {
   return (
     <li className="circ-card-item">
-      <article className="circ-card circ-card--new">
+      <article className={`circ-card circ-card--new${cover ? ' circ-card--photo' : ''}`}>
         <div className="circ-card-frame">
-          <span className="circ-card-new-icon" aria-hidden="true">
-            <PlusIcon size={22} />
-          </span>
+          {cover && <img loading="lazy" decoding="async" src={cover} alt="" className="circ-card-photo" />}
+          {!cover && (
+            <span className="circ-card-new-icon" aria-hidden="true">
+              <PlusIcon size={22} />
+            </span>
+          )}
           <button
             type="button"
             className="circ-card-open"
@@ -112,7 +125,12 @@ function CircleGalleryCard({ circle, index, clone, onOpen }: CircleGalleryCardPr
   )
 }
 
-export function HomeCirclesSection({ circles, onOpen, onRequestNewCircle }: HomeCirclesSectionProps) {
+export function HomeCirclesSection({
+  circles,
+  onOpen,
+  onRequestNewCircle,
+  newCircleCover,
+}: HomeCirclesSectionProps) {
   // +1 pelo card fixo "Novo Círculo" (quando presente) — precisa entrar
   // na contagem que decide se o ciclo contínuo liga (useDragCarousel
   // mede a largura real da sequência inteira; se o card novo ficasse de
@@ -131,6 +149,7 @@ export function HomeCirclesSection({ circles, onOpen, onRequestNewCircle }: Home
         <NewCircleCard
           key={clone ? `new-circle-${key}` : 'new-circle'}
           onActivate={onRequestNewCircle}
+          cover={newCircleCover}
           clone={clone}
         />
       )}

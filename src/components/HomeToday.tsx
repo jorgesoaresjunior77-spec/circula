@@ -8,14 +8,14 @@ import { useCommunityAccessBlocked } from '../hooks/useCommunityAccessBlocked'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useProducts } from '../hooks/useProducts'
-import { filterInstagramContent } from '../lib/instagramContent'
+import { useMagazines } from '../hooks/useMagazines'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { CommunityView } from './CommunityView'
 import { CommunityAccessBlockedCard } from './CommunityAccessBlockedCard'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
-import { HomeInstagramStrip } from './HomeInstagramStrip'
+import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { HomeEditorialCards } from './HomeEditorialCards'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
@@ -131,14 +131,8 @@ export function HomeToday({
 
   const { circles } = useCircles(communityId)
 
-  // No Instagram — publicações que a comunidade cadastrou como
-  // community_content com link do Instagram + capa (useContent já
-  // existe, sem consulta nova). Alimenta a faixa <HomeInstagramStrip>.
   const { items: contentItems } = useContent(communityId)
-  const instagramPosts = useMemo(
-    () => filterInstagramContent(contentItems),
-    [contentItems],
-  )
+  const { issues: magazineIssues } = useMagazines(communityId)
   // Cards editoriais (Receitas/Eventos/Loja) — finalização (pedido do
   // usuário): cada card passa a destacar UM item real (a receita/produto
   // mais recente publicado; o evento já é "o próximo", via railSummary),
@@ -183,6 +177,8 @@ export function HomeToday({
   // Etapa 3.2 (evolução/gamificação) — capa do card "Meu Jardim", chave
   // `jardim` (migration 20261030120000, preparada e não aplicada).
   const { url: jardimCover } = useSignedImageUrl(cardImagePaths.jardim ?? null)
+  const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
+  const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
   // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
   // quando existe, prevalece sobre a capa genérica da categoria acima
   // (fallback em HomeEditorialCards.tsx); mesma assinatura de
@@ -303,17 +299,12 @@ export function HomeToday({
         circles={circles}
         onOpen={onOpenCircle}
         onRequestNewCircle={onRequestNewCircle}
+        newCircleCover={novoCirculoCover}
       />
 
-      {/* <HomeInstagramStrip> sempre renderiza (6 espaços fixos, vazios
-          ou não) — este separador nunca fica órfão. */}
+      {/* Revista Círcula Woman Magazine (substitui a faixa do Instagram). */}
       <hr className="home-section-divider" />
-
-      {/* Redesign da Home (item 5) — "No Instagram": terceira faixa,
-          logo abaixo de Círculos. Mesmos dados do C4.1 (community_content
-          publicado + link do Instagram); sem publicação real, mostra
-          vagas vazias no lugar (item 1 da reorganização). */}
-      <HomeInstagramStrip posts={instagramPosts} />
+      <HomeMagazineStrip issues={magazineIssues} officeImage={magazineOffice} />
 
       {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
           depois da faixa do Instagram (ver HomeEditorialCards.tsx).

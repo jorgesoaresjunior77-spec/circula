@@ -48,6 +48,8 @@ export type CommunityCardKey =
   | 'jornada_grande'
   | 'comunidade_grande'
   | 'jardim'
+  | 'novo_circulo'
+  | 'revista_escritorio'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey

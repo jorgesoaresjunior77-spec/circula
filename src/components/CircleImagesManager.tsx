@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCircles } from '../hooks/useCircles'
+import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { CoverImageInput } from './CoverImageInput'
 import { EmptyState } from './EmptyState'
 
@@ -21,6 +22,14 @@ interface CircleImagesManagerProps {
 export function CircleImagesManager({ communityId, profileId }: CircleImagesManagerProps) {
   const { circles, loading, error, renameCircle } = useCircles(communityId)
   const [errorId, setErrorId] = useState<string | null>(null)
+  const { images, setImage, clearImage } = useCommunityCardImages(communityId)
+  async function handleNewCircleCover(path: string) {
+    setErrorId(null)
+    const r = path
+      ? await setImage('novo_circulo', path, profileId)
+      : await clearImage('novo_circulo')
+    if (r.error) setErrorId('novo_circulo')
+  }
 
   async function handleChange(circleId: string, circleName: string, path: string) {
     setErrorId(null)
@@ -36,6 +45,31 @@ export function CircleImagesManager({ communityId, profileId }: CircleImagesMana
           Escolha a imagem de cada círculo da comunidade.
         </p>
       </header>
+
+      <ul className="card-images-list">
+        <li className="card-images-row">
+          <div className="card-images-info">
+            <span className="card-images-name">Novo Círculo</span>
+            <span className="card-images-hint">Card fixo "Sugira um grupo" no início da faixa.</span>
+          </div>
+          <div className="card-images-field">
+            <CoverImageInput
+              value={images.novo_circulo ?? ''}
+              communityId={communityId}
+              uid={profileId}
+              label=""
+              aspectRatio="4 / 5"
+              onChange={(path) => void handleNewCircleCover(path)}
+              recommendedSize="1080 × 1350 px"
+            />
+            {errorId === 'novo_circulo' && (
+              <p className="card-images-error" role="alert">
+                Não foi possível salvar agora. Tente novamente.
+              </p>
+            )}
+          </div>
+        </li>
+      </ul>
 
       {loading && <p className="home-muted">Carregando círculos…</p>}
       {!loading && error && <p className="auth-error">{error}</p>}
