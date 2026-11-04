@@ -20,9 +20,14 @@ name: Billing daily sweep
 # =====================================================================
 
 on:
-  schedule:
-    # ~03:11 America/Sao_Paulo (UTC-3) -> 06:11 UTC. Diário.
-    - cron: '11 6 * * *'
+  # AGENDAMENTO DESLIGADO: os secrets ainda nao foram configurados, entao toda
+  # execucao diaria falhava. Para religar, configure os secrets acima, faca o
+  # deploy da function e descomente o bloco abaixo (rode antes uma vez em
+  # "Run workflow" para conferir). Atencao: o sweep BLOQUEIA assinaturas
+  # vencidas de verdade.
+  # schedule:
+  #   # ~03:11 America/Sao_Paulo (UTC-3) -> 06:11 UTC. Diário.
+  #   - cron: '11 6 * * *'
   workflow_dispatch: {}
 
 permissions:
