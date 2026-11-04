@@ -24,7 +24,8 @@ import {
 interface OnboardingProps {
   profile: Profile
   onUpdateProfile: (input: ProfileUpdateInput) => Promise<{ error: string | null }>
-  onDone: () => void
+  /** `completed` = false quando a pessoa pulou o onboarding (não haverá tour). */
+  onDone: (completed: boolean) => void
   /** Etapa 9 — ao concluir (nunca ao pular), oferece iniciar o tour. */
   onStartTour: () => void
 }
@@ -80,7 +81,7 @@ export function Onboarding({ profile, onUpdateProfile, onDone, onStartTour }: On
 
     await onUpdateProfile(patch)
     setSaving(false)
-    onDone()
+    onDone(completed)
     if (completed) onStartTour()
   }
 

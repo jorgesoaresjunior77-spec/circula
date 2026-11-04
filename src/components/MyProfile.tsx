@@ -21,6 +21,8 @@ interface MyProfileProps {
   /** Etapa 9 (evolução/gamificação) — "Deixar uma opção para acessar o
    *  tutorial novamente", pedido explícito do usuário. */
   onRestartTour: () => void
+  /** Reabre o guia "colocar o Círcula na tela do celular". */
+  onShowInstallGuide?: () => void
 }
 
 export function MyProfile({
@@ -30,6 +32,7 @@ export function MyProfile({
   onUploadGalleryPhoto,
   communityId,
   onRestartTour,
+  onShowInstallGuide,
 }: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
@@ -296,6 +299,11 @@ export function MyProfile({
             <button type="button" className="auth-link" onClick={onRestartTour}>
               Rever o tour do Círcula
             </button>
+            {onShowInstallGuide && (
+              <button type="button" className="auth-link" onClick={onShowInstallGuide}>
+                Colocar o Círcula na tela do celular
+              </button>
+            )}
           </div>
         </>
       ) : (

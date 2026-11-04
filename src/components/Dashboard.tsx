@@ -12,6 +12,8 @@ import { Feed } from './Feed'
 import { CircleList } from './CircleList'
 import { Onboarding } from './Onboarding'
 import { Tour } from './Tour'
+import { InstallAppGuide } from './InstallAppGuide'
+import { shouldAutoShowInstallGuide } from '../lib/installGuide'
 import { useEvents } from '../hooks/useEvents'
 import { useSavedItems } from '../hooks/useSavedItems'
 import { NotificationBell } from './NotificationBell'
@@ -158,6 +160,13 @@ export function Dashboard({
   // Etapa 9 (evolução/gamificação) — tour guiado: disparado pelo fim do
   // onboarding (Etapa 8) ou manualmente ("Rever o tour" no Perfil).
   const [showTour, setShowTour] = useState(false)
+  // Guia "colocar o Círcula na tela do celular" (Android/iPhone): aparece
+  // sozinho, uma vez por aparelho, ao fim do tour (ou ao pular o
+  // onboarding), e pode ser reaberto pelo Perfil.
+  const [showInstallGuide, setShowInstallGuide] = useState(false)
+  function offerInstallGuide() {
+    if (shouldAutoShowInstallGuide()) setShowInstallGuide(true)
+  }
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
   const [circlesCommunityId, setCirclesCommunityId] = useState<string | null>(null)
 
@@ -475,6 +484,7 @@ export function Dashboard({
           onUploadGalleryPhoto={onUploadGalleryPhoto}
           communityId={railCommunity?.id ?? null}
           onRestartTour={() => setShowTour(true)}
+          onShowInstallGuide={() => setShowInstallGuide(true)}
         />
       )
     }
@@ -974,7 +984,9 @@ export function Dashboard({
         <Onboarding
           profile={profile}
           onUpdateProfile={onUpdateProfile}
-          onDone={() => {}}
+          onDone={(completed) => {
+            if (!completed) offerInstallGuide()
+          }}
           onStartTour={() => setShowTour(true)}
         />
       )}
@@ -987,11 +999,14 @@ export function Dashboard({
           onNavigate={handleNavigate}
           onDone={() => {
             setShowTour(false)
+            offerInstallGuide()
             if (profile?.tour_completed_at === undefined) return // migration ainda não aplicada
             void onUpdateProfile({ tour_completed_at: new Date().toISOString() })
           }}
         />
       )}
+
+      {showInstallGuide && <InstallAppGuide onClose={() => setShowInstallGuide(false)} />}
     </section>
   )
 }
