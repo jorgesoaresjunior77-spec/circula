@@ -171,7 +171,7 @@ export function HomeMagazineStrip({ issues, officeImage }: HomeMagazineStripProp
       <p className="mag-strip-next">{nextMagazineMessage()}</p>
 
       <div className="mag-viewport">
-        <ul className="mag-stack">
+        <ul className="mag-stack" style={{ ["--mag-n" as string]: covers.length }}>
           {covers.map((issue, i) => (
             <li key={issue?.id ?? `blank-${i}`} className="mag-stack-item" style={{ zIndex: covers.length - i }}>
               <button

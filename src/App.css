@@ -16494,23 +16494,24 @@ button.card:focus-visible {
 .mag-viewport::-webkit-scrollbar { display: none; }
 
 .mag-stack {
-  --mag-w: clamp(150px, 46vw, 260px);
+  /* As N capas (cada uma cobrindo metade da de trás) ocupam a largura
+     toda; os limites evitam capa minúscula ou gigante. */
+  --mag-n: 4;
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
 }
 
 /* Cada capa de trás aparece pela metade (a mais nova fica inteira, na frente). */
 .mag-stack-item {
   position: relative;
   flex: 0 0 auto;
-  width: var(--mag-w);
+  width: clamp(150px, calc(100% / (1 + (var(--mag-n) - 1) / 2)), 420px);
 }
 .mag-stack-item + .mag-stack-item {
-  margin-left: calc(var(--mag-w) * -0.5);
+  margin-left: calc(clamp(150px, calc(100% / (1 + (var(--mag-n) - 1) / 2)), 420px) * -0.5);
 }
 
 .mag-cover {
@@ -16522,6 +16523,7 @@ button.card:focus-visible {
   border-radius: 6px;
   overflow: hidden;
   background: #fff;
+  border: 1px solid rgba(35, 30, 28, 0.12);
   cursor: pointer;
   box-shadow: -6px 4px 18px rgba(35, 30, 28, 0.28);
   transition: transform var(--dur) var(--ease);
@@ -16626,6 +16628,7 @@ button.card:focus-visible {
 }
 .mag-office-title {
   margin: 0;
+  color: #fff;
   font-family: var(--font-display);
   font-size: clamp(28px, 5vw, 44px);
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
