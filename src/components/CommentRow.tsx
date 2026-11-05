@@ -41,7 +41,9 @@ export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
         <p className="comment-author">
           {name} <span className="comment-time">{formatRelativeTime(comment.created_at)}</span>
         </p>
-        <p className="comment-content">{comment.content}</p>
+        {!(comment.image_url && comment.content.trim() === '📷') && (
+          <p className="comment-content">{comment.content}</p>
+        )}
         {imageUrl && <img className="comment-image" src={imageUrl} alt="" loading="lazy" />}
         {likes && comment.id && (
           <button

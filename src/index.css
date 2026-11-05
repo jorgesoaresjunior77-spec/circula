@@ -171,16 +171,16 @@
   --cta-on-ink: var(--graphite);
   --cta-ring: rgba(109, 60, 66, 0.24);
 
-  /* ---- Sombras — quase imperceptíveis ----------------------- */
+  /* ---- Sombras — suaves, mas visíveis sobre o fundo claro ---- */
   --shadow-sm:
-    rgba(53, 48, 44, 0.03) 0 1px 3px,
-    rgba(53, 48, 44, 0.04) 0 6px 16px -8px;
+    rgba(53, 48, 44, 0.07) 0 1px 3px,
+    rgba(53, 48, 44, 0.10) 0 6px 16px -6px;
   --shadow-md:
-    rgba(53, 48, 44, 0.04) 0 2px 8px -2px,
-    rgba(53, 48, 44, 0.05) 0 14px 34px -12px;
+    rgba(53, 48, 44, 0.08) 0 2px 6px -1px,
+    rgba(53, 48, 44, 0.16) 0 12px 28px -8px;
   --shadow-lg:
-    rgba(53, 48, 44, 0.05) 0 6px 18px -6px,
-    rgba(53, 48, 44, 0.07) 0 28px 60px -20px;
+    rgba(53, 48, 44, 0.10) 0 6px 16px -4px,
+    rgba(53, 48, 44, 0.20) 0 26px 52px -14px;
 
   /* ---- Cantos — discretos, editoriais ---------------------- */
   --radius-sm: 8px;
@@ -362,8 +362,24 @@
   }
 }
 
+/* Tela firme no celular, como um app: nada de balançar de um lado para o
+   outro nem de ser puxada na horizontal. `hidden` no html fecha o eixo X do
+   viewport (e não mexe em position: sticky/fixed); `clip` no body recorta
+   qualquer elemento mais largo que a tela sem criar área de rolagem própria.
+   As faixas que rolam na horizontal (carrosséis, abas) continuam rolando: elas
+   são suas próprias áreas de rolagem. */
+html {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  max-width: 100%;
+}
+
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  touch-action: pan-y pinch-zoom;
 }
 
 h1,

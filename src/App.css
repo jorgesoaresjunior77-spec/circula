@@ -14594,13 +14594,13 @@ button.card:focus-visible {
   flex-direction: column;
   /* Pedido do usuário (refinamento) — espaçamento vertical entre os 3
      cards, ligeiramente maior (era --space-4 = 16px). */
-  gap: var(--space-5);
+  gap: var(--space-6);
   /* Pedido do usuário — um pouco mais de respiro antes/depois desta
      seção (entre ela e o divisor do Instagram acima, e entre ela e a
      nota institucional abaixo), além do gap uniforme de `.home` —
      escopado aqui, não em `.home`, para não alterar as outras relações
      entre seções. */
-  margin-block: var(--space-2);
+  margin-block: var(--space-4);
 }
 
 .home-editorial-card {
@@ -16750,13 +16750,13 @@ button.card:focus-visible {
   font-size: 36px;
 }
 .profile-banner-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-banner-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.profile-banner-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
 .profile-pick-btn {
   cursor: pointer; font-size: 12.5px; padding: 6px 14px; border-radius: 999px;
   border: 1px solid var(--circula-mocha); color: var(--circula-mocha); background: #fff;
 }
-.profile-banner-name { margin: 12px 0 0; }
-.profile-banner-city { margin: 2px 0 0; }
+.profile-banner-name { margin: 28px 0 0; }
+.profile-banner-city { margin: 4px 0 0; }
 .profile-info-block { display: flex; flex-direction: column; gap: var(--space-4, 16px); margin-bottom: var(--space-5, 20px); }
 .profile-answers { margin: 0; display: grid; gap: 10px; }
 .profile-answers dt { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--graphite-soft, #6b6560); }
@@ -16815,11 +16815,14 @@ button.card:focus-visible {
 
 /* ---------- Revista: pilha, leitor em tela cheia, banca ---------- */
 .mag2-viewport { container-type: inline-size; width: 100%; padding: 8px 0 12px; }
-.mag2-stack { list-style: none; margin: 0 auto; padding: 0; position: relative; width: calc(34cqw * (1 + 0.3 * (var(--mag-n) - 1))); height: calc(34cqw * 4 / 3); max-width: 100%; }
-.mag2-stack-item { position: absolute; top: 0; left: calc(var(--mag-pos) * 0.3 * 34cqw); width: 34cqw; transition: left .45s cubic-bezier(.2,.8,.2,1); }
+/* Capa 20% maior (34 -> 40,8cqw); o recuo entre capas encolhe de 0,30 para 0,28 para as 6 edições caberem na largura. */
+.mag2-stack { --mag-w: 40.8cqw; --mag-k: 0.28; list-style: none; margin: 0 auto; padding: 0; position: relative; width: calc(var(--mag-w) * (1 + var(--mag-k) * (var(--mag-n) - 1))); height: calc(var(--mag-w) * 4 / 3); max-width: 100%; }
+.mag2-stack-item { position: absolute; top: 0; left: calc(var(--mag-pos) * var(--mag-k) * var(--mag-w)); width: var(--mag-w); transition: left .45s cubic-bezier(.2,.8,.2,1); }
 .mag2-stack-item .mag-cover { display: block; width: 100%; aspect-ratio: 3 / 4; padding: 0; border: 0; border-radius: 6px; overflow: hidden; background: #fff; box-shadow: -6px 4px 14px rgba(0,0,0,.28); cursor: pointer; touch-action: pan-y; }
 .mag2-stack-item .mag-cover-img, .mag2-stack-item .mag-cover-blank { display: block; width: 100%; height: 100%; object-fit: cover; background: #fff; }
-@media (min-width: 900px) { .mag2-stack { width: calc(200px * (1 + 0.3 * (var(--mag-n) - 1))); height: 267px; } .mag2-stack-item { width: 200px; left: calc(var(--mag-pos) * 60px); } }
+@media (min-width: 900px) { .mag2-stack { width: calc(240px * (1 + 0.3 * (var(--mag-n) - 1))); height: 320px; } .mag2-stack-item { width: 240px; left: calc(var(--mag-pos) * 72px); } }
+/* Edições antigas ainda sem capa: papel claro, para a pilha parecer uma pilha. */
+.mag2-stack-item .mag-cover-blank { background: linear-gradient(135deg, #f7f2e9, #e8ddcc); }
 .mag2-reader { position: fixed; inset: 0; z-index: 1200; background: #121110; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100dvh; touch-action: pan-y; }
 .mag2-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 3; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: #151311; display: flex; align-items: center; justify-content: center; }
 .mag2-count { position: absolute; top: max(20px, env(safe-area-inset-top)); left: 16px; margin: 0; color: #fff; font-size: 13px; z-index: 3; max-width: 60%; }
@@ -16834,7 +16837,7 @@ button.card:focus-visible {
 .mag2-controls button:disabled { opacity: .35; }
 .mag2-controls .mag2-office { font-size: 14px; padding: 0 18px; }
 .mag-office { position: fixed; inset: 0; z-index: 1100; overflow-y: auto; background-size: cover; background-position: center; background-color: #3b2f27; }
-.mag-office-veil { min-height: 100%; box-sizing: border-box; padding: 64px 16px 32px; background: rgba(20,14,10,.5); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; color: #fff; }
+.mag-office-veil { position: relative; inset: auto; justify-content: flex-start; min-height: 100%; box-sizing: border-box; padding: 64px 16px 32px; background: rgba(20,14,10,.5); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; color: #fff; }
 .mag-office-manager { width: 100%; max-width: 760px; margin-top: 28px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.96); color: #151311; text-align: left; }
 .mag-newsstand { width: 100%; max-width: 560px; margin-top: 18px; display: flex; flex-direction: column; gap: 22px; }
 .mag-shelf-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: end; padding: 0 10px; }
@@ -16859,10 +16862,53 @@ button.card:focus-visible {
 .emoji-picker-pop { position: absolute; bottom: 110%; left: 0; z-index: 30; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; width: 280px; max-width: 80vw; padding: 8px; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
 .emoji-picker-pop button { border: 0; background: transparent; font-size: 20px; padding: 4px; cursor: pointer; border-radius: 8px; }
 .emoji-picker-pop button:hover { background: #f3ede3; }
+@media (max-width: 640px) {
+  /* Folha presa à base da tela: nunca passa da borda, onde quer que o botão esteja. */
+  .emoji-picker-pop {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-width: none;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 4px;
+    padding: 12px;
+    z-index: 70;
+    box-sizing: border-box;
+  }
+  .emoji-picker-pop button { min-height: 40px; font-size: 22px; padding: 2px; }
+}
 .comment-attach { border: 0; background: transparent; font-size: 18px; cursor: pointer; }
+.comment-form .comment-attach { display: inline-flex; align-items: center; gap: 2px; min-width: 40px; min-height: 40px; justify-content: center; padding: 4px 6px; color: var(--circula-mocha); background: transparent; border: 0; }
 .comment-image { display: block; margin-top: 6px; max-width: 220px; aspect-ratio: 4 / 5; object-fit: contain; background: #f3ede3; border-radius: 10px; }
 .comment-like { margin-top: 4px; border: 0; background: transparent; color: var(--graphite-soft, #6b6560); font-size: 13px; cursor: pointer; padding: 2px 4px; }
 .comment-like--on { color: #e5322d; }
 .comment-form { align-items: center; }
 
 .trial-notice { margin: 0 0 12px; padding: 12px 14px; border-radius: 12px; background: #eef7ec; font-size: 13.5px; line-height: 1.4; }
+
+/* ---------- Sombra visível em cards e banners ----------
+   As sombras antigas eram quase transparentes e sumiam sobre o fundo
+   claro. Agora cards, banners e capas têm sombra suave porém visível. As
+   faixas que rolam na horizontal cortavam a sombra (overflow-y: hidden):
+   ganham folga interna, compensada por margem negativa, para o layout não
+   mudar. */
+.home-community-header,
+.home-editorial-card {
+  box-shadow: var(--shadow-md);
+}
+.exp-card-frame,
+.circ-card-frame,
+.profile-gallery-slot {
+  box-shadow: var(--shadow-md);
+}
+.exp-viewport,
+.circ-viewport {
+  padding-block: 6px 24px;
+  margin-block: -6px -24px;
+}
+.exp-viewport,
+.circ-viewport {
+  touch-action: pan-x pan-y pinch-zoom;
+}

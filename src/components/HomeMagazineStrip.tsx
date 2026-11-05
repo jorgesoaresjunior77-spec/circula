@@ -298,10 +298,13 @@ export function HomeMagazineStrip({ issues, officeImage, manager }: HomeMagazine
   const [reading, setReading] = useState<MagazineIssue | null | undefined>(undefined)
   const [office, setOffice] = useState(false)
 
-  const stacked: (MagazineIssue | null)[] =
-    issues.length > 0
-      ? issues.slice(0, MAGAZINE_STACK_MAX)
-      : Array.from({ length: MAGAZINE_STACK_MAX }, () => null)
+  // Sempre uma pilha cheia: as edições reais na frente (a mais nova primeiro)
+  // e, atrás, exemplares mais antigos ainda sem capa.
+  const real = issues.slice(0, MAGAZINE_STACK_MAX)
+  const stacked: (MagazineIssue | null)[] = [
+    ...real,
+    ...Array.from({ length: MAGAZINE_STACK_MAX - real.length }, () => null),
+  ]
 
   return (
     <section className="mag-strip" aria-labelledby="mag-strip-title">

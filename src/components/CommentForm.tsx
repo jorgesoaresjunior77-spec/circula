@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { CreateCommentResult } from '../types/post'
 import { EmojiPicker } from './EmojiPicker'
+import { CheckIcon, PhotoIcon } from './icons'
 
 interface CommentFormProps {
   onSubmit: (content: string, imageFile?: File | null) => Promise<CreateCommentResult>
@@ -72,8 +73,9 @@ export function CommentForm({
       />
 
       <EmojiPicker onPick={(e) => setContent((c) => c + e)} />
-      <button type="button" className="comment-attach" onClick={() => fileRef.current?.click()} aria-label="Anexar foto">
-        {file ? '🖼️✓' : '🖼️'}
+      <button type="button" className="comment-attach" onClick={() => fileRef.current?.click()} aria-label={file ? 'Foto anexada' : 'Anexar foto'}>
+        <PhotoIcon size={20} />
+        {file && <CheckIcon size={14} />}
       </button>
       <input
         ref={fileRef}
