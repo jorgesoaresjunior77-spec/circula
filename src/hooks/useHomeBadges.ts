@@ -16,6 +16,7 @@ export function useHomeBadges(
 ) {
   const [newEvents, setNewEvents] = useState(0)
   const [pendingCircleRequests, setPendingCircleRequests] = useState(0)
+  const [gardenPending, setGardenPending] = useState(false)
 
   const load = useCallback(async () => {
     if (!communityId || !profileId) {
@@ -49,6 +50,39 @@ export function useHomeBadges(
     } else {
       setPendingCircleRequests(0)
     }
+
+    // Meu Jardim: tem desafio hoje e o check ainda não foi feito.
+    if (!isOwner) {
+      const p = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+        .format(new Date())
+        .split('-')
+        .map(Number)
+      const gm = await supabase
+        .from('garden_months')
+        .select('id')
+        .eq('community_id', communityId)
+        .eq('year', p[0])
+        .eq('month', p[1])
+        .maybeSingle()
+      if (gm.data) {
+        const ck = await supabase
+          .from('garden_checks')
+          .select('day', { count: 'exact', head: true })
+          .eq('month_id', gm.data.id)
+          .eq('profile_id', profileId)
+          .eq('day', p[2])
+        setGardenPending((ck.count ?? 0) === 0)
+      } else {
+        setGardenPending(false)
+      }
+    } else {
+      setGardenPending(false)
+    }
   }, [communityId, profileId, isOwner])
 
   useEffect(() => {
@@ -73,5 +107,5 @@ export function useHomeBadges(
     setNewEvents(0)
   }, [profileId])
 
-  return { newEvents, pendingCircleRequests, markEventsSeen, reload: load }
+  return { newEvents, pendingCircleRequests, gardenPending, markEventsSeen, reload: load }
 }

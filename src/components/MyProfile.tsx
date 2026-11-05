@@ -3,7 +3,7 @@ import type { ChangeEvent, FormEvent } from 'react'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
-import { GardenEvolutionSection } from './GardenEvolutionSection'
+import { GardenProfileSummary } from './GardenProfileSummary'
 import { CommunitySubscriptionCard } from './CommunitySubscriptionCard'
 import { ImageCropper } from './ImageCropper'
 import { ProfileBanner } from './ProfileBanner'
@@ -373,7 +373,7 @@ export function MyProfile({
       {communityId && (
         <div className="profile-garden-section">
           <p className="profile-section-label">Meu Jardim</p>
-          <GardenEvolutionSection communityId={communityId} profileId={profile.id} compact />
+          <GardenProfileSummary communityId={communityId} profileId={profile.id} />
         </div>
       )}
 

@@ -20,10 +20,12 @@ import { NotificationBell } from './NotificationBell'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { HelpNutri } from './HelpNutri'
+import { FeedNotices } from './FeedNotices'
 import { RecipesPage } from './RecipesPage'
 import { EventManager } from './EventManager'
 import { CircleManager } from './CircleManager'
-import { GardenChallengeManager } from './GardenChallengeManager'
+import { GardenPage } from './GardenPage'
+import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
 // demanda em vez de entrarem no bundle inicial de toda usuária (ver
@@ -70,7 +72,6 @@ import {
 const Messages = lazy(() => import('./Messages').then((m) => ({ default: m.Messages })))
 const EventList = lazy(() => import('./EventList').then((m) => ({ default: m.EventList })))
 const SavedItems = lazy(() => import('./SavedItems').then((m) => ({ default: m.SavedItems })))
-const GardenMemberView = lazy(() => import('./GardenMemberView').then((m) => ({ default: m.GardenMemberView })))
 const CircleDetail = lazy(() => import('./CircleDetail').then((m) => ({ default: m.CircleDetail })))
 const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => ({ default: m.CircleRequestForm })))
 
@@ -487,6 +488,7 @@ export function Dashboard({
             'help-nutri': totalUnread,
             eventos: homeBadges.newEvents,
             'novo-circulo': homeBadges.pendingCircleRequests,
+            jardim: homeBadges.gardenPending ? 1 : 0,
           }}
           coverHero={coverHero}
           railSummary={
@@ -582,6 +584,11 @@ export function Dashboard({
 
       return (
         <>
+          <FeedNotices
+            communityId={feedCommunity.id}
+            gardenPending={homeBadges.gardenPending}
+            onOpenGarden={() => handleNavigate('jardim')}
+          />
           <div className="feed-masthead">
             <p className="section-label">Feed</p>
             <h2 className="feed-masthead-title">{feedCommunity.name}</h2>
@@ -777,24 +784,17 @@ export function Dashboard({
         )
       }
 
-      const gardenView = (
-        <GardenMemberView
-          communityId={resolvedCirclesCommunityId}
-          profileId={profile.id}
-          profile={profile}
-          onUpdateProfile={onUpdateProfile}
-          onShared={refreshFeed}
-        />
-      )
-      if (profile.role !== 'professional') return gardenView
       return (
         <>
-          {gardenView}
-          <GardenChallengeManager
+          <GardenPage
             communityId={resolvedCirclesCommunityId}
             profileId={profile.id}
-            onPublished={refreshFeed}
+            isOwner={profile.role === 'professional'}
+            onChecked={homeBadges.reload}
           />
+          {profile.role === 'professional' && (
+            <GardenMonthManager communityId={resolvedCirclesCommunityId} profileId={profile.id} />
+          )}
         </>
       )
     }

@@ -19,6 +19,6 @@ export interface MagazineIssue {
 }
 
 /** Edições em branco mostradas enquanto a primeira ainda não foi cadastrada. */
-export const MAGAZINE_PLACEHOLDER_COUNT = 4
+export const MAGAZINE_PLACEHOLDER_COUNT = 6
 /** Páginas em branco do leitor quando a edição ainda não tem páginas. */
 export const MAGAZINE_BLANK_PAGES = 4

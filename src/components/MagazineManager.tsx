@@ -74,7 +74,7 @@ function IssueEditor({
         />
 
         <p className="card-images-guide">
-          <span>Páginas ({issue.pages.length})</span>
+          <span>Páginas ({issue.pages.length}/12)</span>
         </p>
         <ol className="magazine-pages-list">
           {issue.pages.map((page, i) => (
@@ -93,6 +93,7 @@ function IssueEditor({
               />
             </li>
           ))}
+          {issue.pages.length < 12 && (
           <li>
             <span className="magazine-page-num">Nova página</span>
             <CoverImageInput
@@ -106,6 +107,7 @@ function IssueEditor({
               onChange={(path) => path && void guard(api.addPage(issue, path))}
             />
           </li>
+          )}
         </ol>
         {error && (
           <p className="card-images-error" role="alert">

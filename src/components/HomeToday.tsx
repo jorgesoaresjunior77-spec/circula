@@ -16,6 +16,7 @@ import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
 import { HomeMagazineStrip } from './HomeMagazineStrip'
+import { MagazineManager } from './MagazineManager'
 import { HomeEditorialCards } from './HomeEditorialCards'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
@@ -309,7 +310,15 @@ export function HomeToday({
 
       {/* Revista Círcula Woman Magazine (substitui a faixa do Instagram). */}
       <hr className="home-section-divider" />
-      <HomeMagazineStrip issues={magazineIssues} officeImage={magazineOffice} />
+      <HomeMagazineStrip
+        issues={magazineIssues}
+        officeImage={magazineOffice}
+        manager={
+          profile.role === 'professional' ? (
+            <MagazineManager communityId={focusCommunity.id} profileId={profile.id} />
+          ) : undefined
+        }
+      />
 
       {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
           depois da faixa do Instagram (ver HomeEditorialCards.tsx).
