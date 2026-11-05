@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import circulaIcon from '../assets/circula-icon.png'
+import { PasswordInput } from './PasswordInput'
 
 interface ResetPasswordProps {
   /**
@@ -124,9 +125,8 @@ export function ResetPassword({
 
       <form onSubmit={handleSubmit}>
         <label htmlFor="new-password">{isInvite ? 'Senha' : 'Nova senha'}</label>
-        <input
+        <PasswordInput
           id="new-password"
-          type="password"
           value={newPassword}
           onChange={(event) => setNewPassword(event.target.value)}
           autoComplete="new-password"
@@ -136,9 +136,8 @@ export function ResetPassword({
         <label htmlFor="confirm-password">
           {isInvite ? 'Confirmar senha' : 'Confirmar nova senha'}
         </label>
-        <input
+        <PasswordInput
           id="confirm-password"
-          type="password"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
           autoComplete="new-password"

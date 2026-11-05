@@ -9,7 +9,7 @@ vi.mock('../lib/supabase', () => ({
 
 function submit() {
   fireEvent.change(screen.getByLabelText(/e-mail/i), { target: { value: 'ana@exemplo.com' } })
-  fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'Senha1!' } })
+  fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'Senha1!' } })
   fireEvent.click(screen.getByRole('button', { name: /^entrar$/i }))
 }
 

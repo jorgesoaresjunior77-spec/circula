@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { evaluatePassword, isPasswordValid } from '../lib/passwordPolicy'
 import { EMAIL_NOT_CONFIRMED_MESSAGE } from '../lib/authErrors'
 import { useInvitePreview } from '../hooks/useInvitePreview'
+import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 
@@ -26,7 +27,6 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
@@ -141,18 +141,14 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
           />
 
           <label htmlFor="member-signup-password">Crie uma senha</label>
-          <input
+          <PasswordInput
             id="member-signup-password"
-            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="new-password"
             aria-describedby="member-signup-rules"
             required
           />
-          <button type="button" className="auth-link" onClick={() => setShowPassword((v) => !v)}>
-            {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-          </button>
 
           <ul id="member-signup-rules" className="member-signup-rules">
             {rules.map((rule) => (

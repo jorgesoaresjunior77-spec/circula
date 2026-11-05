@@ -229,3 +229,43 @@
   padding-top: var(--space-2);
   border-top: 1px solid var(--circula-champagne-line);
 }
+
+/* --- Campo de senha com olhinho ------------------------------------ */
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 48px;
+}
+
+.password-field .password-field-toggle {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--circula-taupe);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.password-field .password-field-toggle:hover {
+  color: var(--circula-mocha);
+}
+
+.password-field .password-field-toggle:focus-visible {
+  outline: 2px solid var(--circula-mocha);
+  outline-offset: 0;
+}

@@ -253,6 +253,38 @@ export function CheckIcon({ size = 18, className }: IconProps) {
   )
 }
 
+/** Foto / imagem — moldura com montanha e sol (anexar foto). */
+export function PhotoIcon({ size = 20, className }: IconProps) {
+  return (
+    <Icon size={size} className={className} stroke={1.5}>
+      <rect x="3.5" y="5" width="17" height="14" rx="2.5" />
+      <circle cx="9" cy="10" r="1.6" />
+      <path d="m4.5 17 4.6-4.4 3.4 3.2 2.6-2.4 4.4 3.6" />
+    </Icon>
+  )
+}
+
+/** Olho aberto — mostrar senha. */
+export function EyeIcon({ size = 20, className }: IconProps) {
+  return (
+    <Icon size={size} className={className} stroke={1.5}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </Icon>
+  )
+}
+
+/** Olho riscado — ocultar senha. */
+export function EyeOffIcon({ size = 20, className }: IconProps) {
+  return (
+    <Icon size={size} className={className} stroke={1.5}>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 5.7A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a16 16 0 0 1-3 3.8M6.6 6.9A15.7 15.7 0 0 0 2.5 12S6 18.5 12 18.5a9.4 9.4 0 0 0 4.1-.9" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+    </Icon>
+  )
+}
+
 /** Fechar / dispensar. */
 export function CloseIcon({ size = 18, className }: IconProps) {
   return (

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { signInErrorMessage } from '../lib/authErrors'
+import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
@@ -247,9 +248,8 @@ export function Login() {
             />
 
             <label htmlFor="signup-password">Senha</label>
-            <input
+            <PasswordInput
               id="signup-password"
-              type="password"
               value={signupPassword}
               onChange={(event) => setSignupPassword(event.target.value)}
               autoComplete="new-password"
@@ -290,9 +290,8 @@ export function Login() {
         />
 
         <label htmlFor="password">Senha</label>
-        <input
+        <PasswordInput
           id="password"
-          type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           autoComplete="current-password"
