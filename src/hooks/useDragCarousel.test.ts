@@ -140,7 +140,8 @@ function stubMatchMedia(reducedMotion: boolean) {
   )
 }
 
-describe('useDragCarousel — encaixe em slot ao soltar o toque (ajuste mobile)', () => {
+// Encaixe desligado a pedido (rodada nov/2026): o puxao final dava tranco.
+describe.skip('useDragCarousel — encaixe em slot ao soltar o toque (ajuste mobile)', () => {
   beforeEach(() => {
     resizeCallback = null
     vi.stubGlobal('ResizeObserver', ResizeObserverStub)
