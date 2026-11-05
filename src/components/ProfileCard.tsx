@@ -3,11 +3,13 @@ import { supabase } from '../lib/supabase'
 import type { ProfileOverview } from '../types/profile'
 import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
+import { ProfileBanner } from './ProfileBanner'
 
 interface ViewedProfile {
   id: string
   full_name: string | null
   avatar_url: string | null
+  banner_url: string | null
   interests: string[]
   bio: string | null
   city: string | null
@@ -43,7 +45,7 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
 
     supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, interests, bio, city, gallery_photos')
+      .select('id, full_name, avatar_url, banner_url, interests, bio, city, gallery_photos')
       .eq('id', profileId)
       .single()
       .then(({ data, error: fetchError }) => {
@@ -70,7 +72,7 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
   }, [profileId])
 
   return (
-    <section className="community-card community-card--profile">
+    <section className="community-card community-card--profile profile-page">
       <button type="button" className="auth-link" onClick={onClose}>
         Fechar
       </button>
@@ -83,19 +85,12 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
 
       {!loading && !error && profile && (
         <>
-          <div className="profile-header">
-            <div className="profile-avatar">
-              {profile.avatar_url ? (
-                <img loading="lazy" decoding="async" src={profile.avatar_url} alt="" />
-              ) : (
-                <span>{(profile.full_name ?? 'U').charAt(0).toUpperCase()}</span>
-              )}
-            </div>
-            <div className="profile-identity">
-              <h2>{profile.full_name ?? 'Participante'}</h2>
-              {profile.city && <p className="profile-city">{profile.city}</p>}
-            </div>
-          </div>
+          <ProfileBanner
+            bannerUrl={profile.banner_url}
+            avatarUrl={profile.avatar_url}
+            name={profile.full_name}
+            city={profile.city}
+          />
 
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 

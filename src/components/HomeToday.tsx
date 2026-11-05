@@ -69,6 +69,8 @@ interface HomeTodayProps {
    * identidade da comunidade sobre a foto, sem a própria capa/card.
    */
   coverHero?: boolean
+  /** Bolinhas vermelhas dos cards (ver useHomeBadges). */
+  badges?: Record<string, number>
   /**
    * C2 — resumo leve já calculado pelo Dashboard (useRailSummary): o
    * próximo evento. Alimenta a faixa editorial de experiências sem
@@ -108,6 +110,7 @@ export function HomeToday({
   onOpenCircle,
   onRequestNewCircle,
   coverHero = false,
+  badges = {},
   railSummary = null,
 }: HomeTodayProps) {
   const myCommunities = useMemo(
@@ -280,6 +283,7 @@ export function HomeToday({
         lojaCover={lojaCover}
         receitasCover={receitasCover}
         jardimCover={jardimCover}
+        badges={badges}
         onNavigate={onNavigate}
       />
 
@@ -300,6 +304,7 @@ export function HomeToday({
         onOpen={onOpenCircle}
         onRequestNewCircle={onRequestNewCircle}
         newCircleCover={novoCirculoCover}
+        newCircleBadge={badges['novo-circulo'] ?? 0}
       />
 
       {/* Revista Círcula Woman Magazine (substitui a faixa do Instagram). */}

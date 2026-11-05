@@ -16638,3 +16638,138 @@ button.card:focus-visible {
 .magazine-pages-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
 .magazine-page-num { display: block; font-size: 13px; margin-bottom: var(--space-1); }
 .magazine-input { width: 100%; padding: 10px 12px; border: 1px solid var(--circula-taupe); border-radius: 8px; margin-bottom: var(--space-2); }
+
+/* ============================================================
+   Rodada de ajustes (nov/2026) — acabamento comum
+   ============================================================ */
+
+/* Borda preta bem fina nos cards e banners (sobra de contorno). Outline
+   com offset negativo desenha POR CIMA da foto e segue o raio. */
+.exp-card-frame,
+.circ-card-frame,
+.home-editorial-card-media,
+.profile-gallery-slot,
+.mag-cover,
+.mag-shelf-cover {
+  outline: 1.5px solid rgba(21, 19, 17, 0.88);
+  outline-offset: -1.5px;
+}
+
+/* "desde 2026": o último dígito era cortado em telas estreitas. */
+.community-hero-stat-value {
+  font-size: clamp(16px, 4.2vw, 24px);
+  white-space: nowrap;
+}
+.community-hero-stat + .community-hero-stat {
+  padding-left: var(--space-4);
+}
+
+/* Bolinha vermelha de "tem novidade" sobre cards (estilo iPhone). */
+.notif-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #e5322d;
+  color: #fff;
+  font: 700 12px/20px var(--font-label, system-ui);
+  text-align: center;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+}
+
+/* ---------- Recortador de imagem ---------- */
+.cropper-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(21, 19, 17, 0.6);
+}
+.cropper {
+  width: min(100%, 460px);
+  max-height: 96vh;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 18px;
+  border-radius: 18px;
+  background: #fff;
+}
+.cropper-title { margin: 0 0 4px; font-size: 18px; }
+.cropper-hint { margin: 0 0 12px; font-size: 13px; color: var(--graphite-soft, #6b6560); }
+.cropper-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1c1a18;
+  touch-action: none;
+  cursor: grab;
+}
+.cropper-frame--round { border-radius: 50%; max-width: 320px; margin: 0 auto; }
+.cropper-frame img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+.cropper-zoom { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 13px; }
+.cropper-zoom input { flex: 1; }
+.cropper-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+
+/* ---------- Perfil: banner, foto, respostas ---------- */
+.profile-page { padding-top: 0; overflow: hidden; }
+.profile-banner-wrap { position: relative; margin: 0 calc(-1 * var(--space-5, 20px)) var(--space-5, 20px); text-align: center; }
+.profile-banner {
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  background: linear-gradient(135deg, var(--c-beige), var(--c-rose-mist));
+  overflow: hidden;
+}
+.profile-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profile-banner-avatar {
+  width: 104px; height: 104px;
+  margin: -52px auto 0;
+  position: relative;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  outline: 1.5px solid rgba(21, 19, 17, 0.88);
+  overflow: hidden;
+  background: var(--c-sand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+.profile-banner-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-banner-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.profile-pick-btn {
+  cursor: pointer; font-size: 12.5px; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--circula-mocha); color: var(--circula-mocha); background: #fff;
+}
+.profile-banner-name { margin: 12px 0 0; }
+.profile-banner-city { margin: 2px 0 0; }
+.profile-info-block { display: flex; flex-direction: column; gap: var(--space-4, 16px); margin-bottom: var(--space-5, 20px); }
+.profile-answers { margin: 0; display: grid; gap: 10px; }
+.profile-answers dt { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--graphite-soft, #6b6560); }
+.profile-answers dd { margin: 2px 0 0; }
+.profile-garden-section, .profile-gallery-section { margin-top: var(--space-6, 28px); display: flex; flex-direction: column; gap: var(--space-4, 16px); }
+.profile-actions-row--inline { display: flex; flex-direction: row; gap: 8px; margin-top: var(--space-6, 28px); }
+.profile-actions-row--inline > button { flex: 1 1 0; min-width: 0; padding: 10px 6px; font-size: 13px; }
+.profile-secondary-action { border: 1px solid var(--circula-mocha); background: #fff; color: var(--circula-mocha); border-radius: 999px; }
+
+/* ---------- Help Nutri ---------- */
+.help-nutri { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 36px 16px; }
+.help-nutri-avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; outline: 1.5px solid rgba(21,19,17,.88); outline-offset: -1.5px; }
+.help-nutri-title { margin: 0; }
+.help-nutri-btn { position: relative; min-width: 220px; padding: 14px 28px; border: 0; border-radius: 999px; background: var(--circula-mocha); color: #fff; font-size: 16px; }
+.help-nutri-badge { position: absolute; top: -8px; right: -8px; min-width: 22px; height: 22px; border-radius: 999px; background: #e5322d; color: #fff; font: 700 12px/22px system-ui; box-shadow: 0 0 0 2px #fff; }
+.help-nutri-sub { margin: 0; font-size: 13px; color: var(--graphite-soft, #6b6560); }

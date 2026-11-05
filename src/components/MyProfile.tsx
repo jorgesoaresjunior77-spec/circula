@@ -5,11 +5,15 @@ import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
 import { GardenEvolutionSection } from './GardenEvolutionSection'
 import { CommunitySubscriptionCard } from './CommunitySubscriptionCard'
+import { ImageCropper } from './ImageCropper'
+import { ProfileBanner } from './ProfileBanner'
+import { OnboardingAnswersView } from './OnboardingAnswersView'
 
 interface MyProfileProps {
   profile: Profile
   onUpdate: (input: ProfileUpdateInput) => Promise<{ error: string | null }>
   onUploadAvatar: (file: File) => Promise<{ error: string | null }>
+  onUploadBanner: (file: File) => Promise<{ error: string | null }>
   /** Item 10 — upload cru de uma foto da galeria (bucket `avatars`);
    *  devolve a URL pública, não toca `profiles`. */
   onUploadGalleryPhoto: (file: File) => Promise<{ url: string | null; error: string | null }>
@@ -29,6 +33,7 @@ export function MyProfile({
   profile,
   onUpdate,
   onUploadAvatar,
+  onUploadBanner,
   onUploadGalleryPhoto,
   communityId,
   onRestartTour,
@@ -42,6 +47,7 @@ export function MyProfile({
   const [interestDraft, setInterestDraft] = useState('')
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [crop, setCrop] = useState<{ kind: 'avatar' | 'banner'; file: File } | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
     null,
   )
@@ -104,24 +110,27 @@ export function MyProfile({
     setEditing(false)
   }
 
-  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    if (!file) return
+  function handlePick(kind: 'avatar' | 'banner') {
+    return (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      event.target.value = ''
+      if (file) setCrop({ kind, file })
+    }
+  }
 
+  async function handleCropped(file: File) {
+    const kind = crop?.kind
+    setCrop(null)
+    if (!kind) return
     setUploading(true)
     setMessage(null)
-
-    const { error } = await onUploadAvatar(file)
-
+    const { error } = kind === 'avatar' ? await onUploadAvatar(file) : await onUploadBanner(file)
     setUploading(false)
-    event.target.value = ''
-
     if (error) {
       setMessage({ type: 'error', text: 'Não foi possível enviar a foto agora. Tente novamente.' })
       return
     }
-
-    setMessage({ type: 'success', text: 'Foto atualizada.' })
+    setMessage({ type: 'success', text: kind === 'avatar' ? 'Foto atualizada.' : 'Banner atualizado.' })
   }
 
   // Item 10 — galeria: upload "cru" (onUploadGalleryPhoto, bucket
@@ -186,87 +195,60 @@ export function MyProfile({
   }
 
   return (
-    <section className="community-card community-card--profile">
-      <p className="profile-eyebrow">Meu perfil</p>
-      <div className="profile-header">
-        <div className="profile-avatar">
-          {profile.avatar_url ? (
-            <img loading="lazy" decoding="async" src={profile.avatar_url} alt="" />
-          ) : (
-            <span>{(profile.full_name ?? 'U').charAt(0).toUpperCase()}</span>
-          )}
-        </div>
-        <div className="profile-identity">
-          <h2>{profile.full_name ?? 'Seu perfil'}</h2>
-          {profile.city && <p className="profile-city">{profile.city}</p>}
-          <label className="auth-link">
-            {uploading ? 'Enviando...' : 'Trocar foto'}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              disabled={uploading}
-              hidden
-            />
-          </label>
-        </div>
-      </div>
+    <section className="community-card community-card--profile profile-page">
+      <ProfileBanner
+        bannerUrl={profile.banner_url ?? null}
+        avatarUrl={profile.avatar_url}
+        name={profile.full_name}
+        city={profile.city}
+        actions={
+          <>
+            <label className="profile-pick-btn">
+              {uploading ? 'Enviando...' : 'Trocar foto'}
+              <input type="file" accept="image/*" onChange={handlePick('avatar')} disabled={uploading} hidden />
+            </label>
+            <label className="profile-pick-btn">
+              Trocar banner
+              <input type="file" accept="image/*" onChange={handlePick('banner')} disabled={uploading} hidden />
+            </label>
+          </>
+        }
+      />
 
-      {/* Etapa 7 (evolução/gamificação) — identidade visual do Meu
-          Jardim, círculo mensal + anual, progresso atual e meses
-          concluídos, compacto (sem a lista de atividades/histórico
-          detalhado, que já vive na página Meu Jardim). Omitido por
-          completo sem comunidade em foco (Master). */}
-      {communityId && (
-        <div className="profile-garden-section">
-          <p className="profile-section-label">Meu Jardim</p>
-          <GardenEvolutionSection communityId={communityId} profileId={profile.id} compact />
-        </div>
+      {crop && (
+        <ImageCropper
+          file={crop.file}
+          aspect={crop.kind === 'avatar' ? 1 : 3}
+          outputWidth={crop.kind === 'avatar' ? 800 : 1500}
+          round={crop.kind === 'avatar'}
+          title={crop.kind === 'avatar' ? 'Ajustar sua foto' : 'Ajustar o banner'}
+          onCancel={() => setCrop(null)}
+          onDone={(f) => void handleCropped(f)}
+        />
       )}
 
-      {/* Item 10 — galeria de fotos: sempre visível e editável, fora do
-          `editing` do resto do formulário (mesmo padrão do avatar). */}
-      <div className="profile-gallery-section">
-        <p className="profile-section-label">Minhas fotos</p>
-        <ProfileGallery
-          photos={profile.gallery_photos}
-          editable
-          busyIndex={galleryBusyIndex}
-          onAdd={handleGalleryAdd}
-          onReplace={handleGalleryReplace}
-          onRemove={handleGalleryRemove}
-        />
-      </div>
+      {message && (
+        <p className={message.type === 'success' ? 'auth-success' : 'auth-error'}>{message.text}</p>
+      )}
 
       {!editing ? (
-        <>
+        <div className="profile-info-block">
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
-
-          {/* Item 9 — "Um pouco sobre mim": só os itens da lista sugerida
-              que a usuária marcou. Opcional — some por completo sem
-              nenhum marcado, nunca uma seção vazia. */}
           {(() => {
-            const aboutMe = ABOUT_ME_OPTIONS.filter((option) =>
-              profile.interests.includes(option),
-            )
+            const aboutMe = ABOUT_ME_OPTIONS.filter((option) => profile.interests.includes(option))
             return (
               aboutMe.length > 0 && (
                 <div className="profile-about-me">
                   <p className="profile-section-label">Um pouco sobre mim</p>
                   <div className="interest-tags interest-tags--view">
                     {aboutMe.map((item) => (
-                      <span key={item} className="interest-tag">
-                        {item}
-                      </span>
+                      <span key={item} className="interest-tag">{item}</span>
                     ))}
                   </div>
                 </div>
               )
             )
           })()}
-
-          {/* Interesses em texto livre — segue existindo, só sem repetir
-              os itens que já aparecem em "Um pouco sobre mim" acima. */}
           {(() => {
             const freeform = profile.interests.filter(
               (interest) => !(ABOUT_ME_OPTIONS as readonly string[]).includes(interest),
@@ -275,37 +257,14 @@ export function MyProfile({
               freeform.length > 0 && (
                 <div className="interest-tags interest-tags--view">
                   {freeform.map((interest) => (
-                    <span key={interest} className="interest-tag">
-                      {interest}
-                    </span>
+                    <span key={interest} className="interest-tag">{interest}</span>
                   ))}
                 </div>
               )
             )
           })()}
-
-          {message && (
-            <p className={message.type === 'success' ? 'auth-success' : 'auth-error'}>
-              {message.text}
-            </p>
-          )}
-
-          <div className="profile-actions-row">
-            <button type="button" className="profile-edit-action" onClick={startEditing}>
-              Editar perfil
-            </button>
-            {/* Etapa 9 — rever o tour guiado quando quiser, sem esperar
-                um novo onboarding (que só acontece uma vez). */}
-            <button type="button" className="auth-link" onClick={onRestartTour}>
-              Rever o tour do Círcula
-            </button>
-            {onShowInstallGuide && (
-              <button type="button" className="auth-link" onClick={onShowInstallGuide}>
-                Colocar o Círcula na tela do celular
-              </button>
-            )}
-          </div>
-        </>
+          <OnboardingAnswersView answers={profile.onboarding_answers ?? null} />
+        </div>
       ) : (
         <form onSubmit={handleSubmit}>
           <label htmlFor="profile-name">Nome completo</label>
@@ -411,9 +370,41 @@ export function MyProfile({
         </form>
       )}
 
-      {/* A assinatura da comunidade só era alcançável por uma tela que saiu do
-          menu (MemberCommunityCard). Aqui a participante acha onde assinar e
-          regularizar. Só para member: a Profissional paga pelo Painel. */}
+      {communityId && (
+        <div className="profile-garden-section">
+          <p className="profile-section-label">Meu Jardim</p>
+          <GardenEvolutionSection communityId={communityId} profileId={profile.id} compact />
+        </div>
+      )}
+
+      <div className="profile-gallery-section">
+        <p className="profile-section-label">Minhas fotos</p>
+        <ProfileGallery
+          photos={profile.gallery_photos}
+          editable
+          busyIndex={galleryBusyIndex}
+          onAdd={handleGalleryAdd}
+          onReplace={handleGalleryReplace}
+          onRemove={handleGalleryRemove}
+        />
+      </div>
+
+      {!editing && (
+        <div className="profile-actions-row profile-actions-row--inline">
+          <button type="button" className="profile-edit-action" onClick={startEditing}>
+            Editar perfil
+          </button>
+          <button type="button" className="profile-secondary-action" onClick={onRestartTour}>
+            Rever tour
+          </button>
+          {onShowInstallGuide && (
+            <button type="button" className="profile-secondary-action" onClick={onShowInstallGuide}>
+              Círcula na tela
+            </button>
+          )}
+        </div>
+      )}
+
       {profile.role === 'member' && communityId && (
         <div className="profile-subscription-section">
           <p className="profile-section-label">Minha assinatura</p>

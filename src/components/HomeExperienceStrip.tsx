@@ -54,6 +54,8 @@ interface HomeExperienceStripProps {
    *  Jardim", cadastrada pela Profissional em Painel → Imagens da
    *  comunidade (chave `jardim`, migration 20261030120000). */
   jardimCover?: string | null
+  /** Bolinhas vermelhas por card (chave do card -> quantidade). */
+  badges?: Record<string, number>
   onNavigate: (key: NavKey) => void
 }
 
@@ -86,6 +88,7 @@ export function HomeExperienceStrip({
   lojaCover,
   receitasCover,
   jardimCover,
+  badges = {},
   onNavigate,
 }: HomeExperienceStripProps) {
   const experiences = useMemo<Experience[]>(
@@ -161,6 +164,7 @@ export function HomeExperienceStrip({
       >
         <span className="exp-card-frame">
           {exp.image && <img loading="lazy" decoding="async" src={exp.image} alt="" className="exp-card-photo" />}
+          {!clone && (badges[exp.key] ?? 0) > 0 && <span className="notif-dot" aria-label="Novidade" />}
           <span className="exp-card-title">{exp.title}</span>
         </span>
       </button>

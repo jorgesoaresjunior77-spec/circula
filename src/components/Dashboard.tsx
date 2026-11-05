@@ -19,6 +19,7 @@ import { useSavedItems } from '../hooks/useSavedItems'
 import { NotificationBell } from './NotificationBell'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
+import { HelpNutri } from './HelpNutri'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
 // demanda em vez de entrarem no bundle inicial de toda usuária (ver
@@ -45,6 +46,7 @@ import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
+import { useHomeBadges } from '../hooks/useHomeBadges'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { NavItem, NavKey } from './PrimaryNav'
 import {
@@ -118,6 +120,7 @@ interface DashboardProps {
     error: string | null
   }>
   onUploadAvatar: (file: File) => Promise<{ error: string | null }>
+  onUploadBanner: (file: File) => Promise<{ error: string | null }>
   /** Perfil (item 10) — upload cru de uma foto da galeria (bucket
    *  `avatars`, mesmo de sempre); devolve a URL pública, não toca
    *  `profiles` — MyProfile persiste o array via onUpdateProfile. */
@@ -131,6 +134,7 @@ export function Dashboard({
   onSignOut,
   onUpdateProfile,
   onUploadAvatar,
+  onUploadBanner,
   onUploadGalleryPhoto,
   activeNav,
   onNavigate,
@@ -408,6 +412,17 @@ export function Dashboard({
     onNavigate('mensagens')
   }
 
+  const homeBadges = useHomeBadges(
+    profile && profile.role !== 'master' ? (railCommunity?.id ?? null) : null,
+    profile?.id ?? null,
+    profile?.role === 'professional',
+    effectiveNav,
+  )
+  useEffect(() => {
+    if (effectiveNav === 'eventos') homeBadges.markEventsSeen()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveNav])
+
   const selectedCircle =
     selectedCircleId !== null
       ? (circles.find((circle) => circle.id === selectedCircleId) ?? null)
@@ -472,7 +487,14 @@ export function Dashboard({
           onJoinCommunity={joinCommunity}
           onNavigate={handleNavigate}
           onOpenCircle={openCircleFromHome}
-          onRequestNewCircle={profile.role === 'member' ? openNewCircleFormFromHome : undefined}
+          onRequestNewCircle={
+            profile.role === 'member' ? openNewCircleFormFromHome : () => handleNavigate('circulos')
+          }
+          badges={{
+            'help-nutri': totalUnread,
+            eventos: homeBadges.newEvents,
+            'novo-circulo': homeBadges.pendingCircleRequests,
+          }}
           coverHero={coverHero}
           railSummary={
             railActive
@@ -491,10 +513,25 @@ export function Dashboard({
           profile={profile}
           onUpdate={onUpdateProfile}
           onUploadAvatar={onUploadAvatar}
+          onUploadBanner={onUploadBanner}
           onUploadGalleryPhoto={onUploadGalleryPhoto}
           communityId={railCommunity?.id ?? null}
           onRestartTour={() => setShowTour(true)}
           onShowInstallGuide={() => setShowInstallGuide(true)}
+        />
+      )
+    }
+
+    if (effectiveNav === 'mensagens' && profile.role === 'member' && railCommunity) {
+      return (
+        <HelpNutri
+          ownerId={railCommunity.owner_id}
+          myProfileId={profile.id}
+          conversations={conversations}
+          initialConversationId={pendingConversationId}
+          onConsumedInitial={() => setPendingConversationId(null)}
+          onStartConversation={startConversation}
+          onActivity={refreshConversations}
         />
       )
     }

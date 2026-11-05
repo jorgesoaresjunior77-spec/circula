@@ -36,6 +36,8 @@ interface HomeCirclesSectionProps {
   onRequestNewCircle?: () => void
   /** Capa do card "Novo Círculo" (já assinada), cadastrada no Painel. */
   newCircleCover?: string | null
+  /** Pedidos aguardando (bolinha vermelha no card "Novo Círculo"). */
+  newCircleBadge?: number
 }
 
 /** Card fixo "Novo Círculo" — mesma identidade visual/dimensão dos
@@ -48,16 +50,19 @@ function NewCircleCard({
   onActivate,
   clone,
   cover,
+  badge = 0,
 }: {
   onActivate: () => void
   clone: boolean
   cover?: string | null
+  badge?: number
 }) {
   return (
     <li className="circ-card-item">
       <article className={`circ-card circ-card--new${cover ? ' circ-card--photo' : ''}`}>
         <div className="circ-card-frame">
           {cover && <img loading="lazy" decoding="async" src={cover} alt="" className="circ-card-photo" />}
+          {!clone && badge > 0 && <span className="notif-dot" aria-label="Novidade" />}
           {!cover && (
             <span className="circ-card-new-icon" aria-hidden="true">
               <PlusIcon size={22} />
@@ -130,6 +135,7 @@ export function HomeCirclesSection({
   onOpen,
   onRequestNewCircle,
   newCircleCover,
+  newCircleBadge = 0,
 }: HomeCirclesSectionProps) {
   // +1 pelo card fixo "Novo Círculo" (quando presente) — precisa entrar
   // na contagem que decide se o ciclo contínuo liga (useDragCarousel
@@ -150,6 +156,7 @@ export function HomeCirclesSection({
           key={clone ? `new-circle-${key}` : 'new-circle'}
           onActivate={onRequestNewCircle}
           cover={newCircleCover}
+          badge={newCircleBadge}
           clone={clone}
         />
       )}

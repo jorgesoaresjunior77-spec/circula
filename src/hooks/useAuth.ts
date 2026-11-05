@@ -27,7 +27,7 @@ const INITIAL_INVITE_ERROR =
 // depois que a migration 20261018120000_garden_meu_jardim.sql for
 // aplicada. `PROFILE_SELECT_BASE` é o select de sempre (sem as 2
 // colunas novas); `PROFILE_SELECT_GARDEN` tenta trazê-las também.
-const PROFILE_SELECT_BASE = 'id, role, full_name, avatar_url, interests, bio, city, gallery_photos'
+const PROFILE_SELECT_BASE = 'id, role, full_name, avatar_url, banner_url, interests, bio, city, gallery_photos'
 const PROFILE_SELECT_GARDEN = `${PROFILE_SELECT_BASE}, garden_color_one, garden_color_two`
 // Etapa 8/9 (evolução/gamificação) — onboarding_answers/onboarding_completed_at/
 // tour_completed_at só existem depois que a migration preparada (NÃO
@@ -234,6 +234,27 @@ export function useAuth() {
     return { url: data.publicUrl, error: null as string | null }
   }
 
+  // Banner do perfil (imagem larga atras da foto): sobe para `avatars`
+  // sob <uid>/banner/ e grava a URL em profiles.banner_url.
+  async function uploadBanner(originalFile: File) {
+    if (!session) return { error: 'Sem sessão ativa.' }
+    const invalid = validateImageFile(originalFile)
+    if (invalid) return { error: invalid }
+    const file = await compressImage(originalFile)
+    const extension = file.name.split('.').pop() ?? 'jpg'
+    const path = `${session.user.id}/banner/${Date.now()}.${extension}`
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: false })
+    if (uploadError) return { error: uploadError.message }
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ banner_url: data.publicUrl })
+      .eq('id', session.user.id)
+    if (updateError) return { error: updateError.message }
+    await refreshProfile()
+    return { error: null }
+  }
+
   return {
     session,
     profile,
@@ -245,6 +266,7 @@ export function useAuth() {
     signOut,
     updateProfile,
     uploadAvatar,
+    uploadBanner,
     uploadGalleryPhoto,
   }
 }

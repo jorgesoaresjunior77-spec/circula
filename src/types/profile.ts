@@ -15,6 +15,7 @@ export interface Profile {
   role: UserRole
   full_name: string | null
   avatar_url: string | null
+  banner_url?: string | null
   interests: string[]
   bio: string | null
   city: string | null
