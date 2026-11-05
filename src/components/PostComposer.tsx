@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { CreatePostResult } from '../types/post'
+import { EmojiPicker } from './EmojiPicker'
 
 interface PostComposerProps {
   onPublish: (content: string, imageUrl: string | null) => Promise<CreatePostResult>
@@ -125,6 +126,7 @@ export function PostComposer({
           rows={3}
           required
         />
+        <EmojiPicker onPick={(e) => setContent((c) => c + e)} />
 
         {imagePreview ? (
           <div className="post-composer-image">

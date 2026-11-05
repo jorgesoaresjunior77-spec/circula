@@ -11,7 +11,11 @@ interface CommentThreadProps {
   comment: Comment
   canInteract: boolean
   /** Envia uma resposta a ESTE comentário-raiz. Sem isso, some "Responder". */
-  onReply?: (content: string, parentCommentId: string) => Promise<CreateCommentResult>
+  onReply?: (
+    content: string,
+    parentCommentId: string,
+    imageFile?: File | null,
+  ) => Promise<CreateCommentResult>
   /** Preview do Feed: nº de respostas conhecido antes de carregar a árvore. */
   replyCountHint?: number
   /** Preview do Feed: carrega a conversa inteira deste post. */
@@ -26,6 +30,8 @@ export function CommentThread({
   onExpand,
 }: CommentThreadProps) {
   const [replying, setReplying] = useState(false)
+  // Resposta a uma resposta: fica agrupada sob o comentário-raiz, com @nome.
+  const [replyingToReply, setReplyingToReply] = useState<string | null>(null)
   const [showAllReplies, setShowAllReplies] = useState(false)
 
   const replies = comment.replies ?? []
@@ -36,9 +42,21 @@ export function CommentThread({
   const visibleReplies = showAllReplies ? replies : replies.slice(0, REPLIES_VISIBLE)
   const hiddenLoaded = loadedReplyCount - visibleReplies.length
 
-  async function handleReplySubmit(content: string): Promise<CreateCommentResult> {
+  async function handleReplySubmit(
+    content: string,
+    file?: File | null,
+  ): Promise<CreateCommentResult> {
     if (!onReply) return { error: 'Não é possível responder aqui.' }
-    return onReply(content, comment.id)
+    return onReply(content, comment.id, file)
+  }
+
+  async function handleReplyToReply(
+    name: string,
+    content: string,
+    file?: File | null,
+  ): Promise<CreateCommentResult> {
+    if (!onReply) return { error: 'Não é possível responder aqui.' }
+    return onReply(`@${name} ${content}`, comment.id, file)
   }
 
   const canReply = canInteract && !!onReply
@@ -86,6 +104,29 @@ export function CommentThread({
           {visibleReplies.map((reply) => (
             <li key={reply.id}>
               <CommentRow comment={reply} variant="reply" />
+              {canReply && (
+                <button
+                  type="button"
+                  className="comment-reply-action"
+                  onClick={() => setReplyingToReply((v) => (v === reply.id ? null : reply.id))}
+                >
+                  <ReplyIcon size={13} /> Responder
+                </button>
+              )}
+              {replyingToReply === reply.id && (
+                <div className="comment-reply-form-wrap">
+                  <CommentForm
+                    onSubmit={(text, file) =>
+                      handleReplyToReply(reply.author?.full_name ?? 'Participante', text, file)
+                    }
+                    onCancel={() => setReplyingToReply(null)}
+                    placeholder={`Responder a ${reply.author?.full_name ?? 'esta resposta'}...`}
+                    submitLabel="Responder"
+                    autoFocus
+                    variant="reply"
+                  />
+                </div>
+              )}
             </li>
           ))}
         </ul>

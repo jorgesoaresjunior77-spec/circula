@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { CreateCommentResult } from '../types/post'
+import { EmojiPicker } from './EmojiPicker'
 
 interface CommentFormProps {
-  onSubmit: (content: string) => Promise<CreateCommentResult>
+  onSubmit: (content: string, imageFile?: File | null) => Promise<CreateCommentResult>
   placeholder?: string
   submitLabel?: string
   pendingLabel?: string
@@ -26,6 +27,8 @@ export function CommentForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus()
@@ -36,7 +39,7 @@ export function CommentForm({
     setLoading(true)
     setError(null)
 
-    const { error: submitError } = await onSubmit(content)
+    const { error: submitError } = await onSubmit(content.trim() || (file ? '📷' : ''), file)
 
     setLoading(false)
 
@@ -50,6 +53,7 @@ export function CommentForm({
     }
 
     setContent('')
+    setFile(null)
     onCancel?.()
   }
 
@@ -65,10 +69,24 @@ export function CommentForm({
         onChange={(event) => setContent(event.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        required
       />
 
-      <button type="submit" disabled={loading || !content.trim()}>
+      <EmojiPicker onPick={(e) => setContent((c) => c + e)} />
+      <button type="button" className="comment-attach" onClick={() => fileRef.current?.click()} aria-label="Anexar foto">
+        {file ? '🖼️✓' : '🖼️'}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          setFile(e.target.files?.[0] ?? null)
+          e.target.value = ''
+        }}
+      />
+
+      <button type="submit" disabled={loading || (!content.trim() && !file)}>
         {loading ? pendingLabel : submitLabel}
       </button>
 

@@ -4,6 +4,8 @@ import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '.
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CommentList } from './CommentList'
 import { CommentThread } from './CommentThread'
+import { CommentLikesContext, useCommentLikes } from '../hooks/useCommentLikes'
+import { uploadCommunityMedia } from '../lib/communityMedia'
 import { CommentForm } from './CommentForm'
 import { HeartIcon, CommentIcon, BookmarkIcon } from './icons'
 import { GardenDailyPostCard } from './GardenDailyPostCard'
@@ -18,7 +20,13 @@ interface PostCardProps {
   canInteract: boolean
   onToggleReaction: () => Promise<ToggleReactionResult>
   onOpenComments: () => Promise<CreateCommentResult>
-  onAddComment: (content: string, parentCommentId?: string | null) => Promise<CreateCommentResult>
+  onAddComment: (
+    content: string,
+    parentCommentId?: string | null,
+    imageUrl?: string | null,
+  ) => Promise<CreateCommentResult>
+  /** Quem está vendo (curtidas e envio de imagem nas respostas). */
+  viewerId?: string
   /** Quando definido, mostra o botão de salvar (Módulo 7). */
   isSaved?: boolean
   onToggleSave?: (saved: boolean) => Promise<{ error: string | null }>
@@ -53,6 +61,7 @@ export function PostCard({
   onToggleReaction,
   onOpenComments,
   onAddComment,
+  viewerId,
   isSaved,
   onToggleSave,
   inlineConversation = false,
@@ -110,8 +119,32 @@ export function PostCard({
     setSavingBookmark(false)
   }
 
-  const handleReply = (content: string, parentCommentId: string) =>
-    onAddComment(content, parentCommentId)
+  // Envia o comentário/resposta; se houver foto, sobe para o bucket antes.
+  async function submitComment(
+    content: string,
+    parentCommentId: string | null,
+    file?: File | null,
+  ): Promise<CreateCommentResult> {
+    let imagePath: string | null = null
+    if (file) {
+      if (!viewerId) return { error: 'Sem sessão ativa.' }
+      const up = await uploadCommunityMedia(file, post.community_id, viewerId, 'posts')
+      if (up.error || !up.path) return { error: up.error ?? 'Falha no envio da imagem.' }
+      imagePath = up.path
+    }
+    return onAddComment(content, parentCommentId, imagePath)
+  }
+
+  const handleReply = (content: string, parentCommentId: string, file?: File | null) =>
+    submitComment(content, parentCommentId, file)
+
+  const visibleComments: Comment[] = (comments && comments.length > 0 ? comments : previewComments).flatMap(
+    (c) => [c, ...(c.replies ?? [])],
+  )
+  const commentLikes = useCommentLikes(
+    visibleComments.map((c) => c.id),
+    viewerId ?? null,
+  )
 
   const isDailyQuestion = post.post_type === 'daily_question'
   const isCheckinShare = post.post_type === 'checkin_share'
@@ -208,6 +241,7 @@ export function PostCard({
         )}
       </div>
 
+      <CommentLikesContext.Provider value={commentLikes}>
       {inlineConversation && (
         <div className="post-conversation">
           {loadingComments && <p className="comment-loading">Carregando conversa...</p>}
@@ -259,7 +293,7 @@ export function PostCard({
             </>
           )}
 
-          {canInteract && <CommentForm onSubmit={(text) => onAddComment(text, null)} />}
+          {canInteract && <CommentForm onSubmit={(text, file) => submitComment(text, null, file)} />}
         </div>
       )}
 
@@ -269,9 +303,10 @@ export function PostCard({
 
           {!loadingComments && <CommentList comments={comments ?? []} />}
 
-          {canInteract && <CommentForm onSubmit={(text) => onAddComment(text, null)} />}
+          {canInteract && <CommentForm onSubmit={(text, file) => submitComment(text, null, file)} />}
         </div>
       )}
+      </CommentLikesContext.Provider>
       </div>
 
       {mediaAside && postImageUrl && (

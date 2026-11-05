@@ -5,7 +5,7 @@ import { PostCard } from './PostCard'
 import { EmptyState } from './EmptyState'
 
 /** Publicações por página no Feed de Conversa. */
-const FEED_PAGE_SIZE = 10
+const FEED_PAGE_SIZE = 6
 
 interface FeedProps {
   communityId: string
@@ -99,9 +99,10 @@ export function Feed({
                 canInteract={canPost}
                 onToggleReaction={() => toggleReaction(post.id, authorId)}
                 onOpenComments={() => fetchComments(post.id)}
-                onAddComment={(content, parentId) =>
-                  addComment(post.id, authorId, content, parentId ?? null)
+                onAddComment={(content, parentId, imageUrl) =>
+                  addComment(post.id, authorId, content, parentId ?? null, imageUrl ?? null)
                 }
+                viewerId={authorId}
                 inlineConversation
                 previewComments={previewCommentsByPost[post.id] ?? []}
                 topLevelCount={topLevelCounts[post.id] ?? 0}
@@ -119,7 +120,7 @@ export function Feed({
               onClick={loadMore}
               disabled={loadingMore}
             >
-              {loadingMore ? 'Carregando…' : 'Carregar mais publicações'}
+              {loadingMore ? 'Carregando…' : 'Ver mais mensagens'}
             </button>
           )}
         </>

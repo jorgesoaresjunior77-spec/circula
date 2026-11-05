@@ -1,6 +1,10 @@
 import { formatRelativeTime } from '../lib/formatRelativeTime'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { useCommentLikesContext } from '../hooks/useCommentLikes'
 
 export interface CommentRowData {
+  id?: string
+  image_url?: string | null
   content: string
   created_at: string
   author: { id: string; full_name: string | null; avatar_url: string | null } | null
@@ -19,6 +23,10 @@ interface CommentRowProps {
  */
 export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
   const name = comment.author?.full_name ?? 'Participante'
+  const { url: imageUrl } = useSignedImageUrl(comment.image_url ?? null)
+  const likes = useCommentLikesContext()
+  const liked = !!comment.id && !!likes?.mine.has(comment.id)
+  const count = comment.id ? (likes?.counts[comment.id] ?? 0) : 0
 
   return (
     <div className={`comment-item comment-item--${variant}`}>
@@ -34,6 +42,17 @@ export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
           {name} <span className="comment-time">{formatRelativeTime(comment.created_at)}</span>
         </p>
         <p className="comment-content">{comment.content}</p>
+        {imageUrl && <img className="comment-image" src={imageUrl} alt="" loading="lazy" />}
+        {likes && comment.id && (
+          <button
+            type="button"
+            className={`comment-like${liked ? ' comment-like--on' : ''}`}
+            onClick={() => likes.toggle(comment.id as string)}
+            aria-pressed={liked}
+          >
+            {liked ? '♥' : '♡'} {count > 0 ? count : ''}
+          </button>
+        )}
       </div>
     </div>
   )

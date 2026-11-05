@@ -50,7 +50,7 @@ function isMissingGardenRelationError(error: { code?: string; message?: string }
 }
 
 const COMMENT_SELECT =
-  'id,post_id,author_id,content,created_at,parent_comment_id,author:profiles(id,full_name,avatar_url)'
+  'id,post_id,author_id,content,created_at,parent_comment_id,image_url,author:profiles(id,full_name,avatar_url)'
 
 /** Quantos comentários-raiz aparecem no card antes de "Ver mais comentários". */
 const PREVIEW_COMMENTS = 3
@@ -389,12 +389,14 @@ export function usePosts(
     authorId: string,
     content: string,
     parentCommentId: string | null = null,
+    imageUrl: string | null = null,
   ): Promise<CreateCommentResult> {
     const { error: insertError } = await supabase.from('post_comments').insert({
       post_id: postId,
       author_id: authorId,
       content,
       parent_comment_id: parentCommentId,
+      image_url: imageUrl,
     })
 
     if (insertError) {

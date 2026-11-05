@@ -77,6 +77,7 @@ export interface Comment {
   created_at: string
   /** Nulo => comentário-raiz. Preenchido => resposta a um comentário-raiz. */
   parent_comment_id: string | null
+  image_url?: string | null
   author: CommentAuthor | null
   /** Preenchido por buildCommentTree em comentários-raiz (respostas agrupadas). */
   replies?: Comment[]
