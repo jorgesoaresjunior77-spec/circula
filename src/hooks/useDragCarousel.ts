@@ -293,9 +293,12 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       snapRafId = requestAnimationFrame(step)
     }
 
+    // Encaixe em slot DESLIGADO a pedido: o 'puxão' final fazia os cards
+    // darem um tranco; agora o toque para onde a inércia natural parar.
     const armSettle = () => {
       clearSettleTimer()
-      settleTimer = setTimeout(settle, SETTLE_DEBOUNCE_MS)
+      void settle
+      void SETTLE_DEBOUNCE_MS
     }
 
     const pauseAutoplay = () => {

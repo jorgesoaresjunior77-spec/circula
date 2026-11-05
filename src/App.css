@@ -16864,3 +16864,5 @@ button.card:focus-visible {
 .comment-like { margin-top: 4px; border: 0; background: transparent; color: var(--graphite-soft, #6b6560); font-size: 13px; cursor: pointer; padding: 2px 4px; }
 .comment-like--on { color: #e5322d; }
 .comment-form { align-items: center; }
+
+.trial-notice { margin: 0 0 12px; padding: 12px 14px; border-radius: 12px; background: #eef7ec; font-size: 13.5px; line-height: 1.4; }

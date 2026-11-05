@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { OnboardingAnswers, Profile, ProfileUpdateInput } from '../types/profile'
+import { TrialNotice } from './TrialNotice'
 import {
   ONBOARDING_CURRENT_MOMENT_OPTIONS,
   ONBOARDING_INTEREST_TOPICS,
@@ -199,6 +200,7 @@ export function Onboarding({ profile, onUpdateProfile, onDone, onStartTour }: On
           {step === 5 && (
             <>
               <h2 className="onboarding-title">Por último…</h2>
+              <TrialNotice />
               <label htmlFor="onboarding-why" className="onboarding-label">
                 O que fez você entrar na comunidade?
               </label>
