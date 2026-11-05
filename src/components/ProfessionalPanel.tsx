@@ -1,14 +1,5 @@
 import { useState } from 'react'
-import { QuestionBankManager } from './QuestionBankManager'
-import { CircleManager } from './CircleManager'
-import { EventManager } from './EventManager'
-import { GardenChallengeManager } from './GardenChallengeManager'
-import { ContentManager } from './ContentManager'
-import { MoodMessageManager } from './MoodMessageManager'
-import { CheckinManager } from './CheckinManager'
-import { EngagementCommandManager } from './EngagementCommandManager'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
-import { ProductManager } from './ProductManager'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { AsaasAccountConnect } from './AsaasAccountConnect'
 import { CommunityPriceSettings } from './CommunityPriceSettings'
@@ -52,13 +43,8 @@ type PanelTab =
 const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
   { key: 'publicacoes', label: 'Publicações' },
-  { key: 'eventos', label: 'Eventos' },
-  { key: 'jardim', label: 'Meu Jardim' },
-  { key: 'circulos', label: 'Círculos' },
-  { key: 'conteudo', label: 'Conteúdo' },
   { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'metricas', label: 'Métricas' },
-  { key: 'produtos', label: 'Produtos' },
   { key: 'assinaturas', label: 'Assinaturas' },
 ]
 
@@ -88,18 +74,21 @@ interface ProfessionalPanelProps {
    *  Mesmos handlers de useCommunity, só repassados por aqui agora. */
   onInviteMember: (email: string, fullName: string) => Promise<InviteMemberResult>
   onAddMember: (email: string) => Promise<AddMemberResult>
+  /** Eventos, Meu Jardim, Círculos e Loja agora têm o cadastro dentro da
+   *  própria página; atalhos antigos do painel levam até lá. */
+  onNavigate?: (key: 'eventos' | 'jardim' | 'circulos' | 'loja') => void
 }
 
 export function ProfessionalPanel({
   communityId,
   community,
   profileId,
-  onFeedRefresh,
   onApproveMembership,
   onRejectMembership,
   onUpdateCommunity,
   onInviteMember,
   onAddMember,
+  onNavigate,
 }: ProfessionalPanelProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('visao')
   const [assinaturasSubTab, setAssinaturasSubTab] = useState<AssinaturasSubTab>('assinaturas')
@@ -124,6 +113,17 @@ export function ProfessionalPanel({
       setAssinaturasSubTab('recebimentos')
       return
     }
+    const moved: Record<string, 'eventos' | 'jardim' | 'circulos' | 'loja'> = {
+      eventos: 'eventos',
+      jardim: 'jardim',
+      circulos: 'circulos',
+      produtos: 'loja',
+    }
+    if (moved[tab] && onNavigate) {
+      onNavigate(moved[tab])
+      return
+    }
+    if (!TABS.some((t) => t.key === tab)) return
     setActiveTab(tab as PanelTab)
   }
 
@@ -190,54 +190,6 @@ export function ProfessionalPanel({
         </div>
       )}
 
-      {activeTab === 'eventos' && (
-        <div className="panel-tab-content">
-          <EventManager communityId={communityId} profileId={profileId} canManage />
-        </div>
-      )}
-
-      {activeTab === 'jardim' && (
-        <div className="panel-tab-content">
-          <GardenChallengeManager
-            communityId={communityId}
-            profileId={profileId}
-            onPublished={onFeedRefresh}
-          />
-        </div>
-      )}
-
-      {activeTab === 'circulos' && (
-        <div className="panel-tab-content">
-          <CircleManager communityId={communityId} profileId={profileId} canManage canParticipate />
-        </div>
-      )}
-
-      {activeTab === 'conteudo' && (
-        <div className="panel-tab-content">
-          <QuestionBankManager
-            communityId={communityId}
-            authorId={profileId}
-            canManage
-            onPublished={onFeedRefresh}
-          />
-          <ContentManager communityId={communityId} profileId={profileId} canManage />
-          <CheckinManager
-            communityId={communityId}
-            profileId={profileId}
-            canManage
-            canParticipate
-            onShared={onFeedRefresh}
-          />
-          <MoodMessageManager communityId={communityId} profileId={profileId} />
-          <EngagementCommandManager
-            communityId={communityId}
-            authorId={profileId}
-            canManage
-            onPublished={onFeedRefresh}
-          />
-        </div>
-      )}
-
       {activeTab === 'imagens' && (
         <div className="panel-tab-content panel-images-sections">
           {/* Ajustes de navegação (item 5) — seções bem separadas: A.
@@ -257,12 +209,6 @@ export function ProfessionalPanel({
       {activeTab === 'metricas' && (
         <div className="panel-tab-content">
           <CommunityMetricsPanel communityId={communityId} />
-        </div>
-      )}
-
-      {activeTab === 'produtos' && (
-        <div className="panel-tab-content">
-          <ProductManager communityId={communityId} profileId={profileId} canManage />
         </div>
       )}
 

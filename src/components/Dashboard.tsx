@@ -20,6 +20,10 @@ import { NotificationBell } from './NotificationBell'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { HelpNutri } from './HelpNutri'
+import { RecipesPage } from './RecipesPage'
+import { EventManager } from './EventManager'
+import { CircleManager } from './CircleManager'
+import { GardenChallengeManager } from './GardenChallengeManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
 // demanda em vez de entrarem no bundle inicial de toda usuária (ver
@@ -61,13 +65,11 @@ import {
   StoreIcon,
   UserIcon,
 } from './icons'
-import { useContent } from '../hooks/useContent'
 
 // Destinos acessados sob demanda: saem do pacote inicial (abre mais rápido).
 const Messages = lazy(() => import('./Messages').then((m) => ({ default: m.Messages })))
 const EventList = lazy(() => import('./EventList').then((m) => ({ default: m.EventList })))
 const SavedItems = lazy(() => import('./SavedItems').then((m) => ({ default: m.SavedItems })))
-const ContentLibrary = lazy(() => import('./ContentLibrary').then((m) => ({ default: m.ContentLibrary })))
 const GardenMemberView = lazy(() => import('./GardenMemberView').then((m) => ({ default: m.GardenMemberView })))
 const CircleDetail = lazy(() => import('./CircleDetail').then((m) => ({ default: m.CircleDetail })))
 const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => ({ default: m.CircleRequestForm })))
@@ -372,15 +374,6 @@ export function Dashboard({
     cancelRsvp: eventCancelRsvp,
   } = useEvents(effectiveNav === 'eventos' ? resolvedCirclesCommunityId : null)
 
-  // Receitas — reusa 100% a Biblioteca (community_content type='recipe').
-  // useContent(null) não faz fetch.
-  const {
-    items: contentItems,
-    loading: contentLoading,
-    error: contentError,
-    toggleLike: toggleContentLike,
-  } = useContent(effectiveNav === 'receitas' ? resolvedCirclesCommunityId : null)
-
   // Módulo 7 — Salvos: DESPRIORIZADO na Fase 1. O hook fica dormente
   // (profileId null = sem fetch) e os botões "Salvar" saem de
   // ContentLibrary/EventList. O componente SavedItems e o hook seguem
@@ -662,7 +655,7 @@ export function Dashboard({
         )
       }
 
-      return (
+      const circleList = (
         <CircleList
           circles={circles}
           loading={circlesLoading}
@@ -680,6 +673,13 @@ export function Dashboard({
           onJoin={(id) => joinCircle(id, profile.id)}
           onLeave={(id) => leaveCircle(id, profile.id)}
         />
+      )
+      if (profile.role !== 'professional') return circleList
+      return (
+        <>
+          {circleList}
+          <CircleManager communityId={resolvedCirclesCommunityId} profileId={profile.id} canManage canParticipate />
+        </>
       )
     }
 
@@ -700,7 +700,7 @@ export function Dashboard({
         )
       }
 
-      return (
+      const eventList = (
         <EventList
           events={events}
           loading={eventsLoading}
@@ -714,6 +714,13 @@ export function Dashboard({
           onRsvp={(id) => eventRsvp(id, profile.id)}
           onCancelRsvp={(id) => eventCancelRsvp(id, profile.id)}
         />
+      )
+      if (profile.role !== 'professional') return eventList
+      return (
+        <>
+          {eventList}
+          <EventManager communityId={resolvedCirclesCommunityId} profileId={profile.id} canManage />
+        </>
       )
     }
 
@@ -740,19 +747,10 @@ export function Dashboard({
       }
 
       return (
-        <ContentLibrary
-          items={contentItems}
-          loading={contentLoading}
-          error={contentError}
+        <RecipesPage
+          communityId={resolvedCirclesCommunityId}
           profileId={profile.id}
-          circles={circles}
-          canLike={profile.role !== 'master'}
-          communityName={
-            circlesRelevantCommunities.length > 1 ? circlesCommunity?.name : undefined
-          }
-          heading="Receitas"
-          lockType="recipe"
-          onToggleLike={(id, liked) => toggleContentLike(id, profile.id, liked)}
+          isOwner={profile.role === 'professional'}
         />
       )
     }
@@ -779,7 +777,7 @@ export function Dashboard({
         )
       }
 
-      return (
+      const gardenView = (
         <GardenMemberView
           communityId={resolvedCirclesCommunityId}
           profileId={profile.id}
@@ -787,6 +785,17 @@ export function Dashboard({
           onUpdateProfile={onUpdateProfile}
           onShared={refreshFeed}
         />
+      )
+      if (profile.role !== 'professional') return gardenView
+      return (
+        <>
+          {gardenView}
+          <GardenChallengeManager
+            communityId={resolvedCirclesCommunityId}
+            profileId={profile.id}
+            onPublished={refreshFeed}
+          />
+        </>
       )
     }
 
@@ -852,6 +861,7 @@ export function Dashboard({
             // (useCommunity), só o local de montagem mudou.
             onInviteMember={(email, fullName) => inviteMember(community.id, email, fullName)}
             onAddMember={(email) => addMember(community.id, email)}
+            onNavigate={handleNavigate}
           />
         )
       }

@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { useCircles } from '../hooks/useCircles'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { CoverImageInput } from './CoverImageInput'
-import { EmptyState } from './EmptyState'
 
 // Ajustes de navegação (item 5B) — "Imagens da comunidade" > Círculos.
 //
@@ -20,7 +18,6 @@ interface CircleImagesManagerProps {
 }
 
 export function CircleImagesManager({ communityId, profileId }: CircleImagesManagerProps) {
-  const { circles, loading, error, renameCircle } = useCircles(communityId)
   const [errorId, setErrorId] = useState<string | null>(null)
   const { images, setImage, clearImage } = useCommunityCardImages(communityId)
   async function handleNewCircleCover(path: string) {
@@ -29,12 +26,6 @@ export function CircleImagesManager({ communityId, profileId }: CircleImagesMana
       ? await setImage('novo_circulo', path, profileId)
       : await clearImage('novo_circulo')
     if (r.error) setErrorId('novo_circulo')
-  }
-
-  async function handleChange(circleId: string, circleName: string, path: string) {
-    setErrorId(null)
-    const result = await renameCircle(circleId, circleName, path)
-    if (result.error) setErrorId(circleId)
   }
 
   return (
@@ -71,39 +62,6 @@ export function CircleImagesManager({ communityId, profileId }: CircleImagesMana
         </li>
       </ul>
 
-      {loading && <p className="home-muted">Carregando círculos…</p>}
-      {!loading && error && <p className="auth-error">{error}</p>}
-      {!loading && !error && circles.length === 0 && (
-        <EmptyState message="Nenhum círculo cadastrado ainda. Crie um na aba Círculos." />
-      )}
-
-      {!loading && !error && circles.length > 0 && (
-        <ul className="card-images-list">
-          {circles.map((circle) => (
-            <li key={circle.id} className="card-images-row">
-              <div className="card-images-info">
-                <span className="card-images-name">{circle.name}</span>
-              </div>
-              <div className="card-images-field">
-                <CoverImageInput
-                  value={circle.cover_image_url ?? ''}
-                  communityId={communityId}
-                  uid={profileId}
-                  label=""
-                  aspectRatio="4 / 5"
-                  onChange={(path) => void handleChange(circle.id, circle.name, path)}
-                  recommendedSize="1080 × 1350 px"
-                />
-                {errorId === circle.id && (
-                  <p className="card-images-error" role="alert">
-                    Não foi possível salvar agora. Tente novamente.
-                  </p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   )
 }
