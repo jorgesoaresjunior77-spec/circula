@@ -31,15 +31,15 @@ interface PostCardProps {
   isSaved?: boolean
   onToggleSave?: (saved: boolean) => Promise<{ error: string | null }>
   /**
-   * Feed de Conversa: mostra os comentários direto no card (2–3 de
-   * preview + "Ver mais comentários" + respostas agrupadas), sem
-   * esconder tudo atrás do botão. Sem isso, comportamento clássico
-   * (usado pela Home): a seção de comentários abre/fecha no botão 💬.
+   * Feed de Conversa: os comentários ficam no próprio card, FECHADOS, com
+   * um aviso ("Ver 3 comentários e 2 respostas") para abrir; abertos, trazem
+   * as respostas (também fechadas, com aviso) e o campo para comentar. Sem
+   * isso, comportamento clássico (usado pela Home): a seção de comentários
+   * abre/fecha no botão de comentários.
    */
   inlineConversation?: boolean
-  previewComments?: Comment[]
+  /** Nº de comentários-raiz (os demais, até commentCount, são respostas). */
   topLevelCount?: number
-  replyCountByComment?: Record<string, number>
   /**
    * D3 — "Publicações recentes" da Home: no desktop, a foto fica ao
    * lado do texto (não embaixo), inteira (object-fit: contain, sem
@@ -65,14 +65,14 @@ export function PostCard({
   isSaved,
   onToggleSave,
   inlineConversation = false,
-  previewComments = [],
   topLevelCount = 0,
-  replyCountByComment = {},
   mediaAside = false,
 }: PostCardProps) {
   const name = post.author?.full_name ?? 'Participante'
   const { url: postImageUrl } = useSignedImageUrl(post.image_url)
   const [commentsOpen, setCommentsOpen] = useState(false)
+  // Feed de Conversa: conversa (comentários + respostas) aberta ou fechada.
+  const [threadOpen, setThreadOpen] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
   const [reacting, setReacting] = useState(false)
   const [savingBookmark, setSavingBookmark] = useState(false)
@@ -97,9 +97,15 @@ export function PostCard({
     }
   }
 
+  async function openThread() {
+    setThreadOpen(true)
+    await loadFullThread()
+  }
+
   async function handleCommentButton() {
     if (inlineConversation) {
-      await loadFullThread()
+      if (threadOpen) setThreadOpen(false)
+      else await openThread()
     } else {
       await handleToggleComments()
     }
@@ -138,9 +144,7 @@ export function PostCard({
   const handleReply = (content: string, parentCommentId: string, file?: File | null) =>
     submitComment(content, parentCommentId, file)
 
-  const visibleComments: Comment[] = (comments && comments.length > 0 ? comments : previewComments).flatMap(
-    (c) => [c, ...(c.replies ?? [])],
-  )
+  const visibleComments: Comment[] = (comments ?? []).flatMap((c) => [c, ...(c.replies ?? [])])
   const commentLikes = useCommentLikes(
     visibleComments.map((c) => c.id),
     viewerId ?? null,
@@ -172,9 +176,11 @@ export function PostCard({
   const mediaAsideVariant = mediaAside ? ' post-card--media-aside' : ''
 
   const showClassicComments = !inlineConversation && commentsOpen
-  const remainingThreads = Math.max(0, topLevelCount - previewComments.length)
-  const showSeeMore =
-    inlineConversation && !expanded && commentCount > previewComments.length
+  const replyTotal = Math.max(0, commentCount - topLevelCount)
+  const commentsNotice =
+    topLevelCount > 0 && replyTotal > 0
+      ? `Ver ${topLevelCount} ${topLevelCount === 1 ? 'comentário' : 'comentários'} e ${replyTotal} ${replyTotal === 1 ? 'resposta' : 'respostas'}`
+      : `Ver ${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}`
 
   return (
     <article className={`post-card${cardVariant}${editorialVariant}${mediaAsideVariant}`}>
@@ -244,56 +250,57 @@ export function PostCard({
       <CommentLikesContext.Provider value={commentLikes}>
       {inlineConversation && (
         <div className="post-conversation">
-          {loadingComments && <p className="comment-loading">Carregando conversa...</p>}
-
-          {expanded ? (
-            (comments ?? []).length > 0 ? (
-              <ul className="comment-thread-list">
-                {(comments ?? []).map((thread) => (
-                  <CommentThread
-                    key={thread.id}
-                    comment={thread}
-                    canInteract={canInteract}
-                    onReply={canInteract ? handleReply : undefined}
-                  />
-                ))}
-              </ul>
+          {!threadOpen ? (
+            commentCount > 0 || canInteract ? (
+              <button
+                type="button"
+                className="comment-more"
+                aria-expanded={false}
+                onClick={() => void openThread()}
+              >
+                <CommentIcon size={15} /> {commentCount > 0 ? commentsNotice : 'Comentar'}
+              </button>
             ) : (
-              !loadingComments && (
-                <p className="comment-empty">
-                  Ainda não há comentários. Seja a primeira a comentar!
-                </p>
-              )
+              <p className="comment-empty">Ainda não há comentários.</p>
             )
           ) : (
             <>
-              {previewComments.length > 0 ? (
-                <ul className="comment-thread-list">
-                  {previewComments.map((thread) => (
-                    <CommentThread
-                      key={thread.id}
-                      comment={thread}
-                      canInteract={canInteract}
-                      onReply={canInteract ? handleReply : undefined}
-                      replyCountHint={replyCountByComment[thread.id] ?? 0}
-                      onExpand={loadFullThread}
-                    />
-                  ))}
-                </ul>
-              ) : (
-                <p className="comment-empty">Seja a primeira a comentar</p>
+              {loadingComments && <p className="comment-loading">Carregando conversa...</p>}
+
+              {expanded &&
+                ((comments ?? []).length > 0 ? (
+                  <ul className="comment-thread-list">
+                    {(comments ?? []).map((thread) => (
+                      <CommentThread
+                        key={thread.id}
+                        comment={thread}
+                        canInteract={canInteract}
+                        onReply={canInteract ? handleReply : undefined}
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  !loadingComments && (
+                    <p className="comment-empty">
+                      Ainda não há comentários. Seja a primeira a comentar!
+                    </p>
+                  )
+                ))}
+
+              {canInteract && (
+                <CommentForm onSubmit={(text, file) => submitComment(text, null, file)} />
               )}
 
-              {showSeeMore && (
-                <button type="button" className="comment-more" onClick={loadFullThread}>
-                  <CommentIcon size={15} /> Ver mais comentários
-                  {remainingThreads > 0 ? ` (${remainingThreads})` : ''}
-                </button>
-              )}
+              <button
+                type="button"
+                className="comment-more comment-more--close"
+                aria-expanded={true}
+                onClick={() => setThreadOpen(false)}
+              >
+                Ocultar comentários
+              </button>
             </>
           )}
-
-          {canInteract && <CommentForm onSubmit={(text, file) => submitComment(text, null, file)} />}
         </div>
       )}
 

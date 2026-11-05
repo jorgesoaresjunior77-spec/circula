@@ -4,9 +4,6 @@ import { CommentRow } from './CommentRow'
 import { CommentForm } from './CommentForm'
 import { ReplyIcon } from './icons'
 
-/** Respostas mostradas antes de "Ver mais respostas" (árvore já carregada). */
-const REPLIES_VISIBLE = 2
-
 interface CommentThreadProps {
   comment: Comment
   canInteract: boolean
@@ -16,38 +13,27 @@ interface CommentThreadProps {
     parentCommentId: string,
     imageFile?: File | null,
   ) => Promise<CreateCommentResult>
-  /** Preview do Feed: nº de respostas conhecido antes de carregar a árvore. */
-  replyCountHint?: number
-  /** Preview do Feed: carrega a conversa inteira deste post. */
-  onExpand?: () => void
 }
 
-export function CommentThread({
-  comment,
-  canInteract,
-  onReply,
-  replyCountHint = 0,
-  onExpand,
-}: CommentThreadProps) {
+export function CommentThread({ comment, canInteract, onReply }: CommentThreadProps) {
   const [replying, setReplying] = useState(false)
   // Resposta a uma resposta: fica agrupada sob o comentário-raiz, com @nome.
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null)
   const [showAllReplies, setShowAllReplies] = useState(false)
 
+  // As respostas vêm fechadas, com aviso "Ver N respostas"; ao responder, abrem.
   const replies = comment.replies ?? []
-  const loadedReplyCount = replies.length
-  // no preview a árvore não veio: usamos a contagem conhecida
-  const knownReplyCount = loadedReplyCount > 0 ? loadedReplyCount : replyCountHint
-
-  const visibleReplies = showAllReplies ? replies : replies.slice(0, REPLIES_VISIBLE)
-  const hiddenLoaded = loadedReplyCount - visibleReplies.length
+  const replyCount = replies.length
+  const visibleReplies = showAllReplies ? replies : []
 
   async function handleReplySubmit(
     content: string,
     file?: File | null,
   ): Promise<CreateCommentResult> {
     if (!onReply) return { error: 'Não é possível responder aqui.' }
-    return onReply(content, comment.id, file)
+    const result = await onReply(content, comment.id, file)
+    if (!result.error) setShowAllReplies(true)
+    return result
   }
 
   async function handleReplyToReply(
@@ -56,17 +42,19 @@ export function CommentThread({
     file?: File | null,
   ): Promise<CreateCommentResult> {
     if (!onReply) return { error: 'Não é possível responder aqui.' }
-    return onReply(`@${name} ${content}`, comment.id, file)
+    const result = await onReply(`@${name} ${content}`, comment.id, file)
+    if (!result.error) setShowAllReplies(true)
+    return result
   }
 
   const canReply = canInteract && !!onReply
-  const showPreviewRepliesLink = loadedReplyCount === 0 && knownReplyCount > 0 && !!onExpand
+  const repliesLabel = `${replyCount} ${replyCount === 1 ? 'resposta' : 'respostas'}`
 
   return (
     <li className="comment-thread">
       <CommentRow comment={comment} variant="root" />
 
-      {(canReply || showPreviewRepliesLink) && (
+      {(canReply || replyCount > 0) && (
         <div className="comment-thread-actions">
           {canReply && (
             <button
@@ -77,10 +65,14 @@ export function CommentThread({
               <ReplyIcon size={13} /> Responder
             </button>
           )}
-          {showPreviewRepliesLink && (
-            <button type="button" className="comment-reply-action" onClick={onExpand}>
-              <ReplyIcon size={13} /> Ver {knownReplyCount}{' '}
-              {knownReplyCount === 1 ? 'resposta' : 'respostas'}
+          {replyCount > 0 && (
+            <button
+              type="button"
+              className="comment-reply-action"
+              aria-expanded={showAllReplies}
+              onClick={() => setShowAllReplies((value) => !value)}
+            >
+              <ReplyIcon size={13} /> {showAllReplies ? 'Ocultar respostas' : `Ver ${repliesLabel}`}
             </button>
           )}
         </div>
@@ -132,15 +124,6 @@ export function CommentThread({
         </ul>
       )}
 
-      {hiddenLoaded > 0 && (
-        <button
-          type="button"
-          className="comment-reply-more"
-          onClick={() => setShowAllReplies(true)}
-        >
-          Ver mais {hiddenLoaded} {hiddenLoaded === 1 ? 'resposta' : 'respostas'}
-        </button>
-      )}
     </li>
   )
 }

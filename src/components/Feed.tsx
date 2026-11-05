@@ -4,7 +4,11 @@ import { PostComposer } from './PostComposer'
 import { PostCard } from './PostCard'
 import { EmptyState } from './EmptyState'
 
-/** Publicações por página no Feed de Conversa. */
+/**
+ * Mensagens principais abertas por vez no Feed de Conversa. Sempre aparecem
+ * ao menos 6 (se existirem); as seguintes ficam atrás de "Ver mais mensagens".
+ * Comentários e respostas de cada mensagem vêm fechados, com aviso para abrir.
+ */
 const FEED_PAGE_SIZE = 6
 
 interface FeedProps {
@@ -41,9 +45,7 @@ export function Feed({
     reactedPostIds,
     commentCounts,
     topLevelCounts,
-    replyCountByComment,
     commentsByPost,
-    previewCommentsByPost,
     toggleReaction,
     fetchComments,
     addComment,
@@ -52,7 +54,6 @@ export function Feed({
     loadingMore,
   } = usePosts(communityId, authorId, refreshToken, circleId ?? null, {
     pageSize: FEED_PAGE_SIZE,
-    inlineConversation: true,
   })
 
   const { savedPostIds, toggleSavedPost } = useSavedPostIds(authorId)
@@ -104,9 +105,7 @@ export function Feed({
                 }
                 viewerId={authorId}
                 inlineConversation
-                previewComments={previewCommentsByPost[post.id] ?? []}
                 topLevelCount={topLevelCounts[post.id] ?? 0}
-                replyCountByComment={replyCountByComment}
                 isSaved={savedPostIds.has(post.id)}
                 onToggleSave={(saved) => toggleSavedPost(post.id, saved)}
               />

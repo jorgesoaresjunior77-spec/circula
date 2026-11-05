@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import type { CreateCommentResult } from '../types/post'
 import { EmojiPicker } from './EmojiPicker'
 import { CheckIcon, PhotoIcon } from './icons'
+import { FeedPhotoCropper } from './FeedPhotoCropper'
 
 interface CommentFormProps {
   onSubmit: (content: string, imageFile?: File | null) => Promise<CreateCommentResult>
@@ -30,6 +31,8 @@ export function CommentForm({
   const inputRef = useRef<HTMLInputElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
+  // Foto escolhida, esperando o recorte 4:5 (estilo Instagram).
+  const [cropping, setCropping] = useState<File | null>(null)
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus()
@@ -83,10 +86,20 @@ export function CommentForm({
         accept="image/*"
         hidden
         onChange={(e) => {
-          setFile(e.target.files?.[0] ?? null)
+          setCropping(e.target.files?.[0] ?? null)
           e.target.value = ''
         }}
       />
+      {cropping && (
+        <FeedPhotoCropper
+          file={cropping}
+          onCancel={() => setCropping(null)}
+          onDone={(cropped) => {
+            setCropping(null)
+            setFile(cropped)
+          }}
+        />
+      )}
 
       <button type="submit" disabled={loading || (!content.trim() && !file)}>
         {loading ? pendingLabel : submitLabel}

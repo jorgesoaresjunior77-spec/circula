@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { CreatePostResult } from '../types/post'
 import { EmojiPicker } from './EmojiPicker'
+import { FeedPhotoCropper } from './FeedPhotoCropper'
 
 interface PostComposerProps {
   onPublish: (content: string, imageUrl: string | null) => Promise<CreatePostResult>
@@ -23,6 +24,8 @@ export function PostComposer({
   const [content, setContent] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  // Foto escolhida, esperando o recorte 4:5 (estilo Instagram).
+  const [cropping, setCropping] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Só apresentação: a linha-convite abre o formulário de sempre — nada
@@ -43,6 +46,11 @@ export function PostComposer({
     if (!file) return
 
     setError(null)
+    setCropping(file)
+  }
+
+  function applyCroppedImage(file: File) {
+    setCropping(null)
     setImageFile(file)
     setImagePreview((prev) => {
       if (prev) URL.revokeObjectURL(prev)
@@ -162,6 +170,14 @@ export function PostComposer({
         />
 
         {error && <p className="auth-error">{error}</p>}
+
+        {cropping && (
+          <FeedPhotoCropper
+            file={cropping}
+            onCancel={() => setCropping(null)}
+            onDone={applyCroppedImage}
+          />
+        )}
 
         <button type="submit" className="post-composer-submit" disabled={loading || !content.trim()}>
           {loading ? 'Publicando...' : 'Publicar'}

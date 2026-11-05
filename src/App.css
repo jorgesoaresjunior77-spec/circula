@@ -16913,3 +16913,48 @@ button.card:focus-visible {
 .circ-viewport {
   touch-action: pan-x pan-y pinch-zoom;
 }
+
+/* ---------- Conversa do feed ----------
+   Fotos sempre em 4:5, como no Instagram, no celular e no computador (no
+   computador com largura máxima, para o retrato não ficar gigante). O
+   recorte é feito por quem publica; fotos antigas preenchem o 4:5. */
+.post-card.post-card--editorial .post-image {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  max-height: none;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 6px;
+  background-color: var(--surface-sunken);
+}
+.post-composer-image img {
+  width: 100%;
+  max-width: 280px;
+  max-height: none;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.comment-image {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+/* Comentários e respostas fechados: aviso para abrir */
+.post-conversation .comment-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--circula-mocha);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+.post-conversation .comment-more:hover { text-decoration: underline; }
+.post-conversation .comment-more--close { color: var(--graphite-soft, #6b6560); font-size: 13px; }
