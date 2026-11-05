@@ -375,3 +375,76 @@ describe('useDragCarousel — autoplay no desktop (teto de deltaSeconds por quad
     expect(advanced).toBeLessThanOrEqual(1.6 + 1e-6)
   })
 })
+
+// Reposicionar o ciclo no meio da inércia cancelava o movimento do navegador:
+// a faixa parava de repente, "batendo". Agora espera a rolagem assentar.
+describe('useDragCarousel — reposicionamento do ciclo não corta a inércia', () => {
+  beforeEach(() => {
+    resizeCallback = null
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+    vi.useFakeTimers()
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
+      setTimeout(() => cb(performance.now()), 16) as unknown as number,
+    )
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => clearTimeout(id))
+    stubMatchMedia(false)
+  })
+
+  afterEach(() => {
+    cleanup()
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  function setup() {
+    const { container } = render(createElement(TestCarousel, { copies: 3 }))
+    const viewport = container.querySelector('[data-testid="viewport"]') as HTMLElement
+    stubLayout(viewport)
+    return viewport
+  }
+
+  it('durante a rolagem não mexe no scrollLeft, mesmo fora da cópia do meio', () => {
+    const viewport = setup()
+
+    viewport.scrollLeft = 250 // < 0.5 * SEQ_WIDTH (300), mas longe da borda real
+    viewport.dispatchEvent(scrollEvent())
+
+    expect(viewport.scrollLeft).toBe(250)
+  })
+
+  it('quando a rolagem assenta, reposiciona para a cópia do meio (uma sequência inteira)', () => {
+    const viewport = setup()
+
+    viewport.scrollLeft = 250
+    viewport.dispatchEvent(scrollEvent())
+    vi.advanceTimersByTime(120) // WRAP_IDLE_MS
+
+    expect(viewport.scrollLeft).toBe(250 + SEQ_WIDTH)
+  })
+
+  it('novos eventos de rolagem adiam o reposicionamento (inércia ainda andando)', () => {
+    const viewport = setup()
+
+    viewport.scrollLeft = 250
+    viewport.dispatchEvent(scrollEvent())
+    vi.advanceTimersByTime(100)
+    viewport.scrollLeft = 240
+    viewport.dispatchEvent(scrollEvent())
+    vi.advanceTimersByTime(100)
+
+    expect(viewport.scrollLeft).toBe(240) // ainda não passou 120ms desde o último evento
+
+    vi.advanceTimersByTime(30)
+    expect(viewport.scrollLeft).toBe(240 + SEQ_WIDTH)
+  })
+
+  it('perto da borda real do conteúdo reposiciona na hora, para nunca bater nela', () => {
+    const viewport = setup()
+
+    viewport.scrollLeft = 40 // < 12% de SEQ_WIDTH (72)
+    viewport.dispatchEvent(scrollEvent())
+
+    expect(viewport.scrollLeft).toBe(40 + SEQ_WIDTH)
+  })
+})

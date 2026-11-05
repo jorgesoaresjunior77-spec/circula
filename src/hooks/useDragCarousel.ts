@@ -92,6 +92,18 @@ const SETTLE_DEBOUNCE_MS = 140
  *  motion: reduce`. */
 const SETTLE_DURATION_MS = 220
 
+/** Tempo (ms) sem eventos de rolagem até reposicionar o ciclo. Escrever em
+ *  `scrollLeft` no meio da rolagem com inércia (swipe no celular, roda ou
+ *  trackpad no desktop) CANCELA a inércia do navegador: o movimento parava
+ *  de repente, como se batesse numa parede. Por isso o reposicionamento
+ *  (invisível, as cópias são idênticas) espera a rolagem assentar. */
+const WRAP_IDLE_MS = 120
+
+/** Fração da largura de uma sequência perto das bordas REAIS do conteúdo em
+ *  que o reposicionamento acontece na hora, mesmo com inércia: melhor um
+ *  tranco raro do que bater de verdade na borda e parar. */
+const EDGE_GUARD = 0.12
+
 /** Teto (s) do `deltaSeconds` de UM quadro do autoplay — proteção
  *  contra "salto de catch-up": se o navegador atrasar/pular quadros
  *  (aba perdendo foco, trabalho pesado na main thread, GC), o próximo
@@ -211,6 +223,7 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     }
 
     let activePointer: number | null = null
+    let wrapTimer: ReturnType<typeof setTimeout> | null = null
     let lastX = 0
     let travelled = 0
     let swallowClick = false
@@ -405,6 +418,29 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       if (activePointer !== null) event.preventDefault()
     }
 
+    // Reposiciona o ciclo sem brigar com a inércia nativa: espera a rolagem
+    // assentar (WRAP_IDLE_MS sem eventos). Só reposiciona na hora se a
+    // posição chegou perto de uma borda real do conteúdo.
+    const wrapWhenIdle = () => {
+      const width = loopWidthRef.current
+      if (width <= 0) return
+      const position = viewport.scrollLeft
+      const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth)
+      if (position < width * EDGE_GUARD || position > maxScroll - width * EDGE_GUARD) {
+        if (wrapTimer !== null) {
+          clearTimeout(wrapTimer)
+          wrapTimer = null
+        }
+        wrap()
+        return
+      }
+      if (wrapTimer !== null) clearTimeout(wrapTimer)
+      wrapTimer = setTimeout(() => {
+        wrapTimer = null
+        wrap()
+      }, WRAP_IDLE_MS)
+    }
+
     // Swipe, roda, trackpad, teclado: o ciclo é fechado aqui.
     const onScroll = () => {
       // Evita reagir aos PRÓPRIOS eventos `scroll` disparados pela
@@ -412,7 +448,7 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       // a cada quadro por conta própria; rearmar o debounce aqui, no
       // meio da própria correção, só atrasaria sem motivo.
       if (isSnapping) return
-      if (activePointer === null) wrap()
+      if (activePointer === null) wrapWhenIdle()
       // Rearma o encaixe a cada evento de rolagem de origem touch
       // (inércia ainda em andamento) — só dispara de fato depois de
       // `SETTLE_DEBOUNCE_MS` sem nenhum evento novo, isto é, quando a
@@ -439,6 +475,11 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let rafId: number | null = null
     let lastFrameTime: number | null = null
+    // O navegador arredonda `scrollLeft` para pixels do aparelho: somar ~0,5px
+    // por quadro direto nele pode nunca sair do lugar (ou andar aos trancos).
+    // A posição fracionária é acumulada aqui e só a atribuição é arredondada.
+    let autoPosition = 0
+    let lastAssigned = Number.NaN
 
     const tick = (time: number) => {
       if (lastFrameTime === null) lastFrameTime = time
@@ -449,7 +490,12 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       lastFrameTime = time
 
       if (loopRef.current && !pausedRef.current && activePointer === null) {
-        viewport.scrollLeft += AUTOPLAY_PX_PER_SEC * deltaSeconds
+        // Se outra coisa moveu a faixa (arrasto, reposicionamento do ciclo),
+        // recomeça a contar da posição real.
+        if (!(Math.abs(viewport.scrollLeft - lastAssigned) <= 1.5)) autoPosition = viewport.scrollLeft
+        autoPosition += AUTOPLAY_PX_PER_SEC * deltaSeconds
+        viewport.scrollLeft = autoPosition
+        lastAssigned = viewport.scrollLeft
         wrap()
       }
       rafId = requestAnimationFrame(tick)
@@ -475,6 +521,7 @@ export function useDragCarousel(itemCount: number): DragCarousel {
       if (resumeTimer !== null) clearTimeout(resumeTimer)
       clearSettleTimer()
       cancelSnap()
+      if (wrapTimer !== null) clearTimeout(wrapTimer)
       viewport.removeEventListener('pointerenter', onPointerEnter)
       viewport.removeEventListener('pointerleave', onPointerLeave)
       viewport.removeEventListener('pointerdown', onTouchStart)
