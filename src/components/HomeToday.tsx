@@ -20,6 +20,7 @@ import { MagazineManager } from './MagazineManager'
 import { HomeEditorialCards } from './HomeEditorialCards'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
 import { HomeWellnessCards } from './HomeWellnessCards'
+import { HomeSubscriptionCard } from './HomeSubscriptionCard'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -367,6 +368,8 @@ export function HomeToday({
         onNavigate={onNavigate}
         canManageInspirations={profile.role === 'professional'}
       />
+
+      <HomeSubscriptionCard cover={lojaCover} onNavigate={onNavigate} />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.
