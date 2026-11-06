@@ -132,6 +132,14 @@ export function CalendarIcon({ size = 20, className }: IconProps) {
   )
 }
 
+export function DropIcon({ size = 20, className }: IconProps) {
+  return (
+    <Icon size={size} className={className}>
+      <path d="M12 3.5C9.2 7 6 10.4 6 14.2a6 6 0 0 0 12 0C18 10.4 14.8 7 12 3.5Z" />
+    </Icon>
+  )
+}
+
 export function FeedIcon({ size = 20, className }: IconProps) {
   return (
     <Icon size={size} className={className}>

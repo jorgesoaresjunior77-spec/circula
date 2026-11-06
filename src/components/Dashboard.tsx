@@ -26,6 +26,7 @@ import { EventManager } from './EventManager'
 import { CircleManager } from './CircleManager'
 import { GardenPage } from './GardenPage'
 import { AgendaPage } from './AgendaPage'
+import { WaterPage } from './WaterPage'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -60,6 +61,7 @@ import {
   BookIcon,
   CalendarIcon,
   CirclesIcon,
+  DropIcon,
   FeedIcon,
   HomeIcon,
   MessageIcon,
@@ -304,6 +306,13 @@ export function Dashboard({
       key: 'agenda',
       label: 'Agenda',
       Icon: CalendarIcon,
+      inBottomNav: false,
+    })
+    // Calculadora de água — aberta pelo card fino da Home.
+    navItems.push({
+      key: 'agua',
+      label: 'Água',
+      Icon: DropIcon,
       inBottomNav: false,
     })
     // Fase 13 — Loja acessível também à Member (antes só existia como
@@ -769,6 +778,11 @@ export function Dashboard({
           isOwner={profile.role === 'professional'}
         />
       )
+    }
+
+    // Calculadora de água — dado pessoal, não depende de comunidade em foco.
+    if (effectiveNav === 'agua') {
+      return <WaterPage profileId={profile.id} />
     }
 
     // Agenda do membro — não depende de comunidade em foco.

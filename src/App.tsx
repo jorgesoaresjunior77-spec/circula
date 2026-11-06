@@ -12,6 +12,7 @@ import type { NavKey } from './components/PrimaryNav'
 import './App.css'
 import './invite-install.css'
 import './home-calendar.css'
+import './wellness.css'
 
 function App() {
   const {

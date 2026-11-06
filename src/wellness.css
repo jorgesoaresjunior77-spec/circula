@@ -1,0 +1,282 @@
+/* Bem-estar: cards finos da Home e a tela da calculadora de água. */
+
+/* ---- Cards horizontais, finos e compactos --------------------------- */
+.home-wellness {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.home-wellness .home-wellness-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  color: var(--graphite-soft);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-wellness .home-wellness-card:focus-visible {
+  outline: 2px solid var(--graphite);
+  outline-offset: 2px;
+}
+
+.home-wellness .home-wellness-icon {
+  display: inline-flex;
+  color: var(--circula-mocha);
+}
+
+.home-wellness .home-wellness-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.home-wellness .home-wellness-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--graphite);
+}
+
+.home-wellness .home-wellness-sub {
+  font-size: 13px;
+  color: var(--n-600);
+}
+
+.home-wellness .home-wellness-chevron {
+  color: var(--n-600);
+}
+
+/* ---- Calculadora de água -------------------------------------------- */
+.water-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.water-page .water-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.water-page .water-panel h3,
+.water-page .water-panel h4 {
+  margin: 0;
+}
+
+.water-page .water-muted {
+  font-size: 14px;
+  color: var(--n-700);
+}
+
+.water-page .water-note {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--n-700);
+}
+
+.water-page .water-goal {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 300;
+  color: var(--graphite);
+}
+
+.water-page .water-goal span {
+  font-size: 16px;
+  color: var(--n-600);
+}
+
+.water-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.water-page .water-weight-form,
+.water-page .water-custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.water-page .water-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.water-page .water-primary {
+  margin: 0;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--circula-mocha);
+  color: var(--c-white);
+  font: inherit;
+  font-size: 14px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.water-page .water-primary:disabled,
+.water-page .water-chip:disabled {
+  opacity: 0.6;
+}
+
+.water-page .water-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--graphite);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.water-page .water-today {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.water-page .water-bottle {
+  width: 96px;
+  flex: none;
+}
+
+.water-page .water-bottle-empty {
+  fill: var(--n-100);
+}
+
+.water-page .water-bottle-fill {
+  fill: #8ec5d6;
+  transition: y 0.6s ease, height 0.6s ease;
+}
+
+.water-page .water-bottle-outline {
+  stroke: var(--circula-mocha);
+  stroke-width: 2;
+}
+
+.water-page .water-bottle-cap {
+  fill: var(--circula-mocha);
+}
+
+.water-page .water-bottle--celebrate {
+  animation: water-pop 0.9s ease-out 1;
+}
+
+@keyframes water-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-page .water-bottle--celebrate {
+    animation: none;
+  }
+  .water-page .water-bottle-fill {
+    transition: none;
+  }
+}
+
+.water-page .water-total {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--graphite);
+}
+
+.water-page .water-done {
+  margin-top: var(--space-2);
+  color: #3d7f45;
+  font-weight: 600;
+}
+
+.water-page .water-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.water-page .water-chip {
+  margin: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--circula-mocha);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--circula-mocha);
+  font: inherit;
+  font-size: 14px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.water-page .water-custom {
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.water-page .water-custom label {
+  flex: 1;
+}
+
+.water-page .water-logs,
+.water-page .water-history {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.water-page .water-logs li,
+.water-page .water-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.water-page .water-log-actions,
+.water-page .water-log-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.water-page .water-log-edit input {
+  width: 90px;
+}
