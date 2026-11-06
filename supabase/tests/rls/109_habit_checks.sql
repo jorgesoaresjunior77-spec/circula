@@ -8,6 +8,11 @@
 -- só os 7 hábitos conhecidos. Tudo em ROLLBACK.
 -- =====================================================================
 
+-- As personas podem já ter checks REAIS de hábitos (o app está em uso). Dentro
+-- desta transação (ROLLBACK no fim) eles são limpos, para o fixture não colidir
+-- com eles e as contagens serem determinísticas.
+delete from public.habit_checks where profile_id in (pg_temp.fx('member'), pg_temp.fx('prof'));
+
 -- Dados de apoio (como superusuário). O trigger força "hoje"; para criar um
 -- check de ONTEM ele é desligado só durante esta montagem.
 insert into public.habit_checks (profile_id, habit) values (pg_temp.fx('member'), 'agua');

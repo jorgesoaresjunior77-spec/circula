@@ -88,6 +88,20 @@
 -- existente em vez de criar um sintético.
 -- =====================================================================
 
+-- Professional B SINTÉTICA, criada só dentro desta transação (ROLLBACK no fim).
+-- A conta de teste real que este cenário usava ("Teste Profissional 15.1",
+-- 335783ca…) foi removida na limpeza de contas de teste; depender de uma conta
+-- real que alguém pode apagar quebrava a suíte. O trigger de escalonamento de
+-- papel é desligado e religado na mesma transação (padrão já usado no projeto
+-- para promover contas), e o mesmo UUID é mantido para o resto do cenário.
+insert into auth.users (id, instance_id, aud, role, email, created_at, updated_at)
+values ('335783ca-e125-4aaf-91c3-0ded657723fb', '00000000-0000-0000-0000-000000000000',
+        'authenticated', 'authenticated', 'rls-suite-prof-b@example.invalid', now(), now());
+alter table public.profiles disable trigger profiles_prevent_role_escalation;
+update public.profiles set role = 'professional', full_name = '[rls-suite] Professional B'
+ where id = '335783ca-e125-4aaf-91c3-0ded657723fb';
+alter table public.profiles enable trigger profiles_prevent_role_escalation;
+
 insert into public.professional_billing_accounts
   (id, profile_id, asaas_wallet_id, payout_method, verified_at, asaas_account_name, asaas_account_status, verification_method)
 values

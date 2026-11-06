@@ -64,6 +64,14 @@ insert into public.communities (id, owner_id, name, slug, is_discoverable)
 values (pg_temp.fx('commC'), pg_temp.fx('master'),
         '[rls-suite] Comunidade C (engagement)', 'rls-suite-c-engagement', false);
 
+-- publish_engagement_command() sorteia (order by random()) UM comando ativo da
+-- comunidade. A comunidade A já tem comandos REAIS ativos, então o sorteio podia
+-- cair num deles e quebrar a asserção do comando de fixture. Dentro desta
+-- transação (ROLLBACK no fim) os reais são desativados para o fixture ser o único.
+update public.community_engagement_commands
+   set is_active = false
+ where community_id = pg_temp.fx('commA') and is_active;
+
 insert into public.community_engagement_commands (id, community_id, title, content, is_active, created_by)
 values
   ('9e100000-0000-4000-8000-000000000c01', pg_temp.fx('commA'), '[rls-suite] comando A1', 'Conte algo bom', true, pg_temp.fx('prof')),

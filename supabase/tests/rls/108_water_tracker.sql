@@ -8,6 +8,12 @@
 -- ou apagar só vale para hoje. Tudo em ROLLBACK.
 -- =====================================================================
 
+-- As personas podem já ter peso e registros REAIS de água (o app está em uso).
+-- Dentro desta transação (ROLLBACK no fim) eles são limpos, para o fixture não
+-- colidir com eles e as contagens serem determinísticas.
+delete from public.water_logs where profile_id in (pg_temp.fx('member'), pg_temp.fx('prof'));
+delete from public.water_profiles where profile_id in (pg_temp.fx('member'), pg_temp.fx('prof'));
+
 -- Dados de apoio (inseridos como superusuário, antes de assumir persona).
 insert into public.water_profiles (profile_id, weight_kg)
 values (pg_temp.fx('member'), 62.5), (pg_temp.fx('prof'), 70);

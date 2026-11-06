@@ -46,6 +46,12 @@ begin
   on conflict (name) do update set kind='rpc', expect=excluded.expect, got=excluded.got, ok=excluded.ok, gap=excluded.gap;
 end $$;
 
+-- A comunidade A pode já ter um link ativo REAL (só é permitido um ativo por
+-- comunidade). Dentro desta transação (ROLLBACK no fim) ele é revogado para o
+-- fixture não colidir com ele.
+update public.community_invite_links set revoked_at = now()
+ where community_id = pg_temp.fx('commA') and revoked_at is null;
+
 insert into public.community_invite_links (community_id, token, created_by)
 values (pg_temp.fx('commA'), 'rls-suite-token-ativo', pg_temp.fx('prof'));
 
