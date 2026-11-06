@@ -31,4 +31,14 @@ describe('HomeWellnessCards — cards finos de bem-estar', () => {
       'respiracao',
     ])
   })
+
+  it('só a profissional vê o acesso às mensagens do dia', () => {
+    const onNavigate = vi.fn()
+    const { rerender } = render(<HomeWellnessCards onNavigate={onNavigate} />)
+    expect(screen.queryByRole('button', { name: /Mensagens do dia/ })).not.toBeInTheDocument()
+
+    rerender(<HomeWellnessCards onNavigate={onNavigate} canManageInspirations />)
+    fireEvent.click(screen.getByRole('button', { name: /Mensagens do dia/ }))
+    expect(onNavigate).toHaveBeenCalledWith('inspiracoes')
+  })
 })

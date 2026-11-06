@@ -363,7 +363,10 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
-      <HomeWellnessCards onNavigate={onNavigate} />
+      <HomeWellnessCards
+        onNavigate={onNavigate}
+        canManageInspirations={profile.role === 'professional'}
+      />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.

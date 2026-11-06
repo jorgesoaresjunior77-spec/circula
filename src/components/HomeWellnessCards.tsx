@@ -27,12 +27,17 @@ const CARDS: WellnessCard[] = [
 
 interface HomeWellnessCardsProps {
   onNavigate: (key: NavKey) => void
+  /** Profissional: acesso ao cadastro das mensagens do pop-up diário. */
+  canManageInspirations?: boolean
 }
 
-export function HomeWellnessCards({ onNavigate }: HomeWellnessCardsProps) {
+export function HomeWellnessCards({ onNavigate, canManageInspirations = false }: HomeWellnessCardsProps) {
+  const cards = canManageInspirations
+    ? [...CARDS, { key: 'inspiracoes' as NavKey, title: 'Mensagens do dia', subtitle: 'Cadastro do pop-up diário', Icon: SparkleIcon }]
+    : CARDS
   return (
     <section className="home-wellness" aria-label="Bem-estar">
-      {CARDS.map(({ key, title, subtitle, Icon }) => (
+      {cards.map(({ key, title, subtitle, Icon }) => (
         <button key={key} type="button" className="home-wellness-card" onClick={() => onNavigate(key)}>
           <span className="home-wellness-icon" aria-hidden="true">
             <Icon size={22} />

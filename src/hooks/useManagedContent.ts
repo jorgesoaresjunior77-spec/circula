@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 // com criar/editar/excluir para quem gerencia. A RLS decide o que cada
 // pessoa vê (membro: só publicado) e quem escreve (só a dona).
 
-export type ManagedTable = 'reading_tips' | 'wellness_sessions'
+export type ManagedTable = 'reading_tips' | 'wellness_sessions' | 'daily_inspirations'
 
 export function useManagedContent<T extends { id: string }>(
   table: ManagedTable,

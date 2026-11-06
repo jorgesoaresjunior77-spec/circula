@@ -30,6 +30,8 @@ import { WaterPage } from './WaterPage'
 import { AntesDeTudoPage } from './AntesDeTudoPage'
 import { ReadingTipsPage } from './ReadingTipsPage'
 import { BreathingPage } from './BreathingPage'
+import { InspirationManagerPage } from './InspirationManagerPage'
+import { DailyInspiration } from './DailyInspiration'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -328,6 +330,15 @@ export function Dashboard({
       Icon: HeartIcon,
       inBottomNav: false,
     })
+    // Mensagens do dia (pop-up diário) — só a profissional cadastra.
+    if (profile?.role === 'professional') {
+      navItems.push({
+        key: 'inspiracoes',
+        label: 'Mensagens do dia',
+        Icon: SparkleIcon,
+        inBottomNav: false,
+      })
+    }
     // ANTES DE TUDO — ritual diário de hábitos, aberto pelo card fino da Home.
     navItems.push({
       key: 'antes-de-tudo',
@@ -852,6 +863,22 @@ export function Dashboard({
       )
     }
 
+    // Mensagens do dia — cadastro das citações/textos do pop-up diário.
+    if (effectiveNav === 'inspiracoes' && profile.role === 'professional') {
+      if (!resolvedCirclesCommunityId) {
+        return (
+          <>
+            {renderCommunityPicker(
+              'Mensagens do dia · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
+          </>
+        )
+      }
+      return <InspirationManagerPage communityId={resolvedCirclesCommunityId} />
+    }
+
     // Agenda do membro — não depende de comunidade em foco.
     if (effectiveNav === 'agenda') {
       return <AgendaPage profileId={profile.id} />
@@ -1160,6 +1187,20 @@ export function Dashboard({
       )}
 
       {showInstallGuide && <InstallAppGuide onClose={() => setShowInstallGuide(false)} />}
+
+      {/* Pop-up diário de inspiração — uma vez por dia por pessoa; espera
+          o onboarding, o tour e o guia de instalação terminarem. */}
+      {profile && profile.role !== 'master' && (
+        <DailyInspiration
+          communityId={railCommunity?.id ?? null}
+          profileId={profile.id}
+          suppressed={
+            showTour ||
+            showInstallGuide ||
+            (profile.role === 'member' && profile.onboarding_completed_at === null)
+          }
+        />
+      )}
     </section>
   )
 }

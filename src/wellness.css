@@ -616,3 +616,95 @@ button.agenda-danger {
   align-items: center;
   gap: var(--space-3);
 }
+
+/* ---- Pop-up diário de inspiração ----------------------------------- */
+.inspiration-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: rgba(30, 24, 20, 0.45);
+}
+
+.inspiration-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8, 40px) var(--space-5) var(--space-6);
+  border-radius: 24px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.inspiration-modal .inspiration-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.inspiration-modal .inspiration-text {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--graphite);
+  white-space: pre-line;
+}
+
+.inspiration-modal .inspiration-author {
+  margin-top: var(--space-4);
+  font-size: 14px;
+  color: var(--n-600);
+}
+
+.inspiration-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.inspiration-page .inspiration-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inspiration-page .inspiration-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.inspiration-page .inspiration-item-text {
+  white-space: pre-line;
+}
+
+.inspiration-page .inspiration-item-meta {
+  font-size: 13px;
+  color: var(--n-600);
+}
