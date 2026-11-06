@@ -84,3 +84,41 @@ export function weekTitle(days: CalendarDay[]): string {
   }
   return `${MONTH_LABELS[first.month - 1]} ${first.year} · ${MONTH_LABELS[last.month - 1]} ${last.year}`
 }
+
+/** Dia (`YYYY-MM-DD`) -> partes numéricas. */
+export function parseIso(iso: string): { year: number; month: number; day: number } {
+  const [year, month, day] = iso.split('-').map(Number)
+  return { year, month, day }
+}
+
+/** `YYYY-MM-DD` somando `n` dias (n pode ser negativo). */
+export function addDaysIso(iso: string, n: number): string {
+  const { year, month, day } = parseIso(iso)
+  const d = new Date(Date.UTC(year, month - 1, day) + n * 86_400_000)
+  return toIso(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate())
+}
+
+/**
+ * Grade do mês, segunda a domingo: cada linha é uma semana; os dias de
+ * fora do mês (início e fim da grade) vêm marcados com `inMonth: false`.
+ */
+export function monthGrid(
+  year: number,
+  month: number,
+  today: { year: number; month: number; day: number },
+): (CalendarDay & { inMonth: boolean })[][] {
+  const rows: (CalendarDay & { inMonth: boolean })[][] = []
+  for (let offset = 0; offset < 6; offset += 1) {
+    const week = weekDays({ year, month, day: 1 }, offset)
+    // A segunda-feira de uma semana seguinte já caiu no mês que vem: acabou.
+    if (offset > 0 && week[0].month !== month) break
+    rows.push(
+      week.map((d) => ({
+        ...d,
+        inMonth: d.month === month && d.year === year,
+        isToday: d.year === today.year && d.month === today.month && d.day === today.day,
+      })),
+    )
+  }
+  return rows
+}

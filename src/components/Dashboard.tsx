@@ -773,7 +773,7 @@ export function Dashboard({
 
     // Agenda do membro — não depende de comunidade em foco.
     if (effectiveNav === 'agenda') {
-      return <AgendaPage />
+      return <AgendaPage profileId={profile.id} />
     }
 
     // Meu Jardim — Member participa, marca atividades concluídas e
@@ -803,6 +803,7 @@ export function Dashboard({
           <GardenPage
             communityId={resolvedCirclesCommunityId}
             profileId={profile.id}
+            onOpenAgenda={() => handleNavigate('agenda')}
             isOwner={profile.role === 'professional'}
             onChecked={homeBadges.reload}
           />

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { todayParts, weekDays, weekTitle } from './weekCalendar'
+import { addDaysIso, monthGrid, todayParts, weekDays, weekTitle } from './weekCalendar'
 
 // 5/11/2026 é quinta-feira.
 const QUINTA = { year: 2026, month: 11, day: 5 }
@@ -88,5 +88,47 @@ describe('todayParts — usa o fuso de São Paulo, não o do aparelho', () => {
 
   it('12:00 UTC já é o mesmo dia', () => {
     expect(todayParts(new Date('2026-11-06T12:00:00Z'))).toEqual({ year: 2026, month: 11, day: 6 })
+  })
+})
+
+describe('monthGrid — grade do mês, segunda a domingo', () => {
+  const hoje = { year: 2026, month: 11, day: 5 }
+
+  it('novembro de 2026: começa na segunda 26/10 e termina no domingo 6/12', () => {
+    const grid = monthGrid(2026, 11, hoje)
+    expect(grid[0][0].iso).toBe('2026-10-26')
+    expect(grid[grid.length - 1][6].iso).toBe('2026-12-06')
+    expect(grid.every((row) => row.length === 7)).toBe(true)
+  })
+
+  it('marca os dias de fora do mês e só o dia de hoje', () => {
+    const grid = monthGrid(2026, 11, hoje).flat()
+    expect(grid.filter((d) => !d.inMonth).every((d) => d.month !== 11)).toBe(true)
+    expect(grid.filter((d) => d.inMonth)).toHaveLength(30)
+    expect(grid.filter((d) => d.isToday).map((d) => d.iso)).toEqual(['2026-11-05'])
+  })
+
+  it('mês que começa na segunda não tem linha sobrando antes do dia 1 (junho/2026)', () => {
+    const grid = monthGrid(2026, 6, hoje)
+    expect(grid[0][0].iso).toBe('2026-06-01')
+    expect(grid[0][0].inMonth).toBe(true)
+  })
+
+  it('fevereiro de 2027 (28 dias, começa na segunda) tem exatamente 4 semanas', () => {
+    expect(monthGrid(2027, 2, hoje)).toHaveLength(4)
+  })
+
+  it('um mês nunca passa de 6 linhas', () => {
+    for (let m = 1; m <= 12; m += 1) {
+      expect(monthGrid(2026, m, hoje).length).toBeLessThanOrEqual(6)
+    }
+  })
+})
+
+describe('addDaysIso', () => {
+  it('soma e subtrai dias atravessando mês e ano', () => {
+    expect(addDaysIso('2026-12-31', 1)).toBe('2027-01-01')
+    expect(addDaysIso('2026-03-01', -1)).toBe('2026-02-28')
+    expect(addDaysIso('2026-11-05', 7)).toBe('2026-11-12')
   })
 })

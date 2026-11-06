@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { daysInMonth, useGardenMonth } from '../hooks/useGardenMonth'
 import { MonthFlower, YearTree } from './GardenArt'
+import { HomeWeekCalendar } from './HomeWeekCalendar'
 
 export const MONTH_NAMES = [
   'Janeiro',
@@ -23,10 +24,12 @@ interface GardenPageProps {
   isOwner: boolean
   /** Avisa o resto do app (bolinha do card) que o check do dia mudou. */
   onChecked?: () => void
+  /** Abre a agenda completa (o calendário compacto do topo leva até ela). */
+  onOpenAgenda?: () => void
 }
 
 // Página do Meu Jardim: flor do mês e árvore do ano, uma embaixo da outra.
-export function GardenPage({ communityId, profileId, isOwner, onChecked }: GardenPageProps) {
+export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenAgenda }: GardenPageProps) {
   const g = useGardenMonth(communityId, profileId)
   const [busy, setBusy] = useState(false)
   const current = g.current
@@ -54,6 +57,8 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked }: Garde
   return (
     <section className="garden-page">
       <h2>Meu Jardim</h2>
+
+      {onOpenAgenda && <HomeWeekCalendar onOpen={onOpenAgenda} />}
 
       <article className="garden-panel">
         <h3>
