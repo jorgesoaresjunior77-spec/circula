@@ -28,6 +28,8 @@ import { GardenPage } from './GardenPage'
 import { AgendaPage } from './AgendaPage'
 import { WaterPage } from './WaterPage'
 import { AntesDeTudoPage } from './AntesDeTudoPage'
+import { ReadingTipsPage } from './ReadingTipsPage'
+import { BreathingPage } from './BreathingPage'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -63,6 +65,7 @@ import {
   CalendarIcon,
   CirclesIcon,
   DropIcon,
+  HeartIcon,
   SparkleIcon,
   FeedIcon,
   HomeIcon,
@@ -308,6 +311,21 @@ export function Dashboard({
       key: 'agenda',
       label: 'Agenda',
       Icon: CalendarIcon,
+      inBottomNav: false,
+    })
+    // Dicas de Leitura e Respiração e Meditação — conteúdo da comunidade,
+    // abertos pelos cards finos da Home. Mesma resolução de comunidade do
+    // Meu Jardim.
+    navItems.push({
+      key: 'leitura',
+      label: 'Leitura',
+      Icon: BookIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
+      key: 'respiracao',
+      label: 'Respiração',
+      Icon: HeartIcon,
       inBottomNav: false,
     })
     // ANTES DE TUDO — ritual diário de hábitos, aberto pelo card fino da Home.
@@ -797,6 +815,41 @@ export function Dashboard({
     // Calculadora de água — dado pessoal, não depende de comunidade em foco.
     if (effectiveNav === 'agua') {
       return <WaterPage profileId={profile.id} />
+    }
+
+    // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela
+    // profissional da comunidade; membro vê só o publicado (RLS).
+    if (effectiveNav === 'leitura' || effectiveNav === 'respiracao') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+
+      if (!resolvedCirclesCommunityId) {
+        return (
+          <>
+            {renderCommunityPicker(
+              effectiveNav === 'leitura'
+                ? 'Dicas de Leitura · escolha uma comunidade'
+                : 'Respiração e Meditação · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
+          </>
+        )
+      }
+
+      return effectiveNav === 'leitura' ? (
+        <ReadingTipsPage
+          communityId={resolvedCirclesCommunityId}
+          profileId={profile.id}
+          isOwner={profile.role === 'professional'}
+        />
+      ) : (
+        <BreathingPage
+          communityId={resolvedCirclesCommunityId}
+          isOwner={profile.role === 'professional'}
+        />
+      )
     }
 
     // Agenda do membro — não depende de comunidade em foco.

@@ -85,7 +85,7 @@
   color: var(--n-700);
 }
 
-.water-page .water-note {
+.water-note {
   font-size: 13px;
   line-height: 1.5;
   color: var(--n-700);
@@ -124,7 +124,7 @@
   gap: var(--space-3);
 }
 
-.water-page .water-primary {
+button.water-primary {
   margin: 0;
   padding: 8px 18px;
   border: 0;
@@ -137,12 +137,12 @@
   cursor: pointer;
 }
 
-.water-page .water-primary:disabled,
+button.water-primary:disabled,
 .water-page .water-chip:disabled {
   opacity: 0.6;
 }
 
-.water-page .water-link {
+button.water-link {
   margin: 0;
   padding: 0;
   border: 0;
@@ -464,4 +464,155 @@
   inset: auto 0 0 0;
   background: var(--circula-champagne);
   opacity: 0.7;
+}
+
+button.agenda-danger {
+  margin: 0 0 0 auto;
+  padding: 8px 14px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--danger, #a33);
+  font: inherit;
+  font-size: 14px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+/* ---- Dicas de Leitura / Respiração e Meditação -------------------- */
+.reading-page,
+.breathing-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.reading-page .reading-group,
+.breathing-page .breathing-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.reading-page h3,
+.breathing-page h3 {
+  margin: 0;
+}
+
+.reading-page .reading-card {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.reading-page .reading-cover {
+  flex: none;
+  width: 96px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--n-100);
+}
+
+.reading-page .reading-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.reading-page .reading-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.reading-page .reading-author {
+  margin: 0;
+  font-size: 14px;
+  color: var(--n-600);
+}
+
+.reading-page .reading-body h5 {
+  margin: var(--space-2) 0 0;
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.reading-page .reading-summary,
+.reading-page .reading-text,
+.breathing-page .reading-text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--graphite-soft);
+  white-space: pre-line;
+}
+
+.reading-draft {
+  font-size: 12px;
+  color: #a06a1e;
+}
+
+.breathing-page .breathing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.breathing-page .breathing-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.breathing-page .breathing-head h4 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.breathing-page .breathing-duration {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--n-100);
+  font-size: 13px;
+  color: var(--n-700);
+}
+
+.breathing-page audio {
+  width: 100%;
+}
+
+.wellness-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--c-white);
+}
+
+.wellness-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.wellness-form .wellness-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
 }

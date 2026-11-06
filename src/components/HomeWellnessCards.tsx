@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { NavKey } from './PrimaryNav'
-import { ChevronRightIcon, DropIcon, SparkleIcon } from './icons'
+import { BookIcon, ChevronRightIcon, DropIcon, HeartIcon, SparkleIcon } from './icons'
 
 // Cards horizontais, finos e compactos, das áreas de bem-estar. Ficam
 // depois dos cards editoriais (Eventos/Receitas/Loja) e antes do card de
@@ -21,6 +21,8 @@ const CARDS: WellnessCard[] = [
     Icon: SparkleIcon,
   },
   { key: 'agua', title: 'Calculadora de água', Icon: DropIcon },
+  { key: 'leitura', title: 'Dicas de Leitura', Icon: BookIcon },
+  { key: 'respiracao', title: 'Respiração e Meditação', Icon: HeartIcon },
 ]
 
 interface HomeWellnessCardsProps {
