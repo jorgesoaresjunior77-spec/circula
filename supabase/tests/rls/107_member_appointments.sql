@@ -15,8 +15,8 @@ values
   (pg_temp.fx('prof'),   '[rls-suite] reuniao da prof',    now() + interval '2 days');
 
 -- ================= leitura =============================================
-select pg_temp.expect_count('agenda: anon NÃO lê nada', null,
-  'select count(*) from public.member_appointments', 0);
+select pg_temp.expect_locked('agenda: anon NÃO lê nada', null,
+  'select count(*) from public.member_appointments');
 select pg_temp.expect_count('agenda: member lê só o próprio (1)', pg_temp.fx('member'),
   'select count(*) from public.member_appointments where title like ''[rls-suite]%''', 1);
 select pg_temp.expect_count('agenda: prof (dona da comunidade) lê só o próprio (1), não o da member', pg_temp.fx('prof'),

@@ -13,8 +13,8 @@ insert into public.daily_inspirations (community_id, kind, body, author, source,
   (pg_temp.fx('commA'), 'editorial', '[rls-suite] editorial rascunho', null, null, 'draft', pg_temp.fx('prof'));
 
 -- ================= leitura =============================================
-select pg_temp.expect_count('inspiração: anon NÃO lê', null,
-  'select count(*) from public.daily_inspirations', 0);
+select pg_temp.expect_locked('inspiração: anon NÃO lê', null,
+  'select count(*) from public.daily_inspirations');
 select pg_temp.expect_count('inspiração: member ativo lê só o PUBLICADO (1)', pg_temp.fx('member'),
   'select count(*) from public.daily_inspirations where body like ''[rls-suite]%''', 1);
 select pg_temp.expect_count('inspiração: dona lê publicado e rascunho (2)', pg_temp.fx('prof'),

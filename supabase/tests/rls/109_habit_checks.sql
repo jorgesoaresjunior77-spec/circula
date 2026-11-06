@@ -19,8 +19,8 @@ values (pg_temp.fx('member'), 'leitura', (now() at time zone 'America/Sao_Paulo'
 alter table public.habit_checks enable trigger habit_checks_set_day;
 
 -- ================= leitura =============================================
-select pg_temp.expect_count('hábitos: anon NÃO lê nada', null,
-  'select count(*) from public.habit_checks', 0);
+select pg_temp.expect_locked('hábitos: anon NÃO lê nada', null,
+  'select count(*) from public.habit_checks');
 select pg_temp.expect_count('hábitos: member lê só os próprios (2: hoje e ontem)', pg_temp.fx('member'),
   'select count(*) from public.habit_checks', 2);
 select pg_temp.expect_count('hábitos: prof (dona) NÃO lê os da member', pg_temp.fx('prof'),

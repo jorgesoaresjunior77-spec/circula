@@ -18,8 +18,8 @@ insert into public.wellness_sessions (community_id, kind, title, duration_minute
   (pg_temp.fx('commA'), 'meditacao',  '[rls-suite] sessao rascunho',  10, 'draft',    pg_temp.fx('prof'));
 
 -- ================= leitura: dicas de leitura ===========================
-select pg_temp.expect_count('leitura: anon NÃO lê', null,
-  'select count(*) from public.reading_tips', 0);
+select pg_temp.expect_locked('leitura: anon NÃO lê', null,
+  'select count(*) from public.reading_tips');
 select pg_temp.expect_count('leitura: member ativo lê só o PUBLICADO (1)', pg_temp.fx('member'),
   'select count(*) from public.reading_tips where title like ''[rls-suite]%''', 1);
 select pg_temp.expect_count('leitura: dona lê publicado e rascunho (2)', pg_temp.fx('prof'),
@@ -28,8 +28,8 @@ select pg_temp.expect_count('leitura: master lê publicado e rascunho (2)', pg_t
   'select count(*) from public.reading_tips where title like ''[rls-suite]%''', 2);
 
 -- ================= leitura: sessões ====================================
-select pg_temp.expect_count('sessões: anon NÃO lê', null,
-  'select count(*) from public.wellness_sessions', 0);
+select pg_temp.expect_locked('sessões: anon NÃO lê', null,
+  'select count(*) from public.wellness_sessions');
 select pg_temp.expect_count('sessões: member ativo lê só o PUBLICADO (1)', pg_temp.fx('member'),
   'select count(*) from public.wellness_sessions where title like ''[rls-suite]%''', 1);
 select pg_temp.expect_count('sessões: dona lê publicada e rascunho (2)', pg_temp.fx('prof'),

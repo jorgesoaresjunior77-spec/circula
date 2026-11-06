@@ -23,10 +23,10 @@ values (pg_temp.fx('member'), 250, (now() at time zone 'America/Sao_Paulo')::dat
 alter table public.water_logs enable trigger water_logs_set_day;
 
 -- ================= leitura =============================================
-select pg_temp.expect_count('água: anon NÃO lê o peso', null,
-  'select count(*) from public.water_profiles', 0);
-select pg_temp.expect_count('água: anon NÃO lê registros', null,
-  'select count(*) from public.water_logs', 0);
+select pg_temp.expect_locked('água: anon NÃO lê o peso', null,
+  'select count(*) from public.water_profiles');
+select pg_temp.expect_locked('água: anon NÃO lê registros', null,
+  'select count(*) from public.water_logs');
 select pg_temp.expect_count('água: member lê só o próprio peso (1)', pg_temp.fx('member'),
   'select count(*) from public.water_profiles', 1);
 select pg_temp.expect_count('água: member lê só os próprios registros (2: hoje e ontem)', pg_temp.fx('member'),
