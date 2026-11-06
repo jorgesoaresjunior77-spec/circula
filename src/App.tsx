@@ -11,6 +11,7 @@ import { useJoinInvite } from './hooks/useJoinInvite'
 import type { NavKey } from './components/PrimaryNav'
 import './App.css'
 import './invite-install.css'
+import './home-calendar.css'
 
 function App() {
   const {

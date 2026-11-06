@@ -25,6 +25,7 @@ import { RecipesPage } from './RecipesPage'
 import { EventManager } from './EventManager'
 import { CircleManager } from './CircleManager'
 import { GardenPage } from './GardenPage'
+import { AgendaPage } from './AgendaPage'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -295,6 +296,14 @@ export function Dashboard({
       key: 'jardim',
       label: 'Meu Jardim',
       Icon: SproutIcon,
+      inBottomNav: false,
+    })
+    // Agenda — aberta pelo calendário compacto da Home. Fora da cápsula
+    // e dos cards: só se chega a ela pelo calendário.
+    navItems.push({
+      key: 'agenda',
+      label: 'Agenda',
+      Icon: CalendarIcon,
       inBottomNav: false,
     })
     // Fase 13 — Loja acessível também à Member (antes só existia como
@@ -760,6 +769,11 @@ export function Dashboard({
           isOwner={profile.role === 'professional'}
         />
       )
+    }
+
+    // Agenda do membro — não depende de comunidade em foco.
+    if (effectiveNav === 'agenda') {
+      return <AgendaPage />
     }
 
     // Meu Jardim — Member participa, marca atividades concluídas e

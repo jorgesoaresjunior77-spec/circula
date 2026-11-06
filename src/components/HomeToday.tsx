@@ -18,6 +18,7 @@ import { HomeCirclesSection } from './HomeCirclesSection'
 import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { MagazineManager } from './MagazineManager'
 import { HomeEditorialCards } from './HomeEditorialCards'
+import { HomeWeekCalendar } from './HomeWeekCalendar'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -256,8 +257,22 @@ export function HomeToday({
     )
   }
 
+  // Calendário compacto — logo depois do banner grande da comunidade, com
+  // a mesma linha fininha e o mesmo respiro das outras seções. Com capa, o
+  // banner é desenhado pelo Dashboard ANTES desta tela, então o calendário
+  // abre a Home; sem capa, o banner (cabeçalho) vem logo abaixo da
+  // saudação e o calendário entra depois dele.
+  const weekCalendar = (
+    <>
+      <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
+      <hr className="home-section-divider" />
+    </>
+  )
+
   return (
     <div className="home">
+      {coverHero && weekCalendar}
+
       {greeting}
 
       {accessBlocked && <CommunityAccessBlockedCard communityId={focusCommunity.id} />}
@@ -271,6 +286,8 @@ export function HomeToday({
       {!coverHero && (
         <HomeCommunityHeader community={focusCommunity} profileId={profile.id} />
       )}
+
+      {!coverHero && weekCalendar}
 
       {/* Redesign da Home (item 3) — "Seu Círcula de hoje": destinos fixos
           de navegação (Meu Perfil, Help Nutri, Eventos, Loja, Receitas),

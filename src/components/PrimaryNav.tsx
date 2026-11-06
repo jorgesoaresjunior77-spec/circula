@@ -13,6 +13,7 @@ export type NavKey =
   | 'eventos'
   | 'receitas'
   | 'jardim'
+  | 'agenda'
   // 'salvos' permanece no tipo: destino desativado da navegação primária
   // na Fase 1 (Módulo 7 despriorizado), código mantido dormente.
   | 'salvos'
