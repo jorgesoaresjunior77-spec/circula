@@ -27,6 +27,7 @@ import { CircleManager } from './CircleManager'
 import { GardenPage } from './GardenPage'
 import { AgendaPage } from './AgendaPage'
 import { WaterPage } from './WaterPage'
+import { AntesDeTudoPage } from './AntesDeTudoPage'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -62,6 +63,7 @@ import {
   CalendarIcon,
   CirclesIcon,
   DropIcon,
+  SparkleIcon,
   FeedIcon,
   HomeIcon,
   MessageIcon,
@@ -306,6 +308,13 @@ export function Dashboard({
       key: 'agenda',
       label: 'Agenda',
       Icon: CalendarIcon,
+      inBottomNav: false,
+    })
+    // ANTES DE TUDO — ritual diário de hábitos, aberto pelo card fino da Home.
+    navItems.push({
+      key: 'antes-de-tudo',
+      label: 'Antes de tudo',
+      Icon: SparkleIcon,
       inBottomNav: false,
     })
     // Calculadora de água — aberta pelo card fino da Home.
@@ -778,6 +787,11 @@ export function Dashboard({
           isOwner={profile.role === 'professional'}
         />
       )
+    }
+
+    // ANTES DE TUDO — dado pessoal, não depende de comunidade em foco.
+    if (effectiveNav === 'antes-de-tudo') {
+      return <AntesDeTudoPage profileId={profile.id} onNavigate={handleNavigate} />
     }
 
     // Calculadora de água — dado pessoal, não depende de comunidade em foco.

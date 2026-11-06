@@ -280,3 +280,188 @@
 .water-page .water-log-edit input {
   width: 90px;
 }
+
+/* ---- ANTES DE TUDO --------------------------------------------------- */
+.habits-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.habits-page .habits-sub {
+  margin-top: calc(var(--space-2) * -1);
+  color: var(--n-700);
+}
+
+.habits-page .habits-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.habits-page .habits-panel h3 {
+  margin: 0;
+}
+
+.habits-page .habits-hero {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.habits-page .habit-woman {
+  width: 120px;
+  flex: none;
+  transition: filter 0.8s ease;
+}
+
+.habits-page .habits-count {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 300;
+  color: var(--graphite);
+}
+
+.habits-page .habits-message {
+  font-size: 15px;
+  color: var(--n-700);
+}
+
+/* Ilustração: base e detalhes. As cores reais ficam aqui; o filtro
+   `grayscale` do SVG as apaga até o dia ganhar seus checks. */
+.habit-woman .hw-hair { fill: #6b4226; }
+.habit-woman .hw-hair-front { fill: #55331c; }
+.habit-woman .hw-skin { fill: #f1c7a4; }
+.habit-woman .hw-dress { fill: #e58a8a; }
+.habit-woman .hw-part { opacity: 0.28; transition: opacity 0.6s ease; }
+.habit-woman .hw-part.is-on { opacity: 1; }
+.habit-woman .hw-aura { fill: #d6ecec; }
+.habit-woman .hw-aura.is-on { opacity: 0.8; }
+.habit-woman .hw-sun circle { fill: #f6c945; }
+.habit-woman .hw-sun path { stroke: #f6c945; stroke-width: 3; stroke-linecap: round; fill: none; }
+.habit-woman .hw-heart { fill: #e4577a; }
+.habit-woman .hw-glass > path:first-child { fill: #eaf4f8; stroke: #5b7f8f; stroke-width: 1.5; }
+.habit-woman .hw-glass-water { fill: #6cb6d6; }
+.habit-woman .hw-book > path:first-child { fill: #b8453d; }
+.habit-woman .hw-book-spine { stroke: #f4e3df; stroke-width: 1.5; fill: none; }
+.habit-woman .hw-note rect { fill: #f2b35e; }
+.habit-woman .hw-note-lines { stroke: #fff; stroke-width: 2; stroke-linecap: round; fill: none; }
+.habit-woman .hw-shoes path { fill: #4f9a57; }
+
+@media (prefers-reduced-motion: reduce) {
+  .habits-page .habit-woman,
+  .habit-woman .hw-part {
+    transition: none;
+  }
+}
+
+.habits-page .habits-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.habits-page .habits-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.habits-page .habits-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--circula-mocha);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: var(--c-white);
+  cursor: pointer;
+}
+
+.habits-page .habits-row--on .habits-check {
+  background: var(--circula-mocha);
+}
+
+.habits-page .habits-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.habits-page .habits-row-label {
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.habits-page .habits-row-hint {
+  font-size: 13px;
+  color: var(--n-600);
+}
+
+.habits-page .habits-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.habits-page .habits-history {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.habits-page .habits-history-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 64px;
+  border-radius: 6px;
+  background: var(--n-100);
+  font-size: 11px;
+  color: var(--n-600);
+  overflow: hidden;
+}
+
+.habits-page .habits-history-day > span:first-child {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 2px;
+}
+
+.habits-page .habits-history-bar {
+  position: absolute;
+  inset: auto 0 0 0;
+  background: var(--circula-champagne);
+  opacity: 0.7;
+}
