@@ -11,7 +11,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:rls": "bash supabase/tests/rls/run.sh",
-    "ci:rls": "node supabase/tests/rls/ci.mjs"
+    "ci:rls": "node supabase/tests/rls/ci.mjs",
+    "remotion:studio": "remotion studio",
+    "remotion:render": "remotion render MensagemDoDia out/mensagem-do-dia.mp4",
+    "remotion:still": "remotion still MensagemDoDia out/mensagem-do-dia.png --frame=60"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
@@ -19,6 +22,8 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@remotion/cli": "4.0.541",
+    "@remotion/google-fonts": "4.0.541",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^24.13.3",
@@ -27,6 +32,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "jsdom": "^30.1.3",
     "oxlint": "^1.75.0",
+    "remotion": "4.0.541",
     "supabase": "^2.116.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",

@@ -34,3 +34,6 @@ identidadevisual/Meu Jardim/
 
 # configuracao local do Claude Code
 .claude/
+
+# videos renderizados pelo Remotion
+out/
