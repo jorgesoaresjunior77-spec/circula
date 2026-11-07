@@ -27,6 +27,8 @@ import { CircleManager } from './CircleManager'
 import { GardenPage } from './GardenPage'
 import { AgendaPage } from './AgendaPage'
 import { WaterPage } from './WaterPage'
+import { ImcPage } from './ImcPage'
+import { PlansPage } from './PlansPage'
 import { AntesDeTudoPage } from './AntesDeTudoPage'
 import { ReadingTipsPage } from './ReadingTipsPage'
 import { BreathingPage } from './BreathingPage'
@@ -57,6 +59,7 @@ const MasterPanel = lazy(() =>
 import { MemberCommunityCard } from './MemberCommunityCard'
 import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
+import { HomeGreeting } from './HomeGreeting'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
 import { useHomeBadges } from '../hooks/useHomeBadges'
@@ -68,6 +71,7 @@ import {
   CirclesIcon,
   DropIcon,
   HeartIcon,
+  ChevronLeftIcon,
   SparkleIcon,
   FeedIcon,
   HomeIcon,
@@ -141,6 +145,9 @@ interface DashboardProps {
   activeNav: NavKey
   onNavigate: (key: NavKey) => void
 }
+
+// Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes']
 
 export function Dashboard({
   profile,
@@ -353,6 +360,17 @@ export function Dashboard({
       Icon: DropIcon,
       inBottomNav: false,
     })
+    // Calculadora de IMC — aberta pelo card de ferramentas da Home.
+    navItems.push({
+      key: 'imc',
+      label: 'IMC',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    // Planos — aberto pelo card de assinaturas da Home (só a membro).
+    if (profile?.role === 'member') {
+      navItems.push({ key: 'planos', label: 'Planos', Icon: StoreIcon, inBottomNav: false })
+    }
     // Fase 13 — Loja acessível também à Member (antes só existia como
     // destino da anfitriã, dentro de canHostDestinations). Backend/RLS
     // e o componente já suportavam a Member comprar (ProductManager
@@ -828,6 +846,14 @@ export function Dashboard({
       return <WaterPage profileId={profile.id} />
     }
 
+    if (effectiveNav === 'imc') {
+      return <ImcPage />
+    }
+
+    if (effectiveNav === 'planos') {
+      return <PlansPage communityId={myCommunities[0]?.id ?? null} />
+    }
+
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela
     // profissional da comunidade; membro vê só o publicado (RLS).
     if (effectiveNav === 'leitura' || effectiveNav === 'respiracao') {
@@ -1125,6 +1151,7 @@ export function Dashboard({
 
       {coverHero && railCommunity && (
         <div className="dashboard-community-cover">
+          <HomeGreeting fullName={profile?.full_name} />
           <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
         </div>
       )}
@@ -1149,7 +1176,14 @@ export function Dashboard({
             {!loading && error && <p className="auth-error">{error}</p>}
 
             {!loading && !error && (
-              <Suspense fallback={<p>Carregando...</p>}>{renderDestination()}</Suspense>
+              <>
+                {INNER_SCREENS.includes(effectiveNav) && (
+                  <button type="button" className="back-button" onClick={() => handleNavigate('inicio')}>
+                    <ChevronLeftIcon size={18} /> Voltar
+                  </button>
+                )}
+                <Suspense fallback={<p>Carregando...</p>}>{renderDestination()}</Suspense>
+              </>
             )}
           </div>
         </div>

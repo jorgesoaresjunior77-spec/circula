@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { NavKey } from './PrimaryNav'
-import { BookIcon, ChevronRightIcon, DropIcon, HeartIcon, SparkleIcon } from './icons'
+import { BookIcon, ChevronRightIcon, HeartIcon, SparkleIcon } from './icons'
 
 // Cards horizontais, finos e compactos, das áreas de bem-estar. Ficam
 // depois dos cards editoriais (Eventos/Receitas/Loja) e antes do card de
@@ -20,21 +20,16 @@ const CARDS: WellnessCard[] = [
     subtitle: 'Pequenos hábitos. Uma vida melhor.',
     Icon: SparkleIcon,
   },
-  { key: 'agua', title: 'Calculadora de água', Icon: DropIcon },
   { key: 'leitura', title: 'Dicas de Leitura', Icon: BookIcon },
   { key: 'respiracao', title: 'Respiração e Meditação', Icon: HeartIcon },
 ]
 
 interface HomeWellnessCardsProps {
   onNavigate: (key: NavKey) => void
-  /** Profissional: acesso ao cadastro das mensagens do pop-up diário. */
-  canManageInspirations?: boolean
 }
 
-export function HomeWellnessCards({ onNavigate, canManageInspirations = false }: HomeWellnessCardsProps) {
-  const cards = canManageInspirations
-    ? [...CARDS, { key: 'inspiracoes' as NavKey, title: 'Mensagens do dia', subtitle: 'Cadastro do pop-up diário', Icon: SparkleIcon }]
-    : CARDS
+export function HomeWellnessCards({ onNavigate }: HomeWellnessCardsProps) {
+  const cards = CARDS
   return (
     <section className="home-wellness" aria-label="Bem-estar">
       {cards.map(({ key, title, subtitle, Icon }) => (

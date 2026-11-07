@@ -13,6 +13,8 @@ import './App.css'
 import './invite-install.css'
 import './home-calendar.css'
 import './wellness.css'
+import './magazine-reader.css'
+import './polish.css'
 
 function App() {
   const {

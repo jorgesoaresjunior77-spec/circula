@@ -5,6 +5,7 @@ import { CircleCard } from './CircleCard'
 import { CoverImageInput } from './CoverImageInput'
 import { EmptyState } from './EmptyState'
 import { CircleRequestReview } from './CircleRequestReview'
+import { NewCircleCoverField } from './NewCircleCoverField'
 
 interface CircleManagerProps {
   communityId: string
@@ -85,6 +86,12 @@ export function CircleManager({
               criação de sempre (a sugestão só inspira; criar o Círculo de
               verdade continua manual, abaixo). */}
           <CircleRequestReview communityId={communityId} profileId={profileId} />
+
+          <h3 className="panel-circles-eyebrow">Card "Novo Círculo"</h3>
+          <p className="panel-circles-intro">
+            Imagem do card que convida as participantes a sugerir um grupo, no começo dos círculos da Home.
+          </p>
+          <NewCircleCoverField communityId={communityId} profileId={profileId} />
 
           <h3 className="panel-circles-eyebrow">Criar um círculo</h3>
 

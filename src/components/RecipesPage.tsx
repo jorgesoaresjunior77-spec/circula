@@ -4,6 +4,8 @@ import { useRecipes } from '../hooks/useRecipes'
 import type { Recipe, RecipeCategory } from '../hooks/useRecipes'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
+import { RecipeMagazineView } from './RecipeMagazineView'
+import { RecipePagesEditor } from './RecipePagesEditor'
 
 interface RecipesPageProps {
   communityId: string
@@ -240,6 +242,11 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           recommendedSize="1080 × 1350 px"
           onChange={(p) => setEditRec({ ...editRec, cover_image_url: p })}
         />
+        {editRec.id ? (
+          <RecipePagesEditor contentId={editRec.id} communityId={communityId} profileId={profileId} />
+        ) : (
+          <p className="home-muted">Salve a receita para adicionar as páginas em formato de revista.</p>
+        )}
         <label className="rec-check">
           <input
             type="checkbox"
@@ -276,6 +283,12 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
         </div>
         <h2>{fresh.title}</h2>
         {fresh.summary && <p>{fresh.summary}</p>}
+        <RecipeMagazineView
+          recipeId={fresh.id}
+          communityId={communityId}
+          title={fresh.title}
+          coverPath={fresh.cover_image_url}
+        />
         {fresh.ingredients && (
           <>
             <h3>Ingredientes</h3>

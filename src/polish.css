@@ -1,0 +1,180 @@
+/* Acabamento (Etapa H): detalhes de hierarquia, toque e ritmo nas peças
+   novas da Home, dos Planos e do leitor. Só aparência; nenhuma regra de
+   dados. Vem por último e usa só os tokens do app. */
+
+/* ---- Cards de ferramentas: imagem grande, título discreto ---------------- */
+.home-tools .home-tool {
+  border-radius: 20px;
+  transition: transform var(--dur, 0.2s) var(--ease, ease), box-shadow var(--dur, 0.2s) var(--ease, ease);
+}
+
+.home-tools .home-tool-media {
+  height: auto;
+  aspect-ratio: 1 / 1;
+  position: relative;
+}
+
+.home-tools .home-tool-media svg {
+  width: 34px;
+  height: 34px;
+  padding: 14px;
+  box-sizing: content-box;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-tools .home-tool-title {
+  padding: var(--space-2) var(--space-1);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: -0.005em;
+}
+
+.home-tools .home-tool:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .home-tools .home-tool:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* ---- Mensagem do dia: aspas decorativas e fio champagne ------------------ */
+.home-daily {
+  position: relative;
+  border-radius: 22px;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  background:
+    linear-gradient(180deg, rgba(200, 184, 168, 0.14), rgba(200, 184, 168, 0) 60%),
+    var(--c-white);
+}
+
+.home-daily::before {
+  content: '“';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 54px;
+  line-height: 1;
+  color: var(--circula-champagne, #c8b8a8);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.home-daily .home-daily-eyebrow {
+  margin-top: var(--space-4);
+}
+
+.home-daily .home-daily-text {
+  text-wrap: balance;
+}
+
+.home-daily .home-daily-author {
+  position: relative;
+  padding-top: var(--space-2);
+}
+
+.home-daily .home-daily-author::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin: 0 auto var(--space-2);
+  background: var(--circula-champagne, #c8b8a8);
+}
+
+/* ---- Parceiros: título com fios laterais -------------------------------- */
+.home-partners .home-partners-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.home-partners .home-partners-title::before,
+.home-partners .home-partners-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-soft);
+}
+
+/* ---- Planos: hierarquia dos preços ---------------------------------------- */
+.plans-card {
+  border-radius: 22px;
+}
+
+.plans-card h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.plans-prices li {
+  background: linear-gradient(180deg, var(--n-100, #f3eee9), rgba(243, 238, 233, 0.5));
+  border: 1px solid var(--border-soft);
+}
+
+.plans-prices strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 17px;
+}
+
+.plans-prices em {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.plans-heading {
+  margin-top: var(--space-3);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe, var(--graphite-soft));
+}
+
+/* ---- IMC: resultado em destaque ------------------------------------------- */
+.imc-result {
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.imc-value {
+  font-size: 46px;
+  line-height: 1.05;
+  color: var(--circula-mocha);
+}
+
+/* ---- Relógio: ponteiros com sombra leve -------------------------------- */
+.home-clock svg {
+  filter: drop-shadow(0 1px 1px rgba(53, 48, 44, 0.18));
+}
+
+/* ---- Voltar: alvo de toque confortável --------------------------------- */
+.back-button {
+  min-height: 40px;
+  color: var(--graphite-soft);
+}
+
+.back-button:active {
+  background: var(--ink-action-soft, rgba(0, 0, 0, 0.05));
+}
+
+/* ---- Movimento reduzido: sem levantar nem escalar -------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .home-tools .home-tool,
+  .home-tools .home-tool:hover,
+  .home-tools .home-tool:active {
+    transform: none;
+    transition: none;
+  }
+}

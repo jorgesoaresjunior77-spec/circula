@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
-import { CoverImageInput } from './CoverImageInput'
+import { NewCircleCoverField } from './NewCircleCoverField'
 
 // Ajustes de navegação (item 5B) — "Imagens da comunidade" > Círculos.
 //
@@ -18,16 +16,6 @@ interface CircleImagesManagerProps {
 }
 
 export function CircleImagesManager({ communityId, profileId }: CircleImagesManagerProps) {
-  const [errorId, setErrorId] = useState<string | null>(null)
-  const { images, setImage, clearImage } = useCommunityCardImages(communityId)
-  async function handleNewCircleCover(path: string) {
-    setErrorId(null)
-    const r = path
-      ? await setImage('novo_circulo', path, profileId)
-      : await clearImage('novo_circulo')
-    if (r.error) setErrorId('novo_circulo')
-  }
-
   return (
     <div className="card-images-manager">
       <header className="card-images-head">
@@ -43,22 +31,7 @@ export function CircleImagesManager({ communityId, profileId }: CircleImagesMana
             <span className="card-images-name">Novo Círculo</span>
             <span className="card-images-hint">Card fixo "Sugira um grupo" no início da faixa.</span>
           </div>
-          <div className="card-images-field">
-            <CoverImageInput
-              value={images.novo_circulo ?? ''}
-              communityId={communityId}
-              uid={profileId}
-              label=""
-              aspectRatio="4 / 5"
-              onChange={(path) => void handleNewCircleCover(path)}
-              recommendedSize="1080 × 1350 px"
-            />
-            {errorId === 'novo_circulo' && (
-              <p className="card-images-error" role="alert">
-                Não foi possível salvar agora. Tente novamente.
-              </p>
-            )}
-          </div>
+          <NewCircleCoverField communityId={communityId} profileId={profileId} />
         </li>
       </ul>
 

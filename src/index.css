@@ -87,9 +87,9 @@
      (branco) e ficam por cima, então o contraste do texto não muda. */
   --page-gradient: linear-gradient(
     180deg,
-    var(--page-bg) 0%,
-    var(--page-bg) 50%,
-    #fcfaf6 75%,
+    #efe5d6 0%,
+    #f1e8da 50%,
+    #f9f5ee 78%,
     var(--c-white) 100%
   );
 
@@ -185,14 +185,14 @@
 
   /* ---- Sombras — suaves, mas visíveis sobre o fundo claro ---- */
   --shadow-sm:
-    rgba(53, 48, 44, 0.07) 0 1px 3px,
-    rgba(53, 48, 44, 0.10) 0 6px 16px -6px;
+    rgba(53, 48, 44, 0.12) 0 1px 3px,
+    rgba(53, 48, 44, 0.18) 0 8px 18px -6px;
   --shadow-md:
-    rgba(53, 48, 44, 0.08) 0 2px 6px -1px,
-    rgba(53, 48, 44, 0.16) 0 12px 28px -8px;
+    rgba(53, 48, 44, 0.14) 0 2px 6px -1px,
+    rgba(53, 48, 44, 0.26) 0 14px 30px -8px;
   --shadow-lg:
-    rgba(53, 48, 44, 0.10) 0 6px 16px -4px,
-    rgba(53, 48, 44, 0.20) 0 26px 52px -14px;
+    rgba(53, 48, 44, 0.16) 0 6px 16px -4px,
+    rgba(53, 48, 44, 0.32) 0 28px 54px -14px;
 
   /* ---- Cantos — discretos, editoriais ---------------------- */
   --radius-sm: 8px;
@@ -385,6 +385,8 @@
 html {
   overflow-x: hidden;
   overscroll-behavior-x: none;
+  /* Sem o "elástico" no topo e no fim: a barra fixa não balança junto. */
+  overscroll-behavior-y: none;
   max-width: 100%;
   /* O degradê de fundo mede a página inteira: sem altura mínima, uma tela
      curta o esticaria só até o fim do conteúdo e cortaria o branco final. */

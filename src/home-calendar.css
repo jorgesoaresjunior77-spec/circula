@@ -1,9 +1,105 @@
 /* Calendário compacto da Home — sem card: fundo transparente, sem borda
    nem sombra. A área toda é um botão (abre a agenda); as setas ficam por
    cima e só trocam de semana. */
+/* Calendário (50%) + relógio analógico (50%), lado a lado, sem borda. */
+.home-time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.home-time > .home-week,
+.home-time > .home-clock {
+  flex: 1 1 50%;
+  min-width: 0;
+}
+
+.home-clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.home-clock svg {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  overflow: visible;
+}
+
+.home-clock .home-clock-tick {
+  stroke: var(--n-400);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+
+.home-clock .home-clock-tick--major {
+  stroke: var(--graphite-soft);
+  stroke-width: 1.6;
+}
+
+.home-clock .home-clock-hand {
+  stroke-linecap: round;
+}
+
+.home-clock .home-clock-hand--hour {
+  stroke: var(--graphite);
+  stroke-width: 3.2;
+}
+
+.home-clock .home-clock-hand--minute {
+  stroke: var(--graphite);
+  stroke-width: 2;
+}
+
+.home-clock .home-clock-hand--second {
+  stroke: var(--circula-mocha);
+  stroke-width: 0.9;
+}
+
+.home-clock .home-clock-pin {
+  fill: var(--circula-mocha);
+}
+
 .home-week {
   position: relative;
   width: 100%;
+}
+
+/* Na metade da largura o calendário fica mais compacto. */
+.home-time .home-week .home-week-open {
+  padding: var(--space-2) 0;
+}
+
+.home-time .home-week .home-week-title {
+  font-size: 16px;
+  padding: 0 28px;
+}
+
+.home-time .home-week .home-week-weekday {
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+.home-time .home-week .home-week-day {
+  width: 24px;
+  height: 24px;
+  font-size: 12.5px;
+}
+
+.home-time .home-week .home-week-arrow {
+  width: 28px;
+  height: 28px;
+}
+
+.home-time .home-week .home-week-arrow--prev {
+  left: 0;
+}
+
+.home-time .home-week .home-week-arrow--next {
+  right: 0;
 }
 
 .home-week .home-week-open {

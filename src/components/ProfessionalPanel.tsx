@@ -10,6 +10,7 @@ import { PostsModerationPanel } from './PostsModerationPanel'
 import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
 import { CircleImagesManager } from './CircleImagesManager'
+import { PartnersManager } from './PartnersManager'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
   AddMemberResult,
@@ -201,6 +202,7 @@ export function ProfessionalPanel({
           <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
           <EditorialCardImagesManager communityId={communityId} profileId={profileId} />
           <CircleImagesManager communityId={communityId} profileId={profileId} />
+          <PartnersManager communityId={communityId} profileId={profileId} />
         </div>
       )}
 

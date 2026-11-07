@@ -5,14 +5,14 @@ import { HomeSubscriptionCard } from './HomeSubscriptionCard'
 describe('HomeSubscriptionCard — assinaturas e conteúdos', () => {
   afterEach(() => cleanup())
 
-  it('mostra o título e abre a Loja', () => {
+  it('mostra o título e abre os Planos', () => {
     const onNavigate = vi.fn()
     render(<HomeSubscriptionCard onNavigate={onNavigate} />)
 
     const card = screen.getByRole('button', { name: /Assinaturas e conteúdos/ })
-    expect(card).toHaveTextContent('Planos e materiais da comunidade')
+    expect(card).toHaveTextContent('Planos, conteúdos e pacotes')
     fireEvent.click(card)
-    expect(onNavigate).toHaveBeenCalledWith('loja')
+    expect(onNavigate).toHaveBeenCalledWith('planos')
   })
 
   it('usa a capa da Loja quando existe e funciona sem ela', () => {

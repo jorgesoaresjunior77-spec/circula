@@ -776,3 +776,325 @@ button.agenda-danger {
   margin-right: var(--space-2);
   color: var(--n-600);
 }
+
+/* ---- Atalhos de ferramentas: Calendário, Água, IMC ------------------- */
+.home-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.home-tools .home-tool {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-md, var(--shadow-sm));
+  color: var(--graphite);
+  font: inherit;
+  cursor: pointer;
+}
+
+.home-tools .home-tool-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  background: linear-gradient(160deg, var(--n-100, #f3eee9), var(--n-200, #e6ddd3));
+  color: var(--circula-mocha);
+}
+
+.home-tools .home-tool-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-tools .home-tool-title {
+  padding: var(--space-2);
+  font-size: 13px;
+  text-align: center;
+}
+
+.home-tools .home-tool:focus-visible {
+  outline: 2px solid var(--graphite);
+  outline-offset: 2px;
+}
+
+/* ---- IMC e botão voltar ---------------------------------------------- */
+.imc-page,
+.imc-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.imc-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.imc-result {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--c-white);
+}
+
+.imc-value {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 300;
+}
+
+.imc-note,
+.imc-intro {
+  margin: 0;
+  font-size: 13px;
+  color: var(--n-700);
+}
+
+.back-button {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 6px 12px 6px 6px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--graphite);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---- Mensagem do dia em destaque no topo da Home ---------------------- */
+.home-daily {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.home-daily .home-daily-eyebrow {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe, var(--graphite-soft));
+}
+
+.home-daily .home-daily-text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 19px;
+  line-height: 1.35;
+  color: var(--graphite);
+}
+
+.home-daily .home-daily-author {
+  margin: 0;
+  font-size: 13px;
+  color: var(--n-700);
+}
+
+.home-daily .home-daily-manage {
+  align-self: center;
+  margin: 0;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--graphite);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---- Parceiros: faixa de logos em movimento contínuo ------------------- */
+.home-partners {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.home-partners .home-partners-title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe, var(--graphite-soft));
+}
+
+.partners-viewport {
+  overflow: hidden;
+  /* Pontas esmaecem para o fundo. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.partners-viewport--static {
+  overflow-x: auto;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.partners-track {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  width: max-content;
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  list-style: none;
+  animation: partners-scroll 30s linear infinite;
+}
+
+.partners-viewport--static .partners-track {
+  animation: none;
+}
+
+@keyframes partners-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.partners-item {
+  --focus: 0;
+  flex: 0 0 auto;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  /* Bege nas pontas, cor no centro. */
+  filter: grayscale(calc(1 - var(--focus))) sepia(calc((1 - var(--focus)) * 0.45));
+  opacity: calc(0.55 + var(--focus) * 0.45);
+}
+
+.partners-viewport--static .partners-item {
+  --focus: 1;
+}
+
+.partners-item img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.partners-item a {
+  display: flex;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-track {
+    animation: none;
+  }
+}
+
+.rec-pages-editor { display: flex; flex-direction: column; gap: var(--space-3); border: 1px solid var(--border); border-radius: 14px; padding: var(--space-3); }
+.rec-pages-list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.rec-pages-list li { display: flex; align-items: center; gap: var(--space-3); }
+.rec-pages-thumb { width: 42px; height: 56px; object-fit: cover; border-radius: 4px; background: var(--n-200, #e6ddd3); display: inline-block; }
+
+/* ---- Página de Planos ------------------------------------------------- */
+.plans-page,
+.plans-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.plans-card {
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-md);
+}
+
+.plans-card h3,
+.plans-heading {
+  margin: 0;
+}
+
+.plans-card--pack {
+  border-color: var(--circula-mocha);
+}
+
+.plans-text,
+.plans-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--n-700);
+}
+
+.plans-prices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plans-prices li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  border-radius: 12px;
+  background: var(--n-100, #f3eee9);
+  text-align: center;
+  font-size: 12px;
+}
+
+.plans-prices strong {
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+.plans-prices em {
+  font-style: normal;
+  color: var(--circula-mocha);
+}
+
+.plans-soon {
+  align-self: flex-start;
+  margin: 0;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--n-600);
+  font: inherit;
+  font-size: 14px;
+}

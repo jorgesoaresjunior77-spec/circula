@@ -50,6 +50,9 @@ export type CommunityCardKey =
   | 'jardim'
   | 'novo_circulo'
   | 'revista_escritorio'
+  | 'ferramenta_calendario'
+  | 'ferramenta_agua'
+  | 'ferramenta_imc'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -69,6 +72,15 @@ export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
    *  chave devolvem erro de constraint (mesma UX de qualquer outra
    *  falha, sem mensagem especial). */
   { key: 'jardim', label: 'Meu Jardim', hint: 'Atalho para o Meu Jardim — evolução e desafios.' },
+]
+
+/** Cards de ferramentas da Home (Calendário, Água, IMC). As chaves só
+ *  existem no banco depois da migration 20261107120000 (preparada, não
+ *  aplicada); até lá, salvar a imagem devolve erro de constraint. */
+export const TOOL_CARD_META: CommunityCardMeta[] = [
+  { key: 'ferramenta_calendario', label: 'Calendário', hint: 'Atalho para a agenda.' },
+  { key: 'ferramenta_agua', label: 'Água', hint: 'Atalho para a calculadora de água.' },
+  { key: 'ferramenta_imc', label: 'IMC', hint: 'Atalho para a calculadora de IMC.' },
 ]
 
 export const COMMUNITY_CARD_KEYS = COMMUNITY_CARD_META.map((c) => c.key)

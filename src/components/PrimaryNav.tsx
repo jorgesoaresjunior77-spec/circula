@@ -15,6 +15,8 @@ export type NavKey =
   | 'jardim'
   | 'agenda'
   | 'agua'
+  | 'imc'
+  | 'planos'
   | 'antes-de-tudo'
   | 'leitura'
   | 'respiracao'

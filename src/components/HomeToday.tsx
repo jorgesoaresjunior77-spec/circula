@@ -19,6 +19,11 @@ import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { MagazineManager } from './MagazineManager'
 import { HomeEditorialCards } from './HomeEditorialCards'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
+import { AnalogClock } from './AnalogClock'
+import { HomeGreeting } from './HomeGreeting'
+import { HomeToolCards } from './HomeToolCards'
+import { HomePartnersStrip } from './HomePartnersStrip'
+import { HomeDailyMessage } from './HomeDailyMessage'
 import { HomeWellnessCards } from './HomeWellnessCards'
 import { HomeSubscriptionCard } from './HomeSubscriptionCard'
 
@@ -89,18 +94,6 @@ interface HomeTodayProps {
       is_online: boolean | null
     } | null
   } | null
-}
-
-function timeGreeting(now = new Date()): string {
-  const hour = now.getHours()
-  if (hour < 12) return 'Bom dia'
-  if (hour < 18) return 'Boa tarde'
-  return 'Boa noite'
-}
-
-function firstName(fullName: string | null): string | null {
-  const name = (fullName ?? '').trim().split(/\s+/)[0]
-  return name || null
 }
 
 export function HomeToday({
@@ -184,6 +177,9 @@ export function HomeToday({
   // Etapa 3.2 (evolução/gamificação) — capa do card "Meu Jardim", chave
   // `jardim` (migration 20261030120000, preparada e não aplicada).
   const { url: jardimCover } = useSignedImageUrl(cardImagePaths.jardim ?? null)
+  const { url: toolCalendarCover } = useSignedImageUrl(cardImagePaths.ferramenta_calendario ?? null)
+  const { url: toolWaterCover } = useSignedImageUrl(cardImagePaths.ferramenta_agua ?? null)
+  const { url: toolImcCover } = useSignedImageUrl(cardImagePaths.ferramenta_imc ?? null)
   const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
   const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
   // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
@@ -203,16 +199,7 @@ export function HomeToday({
   const { url: receitasCoverGrande } = useSignedImageUrl(cardImagePaths.jornada_grande ?? null)
   const { url: lojaCoverGrande } = useSignedImageUrl(cardImagePaths.comunidade_grande ?? null)
 
-  const greetingName = firstName(profile.full_name)
-  const greeting = (
-    <header className="home-greeting">
-      <h2 className="home-greeting-title">
-        {timeGreeting()}
-        {greetingName ? `, ${greetingName}` : ''}
-      </h2>
-      <p className="home-greeting-sub">Seu Círcula de hoje</p>
-    </header>
-  )
+  const greeting = <HomeGreeting fullName={profile.full_name} />
 
   // --- Sem comunidade: preserva os fallbacks do "Início" atual -------
   if (profile.role === 'professional' && communities.length === 0) {
@@ -266,16 +253,30 @@ export function HomeToday({
   // saudação e o calendário entra depois dele.
   const weekCalendar = (
     <>
-      <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
+      <div className="home-time">
+        <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
+        <AnalogClock />
+      </div>
+      <hr className="home-section-divider" />
+      <HomeToolCards
+        onNavigate={onNavigate}
+        covers={{ agenda: toolCalendarCover, agua: toolWaterCover, imc: toolImcCover }}
+      />
       <hr className="home-section-divider" />
     </>
   )
 
   return (
     <div className="home">
-      {coverHero && weekCalendar}
+      {/* Com banner, a saudação é desenhada pelo Dashboard ACIMA dele. */}
+      {!coverHero && greeting}
 
-      {greeting}
+      <HomeDailyMessage
+        communityId={focusCommunity.id}
+        onManage={profile.role === 'professional' ? () => onNavigate('inspiracoes') : undefined}
+      />
+
+      {coverHero && weekCalendar}
 
       {accessBlocked && <CommunityAccessBlockedCard communityId={focusCommunity.id} />}
 
@@ -364,12 +365,13 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
-      <HomeWellnessCards
-        onNavigate={onNavigate}
-        canManageInspirations={profile.role === 'professional'}
-      />
+      <HomeWellnessCards onNavigate={onNavigate} />
 
-      <HomeSubscriptionCard cover={lojaCover} onNavigate={onNavigate} />
+      {profile.role !== 'professional' && (
+        <HomeSubscriptionCard cover={lojaCover} onNavigate={onNavigate} />
+      )}
+
+      <HomePartnersStrip communityId={focusCommunity.id} />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.

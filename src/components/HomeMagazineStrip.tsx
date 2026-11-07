@@ -52,10 +52,66 @@ export function MagazineReader({
   const total = padded.length
   const [index, setIndex] = useState(0)
   const [hint, setHint] = useState(true)
+  const [zoom, setZoom] = useState(1)
+  const [turning, setTurning] = useState<{ from: number; to: number } | null>(null)
+  const [downloadError, setDownloadError] = useState(false)
   const touch = useRef<{ x: number; y: number } | null>(null)
+  const turnTimer = useRef<number | undefined>(undefined)
+  const indexRef = useRef(0)
+  const { url: currentUrl } = useSignedImageUrl(padded[index])
 
-  const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), [])
-  const next = useCallback(() => setIndex((i) => Math.min(total - 1, i + 1)), [total])
+  // Vira a página: a folha de cima gira em torno da lombada (à esquerda).
+  // Com "reduzir movimento", troca direto, sem animação.
+  const goTo = useCallback(
+    (to: number) => {
+      const from = indexRef.current
+      if (to === from || to < 0 || to > total - 1) return
+      indexRef.current = to
+      setIndex(to)
+      setZoom(1)
+      window.clearTimeout(turnTimer.current)
+      let reduced = false
+      try {
+        reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      } catch {
+        reduced = false
+      }
+      if (reduced) {
+        setTurning(null)
+        return
+      }
+      setTurning({ from, to })
+      turnTimer.current = window.setTimeout(() => setTurning(null), 700)
+    },
+    [total],
+  )
+  const prev = useCallback(() => goTo(indexRef.current - 1), [goTo])
+  const next = useCallback(() => goTo(indexRef.current + 1), [goTo])
+
+  useEffect(() => () => window.clearTimeout(turnTimer.current), [])
+
+  async function handleDownload() {
+    if (!currentUrl) return
+    setDownloadError(false)
+    try {
+      const res = await fetch(currentUrl)
+      if (!res.ok) throw new Error('download')
+      const blob = await res.blob()
+      const ext = blob.type.split('/')[1]?.replace('jpeg', 'jpg') || 'webp'
+      const base = (issue?.title ?? 'revista').replace(/[^\w-]+/g, '-')
+      const part = index === 0 ? 'capa' : 'pagina-' + index
+      const a = document.createElement('a')
+      const objectUrl = URL.createObjectURL(blob)
+      a.href = objectUrl
+      a.download = base + '-' + part + '.' + ext
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000)
+    } catch {
+      setDownloadError(true)
+    }
+  }
 
   useEffect(() => {
     const t = window.setTimeout(() => setHint(false), 4500)
@@ -96,6 +152,7 @@ export function MagazineReader({
         if (!s) return
         const dx = e.changedTouches[0].clientX - s.x
         const dy = e.changedTouches[0].clientY - s.y
+        if (zoom > 1) return
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
         setHint(false)
         if (dx < 0) next()
@@ -108,10 +165,46 @@ export function MagazineReader({
       <p className="mag2-count">
         {title} · {index + 1}/{total}
       </p>
-      <div className="mag2-page" key={index}>
-        <Page path={padded[index]} label={index === 0 ? 'Capa' : `Página ${index}`} />
-      </div>
+      {(() => {
+        const dir = turning ? (turning.to > turning.from ? 'next' : 'prev') : null
+        // Ao voltar, a base ainda mostra a página de onde saiu e a folha
+        // (já com a página de destino) fecha sobre ela.
+        const baseIdx = turning && dir === 'prev' ? turning.from : index
+        const flapIdx = turning ? (dir === 'next' ? turning.from : turning.to) : null
+        const label = (i: number) => (i === 0 ? 'Capa' : `Página ${i}`)
+        return (
+          <div
+            className={'mag2-page' + (zoom > 1 ? ' mag2-page--zoomed' : '')}
+            style={{ ['--mag-zoom' as string]: zoom }}
+          >
+            <div className="mag2-sheet" onDoubleClick={() => setZoom((z) => (z > 1 ? 1 : 2))}>
+              <Page path={padded[baseIdx]} label={label(baseIdx)} />
+              {turning && flapIdx !== null && (
+                <div className={'mag2-flap mag2-flap--' + dir} aria-hidden="true">
+                  <Page path={padded[flapIdx]} label="" />
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
       {hint && <p className="mag2-hint">Deslize para a esquerda para virar a página ←</p>}
+      {downloadError && (
+        <p className="mag2-error" role="alert">
+          Não foi possível baixar agora. Tente novamente.
+        </p>
+      )}
+      <div className="mag2-tools">
+        <button type="button" onClick={() => setZoom((z) => Math.max(1, z - 1))} disabled={zoom === 1} aria-label="Diminuir zoom">
+          −
+        </button>
+        <button type="button" onClick={() => setZoom((z) => Math.min(3, z + 1))} disabled={zoom === 3} aria-label="Aumentar zoom">
+          +
+        </button>
+        <button type="button" className="mag2-download" onClick={() => void handleDownload()} disabled={!currentUrl} aria-label="Baixar esta página">
+          Baixar
+        </button>
+      </div>
       <div className="mag2-controls">
         <button type="button" onClick={prev} disabled={index === 0} aria-label="Página anterior">
           ‹
