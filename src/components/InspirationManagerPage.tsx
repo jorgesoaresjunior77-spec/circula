@@ -18,7 +18,7 @@ interface FormState {
   body: string
   author: string
   source: string
-  status: 'draft' | 'published'
+  status: 'draft' | 'published' | 'auto'
 }
 
 const EMPTY: FormState = { id: null, kind: 'citacao', body: '', author: '', source: '', status: 'draft' }
@@ -96,7 +96,7 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
     closeForm()
   }
 
-  const published = items.filter((i) => i.status === 'published').length
+  const published = items.filter((i) => i.status !== 'draft').length
 
   return (
     <section className="inspiration-page">
@@ -111,7 +111,7 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
       {!loading && items.length === 0 && <p className="home-muted">Nenhuma mensagem cadastrada ainda.</p>}
       {!loading && items.length > 0 && (
         <p className="home-muted">
-          {published} publicada{published === 1 ? '' : 's'} de {items.length}.
+          {published} no sorteio de {items.length}.
         </p>
       )}
 
@@ -120,7 +120,7 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
           <li key={i.id} className="inspiration-item">
             <p className="inspiration-item-text">{i.body}</p>
             <p className="inspiration-item-meta">
-              {attribution(i)} · {i.status === 'published' ? 'Publicada' : 'Rascunho'}
+              {attribution(i)} · {i.status === 'published' ? 'Publicada' : i.status === 'auto' ? 'Automática' : 'Rascunho'}
             </p>
             <button type="button" className="water-link" onClick={() => openEdit(i)}>
               Editar
@@ -164,8 +164,9 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
           )}
           <label>
             Situação
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'draft' | 'published' })}>
+            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'draft' | 'published' | 'auto' })}>
               <option value="draft">Rascunho (não aparece)</option>
+              <option value="auto">Automática (entra no sorteio sem publicar)</option>
               <option value="published">Publicada</option>
             </select>
           </label>

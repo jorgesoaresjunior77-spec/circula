@@ -11,7 +11,7 @@ export interface Inspiration {
   body: string
   author: string | null
   source: string | null
-  status: 'draft' | 'published'
+  status: 'draft' | 'published' | 'auto'
   created_at: string
 }
 
@@ -41,7 +41,7 @@ function seeded(seed: number): () => number {
  */
 export function pickInspiration(items: Inspiration[], todayIso: string): Inspiration | null {
   const published = items
-    .filter((i) => i.status === 'published')
+    .filter((i) => i.status === 'published' || i.status === 'auto')
     .sort((a, b) => (a.created_at === b.created_at ? (a.id < b.id ? -1 : 1) : a.created_at < b.created_at ? -1 : 1))
   const n = published.length
   if (n === 0) return null

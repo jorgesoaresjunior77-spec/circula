@@ -36,7 +36,7 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
         .from('daily_inspirations')
         .select('id, community_id, kind, body, author, source, status, created_at')
         .eq('community_id', communityId)
-        .eq('status', 'published')
+        .in('status', ['published', 'auto'])
       if (cancelled) return
       setItem(pickInspiration((data ?? []) as Inspiration[], today))
     })()

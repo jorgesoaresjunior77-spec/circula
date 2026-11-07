@@ -22,6 +22,11 @@ describe('pickInspiration — a mensagem do dia', () => {
     expect(pickInspiration([item('1', { status: 'draft' })], '2026-11-05')).toBeNull()
   })
 
+  it('mensagem automática entra no sorteio sem ser publicada', () => {
+    const auto = item('3', { status: 'auto' })
+    expect(pickInspiration([item('1', { status: 'draft' }), auto], '2026-11-05')).toBe(auto)
+  })
+
   it('ignora rascunhos', () => {
     const only = item('2')
     expect(pickInspiration([item('1', { status: 'draft' }), only], '2026-11-05')).toBe(only)
