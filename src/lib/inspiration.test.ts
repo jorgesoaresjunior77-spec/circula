@@ -32,13 +32,25 @@ describe('pickInspiration — a mensagem do dia', () => {
     expect(pickInspiration(list, '2026-11-05')?.id).toBe(pickInspiration([...list].reverse(), '2026-11-05')?.id)
   })
 
-  it('gira pela lista, uma por dia, e volta ao começo', () => {
+  it('sorteia sem repetir: numa rodada de N dias aparecem as N mensagens', () => {
     const list = [item('1'), item('2'), item('3')]
-    const ids = ['2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08'].map(
-      (d) => pickInspiration(list, d)?.id,
-    )
-    expect(new Set(ids.slice(0, 3)).size).toBe(3)
-    expect(ids[3]).toBe(ids[0])
+    // Começa num dia em que a rodada recomeça (dia múltiplo de 3).
+    let start = dayNumber('2026-11-05')
+    while (start % 3 !== 0) start += 1
+    const iso = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10)
+    const ids = [0, 1, 2].map((k) => pickInspiration(list, iso(start + k))?.id)
+    expect(new Set(ids).size).toBe(3)
+  })
+
+  it('a ordem muda de uma rodada para a outra (não é sempre a mesma sequência)', () => {
+    const list = Array.from({ length: 8 }, (_, i) => item(String(i + 1)))
+    const iso = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10)
+    let start = dayNumber('2026-11-05')
+    while (start % 8 !== 0) start += 1
+    const round = (r: number) =>
+      Array.from({ length: 8 }, (_, k) => pickInspiration(list, iso(start + r * 8 + k))?.id).join(',')
+    const rounds = [0, 1, 2, 3].map(round)
+    expect(new Set(rounds).size).toBeGreaterThan(1)
   })
 })
 

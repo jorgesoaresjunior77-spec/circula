@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { attribution, pickInspiration } from '../lib/inspiration'
+import { attribution, displayBody, pickInspiration } from '../lib/inspiration'
 import type { Inspiration } from '../lib/inspiration'
 import { todayParts } from '../lib/weekCalendar'
 
@@ -44,7 +44,7 @@ export function HomeDailyMessage({ communityId, onManage }: Props) {
       <span className="home-daily-eyebrow">Mensagem do dia</span>
       {item ? (
         <>
-          <p className="home-daily-text">{item.kind === 'citacao' ? `“${item.body}”` : item.body}</p>
+          <p className="home-daily-text">{displayBody(item)}</p>
           <p className="home-daily-author">{attribution(item)}</p>
         </>
       ) : (

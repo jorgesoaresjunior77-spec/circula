@@ -60,6 +60,10 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
       setFormError('Escreva a mensagem.')
       return
     }
+    if (form.kind === 'frase' && !form.author.trim()) {
+      setFormError('Informe o autor da frase.')
+      return
+    }
     if (form.kind === 'citacao' && (!form.author.trim() || !form.source.trim())) {
       setFormError('Citação precisa de autor e de obra (a fonte). Sem fonte, use "Texto editorial".')
       return
@@ -68,8 +72,8 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
     const result = await save(form.id, {
       kind: form.kind,
       body: form.body.trim(),
-      author: form.kind === 'citacao' ? form.author.trim() : null,
-      source: form.kind === 'citacao' ? form.source.trim() : null,
+      author: form.kind !== 'editorial' ? form.author.trim() : null,
+      source: form.kind !== 'editorial' ? form.source.trim() || null : null,
       status: form.status,
     })
     setSaving(false)
@@ -138,6 +142,7 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
             Tipo
             <select value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value as InspirationKind })}>
               <option value="citacao">Citação (com autor e obra)</option>
+              <option value="frase">Frase (só o autor; obra opcional)</option>
               <option value="editorial">Texto editorial do Círcula</option>
             </select>
           </label>
@@ -145,14 +150,14 @@ export function InspirationManagerPage({ communityId }: InspirationManagerPagePr
             Mensagem
             <textarea rows={4} maxLength={600} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
           </label>
-          {form.kind === 'citacao' && (
+          {form.kind !== 'editorial' && (
             <>
               <label>
                 Autor
                 <input value={form.author} maxLength={160} onChange={(e) => setForm({ ...form, author: e.target.value })} />
               </label>
               <label>
-                Obra
+                Obra{form.kind === 'frase' ? ' (opcional)' : ''}
                 <input value={form.source} maxLength={200} onChange={(e) => setForm({ ...form, source: e.target.value })} />
               </label>
             </>

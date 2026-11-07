@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CloseIcon } from './icons'
 import { supabase } from '../lib/supabase'
-import { attribution, markSeenToday, pickInspiration, wasSeenToday } from '../lib/inspiration'
+import { attribution, displayBody, markSeenToday, pickInspiration, wasSeenToday } from '../lib/inspiration'
 import type { Inspiration } from '../lib/inspiration'
 import { todayParts } from '../lib/weekCalendar'
 
@@ -80,7 +80,7 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
         <button ref={closeRef} type="button" className="inspiration-close" onClick={close} aria-label="Fechar">
           <CloseIcon size={18} />
         </button>
-        <p className="inspiration-text">{item.kind === 'citacao' ? `“${item.body}”` : item.body}</p>
+        <p className="inspiration-text">{displayBody(item)}</p>
         <p className="inspiration-author">{attribution(item)}</p>
       </div>
     </div>
