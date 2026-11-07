@@ -52,6 +52,14 @@ select pg_temp.expect_write('inspiração: dona edita o próprio texto -> PERMIT
 select pg_temp.expect_write('inspiração: dona exclui o próprio texto -> PERMITIDO', pg_temp.fx('prof'),
   'delete from public.daily_inspirations where body = ''[rls-suite] citacao publicada''', true);
 
+-- ================= biblioteca automática (migration 20261107160000) =====
+insert into public.daily_inspirations (community_id, kind, body, author, status, created_by) values
+  (pg_temp.fx('commA'), 'frase', '[rls-suite] auto', 'Autora Teste', 'auto', pg_temp.fx('prof'));
+select pg_temp.expect_count('inspiração: member ativo lê a AUTOMÁTICA', pg_temp.fx('member'),
+  'select count(*) from public.daily_inspirations where body = ''[rls-suite] auto''', 1);
+select pg_temp.expect_locked('inspiração: anon NÃO lê a automática', null,
+  'select count(*) from public.daily_inspirations where body = ''[rls-suite] auto''');
+
 -- ---------- RESULTADO --------------------------------------------------
 select jsonb_agg(to_jsonb(_r) order by _r.name) as results from _r;
 rollback;

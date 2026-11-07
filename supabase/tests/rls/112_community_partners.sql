@@ -29,3 +29,7 @@ select pg_temp.expect_write('parceiros: nome vazio -> BLOQUEADO (check)', pg_tem
   format('insert into public.community_partners (community_id, name, logo_path) values (%L, ''  '', ''x/l.png'')', pg_temp.fx('commA')), false);
 select pg_temp.expect_write('parceiros: member cadastra -> BLOQUEADO', pg_temp.fx('member'),
   format('insert into public.community_partners (community_id, name, logo_path) values (%L, ''[rls-suite] m'', ''x/l.png'')', pg_temp.fx('commA')), false);
+
+-- ---------- RESULTADO --------------------------------------------------
+select jsonb_agg(to_jsonb(_r) order by _r.name) as results from _r;
+rollback;
