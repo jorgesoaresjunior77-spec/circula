@@ -209,7 +209,7 @@ html {
 }
 
 .home-greeting .home-greeting-slot {
-  flex: 0 1 auto;
+  flex: 0 1 54%;
   min-width: 0;
 }
 
@@ -220,7 +220,10 @@ html {
 /* ---- Frase do dia: balão de vidro fumê com biquinho ----------------------- */
 .inspiration-bubble {
   position: relative;
-  width: clamp(150px, 48vw, 336px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 336px;
+  margin-left: auto;
   padding: 10px 28px 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 18px;
@@ -328,7 +331,7 @@ html {
   color: var(--n-700);
 }
 
-/* ---- Relógio: 10% menor, face de vidro transparente ------------------------ */
+/* ---- Relógio: 10% menor, sem moldura nem fundo ------------------------ */
 .home-clock svg {
   max-width: 135px;
   filter: none;
@@ -339,12 +342,10 @@ html {
   max-width: 135px;
   aspect-ratio: 1 / 1;
   padding: 6px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18));
-  -webkit-backdrop-filter: blur(10px) saturate(1.2);
-  backdrop-filter: blur(10px) saturate(1.2);
-  box-shadow: 0 8px 22px -10px rgba(53, 48, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  /* Sem círculo ao redor: só marcações e ponteiros sobre a tela. */
+  border: 0;
+  background: none;
+  box-shadow: none;
 }
 
 .home-clock .home-clock-glass svg {
@@ -622,7 +623,7 @@ html {
 .home-editorial-card {
   position: relative;
   display: block;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 8;
   border: 0;
   border-radius: 24px;
   background: transparent;
@@ -799,4 +800,27 @@ html {
   .home-wheel .wheel-item[aria-hidden='true'] {
     display: none;
   }
+}
+
+/* ---- Espaçamentos da Home (pedido de 2026-11-09) --------------------------- */
+.home-editorial-cards {
+  gap: var(--space-7);
+  margin-bottom: var(--space-6);
+}
+
+.home-wheel {
+  margin-bottom: var(--space-6);
+}
+
+.home-partners {
+  margin-top: var(--space-4);
+}
+
+/* Logos dos parceiros 20% maiores (48px -> 58px; largura máx. 140 -> 168). */
+.partners-item {
+  height: 58px;
+}
+
+.partners-item img {
+  max-width: 168px;
 }
