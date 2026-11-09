@@ -16923,7 +16923,7 @@ button.card:focus-visible {
 }
 .exp-viewport,
 .circ-viewport {
-  touch-action: pan-x pan-y pinch-zoom;
+  touch-action: pan-x pan-y;
 }
 
 /* ---------- Conversa do feed ----------
