@@ -21,6 +21,7 @@ export function HomeWeekCalendar({ onOpen }: HomeWeekCalendarProps) {
 
   return (
     <section className="home-week" aria-label="Calendário da semana">
+      <span className="home-week-eyebrow">Agenda</span>
       <button
         type="button"
         className="home-week-open"

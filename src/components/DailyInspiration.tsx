@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { CloseIcon } from './icons'
 import { supabase } from '../lib/supabase'
 import { attribution, displayBody, markSeenToday, pickInspiration, wasSeenToday } from '../lib/inspiration'
@@ -27,6 +28,14 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
   const [item, setItem] = useState<Inspiration | null>(null)
   const [dismissed, setDismissed] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const [slot, setSlot] = useState<HTMLElement | null>(null)
+  const [expanded, setExpanded] = useState(false)
+
+  // O balão mora dentro da saudação (Home); procura o encaixe a cada render.
+  useEffect(() => {
+    const el = document.getElementById('daily-bubble-slot')
+    if (el !== slot) setSlot(el)
+  })
 
   useEffect(() => {
     if (!communityId || wasSeenToday(profileId, today)) return
@@ -45,44 +54,30 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
     }
   }, [communityId, profileId, today])
 
-  const open = !!item && !dismissed && !suppressed
-
-  useEffect(() => {
-    if (open) closeRef.current?.focus()
-  }, [open])
+  const open = !!item && !dismissed && !suppressed && !!slot
 
   function close() {
     markSeenToday(profileId, today)
     setDismissed(true)
   }
 
-  useEffect(() => {
-    if (!open) return
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') close()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  if (!open || !item || !slot) return null
 
-  if (!open || !item) return null
-
-  return (
-    <div className="inspiration-backdrop" onClick={close}>
-      <div
-        className="inspiration-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mensagem do dia"
-        onClick={(e) => e.stopPropagation()}
+  return createPortal(
+    <aside className="inspiration-bubble" role="note" aria-label="Mensagem do dia">
+      <button ref={closeRef} type="button" className="inspiration-bubble-close" onClick={close} aria-label="Fechar mensagem do dia">
+        <CloseIcon size={14} />
+      </button>
+      <button
+        type="button"
+        className="inspiration-bubble-body"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
       >
-        <button ref={closeRef} type="button" className="inspiration-close" onClick={close} aria-label="Fechar">
-          <CloseIcon size={18} />
-        </button>
-        <p className="inspiration-text">{displayBody(item)}</p>
-        <p className="inspiration-author">{attribution(item)}</p>
-      </div>
-    </div>
+        <span className={'inspiration-bubble-text' + (expanded ? ' is-open' : '')}>{displayBody(item)}</span>
+        <span className="inspiration-bubble-author">{attribution(item)}</span>
+      </button>
+    </aside>,
+    slot,
   )
 }

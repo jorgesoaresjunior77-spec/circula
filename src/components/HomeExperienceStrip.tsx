@@ -173,6 +173,7 @@ export function HomeExperienceStrip({
 
   return (
     <section className="exp-strip exp-strip--hoje" aria-label="Seu Círcula de Hoje">
+      <h2 className="circ-strip-title">Menu</h2>
       <div
         className={`exp-viewport exp-viewport--draggable${loop ? ' exp-viewport--looping' : ''}${dragging ? ' exp-viewport--dragging' : ''}`}
         ref={viewportRef}

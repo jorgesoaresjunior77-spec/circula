@@ -387,7 +387,8 @@ describe('useDragCarousel — reposicionamento do ciclo não corta a inércia', 
       setTimeout(() => cb(performance.now()), 16) as unknown as number,
     )
     vi.stubGlobal('cancelAnimationFrame', (id: number) => clearTimeout(id))
-    stubMatchMedia(false)
+    // Movimento reduzido: o autoplay (agora também no celular) não interfere na medição.
+    stubMatchMedia(true)
   })
 
   afterEach(() => {

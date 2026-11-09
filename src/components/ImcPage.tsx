@@ -3,16 +3,25 @@ import type { FormEvent } from 'react'
 import {
   HEIGHT_MAX_CM,
   HEIGHT_MIN_CM,
+  IMC_LABEL,
+  IMC_MESSAGE,
   IMC_WEIGHT_MAX_KG,
   IMC_WEIGHT_MIN_KG,
   calcImc,
-  imcRange,
+  imcBand,
   parseDecimal,
 } from '../lib/imc'
+import { ImcAvatar } from './ImcAvatar'
 
-// Calculadora de IMC: conta feita no aparelho, nada é salvo.
+// Calculadora de IMC: a conta é feita no aparelho com o peso e a altura que a
+// própria usuária informa, e nada é salvo. Não é diagnóstico.
 
-export function ImcPage() {
+interface ImcPageProps {
+  /** Abre a conversa com a nutricionista (só para a membro). */
+  onTalkToNutri?: () => void
+}
+
+export function ImcPage({ onTalkToNutri }: ImcPageProps) {
   const [height, setHeight] = useState('')
   const [weight, setWeight] = useState('')
   const [result, setResult] = useState<number | null>(null)
@@ -36,11 +45,13 @@ export function ImcPage() {
     setResult(calcImc(w, h))
   }
 
+  const band = result === null ? null : imcBand(result)
+
   return (
     <section className="imc-page">
       <h2>Calculadora de IMC</h2>
       <p className="imc-intro">
-        Uma conta simples entre peso e altura. Ela não é um diagnóstico e não conta a sua história.
+        Uma conta simples entre o seu peso e a sua altura. Ela não é um diagnóstico e não conta a sua história.
       </p>
       <form className="imc-form" onSubmit={handleSubmit}>
         <label>
@@ -54,15 +65,31 @@ export function ImcPage() {
         <button type="submit">Calcular</button>
       </form>
       {error && <p className="auth-error" role="alert">{error}</p>}
-      {result !== null && (
+
+      {result !== null && band && (
         <div className="imc-result" role="status">
-          <strong className="imc-value">{String(result).replace('.', ',')}</strong>
-          <span>Resultado {imcRange(result)} para adultos.</span>
+          <ImcAvatar band={band} />
+          <div className="imc-result-text">
+            <span className="imc-result-eyebrow">Seu IMC</span>
+            <strong className="imc-value">{String(result).replace('.', ',')}</strong>
+            <span className="imc-label">{IMC_LABEL[band]}</span>
+            <p className="imc-message">{IMC_MESSAGE[band]}</p>
+          </div>
+          {onTalkToNutri && (
+            <button type="button" className="imc-nutri-btn" onClick={onTalkToNutri}>
+              Falar com a nutri
+            </button>
+          )}
+          <p className="imc-note imc-note--avatar">
+            A ilustração é apenas representativa: o IMC não mostra composição corporal, distribuição de
+            gordura nem aparência.
+          </p>
         </div>
       )}
+
       <p className="imc-note">
-        O IMC não considera massa muscular, idade, gestação nem saúde como um todo. Para entender o seu
-        caso, converse com a sua nutricionista ou com o seu médico.
+        O IMC não considera massa muscular, idade, gestação nem saúde como um todo e não é um diagnóstico.
+        Para entender o seu caso, converse com a sua nutricionista ou com o seu médico.
       </p>
     </section>
   )

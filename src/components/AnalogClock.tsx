@@ -49,6 +49,7 @@ export function AnalogClock() {
 
   return (
     <div className="home-clock" role="img" aria-label={label}>
+      <div className="home-clock-glass">
       <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         {Array.from({ length: 60 }, (_, i) => {
           const major = i % 5 === 0
@@ -71,6 +72,7 @@ export function AnalogClock() {
         )}
         <circle cx="50" cy="50" r="2.4" className="home-clock-pin" />
       </svg>
+      </div>
     </div>
   )
 }

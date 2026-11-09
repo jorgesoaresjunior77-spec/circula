@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcImc, imcRange, parseDecimal } from './imc'
+import { IMC_MESSAGE, calcImc, imcBand, imcRange, parseDecimal } from './imc'
 
 describe('imc', () => {
   it('calcula com uma casa decimal', () => {
@@ -16,5 +16,13 @@ describe('imc', () => {
     expect(imcRange(22)).toMatch(/dentro/)
     expect(imcRange(27)).toMatch(/acima/)
     expect(imcRange(35)).toMatch(/bem acima/)
+  })
+
+  it('separa as 4 faixas e cada uma tem mensagem acolhedora, sem julgamento', () => {
+    expect([17, 22, 27, 35].map(imcBand)).toEqual(['abaixo', 'referencia', 'acima', 'elevado'])
+    expect(IMC_MESSAGE.referencia).toMatch(/Continue cuidando de você/)
+    for (const m of Object.values(IMC_MESSAGE)) {
+      expect(m).not.toMatch(/gord[ao]|magr[ao]|feio|perfeito|ideal/i)
+    }
   })
 })

@@ -5,6 +5,22 @@ import { MAGAZINE_BLANK_PAGES } from '../types/magazine'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { nextMagazineMessage } from '../lib/magazineSchedule'
 import { CloseIcon } from './icons'
+import { todayParts } from '../lib/weekCalendar'
+
+function todayIso(): string {
+  const t = todayParts()
+  return `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`
+}
+
+/** Edição ainda não lançada: a membro vê a capa com "Em breve", sem as páginas. */
+export function isUpcoming(issue: MagazineIssue | null, today: string = todayIso()): boolean {
+  return !!issue && issue.release_date > today
+}
+
+function brDate(iso: string): string {
+  const [, m, d] = iso.split('-')
+  return `${d}/${m}`
+}
 
 // "Revista Círcula Magazine": até 6 capas empilhadas (a mais nova na
 // frente, cada uma cobrindo ~70% da de trás). Deslizar a de cima para a
@@ -313,9 +329,12 @@ function EditorialOffice({
 function Stack({
   issues,
   onOpen,
+  hideBadges = false,
 }: {
   issues: (MagazineIssue | null)[]
   onOpen: (issue: MagazineIssue | null) => void
+  /** A profissional vê tudo sem selo. */
+  hideBadges?: boolean
 }) {
   // Ordem de exibição (frente primeiro). Muda só quando a lista muda.
   const key = issues.map((i) => i?.id ?? '-').join(',')
@@ -370,6 +389,9 @@ function Stack({
               }}
             >
               <Cover path={issue?.cover_path ?? null} title={issue?.title ?? ''} />
+              {!hideBadges && isUpcoming(issue) && issue && (
+                <span className="mag-soon-badge">Em breve · {brDate(issue.release_date)}</span>
+              )}
             </button>
           </li>
         )
@@ -390,6 +412,17 @@ export function HomeMagazineStrip({ issues, officeImage, manager }: HomeMagazine
   // `reading`: undefined = fechado; null = leitor de edição em branco.
   const [reading, setReading] = useState<MagazineIssue | null | undefined>(undefined)
   const [office, setOffice] = useState(false)
+  const [notice, setNotice] = useState<string | null>(null)
+  const isOwner = !!manager
+
+  function handleOpen(issue: MagazineIssue | null) {
+    if (!isOwner && isUpcoming(issue) && issue) {
+      setNotice(`A edição ${issue.title} será liberada em ${brDate(issue.release_date)}.`)
+      return
+    }
+    setNotice(null)
+    setReading(issue)
+  }
 
   // Sempre uma pilha cheia: as edições reais na frente (a mais nova primeiro)
   // e, atrás, exemplares mais antigos ainda sem capa.
@@ -406,8 +439,13 @@ export function HomeMagazineStrip({ issues, officeImage, manager }: HomeMagazine
       </h2>
 
       <div className="mag2-viewport">
-        <Stack issues={stacked} onOpen={setReading} />
+        <Stack issues={stacked} onOpen={handleOpen} hideBadges={isOwner} />
       </div>
+      {notice && (
+        <p className="mag-soon-notice" role="status">
+          {notice}
+        </p>
+      )}
 
       {reading !== undefined && (
         <MagazineReader

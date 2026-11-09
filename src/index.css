@@ -87,9 +87,11 @@
      (branco) e ficam por cima, então o contraste do texto não muda. */
   --page-gradient: linear-gradient(
     180deg,
-    #efe5d6 0%,
-    #f1e8da 50%,
-    #f9f5ee 78%,
+    #f7f2ea 0%,
+    #f8f4ed 20%,
+    #faf7f2 40%,
+    #fcfaf7 60%,
+    #fefdfb 80%,
     var(--c-white) 100%
   );
 

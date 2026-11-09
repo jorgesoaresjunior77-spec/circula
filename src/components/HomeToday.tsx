@@ -24,8 +24,7 @@ import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
 import { HomeDailyMessage } from './HomeDailyMessage'
-import { HomeWellnessCards } from './HomeWellnessCards'
-import { HomeSubscriptionCard } from './HomeSubscriptionCard'
+import { HomeMenuWheel } from './HomeMenuWheel'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -177,9 +176,6 @@ export function HomeToday({
   // Etapa 3.2 (evolução/gamificação) — capa do card "Meu Jardim", chave
   // `jardim` (migration 20261030120000, preparada e não aplicada).
   const { url: jardimCover } = useSignedImageUrl(cardImagePaths.jardim ?? null)
-  const { url: toolCalendarCover } = useSignedImageUrl(cardImagePaths.ferramenta_calendario ?? null)
-  const { url: toolWaterCover } = useSignedImageUrl(cardImagePaths.ferramenta_agua ?? null)
-  const { url: toolImcCover } = useSignedImageUrl(cardImagePaths.ferramenta_imc ?? null)
   const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
   const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
   // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
@@ -258,10 +254,7 @@ export function HomeToday({
         <AnalogClock />
       </div>
       <hr className="home-section-divider" />
-      <HomeToolCards
-        onNavigate={onNavigate}
-        covers={{ agenda: toolCalendarCover, agua: toolWaterCover, imc: toolImcCover }}
-      />
+      <HomeToolCards onNavigate={onNavigate} />
       <hr className="home-section-divider" />
     </>
   )
@@ -271,10 +264,11 @@ export function HomeToday({
       {/* Com banner, a saudação é desenhada pelo Dashboard ACIMA dele. */}
       {!coverHero && greeting}
 
-      <HomeDailyMessage
-        communityId={focusCommunity.id}
-        onManage={profile.role === 'professional' ? () => onNavigate('inspiracoes') : undefined}
-      />
+      {/* Para a membro a frase do dia é o balão ao lado da saudação; a
+          profissional ganha aqui o atalho para gerenciar as mensagens. */}
+      {profile.role === 'professional' && (
+        <HomeDailyMessage communityId={focusCommunity.id} onManage={() => onNavigate('inspiracoes')} />
+      )}
 
       {coverHero && weekCalendar}
 
@@ -365,11 +359,7 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
-      <HomeWellnessCards onNavigate={onNavigate} />
-
-      {profile.role !== 'professional' && (
-        <HomeSubscriptionCard cover={lojaCover} onNavigate={onNavigate} />
-      )}
+      <HomeMenuWheel onNavigate={onNavigate} showSubscriptions={profile.role !== 'professional'} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 

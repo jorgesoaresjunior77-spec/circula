@@ -86,7 +86,7 @@ describe('InspirationManagerPage — mensagens do dia', () => {
       { id: 'b', kind: 'editorial', body: 'Dois', author: null, source: null, status: 'draft', created_at: '2' },
     ])
     render(<InspirationManagerPage communityId="c1" />)
-    expect(screen.getByText('1 publicada de 2.')).toBeInTheDocument()
+    expect(screen.getByText('1 no sorteio de 2.')).toBeInTheDocument()
     expect(screen.getByText(/Rascunho/)).toBeInTheDocument()
   })
 })

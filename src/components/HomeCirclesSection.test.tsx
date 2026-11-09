@@ -75,7 +75,9 @@ describe('HomeCirclesSection — card "Novo Círculo"', () => {
 
   it('aparece sozinho (sem nenhum Círculo real ainda) em vez da seção inteira sumir', () => {
     render(<HomeCirclesSection circles={[]} onOpen={() => {}} onRequestNewCircle={() => {}} />)
-    expect(screen.getByText('Novo Círculo')).toBeInTheDocument()
+    // A sequência é repetida (cópias aria-hidden) para a esteira poder girar.
+    expect(screen.getAllByText('Novo Círculo').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByRole('button', { name: 'Sugerir um novo círculo' })).toHaveLength(1)
   })
 
   it('sem círculos reais e sem onRequestNewCircle, a seção inteira não renderiza nada', () => {

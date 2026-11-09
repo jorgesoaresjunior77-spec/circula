@@ -72,7 +72,7 @@ import type { RefObject } from 'react'
 const DRAG_THRESHOLD = 4
 
 /** Ritmo do avanço automático — calmo, não deve parecer "correria". */
-const AUTOPLAY_PX_PER_SEC = 32
+const AUTOPLAY_PX_PER_SEC = 22
 
 /** Pausa residual (ms) após soltar o toque, antes de retomar — dá tempo
  *  da inércia nativa do swipe (scroll momentum) assentar, evitando que
@@ -469,9 +469,10 @@ export function useDragCarousel(itemCount: number): DragCarousel {
     // (ex.: jsdom nos testes, sem polyfill) — sem a checagem, o efeito
     // inteiro lançava e os testes quebravam antes de chegar a qualquer
     // asserção.
+    // Pedido de 2026-11-07: a esteira anda sozinha TAMBÉM no celular
+    // (devagar, sem pausas); o toque ainda pausa e a pessoa pode arrastar.
     const allowMotion =
       typeof window.matchMedia === 'function' &&
-      window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
       !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let rafId: number | null = null
     let lastFrameTime: number | null = null

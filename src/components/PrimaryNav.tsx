@@ -17,6 +17,7 @@ export type NavKey =
   | 'agua'
   | 'imc'
   | 'planos'
+  | 'playlist'
   | 'antes-de-tudo'
   | 'leitura'
   | 'respiracao'

@@ -178,3 +178,601 @@
     transition: none;
   }
 }
+
+/* ======================================================================
+   Refinamento visual (pedido de 2026-11-07)
+   ====================================================================== */
+
+/* ---- Topo: sem faixa branca; mesma cor do fundo e área segura ---------- */
+html {
+  background-color: #f7f2ea;
+}
+
+.dashboard {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ---- Saudação com a frase do dia ao lado ------------------------------- */
+.home-greeting {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.home-greeting .home-greeting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.home-greeting .home-greeting-slot {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.home-greeting .home-greeting-slot:empty {
+  display: none;
+}
+
+/* ---- Frase do dia: balão de vidro fumê com biquinho ----------------------- */
+.inspiration-bubble {
+  position: relative;
+  width: clamp(150px, 48vw, 336px);
+  padding: 10px 28px 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(34, 29, 26, 0.58);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: 0 10px 28px -10px rgba(20, 15, 12, 0.55);
+  color: #fff;
+  animation: bubble-in 0.35s var(--ease, ease-out) both;
+}
+
+/* Biquinho de balão de conversa, apontando para a saudação (à esquerda). */
+.inspiration-bubble::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 9px solid rgba(34, 29, 26, 0.58);
+}
+
+.inspiration-bubble .inspiration-bubble-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+.inspiration-bubble .inspiration-bubble-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inspiration-bubble .inspiration-bubble-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.inspiration-bubble .inspiration-bubble-text.is-open {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.inspiration-bubble .inspiration-bubble-author {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inspiration-bubble {
+    animation: none;
+  }
+}
+
+/* ---- Agenda: título discreto ---------------------------------------------- */
+.home-week .home-week-eyebrow {
+  display: block;
+  text-align: center;
+  margin-bottom: 2px;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--n-700);
+}
+
+/* ---- Relógio: 10% menor, face de vidro transparente ------------------------ */
+.home-clock svg {
+  max-width: 135px;
+  filter: none;
+}
+
+.home-clock .home-clock-glass {
+  width: 100%;
+  max-width: 135px;
+  aspect-ratio: 1 / 1;
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18));
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: 0 8px 22px -10px rgba(53, 48, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.home-clock .home-clock-glass svg {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  filter: drop-shadow(0 1px 1px rgba(53, 48, 44, 0.2));
+}
+
+.home-clock .home-clock-tick {
+  stroke: var(--n-700);
+}
+
+/* ---- Três cards: Antes de Tudo, Água, IMC — sem caixas nem bordas ---------- */
+.home-tools {
+  gap: var(--space-2);
+}
+
+.home-tools .home-tool {
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-tools .home-tool-media {
+  width: 64px;
+  height: 64px;
+  aspect-ratio: auto;
+  background: transparent;
+  color: var(--circula-mocha);
+}
+
+.home-tools .home-tool-media svg,
+.home-tools .home-tool-media .tool-icon {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.home-tools .home-tool-title {
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+@media (hover: hover) {
+  .home-tools .home-tool:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .home-tools .home-tool:hover .home-tool-media {
+    transform: translateY(-2px);
+  }
+}
+
+.home-tools .home-tool-media {
+  transition: transform 0.25s ease;
+}
+
+/* Sol: brilha, enfraquece e volta a brilhar */
+.tool-icon--sun {
+  color: #d99a3d;
+  animation: tool-sun-glow 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.tool-icon--sun .tool-sun-core {
+  transform-origin: 24px 24px;
+  animation: tool-sun-core 3s ease-in-out infinite;
+}
+
+.tool-icon--sun .tool-sun-rays {
+  transform-origin: 24px 24px;
+  animation: tool-sun-rays 3s ease-in-out infinite;
+}
+
+@keyframes tool-sun-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(217, 154, 61, 0.35)); opacity: 0.78; }
+  50% { filter: drop-shadow(0 0 11px rgba(240, 180, 70, 0.95)); opacity: 1; }
+}
+
+@keyframes tool-sun-core {
+  0%, 100% { transform: scale(0.94); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes tool-sun-rays {
+  0%, 100% { transform: scale(0.92) rotate(0deg); opacity: 0.6; }
+  50% { transform: scale(1.06) rotate(8deg); opacity: 1; }
+}
+
+/* Água: pingos caindo, de leve */
+.tool-icon--water {
+  color: #4f93b8;
+}
+
+.tool-icon--water .tool-drip {
+  opacity: 0;
+  animation: tool-drip 2.4s ease-in infinite;
+}
+
+.tool-icon--water .tool-drip--2 {
+  animation-delay: 0.8s;
+}
+
+.tool-icon--water .tool-drip--3 {
+  animation-delay: 1.6s;
+}
+
+@keyframes tool-drip {
+  0% { transform: translateY(-14px); opacity: 0; }
+  20% { opacity: 0.85; }
+  80% { transform: translateY(8px); opacity: 0.5; }
+  100% { transform: translateY(10px); opacity: 0; }
+}
+
+/* Coração: batimento contínuo (dois toques e uma pausa) */
+.tool-icon--heart {
+  color: #c4647a;
+  transform-origin: center;
+  animation: tool-heartbeat 1.4s ease-in-out infinite;
+}
+
+@keyframes tool-heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.16); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.1); }
+  70% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-icon--sun,
+  .tool-icon--sun .tool-sun-core,
+  .tool-icon--sun .tool-sun-rays,
+  .tool-icon--heart,
+  .tool-icon--water .tool-drip {
+    animation: none;
+  }
+  .tool-icon--water .tool-drip {
+    opacity: 0;
+  }
+}
+
+/* ---- IMC: avatar, mensagem e botão para falar com a nutricionista ------- */
+.imc-result {
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  border: 0;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+}
+
+.imc-result .imc-avatar {
+  width: 112px;
+  height: auto;
+  filter: drop-shadow(0 8px 14px rgba(120, 80, 70, 0.18));
+}
+
+.imc-result .imc-result-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.imc-result .imc-result-eyebrow {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--n-700);
+}
+
+.imc-result .imc-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.imc-result .imc-message {
+  margin: var(--space-2) 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+
+.imc-nutri-btn {
+  min-height: 48px;
+  margin: 0;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7a5a49, var(--circula-mocha));
+  box-shadow: 0 10px 22px -10px rgba(90, 70, 58, 0.7);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.imc-nutri-btn:active {
+  transform: scale(0.98);
+}
+
+.imc-note--avatar {
+  text-align: center;
+  font-size: 12px;
+  color: var(--n-700);
+}
+
+/* ---- Revista: seis capas sem borda, só sombra suave --------------------- */
+.mag2-stack-item .mag-cover {
+  border: 0;
+  outline: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: 0 10px 24px -10px rgba(53, 48, 44, 0.42), 0 2px 6px rgba(53, 48, 44, 0.12);
+}
+
+.mag2-stack-item .mag-cover:focus-visible {
+  outline: 2px solid var(--ink-action);
+  outline-offset: 3px;
+}
+
+.mag2-stack-item .mag-cover-img,
+.mag2-stack-item .mag-cover-blank {
+  border: 0;
+  border-radius: 8px;
+}
+
+.mag2-stack-item .mag-cover {
+  position: relative;
+}
+
+.mag-soon-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(34, 29, 26, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mag-soon-notice {
+  margin: var(--space-2) 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--n-700);
+}
+
+/* ---- Eventos / Receitas / Loja: foto ocupa o card, texto vazado ---------- */
+.home-editorial-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  box-shadow: 0 14px 30px -14px rgba(53, 48, 44, 0.5);
+  isolation: isolate;
+}
+
+.home-editorial-card .home-editorial-card-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.home-editorial-card .home-editorial-card-media-fallback {
+  background: linear-gradient(135deg, #ead9c8, #d9b8a6);
+}
+
+.home-editorial-card .home-editorial-card-photo {
+  border-radius: inherit;
+  transition: transform 0.6s ease;
+}
+
+/* Véu suave embaixo para o texto ler em qualquer foto. */
+.home-editorial-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(25, 20, 17, 0) 38%, rgba(25, 20, 17, 0.72) 100%);
+  pointer-events: none;
+}
+
+.home-editorial-card .home-editorial-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-4) var(--space-5);
+  background: transparent;
+}
+
+.home-editorial-card .home-editorial-card-eyebrow,
+.home-editorial-card .home-editorial-card-tag,
+.home-editorial-card .home-editorial-card-title,
+.home-editorial-card .home-editorial-card-subtitle,
+.home-editorial-card .home-editorial-card-footer,
+.home-editorial-card .home-editorial-card-cta {
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+.home-editorial-card .home-editorial-card-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+}
+
+@media (hover: hover) {
+  .home-editorial-card:hover .home-editorial-card-photo {
+    transform: scale(1.04);
+  }
+}
+
+/* ---- Menu vertical contínuo (roda): leitura, respiração, assinaturas, playlist ---- */
+.home-wheel {
+  --wheel-card-h: 64px;
+  --wheel-gap: 10px;
+}
+
+.home-wheel .wheel-viewport {
+  height: calc((var(--wheel-card-h) + var(--wheel-gap)) * 2.6);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+}
+
+.home-wheel .wheel-track {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: wheel-up linear infinite;
+  will-change: transform;
+}
+
+/* Sobe exatamente metade (uma volta completa), sem salto na emenda. */
+@keyframes wheel-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+.home-wheel .wheel-item {
+  height: var(--wheel-card-h);
+  margin-bottom: var(--wheel-gap);
+}
+
+.home-wheel .wheel-card {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-4);
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.28));
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
+  box-shadow: 0 8px 20px -12px rgba(53, 48, 44, 0.4);
+  color: var(--graphite);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-wheel .wheel-thumb {
+  flex: 0 0 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--circula-mocha);
+}
+
+.home-wheel .wheel-title {
+  align-self: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: -0.005em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-wheel .wheel-viewport {
+    height: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .home-wheel .wheel-track {
+    animation: none;
+  }
+  .home-wheel .wheel-item[aria-hidden='true'] {
+    display: none;
+  }
+}

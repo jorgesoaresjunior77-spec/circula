@@ -18,11 +18,15 @@ export function HomeGreeting({ fullName }: { fullName: string | null | undefined
   const name = firstName(fullName)
   return (
     <header className="home-greeting">
-      <h2 className="home-greeting-title">
-        {timeGreeting()}
-        {name ? `, ${name}` : ''}
-      </h2>
-      <p className="home-greeting-sub">Seu Círcula de hoje</p>
+      <div className="home-greeting-text">
+        <h2 className="home-greeting-title">
+          {timeGreeting()}
+          {name ? `, ${name}` : ''}
+        </h2>
+        <p className="home-greeting-sub">Seu Círcula de hoje</p>
+      </div>
+      {/* A frase do dia (DailyInspiration) aparece aqui, em balão. */}
+      <div id="daily-bubble-slot" className="home-greeting-slot" />
     </header>
   )
 }

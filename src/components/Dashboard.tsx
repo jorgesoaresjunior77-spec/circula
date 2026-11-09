@@ -29,6 +29,7 @@ import { AgendaPage } from './AgendaPage'
 import { WaterPage } from './WaterPage'
 import { ImcPage } from './ImcPage'
 import { PlansPage } from './PlansPage'
+import { PlaylistPage } from './PlaylistPage'
 import { AntesDeTudoPage } from './AntesDeTudoPage'
 import { ReadingTipsPage } from './ReadingTipsPage'
 import { BreathingPage } from './BreathingPage'
@@ -147,7 +148,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes']
 
 export function Dashboard({
   profile,
@@ -371,6 +372,8 @@ export function Dashboard({
     if (profile?.role === 'member') {
       navItems.push({ key: 'planos', label: 'Planos', Icon: StoreIcon, inBottomNav: false })
     }
+    // Playlist — aberta pelo menu vertical da Home (ainda sem conteúdo).
+    navItems.push({ key: 'playlist', label: 'Playlist', Icon: HeartIcon, inBottomNav: false })
     // Fase 13 — Loja acessível também à Member (antes só existia como
     // destino da anfitriã, dentro de canHostDestinations). Backend/RLS
     // e o componente já suportavam a Member comprar (ProductManager
@@ -847,7 +850,15 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'imc') {
-      return <ImcPage />
+      return (
+        <ImcPage
+          onTalkToNutri={profile.role === 'member' ? () => handleNavigate('mensagens') : undefined}
+        />
+      )
+    }
+
+    if (effectiveNav === 'playlist') {
+      return <PlaylistPage />
     }
 
     if (effectiveNav === 'planos') {

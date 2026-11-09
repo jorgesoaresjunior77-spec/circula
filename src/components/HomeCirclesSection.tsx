@@ -146,14 +146,24 @@ export function HomeCirclesSection({
 
   if (itemCount === 0) return null
 
+  // Poucos cards não passam da largura da tela e a esteira não teria como
+  // girar: a sequência é repetida (cópias aria-hidden) até passar dela.
+  const repeat = Math.max(1, Math.ceil(5 / Math.max(itemCount, 1)))
+
   const renderSeq = (clone: boolean, key?: string) => (
     <ul className="circ-seq" aria-hidden={clone || undefined} key={key} ref={clone ? undefined : seqRef}>
+      {Array.from({ length: repeat }, (_, r) => renderCards(clone || r > 0, `${key ?? 'real'}-${r}`))}
+    </ul>
+  )
+
+  const renderCards = (clone: boolean, key: string) => (
+    <>
       {/* O card "Novo Círculo" abre a faixa: no fim ele ficava fora da tela
           assim que a comunidade tinha alguns círculos (a faixa rola na
           horizontal e no celular não anda sozinha). */}
       {onRequestNewCircle && (
         <NewCircleCard
-          key={clone ? `new-circle-${key}` : 'new-circle'}
+          key={`new-circle-${key}`}
           onActivate={onRequestNewCircle}
           cover={newCircleCover}
           badge={newCircleBadge}
@@ -162,14 +172,14 @@ export function HomeCirclesSection({
       )}
       {circles.map((circle, index) => (
         <CircleGalleryCard
-          key={clone ? `${circle.id}-${key}` : circle.id}
+          key={`${circle.id}-${key}`}
           circle={circle}
           index={index}
           clone={clone}
           onOpen={onOpen}
         />
       ))}
-    </ul>
+    </>
   )
 
   return (
