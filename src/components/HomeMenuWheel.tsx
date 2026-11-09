@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import type { NavKey } from './PrimaryNav'
+import type { CommunityCardKey } from '../types/communityCards'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
 // Menu vertical contínuo: Dicas de leitura, Respiração, Assinaturas e
 // Playlist. Cards finos, todos do mesmo tamanho, com a imagem encostada à
@@ -9,6 +11,8 @@ import type { NavKey } from './PrimaryNav'
 
 interface Item {
   key: NavKey
+  /** Chave da foto em community_card_images (editada no painel Imagens). */
+  imageKey: CommunityCardKey
   title: string
   tint: string
   icon: ReactNode
@@ -43,19 +47,39 @@ const MusicSvg = (
 )
 
 const ALL_ITEMS: Item[] = [
-  { key: 'leitura', title: 'Dicas de leitura', tint: 'linear-gradient(135deg,#f3dccf,#e8c3b3)', icon: BookSvg },
-  { key: 'respiracao', title: 'Respiração', tint: 'linear-gradient(135deg,#d8e6dc,#bcd3c4)', icon: BreathSvg },
-  { key: 'planos', title: 'Assinaturas', tint: 'linear-gradient(135deg,#efe2c8,#e3cda4)', icon: StarSvg },
-  { key: 'playlist', title: 'Playlist', tint: 'linear-gradient(135deg,#dcd6ea,#c6bddb)', icon: MusicSvg },
+  { key: 'leitura', imageKey: 'menu_leitura', title: 'Dicas de leitura', tint: 'linear-gradient(135deg,#f3dccf,#e8c3b3)', icon: BookSvg },
+  { key: 'respiracao', imageKey: 'menu_respiracao', title: 'Respiração', tint: 'linear-gradient(135deg,#d8e6dc,#bcd3c4)', icon: BreathSvg },
+  { key: 'planos', imageKey: 'menu_planos', title: 'Assinaturas', tint: 'linear-gradient(135deg,#efe2c8,#e3cda4)', icon: StarSvg },
+  { key: 'playlist', imageKey: 'menu_playlist', title: 'Playlist', tint: 'linear-gradient(135deg,#dcd6ea,#c6bddb)', icon: MusicSvg },
 ]
+
+/** Miniatura do card: a foto da profissional ocupa ~60% da largura (com fade
+ *  para o vidro); sem foto, o degradê com ícone de sempre. */
+function WheelThumb({ item, path }: { item: Item; path: string | null }) {
+  const { url } = useSignedImageUrl(path)
+  if (!url) {
+    return (
+      <span className="wheel-thumb" style={{ background: item.tint }} aria-hidden="true">
+        {item.icon}
+      </span>
+    )
+  }
+  return (
+    <span className="wheel-thumb wheel-thumb--photo" aria-hidden="true">
+      <img src={url} alt="" loading="lazy" decoding="async" draggable={false} />
+    </span>
+  )
+}
 
 interface Props {
   onNavigate: (key: NavKey) => void
+  /** Caminhos das fotos dos cards (community_card_images), por chave. */
+  imagePaths?: Partial<Record<CommunityCardKey, string>>
   /** A profissional não vê Assinaturas (a página de Planos é da membro). */
   showSubscriptions?: boolean
 }
 
-export function HomeMenuWheel({ onNavigate, showSubscriptions = true }: Props) {
+export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true }: Props) {
   const items = ALL_ITEMS.filter((i) => i.key !== 'planos' || showSubscriptions)
   // Segundos por volta: cerca de 4 s por card — suave e constante.
   const duration = items.length * 4
@@ -69,9 +93,7 @@ export function HomeMenuWheel({ onNavigate, showSubscriptions = true }: Props) {
           onClick={() => onNavigate(item.key)}
           tabIndex={copy ? -1 : undefined}
         >
-          <span className="wheel-thumb" style={{ background: item.tint }} aria-hidden="true">
-            {item.icon}
-          </span>
+          <WheelThumb item={item} path={imagePaths?.[item.imageKey] ?? null} />
           <span className="wheel-title">{item.title}</span>
         </button>
       </li>

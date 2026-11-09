@@ -3,6 +3,7 @@ import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import {
   COMMUNITY_CARD_META,
   TOOL_CARD_META,
+  MENU_CARD_META,
   COMMUNITY_CARD_IMAGE_FORMAT,
 } from '../types/communityCards'
 import type { CommunityCardKey } from '../types/communityCards'
@@ -58,7 +59,7 @@ export function CommunityCardImagesManager({
         <p className="home-muted">Carregando imagens…</p>
       ) : (
         <ul className="card-images-list">
-          {[...COMMUNITY_CARD_META, ...TOOL_CARD_META].map(({ key, label, hint }) => (
+          {[...COMMUNITY_CARD_META, ...TOOL_CARD_META, ...MENU_CARD_META].map(({ key, label, hint }) => (
             <li key={key} className="card-images-row">
               <div className="card-images-info">
                 <span className="card-images-name">{label}</span>

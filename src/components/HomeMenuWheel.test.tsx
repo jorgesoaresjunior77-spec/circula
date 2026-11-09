@@ -25,4 +25,19 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
     expect(screen.queryByRole('button', { name: 'Assinaturas' })).not.toBeInTheDocument()
     expect(screen.getAllByRole('button')).toHaveLength(3)
   })
+
+  it('com foto cadastrada mostra a imagem; sem foto, o ícone de sempre', () => {
+    const { container } = render(
+      <HomeMenuWheel
+        onNavigate={vi.fn()}
+        imagePaths={{ menu_leitura: 'https://exemplo.com/leitura.jpg' }}
+      />,
+    )
+    // Só o card de leitura tem foto (a segunda volta é cópia: 2 imagens no total).
+    const imgs = container.querySelectorAll('.wheel-thumb--photo img')
+    expect(imgs).toHaveLength(2)
+    expect(imgs[0]).toHaveAttribute('src', 'https://exemplo.com/leitura.jpg')
+    // Respiração, Assinaturas e Playlist seguem com o degradê e o ícone.
+    expect(container.querySelectorAll('.wheel-thumb:not(.wheel-thumb--photo) svg')).toHaveLength(6)
+  })
 })

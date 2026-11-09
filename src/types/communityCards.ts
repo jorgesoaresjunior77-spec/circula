@@ -53,6 +53,10 @@ export type CommunityCardKey =
   | 'ferramenta_calendario'
   | 'ferramenta_agua'
   | 'ferramenta_imc'
+  | 'menu_leitura'
+  | 'menu_respiracao'
+  | 'menu_planos'
+  | 'menu_playlist'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -83,7 +87,17 @@ export const TOOL_CARD_META: CommunityCardMeta[] = [
   { key: 'ferramenta_imc', label: 'IMC', hint: 'Atalho para a calculadora de IMC.' },
 ]
 
-export const COMMUNITY_CARD_KEYS = COMMUNITY_CARD_META.map((c) => c.key)
+/** Cards da roda de menu da Home. As chaves só existem no banco depois da
+ *  migration 20261109130000 (preparada, não aplicada); até lá, salvar a
+ *  imagem devolve erro de constraint e a roda mostra o degradê com ícone. */
+export const MENU_CARD_META: CommunityCardMeta[] = [
+  { key: 'menu_leitura', label: 'Dicas de leitura', hint: 'Card da roda de menu da Home.' },
+  { key: 'menu_respiracao', label: 'Respiração', hint: 'Card da roda de menu da Home.' },
+  { key: 'menu_planos', label: 'Assinaturas', hint: 'Card da roda de menu da Home (só a membro vê).' },
+  { key: 'menu_playlist', label: 'Playlist', hint: 'Card da roda de menu da Home.' },
+]
+
+export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)
 
 export const COMMUNITY_CARD_IMAGE_FORMAT =
   'Formato recomendado: retrato 4:5 (ex.: 1080 × 1350 px). JPG, PNG ou WebP, até 5 MB. Outras proporções são aceitas, mas podem aparecer recortadas.'

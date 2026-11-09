@@ -755,6 +755,30 @@ html {
   color: var(--circula-mocha);
 }
 
+/* Com foto: ocupa ~60% da largura do card e se dissolve no vidro. */
+.home-wheel .wheel-thumb--photo {
+  flex: 0 0 60%;
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, #000 62%, transparent);
+  mask-image: linear-gradient(90deg, #000 62%, transparent);
+}
+
+.home-wheel .wheel-thumb--photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-wheel .wheel-card:has(.wheel-thumb--photo) {
+  gap: 0;
+}
+
+.home-wheel .wheel-card:has(.wheel-thumb--photo) .wheel-title {
+  padding: 0 var(--space-4) 0 var(--space-2);
+}
+
 .home-wheel .wheel-title {
   align-self: center;
   font-family: var(--font-display);
