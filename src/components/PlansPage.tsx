@@ -41,7 +41,15 @@ function PriceRow({ prices, monthly }: { prices: Record<PlanCycle, number>; mont
   )
 }
 
-export function PlansPage({ communityId }: { communityId: string | null }) {
+export function PlansPage({
+  communityId,
+  viewOnly = false,
+}: {
+  communityId: string | null
+  /** A profissional vê a página como a membro vê, mas não assina (ela é a
+   *  responsável pela comunidade e hoje é isenta de pagamento). */
+  viewOnly?: boolean
+}) {
   const { plans } = useBillingPlans('community')
   const circulaPrices: Record<PlanCycle, number> = {
     monthly: CIRCULA_MONTHLY_CENTS,
@@ -62,7 +70,11 @@ export function PlansPage({ communityId }: { communityId: string | null }) {
         <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
         <PriceRow prices={circulaPrices} monthly={circulaPrices.monthly} />
         <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
-        {communityId ? (
+        {viewOnly ? (
+          <p className="home-muted">
+            Esta é a página que a membro vê. Como responsável pela comunidade, você não precisa assinar.
+          </p>
+        ) : communityId ? (
           <SubscriptionPanel subject="community" communityId={communityId} />
         ) : (
           <p className="home-muted">Entre em uma comunidade para assinar.</p>

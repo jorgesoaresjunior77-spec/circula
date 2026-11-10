@@ -359,7 +359,7 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
-      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} showSubscriptions={profile.role !== 'professional'} />
+      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 

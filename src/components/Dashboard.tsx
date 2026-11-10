@@ -368,8 +368,9 @@ export function Dashboard({
       Icon: HeartIcon,
       inBottomNav: false,
     })
-    // Planos — aberto pelo card de assinaturas da Home (só a membro).
-    if (profile?.role === 'member') {
+    // Planos — aberto pelo card de assinaturas da Home. A profissional vê a
+    // página como a membro vê (sem assinar: é a responsável e é isenta).
+    if (profile?.role === 'member' || profile?.role === 'professional') {
       navItems.push({ key: 'planos', label: 'Planos', Icon: StoreIcon, inBottomNav: false })
     }
     // Playlist — aberta pelo menu vertical da Home (ainda sem conteúdo).
@@ -862,7 +863,7 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'planos') {
-      return <PlansPage communityId={myCommunities[0]?.id ?? null} />
+      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} />
     }
 
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela
