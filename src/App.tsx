@@ -16,6 +16,7 @@ import './wellness.css'
 import './magazine-reader.css'
 import './polish.css'
 import './recipes.css'
+import './panel.css'
 
 function App() {
   const {

@@ -1,0 +1,266 @@
+/* Painel da profissional: abas em pílulas que rolam para o lado, números em
+   blocos de vidro, cartões com sombra suave e botões em pílula. Tudo restrito a
+   .professional-panel (o painel do administrador e a Home não mudam). Vem depois
+   do App.css. */
+
+.professional-panel {
+  gap: var(--space-4);
+  text-align: left;
+}
+
+/* ---- Cabeçalho ------------------------------------------------------------- */
+.professional-panel .panel-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.professional-panel .panel-head-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.professional-panel .panel-head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--circula-mocha);
+}
+
+/* ---- Abas: uma barra só, rolando para o lado -------------------------------- */
+.professional-panel .panel-tabs {
+  position: relative;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  padding: 2px var(--space-4) var(--space-2);
+  margin-inline: calc(var(--space-4) * -1);
+  border-bottom: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--space-4), #000 calc(100% - var(--space-4)), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 var(--space-4), #000 calc(100% - var(--space-4)), transparent);
+}
+
+.professional-panel .panel-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.professional-panel .panel-tab {
+  flex: none;
+  margin: 0;
+  padding: 9px 16px;
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+  color: var(--circula-mocha);
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  scroll-snap-align: center;
+  transition:
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.professional-panel .panel-tab:hover {
+  color: var(--circula-mocha);
+}
+
+.professional-panel .panel-tab--active,
+.professional-panel .panel-tab--active:hover {
+  border-color: var(--circula-mocha);
+  background: var(--circula-mocha);
+  box-shadow: var(--elev-2);
+  color: #fff;
+}
+
+/* Troca de aba: o conteúdo entra com uma subida curta. */
+.professional-panel .panel-tab-content {
+  animation: panel-in 0.35s var(--ease-out) both;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Visão geral ------------------------------------------------------------- */
+.professional-panel .panel-overview {
+  gap: var(--space-6);
+}
+
+.professional-panel .panel-overview-eyebrow {
+  color: var(--circula-taupe);
+}
+
+.professional-panel .panel-overview-attention {
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-xl);
+  background: var(--circula-champagne-tint);
+}
+
+/* Ficha da comunidade e blocos "Explorar": vidro com sombra suave. */
+.professional-panel .panel-overview-identity,
+.professional-panel .panel-overview-note {
+  padding: var(--space-4);
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+}
+
+.professional-panel .panel-overview-cover {
+  border-radius: var(--radius-lg);
+}
+
+.professional-panel .panel-overview-explore-grid {
+  gap: var(--space-3);
+}
+
+.professional-panel .panel-overview-note-title {
+  color: var(--circula-mocha);
+}
+
+/* Os atalhos "Editar", "Ver ..." viram botões pequenos em pílula. */
+.professional-panel .panel-overview-identity-head .auth-link,
+.professional-panel .panel-overview-note-head .auth-link,
+.professional-panel .panel-overview-attention-list .auth-link {
+  padding: 5px 12px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--circula-mocha);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+
+/* Números: blocos de vidro em grade de 2 colunas. */
+.professional-panel .panel-overview-kpis {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (min-width: 620px) {
+  .professional-panel .panel-overview-kpis {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+.professional-panel .panel-overview-kpi {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.professional-panel .panel-overview-kpi:hover {
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-2);
+  transform: translateY(-1px);
+}
+
+.professional-panel .panel-overview-kpi:active {
+  transform: scale(0.985);
+}
+
+.professional-panel .panel-overview-kpi-value {
+  font-size: 28px;
+  color: var(--circula-mocha);
+}
+
+.professional-panel .panel-overview-kpi-label {
+  font-size: 11.5px;
+  color: var(--circula-taupe);
+}
+
+/* A nota explicativa vira uma linha discreta de apoio. */
+.professional-panel .panel-overview-hint {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--circula-champagne-line);
+  color: var(--circula-taupe);
+}
+
+/* ---- Botões da profissional: mesma família em pílula ------------------------- */
+.professional-panel .profile-edit-action,
+.professional-panel .profile-secondary-action,
+.professional-panel .profile-save-action {
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.professional-panel .profile-edit-action,
+.professional-panel .profile-save-action {
+  border: 0;
+  background: var(--circula-mocha);
+  box-shadow: var(--elev-1);
+  color: #fff;
+}
+
+.professional-panel .profile-secondary-action {
+  border: 1px solid var(--circula-champagne-line);
+  background: var(--glass-bg-strong);
+  color: var(--circula-mocha);
+}
+
+/* ---- Aba Imagens: cada gerenciador é uma seção em cartão ---------------------- */
+.professional-panel .panel-images-sections {
+  gap: var(--space-5);
+}
+
+.professional-panel .panel-images-sections > .card-images-manager {
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+}
+
+.professional-panel .panel-images-sections > .card-images-manager + .card-images-manager {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--glass-border-color);
+}
+
+.professional-panel .card-images-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .professional-panel .panel-tab-content {
+    animation: none;
+  }
+  .professional-panel .panel-overview-kpi:hover {
+    transform: none;
+  }
+}

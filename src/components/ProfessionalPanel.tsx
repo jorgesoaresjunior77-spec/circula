@@ -129,8 +129,10 @@ export function ProfessionalPanel({
 
   return (
     <section className="community-card community-card--quiet professional-panel">
-      <p className="section-label">Painel</p>
-      <h3>Painel da comunidade</h3>
+      <header className="panel-head">
+        <p className="panel-head-eyebrow">{community.name}</p>
+        <h3>Painel da comunidade</h3>
+      </header>
 
       {/* Convite por WhatsApp em destaque, logo abaixo do título e em qualquer aba. */}
       <PanelInviteCta communityId={communityId} communityName={community.name} />
@@ -141,7 +143,11 @@ export function ProfessionalPanel({
             key={tab.key}
             type="button"
             className={`panel-tab${activeTab === tab.key ? ' panel-tab--active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={(e) => {
+              setActiveTab(tab.key)
+              // A barra de abas rola para o lado: deixa a aba escolhida à vista.
+              e.currentTarget.scrollIntoView?.({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+            }}
           >
             {tab.label}
           </button>
