@@ -36,7 +36,7 @@ export function RecipeMagazineView({ recipeId, communityId, title, coverPath }: 
 
   return (
     <>
-      <button type="button" className="profile-edit-action" onClick={() => setOpen(true)}>
+      <button type="button" className="rec-cta" onClick={() => setOpen(true)}>
         Ler em formato revista
       </button>
       {open && <MagazineReader issue={issue} onClose={() => setOpen(false)} />}

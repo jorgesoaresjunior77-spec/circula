@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import type { CSSProperties, FormEvent } from 'react'
 import { useRecipes } from '../hooks/useRecipes'
 import type { Recipe, RecipeCategory } from '../hooks/useRecipes'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
 import { RecipeMagazineView } from './RecipeMagazineView'
 import { RecipePagesEditor } from './RecipePagesEditor'
+import { ChevronLeftIcon } from './icons'
+import { isList, recipeItems } from '../lib/recipeText'
 
 interface RecipesPageProps {
   communityId: string
@@ -21,21 +23,24 @@ function Photo({ path }: { path: string | null }) {
 function CategoryCard({
   cat,
   count,
+  index,
   onOpen,
 }: {
   cat: RecipeCategory
   count: number
+  index: number
   onOpen: () => void
 }) {
   return (
-    <button type="button" className="rec-card" onClick={onOpen}>
-      <span className="rec-card-media">
+    <button type="button" className="rec-tile" style={{ '--i': index } as CSSProperties} onClick={onOpen}>
+      <span className="rec-tile-media" aria-hidden="true">
         <Photo path={cat.cover_path} />
       </span>
-      <span className="rec-card-body">
-        <strong>{cat.name}</strong>
-        {cat.description && <span className="rec-card-desc">{cat.description}</span>}
-        <span className="rec-card-meta">
+      <span className="rec-tile-veil" aria-hidden="true" />
+      <span className="rec-tile-body">
+        <strong className="rec-tile-title">{cat.name}</strong>
+        {cat.description && <span className="rec-tile-desc">{cat.description}</span>}
+        <span className="rec-pill">
           {count} {count === 1 ? 'receita' : 'receitas'}
         </span>
       </span>
@@ -43,30 +48,48 @@ function CategoryCard({
   )
 }
 
-function RecipeCard({
+function RecipeRow({
   recipe,
   views,
+  index,
   onOpen,
 }: {
   recipe: Recipe
   views?: number
+  index: number
   onOpen: () => void
 }) {
+  const draft = recipe.status !== 'published'
   return (
-    <button type="button" className="rec-card" onClick={onOpen}>
-      <span className="rec-card-media">
+    <button type="button" className="rec-row" style={{ '--i': index } as CSSProperties} onClick={onOpen}>
+      <span className="rec-row-thumb" aria-hidden="true">
         <Photo path={recipe.cover_image_url} />
       </span>
-      <span className="rec-card-body">
-        <strong>{recipe.title}</strong>
-        {recipe.summary && <span className="rec-card-desc">{recipe.summary}</span>}
-        {views !== undefined && (
-          <span className="rec-card-meta">
-            {views} {views === 1 ? 'visualização' : 'visualizações'}
-            {recipe.status !== 'published' ? ' · rascunho' : ''}
+      <span className="rec-row-body">
+        <strong className="rec-row-title">{recipe.title}</strong>
+        {recipe.summary && <span className="rec-row-desc">{recipe.summary}</span>}
+        {(views !== undefined || draft) && (
+          <span className="rec-row-meta">
+            {draft && <span className="rec-chip">Rascunho</span>}
+            {views !== undefined && (
+              <span>
+                {views} {views === 1 ? 'visualização' : 'visualizações'}
+              </span>
+            )}
           </span>
         )}
       </span>
+      <span className="rec-row-go" aria-hidden="true">
+        ›
+      </span>
+    </button>
+  )
+}
+
+function BackButton({ onClick, children }: { onClick: () => void; children: string }) {
+  return (
+    <button type="button" className="back-button" onClick={onClick}>
+      <ChevronLeftIcon size={18} /> {children}
     </button>
   )
 }
@@ -273,16 +296,20 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
   // ---- detalhe da receita ----
   if (open) {
     const fresh = api.recipes.find((r) => r.id === open.id) ?? open
+    const categoryName = api.categories.find((c) => c.id === fresh.category_id)?.name ?? null
+    const ingredients = recipeItems(fresh.ingredients)
+    const steps = recipeItems(fresh.body, { steps: true })
     return (
-      <section className="rec-page">
-        <button type="button" className="auth-link" onClick={() => setOpen(null)}>
-          ← Voltar
-        </button>
-        <div className="rec-detail-media">
+      <section className="rec-page rec-detail">
+        <BackButton onClick={() => setOpen(null)}>Voltar</BackButton>
+        <div className="rec-hero">
           <Photo path={fresh.cover_image_url} />
         </div>
-        <h2>{fresh.title}</h2>
-        {fresh.summary && <p>{fresh.summary}</p>}
+        <header className="rec-head">
+          {categoryName && <p className="rec-eyebrow">{categoryName}</p>}
+          <h2>{fresh.title}</h2>
+          {fresh.summary && <p className="rec-lead">{fresh.summary}</p>}
+        </header>
         <RecipeMagazineView
           recipeId={fresh.id}
           communityId={communityId}
@@ -290,16 +317,32 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           coverPath={fresh.cover_image_url}
         />
         {fresh.ingredients && (
-          <>
+          <article className="rec-block">
             <h3>Ingredientes</h3>
-            <p className="rec-pre">{fresh.ingredients}</p>
-          </>
+            {isList(ingredients) ? (
+              <ul className="rec-ingredients">
+                {ingredients.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rec-pre">{fresh.ingredients}</p>
+            )}
+          </article>
         )}
         {fresh.body && (
-          <>
+          <article className="rec-block">
             <h3>Modo de preparo</h3>
-            <p className="rec-pre">{fresh.body}</p>
-          </>
+            {isList(steps) ? (
+              <ol className="rec-steps">
+                {steps.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ol>
+            ) : (
+              <p className="rec-pre">{fresh.body}</p>
+            )}
+          </article>
         )}
         {isOwner && (
           <div className="rec-actions">
@@ -333,11 +376,12 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
     const list = catId === 'sem-categoria' ? inCategory(null) : inCategory(catId)
     return (
       <section className="rec-page">
-        <button type="button" className="auth-link" onClick={() => setCatId(null)}>
-          ← Categorias
-        </button>
-        <h2>{category?.name ?? 'Outras receitas'}</h2>
-        {category?.description && <p>{category.description}</p>}
+        <BackButton onClick={() => setCatId(null)}>Categorias</BackButton>
+        <header className="rec-head">
+          <p className="rec-eyebrow">Receitas</p>
+          <h2>{category?.name ?? 'Outras receitas'}</h2>
+          {category?.description && <p className="rec-lead">{category.description}</p>}
+        </header>
         {isOwner && (
           <div className="rec-actions">
             <button
@@ -359,11 +403,12 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           </div>
         )}
         {list.length === 0 && <p className="home-muted">Nenhuma receita aqui ainda.</p>}
-        <div className="rec-grid">
-          {list.map((r) => (
-            <RecipeCard
+        <div className="rec-list">
+          {list.map((r, i) => (
+            <RecipeRow
               key={r.id}
               recipe={r}
+              index={i}
               views={isOwner ? (api.views[r.id] ?? 0) : undefined}
               onOpen={() => openRecipe(r)}
             />
@@ -377,7 +422,11 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
   const uncategorized = inCategory(null)
   return (
     <section className="rec-page">
-      <h2>Receitas</h2>
+      <header className="rec-head">
+        <p className="rec-eyebrow">Biblioteca</p>
+        <h2>Receitas</h2>
+        {api.categories.length > 0 && <p className="rec-lead">Escolha uma categoria para ver as receitas.</p>}
+      </header>
       {isOwner && (
         <div className="rec-actions">
           <button type="button" className="profile-edit-action" onClick={() => setEditCat({})}>
@@ -394,11 +443,12 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
         </p>
       )}
       <div className="rec-grid">
-        {api.categories.map((c) => (
+        {api.categories.map((c, i) => (
           <CategoryCard
             key={c.id}
             cat={c}
             count={inCategory(c.id).length}
+            index={i}
             onOpen={() => setCatId(c.id)}
           />
         ))}
@@ -412,6 +462,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
               position: 999,
             }}
             count={uncategorized.length}
+            index={api.categories.length}
             onOpen={() => setCatId('sem-categoria')}
           />
         )}
