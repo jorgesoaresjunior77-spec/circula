@@ -98,7 +98,7 @@ export function CircleDetail({
           <div className="circle-detail-actions">
             <button
               type="button"
-              className="btn btn-primary"
+              className={`btn btn-primary circle-detail-toggle${isParticipating ? ' circle-detail-toggle--leave' : ''}`}
               onClick={handleToggle}
               disabled={working}
             >

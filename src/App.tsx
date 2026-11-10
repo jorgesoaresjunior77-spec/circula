@@ -18,6 +18,7 @@ import './polish.css'
 import './recipes.css'
 import './panel.css'
 import './store.css'
+import './circles.css'
 
 function App() {
   const {

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { CircleWithMembers, JoinCircleResult } from '../types/circle'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { ChevronRightIcon } from './icons'
@@ -122,7 +123,11 @@ export function CircleCard({
   const memberLabel = memberCount === 1 ? '1 mulher' : `${memberCount} mulheres`
 
   return (
-    <article className="circle-card circle-card--grid" data-tint={index % 3}>
+    <article
+      className="circle-card circle-card--grid"
+      data-tint={index % 3}
+      style={{ '--i': index } as CSSProperties}
+    >
       <button
         type="button"
         className="circle-card-link"
@@ -130,7 +135,13 @@ export function CircleCard({
         aria-label={`Abrir círculo ${circle.name}`}
       >
         <span className="circle-card-photo">
-          {coverUrl && <img loading="lazy" decoding="async" src={coverUrl} alt="" />}
+          {coverUrl ? (
+            <img loading="lazy" decoding="async" src={coverUrl} alt="" />
+          ) : (
+            <span className="circle-card-initial" aria-hidden="true">
+              {circle.name.charAt(0).toUpperCase()}
+            </span>
+          )}
         </span>
 
         <span className="circle-card-info">
@@ -165,7 +176,7 @@ export function CircleCard({
       {canParticipate && (
         <button
           type="button"
-          className="circle-card-toggle"
+          className={`circle-card-toggle${isParticipating ? ' circle-card-toggle--leave' : ''}`}
           onClick={handleToggle}
           disabled={working}
         >

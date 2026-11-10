@@ -1,0 +1,315 @@
+/* Círculos: cartões da Home, da lista e o detalhe. Só aparência (entrar, sair,
+   publicações e permissões não mudam). Usa as variáveis do design system. Vem
+   depois do App.css. A linha de contorno preta dos cartões sai, e entram cantos
+   arredondados, sombra suave e um véu para o nome ler em qualquer foto. */
+
+/* ---- Home: cartões maiores, sem contorno preto -------------------------------- */
+.circ-card-item {
+  width: clamp(128px, 38vw, 168px);
+}
+
+@media (min-width: 768px) {
+  .circ-card-item {
+    width: clamp(168px, 20vw, 210px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .circ-card-item {
+    width: clamp(180px, 14vw, 220px);
+  }
+}
+
+.circ-card-frame {
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
+  outline: none;
+  box-shadow: var(--elev-2);
+}
+
+/* Sem foto: degradê suave, igual nos cartões de todas as tintas. */
+.circ-card:not(.circ-card--photo) .circ-card-frame {
+  background: linear-gradient(145deg, #ead9c8, #d4b69f);
+}
+
+.circ-card-frame::after {
+  background: linear-gradient(
+    0deg,
+    rgba(20, 16, 14, 0.8) 0%,
+    rgba(20, 16, 14, 0.52) 22%,
+    rgba(20, 16, 14, 0.14) 44%,
+    rgba(20, 16, 14, 0) 60%
+  );
+}
+
+.circ-card-title {
+  font-size: clamp(15px, 1.4vw, 18px);
+}
+
+.circ-card-meta {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: #fff;
+  opacity: 1;
+}
+
+/* ---- Lista: 2 colunas de cartões de foto com o nome sobre o véu --------------- */
+.circle-list-items {
+  gap: var(--space-4) var(--space-3);
+}
+
+@media (max-width: 480px) {
+  .circle-list-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+}
+
+.circle-card.circle-card--grid {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-2);
+  animation: circ-in 0.45s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.circle-card.circle-card--grid:hover {
+  border-color: var(--glass-border-color);
+  box-shadow: var(--elev-3);
+}
+
+.circle-card--grid > .circle-card-link {
+  position: relative;
+}
+
+.circle-card--grid .circle-card-photo {
+  border-radius: 0;
+  background: linear-gradient(145deg, #ead9c8, #d4b69f);
+}
+
+.circle-card--grid .circle-card-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    0deg,
+    rgba(20, 16, 14, 0.82) 0%,
+    rgba(20, 16, 14, 0.5) 26%,
+    rgba(20, 16, 14, 0.1) 50%,
+    rgba(20, 16, 14, 0) 64%
+  );
+}
+
+.circle-card-initial {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 28%;
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* O nome e a contagem ficam sobre a foto, no fundo do cartão. */
+.circle-card--grid .circle-card-info {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  margin: 0;
+  padding: var(--space-3);
+  border-top: 0;
+}
+
+.circle-card--grid .circle-card-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-weight: 400;
+  font-size: 15.5px;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.circle-card--grid .circle-card-rule {
+  display: none;
+}
+
+.circle-card--grid .circle-card-meta-row {
+  margin-top: 6px;
+}
+
+.circle-card--grid .circle-card-avatar {
+  box-shadow: 0 0 0 1.5px rgba(34, 29, 26, 0.7);
+}
+
+.circle-card--grid .circle-card-count {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 11px;
+}
+
+/* Participar / Sair: botão pequeno em pílula, dentro do cartão. */
+.circle-card--grid .circle-card-toggle {
+  align-self: stretch;
+  min-height: 36px;
+  margin: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--circula-mocha);
+  box-shadow: var(--elev-1);
+  color: #fff;
+  font-size: 11px;
+  text-align: center;
+}
+
+.circle-card--grid .circle-card-toggle:hover:not(:disabled) {
+  background: var(--circula-black);
+  color: #fff;
+}
+
+.circle-card--grid .circle-card-toggle--leave {
+  border: 1px solid var(--circula-champagne-line);
+  background: transparent;
+  box-shadow: none;
+  color: var(--circula-mocha);
+}
+
+.circle-card--grid .circle-card-toggle--leave:hover:not(:disabled) {
+  border-color: var(--circula-mocha);
+  background: transparent;
+  color: var(--circula-mocha);
+}
+
+.circle-card--grid > .auth-error {
+  margin: 0 var(--space-3) var(--space-3);
+}
+
+/* ---- Detalhe: banner de capa, participantes e botão em destaque ---------------- */
+.circle-detail-hero.community-card {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-3);
+}
+
+.circle-detail-hero .community-hero-cover {
+  height: 232px;
+  box-shadow: none;
+}
+
+.circle-detail-hero .community-hero-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(21, 19, 17, 0) 28%, rgba(21, 19, 17, 0.74) 100%);
+}
+
+.circle-detail-hero .community-hero-body {
+  position: relative;
+  z-index: 1;
+  gap: var(--space-3);
+  margin-top: -104px;
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+/* O título ocupa sempre a faixa sobre a foto; o resto começa logo abaixo dela. */
+.circle-detail-hero .community-hero-titles {
+  justify-content: flex-end;
+  /* 88px de conteúdo + 16px de folga = 104px (a caixa é content-box aqui). */
+  min-height: 88px;
+  padding-bottom: var(--space-4);
+}
+
+.circle-detail-hero .circle-detail-context {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.circle-detail-hero .community-hero-name {
+  font-size: clamp(24px, 6.4vw, 34px);
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+.circle-detail-hero .circle-avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  font-size: 14px;
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+.circle-detail-hero .circle-avatar + .circle-avatar {
+  margin-left: -12px;
+}
+
+.circle-detail-toggle.btn {
+  min-height: 46px;
+  padding: 0 var(--space-6);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--circula-mocha);
+  box-shadow: var(--elev-2);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.circle-detail-toggle--leave.btn {
+  border: 1px solid var(--circula-champagne-line);
+  background: transparent;
+  box-shadow: none;
+  color: var(--circula-mocha);
+}
+
+.circle-detail-hint {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-lg);
+  background: var(--circula-champagne-tint);
+  color: var(--circula-taupe);
+}
+
+@keyframes circ-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circle-card.circle-card--grid {
+    animation: none;
+  }
+}
