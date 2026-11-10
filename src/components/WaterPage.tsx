@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { WaterBottle } from './WaterBottle'
+import { WaterBottleView } from './WaterBottleView'
 import { useWater } from '../hooks/useWater'
 import {
   MAX_LOG_ML,
@@ -157,7 +157,7 @@ export function WaterPage({ profileId }: WaterPageProps) {
         <article className="water-panel">
           <h3>Hoje</h3>
           <div className="water-today">
-            <WaterBottle progress={progress} celebrating={reached} />
+            <WaterBottleView progress={progress} celebrating={reached} />
             <div className="water-today-info">
               <p className="water-total">{formatMl(todayTotalMl)}</p>
               <p className="water-muted">
