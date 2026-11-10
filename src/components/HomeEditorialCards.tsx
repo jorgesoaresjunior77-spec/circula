@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { formatEventDate } from '../lib/formatEventDate'
 import { PRODUCT_TYPE_LABELS, formatPriceBRL } from '../types/product'
 import type { Product } from '../types/product'
@@ -167,8 +168,12 @@ export function HomeEditorialCards({
 
   return (
     <section className="home-editorial-cards" aria-label="Receitas, eventos e loja da comunidade">
-      {cards.map(({ key, ...card }) => (
-        <EditorialCard key={key} {...card} />
+      {cards.map(({ key, ...card }, i) => (
+        <Fragment key={key}>
+          {/* Pequeno ponto separador entre um banner e o seguinte. */}
+          {i > 0 && <span className="home-editorial-dot" aria-hidden="true" />}
+          <EditorialCard {...card} />
+        </Fragment>
       ))}
     </section>
   )

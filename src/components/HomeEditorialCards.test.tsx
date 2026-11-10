@@ -386,4 +386,28 @@ describe('HomeEditorialCards — banners editoriais grandes (item 4, independent
     const img = cardButtonWith('Roda de conversa').querySelector('img')
     expect(img).toHaveAttribute('src', 'https://example.com/evento-proprio.jpg')
   })
+
+  it('tem um ponto separador entre um banner e o seguinte (2 pontos para 3 banners)', () => {
+    const { container } = render(
+      <HomeEditorialCards
+        nextEvent={null}
+        recipesCount={0}
+        featuredRecipe={null}
+        productsCount={0}
+        featuredProduct={null}
+        onNavigate={vi.fn()}
+      />,
+    )
+    expect(container.querySelectorAll('.home-editorial-card')).toHaveLength(3)
+    expect(container.querySelectorAll('.home-editorial-dot')).toHaveLength(2)
+    // Os pontos ficam só entre os banners, nunca antes do primeiro nem depois do último.
+    const kids = Array.from(container.querySelector('.home-editorial-cards')?.children ?? [])
+    expect(kids.map((k) => (k.classList.contains('home-editorial-dot') ? 'dot' : 'card'))).toEqual([
+      'card',
+      'dot',
+      'card',
+      'dot',
+      'card',
+    ])
+  })
 })

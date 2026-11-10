@@ -835,17 +835,41 @@ html {
 }
 
 /* ---- Espaçamentos da Home (pedido de 2026-11-09) --------------------------- */
+/* Entre os banners: o próprio ponto separador dá o respiro (44px = 40px + 10%). */
 .home-editorial-cards {
-  gap: var(--space-7);
-  margin-bottom: var(--space-6);
+  gap: 0;
+  margin-bottom: 33px;
 }
 
+.home-editorial-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+}
+
+.home-editorial-dot::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--circula-champagne, #c8b8a8);
+}
+
+/* Banners -> roda de menu: 48px + 10% (20px do gap da Home + 33px acima). */
 .home-wheel {
   margin-bottom: var(--space-6);
 }
 
+/* Roda -> parceiros: 64px + 10% (o resto vem do gap da Home e da roda). */
 .home-partners {
-  margin-top: var(--space-4);
+  margin-top: 22px;
+}
+
+/* Frase final: fecha a Home, no ponto mais baixo, centralizada. */
+.home-institutional-note {
+  margin-top: var(--space-5);
+  text-align: center;
 }
 
 /* Logos dos parceiros 20% maiores (48px -> 58px; largura máx. 140 -> 168). */
