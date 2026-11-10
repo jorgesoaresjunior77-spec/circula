@@ -31,13 +31,13 @@ const POPUP = { name: 'Mensagem do dia' }
 const FECHAR = { name: 'Fechar mensagem do dia' }
 const SEEN_KEY = (profile: string) => `circula:daily-inspiration:${profile}`
 
-describe('DailyInspiration — popup e balão', () => {
+describe('DailyInspiration — popup e letreiro', () => {
   beforeEach(() => {
     rows.length = 0
     window.localStorage.clear()
-    // O balão é desenhado dentro da saudação da Home, no encaixe #daily-bubble-slot.
+    // O letreiro é desenhado dentro da saudação da Home, no encaixe #daily-ticker-slot.
     const slot = document.createElement('div')
-    slot.id = 'daily-bubble-slot'
+    slot.id = 'daily-ticker-slot'
     document.body.appendChild(slot)
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-11-05T15:00:00Z'))
@@ -45,7 +45,7 @@ describe('DailyInspiration — popup e balão', () => {
 
   afterEach(() => {
     cleanup()
-    document.getElementById('daily-bubble-slot')?.remove()
+    document.getElementById('daily-ticker-slot')?.remove()
     vi.useRealTimers()
     window.localStorage.clear()
   })
@@ -62,7 +62,7 @@ describe('DailyInspiration — popup e balão', () => {
     expect(screen.queryByRole('note')).not.toBeInTheDocument()
   })
 
-  it('ao fechar o popup no X, a mensagem vai para o balão no topo', async () => {
+  it('ao fechar o popup no X, a mensagem passa para o letreiro no topo', async () => {
     rows.push(CITACAO)
     render(<DailyInspiration communityId="c1" profileId="u1" />)
 
@@ -70,8 +70,8 @@ describe('DailyInspiration — popup e balão', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     const balao = await screen.findByRole('note', POPUP)
     expect(balao).toBeInTheDocument()
-    expect(document.getElementById('daily-bubble-slot')).toContainElement(balao)
-    expect(screen.getByText('“Uma frase com fonte.”')).toBeInTheDocument()
+    expect(document.getElementById('daily-ticker-slot')).toContainElement(balao)
+    expect(screen.getAllByText(/Uma frase com fonte/).length).toBeGreaterThan(0)
   })
 
   it('o popup também fecha com Esc e com toque fora', async () => {
@@ -164,5 +164,39 @@ describe('DailyInspiration — popup e balão', () => {
     window.localStorage.setItem(SEEN_KEY('u1'), '2026-11-05')
     render(<DailyInspiration communityId="c1" profileId="u2" />)
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('o letreiro mostra a frase inteira, com autor e obra, numa linha que desliza', async () => {
+    rows.push(CITACAO)
+    window.localStorage.setItem(SEEN_KEY('u1'), '2026-11-05')
+    const { container } = render(<DailyInspiration communityId="c1" profileId="u1" />)
+    await screen.findByRole('note', POPUP)
+    const items = container.ownerDocument.querySelectorAll('.inspiration-ticker-item')
+    // Duas cópias (a segunda é só para o laço contínuo e some para leitores de tela).
+    expect(items).toHaveLength(2)
+    expect(items[0].textContent).toBe('“Uma frase com fonte.” — Autora Teste, Obra Teste')
+    expect(items[1]).toHaveAttribute('aria-hidden', 'true')
+    expect(document.querySelector<HTMLElement>('.inspiration-ticker-track')?.style.animationDuration).toMatch(/s$/)
+  })
+
+  it('a profissional ganha o atalho Gerenciar no letreiro', async () => {
+    rows.push(CITACAO)
+    window.localStorage.setItem(SEEN_KEY('u1'), '2026-11-05')
+    const onManage = vi.fn()
+    render(<DailyInspiration communityId="c1" profileId="u1" onManage={onManage} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Gerenciar' }))
+    expect(onManage).toHaveBeenCalledTimes(1)
+  })
+
+  it('sem mensagem para hoje, só a profissional vê a faixa com o atalho', async () => {
+    window.localStorage.setItem(SEEN_KEY('u1'), '2026-11-05')
+    const { unmount } = render(<DailyInspiration communityId="c1" profileId="u1" />)
+    await new Promise((r) => setTimeout(r, 0))
+    expect(screen.queryByRole('note')).not.toBeInTheDocument()
+    unmount()
+
+    render(<DailyInspiration communityId="c1" profileId="u1" onManage={() => {}} />)
+    expect(await screen.findByText('Nenhuma mensagem publicada para hoje.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Gerenciar' })).toBeInTheDocument()
   })
 })

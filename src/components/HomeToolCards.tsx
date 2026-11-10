@@ -2,18 +2,29 @@ import type { NavKey } from './PrimaryNav'
 
 // Três atalhos lado a lado: Antes de Tudo, Água e IMC. Sem caixas nem
 // bordas: só o ícone animado e o nome.
-//   Antes de Tudo -> sol que brilha, enfraquece e volta a brilhar;
+//   Antes de Tudo -> xícara de café com vapor subindo;
 //   Água          -> gota com pingos caindo, de leve;
 //   IMC           -> coração que pulsa como um batimento.
 // As animações respeitam "reduzir movimento" (ficam paradas).
 
-function SunIcon() {
+function CoffeeIcon() {
   return (
-    <svg className="tool-icon tool-icon--sun" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <g className="tool-sun-rays" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M24 5v6M24 37v6M5 24h6M37 24h6M10.6 10.6l4.2 4.2M33.2 33.2l4.2 4.2M10.6 37.4l4.2-4.2M33.2 14.8l4.2-4.2" />
+    <svg className="tool-icon tool-icon--coffee" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <g className="tool-steam" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none">
+        <path className="tool-steam-line tool-steam-line--1" d="M16 14c-2-2.500 2-4 0-6.500" />
+        <path className="tool-steam-line tool-steam-line--2" d="M23 14c-2-2.500 2-4 0-6.500" />
+        <path className="tool-steam-line tool-steam-line--3" d="M30 14c-2-2.500 2-4 0-6.500" />
       </g>
-      <circle className="tool-sun-core" cx="24" cy="24" r="8" fill="currentColor" />
+      <path
+        d="M10 20h24v9a10 10 0 0 1-10 10h-4a10 10 0 0 1-10-10Z"
+        fill="currentColor"
+        fillOpacity="0.16"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M34 23h2.500a4.500 4.500 0 0 1 0 9H33" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M8 42h28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }
@@ -52,18 +63,20 @@ function HeartIcon() {
 }
 
 const TOOLS: { key: NavKey; title: string; Icon: () => React.ReactElement }[] = [
-  { key: 'antes-de-tudo', title: 'Antes de Tudo', Icon: SunIcon },
+  { key: 'antes-de-tudo', title: 'Antes de Tudo', Icon: CoffeeIcon },
   { key: 'agua', title: 'Água', Icon: WaterIcon },
   { key: 'imc', title: 'IMC', Icon: HeartIcon },
 ]
 
 interface Props {
   onNavigate: (key: NavKey) => void
+  /** Coluna vertical ao lado do banner (mesma altura dele). */
+  vertical?: boolean
 }
 
-export function HomeToolCards({ onNavigate }: Props) {
+export function HomeToolCards({ onNavigate, vertical = false }: Props) {
   return (
-    <section className="home-tools" aria-label="Ferramentas">
+    <section className={'home-tools' + (vertical ? ' home-tools--vertical' : '')} aria-label="Ferramentas">
       {TOOLS.map(({ key, title, Icon }) => (
         <button key={key} type="button" className="home-tool" onClick={() => onNavigate(key)}>
           <span className="home-tool-media" aria-hidden="true">

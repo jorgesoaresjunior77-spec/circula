@@ -23,7 +23,6 @@ import { AnalogClock } from './AnalogClock'
 import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
-import { HomeDailyMessage } from './HomeDailyMessage'
 import { HomeMenuWheel } from './HomeMenuWheel'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
@@ -254,8 +253,13 @@ export function HomeToday({
         <AnalogClock />
       </div>
       <hr className="home-section-divider" />
-      <HomeToolCards onNavigate={onNavigate} />
-      <hr className="home-section-divider" />
+      {/* Com banner, os atalhos ficam na vertical ao lado dele (Dashboard). */}
+      {!coverHero && (
+        <>
+          <HomeToolCards onNavigate={onNavigate} />
+          <hr className="home-section-divider" />
+        </>
+      )}
     </>
   )
 
@@ -263,12 +267,6 @@ export function HomeToday({
     <div className="home">
       {/* Com banner, a saudação é desenhada pelo Dashboard ACIMA dele. */}
       {!coverHero && greeting}
-
-      {/* Para a membro a frase do dia é o balão ao lado da saudação; a
-          profissional ganha aqui o atalho para gerenciar as mensagens. */}
-      {profile.role === 'professional' && (
-        <HomeDailyMessage communityId={focusCommunity.id} onManage={() => onNavigate('inspiracoes')} />
-      )}
 
       {coverHero && weekCalendar}
 

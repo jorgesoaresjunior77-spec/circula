@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CloseIcon } from './icons'
 import { supabase } from '../lib/supabase'
@@ -9,56 +9,52 @@ import { todayParts } from '../lib/weekCalendar'
 // Mensagem do dia, em dois tempos:
 //  1) POPUP — na primeira abertura do dia (por pessoa, neste aparelho), a
 //     mensagem aparece grande, no centro da tela;
-//  2) BALÃO — ao fechar o popup (X, toque fora, Esc ou depois de alguns
-//     segundos), ela "voa" para o topo da Home e vira um balão pequeno ao
-//     lado do "Bom dia". Nas outras aberturas do dia, só o balão.
-// O X do balão o esconde pelo resto do dia. Sem mensagem publicada, nada
-// aparece.
+//  2) LETREIRO — ao fechar o popup (X, toque fora, Esc ou depois de alguns
+//     segundos), ela passa a deslizar numa linha só, como painel de aeroporto,
+//     logo abaixo da saudação, no topo da Home. Nas outras aberturas do dia,
+//     só o letreiro.
+// O X do letreiro o esconde pelo resto do dia. A profissional ainda ganha o
+// atalho "Gerenciar". Sem mensagem publicada, nada aparece (a profissional vê
+// só o atalho).
 
 interface DailyInspirationProps {
   communityId: string | null
   profileId: string
   /** Outro modal (onboarding, tour, guia de instalação) está aberto: espera. */
   suppressed?: boolean
+  /** Só para a profissional: abre o cadastro das mensagens do dia. */
+  onManage?: () => void
 }
 
 /** Quanto tempo o popup fica antes de ir sozinho para o topo. */
 const POPUP_MS = 7000
+/** Segundos por caractere do letreiro: leitura confortável, constante. */
+const TICKER_SECONDS_PER_CHAR = 0.16
+const TICKER_MIN_SECONDS = 16
 
 function todayIso(): string {
   const t = todayParts()
   return `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`
 }
 
-function prefersReducedMotion(): boolean {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  } catch {
-    return false
-  }
-}
-
-export function DailyInspiration({ communityId, profileId, suppressed = false }: DailyInspirationProps) {
+export function DailyInspiration({ communityId, profileId, suppressed = false, onManage }: DailyInspirationProps) {
   const today = todayIso()
-  const bubbleKey = `${profileId}:bubble`
+  const tickerKey = `${profileId}:bubble`
   const [item, setItem] = useState<Inspiration | null>(null)
   const [popupDone, setPopupDone] = useState(() => wasSeenToday(profileId, today))
-  const [bubbleHidden, setBubbleHidden] = useState(() => wasSeenToday(bubbleKey, today))
+  const [tickerHidden, setTickerHidden] = useState(() => wasSeenToday(tickerKey, today))
   const [slot, setSlot] = useState<HTMLElement | null>(null)
-  const [expanded, setExpanded] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const popupRef = useRef<HTMLElement>(null)
-  const bubbleRef = useRef<HTMLElement>(null)
-  /** Onde o popup estava quando fechou: o balão parte dali e voa até o topo. */
-  const flyFrom = useRef<DOMRect | null>(null)
 
-  // O balão mora dentro da saudação (Home); procura o encaixe a cada render.
+  // O letreiro mora dentro da saudação (Home); procura o encaixe a cada render.
   useEffect(() => {
-    const el = document.getElementById('daily-bubble-slot')
+    const el = document.getElementById('daily-ticker-slot')
     if (el !== slot) setSlot(el)
   })
 
   useEffect(() => {
-    if (!communityId || (popupDone && bubbleHidden)) return
+    if (!communityId) return
     let cancelled = false
     void (async () => {
       const { data } = await supabase
@@ -68,19 +64,17 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
         .in('status', ['published', 'auto'])
       if (cancelled) return
       setItem(pickInspiration((data ?? []) as Inspiration[], today))
+      setLoaded(true)
     })()
     return () => {
       cancelled = true
     }
-    // popupDone/bubbleHidden só decidem se vale buscar na abertura.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [communityId, profileId, today])
 
   const popupOpen = !!item && !popupDone && !suppressed
-  const bubbleVisible = !!item && popupDone && !bubbleHidden && !suppressed && !!slot
+  const tickerVisible = popupDone && !tickerHidden && !suppressed && !!slot
 
   const closePopup = useCallback(() => {
-    flyFrom.current = popupRef.current?.getBoundingClientRect() ?? null
     markSeenToday(profileId, today)
     setPopupDone(true)
   }, [profileId, today])
@@ -99,36 +93,12 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
     }
   }, [popupOpen, closePopup])
 
-  // Voo do popup até o balão: parte do tamanho/posição do popup e desliza até
-  // o encaixe ao lado do "Bom dia". Sem movimento (ou sem medida), só aparece.
-  useLayoutEffect(() => {
-    const from = flyFrom.current
-    const el = bubbleRef.current
-    if (!bubbleVisible || !from || !el) return
-    flyFrom.current = null
-    if (prefersReducedMotion()) return
-    const to = el.getBoundingClientRect()
-    if (to.width === 0 || to.height === 0) return
-    el.style.animation = 'none'
-    el.style.transition = 'none'
-    el.style.transformOrigin = 'top left'
-    el.style.transform = `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`
-    // Reflow forçado: fixa o ponto de partida sem depender de quadro de tela
-    // (requestAnimationFrame pausa em aba em segundo plano e deixaria o balão
-    // preso no lugar do popup).
-    void el.offsetWidth
-    el.style.transition = 'transform 0.65s cubic-bezier(0.22, 0.8, 0.3, 1)'
-    el.style.transform = 'none'
-  }, [bubbleVisible])
-
-  function hideBubble() {
-    markSeenToday(bubbleKey, today)
-    setBubbleHidden(true)
+  function hideTicker() {
+    markSeenToday(tickerKey, today)
+    setTickerHidden(true)
   }
 
-  if (!item) return null
-
-  if (popupOpen) {
+  if (popupOpen && item) {
     return createPortal(
       <div className="inspiration-popup-backdrop" onClick={closePopup}>
         <aside
@@ -151,21 +121,42 @@ export function DailyInspiration({ communityId, profileId, suppressed = false }:
     )
   }
 
-  if (!bubbleVisible || !slot) return null
+  if (!tickerVisible || !slot) return null
+
+  const manage = onManage ? (
+    <button type="button" className="inspiration-ticker-manage" onClick={onManage}>
+      Gerenciar
+    </button>
+  ) : null
+
+  // Sem mensagem para hoje: só a profissional vê a faixa, com o atalho.
+  if (!item) {
+    if (!manage || !loaded) return null
+    return createPortal(
+      <aside className="inspiration-ticker inspiration-ticker--empty" role="note" aria-label="Mensagem do dia">
+        <span className="inspiration-ticker-static">Nenhuma mensagem publicada para hoje.</span>
+        {manage}
+      </aside>,
+      slot,
+    )
+  }
+
+  const line = `${displayBody(item)} — ${attribution(item)}`
+  const seconds = Math.max(TICKER_MIN_SECONDS, Math.round(line.length * TICKER_SECONDS_PER_CHAR))
 
   return createPortal(
-    <aside ref={bubbleRef} className="inspiration-bubble" role="note" aria-label="Mensagem do dia">
-      <button type="button" className="inspiration-bubble-close" onClick={hideBubble} aria-label="Fechar mensagem do dia">
-        <CloseIcon size={14} />
-      </button>
-      <button
-        type="button"
-        className="inspiration-bubble-body"
-        onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-      >
-        <span className={'inspiration-bubble-text' + (expanded ? ' is-open' : '')}>{displayBody(item)}</span>
-        <span className="inspiration-bubble-author">{attribution(item)}</span>
+    <aside className="inspiration-ticker" role="note" aria-label="Mensagem do dia">
+      <div className="inspiration-ticker-viewport">
+        <div className="inspiration-ticker-track" style={{ animationDuration: `${seconds}s` }}>
+          <span className="inspiration-ticker-item">{line}</span>
+          <span className="inspiration-ticker-item" aria-hidden="true">
+            {line}
+          </span>
+        </div>
+      </div>
+      {manage}
+      <button type="button" className="inspiration-ticker-close" onClick={hideTicker} aria-label="Fechar mensagem do dia">
+        <CloseIcon size={12} />
       </button>
     </aside>,
     slot,

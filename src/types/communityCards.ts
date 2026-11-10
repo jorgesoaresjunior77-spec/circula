@@ -78,14 +78,8 @@ export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
   { key: 'jardim', label: 'Meu Jardim', hint: 'Atalho para o Meu Jardim — evolução e desafios.' },
 ]
 
-/** Cards de ferramentas da Home (Calendário, Água, IMC). As chaves só
- *  existem no banco depois da migration 20261107120000 (preparada, não
- *  aplicada); até lá, salvar a imagem devolve erro de constraint. */
-export const TOOL_CARD_META: CommunityCardMeta[] = [
-  { key: 'ferramenta_calendario', label: 'Calendário', hint: 'Atalho para a agenda.' },
-  { key: 'ferramenta_agua', label: 'Água', hint: 'Atalho para a calculadora de água.' },
-  { key: 'ferramenta_imc', label: 'IMC', hint: 'Atalho para a calculadora de IMC.' },
-]
+// Os atalhos Antes de Tudo, Água e IMC da Home usam ícones próprios: não têm
+// imagem cadastrável (as chaves ferramenta_* seguem só no banco, sem uso).
 
 /** Cards da roda de menu da Home. As chaves só existem no banco depois da
  *  migration 20261109130000 (preparada, não aplicada); até lá, salvar a

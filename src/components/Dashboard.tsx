@@ -61,6 +61,7 @@ import { MemberCommunityCard } from './MemberCommunityCard'
 import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeGreeting } from './HomeGreeting'
+import { HomeToolCards } from './HomeToolCards'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
 import { useHomeBadges } from '../hooks/useHomeBadges'
@@ -1164,7 +1165,11 @@ export function Dashboard({
       {coverHero && railCommunity && (
         <div className="dashboard-community-cover">
           <HomeGreeting fullName={profile?.full_name} />
-          <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
+          {/* Banner + atalhos na vertical, ocupando exatamente a altura dele. */}
+          <div className="dashboard-cover-row">
+            <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
+            <HomeToolCards vertical onNavigate={handleNavigate} />
+          </div>
         </div>
       )}
 
@@ -1240,6 +1245,7 @@ export function Dashboard({
         <DailyInspiration
           communityId={railCommunity?.id ?? null}
           profileId={profile.id}
+          onManage={profile.role === 'professional' ? () => handleNavigate('inspiracoes') : undefined}
           suppressed={
             showTour ||
             showInstallGuide ||

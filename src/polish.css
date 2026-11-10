@@ -192,9 +192,15 @@ html {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* ---- Saudação com a frase do dia ao lado ------------------------------- */
+/* ---- Saudação, com a mensagem do dia deslizando logo abaixo --------------- */
 .home-greeting {
-  flex-direction: row;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.home-greeting .home-greeting-row {
+  display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
@@ -208,55 +214,94 @@ html {
   min-width: 0;
 }
 
-.home-greeting .home-greeting-slot {
-  flex: 0 1 46%;
-  min-width: 0;
-}
-
-.home-greeting .home-greeting-slot:empty {
+.home-greeting .home-greeting-ticker:empty {
   display: none;
 }
 
-/* ---- Frase do dia: balão de vidro fumê com biquinho ----------------------- */
-.inspiration-bubble {
+/* ---- Mensagem do dia: letreiro de uma linha, como painel de aeroporto ------ */
+.inspiration-ticker {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   box-sizing: border-box;
-  width: 100%;
-  max-width: 336px;
-  margin-left: auto;
-  padding: 8px 26px 8px 12px;
+  height: 32px;
+  padding: 0 8px 0 14px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
-  background: rgba(34, 29, 26, 0.58);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  backdrop-filter: blur(16px) saturate(1.2);
-  box-shadow: 0 10px 28px -10px rgba(20, 15, 12, 0.55);
+  border-radius: 999px;
+  background: rgba(34, 29, 26, 0.62);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 8px 22px -12px rgba(20, 15, 12, 0.55);
   color: #fff;
-  animation: bubble-in 0.35s var(--ease, ease-out) both;
+  animation: ticker-in 0.35s var(--ease, ease-out) both;
 }
 
-/* Biquinho de balão de conversa, apontando para a saudação (à esquerda). */
-.inspiration-bubble::before {
-  content: '';
-  position: absolute;
-  top: 16px;
-  left: -8px;
-  width: 0;
-  height: 0;
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
-  border-right: 9px solid rgba(34, 29, 26, 0.58);
+.inspiration-ticker .inspiration-ticker-viewport {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
 
-.inspiration-bubble .inspiration-bubble-close {
-  position: absolute;
-  top: 4px;
-  right: 4px;
+.inspiration-ticker .inspiration-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll linear infinite;
+  will-change: transform;
+}
+
+.inspiration-ticker:hover .inspiration-ticker-track {
+  animation-play-state: paused;
+}
+
+/* Cada cópia ocupa no mínimo a largura da tela: o texto sai por um lado
+   enquanto a cópia seguinte já entra pelo outro, sem salto. */
+.inspiration-ticker .inspiration-ticker-item {
+  flex: none;
+  min-width: 100vw;
+  box-sizing: border-box;
+  padding-right: 56px;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 12.5px;
+  line-height: 30px;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.inspiration-ticker .inspiration-ticker-static {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.inspiration-ticker .inspiration-ticker-manage {
+  flex: none;
+  margin: 0;
+  padding: 3px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.inspiration-ticker .inspiration-ticker-close {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -267,54 +312,41 @@ html {
   cursor: pointer;
 }
 
-.inspiration-bubble .inspiration-bubble-body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-.inspiration-bubble .inspiration-bubble-text {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: 12.5px;
-  line-height: 1.4;
-  color: #fff;
-}
-
-.inspiration-bubble .inspiration-bubble-text.is-open {
-  -webkit-line-clamp: unset;
-  line-clamp: unset;
-  overflow: visible;
-}
-
-.inspiration-bubble .inspiration-bubble-author {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-@keyframes bubble-in {
-  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+@keyframes ticker-in {
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: none; }
 }
 
+/* Movimento reduzido: sem deslizar; o texto fica parado e pode quebrar linha. */
 @media (prefers-reduced-motion: reduce) {
-  .inspiration-bubble {
+  .inspiration-ticker {
+    height: auto;
+    min-height: 32px;
+    padding-block: 6px;
+    border-radius: 18px;
     animation: none;
+  }
+  .inspiration-ticker .inspiration-ticker-viewport {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .inspiration-ticker .inspiration-ticker-track {
+    width: auto;
+    animation: none;
+  }
+  .inspiration-ticker .inspiration-ticker-item {
+    min-width: 0;
+    padding-right: 0;
+    white-space: normal;
+    line-height: 1.4;
+  }
+  .inspiration-ticker .inspiration-ticker-item[aria-hidden='true'] {
+    display: none;
   }
 }
 
@@ -917,4 +949,113 @@ html {
   .inspiration-popup {
     animation: none;
   }
+}
+
+/* ---- Banner (+10% de altura) e atalhos na vertical ao lado dele ------------- */
+.home-community-cover--glass {
+  height: 209px;
+}
+
+@media (min-width: 768px) {
+  .home-community-cover--glass {
+    height: 242px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-community-cover--glass {
+    height: 277px;
+  }
+}
+
+.dashboard-cover-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.dashboard-cover-row > .home-community-header {
+  min-width: 0;
+}
+
+/* A coluna nunca passa da altura do banner: cada atalho divide o espaço e
+   o que sobrar de conteúdo é cortado, nunca vaza para cima nem para baixo. */
+.home-tools.home-tools--vertical {
+  display: flex;
+  flex-direction: column;
+  width: 68px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 4px 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.25));
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
+  box-shadow: var(--shadow-md);
+}
+
+.home-tools--vertical .home-tool {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 2px;
+}
+
+.home-tools--vertical .home-tool-media {
+  width: 30px;
+  height: 30px;
+}
+
+.home-tools--vertical .home-tool-media svg,
+.home-tools--vertical .home-tool-media .tool-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.home-tools--vertical .home-tool-title {
+  font-size: 9.5px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* Xícara de café: o vapor sobe e some, devagar */
+.tool-icon--coffee {
+  color: #8a5a3c;
+}
+
+.tool-icon--coffee .tool-steam-line {
+  opacity: 0;
+  animation: tool-steam 2.8s ease-in-out infinite;
+}
+
+.tool-icon--coffee .tool-steam-line--2 {
+  animation-delay: 0.9s;
+}
+
+.tool-icon--coffee .tool-steam-line--3 {
+  animation-delay: 1.8s;
+}
+
+@keyframes tool-steam {
+  0% { transform: translateY(4px); opacity: 0; }
+  30% { opacity: 0.85; }
+  100% { transform: translateY(-4px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-icon--coffee .tool-steam-line {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Agenda, calendário e relógio 10% menores. */
+.home-time {
+  zoom: 0.9;
 }
