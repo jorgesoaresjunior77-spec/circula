@@ -62,6 +62,7 @@ import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
+import { WeatherPage } from './WeatherPage'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
 import { useHomeBadges } from '../hooks/useHomeBadges'
@@ -149,7 +150,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes']
 
 export function Dashboard({
   profile,
@@ -376,6 +377,8 @@ export function Dashboard({
     }
     // Playlist — aberta pelo menu vertical da Home (ainda sem conteúdo).
     navItems.push({ key: 'playlist', label: 'Playlist', Icon: HeartIcon, inBottomNav: false })
+    // Previsão do tempo — aberta pelo ícone ao lado da saudação.
+    navItems.push({ key: 'tempo', label: 'Previsão do tempo', Icon: HeartIcon, inBottomNav: false })
     // Fase 13 — Loja acessível também à Member (antes só existia como
     // destino da anfitriã, dentro de canHostDestinations). Backend/RLS
     // e o componente já suportavam a Member comprar (ProductManager
@@ -859,6 +862,10 @@ export function Dashboard({
       )
     }
 
+    if (effectiveNav === 'tempo') {
+      return <WeatherPage />
+    }
+
     if (effectiveNav === 'playlist') {
       return <PlaylistPage />
     }
@@ -1164,7 +1171,7 @@ export function Dashboard({
 
       {coverHero && railCommunity && (
         <div className="dashboard-community-cover">
-          <HomeGreeting fullName={profile?.full_name} />
+          <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
           {/* Banner + atalhos na vertical, ocupando exatamente a altura dele. */}
           <div className="dashboard-cover-row">
             <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />

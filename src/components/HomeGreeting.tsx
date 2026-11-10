@@ -2,6 +2,8 @@
 // própria porque, quando a comunidade tem banner, o Dashboard a desenha
 // ACIMA do banner; sem banner, a HomeToday a desenha no topo da Home.
 
+import { WeatherButton } from './WeatherButton'
+
 export function timeGreeting(now = new Date()): string {
   const hour = now.getHours()
   if (hour < 12) return 'Bom dia'
@@ -14,7 +16,14 @@ export function firstName(fullName: string | null | undefined): string | null {
   return name || null
 }
 
-export function HomeGreeting({ fullName }: { fullName: string | null | undefined }) {
+export function HomeGreeting({
+  fullName,
+  onOpenWeather,
+}: {
+  fullName: string | null | undefined
+  /** Abre a página da previsão do tempo; sem isto o ícone não aparece. */
+  onOpenWeather?: () => void
+}) {
   const name = firstName(fullName)
   return (
     <header className="home-greeting">
@@ -26,6 +35,7 @@ export function HomeGreeting({ fullName }: { fullName: string | null | undefined
           </h2>
           <p className="home-greeting-sub">Seu Círcula de hoje</p>
         </div>
+        {onOpenWeather && <WeatherButton onOpen={onOpenWeather} />}
       </div>
       {/* A frase do dia (DailyInspiration) desliza aqui, numa linha só. */}
       <div id="daily-ticker-slot" className="home-greeting-ticker" />

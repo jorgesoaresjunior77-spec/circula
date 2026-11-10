@@ -194,7 +194,7 @@ export function HomeToday({
   const { url: receitasCoverGrande } = useSignedImageUrl(cardImagePaths.jornada_grande ?? null)
   const { url: lojaCoverGrande } = useSignedImageUrl(cardImagePaths.comunidade_grande ?? null)
 
-  const greeting = <HomeGreeting fullName={profile.full_name} />
+  const greeting = <HomeGreeting fullName={profile.full_name} onOpenWeather={() => onNavigate('tempo')} />
 
   // --- Sem comunidade: preserva os fallbacks do "Início" atual -------
   if (profile.role === 'professional' && communities.length === 0) {
