@@ -1,0 +1,191 @@
+/* Loja: filtros em uma linha que rola, destaque com foto mais baixa, grade de
+   2 colunas e cartões com sombra suave. Só aparência (compra, preço e links não
+   mudam). Vem depois do App.css; escopado à vitrine e à gestão da Loja. */
+
+/* ---- Filtros: uma linha só, rolando para o lado ------------------------------ */
+.product-manager--storefront .store-filters {
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 2px 0 var(--space-2);
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+}
+
+.product-manager--storefront .store-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.product-manager--storefront .store-filter-pill {
+  flex: none;
+  white-space: nowrap;
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+}
+
+.product-manager--storefront .store-filter-pill--active {
+  background: var(--circula-mocha);
+  box-shadow: var(--elev-2);
+}
+
+/* ---- Destaque: foto mais baixa, cartão de vidro ------------------------------ */
+.product-manager--storefront .store-featured {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.product-manager--storefront .store-featured .product-card.product-card--featured {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-3);
+  animation: store-in 0.5s var(--ease-out) both;
+}
+
+.product-manager--storefront .store-featured .product-card-media {
+  aspect-ratio: 4 / 3;
+  max-height: 45dvh;
+  border-radius: 0;
+}
+
+@media (min-width: 720px) {
+  .product-manager--storefront .store-featured .product-card-media {
+    aspect-ratio: 4 / 5;
+    max-height: none;
+  }
+}
+
+.product-manager--storefront .store-featured .product-card-body {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.product-manager--storefront .store-featured .product-card-title {
+  font-size: clamp(22px, 3vw, 28px);
+}
+
+.product-manager--storefront .store-featured .product-card-price {
+  font-size: 22px;
+}
+
+/* ---- Grade: 2 colunas de cartões compactos ---------------------------------- */
+.product-manager--storefront .product-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 560px) {
+  .product-manager--storefront .product-list {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+.product-manager--storefront .product-list .product-item {
+  min-width: 0;
+  animation: store-in 0.45s var(--ease-out) both;
+}
+
+.product-manager--storefront .product-list .product-item:nth-child(2) { animation-delay: 45ms; }
+.product-manager--storefront .product-list .product-item:nth-child(3) { animation-delay: 90ms; }
+.product-manager--storefront .product-list .product-item:nth-child(4) { animation-delay: 135ms; }
+.product-manager--storefront .product-list .product-item:nth-child(n + 5) { animation-delay: 180ms; }
+
+.product-manager--storefront .product-list .product-card {
+  height: 100%;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-2);
+}
+
+.product-manager--storefront .product-list .product-card-media {
+  border-radius: 0;
+}
+
+.product-manager--storefront .product-list .product-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3);
+}
+
+.product-manager--storefront .product-list .product-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 14.5px;
+  line-height: 1.25;
+}
+
+.product-manager--storefront .product-list .product-card-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.product-manager--storefront .product-list .product-card-price {
+  margin-top: auto;
+  font-size: 17px;
+}
+
+.product-manager--storefront .product-list .product-card-cta {
+  margin-top: 6px;
+}
+
+.product-manager--storefront .product-list .product-card-cta .btn-primary {
+  width: 100%;
+  padding: 10px 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+}
+
+@keyframes store-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Profissional: botão "+ Novo produto" no lugar do formulário aberto ------- */
+.store-owner-actions {
+  display: flex;
+}
+
+.store-new-btn {
+  min-height: 38px;
+  margin: 0;
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--circula-mocha);
+  box-shadow: var(--elev-1);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-manager--storefront .store-featured .product-card.product-card--featured,
+  .product-manager--storefront .product-list .product-item {
+    animation: none;
+  }
+}

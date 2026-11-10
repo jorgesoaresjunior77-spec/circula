@@ -17,6 +17,7 @@ import './magazine-reader.css'
 import './polish.css'
 import './recipes.css'
 import './panel.css'
+import './store.css'
 
 function App() {
   const {

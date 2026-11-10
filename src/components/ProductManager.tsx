@@ -355,6 +355,8 @@ export function ProductManager({
 
   const [draft, setDraft] = useState<ProductFormValues>(EMPTY_FORM)
   const [creating, setCreating] = useState(false)
+  // Profissional: o formulário de novo produto fica recolhido até pedir.
+  const [showForm, setShowForm] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -376,10 +378,19 @@ export function ProductManager({
   const gridProducts = featuredProduct
     ? publishedProducts.filter((product) => product.id !== featuredProduct.id)
     : publishedProducts
+  // Só os tipos que têm produto na grade (mais "Todos"); com um tipo só, os
+  // filtros seriam redundantes e a barra nem aparece.
+  const gridTypes = new Set(gridProducts.map((product) => product.type))
+  const availableFilters = STORE_FILTERS.filter(
+    (filter) => filter.value === 'all' || gridTypes.has(filter.value),
+  )
+  const effectiveFilter = availableFilters.some((filter) => filter.value === activeFilter)
+    ? activeFilter
+    : 'all'
   const filteredGridProducts =
-    activeFilter === 'all'
+    effectiveFilter === 'all'
       ? gridProducts
-      : gridProducts.filter((product) => product.type === activeFilter)
+      : gridProducts.filter((product) => product.type === effectiveFilter)
   const selectedProduct = selectedProductId
     ? (products.find((product) => product.id === selectedProductId) ?? null)
     : null
@@ -437,6 +448,7 @@ export function ProductManager({
     }
 
     setDraft(EMPTY_FORM)
+    setShowForm(false)
   }
 
   function startEdit(product: Product) {
@@ -505,7 +517,15 @@ export function ProductManager({
         </>
       )}
 
-      {canManage && (
+      {canManage && !showForm && (
+        <div className="store-owner-actions">
+          <button type="button" className="store-new-btn" onClick={() => setShowForm(true)}>
+            + Novo produto
+          </button>
+        </div>
+      )}
+
+      {canManage && showForm && (
         <form onSubmit={handleCreate} className="question-form">
           <ProductFields
             idPrefix="new-product"
@@ -515,6 +535,16 @@ export function ProductManager({
           {createError && <p className="auth-error">{createError}</p>}
           <button type="submit" disabled={creating || !draft.title.trim()}>
             {creating ? 'Salvando...' : 'Adicionar produto'}
+          </button>
+          <button
+            type="button"
+            className="auth-link"
+            onClick={() => {
+              setShowForm(false)
+              setCreateError(null)
+            }}
+          >
+            Cancelar
           </button>
         </form>
       )}
@@ -558,17 +588,21 @@ export function ProductManager({
         </div>
       )}
 
-      {!loading && !error && showBuy && publishedProducts.length > 0 && (
+      {!loading && !error && showBuy && gridTypes.size > 1 && (
         <div className="store-filters" role="group" aria-label="Filtrar produtos por tipo">
-          {STORE_FILTERS.map((filter) => (
+          {availableFilters.map((filter) => (
             <button
               key={filter.value}
               type="button"
               className={`store-filter-pill${
-                activeFilter === filter.value ? ' store-filter-pill--active' : ''
+                effectiveFilter === filter.value ? ' store-filter-pill--active' : ''
               }`}
-              aria-pressed={activeFilter === filter.value}
-              onClick={() => setActiveFilter(filter.value)}
+              aria-pressed={effectiveFilter === filter.value}
+              onClick={(e) => {
+                setActiveFilter(filter.value)
+                // A barra rola para o lado: deixa o filtro escolhido à vista.
+                e.currentTarget.scrollIntoView?.({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+              }}
             >
               {filter.label}
             </button>
