@@ -1,5 +1,5 @@
-/* Leitor da revista: sem moldura escura, virada de página realista para a
-   esquerda, zoom e botão de baixar. Vem depois do App.css e vence o estilo
+/* Leitor da revista: sem moldura escura, virada de página que acompanha o
+   dedo, zoom por pinça e botão de baixar. Vem depois do App.css e vence o estilo
    antigo (fundo preto). */
 .mag2-reader {
   background: radial-gradient(ellipse at center, #faf6ef 0%, #efe5d6 100%);
@@ -21,18 +21,24 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Sem gestos nativos do navegador dentro do leitor: arrasto, pinça e toque
+   duplo são tratados pelo próprio leitor (ver HomeMagazineStrip). */
+.mag2-reader,
 .mag2-reader .mag2-page {
-  perspective: 1800px;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mag2-reader .mag2-page {
+  perspective: 2200px;
   overflow: hidden;
   animation: none;
+  cursor: grab;
 }
 
 .mag2-reader .mag2-page--zoomed {
-  overflow: auto;
-  align-items: flex-start;
-  justify-content: flex-start;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
+  cursor: move;
 }
 
 .mag2-sheet {
@@ -44,29 +50,20 @@
   border-radius: 4px;
   box-shadow: 0 18px 40px -12px rgba(53, 48, 44, 0.45), 0 4px 10px rgba(53, 48, 44, 0.2);
   transform-style: preserve-3d;
-}
-
-.mag2-page--zoomed .mag2-sheet {
-  max-width: none;
-  max-height: none;
-  width: calc(var(--mag-zoom) * min(90vw, (100dvh - 150px) * 3 / 4));
-}
-
-.mag2-page--zoomed .mag2-page-img {
-  max-width: none;
-  max-height: none;
-  width: 100%;
-  height: auto;
+  will-change: transform;
 }
 
 .mag2-sheet .mag2-page-img {
   border-radius: 4px;
+  -webkit-user-drag: none;
 }
 
-/* Folha que gira em torno da lombada (borda esquerda), para a esquerda. */
+/* Folha que gira em torno da lombada (borda esquerda). O ângulo e as sombras
+   vêm do leitor, acompanhando o dedo (ou a animação curta ao soltar). */
 .mag2-flap {
   position: absolute;
   inset: 0;
+  z-index: 2;
   transform-origin: left center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -76,7 +73,8 @@
   will-change: transform;
 }
 
-.mag2-flap > * {
+.mag2-flap > .mag2-page-img,
+.mag2-flap > .mag2-page-blank {
   width: 100%;
   height: 100%;
   max-width: none;
@@ -84,35 +82,31 @@
   object-fit: contain;
 }
 
-.mag2-flap::after {
-  content: '';
+/* A folha escurece ao se virar e ganha um brilho de papel perto da dobra. */
+.mag2-flap-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0) 55%);
   opacity: 0;
-  animation: mag2-shade 0.65s ease-in-out both;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 12%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0) 70%);
 }
 
-.mag2-flap--next {
-  animation: mag2-flip-next 0.65s cubic-bezier(0.45, 0.05, 0.25, 1) both;
+/* Sombra que a folha lança na página de baixo enquanto passa. */
+.mag2-cast {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0) 75%);
 }
 
-.mag2-flap--prev {
-  animation: mag2-flip-prev 0.65s cubic-bezier(0.45, 0.05, 0.25, 1) both;
-}
-
-@keyframes mag2-flip-next {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(-125deg); }
-}
-
-@keyframes mag2-flip-prev {
-  from { transform: rotateY(-125deg); }
-  to { transform: rotateY(0deg); }
-}
-
-@keyframes mag2-shade {
-  50% { opacity: 1; }
+@keyframes mag2-cast {
+  0% { opacity: 0; }
+  45% { opacity: 0.55; }
   100% { opacity: 0; }
 }
 
@@ -155,8 +149,3 @@
   color: var(--danger, #a33);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mag2-flap {
-    display: none;
-  }
-}

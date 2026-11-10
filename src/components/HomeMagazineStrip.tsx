@@ -1,10 +1,26 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { MagazineIssue } from '../types/magazine'
 import { MAGAZINE_BLANK_PAGES } from '../types/magazine'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { nextMagazineMessage } from '../lib/magazineSchedule'
 import { CloseIcon } from './icons'
+import {
+  MAG_DOUBLE_TAP_ZOOM,
+  MAG_VIEW_RESET,
+  castShade,
+  clampView,
+  dragFraction,
+  flapAngle,
+  flapShade,
+  pointDistance,
+  settleMs,
+  shouldComplete,
+  snapView,
+  turnProgress,
+  viewForPinch,
+} from '../lib/magazineGestures'
+import type { MagView, TurnDir } from '../lib/magazineGestures'
 import { todayParts } from '../lib/weekCalendar'
 
 function todayIso(): string {
@@ -51,6 +67,28 @@ function Page({ path, label }: { path: string | null; label: string }) {
   )
 }
 
+interface Turn {
+  dir: TurnDir
+  from: number
+  to: number
+}
+
+type GestureMode = 'idle' | 'swipe' | 'pan' | 'pinch' | 'ended'
+
+function prefersReducedMotion(): boolean {
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch {
+    return false
+  }
+}
+
+// Leitor em tela cheia. A página acompanha o dedo: arrastar vira a folha (em
+// torno da lombada, à esquerda) e, ao soltar, ela termina sozinha o caminho
+// com um movimento curto — ou volta, se o arrasto foi pequeno. Dois dedos
+// ampliam (pinça), um dedo arrasta a página ampliada e o toque duplo alterna o
+// zoom. Setas e botões viram a página com a mesma animação. Com "reduzir
+// movimento", a página troca direto, sem animação.
 export function MagazineReader({
   issue,
   onClose,
@@ -68,43 +106,305 @@ export function MagazineReader({
   const total = padded.length
   const [index, setIndex] = useState(0)
   const [hint, setHint] = useState(true)
-  const [zoom, setZoom] = useState(1)
-  const [turning, setTurning] = useState<{ from: number; to: number } | null>(null)
+  const [zoomed, setZoomed] = useState(false)
+  const [turn, setTurn] = useState<Turn | null>(null)
   const [downloadError, setDownloadError] = useState(false)
-  const touch = useRef<{ x: number; y: number } | null>(null)
-  const turnTimer = useRef<number | undefined>(undefined)
-  const indexRef = useRef(0)
   const { url: currentUrl } = useSignedImageUrl(padded[index])
 
-  // Vira a página: a folha de cima gira em torno da lombada (à esquerda).
-  // Com "reduzir movimento", troca direto, sem animação.
+  const indexRef = useRef(0)
+  const turnRef = useRef<Turn | null>(null)
+  const progressRef = useRef(0)
+  const pendingRef = useRef<{ target: number; ms: number; completed: boolean } | null>(null)
+  const settleTimer = useRef<number | undefined>(undefined)
+  const pageRef = useRef<HTMLDivElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const flapRef = useRef<HTMLDivElement>(null)
+  const flapShadeRef = useRef<HTMLSpanElement>(null)
+  const castRef = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<MagView>(MAG_VIEW_RESET)
+  const pointers = useRef(new Map<number, { x: number; y: number }>())
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null)
+  const gesture = useRef({
+    mode: 'idle' as GestureMode,
+    startX: 0,
+    startY: 0,
+    lastX: 0,
+    lastY: 0,
+    lastT: 0,
+    vx: 0,
+    dir: 'next' as TurnDir,
+    pinchDist: 1,
+    pinchView: MAG_VIEW_RESET as MagView,
+    pinchMid: { x: 0, y: 0 },
+  })
+
+  // ---- enquadramento (zoom e arrasto) --------------------------------------
+  const applyView = useCallback((view: MagView) => {
+    viewRef.current = view
+    const sheet = sheetRef.current
+    if (sheet) {
+      sheet.style.transform =
+        view.z === 1 && view.tx === 0 && view.ty === 0
+          ? ''
+          : `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.z})`
+    }
+    setZoomed(view.z > 1.001)
+  }, [])
+
+  const boundedView = useCallback((view: MagView): MagView => {
+    const page = pageRef.current
+    const sheet = sheetRef.current
+    if (!page || !sheet) return view
+    return clampView(view, sheet.offsetWidth, sheet.offsetHeight, page.clientWidth, page.clientHeight)
+  }, [])
+
+  /** Ponto da tela relativo ao centro da área da página. */
+  const fromCenter = useCallback((x: number, y: number) => {
+    const rect = pageRef.current?.getBoundingClientRect()
+    if (!rect) return { x: 0, y: 0 }
+    return { x: x - (rect.left + rect.width / 2), y: y - (rect.top + rect.height / 2) }
+  }, [])
+
+  // ---- folha que vira ------------------------------------------------------
+  const applyProgress = useCallback((p: number, ms = 0) => {
+    progressRef.current = p
+    const flap = flapRef.current
+    if (!flap) return
+    const ease = 'cubic-bezier(0.3, 0.7, 0.25, 1)'
+    flap.style.transition = ms ? `transform ${ms}ms ${ease}` : 'none'
+    flap.style.transform = `rotateY(${flapAngle(p)}deg)`
+    const shade = flapShadeRef.current
+    if (shade) {
+      shade.style.transition = ms ? `opacity ${ms}ms ease-out` : 'none'
+      shade.style.opacity = String(flapShade(p))
+    }
+    const cast = castRef.current
+    if (cast && !ms) cast.style.opacity = String(castShade(p))
+  }, [])
+
+  const finishTurn = useCallback(
+    (completed: boolean) => {
+      const t = turnRef.current
+      if (!t) return
+      window.clearTimeout(settleTimer.current)
+      pendingRef.current = null
+      if (completed) {
+        indexRef.current = t.to
+        setIndex(t.to)
+        applyView(MAG_VIEW_RESET)
+      }
+      turnRef.current = null
+      setTurn(null)
+    },
+    [applyView],
+  )
+
+  const runSettle = useCallback(() => {
+    const pending = pendingRef.current
+    const flap = flapRef.current
+    if (!pending || !flap) return
+    pendingRef.current = null
+    void flap.offsetWidth // fixa o ponto de partida antes de animar
+    applyProgress(pending.target, pending.ms)
+    const cast = castRef.current
+    if (cast) cast.style.animation = `mag2-cast ${pending.ms}ms ease-in-out both`
+    window.clearTimeout(settleTimer.current)
+    settleTimer.current = window.setTimeout(() => finishTurn(pending.completed), pending.ms + 40)
+  }, [applyProgress, finishTurn])
+
+  /** Termina a virada a partir de onde a folha está (ou do começo). */
+  const settle = useCallback(
+    (target: number, completed: boolean) => {
+      pendingRef.current = { target, ms: settleMs(progressRef.current, target), completed }
+      runSettle()
+    },
+    [runSettle],
+  )
+
+  const beginTurn = useCallback((dir: TurnDir): boolean => {
+    const from = indexRef.current
+    const to = dir === 'next' ? from + 1 : from - 1
+    if (turnRef.current || to < 0 || to > total - 1) return false
+    const t = { dir, from, to }
+    turnRef.current = t
+    progressRef.current = turnProgress(dir, 0)
+    setTurn(t)
+    return true
+  }, [total])
+
+  // Depois de desenhar a folha: aplica o ponto de partida e, se houver, anima.
+  useLayoutEffect(() => {
+    if (!turn) return
+    applyProgress(progressRef.current)
+    runSettle()
+  }, [turn, applyProgress, runSettle])
+
+  /** Vira a página por botão, seta ou toque: mesma animação, sem arrasto. */
   const goTo = useCallback(
     (to: number) => {
       const from = indexRef.current
-      if (to === from || to < 0 || to > total - 1) return
-      indexRef.current = to
-      setIndex(to)
-      setZoom(1)
-      window.clearTimeout(turnTimer.current)
-      let reduced = false
-      try {
-        reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      } catch {
-        reduced = false
-      }
-      if (reduced) {
-        setTurning(null)
+      if (to === from || to < 0 || to > total - 1 || turnRef.current) return
+      setHint(false)
+      if (viewRef.current.z > 1) applyView(MAG_VIEW_RESET)
+      if (prefersReducedMotion()) {
+        indexRef.current = to
+        setIndex(to)
         return
       }
-      setTurning({ from, to })
-      turnTimer.current = window.setTimeout(() => setTurning(null), 700)
+      const dir: TurnDir = to > from ? 'next' : 'prev'
+      if (!beginTurn(dir)) return
+      indexRef.current = to
+      setIndex(to)
+      settle(dir === 'next' ? 1 : 0, true)
     },
-    [total],
+    [total, applyView, beginTurn, settle],
   )
   const prev = useCallback(() => goTo(indexRef.current - 1), [goTo])
   const next = useCallback(() => goTo(indexRef.current + 1), [goTo])
 
-  useEffect(() => () => window.clearTimeout(turnTimer.current), [])
+  useEffect(() => () => window.clearTimeout(settleTimer.current), [])
+
+  // ---- gestos --------------------------------------------------------------
+  function toggleDoubleTapZoom(x: number, y: number) {
+    if (viewRef.current.z > 1.001) {
+      applyView(MAG_VIEW_RESET)
+      return
+    }
+    const m = fromCenter(x, y)
+    applyView(boundedView(viewForPinch(MAG_VIEW_RESET, m, MAG_DOUBLE_TAP_ZOOM, m)))
+  }
+
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // Alguns navegadores recusam a captura; o arrasto segue pelos eventos normais.
+    }
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    const g = gesture.current
+    if (pointers.current.size === 1) {
+      g.mode = 'idle'
+      g.startX = g.lastX = e.clientX
+      g.startY = g.lastY = e.clientY
+      g.lastT = e.timeStamp
+      g.vx = 0
+    } else if (pointers.current.size === 2) {
+      // Segundo dedo: vira pinça. Uma virada começada volta para o lugar.
+      if (g.mode === 'swipe') settle(turnProgress(g.dir, 0), false)
+      const [a, b] = [...pointers.current.values()]
+      g.mode = 'pinch'
+      g.pinchDist = Math.max(1, pointDistance(a, b))
+      g.pinchView = { ...viewRef.current }
+      g.pinchMid = fromCenter((a.x + b.x) / 2, (a.y + b.y) / 2)
+    }
+  }
+
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!pointers.current.has(e.pointerId)) return
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    const g = gesture.current
+
+    if (g.mode === 'pinch' && pointers.current.size >= 2) {
+      const [a, b] = [...pointers.current.values()]
+      const mid = fromCenter((a.x + b.x) / 2, (a.y + b.y) / 2)
+      const z = g.pinchView.z * (pointDistance(a, b) / g.pinchDist)
+      applyView(boundedView(viewForPinch(g.pinchView, g.pinchMid, z, mid)))
+      setHint(false)
+      return
+    }
+    if (pointers.current.size !== 1) return
+
+    const dx = e.clientX - g.startX
+    const dy = e.clientY - g.startY
+
+    if (g.mode === 'idle' && Math.hypot(dx, dy) > 8) {
+      if (viewRef.current.z > 1.001) {
+        g.mode = 'pan'
+      } else if (Math.abs(dx) > Math.abs(dy)) {
+        const dir: TurnDir = dx < 0 ? 'next' : 'prev'
+        if (!prefersReducedMotion() && beginTurn(dir)) {
+          g.mode = 'swipe'
+          g.dir = dir
+          setHint(false)
+        } else {
+          g.mode = 'ended'
+        }
+      } else {
+        g.mode = 'ended'
+      }
+    }
+
+    if (g.mode === 'swipe') {
+      const width = sheetRef.current?.offsetWidth ?? 300
+      applyProgress(turnProgress(g.dir, dragFraction(g.dir, dx, width)))
+      const dt = e.timeStamp - g.lastT
+      if (dt > 0) g.vx = 0.6 * g.vx + 0.4 * ((e.clientX - g.lastX) / dt)
+    } else if (g.mode === 'pan') {
+      const v = viewRef.current
+      applyView(boundedView({ z: v.z, tx: v.tx + (e.clientX - g.lastX), ty: v.ty + (e.clientY - g.lastY) }))
+    }
+    g.lastX = e.clientX
+    g.lastY = e.clientY
+    g.lastT = e.timeStamp
+  }
+
+  function onPointerEnd(e: React.PointerEvent<HTMLDivElement>) {
+    if (!pointers.current.has(e.pointerId)) return
+    pointers.current.delete(e.pointerId)
+    const g = gesture.current
+    const cancelled = e.type === 'pointercancel'
+
+    if (g.mode === 'swipe') {
+      const frac = g.dir === 'next' ? progressRef.current : 1 - progressRef.current
+      const toward = g.dir === 'next' ? -g.vx : g.vx
+      const complete = !cancelled && shouldComplete(frac, toward)
+      settle(complete ? turnProgress(g.dir, 1) : turnProgress(g.dir, 0), complete)
+      g.mode = 'ended'
+      return
+    }
+
+    if (g.mode === 'pinch') {
+      applyView(boundedView(snapView(viewRef.current)))
+      const rest = [...pointers.current.values()][0]
+      if (rest) {
+        g.mode = viewRef.current.z > 1.001 ? 'pan' : 'ended'
+        g.startX = g.lastX = rest.x
+        g.startY = g.lastY = rest.y
+      } else {
+        g.mode = 'ended'
+      }
+      return
+    }
+
+    if (g.mode === 'idle' && !cancelled && pointers.current.size === 0) {
+      // Toque (sem arrastar): dois toques seguidos alternam o zoom.
+      const now = e.timeStamp
+      const prevTap = lastTap.current
+      if (prevTap && now - prevTap.t < 320 && Math.hypot(e.clientX - prevTap.x, e.clientY - prevTap.y) < 28) {
+        lastTap.current = null
+        toggleDoubleTapZoom(e.clientX, e.clientY)
+      } else {
+        lastTap.current = { t: now, x: e.clientX, y: e.clientY }
+      }
+    }
+    if (pointers.current.size === 0) g.mode = 'idle'
+  }
+
+  // Pinça no trackpad / ctrl + roda do mouse (computador).
+  useEffect(() => {
+    const el = pageRef.current
+    if (!el) return
+    function onWheel(e: WheelEvent) {
+      if (!e.ctrlKey) return
+      e.preventDefault()
+      const v = viewRef.current
+      const m = fromCenter(e.clientX, e.clientY)
+      applyView(boundedView(snapView(viewForPinch(v, m, v.z * Math.exp(-e.deltaY * 0.01), m))))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [applyView, boundedView, fromCenter])
 
   async function handleDownload() {
     if (!currentUrl) return
@@ -152,71 +452,48 @@ export function MagazineReader({
   }, [onClose, next, prev])
 
   const title = issue?.title ?? 'Revista Círcula Magazine'
+  const label = (i: number) => (i === 0 ? 'Capa' : `Página ${i}`)
+  // Avançando, a página de baixo já é a próxima e a folha é a atual; voltando,
+  // a folha é a anterior e cai sobre a atual.
+  const baseIdx = turn ? (turn.dir === 'next' ? turn.to : turn.from) : index
+  const flapIdx = turn ? (turn.dir === 'next' ? turn.from : turn.to) : null
 
   return (
-    <div
-      className="mag2-reader"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Revista ${title}`}
-      onTouchStart={(e) => {
-        touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-      }}
-      onTouchEnd={(e) => {
-        const s = touch.current
-        touch.current = null
-        if (!s) return
-        const dx = e.changedTouches[0].clientX - s.x
-        const dy = e.changedTouches[0].clientY - s.y
-        if (zoom > 1) return
-        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
-        setHint(false)
-        if (dx < 0) next()
-        else prev()
-      }}
-    >
+    <div className="mag2-reader" role="dialog" aria-modal="true" aria-label={`Revista ${title}`}>
       <button type="button" className="mag2-close" onClick={onClose} aria-label="Fechar revista" data-autofocus>
         <CloseIcon />
       </button>
       <p className="mag2-count">
         {title} · {index + 1}/{total}
       </p>
-      {(() => {
-        const dir = turning ? (turning.to > turning.from ? 'next' : 'prev') : null
-        // Ao voltar, a base ainda mostra a página de onde saiu e a folha
-        // (já com a página de destino) fecha sobre ela.
-        const baseIdx = turning && dir === 'prev' ? turning.from : index
-        const flapIdx = turning ? (dir === 'next' ? turning.from : turning.to) : null
-        const label = (i: number) => (i === 0 ? 'Capa' : `Página ${i}`)
-        return (
-          <div
-            className={'mag2-page' + (zoom > 1 ? ' mag2-page--zoomed' : '')}
-            style={{ ['--mag-zoom' as string]: zoom }}
-          >
-            <div className="mag2-sheet" onDoubleClick={() => setZoom((z) => (z > 1 ? 1 : 2))}>
-              <Page path={padded[baseIdx]} label={label(baseIdx)} />
-              {turning && flapIdx !== null && (
-                <div className={'mag2-flap mag2-flap--' + dir} aria-hidden="true">
-                  <Page path={padded[flapIdx]} label="" />
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      })()}
-      {hint && <p className="mag2-hint">Deslize para a esquerda para virar a página ←</p>}
+      <div
+        ref={pageRef}
+        className={'mag2-page' + (zoomed ? ' mag2-page--zoomed' : '')}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
+      >
+        <div ref={sheetRef} className="mag2-sheet">
+          <Page path={padded[baseIdx]} label={label(baseIdx)} />
+          {turn && flapIdx !== null && (
+            <>
+              <div ref={castRef} className="mag2-cast" aria-hidden="true" />
+              <div ref={flapRef} className="mag2-flap" aria-hidden="true">
+                <Page path={padded[flapIdx]} label="" />
+                <span ref={flapShadeRef} className="mag2-flap-shade" />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {hint && <p className="mag2-hint">Deslize para virar a página · dois dedos para ampliar</p>}
       {downloadError && (
         <p className="mag2-error" role="alert">
           Não foi possível baixar agora. Tente novamente.
         </p>
       )}
       <div className="mag2-tools">
-        <button type="button" onClick={() => setZoom((z) => Math.max(1, z - 1))} disabled={zoom === 1} aria-label="Diminuir zoom">
-          −
-        </button>
-        <button type="button" onClick={() => setZoom((z) => Math.min(3, z + 1))} disabled={zoom === 3} aria-label="Aumentar zoom">
-          +
-        </button>
         <button type="button" className="mag2-download" onClick={() => void handleDownload()} disabled={!currentUrl} aria-label="Baixar esta página">
           Baixar
         </button>
