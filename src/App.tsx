@@ -19,6 +19,7 @@ import './recipes.css'
 import './panel.css'
 import './store.css'
 import './circles.css'
+import './community.css'
 
 function App() {
   const {

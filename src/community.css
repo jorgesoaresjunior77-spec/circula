@@ -1,0 +1,264 @@
+/* Comunidade (feed): cabeçalho, capa em banner e publicações em cartões de vidro.
+   Só aparência: curtir, comentar, salvar, publicar e moderação não mudam. O estilo
+   fica restrito ao feed (.feed-masthead + .community-hero e .post-card--editorial);
+   as publicações recentes da Home e os outros usos do hero seguem como estão. Vem
+   depois do App.css. */
+
+/* ---- Cabeçalho: só a etiqueta "Feed", alinhada à esquerda ---------------------- */
+.feed-masthead {
+  width: 100%;
+  margin-bottom: var(--space-3);
+  text-align: left;
+}
+
+.feed-masthead .section-label {
+  margin: 0;
+  text-align: left;
+}
+
+/* ---- Capa da comunidade: banner com o nome sobre o véu -------------------------- */
+.feed-masthead + .community-card.community-hero {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-3);
+}
+
+.feed-masthead + .community-hero .community-hero-cover {
+  height: 170px;
+  box-shadow: none;
+}
+
+.feed-masthead + .community-hero .community-hero-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(21, 19, 17, 0) 30%, rgba(21, 19, 17, 0.72) 100%);
+}
+
+/* A anfitriã tem o campo de trocar a capa logo abaixo da foto: sem sobreposição. */
+.feed-masthead + .community-hero:has(.community-hero-cover-control) .community-hero-cover {
+  height: 120px;
+}
+
+.feed-masthead + .community-hero:has(.community-hero-cover-control) .community-hero-cover::after {
+  display: none;
+}
+
+.feed-masthead + .community-hero:not(:has(.community-hero-cover-control)) .community-hero-body {
+  position: relative;
+  z-index: 1;
+  margin-top: -88px;
+  padding-top: 0;
+}
+
+.feed-masthead + .community-hero:not(:has(.community-hero-cover-control)) .community-hero-headline {
+  box-sizing: border-box;
+  align-items: flex-end;
+  min-height: 88px;
+  padding-bottom: 14px;
+}
+
+.feed-masthead + .community-hero:not(:has(.community-hero-cover-control)) .community-hero-name {
+  font-size: clamp(24px, 6.4vw, 32px);
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+.feed-masthead + .community-hero:not(:has(.community-hero-cover-control)) .community-badge {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+}
+
+/* Números reais (mulheres, desde ...): etiquetas de vidro. */
+.feed-masthead + .community-hero .community-hero-stats {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.feed-masthead + .community-hero .community-hero-stat,
+.feed-masthead + .community-hero .community-hero-stat + .community-hero-stat {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-pill);
+  background: var(--circula-champagne-tint);
+}
+
+.feed-masthead + .community-hero .community-hero-stat-value {
+  font-size: 18px;
+  color: var(--circula-mocha);
+}
+
+/* ---- Publicações: cartões de vidro --------------------------------------------- */
+.feed-list {
+  gap: var(--space-4);
+}
+
+.post-card.post-card--editorial,
+.feed-list .post-card--editorial:first-child,
+.feed-list .post-card--editorial:last-child {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+}
+
+.post-card.post-card--editorial {
+  animation: feed-in 0.45s var(--ease-out) both;
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.feed-list .post-card--editorial:nth-child(2) { animation-delay: 50ms; }
+.feed-list .post-card--editorial:nth-child(3) { animation-delay: 100ms; }
+.feed-list .post-card--editorial:nth-child(n + 4) { animation-delay: 150ms; }
+
+.post-card.post-card--editorial:hover {
+  border-color: var(--glass-border-color);
+  box-shadow: var(--elev-2);
+}
+
+.post-card--editorial .post-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  font-size: 16px;
+  box-shadow: 0 0 0 2px var(--circula-champagne-line);
+}
+
+.post-card--editorial .post-author {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 15.5px;
+  color: var(--circula-mocha);
+}
+
+.post-card--editorial .post-time {
+  color: var(--circula-taupe);
+}
+
+.post-card--editorial .post-content {
+  font-weight: 400;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+/* Foto: cantos arredondados e nunca mais alta que ~60% da tela. */
+.post-card--editorial .post-image {
+  width: 100%;
+  max-height: min(60dvh, 440px);
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+/* Etiquetas das publicações especiais (pergunta do dia, check-in, comando). */
+.post-card--editorial .post-badge {
+  align-self: flex-start;
+  padding: 3px 11px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-pill);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+
+/* Pergunta do dia: fundo em tom champagne e texto em destaque. */
+.post-card.post-card--editorial.post-card--question {
+  border-color: var(--circula-champagne-line);
+  background: linear-gradient(145deg, var(--circula-champagne-tint), rgba(255, 255, 255, 0.7));
+}
+
+.post-card--editorial.post-card--question .post-content {
+  max-width: none;
+  font-size: 26px;
+}
+
+/* ---- Curtir, comentar, salvar: botões em pílula com área de toque de 44 px --------- */
+.post-card--editorial .post-actions {
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.post-card--editorial .post-reaction,
+.post-card--editorial .post-comment-toggle,
+.post-card--editorial .save-button {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 13px;
+}
+
+.post-card--editorial .post-reaction:hover:not(:disabled),
+.post-card--editorial .post-comment-toggle:hover:not(:disabled),
+.post-card--editorial .save-button:hover:not(:disabled) {
+  border-color: var(--circula-mocha);
+  background: transparent;
+}
+
+.post-card--editorial .post-reaction--active,
+.post-card--editorial .save-button--on {
+  border-color: var(--circula-champagne-line);
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+}
+
+/* O coração dá um pulso ao curtir. */
+.post-card--editorial .post-reaction--active svg {
+  animation: heart-pop 0.45s var(--ease-spring);
+}
+
+/* "Ver N comentários": pílula discreta. */
+.post-card--editorial .post-conversation > .comment-more {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--circula-champagne-tint);
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+}
+
+.post-card--editorial .post-conversation > .comment-more:hover {
+  text-decoration: none;
+  color: var(--circula-mocha);
+}
+
+/* "Ver mais mensagens" */
+.feed-load-more {
+  min-height: 44px;
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-1);
+}
+
+@keyframes feed-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-card.post-card--editorial,
+  .post-card--editorial .post-reaction--active svg {
+    animation: none;
+  }
+}

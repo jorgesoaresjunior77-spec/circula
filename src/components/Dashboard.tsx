@@ -673,7 +673,6 @@ export function Dashboard({
           />
           <div className="feed-masthead">
             <p className="section-label">Feed</p>
-            <h2 className="feed-masthead-title">{feedCommunity.name}</h2>
           </div>
           <CommunityView
             community={feedCommunity}
