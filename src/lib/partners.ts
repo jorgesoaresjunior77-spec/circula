@@ -21,11 +21,3 @@ export function safePartnerLink(raw: string | null | undefined): string | null {
     return null
   }
 }
-
-/** Quanto o logo está em foco: 1 no centro da faixa, 0 nas pontas. */
-export function focusAt(itemCenter: number, trackLeft: number, trackWidth: number): number {
-  if (trackWidth <= 0) return 1
-  const mid = trackLeft + trackWidth / 2
-  const d = Math.abs(itemCenter - mid) / (trackWidth / 2)
-  return Math.max(0, Math.min(1, 1 - d))
-}

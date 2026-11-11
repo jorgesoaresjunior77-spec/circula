@@ -1,13 +1,16 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
-import { focusAt, safePartnerLink } from '../lib/partners'
+import { safePartnerLink } from '../lib/partners'
 import type { Partner } from '../lib/partners'
 
-// Faixa de logos dos parceiros, em movimento contínuo. Os logos ficam
-// "bege" (apagados) nas pontas e ganham cor no centro. Com "reduzir
-// movimento" ligado, a faixa para: vira uma fileira rolável, com cores.
-// Só aparece se houver parceiro publicado.
+// Parceiros: os logos giram um de cada vez, no centro, nas cores originais.
+// Tocar no logo abre o site do parceiro (se a profissional cadastrou o link).
+// Com "reduzir movimento" ligado, o giro automático para e a pessoa troca de
+// logo pelos pontinhos. Só aparece se houver parceiro publicado.
+
+/** Tempo que cada logo fica na tela. */
+export const PARTNER_ROTATE_MS = 3500
 
 function prefersReducedMotion(): boolean {
   try {
@@ -17,65 +20,63 @@ function prefersReducedMotion(): boolean {
   }
 }
 
-function Logo({ partner, hidden }: { partner: Partner; hidden?: boolean }) {
+function Logo({ partner }: { partner: Partner }) {
   const { url } = useSignedImageUrl(partner.logo_path)
   const link = safePartnerLink(partner.link_url)
-  if (!url) return null
-  const img = <img src={url} alt={hidden ? '' : partner.name} loading="lazy" draggable={false} />
-  return (
-    <li className="partners-item" aria-hidden={hidden || undefined}>
-      {link ? (
-        <a href={link} target="_blank" rel="noopener noreferrer" tabIndex={hidden ? -1 : undefined}>
-          {img}
-        </a>
-      ) : (
-        img
-      )}
-    </li>
+  if (!url) return <span className="partner-logo partner-logo--loading" aria-hidden="true" />
+  const img = <img src={url} alt={link ? '' : partner.name} draggable={false} />
+  return link ? (
+    <a
+      className="partner-logo"
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${partner.name} (abre o site do parceiro)`}
+    >
+      {img}
+    </a>
+  ) : (
+    <span className="partner-logo">{img}</span>
   )
 }
 
 export function HomePartnersStrip({ communityId }: { communityId: string }) {
   const { items } = useManagedContent<Partner>('community_partners', communityId, 'position')
   const partners = items.filter((p) => p.status === 'published')
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const reduced = typeof window !== 'undefined' && prefersReducedMotion()
   const count = partners.length
+  const [index, setIndex] = useState(0)
+  const reduced = typeof window !== 'undefined' && prefersReducedMotion()
 
-  // Cor por distância do centro: atualiza --focus de cada logo a cada quadro.
   useEffect(() => {
-    if (reduced || count === 0) return
-    const viewport = viewportRef.current
-    if (!viewport) return
-    let raf = 0
-    const tick = () => {
-      const box = viewport.getBoundingClientRect()
-      viewport.querySelectorAll<HTMLElement>('.partners-item').forEach((el) => {
-        const r = el.getBoundingClientRect()
-        el.style.setProperty('--focus', focusAt(r.left + r.width / 2, box.left, box.width).toFixed(3))
-      })
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    if (reduced || count < 2) return
+    const timer = window.setInterval(() => setIndex((i) => (i + 1) % count), PARTNER_ROTATE_MS)
+    return () => window.clearInterval(timer)
   }, [reduced, count])
 
   if (count === 0) return null
+  const current = partners[Math.min(index, count - 1)]
 
   return (
     <section className="home-partners" aria-label="Parceiros">
       <h3 className="home-partners-title">Parceiros</h3>
-      <div ref={viewportRef} className={`partners-viewport${reduced ? ' partners-viewport--static' : ''}`}>
-        <ul
-          className="partners-track"
-          style={reduced ? undefined : { animationDuration: `${Math.max(18, count * 6)}s` }}
-        >
-          {partners.map((p) => (
-            <Logo key={p.id} partner={p} />
-          ))}
-          {!reduced && partners.map((p) => <Logo key={`${p.id}-copy`} partner={p} hidden />)}
-        </ul>
+      {/* A chave troca o logo inteiro: cada um entra com um fade suave. */}
+      <div className="partner-stage" key={current.id}>
+        <Logo partner={current} />
       </div>
+      {count > 1 && (
+        <div className="partner-dots" role="group" aria-label="Escolher parceiro">
+          {partners.map((p, i) => (
+            <button
+              key={p.id}
+              type="button"
+              className={`partner-dot${i === index ? ' partner-dot--active' : ''}`}
+              aria-label={`Parceiro ${i + 1} de ${count}: ${p.name}`}
+              aria-current={i === index ? 'true' : undefined}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

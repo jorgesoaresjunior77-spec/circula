@@ -709,7 +709,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
+  height: 64px;
 }
 
 .home-editorial-dot::before {
@@ -732,17 +732,8 @@ html {
 
 /* Frase final: fecha a Home, no ponto mais baixo, centralizada. */
 .home-institutional-note {
-  margin-top: var(--space-5);
+  margin-top: var(--space-8);
   text-align: center;
-}
-
-/* Logos dos parceiros 20% maiores (48px -> 58px; largura máx. 140 -> 168). */
-.partners-item {
-  height: 58px;
-}
-
-.partners-item img {
-  max-width: 168px;
 }
 
 /* ---- Mensagem do dia: popup grande ao abrir o app -------------------------- */
@@ -841,18 +832,18 @@ html {
 
 /* ---- Banner (+10% de altura) e atalhos na vertical ao lado dele ------------- */
 .home-community-cover--glass {
-  height: 209px;
+  height: 188px;
 }
 
 @media (min-width: 768px) {
   .home-community-cover--glass {
-    height: 242px;
+    height: 218px;
   }
 }
 
 @media (min-width: 1024px) {
   .home-community-cover--glass {
-    height: 277px;
+    height: 249px;
   }
 }
 
@@ -891,7 +882,7 @@ html {
 
 /* Agenda, calendário e relógio 10% menores. */
 .home-time {
-  zoom: 0.99;
+  zoom: 1.09;
 }
 
 /* ---- Previsão do tempo --------------------------------------------------- */
@@ -1239,4 +1230,204 @@ html {
 .home-time + .home-section-divider {
   margin-top: -6px;
   margin-bottom: -6px;
+}
+
+/* ======================================================================
+   Ajustes da Home (2026-11-11)
+   ====================================================================== */
+
+/* Saudação um pouco mais para cima; o clima fica só com ícone e temperatura,
+   sem moldura, no meio entre a linha de cima e o banner. */
+.home-greeting {
+  margin-top: -10px;
+}
+
+.home-greeting .home-greeting-row {
+  align-items: center;
+}
+
+.home-greeting .weather-button {
+  gap: 8px;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.weather-temp-now {
+  font-size: 26px;
+}
+
+/* A sombra de baixo do banner desce um pouco: vira o "fundo" dos ícones. */
+.home-community-header.home-community-header--glass {
+  box-shadow:
+    var(--shadow-md),
+    0 30px 30px -22px rgba(53, 48, 44, 0.3);
+}
+
+/* Atalhos: mais afastados do banner, título bem pequeno em cima de cada ícone. */
+.home-tools.home-tools--icons {
+  position: relative;
+  margin-top: -6px;
+  padding: 14px 0 4px;
+}
+
+/* A sombra do banner desce um pouco e vira o fundo dos ícones: uma mancha suave
+   que sai de baixo do banner, sem bordas. */
+.home-tools.home-tools--icons::before {
+  content: '';
+  position: absolute;
+  top: -44px;
+  right: 4%;
+  bottom: 0;
+  left: 4%;
+  z-index: -1;
+  background: radial-gradient(ellipse 85% 100% at 50% 0, rgba(53, 48, 44, 0.17), rgba(53, 48, 44, 0.06) 45%, rgba(53, 48, 44, 0) 75%);
+  pointer-events: none;
+}
+
+.home-tools--icons .home-tool {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-tools--icons .home-tool-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 52px;
+  min-height: 21px;
+  white-space: normal;
+  font-family: var(--font-label);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+/* Linha entre os atalhos e a agenda/relógio, e o conjunto mais perto do menu. */
+.home-tools--icons + .home-section-divider {
+  margin-top: var(--space-1);
+  margin-bottom: -4px;
+}
+
+.home-time {
+  margin-top: -2px;
+}
+
+.home-time + .home-section-divider {
+  margin-top: -14px;
+  margin-bottom: -14px;
+}
+
+/* Cartões do menu e dos Círculos 10% menores. */
+.exp-card-item {
+  width: clamp(90px, calc((100vw - 2 * var(--gutter) - 2 * var(--space-4)) / 3 * 0.9), 126px);
+}
+
+@media (min-width: 768px) {
+  .exp-card-item {
+    width: clamp(144px, 18vw, 176px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .exp-card-item {
+    width: clamp(155px, 12.6vw, 191px);
+  }
+}
+
+/* Entre os cartões grandes e depois da revista: mais espaço. */
+.home-editorial-cards {
+  margin-top: var(--space-6);
+}
+
+/* Parceiros: um logo de cada vez, no centro, nas cores originais (+10%: 58 -> 64 px). */
+.home-partners {
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.home-partners .home-partners-title {
+  align-self: stretch;
+}
+
+.partner-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  animation: partner-in 0.7s var(--ease-out) both;
+}
+
+.partner-logo {
+  display: inline-flex;
+  align-items: center;
+  height: 64px;
+  min-width: 64px;
+}
+
+.partner-logo img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 210px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.partner-dots {
+  display: flex;
+  justify-content: center;
+}
+
+.partner-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.partner-dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--circula-champagne-line);
+  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.partner-dot--active::before {
+  background: var(--circula-mocha);
+  transform: scale(1.3);
+}
+
+@keyframes partner-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-stage {
+    animation: none;
+  }
 }

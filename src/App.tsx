@@ -20,6 +20,7 @@ import './panel.css'
 import './store.css'
 import './circles.css'
 import './community.css'
+import './home3d.css'
 
 function App() {
   const {

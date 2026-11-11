@@ -1,8 +1,8 @@
 import type { NavKey } from './PrimaryNav'
 
 // Três atalhos de ponta a ponta, logo abaixo do banner: Antes de Tudo, Água e
-// IMC. Sem caixas, sem bordas e sem texto: só o ícone animado (o nome fica
-// para leitores de tela).
+// IMC. Sem caixas nem bordas: o ícone animado, com o nome bem pequeno em cima
+// (sem passar da largura do ícone).
 //   Antes de Tudo -> xícara de café com vapor subindo;
 //   Água          -> gota com pingos caindo, de leve;
 //   IMC           -> coração que pulsa como um batimento.
@@ -85,6 +85,9 @@ export function HomeToolCards({ onNavigate }: Props) {
           title={title}
           onClick={() => onNavigate(key)}
         >
+          <span className="home-tool-title" aria-hidden="true">
+            {title}
+          </span>
           <span className="home-tool-media" aria-hidden="true">
             <Icon />
           </span>

@@ -5,18 +5,18 @@
 
 /* ---- Home: cartões maiores, sem contorno preto -------------------------------- */
 .circ-card-item {
-  width: clamp(128px, 38vw, 168px);
+  width: clamp(115px, 34.2vw, 151px);
 }
 
 @media (min-width: 768px) {
   .circ-card-item {
-    width: clamp(168px, 20vw, 210px);
+    width: clamp(151px, 18vw, 189px);
   }
 }
 
 @media (min-width: 1024px) {
   .circ-card-item {
-    width: clamp(180px, 14vw, 220px);
+    width: clamp(162px, 12.6vw, 198px);
   }
 }
 

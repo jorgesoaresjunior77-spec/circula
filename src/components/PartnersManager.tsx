@@ -104,8 +104,9 @@ export function PartnersManager({ communityId, profileId }: Props) {
       <header className="card-images-head">
         <h4 className="card-images-title">Parceiros</h4>
         <p className="card-images-desc">
-          Logos que passam em movimento na Home. Publique só parceiros que autorizaram o uso da marca.
-          Use PNG ou WebP com fundo transparente.
+          Logos que aparecem um de cada vez na Home, nas cores originais. Ao tocar no logo, a pessoa vai
+          para o site do parceiro (o link). Publique só parceiros que autorizaram o uso da marca. Use PNG
+          ou WebP com fundo transparente.
         </p>
       </header>
 
@@ -119,6 +120,9 @@ export function PartnersManager({ communityId, profileId }: Props) {
             <p className="inspiration-item-text">{p.name}</p>
             <p className="inspiration-item-meta">
               Posição {p.position} · {p.status === 'published' ? 'Publicado' : 'Rascunho'}
+            </p>
+            <p className="inspiration-item-meta">
+              {p.link_url ? `Link: ${p.link_url}` : 'Sem link (o logo não abre nenhum site)'}
             </p>
             <button type="button" className="water-link" onClick={() => openEdit(p)}>
               Editar
@@ -154,7 +158,7 @@ export function PartnersManager({ communityId, profileId }: Props) {
             onChange={(path) => setForm({ ...form, logo: path })}
           />
           <label>
-            Link (opcional, https://)
+            Link do parceiro (opcional): ao tocar no logo, abre este site — comece com https://
             <input
               inputMode="url"
               value={form.link}

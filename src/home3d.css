@@ -1,0 +1,167 @@
+/* Relógio e agenda da Home em 3D. Profundidade por camadas (translateZ), sombra
+   projetada, bisel e um balanço leve; o relógio também acompanha o dedo/mouse.
+   Com "reduzir movimento" ligado, fica parado numa inclinação suave. Vem depois
+   do polish.css. */
+
+/* ---- Relógio ------------------------------------------------------------------ */
+.home-clock {
+  perspective: 700px;
+}
+
+.home-clock .home-clock-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 8deg)) rotateY(var(--ry, -6deg));
+  transition: transform 0.3s var(--ease-out);
+  animation: clock-sway 9s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Enquanto o dedo/mouse está sobre o relógio, ele segue o ponteiro. */
+.home-clock .home-clock-3d.is-tilting {
+  animation: none;
+}
+
+.home-clock .home-clock-3d .clock-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  overflow: visible;
+}
+
+.clock-layer--face {
+  transform: translateZ(0);
+  filter: drop-shadow(0 1px 1px rgba(53, 48, 44, 0.28));
+}
+
+.clock-layer--hands {
+  transform: translateZ(9px);
+  filter: drop-shadow(2px 4px 2.5px rgba(53, 48, 44, 0.38));
+}
+
+.clock-layer--second {
+  transform: translateZ(15px);
+  filter: drop-shadow(3px 6px 3.5px rgba(53, 48, 44, 0.3));
+}
+
+.clock-layer--pin {
+  transform: translateZ(20px);
+  filter: drop-shadow(1px 3px 2px rgba(53, 48, 44, 0.45));
+}
+
+/* Marcações mais firmes para dar relevo. */
+.home-clock .home-clock-tick {
+  stroke: #8d7d70;
+}
+
+.home-clock .home-clock-tick--major {
+  stroke: var(--circula-mocha);
+  stroke-width: 1.9;
+}
+
+/* Bisel dos ponteiros: o corpo é escuro e o filete por cima é claro. */
+.home-clock .home-clock-hand--hour {
+  stroke: #3d2e25;
+  stroke-width: 3.8;
+}
+
+.home-clock .home-clock-hand--minute {
+  stroke: #3d2e25;
+  stroke-width: 2.6;
+}
+
+.home-clock .home-clock-hand--lit {
+  stroke: #a88c78;
+  stroke-width: 1.1;
+}
+
+.home-clock .home-clock-hand--minute.home-clock-hand--lit {
+  stroke-width: 0.8;
+}
+
+.home-clock .home-clock-hand--second {
+  stroke: #b0524a;
+  stroke-width: 1;
+}
+
+@keyframes clock-sway {
+  from {
+    transform: rotateX(9deg) rotateY(-10deg);
+  }
+  to {
+    transform: rotateX(3deg) rotateY(10deg);
+  }
+}
+
+/* ---- Agenda: lâmina com dias em relevo e o dia de hoje como uma esfera --------- */
+.home-time .home-week {
+  perspective: 700px;
+}
+
+.home-time .home-week .home-week-open {
+  transform-style: preserve-3d;
+  transform: rotateX(4deg) rotateY(8deg);
+  animation: week-sway 9s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.home-time .home-week .home-week-title {
+  transform: translateZ(12px);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 3px 4px rgba(53, 48, 44, 0.22);
+}
+
+.home-time .home-week .home-week-grid {
+  transform-style: preserve-3d;
+}
+
+.home-time .home-week .home-week-weekday {
+  transform: translateZ(5px);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.home-time .home-week .home-week-day {
+  width: 21px;
+  height: 21px;
+  font-size: 11.5px;
+  transform: translateZ(9px);
+  background: linear-gradient(145deg, #ffffff, #efe8df);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px rgba(53, 48, 44, 0.08),
+    0 4px 6px -2px rgba(53, 48, 44, 0.3);
+}
+
+.home-time .home-week .home-week-day--today {
+  transform: translateZ(16px);
+  background: radial-gradient(circle at 32% 28%, #9a7a66, #4a3a30 72%);
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.28),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+    0 7px 9px -2px rgba(53, 48, 44, 0.55);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.home-time .home-week .home-week-arrow {
+  transform: translateZ(10px);
+}
+
+@keyframes week-sway {
+  from {
+    transform: rotateX(3deg) rotateY(9deg);
+  }
+  to {
+    transform: rotateX(5deg) rotateY(-7deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-clock .home-clock-3d,
+  .home-time .home-week .home-week-open {
+    animation: none;
+  }
+}

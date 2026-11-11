@@ -961,7 +961,7 @@ button.agenda-danger {
   cursor: pointer;
 }
 
-/* ---- Parceiros: faixa de logos em movimento contínuo ------------------- */
+/* ---- Parceiros: um logo de cada vez, nas cores originais ---------------- */
 .home-partners {
   display: flex;
   flex-direction: column;
@@ -976,78 +976,6 @@ button.agenda-danger {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--circula-taupe, var(--graphite-soft));
-}
-
-.partners-viewport {
-  overflow: hidden;
-  /* Pontas esmaecem para o fundo. */
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-}
-
-.partners-viewport--static {
-  overflow-x: auto;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-.partners-track {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  width: max-content;
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  list-style: none;
-  animation: partners-scroll 30s linear infinite;
-}
-
-.partners-viewport--static .partners-track {
-  animation: none;
-}
-
-@keyframes partners-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.partners-item {
-  --focus: 0;
-  flex: 0 0 auto;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  /* Bege nas pontas, cor no centro. */
-  filter: grayscale(calc(1 - var(--focus))) sepia(calc((1 - var(--focus)) * 0.45));
-  opacity: calc(0.55 + var(--focus) * 0.45);
-}
-
-.partners-viewport--static .partners-item {
-  --focus: 1;
-}
-
-.partners-item img {
-  display: block;
-  height: 100%;
-  width: auto;
-  max-width: 140px;
-  object-fit: contain;
-  user-select: none;
-}
-
-.partners-item a {
-  display: flex;
-  height: 100%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .partners-track {
-    animation: none;
-  }
 }
 
 .rec-pages-editor { display: flex; flex-direction: column; gap: var(--space-3); border: 1px solid var(--border); border-radius: 14px; padding: var(--space-3); }

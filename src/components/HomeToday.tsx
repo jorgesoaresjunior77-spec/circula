@@ -250,6 +250,7 @@ export function HomeToday({
     <>
       {/* Antes de Tudo, Água e IMC: só ícones, de ponta a ponta, logo abaixo do banner. */}
       <HomeToolCards onNavigate={onNavigate} />
+      <hr className="home-section-divider" />
       <div className="home-time">
         <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
         <AnalogClock />
