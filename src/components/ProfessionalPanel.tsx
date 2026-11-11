@@ -76,7 +76,7 @@ interface ProfessionalPanelProps {
   onAddMember: (email: string) => Promise<AddMemberResult>
   /** Eventos, Meu Jardim, Círculos e Loja agora têm o cadastro dentro da
    *  própria página; atalhos antigos do painel levam até lá. */
-  onNavigate?: (key: 'eventos' | 'jardim' | 'circulos' | 'loja') => void
+  onNavigate?: (key: 'eventos' | 'jardim' | 'circulos' | 'loja' | 'inspiracoes') => void
 }
 
 export function ProfessionalPanel({
@@ -132,6 +132,11 @@ export function ProfessionalPanel({
       <header className="panel-head">
         <p className="panel-head-eyebrow">{community.name}</p>
         <h3>Painel da comunidade</h3>
+        {onNavigate && (
+          <button type="button" className="panel-head-link" onClick={() => onNavigate('inspiracoes')}>
+            Mensagens do dia
+          </button>
+        )}
       </header>
 
       {/* Convite por WhatsApp em destaque, logo abaixo do título e em qualquer aba. */}

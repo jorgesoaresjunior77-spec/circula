@@ -61,7 +61,7 @@ import { MemberCommunityCard } from './MemberCommunityCard'
 import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeGreeting } from './HomeGreeting'
-import { HomeToolCards } from './HomeToolCards'
+import { HelpPage } from './HelpPage'
 import { WeatherPage } from './WeatherPage'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
@@ -74,6 +74,7 @@ import {
   CirclesIcon,
   DropIcon,
   HeartIcon,
+  HelpIcon,
   ChevronLeftIcon,
   SparkleIcon,
   FeedIcon,
@@ -401,6 +402,8 @@ export function Dashboard({
     // Módulo 7 (Salvos) despriorizado na Fase 1: fora da navegação
     // primária. Componente e hook mantidos no código, dormentes.
   }
+  // Ajuda — no menu de baixo, entre o Feed e o Painel/Perfil.
+  navItems.push({ key: 'ajuda', label: 'Ajuda', Icon: HelpIcon, inBottomNav: true })
   if (canHostDestinations) {
     navItems.push({ key: 'painel', label: 'Painel', Icon: PanelIcon, inBottomNav: true })
   }
@@ -865,6 +868,14 @@ export function Dashboard({
       return <WeatherPage />
     }
 
+    // Central de Ajuda — perguntas e respostas; a membro pode falar com a
+    // nutricionista a partir dela.
+    if (effectiveNav === 'ajuda') {
+      return (
+        <HelpPage onTalkToNutri={profile.role === 'member' ? () => handleNavigate('mensagens') : undefined} />
+      )
+    }
+
     if (effectiveNav === 'playlist') {
       return <PlaylistPage />
     }
@@ -1171,11 +1182,7 @@ export function Dashboard({
       {coverHero && railCommunity && (
         <div className="dashboard-community-cover">
           <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
-          {/* Banner + atalhos na vertical, ocupando exatamente a altura dele. */}
-          <div className="dashboard-cover-row">
-            <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
-            <HomeToolCards vertical onNavigate={handleNavigate} />
-          </div>
+          <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
         </div>
       )}
 
@@ -1250,8 +1257,6 @@ export function Dashboard({
       {profile && profile.role !== 'master' && (
         <DailyInspiration
           communityId={railCommunity?.id ?? null}
-          profileId={profile.id}
-          onManage={profile.role === 'professional' ? () => handleNavigate('inspiracoes') : undefined}
           suppressed={
             showTour ||
             showInstallGuide ||

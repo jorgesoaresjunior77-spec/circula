@@ -248,18 +248,13 @@ export function HomeToday({
   // saudação e o calendário entra depois dele.
   const weekCalendar = (
     <>
+      {/* Antes de Tudo, Água e IMC: só ícones, de ponta a ponta, logo abaixo do banner. */}
+      <HomeToolCards onNavigate={onNavigate} />
       <div className="home-time">
         <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
         <AnalogClock />
       </div>
       <hr className="home-section-divider" />
-      {/* Com banner, os atalhos ficam na vertical ao lado dele (Dashboard). */}
-      {!coverHero && (
-        <>
-          <HomeToolCards onNavigate={onNavigate} />
-          <hr className="home-section-divider" />
-        </>
-      )}
     </>
   )
 

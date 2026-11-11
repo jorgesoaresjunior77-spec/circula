@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, cleanup, within } from '@testing-library/react'
+import { render, screen, cleanup, within, fireEvent } from '@testing-library/react'
 import { PrimaryNav } from './PrimaryNav'
 import type { NavItem } from './PrimaryNav'
 
@@ -81,5 +81,27 @@ describe('PrimaryNav — Item 2: "Meu Jardim" não pode entrar na cápsula infer
     screen.getByText('Meu Jardim').closest('button')!.click()
 
     expect(onNavigate).toHaveBeenCalledWith('jardim')
+  })
+})
+
+describe('PrimaryNav — Ajuda no menu de baixo', () => {
+  afterEach(() => cleanup())
+
+  const COM_AJUDA: NavItem[] = [
+    MEMBER_ITEMS[0],
+    MEMBER_ITEMS[1],
+    { key: 'ajuda', label: 'Ajuda', Icon: DummyIcon, inBottomNav: true },
+    MEMBER_ITEMS[MEMBER_ITEMS.length - 1],
+  ]
+
+  it('o item Ajuda aparece na cápsula, entre o Feed e o Perfil, e abre a Central de Ajuda', () => {
+    const onNavigate = vi.fn()
+    const { container } = render(<PrimaryNav items={COM_AJUDA} active="inicio" onNavigate={onNavigate} />)
+    const capsule = container.querySelector('.bottom-nav') as HTMLElement
+    const labels = within(capsule).getAllByRole('button').map((b) => b.textContent)
+    expect(labels).toEqual(['Início', 'Feed', 'Ajuda', 'Meu perfil'])
+
+    fireEvent.click(within(capsule).getByRole('button', { name: 'Ajuda' }))
+    expect(onNavigate).toHaveBeenCalledWith('ajuda')
   })
 })

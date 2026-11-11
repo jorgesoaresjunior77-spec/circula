@@ -74,13 +74,13 @@ describe('Previsão do tempo', () => {
     expect(screen.getByLabelText('Em que cidade você está agora?')).toBeInTheDocument()
   })
 
-  it('o botão da Home mostra só o ícone e abre a página', async () => {
+  it('o botão da Home mostra o ícone e a temperatura de agora e abre a página', async () => {
     window.localStorage.setItem('circula:weather-city', JSON.stringify(CITY))
     mockNetwork()
     const onOpen = vi.fn()
     render(<WeatherButton onOpen={onOpen} />)
     const botao = await screen.findByRole('button', { name: /Previsão do tempo em Lajeado.*Chuva.*21 graus/ })
-    expect(botao.textContent).toBe('')
+    expect(botao.textContent).toBe('21°')
     fireEvent.click(botao)
     expect(onOpen).toHaveBeenCalledTimes(1)
   })

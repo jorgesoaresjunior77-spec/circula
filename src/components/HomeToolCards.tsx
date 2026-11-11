@@ -1,7 +1,8 @@
 import type { NavKey } from './PrimaryNav'
 
-// Três atalhos lado a lado: Antes de Tudo, Água e IMC. Sem caixas nem
-// bordas: só o ícone animado e o nome.
+// Três atalhos de ponta a ponta, logo abaixo do banner: Antes de Tudo, Água e
+// IMC. Sem caixas, sem bordas e sem texto: só o ícone animado (o nome fica
+// para leitores de tela).
 //   Antes de Tudo -> xícara de café com vapor subindo;
 //   Água          -> gota com pingos caindo, de leve;
 //   IMC           -> coração que pulsa como um batimento.
@@ -70,19 +71,23 @@ const TOOLS: { key: NavKey; title: string; Icon: () => React.ReactElement }[] = 
 
 interface Props {
   onNavigate: (key: NavKey) => void
-  /** Coluna vertical ao lado do banner (mesma altura dele). */
-  vertical?: boolean
 }
 
-export function HomeToolCards({ onNavigate, vertical = false }: Props) {
+export function HomeToolCards({ onNavigate }: Props) {
   return (
-    <section className={'home-tools' + (vertical ? ' home-tools--vertical' : '')} aria-label="Ferramentas">
+    <section className="home-tools home-tools--icons" aria-label="Ferramentas">
       {TOOLS.map(({ key, title, Icon }) => (
-        <button key={key} type="button" className="home-tool" onClick={() => onNavigate(key)}>
+        <button
+          key={key}
+          type="button"
+          className="home-tool"
+          aria-label={title}
+          title={title}
+          onClick={() => onNavigate(key)}
+        >
           <span className="home-tool-media" aria-hidden="true">
             <Icon />
           </span>
-          <span className="home-tool-title">{title}</span>
         </button>
       ))}
     </section>

@@ -176,6 +176,27 @@ export function BookIcon({ size = 20, className }: IconProps) {
   )
 }
 
+export function HelpIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7" />
+      <path d="M12 17h.01" />
+    </svg>
+  )
+}
+
 export function ChevronRightIcon({ size = 18, className }: IconProps) {
   return (
     <Icon size={size} className={className} stroke={1.5}>

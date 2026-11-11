@@ -15,9 +15,12 @@ describe('HomeToolCards — Antes de Tudo, Água e IMC', () => {
     expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['antes-de-tudo', 'agua', 'imc'])
   })
 
-  it('na versão vertical (ao lado do banner) usa a coluna e a xícara de café', () => {
-    const { container } = render(<HomeToolCards onNavigate={vi.fn()} vertical />)
-    expect(container.querySelector('.home-tools--vertical')).not.toBeNull()
+  it('só ícones, de ponta a ponta: sem texto visível e com a xícara no lugar do sol', () => {
+    const { container } = render(<HomeToolCards onNavigate={vi.fn()} />)
+    expect(container.querySelector('.home-tools--icons')).not.toBeNull()
+    expect(container.querySelectorAll('.home-tool-title')).toHaveLength(0)
+    // O nome fica só para leitores de tela.
+    expect(screen.getByRole('button', { name: 'Antes de Tudo' }).textContent).toBe('')
     expect(container.querySelector('.tool-icon--coffee')).not.toBeNull()
     expect(container.querySelector('.tool-icon--sun')).toBeNull()
   })

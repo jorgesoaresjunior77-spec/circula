@@ -37,8 +37,6 @@ export function HomeGreeting({
         </div>
         {onOpenWeather && <WeatherButton onOpen={onOpenWeather} />}
       </div>
-      {/* A frase do dia (DailyInspiration) desliza aqui, numa linha só. */}
-      <div id="daily-ticker-slot" className="home-greeting-ticker" />
     </header>
   )
 }
