@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
-import { safePartnerLink } from '../lib/partners'
+import { partnerLogoBoost, safePartnerLink } from '../lib/partners'
 import type { Partner } from '../lib/partners'
 
 // Parceiros: os logos giram um de cada vez, no centro, nas cores originais.
@@ -23,11 +23,12 @@ function prefersReducedMotion(): boolean {
 function Logo({ partner }: { partner: Partner }) {
   const { url } = useSignedImageUrl(partner.logo_path)
   const link = safePartnerLink(partner.link_url)
+  const cls = partnerLogoBoost(partner.name) ? 'partner-logo partner-logo--boost' : 'partner-logo'
   if (!url) return <span className="partner-logo partner-logo--loading" aria-hidden="true" />
   const img = <img src={url} alt={link ? '' : partner.name} draggable={false} />
   return link ? (
     <a
-      className="partner-logo"
+      className={cls}
       href={link}
       target="_blank"
       rel="noopener noreferrer"
@@ -36,7 +37,7 @@ function Logo({ partner }: { partner: Partner }) {
       {img}
     </a>
   ) : (
-    <span className="partner-logo">{img}</span>
+    <span className={cls}>{img}</span>
   )
 }
 

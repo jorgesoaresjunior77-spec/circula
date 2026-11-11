@@ -1432,6 +1432,86 @@ html {
   }
 }
 
+/* ======================================================================
+   Ajustes da Home (2026-11-12): tudo mais para cima, sombras escuras em
+   volta da roda de menu, parceiros mais abaixo do título.
+   ====================================================================== */
+
+/* Topo mais compacto: saudação, agenda/relógio e os cartões do menu sobem. */
+.home-greeting {
+  margin-top: -14px;
+}
+
+.home-tools--icons + .home-section-divider {
+  margin-top: -8px;
+  margin-bottom: -8px;
+}
+
+.home-time + .home-section-divider {
+  margin-top: -16px;
+  margin-bottom: -18px;
+}
+
+.exp-strip.exp-strip--hoje {
+  margin-top: 0;
+}
+
+/* A linha depois das capas da revista desce um pouco. */
+.mag-strip + .home-section-divider {
+  margin-top: 12px;
+}
+
+/* Último cartão grande (Loja): sombra escura para baixo, como a do banner
+   principal. Ela vira o fundo de onde os cartões finos da roda somem. */
+.home-editorial-cards > .home-editorial-card:last-child {
+  box-shadow:
+    var(--shadow-md),
+    0 30px 30px -22px rgba(53, 48, 44, 0.3);
+}
+
+.home-wheel {
+  position: relative;
+}
+
+/* Em cima e embaixo da roda: mancha escura suave no lugar do branco. */
+.home-wheel::before,
+.home-wheel::after {
+  content: '';
+  position: absolute;
+  right: 4%;
+  left: 4%;
+  z-index: -1;
+  right: 0;
+  left: 0;
+  height: 104px;
+  pointer-events: none;
+}
+
+.home-wheel::before {
+  top: -44px;
+  background: radial-gradient(ellipse 56% 50% at 50% 46%, rgba(53, 48, 44, 0.3), rgba(53, 48, 44, 0.12) 55%, rgba(53, 48, 44, 0) 100%);
+}
+
+.home-wheel::after {
+  bottom: -34px;
+  background: radial-gradient(ellipse 56% 50% at 50% 54%, rgba(53, 48, 44, 0.3), rgba(53, 48, 44, 0.12) 55%, rgba(53, 48, 44, 0) 100%);
+}
+
+/* Parceiros: os logos um pouco mais abaixo do título. */
+.partner-stage {
+  min-height: 84px;
+  margin-top: 12px;
+}
+
+/* Logo que precisa aparecer maior (+15%): ver partnerLogoBoost em lib/partners.ts. */
+.partner-logo.partner-logo--boost {
+  height: 74px;
+}
+
+.partner-logo--boost img {
+  max-width: 242px;
+}
+
 /* ---- Boneca 3D (Antes de Tudo e IMC) ---------------------------------------------- */
 .doll3d {
   position: relative;

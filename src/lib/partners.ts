@@ -10,6 +10,20 @@ export interface Partner {
   status: 'draft' | 'published'
 }
 
+/**
+ * Logos que precisam aparecer um pouco maiores na Home (a arte tem muita
+ * margem em volta). Compara pelo nome, sem acento/espaço/maiúscula.
+ */
+const BOOSTED_PARTNERS = ['speedbox']
+
+export function partnerLogoBoost(name: string | null | undefined): boolean {
+  const key = (name ?? '')
+    .normalize('NFD')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase()
+  return BOOSTED_PARTNERS.some((p) => key.includes(p))
+}
+
 /** Só https; qualquer outra coisa vira "sem link". */
 export function safePartnerLink(raw: string | null | undefined): string | null {
   const v = (raw ?? '').trim()
