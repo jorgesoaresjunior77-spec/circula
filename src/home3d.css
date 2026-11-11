@@ -165,3 +165,118 @@
     animation: none;
   }
 }
+
+/* ======================================================================
+   Home (2026-11-12, 2ª rodada): Menu antes da agenda/relógio, cartões do
+   Menu 10% menores, mais sombra em Menu/Círculos/Revista, foto do topo
+   com a mesma borda em relevo do banner.
+   ====================================================================== */
+
+/* ---- Foto da pessoa no topo: borda com espessura, como o banner -------------- */
+.dashboard-header .dashboard-user-avatar {
+  position: relative;
+  overflow: visible;
+  box-shadow:
+    0 0 0 2px #f6efe7,
+    0 2px 0 2px #cdbcab,
+    0 4px 0 2px #a8937f,
+    0 11px 12px -3px rgba(40, 32, 26, 0.5);
+}
+
+.dashboard-header .dashboard-user-avatar > img,
+.dashboard-header .dashboard-user-avatar > span {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dashboard-header .dashboard-user-avatar > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Brilho de luz vindo de cima. */
+.dashboard-header .dashboard-user-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.42) 0, rgba(255, 255, 255, 0) 45%);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+/* ---- Saudação: um respiro até o banner; clima um pouco mais para cima --------- */
+.dashboard-community-cover .home-greeting {
+  margin-bottom: 14px;
+}
+
+.home-greeting .weather-button {
+  transform: translateY(-8px);
+}
+
+/* ---- Atalhos um pouco mais abaixo do banner, com a sombra bem mais leve ------- */
+.home-tools.home-tools--icons {
+  margin-top: 2px;
+  padding-top: 6px;
+}
+
+.home-tools.home-tools--icons::before {
+  top: -30px;
+  bottom: 40%;
+  background: radial-gradient(ellipse 80% 100% at 50% 0, rgba(53, 48, 44, 0.1), rgba(53, 48, 44, 0.03) 45%, rgba(53, 48, 44, 0) 72%);
+}
+
+/* ---- Menu logo depois dos atalhos; agenda e relógio abaixo dele --------------- */
+.home-tools--icons + .home-section-divider {
+  margin-top: -14px;
+  margin-bottom: -4px;
+}
+
+.exp-strip--hoje + .home-section-divider {
+  margin-top: -18px;
+  margin-bottom: -22px;
+}
+
+.home-time + .home-section-divider {
+  margin-top: -22px;
+  margin-bottom: 0;
+}
+
+/* Cartões do Menu mais 10% menores. */
+.exp-card-item {
+  width: clamp(81px, calc((100vw - 2 * var(--gutter) - 2 * var(--space-4)) / 3 * 0.81), 113px);
+}
+
+@media (min-width: 768px) {
+  .exp-card-item {
+    width: clamp(130px, 16.2vw, 158px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .exp-card-item {
+    width: clamp(140px, 11.3vw, 172px);
+  }
+}
+
+/* ---- Mais sombra em volta: Menu, Círculos e capas da revista ------------------ */
+.exp-card-frame,
+.circ-card-frame {
+  box-shadow:
+    0 12px 20px -8px rgba(40, 32, 26, 0.52),
+    0 3px 8px rgba(40, 32, 26, 0.2);
+}
+
+.mag2-stack-item .mag-cover {
+  box-shadow:
+    0 16px 26px -10px rgba(40, 32, 26, 0.58),
+    0 4px 9px rgba(40, 32, 26, 0.22);
+}
+
+/* Círculos: um pouco mais de espaço entre o título e os cartões. */
+.circ-strip > .circ-strip-title {
+  margin-bottom: 22px;
+}

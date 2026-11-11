@@ -246,15 +246,13 @@ export function HomeToday({
   // banner é desenhado pelo Dashboard ANTES desta tela, então o calendário
   // abre a Home; sem capa, o banner (cabeçalho) vem logo abaixo da
   // saudação e o calendário entra depois dele.
+  // O Menu vem ANTES da agenda/relógio (pedido de 2026-11-12): ele precisa
+  // aparecer primeiro na tela. Aqui ficam só os atalhos; a agenda e o relógio
+  // são desenhados logo depois da faixa do Menu, mais abaixo.
   const weekCalendar = (
     <>
       {/* Antes de Tudo, Água e IMC: só ícones, de ponta a ponta, logo abaixo do banner. */}
       <HomeToolCards onNavigate={onNavigate} />
-      <hr className="home-section-divider" />
-      <div className="home-time">
-        <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
-        <AnalogClock />
-      </div>
       <hr className="home-section-divider" />
     </>
   )
@@ -295,6 +293,13 @@ export function HomeToday({
         badges={badges}
         onNavigate={onNavigate}
       />
+
+      {/* Agenda e relógio: logo abaixo do Menu. */}
+      <hr className="home-section-divider" />
+      <div className="home-time">
+        <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
+        <AnalogClock />
+      </div>
 
       {/* Ajustes visuais (item 1) — linha fininha entre as 3 seções. Só
           antes de Círculos quando a seção realmente renderiza algo
