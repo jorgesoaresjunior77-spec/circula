@@ -24,6 +24,15 @@ export function partnerLogoBoost(name: string | null | undefined): boolean {
   return BOOSTED_PARTNERS.some((p) => key.includes(p))
 }
 
+/**
+ * Quantas vezes repetir a lista em cada metade da faixa em movimento, para
+ * ela cobrir a tela mesmo com poucos parceiros (pelo menos 6 logos).
+ */
+export function marqueeRepeats(count: number, minItems = 6): number {
+  if (count <= 0) return 0
+  return Math.max(1, Math.ceil(minItems / count))
+}
+
 /** Só https; qualquer outra coisa vira "sem link". */
 export function safePartnerLink(raw: string | null | undefined): string | null {
   const v = (raw ?? '').trim()

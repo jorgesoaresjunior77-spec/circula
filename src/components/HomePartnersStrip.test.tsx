@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
-import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
-import { HomePartnersStrip, PARTNER_ROTATE_MS } from './HomePartnersStrip'
+import { render, screen, cleanup } from '@testing-library/react'
+import { HomePartnersStrip } from './HomePartnersStrip'
 
 const partners = [
   { id: 'a', community_id: 'c', name: 'Alfa', logo_path: 'https://x.test/a.png', link_url: 'https://alfa.test/', position: 0, status: 'published' },
@@ -15,48 +15,36 @@ vi.mock('../hooks/useSignedImageUrl', () => ({
   useSignedImageUrl: (path: string | null) => ({ url: path }),
 }))
 
-describe('HomePartnersStrip — um parceiro de cada vez', () => {
-  afterEach(() => {
-    cleanup()
-    vi.useRealTimers()
+describe('HomePartnersStrip — logos lado a lado, andando para a esquerda', () => {
+  afterEach(cleanup)
+
+  it('mostra os publicados lado a lado e ignora rascunhos', () => {
+    const { container } = render(<HomePartnersStrip communityId="c" />)
+    const first = container.querySelector('.partner-seq:not([aria-hidden])')!
+    const srcs = [...first.querySelectorAll('img')].map((img) => img.getAttribute('src'))
+    expect(srcs.slice(0, 2)).toEqual(['https://x.test/a.png', 'https://x.test/b.png'])
+    expect(srcs).not.toContain('https://x.test/r.png')
   })
 
-  it('mostra só um logo por vez, nas cores originais, e ignora rascunhos', () => {
+  it('desenha a lista duas vezes (emenda sem salto) e a cópia é só visual', () => {
     const { container } = render(<HomePartnersStrip communityId="c" />)
-    expect(container.querySelectorAll('.partner-logo img')).toHaveLength(1)
-    // Só os 2 publicados têm pontinho.
-    expect(screen.getAllByRole('button', { name: /Parceiro \d de 2/ })).toHaveLength(2)
-    expect(container.textContent).not.toContain('Rascunho')
+    const halves = container.querySelectorAll('.partner-seq')
+    expect(halves).toHaveLength(2)
+    expect(halves[1]).toHaveAttribute('aria-hidden', 'true')
+    expect(halves[0].querySelectorAll('img').length).toBe(halves[1].querySelectorAll('img').length)
+    halves[1].querySelectorAll('a').forEach((a) => expect(a).toHaveAttribute('tabindex', '-1'))
   })
 
   it('o logo com link abre o site do parceiro em outra aba, com rel seguro', () => {
     render(<HomePartnersStrip communityId="c" />)
-    const link = screen.getByRole('link', { name: /Alfa \(abre o site do parceiro\)/ })
+    const link = screen.getAllByRole('link', { name: /Alfa \(abre o site do parceiro\)/ })[0]
     expect(link).toHaveAttribute('href', 'https://alfa.test/')
     expect(link).toHaveAttribute('target', '_blank')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('gira sozinho para o próximo e volta ao primeiro; parceiro sem link não vira link', () => {
-    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
-    const { container } = render(<HomePartnersStrip communityId="c" />)
-    expect(container.querySelector('.partner-logo img')).toHaveAttribute('src', 'https://x.test/a.png')
-
-    act(() => {
-      vi.advanceTimersByTime(PARTNER_ROTATE_MS)
-    })
-    expect(container.querySelector('.partner-logo img')).toHaveAttribute('src', 'https://x.test/b.png')
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
-
-    act(() => {
-      vi.advanceTimersByTime(PARTNER_ROTATE_MS)
-    })
-    expect(container.querySelector('.partner-logo img')).toHaveAttribute('src', 'https://x.test/a.png')
-  })
-
-  it('os pontinhos trocam o parceiro na mão', () => {
-    const { container } = render(<HomePartnersStrip communityId="c" />)
-    fireEvent.click(screen.getByRole('button', { name: /Parceiro 2 de 2: Beta/ }))
-    expect(container.querySelector('.partner-logo img')).toHaveAttribute('src', 'https://x.test/b.png')
+  it('parceiro sem link não vira link', () => {
+    render(<HomePartnersStrip communityId="c" />)
+    expect(screen.queryByRole('link', { name: /Beta/ })).not.toBeInTheDocument()
   })
 })

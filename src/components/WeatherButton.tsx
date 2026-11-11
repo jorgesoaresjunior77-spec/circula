@@ -19,8 +19,10 @@ export function WeatherButton({ onOpen }: { onOpen: () => void }) {
 
   return (
     <button type="button" className="weather-button" onClick={onOpen} aria-label={label} title={description?.label ?? 'Previsão do tempo'}>
-      <WeatherIcon kind={description?.kind ?? 'partly'} isDay={data?.current.isDay ?? true} size={34} />
-      {temp !== null && <span className="weather-temp-now">{temp}°</span>}
+      <WeatherIcon kind={description?.kind ?? 'partly'} isDay={data?.current.isDay ?? true} size={46} />
+      {/* A temperatura fica sempre escrita; sem dado ainda (cidade não escolhida
+          neste aparelho ou sem internet), aparece um traço no lugar do número. */}
+      <span className="weather-temp-now">{temp !== null ? `${temp}°` : '--°'}</span>
     </button>
   )
 }

@@ -1437,49 +1437,158 @@ html {
    volta da roda de menu, parceiros mais abaixo do título.
    ====================================================================== */
 
-/* Topo mais compacto: saudação, agenda/relógio e os cartões do menu sobem. */
-.home-greeting {
-  margin-top: -14px;
+/* ---- Topo: tudo mais para cima ---------------------------------------------
+   No app, a saudação e o banner ficam em .dashboard-community-cover (fora de
+   .home); por isso as regras usam esse seletor — com ".home-greeting" sozinho
+   o ajuste não chegava na tela real. */
+.dashboard-community-cover .home-greeting {
+  margin: -14px 0 6px;
+}
+
+.dashboard-community-cover {
+  margin-bottom: -6px;
+}
+
+/* Clima: ícone do tamanho dos atalhos (café, água, coração) e a temperatura
+   sempre escrita ao lado. */
+.home-greeting .weather-button {
+  flex: none;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.home-greeting .weather-button svg {
+  flex: none;
+  width: 46px;
+  height: 46px;
+}
+
+/* Banner 10% mais baixo (188 -> 169). */
+.home-community-cover--glass {
+  height: 169px;
+}
+
+@media (min-width: 768px) {
+  .home-community-cover--glass {
+    height: 196px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-community-cover--glass {
+    height: 224px;
+  }
+}
+
+/* ---- Profundidade: o banner e os cartões grandes "saem" da tela --------------
+   Uma borda com espessura (várias sombras duras empilhadas), uma sombra longa
+   no "chão", um brilho de luz vindo de cima e uma flutuação bem lenta. */
+.home-community-header.home-community-header--glass {
+  --depth-edge-1: #cdbcab;
+  --depth-edge-2: #b29d89;
+  --depth-edge-3: #8f7a67;
+  box-shadow:
+    0 2px 0 var(--depth-edge-1),
+    0 4px 0 var(--depth-edge-2),
+    0 6px 0 var(--depth-edge-3),
+    0 16px 18px -6px rgba(40, 32, 26, 0.5),
+    0 38px 40px -22px rgba(40, 32, 26, 0.5);
+  animation: depth-float 7s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.home-community-header--glass .home-community-cover--glass {
+  border-radius: inherit;
+}
+
+/* Brilho de luz no canto de cima e filete claro na borda. */
+.home-community-header--glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.34) 0, rgba(255, 255, 255, 0.08) 22%, rgba(255, 255, 255, 0) 42%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -10px 18px -10px rgba(25, 20, 17, 0.45);
+  pointer-events: none;
+}
+
+@keyframes depth-float {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-4px) scale(1.012);
+  }
+}
+
+.home-editorial-cards > .home-editorial-card {
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 5px 0 #8f7a67,
+    0 16px 18px -8px rgba(40, 32, 26, 0.5),
+    0 34px 36px -22px rgba(40, 32, 26, 0.45);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.home-editorial-cards > .home-editorial-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.3) 0, rgba(255, 255, 255, 0.06) 22%, rgba(255, 255, 255, 0) 40%);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+/* Ao tocar, o cartão "afunda" na espessura da borda. */
+.home-editorial-cards > .home-editorial-card:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 #8f7a67,
+    0 8px 12px -6px rgba(40, 32, 26, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-community-header.home-community-header--glass {
+    animation: none;
+  }
+  .home-editorial-cards > .home-editorial-card {
+    transition: none;
+  }
+}
+
+/* ---- Atalhos, agenda/relógio e Menu: mais perto do banner --------------------- */
+.home-tools.home-tools--icons {
+  margin-top: -10px;
+  padding: 4px 0 0;
 }
 
 .home-tools--icons + .home-section-divider {
-  margin-top: -8px;
-  margin-bottom: -8px;
+  margin-top: -16px;
+  margin-bottom: -24px;
 }
 
 .home-time + .home-section-divider {
-  margin-top: -16px;
-  margin-bottom: -18px;
+  margin-top: -28px;
+  margin-bottom: -2px;
 }
 
+/* Título "Menu": o mesmo respiro em cima (até a linha) e embaixo (até os
+   cartões) — 16px, igual ao dos outros títulos de faixa. */
 .exp-strip.exp-strip--hoje {
   margin-top: 0;
 }
 
-/* Reforço (2026-11-12): o ajuste acima era pequeno demais para se notar no
-   celular. Aqui o bloco inteiro até o Menu sobe ~65 px, só tirando respiros
-   (banner, agenda e relógio continuam do mesmo tamanho). */
-.home-greeting {
-  margin-top: -18px;
-}
-
-.home-tools.home-tools--icons {
-  margin-top: -10px;
-  padding: 6px 0 0;
-}
-
-.home-tools--icons + .home-section-divider {
-  margin-top: -14px;
-  margin-bottom: -22px;
-}
-
-.home-time + .home-section-divider {
-  margin-top: -26px;
-  margin-bottom: -18px;
-}
-
 .exp-strip--hoje .circ-strip-title {
-  margin-bottom: -12px;
+  margin-bottom: 18px;
+}
+
+.exp-strip--hoje .exp-track {
+  padding-top: 0;
 }
 
 /* A linha depois das capas da revista desce um pouco. */
@@ -1487,46 +1596,63 @@ html {
   margin-top: 12px;
 }
 
-/* Último cartão grande (Loja): sombra escura para baixo, como a do banner
-   principal. Ela vira o fundo de onde os cartões finos da roda somem. */
-.home-editorial-cards > .home-editorial-card:last-child {
-  box-shadow:
-    var(--shadow-md),
-    0 30px 30px -22px rgba(53, 48, 44, 0.3);
+/* ---- Parceiros: lado a lado, andando devagar para a esquerda ------------------ */
+.home-partners {
+  align-items: stretch;
 }
 
-.home-wheel {
-  position: relative;
-}
-
-/* Em cima e embaixo da roda: mancha escura suave no lugar do branco. */
-.home-wheel::before,
-.home-wheel::after {
-  content: '';
-  position: absolute;
-  right: 4%;
-  left: 4%;
-  z-index: -1;
-  right: 0;
-  left: 0;
-  height: 104px;
-  pointer-events: none;
-}
-
-.home-wheel::before {
-  top: -44px;
-  background: radial-gradient(ellipse 56% 50% at 50% 46%, rgba(53, 48, 44, 0.3), rgba(53, 48, 44, 0.12) 55%, rgba(53, 48, 44, 0) 100%);
-}
-
-.home-wheel::after {
-  bottom: -34px;
-  background: radial-gradient(ellipse 56% 50% at 50% 54%, rgba(53, 48, 44, 0.3), rgba(53, 48, 44, 0.12) 55%, rgba(53, 48, 44, 0) 100%);
-}
-
-/* Parceiros: os logos um pouco mais abaixo do título. */
-.partner-stage {
-  min-height: 84px;
+.partner-viewport {
+  overflow: hidden;
   margin-top: 12px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.partner-track {
+  display: flex;
+  width: max-content;
+  animation: partner-marquee linear infinite;
+  will-change: transform;
+}
+
+.partner-seq {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 44px;
+  margin: 0;
+  padding: 6px 22px;
+  list-style: none;
+}
+
+.partner-item {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+
+/* Anda exatamente uma metade (uma cópia da lista): a emenda não aparece. */
+@keyframes partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-viewport {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .partner-track {
+    animation: none;
+  }
+  .partner-seq[aria-hidden='true'] {
+    display: none;
+  }
 }
 
 /* Logo que precisa aparecer maior (+15%): ver partnerLogoBoost em lib/partners.ts. */
