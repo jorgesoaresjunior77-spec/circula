@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants, SPRING_TAP } from '../lib/motionKit'
 import { Fragment } from 'react'
 import { formatEventDate } from '../lib/formatEventDate'
 import { PRODUCT_TYPE_LABELS, formatPriceBRL } from '../types/product'
@@ -57,7 +58,14 @@ function pluralNote(count: number, singular: string, plural: string): string | n
 
 function EditorialCard({ eyebrow, tag, image, title, subtitle, footer, cta, onActivate }: EditorialCardSpec) {
   return (
-    <button type="button" className="home-editorial-card" onClick={onActivate}>
+    <m.button
+      type="button"
+      className="home-editorial-card"
+      onClick={onActivate}
+      {...inViewOnce}
+      variants={riseVariants}
+      whileTap={{ y: 4, transition: SPRING_TAP }}
+    >
       <span className="home-editorial-card-media">
         {image ? (
           <img loading="lazy" decoding="async" src={image} alt="" className="home-editorial-card-photo" />
@@ -75,7 +83,7 @@ function EditorialCard({ eyebrow, tag, image, title, subtitle, footer, cta, onAc
           {cta} <span aria-hidden="true">→</span>
         </span>
       </span>
-    </button>
+    </m.button>
   )
 }
 

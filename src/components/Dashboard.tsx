@@ -1,3 +1,4 @@
+import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
@@ -1181,10 +1182,15 @@ export function Dashboard({
       />
 
       {coverHero && railCommunity && (
-        <div className="dashboard-community-cover">
+        <m.div
+          className="dashboard-community-cover"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
           <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
           <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
-        </div>
+        </m.div>
       )}
 
       {viewingProfileId ? (
@@ -1213,7 +1219,17 @@ export function Dashboard({
                     <ChevronLeftIcon size={18} /> Voltar
                   </button>
                 )}
-                <Suspense fallback={<p>Carregando...</p>}>{renderDestination()}</Suspense>
+                {/* Troca de tela: a nova entra com um fade curto. Só opacidade —
+                    transform aqui prenderia as telas cheias (position: fixed). */}
+                <m.div
+                  key={effectiveNav}
+                  className="page-fade"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.32, ease: 'easeOut' }}
+                >
+                  <Suspense fallback={<p>Carregando...</p>}>{renderDestination()}</Suspense>
+                </m.div>
               </>
             )}
           </div>

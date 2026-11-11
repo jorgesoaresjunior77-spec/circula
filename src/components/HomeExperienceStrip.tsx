@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants, tapPress } from '../lib/motionKit'
 import { useMemo } from 'react'
 import type { NavKey } from './PrimaryNav'
 import { formatEventDate } from '../lib/formatEventDate'
@@ -154,9 +155,10 @@ export function HomeExperienceStrip({
 
   const renderCard = (exp: Experience, clone: boolean) => (
     <li key={clone ? `${exp.key}-clone` : exp.key} className="exp-card-item">
-      <button
+      <m.button
         type="button"
         className={`exp-card${exp.image ? ' exp-card--photo' : ''}`}
+        {...tapPress}
         onClick={exp.onActivate}
         aria-label={clone ? undefined : exp.ariaLabel}
         aria-hidden={clone ? true : undefined}
@@ -167,12 +169,12 @@ export function HomeExperienceStrip({
           {!clone && (badges[exp.key] ?? 0) > 0 && <span className="notif-dot" aria-label="Novidade" />}
           <span className="exp-card-title">{exp.title}</span>
         </span>
-      </button>
+      </m.button>
     </li>
   )
 
   return (
-    <section className="exp-strip exp-strip--hoje" aria-label="Seu Círcula de Hoje">
+    <m.section className="exp-strip exp-strip--hoje" aria-label="Seu Círcula de Hoje" {...inViewOnce} variants={riseVariants}>
       <h2 className="circ-strip-title">Menu</h2>
       <div
         className={`exp-viewport exp-viewport--draggable${loop ? ' exp-viewport--looping' : ''}${dragging ? ' exp-viewport--dragging' : ''}`}
@@ -190,6 +192,6 @@ export function HomeExperienceStrip({
             ))}
         </div>
       </div>
-    </section>
+    </m.section>
   )
 }

@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { marqueeRepeats, partnerLogoBoost, safePartnerLink } from '../lib/partners'
@@ -59,7 +60,7 @@ export function HomePartnersStrip({ communityId }: { communityId: string }) {
   )
 
   return (
-    <section className="home-partners" aria-label="Parceiros">
+    <m.section className="home-partners" aria-label="Parceiros" {...inViewOnce} variants={riseVariants}>
       <h3 className="home-partners-title">Parceiros</h3>
       <div className="partner-viewport">
         <div className="partner-track" style={{ animationDuration: `${perHalf * PARTNER_SECONDS_PER_LOGO}s` }}>
@@ -67,6 +68,6 @@ export function HomePartnersStrip({ communityId }: { communityId: string }) {
           {half(true)}
         </div>
       </div>
-    </section>
+    </m.section>
   )
 }

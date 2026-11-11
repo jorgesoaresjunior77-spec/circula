@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants, tapPress } from '../lib/motionKit'
 import type { CircleWithMembers } from '../types/circle'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useDragCarousel, LOOP_EXTRA_COPIES } from '../hooks/useDragCarousel'
@@ -103,9 +104,10 @@ function CircleGalleryCard({ circle, index, clone, onOpen }: CircleGalleryCardPr
 
   return (
     <li className="circ-card-item">
-      <article
+      <m.article
         className={`circ-card${coverUrl ? ' circ-card--photo' : ''}`}
         data-tint={index % 4}
+        {...tapPress}
       >
         <div className="circ-card-frame">
           {coverUrl && <img loading="lazy" decoding="async" src={coverUrl} alt="" className="circ-card-photo" />}
@@ -125,7 +127,7 @@ function CircleGalleryCard({ circle, index, clone, onOpen }: CircleGalleryCardPr
             <span className="circ-card-meta">{memberLabel}</span>
           </div>
         </div>
-      </article>
+      </m.article>
     </li>
   )
 }
@@ -183,7 +185,7 @@ export function HomeCirclesSection({
   )
 
   return (
-    <section className="circ-strip" aria-labelledby="circ-strip-title">
+    <m.section className="circ-strip" aria-labelledby="circ-strip-title" {...inViewOnce} variants={riseVariants}>
       <h2 id="circ-strip-title" className="circ-strip-title">
         Círculos
       </h2>
@@ -199,6 +201,6 @@ export function HomeCirclesSection({
             )}
         </div>
       </div>
-    </section>
+    </m.section>
   )
 }

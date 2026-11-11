@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import type { ReactNode } from 'react'
 import type { NavKey } from './PrimaryNav'
 import type { CommunityCardKey } from '../types/communityCards'
@@ -100,13 +101,13 @@ export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true
     ))
 
   return (
-    <section className="home-wheel" aria-label="Menu de conteúdos">
+    <m.section className="home-wheel" aria-label="Menu de conteúdos" {...inViewOnce} variants={riseVariants}>
       <div className="wheel-viewport">
         <ul className="wheel-track" style={{ animationDuration: `${duration}s` }}>
           {render(false)}
           {render(true)}
         </ul>
       </div>
-    </section>
+    </m.section>
   )
 }

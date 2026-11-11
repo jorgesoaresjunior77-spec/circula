@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import type { Profile } from '../types/profile'
 import type { CommunityWithMembers, JoinResult } from '../types/community'
 import type { NavKey } from './PrimaryNav'
@@ -296,10 +297,10 @@ export function HomeToday({
 
       {/* Agenda e relógio: logo abaixo do Menu. */}
       <hr className="home-section-divider" />
-      <div className="home-time">
+      <m.div className="home-time" {...inViewOnce} variants={riseVariants}>
         <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
         <AnalogClock />
-      </div>
+      </m.div>
 
       {/* Ajustes visuais (item 1) — linha fininha entre as 3 seções. Só
           antes de Círculos quando a seção realmente renderiza algo

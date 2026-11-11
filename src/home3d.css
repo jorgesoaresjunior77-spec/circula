@@ -280,3 +280,31 @@
 .circ-strip > .circ-strip-title {
   margin-bottom: 22px;
 }
+
+/* ======================================================================
+   Motion (motion.dev) — apoio em CSS
+   ====================================================================== */
+
+/* Troca de tela: o invólucro repete o layout de .community-area. */
+.page-fade {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/* Quem agora é animado pelo Motion não usa mais a animação/transição de
+   transform do CSS (as duas brigariam). */
+.home-editorial-cards > .home-editorial-card {
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.product-detail-backdrop--motion,
+.product-detail-backdrop--motion .product-detail-panel,
+.store-room {
+  animation: none;
+}
+
+.store-shelf-item {
+  transition: none;
+}

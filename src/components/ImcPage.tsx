@@ -14,6 +14,7 @@ import {
   scaleStops,
 } from '../lib/imc'
 import { ImcAvatarView } from './Doll3DView'
+import { m, SPRING_SOFT } from '../lib/motionKit'
 
 // Calculadora de IMC: a conta é feita no aparelho com o peso e a altura que a
 // própria usuária informa, e nada é salvo. Não é diagnóstico.
@@ -144,7 +145,14 @@ export function ImcPage({ onTalkToNutri }: ImcPageProps) {
       )}
 
       {result !== null && band && (
-        <div className="imc-result" role="status">
+        <m.div
+          key={result}
+          className="imc-result"
+          role="status"
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={SPRING_SOFT}
+        >
           <ImcAvatarView band={band} />
           <div className="imc-result-text">
             <span className="imc-result-eyebrow">Seu IMC</span>
@@ -162,7 +170,7 @@ export function ImcPage({ onTalkToNutri }: ImcPageProps) {
             A ilustração é apenas representativa: o IMC não mostra composição corporal, distribuição de
             gordura nem aparência.
           </p>
-        </div>
+        </m.div>
       )}
 
       <p className="imc-note">

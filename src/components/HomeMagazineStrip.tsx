@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { MagazineIssue } from '../types/magazine'
@@ -715,9 +716,9 @@ export function HomeMagazineStrip({ issues, officeImage, manager }: HomeMagazine
         Revista Círcula Magazine
       </h2>
 
-      <div className="mag2-viewport">
+      <m.div className="mag2-viewport" {...inViewOnce} variants={riseVariants}>
         <Stack issues={stacked} onOpen={handleOpen} hideBadges={isOwner} />
-      </div>
+      </m.div>
       {notice && (
         <p className="mag-soon-notice" role="status">
           {notice}

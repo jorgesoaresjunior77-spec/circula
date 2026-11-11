@@ -21,6 +21,9 @@ import { useProductEntitlements } from '../hooks/useProductEntitlements'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { shelfRows } from '../lib/storeShelves'
+import { AnimatePresence, m, inViewOnce, riseVariants, staggerVariants, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
+
+const shelfStagger = staggerVariants(0.07, 0.1)
 
 interface ProductManagerProps {
   communityId: string
@@ -521,16 +524,18 @@ export function ProductManager({
                 ? 'Em breve, novos conteúdos e produtos por aqui.'
                 : 'Toque em uma capa para ver os detalhes.'}
             </p>
-            <div className="store-shelves">
+            <m.div className="store-shelves" {...inViewOnce} variants={shelfStagger}>
               {shelfRows(publishedProducts).map((row, r) => (
                 <div className="store-shelf" key={r}>
                   <div className="store-shelf-row">
                     {row.map((product, c) =>
                       product ? (
-                        <button
+                        <m.button
                           key={product.id}
                           type="button"
                           className="store-shelf-item"
+                          variants={riseVariants}
+                          whileTap={{ scale: 0.95, transition: SPRING_TAP }}
                           onClick={() => setSelectedProductId(product.id)}
                           aria-label={`Ver detalhes de ${product.title}`}
                         >
@@ -539,7 +544,7 @@ export function ProductManager({
                           ) : (
                             <span className="store-shelf-blank">{product.title}</span>
                           )}
-                        </button>
+                        </m.button>
                       ) : (
                         <span key={c} className="store-shelf-item store-shelf-item--empty" aria-hidden="true" />
                       ),
@@ -548,7 +553,7 @@ export function ProductManager({
                   <div className="store-shelf-board" />
                 </div>
               ))}
-            </div>
+            </m.div>
           </div>
         </div>
       )}
@@ -662,10 +667,22 @@ export function ProductManager({
         </ul>
       )}
 
+      <AnimatePresence>
       {showBuy && selectedProduct && (
-        <div className="product-detail-backdrop" onClick={() => setSelectedProductId(null)}>
-          <div
+        <m.div
+          key="product-detail"
+          className="product-detail-backdrop product-detail-backdrop--motion"
+          onClick={() => setSelectedProductId(null)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22 }}
+        >
+          <m.div
             className="product-detail-panel"
+            initial={{ opacity: 0, y: 36, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: SPRING_SOFT }}
+            exit={{ opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.18 } }}
             role="dialog"
             aria-modal="true"
             aria-label={`Detalhes de ${selectedProduct.title}`}
@@ -680,9 +697,10 @@ export function ProductManager({
               <CloseIcon size={18} />
             </button>
             <ProductCard product={selectedProduct} variant="detail" {...buyPropsFor(selectedProduct)} />
-          </div>
-        </div>
+          </m.div>
+        </m.div>
       )}
+      </AnimatePresence>
     </section>
   )
 }

@@ -1,3 +1,4 @@
+import { m, inViewOnce, riseVariants, staggerVariants } from '../lib/motionKit'
 import type { NavKey } from './PrimaryNav'
 
 // Três atalhos de ponta a ponta, logo abaixo do banner: Antes de Tudo, Água e
@@ -73,14 +74,18 @@ interface Props {
   onNavigate: (key: NavKey) => void
 }
 
+const toolsStagger = staggerVariants(0.09, 0.05)
+
 export function HomeToolCards({ onNavigate }: Props) {
   return (
-    <section className="home-tools home-tools--icons" aria-label="Ferramentas">
+    <m.section className="home-tools home-tools--icons" aria-label="Ferramentas" {...inViewOnce} variants={toolsStagger}>
       {TOOLS.map(({ key, title, Icon }) => (
-        <button
+        <m.button
           key={key}
           type="button"
           className="home-tool"
+          variants={riseVariants}
+          whileTap={{ scale: 0.9 }}
           aria-label={title}
           title={title}
           onClick={() => onNavigate(key)}
@@ -91,8 +96,8 @@ export function HomeToolCards({ onNavigate }: Props) {
           <span className="home-tool-media" aria-hidden="true">
             <Icon />
           </span>
-        </button>
+        </m.button>
       ))}
-    </section>
+    </m.section>
   )
 }
