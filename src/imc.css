@@ -1,0 +1,211 @@
+/* Calculadora de IMC com a cara do Círcula: cabeçalho, campos com unidade e dica,
+   botão em destaque e uma escala de referência suave. Só aparência (a conta e os
+   textos não mudam). Vem depois do polish.css. */
+
+.imc-page {
+  gap: var(--space-4);
+  text-align: left;
+}
+
+.imc-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.imc-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--circula-mocha);
+}
+
+.imc-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.imc-intro {
+  margin: 2px 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--circula-taupe);
+}
+
+/* ---- Formulário: cartão de vidro com dois campos e o botão ---------------------- */
+.imc-form.imc-form {
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--glass-border-color);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-2);
+}
+
+.imc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.imc-field label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.imc-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 2px rgba(53, 48, 44, 0.06);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.imc-input:focus-within {
+  border-color: var(--circula-mocha);
+  box-shadow: 0 0 0 3px rgba(90, 70, 58, 0.14), inset 0 1px 2px rgba(53, 48, 44, 0.06);
+}
+
+.imc-input input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 26px;
+  color: var(--circula-mocha);
+}
+
+.imc-input input::placeholder {
+  color: var(--circula-beige);
+}
+
+.imc-unit {
+  flex: none;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--circula-champagne-tint);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--circula-taupe);
+}
+
+.imc-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--circula-taupe);
+}
+
+.imc-submit {
+  min-height: 54px;
+  margin: var(--space-1) 0 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--circula-mocha), #7a604f);
+  box-shadow: var(--elev-2);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.imc-submit:active {
+  transform: scale(0.985);
+  box-shadow: var(--elev-1);
+}
+
+.imc-error {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-lg);
+  background: var(--circula-champagne-tint);
+}
+
+/* ---- Resultado: escala de referência, suave e sem alarme ------------------------ */
+.imc-result.imc-result {
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--elev-3);
+}
+
+.imc-scale {
+  width: 100%;
+  max-width: 320px;
+}
+
+.imc-scale-bar {
+  position: relative;
+  display: flex;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--circula-champagne-tint);
+  box-shadow: inset 0 1px 2px rgba(53, 48, 44, 0.12);
+}
+
+.imc-scale-seg:first-child {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+
+.imc-scale-seg:nth-child(4) {
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+}
+
+.imc-scale-seg--abaixo { background: #cfd9e4; }
+.imc-scale-seg--referencia { background: #cfe0c8; }
+.imc-scale-seg--acima { background: #ead9b8; }
+.imc-scale-seg--elevado { background: #e4c3b8; }
+
+.imc-scale-marker {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--circula-mocha);
+  box-shadow: 0 3px 8px rgba(53, 48, 44, 0.4);
+  transition: left 0.6s var(--ease-out);
+}
+
+.imc-scale-labels {
+  position: relative;
+  height: 16px;
+  margin-top: 6px;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--circula-taupe);
+}
+
+.imc-scale-labels span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}

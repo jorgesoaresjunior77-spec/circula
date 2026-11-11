@@ -19,6 +19,21 @@ export function calcImc(weightKg: number, heightCm: number): number {
   return Math.round((weightKg / (m * m)) * 10) / 10
 }
 
+/** Escala desenhada na tela do resultado (só visual): de 14 a 36. */
+export const IMC_SCALE_MIN = 14
+export const IMC_SCALE_MAX = 36
+
+/** Onde o IMC cai na escala, de 0 (esquerda) a 1 (direita); fora dela, nas pontas. */
+export function scalePosition(imc: number): number {
+  const p = (imc - IMC_SCALE_MIN) / (IMC_SCALE_MAX - IMC_SCALE_MIN)
+  return Math.min(1, Math.max(0, p))
+}
+
+/** Os cortes das faixas (18,5 / 25 / 30) como fração da escala. */
+export function scaleStops(): [number, number, number] {
+  return [18.5, 25, 30].map((v) => scalePosition(v)) as [number, number, number]
+}
+
 /** Faixas de referência da OMS para adultos. */
 export function imcBand(imc: number): ImcBand {
   if (imc < 18.5) return 'abaixo'

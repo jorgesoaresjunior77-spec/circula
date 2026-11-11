@@ -1431,3 +1431,27 @@ html {
     animation: none;
   }
 }
+
+/* ---- Boneca 3D (Antes de Tudo e IMC) ---------------------------------------------- */
+.doll3d {
+  position: relative;
+  flex: none;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.doll3d--habits {
+  width: 150px;
+  height: 214px;
+}
+
+.doll3d--imc {
+  width: 128px;
+  height: 172px;
+}
+
+.doll3d-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HabitWoman } from './HabitWoman'
+import { HabitWomanView } from './Doll3DView'
 import { CheckIcon, ChevronRightIcon } from './icons'
 import type { NavKey } from './PrimaryNav'
 import { useHabits } from '../hooks/useHabits'
@@ -63,7 +63,7 @@ export function AntesDeTudoPage({ profileId, onNavigate }: AntesDeTudoPageProps)
       )}
 
       <article className="habits-panel habits-hero">
-        <HabitWoman done={done} checked={checkedToday} />
+        <HabitWomanView done={done} checked={checkedToday} />
         <div className="habits-hero-text">
           <p className="habits-count" aria-live="polite">
             {done} de {HABITS.length}
