@@ -1456,6 +1456,32 @@ html {
   margin-top: 0;
 }
 
+/* Reforço (2026-11-12): o ajuste acima era pequeno demais para se notar no
+   celular. Aqui o bloco inteiro até o Menu sobe ~65 px, só tirando respiros
+   (banner, agenda e relógio continuam do mesmo tamanho). */
+.home-greeting {
+  margin-top: -18px;
+}
+
+.home-tools.home-tools--icons {
+  margin-top: -10px;
+  padding: 6px 0 0;
+}
+
+.home-tools--icons + .home-section-divider {
+  margin-top: -14px;
+  margin-bottom: -22px;
+}
+
+.home-time + .home-section-divider {
+  margin-top: -26px;
+  margin-bottom: -18px;
+}
+
+.exp-strip--hoje .circ-strip-title {
+  margin-bottom: -12px;
+}
+
 /* A linha depois das capas da revista desce um pouco. */
 .mag-strip + .home-section-divider {
   margin-top: 12px;
