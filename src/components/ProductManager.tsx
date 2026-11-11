@@ -12,13 +12,15 @@ import {
   PRODUCT_DELIVERABLE_KIND_LABELS,
   PRODUCT_TYPE_LABELS,
   isEventProductType,
-  isHotmartEligibleType,
 } from '../types/product'
 import { ProductCard } from './ProductCard'
 import { EmptyState } from './EmptyState'
 import { CloseIcon } from './icons'
 import { useProductCheckout } from '../hooks/useProductCheckout'
 import { useProductEntitlements } from '../hooks/useProductEntitlements'
+import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { shelfRows } from '../lib/storeShelves'
 
 interface ProductManagerProps {
   communityId: string
@@ -26,6 +28,8 @@ interface ProductManagerProps {
   canManage: boolean
   // Habilita o botão "Comprar" nos produtos publicados (só Member).
   canBuy?: boolean
+  /** Leva à página de Planos (produtos digitais com cadeado). */
+  onOpenPlans?: () => void
 }
 
 const PRODUCT_TYPES: ProductType[] = [
@@ -38,13 +42,6 @@ const PRODUCT_TYPES: ProductType[] = [
 ]
 
 const DELIVERABLE_KINDS: ProductDeliverableKind[] = ['none', 'file', 'external_link', 'scheduling']
-
-// Filtros da vitrine (Member): só os tipos reais de PRODUCT_TYPES, sem
-// categoria fictícia. Client-side — nenhuma query nova.
-const STORE_FILTERS: Array<{ value: ProductType | 'all'; label: string }> = [
-  { value: 'all', label: 'Todos' },
-  ...PRODUCT_TYPES.map((type) => ({ value: type, label: PRODUCT_TYPE_LABELS[type] })),
-]
 
 interface ProductFormValues {
   type: ProductType
@@ -91,38 +88,12 @@ function centsToPriceInput(cents: number): string {
   return (cents / 100).toFixed(2).replace('.', ',')
 }
 
-// Só aceita URLs https:// (recusa http://, javascript:, data: e qualquer
-// outro esquema). Vazio é permitido — o campo é opcional.
-function parseCheckoutUrl(input: string): string | null | { error: string } {
-  const trimmed = input.trim()
-  if (trimmed === '') return null
-
-  if (!/^https:\/\//i.test(trimmed)) {
-    return { error: 'O link de compra deve começar com https://.' }
-  }
-
-  try {
-    new URL(trimmed)
-  } catch {
-    return { error: 'Informe um link de compra válido.' }
-  }
-
-  return trimmed
-}
-
 function formToInput(values: ProductFormValues): ProductInput | { error: string } {
   const title = values.title.trim()
   if (!title) return { error: 'Informe um título.' }
 
   const priceCents = parsePriceToCents(values.price)
   if (priceCents === null) return { error: 'Informe um preço válido (ex.: 14,90).' }
-
-  const checkoutUrl = isHotmartEligibleType(values.type)
-    ? parseCheckoutUrl(values.checkoutUrl)
-    : null
-  if (checkoutUrl !== null && typeof checkoutUrl === 'object') {
-    return { error: checkoutUrl.error }
-  }
 
   let maxQuantity: number | null = null
   const rawMax = values.maxQuantity.trim()
@@ -149,7 +120,8 @@ function formToInput(values: ProductFormValues): ProductInput | { error: string 
     event_is_online: event ? values.eventIsOnline : null,
     event_location: event ? values.eventLocation.trim() || null : null,
     requires_shipping: values.type === 'physical' ? values.requiresShipping : false,
-    checkout_url: checkoutUrl,
+    // Legado: não é mais editado nem usado; só preserva o que já estava salvo.
+    checkout_url: values.checkoutUrl.trim() || null,
   }
 }
 
@@ -227,25 +199,6 @@ function ProductFields({ idPrefix, values, onChange }: ProductFieldsProps) {
         onChange={(e) => onChange({ price: e.target.value })}
         placeholder="Ex.: 14,90"
       />
-
-      {isHotmartEligibleType(values.type) && (
-        <>
-          <label htmlFor={`${idPrefix}-checkout-url`}>Link de compra Hotmart (opcional)</label>
-          <input
-            id={`${idPrefix}-checkout-url`}
-            type="url"
-            value={values.checkoutUrl}
-            onChange={(e) => onChange({ checkoutUrl: e.target.value })}
-            placeholder="https://pay.hotmart.com/..."
-          />
-          <p className="challenge-field-hint">
-            Informe o link do checkout deste produto na Hotmart.
-          </p>
-          <p className="challenge-field-hint">
-            O preço exibido no Círcula deve ser mantido alinhado ao preço configurado na Hotmart.
-          </p>
-        </>
-      )}
 
       <label htmlFor={`${idPrefix}-cover`}>URL da imagem de capa (opcional)</label>
       <input
@@ -345,6 +298,7 @@ export function ProductManager({
   profileId,
   canManage,
   canBuy = false,
+  onOpenPlans,
 }: ProductManagerProps) {
   const { products, loading, error, createProduct, updateProduct, setStatus, deleteProduct } =
     useProducts(communityId)
@@ -366,31 +320,17 @@ export function ProductManager({
 
   const [actionError, setActionError] = useState<string | null>(null)
 
+  // Fundo da Loja (só a vitrine da membro usa): imagem própria ou, sem ela, o
+  // banner grande da Loja. Sem nenhuma, fica o degradê do CSS.
+  const { images: cardImages } = useCommunityCardImages(showBuy ? communityId : null)
+  const { url: backgroundUrl } = useSignedImageUrl(
+    cardImages.loja_fundo ?? cardImages.comunidade_grande ?? null,
+  )
+
   // --- Vitrine (Member): estado só de apresentação, sem query nova ---
-  const [activeFilter, setActiveFilter] = useState<ProductType | 'all'>('all')
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
 
   const publishedProducts = products.filter((product) => product.status === 'published')
-  // `products` já vem ordenado por created_at desc (useProducts) — o
-  // primeiro publicado É o mais recente. Sem published_at no banco,
-  // este é o critério simples pedido; nenhum campo novo foi criado.
-  const featuredProduct = publishedProducts[0] ?? null
-  const gridProducts = featuredProduct
-    ? publishedProducts.filter((product) => product.id !== featuredProduct.id)
-    : publishedProducts
-  // Só os tipos que têm produto na grade (mais "Todos"); com um tipo só, os
-  // filtros seriam redundantes e a barra nem aparece.
-  const gridTypes = new Set(gridProducts.map((product) => product.type))
-  const availableFilters = STORE_FILTERS.filter(
-    (filter) => filter.value === 'all' || gridTypes.has(filter.value),
-  )
-  const effectiveFilter = availableFilters.some((filter) => filter.value === activeFilter)
-    ? activeFilter
-    : 'all'
-  const filteredGridProducts =
-    effectiveFilter === 'all'
-      ? gridProducts
-      : gridProducts.filter((product) => product.type === effectiveFilter)
   const selectedProduct = selectedProductId
     ? (products.find((product) => product.id === selectedProductId) ?? null)
     : null
@@ -425,6 +365,7 @@ export function ProductManager({
       onBuy: showBuy
         ? (p: Product) => buyProduct(p.id).then((r) => ({ error: r.error, invoiceUrl: r.invoiceUrl }))
         : undefined,
+      onOpenPlans,
     }
   }
 
@@ -504,11 +445,7 @@ export function ProductManager({
     >
       {showBuy ? (
         <div className="store-masthead">
-          <p className="section-label">Loja</p>
           <h2 className="store-masthead-title">Loja</h2>
-          <p className="store-masthead-intro">
-            Uma seleção de conteúdos e produtos para acompanhar sua jornada.
-          </p>
         </div>
       ) : (
         <>
@@ -569,65 +506,51 @@ export function ProductManager({
 
       {!loading && error && <p className="auth-error">{error}</p>}
 
-      {!loading && !error && showBuy && publishedProducts.length === 0 && (
-        <EmptyState message="Em breve, novos conteúdos e produtos por aqui." />
-      )}
-
       {!loading && !error && !showBuy && products.length === 0 && (
         <EmptyState message="Nenhum produto cadastrado ainda." />
       )}
 
-      {!loading && !error && showBuy && featuredProduct && (
-        <div className="store-featured">
-          <ProductCard
-            product={featuredProduct}
-            variant="featured"
-            onSelect={() => setSelectedProductId(featuredProduct.id)}
-            {...buyPropsFor(featuredProduct)}
-          />
-        </div>
-      )}
-
-      {!loading && !error && showBuy && gridTypes.size > 1 && (
-        <div className="store-filters" role="group" aria-label="Filtrar produtos por tipo">
-          {availableFilters.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              className={`store-filter-pill${
-                effectiveFilter === filter.value ? ' store-filter-pill--active' : ''
-              }`}
-              aria-pressed={effectiveFilter === filter.value}
-              onClick={(e) => {
-                setActiveFilter(filter.value)
-                // A barra rola para o lado: deixa o filtro escolhido à vista.
-                e.currentTarget.scrollIntoView?.({ inline: 'center', block: 'nearest', behavior: 'smooth' })
-              }}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {!loading && !error && showBuy && publishedProducts.length > 0 && (
-        <>
-          {filteredGridProducts.length === 0 ? (
-            <p className="store-filter-empty">Nenhum produto neste filtro.</p>
-          ) : (
-            <ul className="question-list product-list">
-              {filteredGridProducts.map((product) => (
-                <li key={product.id} className="question-item product-item">
-                  <ProductCard
-                    product={product}
-                    onSelect={() => setSelectedProductId(product.id)}
-                    {...buyPropsFor(product)}
-                  />
-                </li>
+      {!loading && !error && showBuy && (
+        <div
+          className="store-room"
+          style={backgroundUrl ? { backgroundImage: `url("${backgroundUrl}")` } : undefined}
+        >
+          <div className="store-room-veil">
+            <p className="store-room-text">
+              {publishedProducts.length === 0
+                ? 'Em breve, novos conteúdos e produtos por aqui.'
+                : 'Toque em uma capa para ver os detalhes.'}
+            </p>
+            <div className="store-shelves">
+              {shelfRows(publishedProducts).map((row, r) => (
+                <div className="store-shelf" key={r}>
+                  <div className="store-shelf-row">
+                    {row.map((product, c) =>
+                      product ? (
+                        <button
+                          key={product.id}
+                          type="button"
+                          className="store-shelf-item"
+                          onClick={() => setSelectedProductId(product.id)}
+                          aria-label={`Ver detalhes de ${product.title}`}
+                        >
+                          {product.cover_image_url ? (
+                            <img src={product.cover_image_url} alt="" loading="lazy" decoding="async" draggable={false} />
+                          ) : (
+                            <span className="store-shelf-blank">{product.title}</span>
+                          )}
+                        </button>
+                      ) : (
+                        <span key={c} className="store-shelf-item store-shelf-item--empty" aria-hidden="true" />
+                      ),
+                    )}
+                  </div>
+                  <div className="store-shelf-board" />
+                </div>
               ))}
-            </ul>
-          )}
-        </>
+            </div>
+          </div>
+        </div>
       )}
 
       {!loading && !error && !showBuy && products.length > 0 && (

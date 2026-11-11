@@ -29,9 +29,9 @@ export interface Product {
   event_is_online: boolean | null
   event_location: string | null
   requires_shipping: boolean
-  // V1 Hotmart: link de checkout externo (só ebook/course na UI hoje).
-  // Quando preenchido, o botão Comprar abre este link em vez do fluxo
-  // Asaas — ver ProductCard.tsx. Opcional; nulo preserva o fluxo atual.
+  // Legado (Hotmart): link de checkout externo. A Loja não usa mais — os
+  // produtos digitais passaram a ser liberados pelo plano. A coluna segue
+  // no banco e o valor é só preservado ao editar.
   checkout_url: string | null
   created_at: string
   updated_at: string
@@ -87,10 +87,9 @@ export function isEventProductType(type: ProductType): boolean {
   return type === 'event' || type === 'workshop'
 }
 
-// V1 Hotmart (checkout externo): decisão de produto, não constraint de
-// banco — só ebook/course mostram o campo (ProductManager) e desviam
-// para checkout_url no botão Comprar (ProductCard) nesta versão.
-export function isHotmartEligibleType(type: ProductType): boolean {
+// Produtos digitais: não são vendidos um a um; ficam liberados para quem tem
+// o pacote de E-books ou o Superpacote (ver ProductCard.tsx).
+export function isDigitalProductType(type: ProductType): boolean {
   return type === 'ebook' || type === 'course'
 }
 

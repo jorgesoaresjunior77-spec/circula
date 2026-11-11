@@ -189,3 +189,150 @@
     animation: none;
   }
 }
+
+/* ======================================================================
+   Loja como a banca da revista (2026-11-12): uma imagem de fundo e, por
+   cima, prateleiras de madeira com as capas dos produtos. Só a vitrine da
+   membro; a gestão da profissional segue como lista.
+   ====================================================================== */
+.product-manager--storefront .store-masthead {
+  margin-bottom: var(--space-3);
+}
+
+.store-room {
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(135deg, #4a3f3a, #8a7568) center / cover no-repeat;
+  box-shadow: var(--elev-3);
+  animation: store-in 0.5s var(--ease-out) both;
+}
+
+.store-room-veil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  min-height: min(70dvh, 620px);
+  padding: var(--space-6) var(--space-3) var(--space-8);
+  background: linear-gradient(180deg, rgba(20, 14, 10, 0.5), rgba(20, 14, 10, 0.36) 40%, rgba(20, 14, 10, 0.55));
+  color: #fff;
+  text-align: center;
+}
+
+.store-room-text {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
+.store-shelves {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.store-shelf-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: end;
+  padding: 0 14px;
+}
+
+.store-shelf-item {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transform-origin: 50% 100%;
+  transition: transform var(--dur) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.store-shelf-item:active {
+  transform: scale(0.97);
+}
+
+.store-shelf-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.store-shelf-blank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  background: linear-gradient(160deg, #f5ede4, #e3d2c2);
+  color: var(--circula-mocha);
+  font-family: var(--font-display);
+  font-size: 12px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.store-shelf-item--empty {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+  cursor: default;
+}
+
+.store-shelf-board {
+  height: 14px;
+  margin-top: -2px;
+  border-radius: 3px;
+  background: linear-gradient(#a0764f, #6d4a2e);
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.45);
+}
+
+/* Produto digital sem o plano: cadeado e caminho para Planos. */
+.product-card-lock {
+  align-items: stretch;
+}
+
+.product-card-lock-text {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-lg);
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  font-size: 13.5px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.product-card-lock-text svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-room {
+    animation: none;
+  }
+  .store-shelf-item {
+    transition: none;
+  }
+}

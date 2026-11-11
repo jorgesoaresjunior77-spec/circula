@@ -5,19 +5,16 @@ import {
   PRODUCT_STATUS_LABELS,
   PRODUCT_TYPE_LABELS,
   formatPriceBRL,
+  isDigitalProductType,
   isEventProductType,
-  isHotmartEligibleType,
 } from '../types/product'
 
-// V1 Hotmart: só considera o link se o tipo permite (ebook/course) E o
-// valor é https:// — defesa em profundidade, mesma regra já aplicada
-// na escrita (ProductManager), agora também checada na leitura.
-function resolveHotmartUrl(product: Product): string | null {
-  if (!isHotmartEligibleType(product.type)) return null
-  if (!product.checkout_url) return null
-  if (!/^https:\/\//i.test(product.checkout_url)) return null
-  return product.checkout_url
-}
+// Produtos digitais (e-book / curso) NÃO são mais vendidos um a um nem pela
+// Hotmart: ficam liberados para quem tem o pacote de E-books ou o Superpacote.
+// Para a membro, o cartão mostra um cadeado e o caminho para a página de
+// Planos — nenhum pedido é criado e nenhum link externo é aberto. (O download
+// dentro do Círcula entra numa etapa seguinte.) Os demais tipos seguem com a
+// compra de sempre.
 
 interface ProductCardProps {
   product: Product
@@ -34,6 +31,17 @@ interface ProductCardProps {
   // Abre o detalhe (estado local no ProductManager). Omitido em modo
   // gestão e dentro do próprio detalhe — nada de rota nova.
   onSelect?: (product: Product) => void
+  /** Leva à página de Planos (produto digital com cadeado). */
+  onOpenPlans?: () => void
+}
+
+function LockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="11" width="14" height="9" rx="2.5" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  )
 }
 
 export function ProductCard({
@@ -44,6 +52,7 @@ export function ProductCard({
   onBuy,
   variant = 'grid',
   onSelect,
+  onOpenPlans,
 }: ProductCardProps) {
   const inactive = product.status !== 'published'
   const showEventInfo =
@@ -53,25 +62,18 @@ export function ProductCard({
       product.event_is_online !== null)
 
   const isPhysical = product.type === 'physical'
+  const isDigital = isDigitalProductType(product.type)
   const purchasable = canBuy && product.status === 'published'
-  const hotmartUrl = resolveHotmartUrl(product)
   // Produto não físico já adquirido não pode ser comprado de novo (a regra é
   // reforçada no servidor por create_product_order + índice parcial).
   const alreadyOwned = owned && !isPhysical
+  // Digital sem acesso: cadeado + Planos, sem preço avulso.
+  const planLocked = purchasable && isDigital && !alreadyOwned
 
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [lastInvoiceUrl, setLastInvoiceUrl] = useState<string | null>(null)
 
   async function handleBuy() {
-    // V1 Hotmart: produto ebook/course com checkout_url válido nunca
-    // passa pelo fluxo Asaas — abre o link externo e para por aqui.
-    // useProductCheckout/onBuy não são chamados; nenhum product_order
-    // é criado.
-    if (hotmartUrl) {
-      window.open(hotmartUrl, '_blank', 'noopener,noreferrer')
-      return
-    }
-
     if (!onBuy) return
     setFeedback(null)
 
@@ -188,9 +190,23 @@ export function ProductCard({
           </div>
         )}
 
-        <p className="product-card-price">{formatPriceBRL(product.price_cents)}</p>
+        {!planLocked && <p className="product-card-price">{formatPriceBRL(product.price_cents)}</p>}
 
-        {purchasable && (
+        {planLocked && (
+          <div className="product-card-cta product-card-lock">
+            <p className="product-card-lock-text">
+              <LockIcon />
+              <span>Liberado para quem tem o pacote de E-books ou o Superpacote.</span>
+            </p>
+            {onOpenPlans && (
+              <button type="button" className="btn btn-primary" onClick={onOpenPlans}>
+                Ver planos
+              </button>
+            )}
+          </div>
+        )}
+
+        {purchasable && !planLocked && (
           <div className="product-card-cta">
             {alreadyOwned ? (
               <span className="product-card-owned">✓ Adquirido</span>
@@ -201,7 +217,7 @@ export function ProductCard({
                 onClick={handleBuy}
                 disabled={buying}
               >
-                {hotmartUrl ? 'Comprar na Hotmart' : buying ? 'Processando...' : 'Comprar'}
+                {buying ? 'Processando...' : 'Comprar'}
               </button>
             )}
 

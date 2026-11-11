@@ -1008,6 +1008,7 @@ export function Dashboard({
           profileId={profile.id}
           canManage={isOwner}
           canBuy={!isOwner}
+          onOpenPlans={() => handleNavigate('planos')}
         />
       )
     }

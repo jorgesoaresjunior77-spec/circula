@@ -57,6 +57,7 @@ export type CommunityCardKey =
   | 'menu_respiracao'
   | 'menu_planos'
   | 'menu_playlist'
+  | 'loja_fundo'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -118,6 +119,14 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     key: 'comunidade_grande',
     label: 'Loja',
     hint: 'Banner grande da vitrine da Loja na Home — independente da capa do card compacto acima.',
+  },
+  /** Chave nova: só existe no banco depois da migration 20261112120000
+   *  (preparada, NÃO aplicada). Até lá, salvar devolve erro de constraint e a
+   *  Loja usa o banner grande da Loja (acima) como fundo. */
+  {
+    key: 'loja_fundo',
+    label: 'Fundo da Loja',
+    hint: 'Imagem que fica atrás das prateleiras, dentro da Loja. Sem ela, a Loja usa o banner grande da Loja.',
   },
 ]
 
