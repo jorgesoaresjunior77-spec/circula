@@ -175,7 +175,8 @@ export function HomeExperienceStrip({
 
   return (
     <m.section className="exp-strip exp-strip--hoje" aria-label="Seu Círcula de Hoje" {...inViewOnce} variants={riseVariants}>
-      <h2 className="circ-strip-title">Menu</h2>
+      {/* Sem título visível (pedido de 2026-11-12): os cartões sobem para o
+          lugar da palavra "Menu"; o nome da faixa segue no aria-label. */}
       <div
         className={`exp-viewport exp-viewport--draggable${loop ? ' exp-viewport--looping' : ''}${dragging ? ' exp-viewport--dragging' : ''}`}
         ref={viewportRef}

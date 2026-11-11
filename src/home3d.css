@@ -308,3 +308,165 @@
 .store-shelf-item {
   transition: none;
 }
+
+/* ======================================================================
+   Home (2026-11-12, 3ª rodada): sem o título "Menu", agenda numa linha só,
+   relógio mais elegante (ponteiro dos segundos deslizando, com Motion).
+   ====================================================================== */
+
+/* ---- Menu sem título: os cartões sobem; linha com respiro dos dois lados ------ */
+.home-tools--icons + .home-section-divider {
+  margin-top: -14px;
+  margin-bottom: -8px;
+}
+
+.exp-strip--hoje + .home-section-divider {
+  margin-top: -14px;
+  margin-bottom: -6px;
+}
+
+.home-time + .home-section-divider {
+  margin-top: -8px;
+  margin-bottom: 0;
+}
+
+/* ---- Agenda: um pouco para a direita, mês e ano na mesma linha ---------------- */
+.home-time {
+  gap: var(--space-3);
+  padding-left: 12px;
+  box-sizing: border-box;
+}
+
+.home-time > .home-week {
+  flex: 1 1 46%;
+}
+
+.home-time > .home-clock {
+  flex: 1 1 54%;
+}
+
+.home-time .home-week .home-week-title {
+  padding: 0;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.home-time .home-week .home-week-open {
+  gap: var(--space-2);
+  padding: 4px 0 var(--space-2);
+}
+
+/* ---- Relógio: maior, com sombra no "chão" e um halo de luz bem leve ----------- */
+.home-clock .home-clock-glass {
+  position: relative;
+  max-width: 156px;
+}
+
+.home-clock .home-clock-glass::before {
+  content: '';
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.35) 55%, rgba(255, 255, 255, 0) 72%);
+  pointer-events: none;
+}
+
+.home-clock .home-clock-glass::after {
+  content: '';
+  position: absolute;
+  right: 14%;
+  bottom: -9%;
+  left: 14%;
+  height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.34), rgba(40, 32, 26, 0) 70%);
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+.home-clock .home-clock-3d {
+  z-index: 1;
+}
+
+/* Marcações: as de hora mais finas e longas; as de minuto discretas. */
+.home-clock .home-clock-tick {
+  stroke: #b3a497;
+  stroke-width: 0.55;
+}
+
+.home-clock .home-clock-tick--major {
+  stroke: #5a463a;
+  stroke-width: 1.5;
+}
+
+/* Ponteiros mais esguios. */
+.home-clock .home-clock-hand--hour {
+  stroke: #33261f;
+  stroke-width: 3.2;
+}
+
+.home-clock .home-clock-hand--minute {
+  stroke: #33261f;
+  stroke-width: 2.1;
+}
+
+/* Segundos: camada parada (guarda a sombra) e, dentro, o giro contínuo. */
+.home-clock .home-clock-3d .clock-layer--second {
+  transform: translateZ(15px);
+  filter: drop-shadow(3px 6px 3px rgba(53, 48, 44, 0.32));
+}
+
+.clock-second-spin {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.home-clock .home-clock-glass .clock-second-spin svg {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  overflow: visible;
+  filter: none;
+}
+
+.home-clock .home-clock-hand--second {
+  stroke: #b8574d;
+  stroke-width: 0.75;
+}
+
+.home-clock-second-weight {
+  fill: #b8574d;
+}
+
+.home-clock-second-tip {
+  fill: #fff;
+  stroke: #b8574d;
+  stroke-width: 0.7;
+}
+
+/* ---- Círculos 10% menores; revista com mais respiro sob o título -------------- */
+.circ-card-item {
+  width: clamp(104px, 30.8vw, 136px);
+}
+
+@media (min-width: 768px) {
+  .circ-card-item {
+    width: clamp(136px, 16.2vw, 170px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .circ-card-item {
+    width: clamp(146px, 11.3vw, 178px);
+  }
+}
+
+.mag-strip > .circ-strip-title {
+  margin-bottom: 26px;
+}
+
+.home-time .home-week .home-week-title--long {
+  font-size: 11.5px;
+}

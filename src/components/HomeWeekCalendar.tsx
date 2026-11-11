@@ -28,7 +28,9 @@ export function HomeWeekCalendar({ onOpen }: HomeWeekCalendarProps) {
         onClick={onOpen}
         aria-label={`Abrir agenda. Semana de ${title}`}
       >
-        <span className="home-week-title">{title}</span>
+        {/* Mês e ano numa linha só; semana que pega dois meses ("Novembro ·
+            Dezembro 2026") usa letra menor para continuar cabendo. */}
+        <span className={`home-week-title${title.length > 16 ? ' home-week-title--long' : ''}`}>{title}</span>
         <span className="home-week-grid" aria-hidden="true">
           {days.map((d, i) => (
             <span key={`l-${d.iso}`} className="home-week-weekday" style={{ gridColumn: i + 1, gridRow: 1 }}>

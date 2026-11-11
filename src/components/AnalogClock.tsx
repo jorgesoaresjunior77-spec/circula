@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { GARDEN_DEFAULT_TIMEZONE } from '../lib/timezone'
+import { m as motion, useAnimationFrame, useMotionValue } from '../lib/motionKit'
 
 // Relógio analógico da Home, em 3D: sem moldura nem fundo, mas com profundidade.
 // As marcações, os ponteiros, o ponteiro dos segundos e o eixo ficam em camadas
@@ -47,6 +48,14 @@ export function AnalogClock() {
 
   const { h, m, s } = timeParts(now)
   const angles = clockAngles(h, m, reduced ? 0 : s)
+  // Ponteiro dos segundos: ângulo contínuo, atualizado a cada quadro sem
+  // re-renderizar o componente (0–360 dentro do minuto; a volta emenda sozinha).
+  const sweep = useMotionValue(angles.second)
+  useAnimationFrame(() => {
+    if (reduced) return
+    sweep.set(((Date.now() % 60_000) / 1000) * 6)
+  })
+
   const label = `Agora são ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 
   // Inclina o relógio conforme o dedo/mouse sobre ele (parallax das camadas).
@@ -118,11 +127,18 @@ export function AnalogClock() {
 
           {/* Camada 3 — ponteiro dos segundos, mais alto que os outros */}
           {!reduced && (
-            <svg {...layer} className="clock-layer clock-layer--second">
-              <g transform={`rotate(${angles.second} 50 50)`}>
-                <line x1="50" y1="56" x2="50" y2="14" className="home-clock-hand home-clock-hand--second" />
-              </g>
-            </svg>
+            <div className="clock-layer clock-layer--second" aria-hidden="true">
+              {/* O giro é contínuo (Motion, a cada quadro), sem "tique": o
+                  ponteiro desliza. A sombra fica na camada de fora, parada. */}
+              <motion.div className="clock-second-spin" style={{ rotate: sweep }}>
+                <svg viewBox="0 0 100 100" focusable={false}>
+                  <line x1="50" y1="60" x2="50" y2="13" className="home-clock-hand home-clock-hand--second" />
+                  {/* contrapeso e ponta, como nos relógios de pulso */}
+                  <circle cx="50" cy="60" r="2.1" className="home-clock-second-weight" />
+                  <circle cx="50" cy="19" r="1.5" className="home-clock-second-tip" />
+                </svg>
+              </motion.div>
+            </div>
           )}
 
           {/* Camada 4 — eixo, uma esfera com brilho */}

@@ -12,7 +12,7 @@ import type { ReactNode } from 'react'
 import { LazyMotion, MotionConfig, domAnimation } from 'motion/react'
 import type { Transition, Variants } from 'motion/react'
 
-export { m, AnimatePresence } from 'motion/react'
+export { m, AnimatePresence, useAnimationFrame, useMotionValue } from 'motion/react'
 
 export const SPRING_SOFT: Transition = { type: 'spring', stiffness: 220, damping: 26, mass: 0.9 }
 export const SPRING_TAP: Transition = { type: 'spring', stiffness: 420, damping: 28 }
