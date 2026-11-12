@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Product } from '../types/product'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import {
   PRODUCT_DELIVERABLE_KIND_LABELS,
   PRODUCT_STATUS_LABELS,
@@ -9,12 +10,11 @@ import {
   isEventProductType,
 } from '../types/product'
 
-// Produtos digitais (e-book / curso) NÃO são mais vendidos um a um nem pela
-// Hotmart: ficam liberados para quem tem o pacote de E-books ou o Superpacote.
-// Para a membro, o cartão mostra um cadeado e o caminho para a página de
-// Planos — nenhum pedido é criado e nenhum link externo é aberto. (O download
-// dentro do Círcula entra numa etapa seguinte.) Os demais tipos seguem com a
-// compra de sempre.
+// Produtos digitais (e-book / curso): nada de Hotmart nem de link externo. A
+// leitura é dentro do Círcula (leitor da revista). Quem tem o pacote de
+// E-books ou o plano completo lê sem pagar à parte; quem não tem vê o preço e
+// pode comprar aquele e-book (compra de sempre) — depois de pago, ele também
+// fica liberado para leitura. Os demais tipos seguem com a compra de sempre.
 
 interface ProductCardProps {
   product: Product
@@ -76,8 +76,10 @@ export function ProductCard({
   // Digital: quem tem o pacote lê aqui mesmo; quem não tem vê o cadeado e o
   // caminho para Planos. Em nenhum dos casos há preço avulso.
   const readable = purchasable && isDigital && (canRead || alreadyOwned)
-  const planLocked = purchasable && isDigital && !readable
+  // Digital ainda sem acesso: mostra o preço, o Comprar e a dica do plano.
+  const planHint = purchasable && isDigital && !readable
 
+  const { url: coverUrl } = useSignedImageUrl(product.cover_image_url)
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [lastInvoiceUrl, setLastInvoiceUrl] = useState<string | null>(null)
 
@@ -126,8 +128,8 @@ export function ProductCard({
     product.deliverable_kind !== 'none' ||
     (isPhysical && product.requires_shipping)
 
-  const cover = product.cover_image_url ? (
-    <img loading="lazy" decoding="async" src={product.cover_image_url} alt="" className="product-card-image" />
+  const cover = coverUrl ? (
+    <img loading="lazy" decoding="async" src={coverUrl} alt="" className="product-card-image" />
   ) : (
     <div className="product-card-placeholder" aria-hidden="true">
       <span>{product.title.charAt(0).toUpperCase()}</span>
@@ -198,7 +200,7 @@ export function ProductCard({
           </div>
         )}
 
-        {!planLocked && !readable && <p className="product-card-price">{formatPriceBRL(product.price_cents)}</p>}
+        {!readable && <p className="product-card-price">{formatPriceBRL(product.price_cents)}</p>}
 
         {readable && (
           <div className="product-card-cta">
@@ -209,21 +211,7 @@ export function ProductCard({
           </div>
         )}
 
-        {planLocked && (
-          <div className="product-card-cta product-card-lock">
-            <p className="product-card-lock-text">
-              <LockIcon />
-              <span>Liberado para quem tem o pacote de E-books ou o Superpacote.</span>
-            </p>
-            {onOpenPlans && (
-              <button type="button" className="btn btn-primary" onClick={onOpenPlans}>
-                Ver planos
-              </button>
-            )}
-          </div>
-        )}
-
-        {purchasable && !planLocked && !readable && (
+        {purchasable && !readable && (
           <div className="product-card-cta">
             {alreadyOwned ? (
               <span className="product-card-owned">✓ Adquirido</span>
@@ -256,6 +244,20 @@ export function ProductCard({
               <p className={feedback.type === 'error' ? 'auth-error' : 'auth-success'}>
                 {feedback.text}
               </p>
+            )}
+          </div>
+        )}
+
+        {planHint && (
+          <div className="product-card-cta product-card-lock">
+            <p className="product-card-lock-text">
+              <LockIcon />
+              <span>Com o pacote de E-books ou o plano completo, você lê este e os outros sem pagar à parte.</span>
+            </p>
+            {onOpenPlans && (
+              <button type="button" className="auth-link" onClick={onOpenPlans}>
+                Ver planos
+              </button>
             )}
           </div>
         )}

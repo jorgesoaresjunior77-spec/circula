@@ -115,13 +115,20 @@ export function useRecipes(communityId: string | null, profileId: string | null,
       status: input.status,
       type: 'recipe',
     }
-    const { error } = input.id
-      ? await supabase.from('community_content').update(row).eq('id', input.id)
-      : await supabase
-          .from('community_content')
-          .insert({ ...row, community_id: communityId, created_by: profileId })
+    if (input.id) {
+      const { error } = await supabase.from('community_content').update(row).eq('id', input.id)
+      if (!error) await load()
+      return { error: error?.message ?? null, id: input.id }
+    }
+    // Receita nova: devolve o id para o formulário seguir aberto e a
+    // profissional já poder subir as páginas em formato de revista.
+    const { data, error } = await supabase
+      .from('community_content')
+      .insert({ ...row, community_id: communityId, created_by: profileId })
+      .select('id')
+      .single()
     if (!error) await load()
-    return { error: error?.message ?? null }
+    return { error: error?.message ?? null, id: (data as { id: string } | null)?.id ?? null }
   }
 
   async function deleteRecipe(id: string) {

@@ -186,6 +186,7 @@ export function HomeToday({
   // assinatura, então HomeEditorialCards faz o mesmo.
   const { url: nextEventCover } = useSignedImageUrl(railSummary?.nextEvent?.cover_image_url ?? null)
   const { url: featuredRecipeCover } = useSignedImageUrl(featuredRecipe?.cover_image_url ?? null)
+  const { url: featuredProductCover } = useSignedImageUrl(featuredProduct?.cover_image_url ?? null)
   // Correções visuais (item 4) — banners editoriais grandes, independentes
   // das capas dos cards compactos acima (chaves *_grande, ver
   // types/communityCards.ts). Prioridade máxima em HomeEditorialCards —
@@ -355,7 +356,7 @@ export function HomeToday({
         featuredRecipe={featuredRecipe}
         featuredRecipeCover={featuredRecipeCover}
         productsCount={productsCount}
-        featuredProduct={featuredProduct}
+        featuredProduct={featuredProduct ? { ...featuredProduct, cover_image_url: featuredProductCover } : null}
         onNavigate={onNavigate}
       />
 

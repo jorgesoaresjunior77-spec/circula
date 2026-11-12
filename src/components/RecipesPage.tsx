@@ -101,6 +101,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
   const [editCat, setEditCat] = useState<Partial<RecipeCategory> | null>(null)
   const [editRec, setEditRec] = useState<Partial<Recipe> | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   const category = api.categories.find((c) => c.id === catId) ?? null
   const inCategory = (id: string | null) => api.recipes.filter((r) => r.category_id === id)
@@ -112,7 +113,10 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
 
   async function submitCat(e: FormEvent) {
     e.preventDefault()
-    if (!editCat?.name?.trim()) return
+    if (!editCat?.name?.trim()) {
+      setError('Escreva o nome da categoria para salvar.')
+      return
+    }
     const r = await api.saveCategory({
       id: editCat.id,
       name: editCat.name,
@@ -128,7 +132,10 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
 
   async function submitRec(e: FormEvent) {
     e.preventDefault()
-    if (!editRec?.title?.trim()) return
+    if (!editRec?.title?.trim()) {
+      setError('Escreva o título da receita para salvar.')
+      return
+    }
     const r = await api.saveRecipe({
       id: editRec.id,
       title: editRec.title,
@@ -139,12 +146,21 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
       category_id: editRec.category_id ?? category?.id ?? null,
       status: editRec.status === 'draft' ? 'draft' : 'published',
     })
-    if (r.error) setError('Não foi possível salvar a receita.')
-    else {
-      setError(null)
-      setEditRec(null)
-      setOpen(null)
+    if (r.error) {
+      setError('Não foi possível salvar a receita.')
+      return
     }
+    setError(null)
+    if (!editRec.id && r.id) {
+      // Receita nova: fica no formulário, agora com as páginas liberadas.
+      const newId = r.id
+      setEditRec((prev) => ({ ...(prev ?? {}), id: newId }))
+      setNotice('Receita salva. Agora você pode adicionar as páginas em formato de revista, logo abaixo.')
+      return
+    }
+    setNotice(null)
+    setEditRec(null)
+    setOpen(null)
   }
 
   // ---- formulário de categoria ----
@@ -156,7 +172,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           Nome
           <input
             value={editCat.name ?? ''}
-            onChange={(e) => setEditCat({ ...editCat, name: e.target.value })}
+            onChange={(e) => setEditCat((prev) => ({ ...(prev ?? {}), name: e.target.value }))}
             placeholder="Ex.: Sem glúten"
           />
         </label>
@@ -165,7 +181,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           <textarea
             rows={3}
             value={editCat.description ?? ''}
-            onChange={(e) => setEditCat({ ...editCat, description: e.target.value })}
+            onChange={(e) => setEditCat((prev) => ({ ...(prev ?? {}), description: e.target.value }))}
           />
         </label>
         <CoverImageInput
@@ -175,7 +191,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           label="Imagem da categoria"
           aspectRatio="4 / 5"
           recommendedSize="1080 × 1350 px"
-          onChange={(p) => setEditCat({ ...editCat, cover_path: p })}
+          onChange={(p) => setEditCat((prev) => ({ ...(prev ?? {}), cover_path: p }))}
         />
         {error && <p className="auth-error">{error}</p>}
         <div className="rec-actions">
@@ -215,14 +231,14 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           Título
           <input
             value={editRec.title ?? ''}
-            onChange={(e) => setEditRec({ ...editRec, title: e.target.value })}
+            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), title: e.target.value }))}
           />
         </label>
         <label>
           Categoria
           <select
             value={editRec.category_id ?? category?.id ?? ''}
-            onChange={(e) => setEditRec({ ...editRec, category_id: e.target.value || null })}
+            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), category_id: e.target.value || null }))}
           >
             <option value="">Sem categoria</option>
             {api.categories.map((c) => (
@@ -237,7 +253,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           <textarea
             rows={2}
             value={editRec.summary ?? ''}
-            onChange={(e) => setEditRec({ ...editRec, summary: e.target.value })}
+            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), summary: e.target.value }))}
           />
         </label>
         <label>
@@ -245,7 +261,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           <textarea
             rows={5}
             value={editRec.ingredients ?? ''}
-            onChange={(e) => setEditRec({ ...editRec, ingredients: e.target.value })}
+            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), ingredients: e.target.value }))}
           />
         </label>
         <label>
@@ -253,7 +269,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           <textarea
             rows={6}
             value={editRec.body ?? ''}
-            onChange={(e) => setEditRec({ ...editRec, body: e.target.value })}
+            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), body: e.target.value }))}
           />
         </label>
         <CoverImageInput
@@ -263,7 +279,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           label="Foto da receita"
           aspectRatio="4 / 5"
           recommendedSize="1080 × 1350 px"
-          onChange={(p) => setEditRec({ ...editRec, cover_image_url: p })}
+          onChange={(p) => setEditRec((prev) => ({ ...(prev ?? {}), cover_image_url: p }))}
         />
         {editRec.id ? (
           <RecipePagesEditor contentId={editRec.id} communityId={communityId} profileId={profileId} />
@@ -275,15 +291,32 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
             type="checkbox"
             checked={editRec.status !== 'draft'}
             onChange={(e) =>
-              setEditRec({ ...editRec, status: e.target.checked ? 'published' : 'draft' })
+              setEditRec((prev) => ({ ...(prev ?? {}), status: e.target.checked ? 'published' : 'draft' }))
             }
           />
           Publicada (visível às participantes)
         </label>
-        {error && <p className="auth-error">{error}</p>}
+        {notice && (
+          <p className="auth-success" role="status">
+            {notice}
+          </p>
+        )}
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="rec-actions">
-          <button type="button" className="auth-link" onClick={() => setEditRec(null)}>
-            Cancelar
+          <button
+            type="button"
+            className="auth-link"
+            onClick={() => {
+              setEditRec(null)
+              setNotice(null)
+              setError(null)
+            }}
+          >
+            {notice ? 'Concluir' : 'Cancelar'}
           </button>
           <button type="submit" className="profile-save-action">
             Salvar

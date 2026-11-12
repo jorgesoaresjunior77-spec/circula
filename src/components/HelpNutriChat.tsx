@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import type { ConversationOverview, ConversationPeer } from '../types/message'
 import { ConversationView } from './ConversationView'
 
 // Help Nutri (visão da membro): uma conversa só, com a nutricionista da
-// comunidade. Não há busca de outras pessoas nem lista de conversas.
+// comunidade. Não há busca de outras pessoas nem lista de conversas: só a
+// pergunta "Precisa falar com a Nutri?" e um botão que chama a nutri direto.
 //
 // Regra do serviço: a membro envia UMA mensagem e aguarda; depois que a nutri
 // responde, a conversa segue normalmente (a trava fica em ConversationView,
@@ -39,19 +40,31 @@ export function HelpNutriChat({
     : null
   const [createdId, setCreatedId] = useState<string | null>(null)
   const [startError, setStartError] = useState(false)
-  const starting = useRef(false)
+  const [calling, setCalling] = useState(false)
+  // A conversa só abre quando a membro toca em "Chamar a nutri" — ou direto,
+  // se elas já estavam conversando.
+  const [called, setCalled] = useState(false)
   const conversationId = existing?.conversation_id ?? createdId
+  const alreadyTalking = !!existing?.last_message_body
+  const showChat = !!conversationId && (called || alreadyTalking)
 
-  // Primeira visita com acesso: abre a conversa com a nutri (vazia).
-  useEffect(() => {
-    if (!hasAccess || loading || !nutriProfileId || conversationId || starting.current) return
-    starting.current = true
-    void onStartConversation(nutriProfileId).then(({ id, error }) => {
-      starting.current = false
-      if (error || !id) setStartError(true)
-      else setCreatedId(id)
-    })
-  }, [hasAccess, loading, nutriProfileId, conversationId, onStartConversation])
+  async function callNutri() {
+    if (!nutriProfileId || calling) return
+    setStartError(false)
+    if (conversationId) {
+      setCalled(true)
+      return
+    }
+    setCalling(true)
+    const { id, error } = await onStartConversation(nutriProfileId)
+    setCalling(false)
+    if (error || !id) {
+      setStartError(true)
+      return
+    }
+    setCreatedId(id)
+    setCalled(true)
+  }
 
   const peer: ConversationPeer | null =
     existing && nutriProfileId
@@ -64,7 +77,7 @@ export function HelpNutriChat({
     <section className="help-nutri">
       <header className="help-nutri-head">
         <p className="help-nutri-eyebrow">Help Nutri</p>
-        <h2>Fale com a sua nutricionista</h2>
+        <h2>Precisa falar com a Nutri?</h2>
         <p className="help-nutri-intro">
           Este é um canal direto com a nutri. Você envia <strong>uma mensagem</strong> e aguarda a resposta;
           depois que ela responder, a conversa continua normalmente.
@@ -83,11 +96,7 @@ export function HelpNutriChat({
         </div>
       ) : !nutriProfileId ? (
         <p className="home-muted">Você ainda não faz parte de uma comunidade com nutricionista.</p>
-      ) : startError ? (
-        <p className="auth-error" role="alert">
-          Não foi possível abrir a conversa com a nutri agora. Tente de novo em instantes.
-        </p>
-      ) : conversationId ? (
+      ) : showChat && conversationId ? (
         <ConversationView
           key={conversationId}
           conversationId={conversationId}
@@ -97,7 +106,21 @@ export function HelpNutriChat({
           singleUntilReply
         />
       ) : (
-        <p className="home-muted">Abrindo a conversa…</p>
+        <div className="help-nutri-call">
+          <button
+            type="button"
+            className="imc-submit help-nutri-call-btn"
+            onClick={() => void callNutri()}
+            disabled={calling || loading}
+          >
+            {calling ? 'Chamando…' : 'Chamar a nutri'}
+          </button>
+          {startError && (
+            <p className="auth-error" role="alert">
+              Não foi possível chamar a nutri agora. Tente de novo em instantes.
+            </p>
+          )}
+        </div>
       )}
     </section>
   )

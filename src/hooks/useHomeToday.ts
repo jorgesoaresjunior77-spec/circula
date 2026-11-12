@@ -29,7 +29,7 @@ import type { HomeActivityItem, HomeSummary, HomeTodayData } from '../types/home
 // (members aninhados que useCircles já traz) — nenhuma query extra.
 
 const PERSON_SELECT = 'id,full_name,avatar_url'
-const COMMENT_SELECT = `id,post_id,content,created_at,author:profiles(${PERSON_SELECT})`
+const COMMENT_SELECT = `id,post_id,content,created_at,author:profiles!post_comments_author_id_fkey(${PERSON_SELECT})`
 const REACTION_SELECT = `id,post_id,created_at,profile:profiles(${PERSON_SELECT})`
 
 const WINDOW_7D_MS = 7 * 24 * 60 * 60 * 1000

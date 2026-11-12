@@ -33,20 +33,21 @@ function product(patch: Partial<Product> = {}): Product {
 afterEach(cleanup)
 
 describe('ProductCard — produtos digitais pelo plano', () => {
-  it('e-book sem acesso: cadeado, botão de Planos, sem preço, sem Hotmart', () => {
+  it('e-book sem o plano: mostra o preço, o Comprar e a dica do plano; nada de Hotmart', () => {
     const onOpenPlans = vi.fn()
-    const onBuy = vi.fn()
+    const onBuy = vi.fn().mockResolvedValue({ error: null, invoiceUrl: null })
     const open = vi.spyOn(window, 'open').mockImplementation(() => null)
     render(<ProductCard product={product()} canBuy onBuy={onBuy} onOpenPlans={onOpenPlans} />)
 
-    expect(screen.getByText(/pacote de E-books ou o Superpacote/)).toBeInTheDocument()
+    expect(screen.getByText(/29,90/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Comprar' })).toBeInTheDocument()
+    expect(screen.getByText(/pacote de E-books ou o plano completo/)).toBeInTheDocument()
     expect(screen.queryByText(/Hotmart/i)).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Comprar/ })).not.toBeInTheDocument()
-    expect(screen.queryByText(/29,90/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ler agora' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Ver planos' }))
     expect(onOpenPlans).toHaveBeenCalledTimes(1)
-    expect(onBuy).not.toHaveBeenCalled()
+    // o link antigo da Hotmart nunca é aberto
     expect(open).not.toHaveBeenCalled()
     open.mockRestore()
   })
@@ -75,6 +76,6 @@ describe('ProductCard — produtos digitais pelo plano', () => {
   it('na gestão (sem compra) mostra o preço e nenhum cadeado', () => {
     render(<ProductCard product={product()} />)
     expect(screen.getByText(/29,90/)).toBeInTheDocument()
-    expect(screen.queryByText(/Superpacote/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/plano completo/)).not.toBeInTheDocument()
   })
 })

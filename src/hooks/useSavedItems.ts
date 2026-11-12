@@ -30,7 +30,7 @@ const PERSON_SELECT = 'id,full_name,avatar_url'
 const CONTENT_SELECT =
   `id,community_id,circle_id,created_by,type,title,summary,body,cover_image_url,` +
   `external_url,category,status,created_at,updated_at,` +
-  `author:profiles(${PERSON_SELECT}),` +
+  `author:profiles!community_content_created_by_fkey(${PERSON_SELECT}),` +
   `likes:content_likes(id,content_id,profile_id,created_at)`
 
 const POST_SELECT =
@@ -42,7 +42,7 @@ const EVENT_SELECT =
   `starts_at,ends_at,is_online,location,online_url,capacity,status,created_at,updated_at,` +
   `participants:event_participants(id,event_id,profile_id,joined_at,profile:profiles(${PERSON_SELECT}))`
 
-const COMMENT_SELECT = `id,post_id,author_id,content,created_at,parent_comment_id,author:profiles(${PERSON_SELECT})`
+const COMMENT_SELECT = `id,post_id,author_id,content,created_at,parent_comment_id,author:profiles!post_comments_author_id_fkey(${PERSON_SELECT})`
 
 function idsOf(rows: SavedItemRow[], type: SavedItemType): string[] {
   return rows.filter((r) => r.item_type === type).map((r) => r.item_id)

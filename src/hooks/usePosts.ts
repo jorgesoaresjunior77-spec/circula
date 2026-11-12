@@ -50,7 +50,7 @@ function isMissingGardenRelationError(error: { code?: string; message?: string }
 }
 
 const COMMENT_SELECT =
-  'id,post_id,author_id,content,created_at,parent_comment_id,image_url,author:profiles(id,full_name,avatar_url)'
+  'id,post_id,author_id,content,created_at,parent_comment_id,image_url,author:profiles!post_comments_author_id_fkey(id,full_name,avatar_url)'
 
 /** Quantos comentários-raiz aparecem no card antes de "Ver mais comentários". */
 const PREVIEW_COMMENTS = 3

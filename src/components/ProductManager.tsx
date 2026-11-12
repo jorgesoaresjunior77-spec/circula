@@ -26,9 +26,20 @@ import { canReadEbooks } from '../lib/packages'
 import { isDigitalProductType } from '../types/product'
 import { ProductPagesEditor } from './ProductPagesEditor'
 import { ProductReader } from './ProductReader'
+import { CoverImageInput } from './CoverImageInput'
 import { AnimatePresence, m, inViewOnce, riseVariants, staggerVariants, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
 const shelfStagger = staggerVariants(0.07, 0.1)
+
+/** Capa na prateleira: aceita caminho do Storage (upload) ou URL antiga. */
+function ShelfCover({ product }: { product: Product }) {
+  const { url } = useSignedImageUrl(product.cover_image_url)
+  return url ? (
+    <img src={url} alt="" loading="lazy" decoding="async" draggable={false} />
+  ) : (
+    <span className="store-shelf-blank">{product.title}</span>
+  )
+}
 
 interface ProductManagerProps {
   communityId: string
@@ -155,9 +166,12 @@ interface ProductFieldsProps {
   idPrefix: string
   values: ProductFormValues
   onChange: (patch: Partial<ProductFormValues>) => void
+  communityId: string
+  profileId: string
 }
 
-function ProductFields({ idPrefix, values, onChange }: ProductFieldsProps) {
+function ProductFields({ idPrefix, values, onChange, communityId, profileId }: ProductFieldsProps) {
+  const digital = isDigitalProductType(values.type)
   const event = isEventProductType(values.type)
   const showDeliverableUrl =
     values.deliverableKind === 'external_link' || values.deliverableKind === 'scheduling'
@@ -208,15 +222,25 @@ function ProductFields({ idPrefix, values, onChange }: ProductFieldsProps) {
         placeholder="Ex.: 14,90"
       />
 
-      <label htmlFor={`${idPrefix}-cover`}>URL da imagem de capa (opcional)</label>
-      <input
-        id={`${idPrefix}-cover`}
-        type="url"
+      {digital && (
+        <p className="challenge-field-hint">
+          Quem tem o pacote de E-books ou o plano completo lê sem pagar à parte. Este preço vale para quem
+          quiser comprar só este.
+        </p>
+      )}
+
+      <CoverImageInput
         value={values.coverImageUrl}
-        onChange={(e) => onChange({ coverImageUrl: e.target.value })}
-        placeholder="https://..."
+        communityId={communityId}
+        uid={profileId}
+        label="Capa (aparece na prateleira da Loja)"
+        aspectRatio="3 / 4"
+        recommendedSize="1080 × 1440 px"
+        onChange={(path) => onChange({ coverImageUrl: path })}
       />
 
+      {!digital && (
+        <>
       <label htmlFor={`${idPrefix}-max`}>Quantidade máxima (opcional)</label>
       <input
         id={`${idPrefix}-max`}
@@ -252,6 +276,9 @@ function ProductFields({ idPrefix, values, onChange }: ProductFieldsProps) {
             onChange={(e) => onChange({ deliverableUrl: e.target.value })}
             placeholder="https://..."
           />
+        </>
+      )}
+
         </>
       )}
 
@@ -485,6 +512,8 @@ export function ProductManager({
         <form onSubmit={handleCreate} className="question-form">
           <ProductFields
             idPrefix="new-product"
+            communityId={communityId}
+            profileId={profileId}
             values={draft}
             onChange={(patch) => setDraft((prev) => ({ ...prev, ...patch }))}
           />
@@ -555,11 +584,7 @@ export function ProductManager({
                           onClick={() => setSelectedProductId(product.id)}
                           aria-label={`Ver detalhes de ${product.title}`}
                         >
-                          {product.cover_image_url ? (
-                            <img src={product.cover_image_url} alt="" loading="lazy" decoding="async" draggable={false} />
-                          ) : (
-                            <span className="store-shelf-blank">{product.title}</span>
-                          )}
+                          <ShelfCover product={product} />
                         </m.button>
                       ) : (
                         <span key={c} className="store-shelf-item store-shelf-item--empty" aria-hidden="true" />
@@ -585,6 +610,8 @@ export function ProductManager({
                 >
                   <ProductFields
                     idPrefix={`edit-product-${product.id}`}
+                    communityId={communityId}
+                    profileId={profileId}
                     values={editDraft}
                     onChange={(patch) => setEditDraft((prev) => ({ ...prev, ...patch }))}
                   />

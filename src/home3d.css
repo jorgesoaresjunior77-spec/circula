@@ -1306,3 +1306,250 @@ button.post-author-open {
   text-align: left;
   cursor: pointer;
 }
+
+/* ======================================================================
+   2026-11-12, 8ª rodada
+   ====================================================================== */
+
+/* Eventos: as variantes (grade, destaque, detalhe) tinham o texto sem margem
+   interna, pensado para cartão sem fundo. Com o cartão arredondado, o texto
+   encostava na borda e era cortado: agora todo cartão tem respiro por dentro. */
+.event-card.event-card--grid,
+.event-card.event-card--featured,
+.event-card.event-card--detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+.event-card.event-card--grid .event-card-cover,
+.event-card.event-card--featured .event-card-cover,
+.event-card.event-card--detail .event-card-cover {
+  width: 100%;
+  border-radius: 0;
+}
+
+.event-card.event-card--grid .event-card-body,
+.event-card.event-card--featured .event-card-body,
+.event-card.event-card--detail .event-card-body {
+  box-sizing: border-box;
+  min-width: 0;
+  margin-top: 0;
+  padding: 16px 18px 20px;
+  border-top: 0;
+}
+
+.event-card .event-card-title,
+.event-card .event-card-desc,
+.event-card .event-card-meta,
+.event-card .event-card-when {
+  overflow-wrap: anywhere;
+}
+
+.event-card .event-card-badges,
+.event-card .event-card-people {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+@media (min-width: 860px) {
+  .event-card.event-card--featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+/* Help Nutri: chamada direta. */
+.help-nutri-call {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-3);
+}
+
+.help-nutri-call-btn {
+  align-self: stretch;
+}
+
+.help-nutri-call-btn:disabled {
+  opacity: 0.6;
+}
+
+/* ---- Meu Jardim: flores sem caule, grandes, em camadas 3D --------------------- */
+.garden-art.ga3d {
+  position: relative;
+  width: min(100%, 330px);
+  aspect-ratio: 1 / 1;
+  margin: 6px auto 30px;
+  perspective: 760px;
+}
+
+.garden-art.ga3d--sunflower {
+  margin-top: 46px;
+}
+
+.ga3d-tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ga3d-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Cada camada projeta sombra na de baixo: é o que dá o volume. */
+.ga3d-layer:nth-child(1) {
+  filter: drop-shadow(0 3px 3px rgba(40, 32, 26, 0.18));
+}
+
+.ga3d-layer:nth-child(2) {
+  filter: drop-shadow(0 9px 6px rgba(40, 32, 26, 0.3));
+}
+
+.ga3d-layer:nth-child(3) {
+  filter: drop-shadow(0 10px 8px rgba(40, 32, 26, 0.42));
+}
+
+.ga3d-ground {
+  position: absolute;
+  right: 12%;
+  bottom: -10%;
+  left: 12%;
+  height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.36), rgba(40, 32, 26, 0.1) 48%, rgba(40, 32, 26, 0) 72%);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* O sol no céu do girassol. */
+.ga3d-sun {
+  position: absolute;
+  z-index: 2;
+  width: 46px;
+  height: 46px;
+  margin: -46px 0 0 -23px;
+  filter: drop-shadow(0 0 10px rgba(255, 200, 60, 0.85)) drop-shadow(0 4px 4px rgba(150, 100, 20, 0.3));
+  transition: left 1s linear, top 1s linear;
+}
+
+.ga3d-sun svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.garden-glass-card .garden-art.ga3d {
+  width: min(100%, 300px);
+}
+
+/* ---- Plástico brilhante 3D: ícone do clima e os três atalhos ------------------- */
+/* Corpo cheio (não mais transparente), contorno grosso, um reflexo branco e
+   "espessura" feita de sombras duras empilhadas + sombra macia no chão. */
+.home-tools--icons .home-tool-media .tool-icon path[fill-opacity] {
+  fill-opacity: 0.92;
+  stroke-width: 2.4;
+}
+
+.home-tools--icons .home-tool-media .tool-icon--coffee path[fill-opacity] {
+  fill: #c98f66;
+  stroke: #7a4a2c;
+}
+
+.home-tools--icons .home-tool-media .tool-icon--water path[fill-opacity] {
+  fill: #63b4e0;
+  stroke: #2f7fb0;
+}
+
+.home-tools--icons .home-tool-media .tool-icon--heart path[fill-opacity] {
+  fill: #ee7f98;
+  stroke: #b8475f;
+}
+
+.tool-gloss {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.home-tools--icons .home-tool-media {
+  filter: none;
+}
+
+.home-tools--icons .home-tool-media .tool-icon--coffee {
+  filter:
+    drop-shadow(0 1.5px 0 #6d4026)
+    drop-shadow(0 3px 0 #55301b)
+    drop-shadow(0 9px 6px rgba(40, 32, 26, 0.36));
+}
+
+.home-tools--icons .home-tool-media .tool-icon--water {
+  filter:
+    drop-shadow(0 1.5px 0 #2a709c)
+    drop-shadow(0 3px 0 #1f587c)
+    drop-shadow(0 9px 6px rgba(31, 88, 124, 0.38));
+}
+
+.home-tools--icons .home-tool-media .tool-icon--heart {
+  filter:
+    drop-shadow(0 1.5px 0 #a33c53)
+    drop-shadow(0 3px 0 #85293f)
+    drop-shadow(0 9px 6px rgba(133, 41, 63, 0.38));
+}
+
+/* Clima (só no botão da Home). */
+.wx-gloss {
+  display: none;
+}
+
+.weather-button .wx-gloss {
+  display: inline;
+  fill: #fff;
+  opacity: 0.8;
+}
+
+.weather-button .wx-gloss--line {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.weather-button .wx-icon .wx-cloud {
+  fill: #eef2f7;
+  fill-opacity: 1;
+  stroke: #8b96a5;
+  stroke-width: 2.3;
+}
+
+.weather-button .wx-icon .wx-sun-core {
+  fill: #ffd04a;
+  fill-opacity: 1;
+  stroke: #d1911c;
+}
+
+.weather-button .wx-icon .wx-moon {
+  fill: #cfcbf2;
+  fill-opacity: 1;
+}
+
+.weather-button .weather-icon-float {
+  filter:
+    drop-shadow(0 1.5px 0 #7c8796)
+    drop-shadow(0 3px 0 #636d7a)
+    drop-shadow(0 9px 6px rgba(40, 32, 26, 0.34));
+}

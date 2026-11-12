@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PRODUCT_PAGES_MAX, useProductPages } from '../hooks/useProductPages'
+import { useProductPages } from '../hooks/useProductPages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
 
@@ -39,11 +39,11 @@ export function ProductPagesEditor({ productId, communityId, profileId }: Props)
 
   return (
     <fieldset className="rec-pages-editor">
-      <legend>Páginas do e-book (leitura dentro do Círcula)</legend>
+      <legend>Páginas do e-book ({pages.length}) — leitura dentro do Círcula</legend>
       <p className="home-muted">
         Suba as páginas prontas, na ordem de leitura. A capa do produto continua sendo a imagem de capa
-        acima. Até {PRODUCT_PAGES_MAX} páginas. Só quem tem o pacote de E-books ou o plano completo consegue
-        ler.
+        acima. Não há limite de páginas. Lê quem tem o pacote de E-books, o plano completo ou comprou este
+        e-book.
       </p>
       <ol className="rec-pages-list">
         {pages.map((p, i) => (
@@ -56,7 +56,7 @@ export function ProductPagesEditor({ productId, communityId, profileId }: Props)
           </li>
         ))}
       </ol>
-      {pages.length < PRODUCT_PAGES_MAX && (
+      {
         <CoverImageInput
           key={fieldKey}
           value=""
@@ -67,7 +67,7 @@ export function ProductPagesEditor({ productId, communityId, profileId }: Props)
           recommendedSize="1080 × 1440 px"
           onChange={(path) => void handleNew(path)}
         />
-      )}
+      }
       {error && <p className="auth-error">{error}</p>}
     </fieldset>
   )

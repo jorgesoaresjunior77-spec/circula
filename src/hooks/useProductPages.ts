@@ -3,9 +3,9 @@ import { supabase } from '../lib/supabase'
 
 // Páginas (imagens) de um e-book da Loja, lidas no leitor da revista. A RLS
 // decide o que cada papel enxerga: a dona vê tudo; a membro só vê as páginas
-// de produto publicado e se tiver o pacote de E-books ou o plano completo.
-
-export const PRODUCT_PAGES_MAX = 60
+// de produto publicado e se tiver o pacote de E-books, o plano completo ou
+// tiver comprado aquele e-book. Sem limite de páginas (há e-books de vários
+// tamanhos).
 
 export interface ProductPage {
   id: string
@@ -43,7 +43,6 @@ export function useProductPages(productId: string | null, communityId: string | 
   const addPage = useCallback(
     async (imagePath: string): Promise<Result> => {
       if (!productId || !communityId) return { error: 'Salve o produto antes de adicionar páginas.' }
-      if (pages.length >= PRODUCT_PAGES_MAX) return { error: `No máximo ${PRODUCT_PAGES_MAX} páginas.` }
       const next = pages.reduce((max, p) => Math.max(max, p.position), 0) + 1
       const { error } = await supabase.from('product_pages').insert({
         product_id: productId,

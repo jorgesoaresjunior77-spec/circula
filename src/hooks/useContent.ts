@@ -8,7 +8,7 @@ import type { CommunityContent, ContentInput, ContentResult } from '../types/con
 const CONTENT_SELECT =
   `id,community_id,circle_id,created_by,type,title,summary,body,cover_image_url,` +
   `external_url,category,status,created_at,updated_at,` +
-  `author:profiles(id,full_name,avatar_url),` +
+  `author:profiles!community_content_created_by_fkey(id,full_name,avatar_url),` +
   `likes:content_likes(id,content_id,profile_id,created_at)`
 
 function cleanText(value: string | null | undefined): string | null {

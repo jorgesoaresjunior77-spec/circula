@@ -29,7 +29,8 @@ function Sun({ cx = 24, cy = 24, r = 7 }: { cx?: number; cy?: number; r?: number
       <g className="wx-sun-rays" {...stroke}>
         {rays}
       </g>
-      <circle cx={cx} cy={cy} r={r} fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
+      <circle className="wx-sun-core" cx={cx} cy={cy} r={r} fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
+      <ellipse className="wx-gloss" cx={cx - r * 0.3} cy={cy - r * 0.35} rx={r * 0.34} ry={r * 0.2} transform={`rotate(-28 ${cx - r * 0.3} ${cy - r * 0.35})`} />
     </g>
   )
 }
@@ -39,7 +40,13 @@ function Moon() {
 }
 
 function Cloud({ dy = 0 }: { dy?: number }) {
-  return <path className="wx-cloud" d={CLOUD} transform={`translate(0 ${dy})`} {...stroke} fill="currentColor" fillOpacity="0.14" />
+  return (
+    <g transform={`translate(0 ${dy})`}>
+      <path className="wx-cloud" d={CLOUD} {...stroke} fill="currentColor" fillOpacity="0.14" />
+      {/* reflexo de plástico: só aparece onde o CSS pede (botão do clima na Home) */}
+      <path className="wx-gloss wx-gloss--line" d="M15.500 25.500c1-3.800 4.200-6.200 8-6.300" />
+    </g>
+  )
 }
 
 export function WeatherIcon({ kind, isDay = true, size = 40, className = '' }: WeatherIconProps) {

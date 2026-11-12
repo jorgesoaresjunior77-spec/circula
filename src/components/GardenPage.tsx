@@ -29,7 +29,7 @@ interface GardenPageProps {
   onOpenAgenda?: () => void
 }
 
-// Página do Meu Jardim: flor do mês e árvore do ano, uma embaixo da outra.
+// Página do Meu Jardim: flor do mês e girassol do ano, um embaixo do outro.
 export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenAgenda }: GardenPageProps) {
   const g = useGardenMonth(communityId, profileId)
   const [busy, setBusy] = useState(false)
@@ -103,10 +103,11 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
       </m.article>
 
       <m.article className="garden-panel" {...inViewOnce} variants={riseVariants}>
-        <h3>Árvore de {g.today.year}</h3>
+        <h3>Girassol de {g.today.year}</h3>
         <YearTree monthsDone={monthsDone} />
         <p className="garden-check-sub">
-          Cada copa acende quando você completa todos os dias do mês.
+          Cada pétala fica dourada quando você completa todos os dias do mês. O girassol acompanha o sol ao
+          longo do dia.
         </p>
       </m.article>
     </section>

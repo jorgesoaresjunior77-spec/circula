@@ -26,6 +26,7 @@ function CoffeeIcon() {
         strokeLinejoin="round"
       />
       <path d="M34 23h2.500a4.500 4.500 0 0 1 0 9H33" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path className="tool-gloss" d="M14 23.500c0 4 1.200 7.500 3.600 10" />
       <path d="M8 42h28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
@@ -42,6 +43,7 @@ function WaterIcon() {
         fill="currentColor"
         fillOpacity="0.14"
       />
+      <path className="tool-gloss" d="M19.500 17c-2 3-3.200 5.400-3.200 8" />
       <circle className="tool-drip tool-drip--1" cx="14" cy="38" r="1.8" fill="currentColor" />
       <circle className="tool-drip tool-drip--2" cx="24" cy="38" r="1.8" fill="currentColor" />
       <circle className="tool-drip tool-drip--3" cx="34" cy="38" r="1.8" fill="currentColor" />
@@ -60,6 +62,7 @@ function HeartIcon() {
         strokeWidth="2"
         strokeLinejoin="round"
       />
+      <path className="tool-gloss" d="M12 19.500c0-3.500 2.400-5.800 5.200-6" />
     </svg>
   )
 }
