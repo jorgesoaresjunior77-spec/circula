@@ -106,6 +106,15 @@ export function AnalogClock() {
       onPointerCancel={onTiltEnd}
     >
       <div className="home-clock-glass">
+        {/* Sombra no "chão": desliza e respira junto com o balanço do relógio. */}
+        {!reduced && (
+          <motion.span
+            className="home-clock-shadow"
+            aria-hidden="true"
+            animate={{ x: [-7, 7], scaleX: [0.9, 1.08], opacity: [0.7, 1] }}
+            transition={{ duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+          />
+        )}
         <div className="home-clock-3d" ref={tiltRef}>
           {/* Camada 1 — marcações */}
           <svg {...layer} className="clock-layer clock-layer--face">

@@ -4,6 +4,7 @@ import { HabitWoman } from './HabitWoman'
 import { ImcAvatar } from './ImcAvatar'
 import { detectBottleEnv, shouldUse3D } from '../lib/waterBottle3d'
 import type { ImcBand } from '../lib/imc'
+import { m, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
 // Escolhe a ilustração da boneca: 3D animada (Three.js) quando o aparelho dá
 // conta e a pessoa não pediu menos movimento; senão, a ilustração em SVG de
@@ -23,6 +24,21 @@ class Doll3DBoundary extends Component<{ fallback: ReactNode; children: ReactNod
   }
 }
 
+/** Moldura animada: a ilustração surge com mola e "responde" ao toque. */
+function DollMotion({ children }: { children: ReactNode }) {
+  return (
+    <m.div
+      className="doll-motion"
+      initial={{ opacity: 0, scale: 0.86, y: 14 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={SPRING_SOFT}
+      whileTap={{ scale: 1.05, transition: SPRING_TAP }}
+    >
+      {children}
+    </m.div>
+  )
+}
+
 function useDoll3D(): boolean {
   return useMemo(() => shouldUse3D(detectBottleEnv()), [])
 }
@@ -32,8 +48,9 @@ export function HabitWomanView({ done, checked }: { done: number; checked: Reado
   const use3D = useDoll3D()
   const [failed, setFailed] = useState(false)
   const svg = <HabitWoman done={done} checked={checked} />
-  if (!use3D || failed) return svg
+  if (!use3D || failed) return <DollMotion>{svg}</DollMotion>
   return (
+    <DollMotion>
     <Doll3DBoundary fallback={svg}>
       <Suspense fallback={svg}>
         <Doll3D
@@ -45,6 +62,7 @@ export function HabitWomanView({ done, checked }: { done: number; checked: Reado
         />
       </Suspense>
     </Doll3DBoundary>
+    </DollMotion>
   )
 }
 
@@ -53,12 +71,14 @@ export function ImcAvatarView({ band }: { band: ImcBand }) {
   const use3D = useDoll3D()
   const [failed, setFailed] = useState(false)
   const svg = <ImcAvatar band={band} />
-  if (!use3D || failed) return svg
+  if (!use3D || failed) return <DollMotion>{svg}</DollMotion>
   return (
+    <DollMotion>
     <Doll3DBoundary fallback={svg}>
       <Suspense fallback={svg}>
         <Doll3D mode="imc" band={band} ariaLabel="Ilustração feminina representativa" onFail={() => setFailed(true)} />
       </Suspense>
     </Doll3DBoundary>
+    </DollMotion>
   )
 }

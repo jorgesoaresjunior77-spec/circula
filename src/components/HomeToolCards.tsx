@@ -79,7 +79,7 @@ const toolsStagger = staggerVariants(0.09, 0.05)
 export function HomeToolCards({ onNavigate }: Props) {
   return (
     <m.section className="home-tools home-tools--icons" aria-label="Ferramentas" {...inViewOnce} variants={toolsStagger}>
-      {TOOLS.map(({ key, title, Icon }) => (
+      {TOOLS.map(({ key, title, Icon }, i) => (
         <m.button
           key={key}
           type="button"
@@ -93,9 +93,15 @@ export function HomeToolCards({ onNavigate }: Props) {
           <span className="home-tool-title" aria-hidden="true">
             {title}
           </span>
-          <span className="home-tool-media" aria-hidden="true">
+          <m.span
+            className="home-tool-media"
+            aria-hidden="true"
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: i * 0.5 }}
+          >
             <Icon />
-          </span>
+          </m.span>
+          <span className="home-tool-shadow" aria-hidden="true" />
         </m.button>
       ))}
     </m.section>

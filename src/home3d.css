@@ -470,3 +470,202 @@
 .home-time .home-week .home-week-title--long {
   font-size: 11.5px;
 }
+
+/* ======================================================================
+   Home (2026-11-12, 4ª rodada): tudo mais para cima, banner mais baixo,
+   agenda com setas afastadas, relógio só com sombra, ícones com mais 3D.
+   ====================================================================== */
+
+/* ---- Topo: marca, saudação, clima e banner sobem ----------------------------- */
+.dashboard-header {
+  margin-top: -6px;
+  padding-bottom: 10px;
+}
+
+.dashboard-community-cover .home-greeting {
+  margin: -12px 0 12px;
+}
+
+.home-greeting .weather-button {
+  transform: translateY(-12px);
+}
+
+.weather-icon-float {
+  display: inline-flex;
+  filter: drop-shadow(0 5px 4px rgba(40, 32, 26, 0.22));
+}
+
+/* Banner mais 10% mais baixo (169 -> 152). */
+.home-community-cover--glass {
+  height: 152px;
+}
+
+@media (min-width: 768px) {
+  .home-community-cover--glass {
+    height: 176px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-community-cover--glass {
+    height: 202px;
+  }
+}
+
+.dashboard-community-cover {
+  margin-bottom: -4px;
+}
+
+/* ---- Atalhos: sobem; ícones com relevo e sombra no chão; água 10% maior ------- */
+.home-tools.home-tools--icons {
+  margin-top: -4px;
+  padding-top: 4px;
+}
+
+.home-tools--icons .home-tool-media {
+  overflow: visible;
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.95))
+    drop-shadow(0 7px 5px rgba(40, 32, 26, 0.3));
+}
+
+.home-tools--icons .home-tool-media .tool-icon--water {
+  width: 53px;
+  height: 53px;
+}
+
+.home-tool-shadow {
+  display: block;
+  width: 34px;
+  height: 7px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.3), rgba(40, 32, 26, 0) 70%);
+}
+
+/* ---- Linhas: agenda/relógio mais perto do Menu; Círculos mais para cima -------- */
+.home-tools--icons + .home-section-divider {
+  margin-top: -16px;
+  margin-bottom: -8px;
+}
+
+.exp-strip--hoje + .home-section-divider {
+  margin-top: -14px;
+  margin-bottom: -18px;
+}
+
+.home-time + .home-section-divider {
+  margin-top: 0;
+  margin-bottom: -8px;
+}
+
+/* ---- Agenda: 10% mais larga, setas na linha da palavra "Agenda", nas pontas ---- */
+.home-time {
+  padding-left: 8px;
+}
+
+.home-time > .home-week {
+  flex: 1 1 50%;
+}
+
+.home-time > .home-clock {
+  flex: 1 1 50%;
+}
+
+.home-time .home-week .home-week-arrow {
+  top: -9px;
+}
+
+.home-time .home-week .home-week-arrow--prev {
+  left: -2px;
+}
+
+.home-time .home-week .home-week-arrow--next {
+  right: -2px;
+}
+
+.home-time .home-week .home-week-title {
+  font-size: 14.5px;
+}
+
+/* Mais profundidade: lâmina mais inclinada, dias mais altos, sombra no chão. */
+.home-time .home-week .home-week-open {
+  position: relative;
+}
+
+.home-time .home-week .home-week-open::after {
+  content: '';
+  position: absolute;
+  right: 12%;
+  bottom: -6px;
+  left: 12%;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.26), rgba(40, 32, 26, 0) 70%);
+  transform: translateZ(-14px);
+  pointer-events: none;
+}
+
+.home-time .home-week .home-week-day {
+  transform: translateZ(14px);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px rgba(53, 48, 44, 0.1),
+    0 6px 8px -2px rgba(53, 48, 44, 0.36);
+}
+
+.home-time .home-week .home-week-day--today {
+  transform: translateZ(24px);
+  animation: today-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes today-pulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 2px 2px rgba(255, 255, 255, 0.28),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+      0 7px 9px -2px rgba(53, 48, 44, 0.55),
+      0 0 0 0 rgba(122, 96, 79, 0.45);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 2px rgba(255, 255, 255, 0.28),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+      0 9px 12px -2px rgba(53, 48, 44, 0.6),
+      0 0 0 5px rgba(122, 96, 79, 0);
+  }
+}
+
+/* ---- Relógio: sem o círculo branco; só a sombra (viva, com Motion) -------------- */
+.home-clock .home-clock-glass::before,
+.home-clock .home-clock-glass::after {
+  content: none;
+}
+
+.home-clock-shadow {
+  position: absolute;
+  right: 12%;
+  bottom: -13%;
+  left: 12%;
+  height: 13%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.4), rgba(40, 32, 26, 0.12) 45%, rgba(40, 32, 26, 0) 72%);
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+/* ---- Boneca e garrafa: molduras do Motion não mudam o tamanho de nada ---------- */
+.doll-motion,
+.bottle-motion {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-time .home-week .home-week-day--today {
+    animation: none;
+  }
+}

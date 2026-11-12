@@ -2,6 +2,7 @@ import { Component, lazy, Suspense, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { WaterBottle } from './WaterBottle'
 import { detectBottleEnv, shouldUse3D } from '../lib/waterBottle3d'
+import { m, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
 // Escolhe a garrafa da página de Água: 3D (Three.js) quando o aparelho dá conta
 // e a pessoa não pediu menos movimento; senão, a garrafa SVG de sempre. O 3D é
@@ -26,17 +27,34 @@ class Bottle3DBoundary extends Component<{ fallback: ReactNode; children: ReactN
   }
 }
 
+/** Moldura animada: surge com mola, cede ao toque e comemora a meta com um pulo. */
+function BottleMotion({ celebrating, children }: { celebrating: boolean; children: ReactNode }) {
+  return (
+    <m.div
+      className="bottle-motion"
+      initial={{ opacity: 0, scale: 0.88, y: 16 }}
+      animate={celebrating ? { opacity: 1, scale: [1, 1.07, 0.98, 1], y: [0, -10, 0] } : { opacity: 1, scale: 1, y: 0 }}
+      transition={celebrating ? { duration: 0.9, ease: 'easeOut' } : SPRING_SOFT}
+      whileTap={{ scale: 1.04, transition: SPRING_TAP }}
+    >
+      {children}
+    </m.div>
+  )
+}
+
 export function WaterBottleView({ progress, celebrating = false }: Props) {
   const use3D = useMemo(() => shouldUse3D(detectBottleEnv()), [])
   const [failed, setFailed] = useState(false)
   const svg = <WaterBottle progress={progress} celebrating={celebrating} />
 
-  if (!use3D || failed) return svg
+  if (!use3D || failed) return <BottleMotion celebrating={celebrating}>{svg}</BottleMotion>
   return (
+    <BottleMotion celebrating={celebrating}>
     <Bottle3DBoundary fallback={svg}>
       <Suspense fallback={svg}>
         <WaterBottle3D progress={progress} celebrating={celebrating} onFail={() => setFailed(true)} />
       </Suspense>
     </Bottle3DBoundary>
+    </BottleMotion>
   )
 }
