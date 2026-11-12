@@ -21,6 +21,11 @@ import { useProductEntitlements } from '../hooks/useProductEntitlements'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { shelfRows } from '../lib/storeShelves'
+import { useMyPackages } from '../hooks/usePackageAccess'
+import { canReadEbooks } from '../lib/packages'
+import { isDigitalProductType } from '../types/product'
+import { ProductPagesEditor } from './ProductPagesEditor'
+import { ProductReader } from './ProductReader'
 import { AnimatePresence, m, inViewOnce, riseVariants, staggerVariants, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
 const shelfStagger = staggerVariants(0.07, 0.1)
@@ -323,6 +328,12 @@ export function ProductManager({
 
   const [actionError, setActionError] = useState<string | null>(null)
 
+  // Membro: tem o pacote de E-books (ou o plano completo)? E qual e-book está aberto no leitor.
+  const { packages } = useMyPackages(communityId, profileId, showBuy)
+  const canRead = canReadEbooks(packages)
+  const [readingId, setReadingId] = useState<string | null>(null)
+  const readingProduct = readingId ? (products.find((p) => p.id === readingId) ?? null) : null
+
   // Fundo da Loja (só a vitrine da membro usa): imagem própria ou, sem ela, o
   // banner grande da Loja. Sem nenhuma, fica o degradê do CSS.
   const { images: cardImages } = useCommunityCardImages(showBuy ? communityId : null)
@@ -369,6 +380,11 @@ export function ProductManager({
         ? (p: Product) => buyProduct(p.id).then((r) => ({ error: r.error, invoiceUrl: r.invoiceUrl }))
         : undefined,
       onOpenPlans,
+      canRead,
+      onRead: (p: Product) => {
+        setSelectedProductId(null)
+        setReadingId(p.id)
+      },
     }
   }
 
@@ -572,6 +588,9 @@ export function ProductManager({
                     values={editDraft}
                     onChange={(patch) => setEditDraft((prev) => ({ ...prev, ...patch }))}
                   />
+                  {isDigitalProductType(product.type) && (
+                    <ProductPagesEditor productId={product.id} communityId={communityId} profileId={profileId} />
+                  )}
                   {editError && <p className="auth-error">{editError}</p>}
                   <div className="question-item-actions">
                     <button type="button" className="auth-link" onClick={() => setEditingId(null)}>
@@ -701,6 +720,8 @@ export function ProductManager({
         </m.div>
       )}
       </AnimatePresence>
+
+      {showBuy && readingProduct && <ProductReader product={readingProduct} onClose={() => setReadingId(null)} />}
     </section>
   )
 }

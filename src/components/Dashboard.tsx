@@ -1,4 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
+import { useMyPackages } from '../hooks/usePackageAccess'
+import { canUseHelpNutri } from '../lib/packages'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
@@ -153,11 +155,6 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-// Help Nutri é um serviço de pacote pago à parte. Enquanto a cobrança desse
-// pacote não existe no sistema (não há como saber quem contratou), o acesso
-// fica aberto a todas as membros. Quando existir, troque por essa checagem.
-const HELP_NUTRI_OPEN_TO_ALL = true
-
 const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
 
 export function Dashboard({
@@ -184,6 +181,12 @@ export function Dashboard({
     setCommunityCover,
     updateCommunity,
   } = useCommunity(profile)
+
+  // Pacotes pagos à parte (Help Nutri, E-books, plano completo) da membro, na
+  // comunidade dela. Sem pacote liberado, o Help Nutri fica bloqueado.
+  const packageCommunityId =
+    communities.find((c) => c.community_members.some((mb) => mb.profile?.id === profile?.id))?.id ?? null
+  const { packages: myPackages } = useMyPackages(packageCommunityId, profile?.id ?? null, profile?.role === 'member')
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
   const [feedRefreshToken, setFeedRefreshToken] = useState(0)
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
@@ -521,6 +524,17 @@ export function Dashboard({
   }
 
   // Ao clicar em "Círculos" na navegação, sempre volta para a lista.
+  // Tocar na foto ou no nome de alguém (Feed) abre o perfil dela; o próprio
+  // perfil continua sendo a página "Perfil".
+  function openProfileOf(profileId: string) {
+    if (profileId === profile?.id) {
+      handleNavigate('perfil')
+      return
+    }
+    setViewingProfileId(profileId)
+    window.scrollTo({ top: 0 })
+  }
+
   function handleNavigate(key: NavKey) {
     if (key === 'circulos') {
       setSelectedCircleId(null)
@@ -633,7 +647,7 @@ export function Dashboard({
           loading={conversationsLoading}
           onStartConversation={startConversation}
           onActivity={refreshConversations}
-          hasAccess={HELP_NUTRI_OPEN_TO_ALL}
+          hasAccess={canUseHelpNutri(myPackages)}
           onOpenPlans={() => handleNavigate('planos')}
         />
       )
@@ -720,6 +734,7 @@ export function Dashboard({
             refreshToken={feedRefreshToken}
             authorName={profile.full_name}
             authorAvatarUrl={profile.avatar_url}
+            onOpenAuthor={openProfileOf}
           />
         </>
       )
@@ -1086,6 +1101,7 @@ export function Dashboard({
             refreshToken={feedRefreshToken}
             authorName={profile.full_name}
             authorAvatarUrl={profile.avatar_url}
+            onOpenAuthor={openProfileOf}
           />
         </>
       )
@@ -1220,8 +1236,11 @@ export function Dashboard({
           <ProfileCard
             profileId={viewingProfileId}
             onClose={() => setViewingProfileId(null)}
+            communityId={myCommunities[0]?.id ?? communities[0]?.id ?? null}
+            // Membro só conversa com a nutri (Help Nutri): o botão de mensagem
+            // no perfil de outra pessoa fica só para a profissional.
             onStartConversation={
-              conversationsEnabled && viewingProfileId !== profile?.id
+              conversationsEnabled && profile?.role === 'professional' && viewingProfileId !== profile?.id
                 ? openConversationWith
                 : undefined
             }

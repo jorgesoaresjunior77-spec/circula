@@ -33,6 +33,10 @@ interface ProductCardProps {
   onSelect?: (product: Product) => void
   /** Leva à página de Planos (produto digital com cadeado). */
   onOpenPlans?: () => void
+  /** A membro tem o pacote de E-books ou o plano completo. */
+  canRead?: boolean
+  /** Abre o e-book no leitor, dentro do Círcula. */
+  onRead?: (product: Product) => void
 }
 
 function LockIcon() {
@@ -53,6 +57,8 @@ export function ProductCard({
   variant = 'grid',
   onSelect,
   onOpenPlans,
+  canRead = false,
+  onRead,
 }: ProductCardProps) {
   const inactive = product.status !== 'published'
   const showEventInfo =
@@ -67,8 +73,10 @@ export function ProductCard({
   // Produto não físico já adquirido não pode ser comprado de novo (a regra é
   // reforçada no servidor por create_product_order + índice parcial).
   const alreadyOwned = owned && !isPhysical
-  // Digital sem acesso: cadeado + Planos, sem preço avulso.
-  const planLocked = purchasable && isDigital && !alreadyOwned
+  // Digital: quem tem o pacote lê aqui mesmo; quem não tem vê o cadeado e o
+  // caminho para Planos. Em nenhum dos casos há preço avulso.
+  const readable = purchasable && isDigital && (canRead || alreadyOwned)
+  const planLocked = purchasable && isDigital && !readable
 
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [lastInvoiceUrl, setLastInvoiceUrl] = useState<string | null>(null)
@@ -190,7 +198,16 @@ export function ProductCard({
           </div>
         )}
 
-        {!planLocked && <p className="product-card-price">{formatPriceBRL(product.price_cents)}</p>}
+        {!planLocked && !readable && <p className="product-card-price">{formatPriceBRL(product.price_cents)}</p>}
+
+        {readable && (
+          <div className="product-card-cta">
+            <button type="button" className="btn btn-primary" onClick={() => onRead?.(product)}>
+              Ler agora
+            </button>
+            <span className="product-card-owned">Leitura dentro do Círcula, sem baixar nada.</span>
+          </div>
+        )}
 
         {planLocked && (
           <div className="product-card-cta product-card-lock">
@@ -206,7 +223,7 @@ export function ProductCard({
           </div>
         )}
 
-        {purchasable && !planLocked && (
+        {purchasable && !planLocked && !readable && (
           <div className="product-card-cta">
             {alreadyOwned ? (
               <span className="product-card-owned">✓ Adquirido</span>

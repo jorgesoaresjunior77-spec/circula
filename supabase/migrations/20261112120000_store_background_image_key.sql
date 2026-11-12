@@ -1,7 +1,7 @@
 -- =====================================================================
 -- Imagem de fundo da Loja (atrás das prateleiras)
 -- =====================================================================
--- NÃO APLICADA — aguardando OK explícito do usuário.
+-- APLICADA em 2026-11-12 (OK do usuário).
 --
 -- community_card_images ganha 1 chave nova: 'loja_fundo'.
 -- Só amplia o CHECK de card_key. Aditiva, idempotente, transacional,

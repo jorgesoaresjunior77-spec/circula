@@ -51,9 +51,18 @@ describe('ProductCard — produtos digitais pelo plano', () => {
     open.mockRestore()
   })
 
-  it('e-book já adquirido continua aparecendo como adquirido', () => {
+  it('quem tem o pacote lê dentro do Círcula: botão "Ler agora", sem cadeado nem preço', () => {
+    const onRead = vi.fn()
+    render(<ProductCard product={product()} canBuy canRead onRead={onRead} onOpenPlans={() => {}} />)
+    expect(screen.queryByRole('button', { name: 'Ver planos' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/29,90/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Ler agora' }))
+    expect(onRead).toHaveBeenCalledTimes(1)
+  })
+
+  it('e-book já adquirido antes também pode ser lido', () => {
     render(<ProductCard product={product()} canBuy owned onOpenPlans={() => {}} />)
-    expect(screen.getByText(/Adquirido/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ler agora' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Ver planos' })).not.toBeInTheDocument()
   })
 

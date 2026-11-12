@@ -1,3 +1,4 @@
+import { PackageAccessManager } from './PackageAccessManager'
 import { useState } from 'react'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
 import { SubscriptionPanel } from './SubscriptionPanel'
@@ -244,6 +245,7 @@ export function ProfessionalPanel({
 
           {assinaturasSubTab === 'assinaturas' && (
             <>
+              <PackageAccessManager community={community} profileId={profileId} />
               <SubscriptionPanel subject="platform" />
               {/* FASE 16.1 — onboarding financeiro: conectar a conta Asaas
                   recebedora do split 90/10. Só a anfitriã chega ao painel. */}

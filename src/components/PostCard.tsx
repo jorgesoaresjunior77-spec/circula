@@ -12,6 +12,8 @@ import { GardenDailyPostCard } from './GardenDailyPostCard'
 import { GardenShareCard } from './GardenShareCard'
 
 interface PostCardProps {
+  /** Abre o perfil de quem publicou (toque na foto ou no nome). */
+  onOpenAuthor?: (profileId: string) => void
   post: Post
   reactionCount: number
   hasReacted: boolean
@@ -67,6 +69,7 @@ export function PostCard({
   inlineConversation = false,
   topLevelCount = 0,
   mediaAside = false,
+  onOpenAuthor,
 }: PostCardProps) {
   const name = post.author?.full_name ?? 'Participante'
   const { url: postImageUrl } = useSignedImageUrl(post.image_url)
@@ -186,15 +189,38 @@ export function PostCard({
     <article className={`post-card${cardVariant}${editorialVariant}${mediaAsideVariant}`}>
       <div className="post-card-body">
       <div className="post-card-header">
-        <div className="post-avatar" aria-hidden="true">
-          {post.author?.avatar_url ? (
-            <img loading="lazy" decoding="async" src={post.author.avatar_url} alt="" />
-          ) : (
-            <span>{name.charAt(0).toUpperCase()}</span>
-          )}
-        </div>
+        {onOpenAuthor ? (
+          <button
+            type="button"
+            className="post-avatar post-avatar--open"
+            onClick={() => onOpenAuthor(post.author_id)}
+            aria-label={`Ver o perfil de ${name}`}
+          >
+            {post.author?.avatar_url ? (
+              <img loading="lazy" decoding="async" src={post.author.avatar_url} alt="" />
+            ) : (
+              <span>{name.charAt(0).toUpperCase()}</span>
+            )}
+          </button>
+        ) : (
+          <div className="post-avatar" aria-hidden="true">
+            {post.author?.avatar_url ? (
+              <img loading="lazy" decoding="async" src={post.author.avatar_url} alt="" />
+            ) : (
+              <span>{name.charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+        )}
         <div>
-          <p className="post-author">{name}</p>
+          <p className="post-author">
+            {onOpenAuthor ? (
+              <button type="button" className="post-author-open" onClick={() => onOpenAuthor(post.author_id)}>
+                {name}
+              </button>
+            ) : (
+              name
+            )}
+          </p>
           <p className="post-time">{formatRelativeTime(post.created_at)}</p>
         </div>
       </div>

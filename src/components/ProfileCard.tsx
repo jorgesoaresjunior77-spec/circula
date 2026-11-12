@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { ProfileOverview } from '../types/profile'
 import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
+import { GardenProfileSummary } from './GardenProfileSummary'
 import { ProfileBanner } from './ProfileBanner'
 
 interface ViewedProfile {
@@ -21,6 +22,8 @@ interface ProfileCardProps {
   onClose: () => void
   /** Quando definido, mostra "Enviar mensagem" (abre/inicia a conversa). */
   onStartConversation?: (profileId: string) => void
+  /** Comunidade em comum: mostra o Meu Jardim da pessoa visitada. */
+  communityId?: string | null
 }
 
 const OVERVIEW_LABELS: { key: keyof ProfileOverview; label: string }[] = [
@@ -31,7 +34,7 @@ const OVERVIEW_LABELS: { key: keyof ProfileOverview; label: string }[] = [
   { key: 'events', label: 'eventos' },
 ]
 
-export function ProfileCard({ profileId, onClose, onStartConversation }: ProfileCardProps) {
+export function ProfileCard({ profileId, onClose, onStartConversation, communityId = null }: ProfileCardProps) {
   const [profile, setProfile] = useState<ViewedProfile | null>(null)
   const [overview, setOverview] = useState<ProfileOverview | null>(null)
   const [loading, setLoading] = useState(true)
@@ -141,6 +144,13 @@ export function ProfileCard({ profileId, onClose, onStartConversation }: Profile
             <div className="profile-gallery-section">
               <p className="profile-section-label">Fotos</p>
               <ProfileGallery photos={profile.gallery_photos} />
+            </div>
+          )}
+
+          {communityId && (
+            <div className="profile-garden-section">
+              <p className="profile-section-label">Meu Jardim</p>
+              <GardenProfileSummary communityId={communityId} profileId={profileId} />
             </div>
           )}
 

@@ -121,7 +121,7 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     hint: 'Banner grande da vitrine da Loja na Home — independente da capa do card compacto acima.',
   },
   /** Chave nova: só existe no banco depois da migration 20261112120000
-   *  (preparada, NÃO aplicada). Até lá, salvar devolve erro de constraint e a
+   *  (aplicada em 2026-11-12). Sem imagem cadastrada, a
    *  Loja usa o banner grande da Loja (acima) como fundo. */
   {
     key: 'loja_fundo',

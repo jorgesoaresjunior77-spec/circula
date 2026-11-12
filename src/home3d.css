@@ -1165,3 +1165,144 @@ button.water-primary.water-primary--big {
 .profile-info-block:empty {
   display: none;
 }
+
+/* ======================================================================
+   Pacotes, leitura de e-books e perfil de outras membros (2026-11-12)
+   ====================================================================== */
+
+/* Painel: liberar pacotes por membro. */
+.package-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: 20px 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 20px 28px -18px rgba(40, 32, 26, 0.36);
+  text-align: left;
+}
+
+.package-manager h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+
+.package-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--graphite-soft);
+}
+
+.package-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.package-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--circula-champagne-line);
+}
+
+.package-row-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.package-row-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.package-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 13.5px;
+  color: var(--graphite-soft);
+  cursor: pointer;
+}
+
+.package-chip input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--circula-mocha);
+}
+
+.package-chip--on {
+  border-color: var(--circula-mocha);
+  background: var(--circula-champagne-tint);
+  color: var(--circula-mocha);
+  font-weight: 600;
+}
+
+/* Loja: aviso enquanto o e-book abre (ou se ainda não tem páginas). */
+.product-reader-note {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--bottom-nav-h) + 40px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--elev-4);
+  text-align: center;
+}
+
+.product-reader-note p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+/* Feed: a foto e o nome de quem publicou abrem o perfil. */
+button.post-avatar.post-avatar--open {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.post-author-open {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}

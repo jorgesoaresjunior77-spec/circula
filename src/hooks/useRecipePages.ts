@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 // Páginas (imagens) de uma receita em formato de revista. A RLS decide o
 // que cada papel enxerga (membro: só de receita publicada).
 
-export const RECIPE_PAGES_MAX = 8
+export const RECIPE_PAGES_MAX = 5
 
 export interface RecipePage {
   id: string

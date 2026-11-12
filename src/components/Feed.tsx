@@ -12,6 +12,8 @@ import { EmptyState } from './EmptyState'
 const FEED_PAGE_SIZE = 6
 
 interface FeedProps {
+  /** Abre o perfil de quem publicou. */
+  onOpenAuthor?: (profileId: string) => void
   communityId: string
   authorId: string
   canPost: boolean
@@ -34,6 +36,7 @@ export function Feed({
   circleName,
   authorName,
   authorAvatarUrl,
+  onOpenAuthor,
 }: FeedProps) {
   const {
     posts,
@@ -108,6 +111,7 @@ export function Feed({
                 topLevelCount={topLevelCounts[post.id] ?? 0}
                 isSaved={savedPostIds.has(post.id)}
                 onToggleSave={(saved) => toggleSavedPost(post.id, saved)}
+                onOpenAuthor={onOpenAuthor}
               />
             ))}
           </div>
