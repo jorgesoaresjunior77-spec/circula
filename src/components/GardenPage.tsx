@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { daysInMonth, useGardenMonth } from '../hooks/useGardenMonth'
 import { MonthFlower, YearTree } from './GardenArt'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
+import { m, inViewOnce, riseVariants, SPRING_TAP } from '../lib/motionKit'
 
 export const MONTH_NAMES = [
   'Janeiro',
@@ -60,7 +61,7 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
 
       {onOpenAgenda && <HomeWeekCalendar onOpen={onOpenAgenda} />}
 
-      <article className="garden-panel">
+      <m.article className="garden-panel" {...inViewOnce} variants={riseVariants}>
         <h3>
           {MONTH_NAMES[g.today.month - 1]}
           {current?.title ? ` · ${current.title}` : ''}
@@ -77,14 +78,15 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
                 <p className="garden-done">Check feito hoje! Sua flor acendeu mais uma pétala. 🌸</p>
               ) : (
                 <>
-                  <button
+                  <m.button
                     type="button"
                     className="garden-check-btn"
+                    whileTap={{ scale: 0.94, transition: SPRING_TAP }}
                     onClick={() => void handleCheck()}
                     disabled={busy}
                   >
                     CHECK!
-                  </button>
+                  </m.button>
                   <p className="garden-check-sub">Você executou o desafio do dia? Parabéns!</p>
                 </>
               )}
@@ -98,15 +100,15 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
               : 'O desafio deste mês ainda não foi publicado.'}
           </p>
         )}
-      </article>
+      </m.article>
 
-      <article className="garden-panel">
+      <m.article className="garden-panel" {...inViewOnce} variants={riseVariants}>
         <h3>Árvore de {g.today.year}</h3>
         <YearTree monthsDone={monthsDone} />
         <p className="garden-check-sub">
           Cada copa acende quando você completa todos os dias do mês.
         </p>
-      </article>
+      </m.article>
     </section>
   )
 }

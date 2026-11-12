@@ -107,18 +107,30 @@ export function WaterPage({ profileId }: WaterPageProps) {
         <h3>Sua meta de hoje</h3>
         {showWeightForm ? (
           <form className="water-weight-form" onSubmit={(e) => void handleWeight(e)}>
-            <label>
-              Seu peso (kg)
-              <input
-                type="text"
-                inputMode="decimal"
-                placeholder="Ex.: 62,5"
-                value={weightInput}
-                onChange={(e) => setWeightInput(e.target.value)}
-              />
-            </label>
+            <div className="imc-field">
+              <label htmlFor="water-weight">Seu peso (kg)</label>
+              <div className="imc-input">
+                <input
+                  id="water-weight"
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  enterKeyHint="go"
+                  placeholder="62,5"
+                  value={weightInput}
+                  onChange={(e) => setWeightInput(e.target.value)}
+                  aria-describedby="water-weight-hint"
+                />
+                <span className="imc-unit" aria-hidden="true">
+                  kg
+                </span>
+              </div>
+              <p className="imc-hint" id="water-weight-hint">
+                Use vírgula ou ponto, como 62,5
+              </p>
+            </div>
             <div className="water-actions">
-              <button type="submit" className="water-primary" disabled={busy}>
+              <button type="submit" className="water-primary water-primary--big" disabled={busy}>
                 Calcular minha meta
               </button>
               {editingWeight && (

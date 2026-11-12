@@ -1,3 +1,4 @@
+import { HelpNutriChat } from './HelpNutriChat'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
@@ -152,7 +153,12 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes']
+// Help Nutri é um serviço de pacote pago à parte. Enquanto a cobrança desse
+// pacote não existe no sistema (não há como saber quem contratou), o acesso
+// fica aberto a todas as membros. Quando existir, troque por essa checagem.
+const HELP_NUTRI_OPEN_TO_ALL = true
+
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
 
 export function Dashboard({
   profile,
@@ -613,6 +619,22 @@ export function Dashboard({
           onConsumedInitial={() => setPendingConversationId(null)}
           onStartConversation={startConversation}
           onActivity={refreshConversations}
+        />
+      )
+    }
+
+    if (effectiveNav === 'mensagens' && profile.role === 'member') {
+      // Membro: só a conversa com a nutri (sem busca de outras pessoas).
+      return (
+        <HelpNutriChat
+          myProfileId={profile.id}
+          nutriProfileId={myCommunities[0]?.owner_id ?? null}
+          conversations={conversations}
+          loading={conversationsLoading}
+          onStartConversation={startConversation}
+          onActivity={refreshConversations}
+          hasAccess={HELP_NUTRI_OPEN_TO_ALL}
+          onOpenPlans={() => handleNavigate('planos')}
         />
       )
     }

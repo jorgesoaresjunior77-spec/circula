@@ -8,8 +8,14 @@ interface ConversationViewProps {
   conversationId: string
   myProfileId: string
   peer: ConversationPeer | null
-  onBack: () => void
+  /** Sem isto, a conversa não mostra o botão de voltar (Help Nutri da membro). */
+  onBack?: () => void
   onActivity: () => void
+  /**
+   * Help Nutri: a membro envia UMA mensagem e aguarda. Enquanto a outra
+   * pessoa não responder, o campo de mensagem fica fechado.
+   */
+  singleUntilReply?: boolean
 }
 
 const TIME_FMT = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' })
@@ -20,6 +26,7 @@ export function ConversationView({
   peer,
   onBack,
   onActivity,
+  singleUntilReply = false,
 }: ConversationViewProps) {
   const { messages, otherLastReadAt, loading, error, sending, sendMessage, markRead } =
     useConversation(conversationId, myProfileId)
@@ -37,18 +44,22 @@ export function ConversationView({
 
   const myLastOutgoing = [...messages].reverse().find((m) => m.sender_id === myProfileId)
   const peerName = peer?.full_name ?? 'Participante'
+  const peerReplied = messages.some((m) => m.sender_id !== myProfileId)
+  const waitingReply = singleUntilReply && !loading && !!myLastOutgoing && !peerReplied
 
   return (
     <div className="conversation-view">
       <header className="conversation-view-head">
-        <button
-          type="button"
-          className="conversation-back"
-          onClick={onBack}
-          aria-label="Voltar para a lista de conversas"
-        >
-          <ChevronLeftIcon />
-        </button>
+        {onBack && (
+          <button
+            type="button"
+            className="conversation-back"
+            onClick={onBack}
+            aria-label="Voltar para a lista de conversas"
+          >
+            <ChevronLeftIcon />
+          </button>
+        )}
         <span className="conversation-avatar" aria-hidden="true">
           {peer?.avatar_url ? (
             <img loading="lazy" decoding="async" src={peer.avatar_url} alt="" />
@@ -90,14 +101,21 @@ export function ConversationView({
         })}
       </div>
 
-      <MessageComposer
-        onSend={async (body) => {
-          const result = await sendMessage(body)
-          if (!result.error) onActivity()
-          return result
-        }}
-        disabled={sending}
-      />
+      {waitingReply ? (
+        <p className="conversation-waiting" role="status">
+          Sua mensagem foi enviada. Assim que {peerName.split(' ')[0]} responder, você poderá continuar a
+          conversa.
+        </p>
+      ) : (
+        <MessageComposer
+          onSend={async (body) => {
+            const result = await sendMessage(body)
+            if (!result.error) onActivity()
+            return result
+          }}
+          disabled={sending}
+        />
+      )}
     </div>
   )
 }

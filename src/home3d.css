@@ -769,3 +769,399 @@
 .partner-seq {
   padding-bottom: 8px;
 }
+
+/* ======================================================================
+   2026-11-12, 6ª rodada: Água (campo de peso como o do IMC), Help Nutri,
+   Eventos e Receitas no padrão de cartões do app.
+   ====================================================================== */
+
+/* ---- Água: o campo de peso usa as peças do IMC (.imc-field/.imc-input) --------- */
+.water-page .water-weight-form .imc-field label {
+  flex-direction: row;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.water-page .water-weight-form .imc-input input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 26px;
+  color: var(--circula-mocha);
+}
+
+.water-page .water-weight-form .imc-input input::placeholder {
+  color: var(--circula-beige);
+}
+
+button.water-primary.water-primary--big {
+  min-height: 52px;
+  padding: 0 26px;
+  background: linear-gradient(135deg, var(--circula-mocha), #7a604f);
+  box-shadow: var(--elev-2);
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---- Help Nutri (membro): uma conversa só, com aviso da regra ------------------ */
+.help-nutri {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  text-align: left;
+}
+
+.help-nutri-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.help-nutri-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 1.15;
+  color: var(--circula-mocha);
+}
+
+.help-nutri-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.help-nutri-intro {
+  margin: 4px 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--circula-champagne-tint);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--circula-mocha);
+}
+
+.help-nutri-locked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-3);
+}
+
+.help-nutri-locked p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--graphite-soft);
+}
+
+.help-nutri-plans {
+  align-self: stretch;
+}
+
+.help-nutri .conversation-view {
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--elev-3);
+}
+
+.conversation-waiting {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--circula-champagne-line);
+  background: var(--circula-champagne-tint);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--circula-mocha);
+  text-align: center;
+}
+
+/* ---- Eventos: cartão no padrão do app (arredondado, sem borda, sombra) --------- */
+.event-card {
+  border: 0;
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg-strong);
+  box-shadow:
+    0 14px 24px -10px rgba(40, 32, 26, 0.42),
+    0 3px 8px rgba(40, 32, 26, 0.14);
+}
+
+.event-card-cover {
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  overflow: hidden;
+}
+
+.event-card-body {
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-5);
+}
+
+.event-card-footer-actions {
+  gap: var(--space-3);
+}
+
+/* Confirmar presença: botão em pílula, do tamanho do texto, sem estourar o cartão. */
+.event-card .event-rsvp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--circula-mocha), #7a604f);
+  box-shadow: var(--elev-1);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.event-card .event-rsvp-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f3d32, var(--circula-mocha));
+  color: #fff;
+}
+
+.event-card .event-rsvp-button:disabled {
+  opacity: 0.55;
+}
+
+/* ---- Receitas: cartões de categoria com a mesma sombra dos outros -------------- */
+.rec-tile {
+  box-shadow:
+    0 12px 20px -8px rgba(40, 32, 26, 0.52),
+    0 3px 8px rgba(40, 32, 26, 0.2);
+}
+
+/* ======================================================================
+   Meu Jardim e Perfil (2026-11-12): cartões de vidro líquido sem borda, com
+   sombra flutuante; bloco do desafio do dia e seletor de mês mais legíveis.
+   ====================================================================== */
+.garden-page h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 28px;
+  color: var(--circula-mocha);
+}
+
+.garden-panel,
+.garden-glass-card {
+  position: relative;
+  outline: 0;
+  border: 0;
+  border-radius: 30px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.78) 0, rgba(255, 255, 255, 0.34) 46%, rgba(255, 255, 255, 0.5) 100%);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -14px 24px -18px rgba(120, 96, 78, 0.28),
+    0 24px 34px -18px rgba(40, 32, 26, 0.42),
+    0 46px 52px -36px rgba(40, 32, 26, 0.34);
+}
+
+.garden-panel {
+  padding: 24px 18px 28px;
+}
+
+.garden-glass-card {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 14px;
+}
+
+.garden-panel h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 21px;
+  color: var(--circula-mocha);
+}
+
+.garden-art {
+  overflow: visible;
+  width: min(100%, 320px);
+}
+
+/* Desafio do dia: rótulo, texto em destaque e botão de check com relevo. */
+.garden-today {
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 18px 16px 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 10px 18px -12px rgba(40, 32, 26, 0.3);
+}
+
+.garden-today-label {
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--circula-taupe);
+}
+
+.garden-today-text {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 1.35;
+  color: var(--circula-mocha);
+}
+
+.garden-check-btn {
+  max-width: 260px;
+  padding: 15px 16px;
+  background: linear-gradient(160deg, #6fbf78, #3f8f4a);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    0 3px 0 #2f6f39,
+    0 14px 18px -8px rgba(47, 111, 57, 0.6);
+  font-family: var(--font-label);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+
+.garden-check-sub {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.garden-done {
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(111, 191, 120, 0.16);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Cadastro do mês (profissional): cartão de vidro; mês e campos grandes. */
+.garden-manager {
+  gap: 14px;
+  padding: 22px 18px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 22px 30px -18px rgba(40, 32, 26, 0.38);
+}
+
+.garden-manager h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+
+.garden-manager .rec-form-label {
+  gap: 6px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.garden-manager .rec-form-label select,
+.garden-manager .rec-form-label input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 54px;
+  padding: 0 16px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: var(--radius-lg);
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1px 2px rgba(53, 48, 44, 0.06);
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 20px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--circula-mocha);
+}
+
+.garden-manager .garden-day-field {
+  gap: 5px;
+  font-size: 13px;
+  color: var(--circula-taupe);
+}
+
+.garden-manager .garden-day-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--circula-champagne-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--graphite);
+}
+
+/* Perfil: informações da pessoa em destaque, num cartão sem borda. */
+.profile-info-block {
+  box-sizing: border-box;
+  padding: 20px 18px;
+  border: 0;
+  border-radius: 26px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.5));
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 22px 30px -18px rgba(40, 32, 26, 0.38);
+}
+
+.profile-info-block .profile-bio {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--circula-mocha);
+}
+
+.profile-info-block:empty {
+  display: none;
+}

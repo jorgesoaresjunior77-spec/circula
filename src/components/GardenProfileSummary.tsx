@@ -18,12 +18,16 @@ export function GardenProfileSummary({
   })
   return (
     <div className="garden-profile-summary">
-      {cur ? (
-        <MonthFlower days={cur.days} checked={g.checkedDays(cur.id)} />
-      ) : (
-        <p className="home-muted">Sem desafio neste mês.</p>
-      )}
-      <YearTree monthsDone={monthsDone} />
+      <div className="garden-glass-card">
+        {cur ? (
+          <MonthFlower days={cur.days} checked={g.checkedDays(cur.id)} />
+        ) : (
+          <p className="home-muted">Sem desafio neste mês.</p>
+        )}
+      </div>
+      <div className="garden-glass-card">
+        <YearTree monthsDone={monthsDone} />
+      </div>
     </div>
   )
 }
