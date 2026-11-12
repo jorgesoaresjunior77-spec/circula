@@ -1,3 +1,4 @@
+import { m } from '../lib/motionKit'
 import { useEffect, useRef, useState } from 'react'
 import { useSocialNotifications } from '../hooks/useSocialNotifications'
 import type { SocialNotification, SocialNotificationType } from '../types/notification'
@@ -90,7 +91,7 @@ export function NotificationBell({
       <button
         type="button"
         id="tour-notification-bell"
-        className="notification-bell-button"
+        className={`notification-bell-button${unreadCount > 0 ? ' notification-bell-button--ringing' : ''}`}
         aria-label={
           unreadCount > 0
             ? `Notificações, ${unreadCount} não lidas`
@@ -99,7 +100,20 @@ export function NotificationBell({
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <BellIcon size={20} />
+        {/* Com notificação, o sino balança (pendurado pelo topo) e descansa um
+            pouco entre um toque e outro; sem notificação, fica parado, em relevo. */}
+        <m.span
+          className="notification-bell-icon"
+          style={{ transformOrigin: '50% 12%' }}
+          animate={unreadCount > 0 ? { rotate: [0, -18, 15, -11, 8, -4, 0] } : { rotate: 0 }}
+          transition={
+            unreadCount > 0
+              ? { duration: 1.1, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1.8 }
+              : { duration: 0.3 }
+          }
+        >
+          <BellIcon size={20} />
+        </m.span>
         {unreadCount > 0 && (
           <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
         )}

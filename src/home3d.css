@@ -669,3 +669,103 @@
     animation: none;
   }
 }
+
+/* ======================================================================
+   2026-11-12, 5ª rodada: menu fixo mais fino e um pouco mais transparente,
+   sino em relevo (balança quando há notificação), ajustes finos de posição
+   e sombra acompanhando os logos dos parceiros.
+   ====================================================================== */
+
+/* ---- Menu fixo de baixo: 10% menor, moldura mais baixa ------------------------ */
+.bottom-nav {
+  background: rgba(253, 251, 247, 0.86);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .bottom-nav {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.26) 0%,
+      rgba(253, 251, 247, 0.12) 55%,
+      rgba(253, 251, 247, 0.19) 100%
+    );
+  }
+}
+
+.bottom-nav-list {
+  padding: 0 6px;
+}
+
+.bottom-nav-item {
+  min-width: 54px;
+  min-height: 50px;
+  gap: 1px;
+  margin: 3px 1px;
+  padding: 3px 8px;
+}
+
+.bottom-nav-item .nav-icon-wrap {
+  transform: scale(0.9);
+}
+
+.bottom-nav-label {
+  font-size: 9px;
+}
+
+/* ---- Sino: botão em relevo; com notificação o ícone balança (Motion) ----------- */
+.dashboard-header .notification-bell-button {
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffffff, #ece3d9);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 3px rgba(53, 48, 44, 0.1),
+    0 2px 0 #cdbcab,
+    0 3px 0 #a8937f,
+    0 9px 10px -3px rgba(40, 32, 26, 0.42);
+  color: var(--circula-mocha);
+}
+
+.dashboard-header .notification-bell-button:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 1px 0 #a8937f,
+    0 4px 6px -3px rgba(40, 32, 26, 0.42);
+}
+
+.notification-bell-icon {
+  display: inline-flex;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.9)) drop-shadow(0 3px 2px rgba(40, 32, 26, 0.3));
+}
+
+.notification-bell-button--ringing {
+  color: #8a4f43;
+}
+
+/* ---- Ajustes finos: clima um pouco mais baixo; agenda/relógio um pouco acima --- */
+.home-greeting .weather-button {
+  transform: translateY(-7px);
+}
+
+.exp-strip--hoje + .home-section-divider {
+  margin-bottom: -24px;
+}
+
+/* ---- Parceiros: uma sombra no chão sob cada logo, andando junto ---------------- */
+.partner-item {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.partner-item::after {
+  content: '';
+  width: 78%;
+  min-width: 46px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.3), rgba(40, 32, 26, 0.08) 50%, rgba(40, 32, 26, 0) 72%);
+}
+
+.partner-seq {
+  padding-bottom: 8px;
+}
