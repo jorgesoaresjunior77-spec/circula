@@ -7,6 +7,9 @@
 //  - o PATH e a extensão do arquivo NÃO mudam (reescreve no mesmo caminho),
 //    então nenhuma linha do banco precisa ser alterada;
 //  - por padrão é DRY-RUN: só lista o que faria e quanto economizaria;
+//  - ANTES de qualquer coisa, guarda uma cópia de TODOS os arquivos originais em
+//    backup-storage/<bucket>/<path> (pasta ignorada pelo git), inclusive os que
+//    não são otimizados — é o seu backup caso algo dê errado;
 //  - nunca apaga nada. Arquivos que não são imagem web (ex.: .dng) só são
 //    listados — apague-os à mão no painel do Supabase, se quiser.
 //
@@ -27,6 +30,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const MIN_BYTES = 300 * 1024 // abaixo disso não compensa mexer
 const MAX_SIDE = 1600
 const CACHE = '31536000'
+const BACKUP_DIR = path.join(ROOT, 'backup-storage')
 
 function loadEnv() {
   try {
@@ -82,15 +86,26 @@ for (const bucket of buckets) {
   for (const f of files) {
     const ext = f.path.split('.').pop()?.toLowerCase() ?? ''
     const isWeb = ['jpg', 'jpeg', 'png', 'webp'].includes(ext)
+
+    // Backup local de TODO arquivo (uma vez só; se já existe, reaproveita).
+    const backupPath = path.join(BACKUP_DIR, bucket, ...f.path.split('/'))
+    let input
+    if (fs.existsSync(backupPath)) {
+      input = fs.readFileSync(backupPath)
+    } else {
+      const { data: blob, error } = await supabase.storage.from(bucket).download(f.path)
+      if (error) { console.log(`  [erro] ${f.path}: ${error.message}`); continue }
+      input = Buffer.from(await blob.arrayBuffer())
+      fs.mkdirSync(path.dirname(backupPath), { recursive: true })
+      fs.writeFileSync(backupPath, input)
+    }
+
     if (!isWeb) {
       if (f.size >= MIN_BYTES) console.log(`  [manual] ${f.path}  ${mb(f.size)} MB  (não é imagem web — apague/substitua no painel)`)
       continue
     }
     if (f.size < MIN_BYTES) continue
 
-    const { data: blob, error } = await supabase.storage.from(bucket).download(f.path)
-    if (error) { console.log(`  [erro] ${f.path}: ${error.message}`); continue }
-    const input = Buffer.from(await blob.arrayBuffer())
     let output
     try {
       output = await encoder(ext)(
