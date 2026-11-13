@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { compressImage } from './imageUpload'
+import { checkPreparedImage, compressImage, UPLOAD_CACHE_CONTROL } from './imageUpload'
 
 /**
  * Fase 12.5B — upload de mídia de comunidade (posts e capas) para o
@@ -61,12 +61,14 @@ export async function uploadCommunityMedia(
   }
 
   const prepared = await compressImage(file)
+  const unusable = checkPreparedImage(prepared)
+  if (unusable) return { path: null, error: unusable }
   const extension = sanitizeExtension(prepared.name)
   const path = `${communityId}/${kind}/${uid}/${Date.now()}.${extension}`
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
-    .upload(path, prepared, { upsert: false, contentType: prepared.type })
+    .upload(path, prepared, { upsert: false, contentType: prepared.type, cacheControl: UPLOAD_CACHE_CONTROL })
 
   if (uploadError) {
     return { path: null, error: uploadError.message }

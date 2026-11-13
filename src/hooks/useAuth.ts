@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-import { compressImage, validateImageFile } from '../lib/imageUpload'
+import { clearPersistedSignedUrls } from '../lib/signedUrlCache'
+import { checkPreparedImage, compressImage, UPLOAD_CACHE_CONTROL, validateImageFile } from '../lib/imageUpload'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 
 // Fase 14.2 — capturado no import, ANTES de o gotrue-js consumir e
@@ -165,6 +166,7 @@ export function useAuth() {
 
   async function signOut() {
     await supabase.auth.signOut()
+    clearPersistedSignedUrls()
   }
 
   async function updateProfile(input: ProfileUpdateInput) {
@@ -184,13 +186,15 @@ export function useAuth() {
     const invalid = validateImageFile(originalFile)
     if (invalid) return { error: invalid }
     const file = await compressImage(originalFile)
+    const unusable = checkPreparedImage(file)
+    if (unusable) return { error: unusable }
 
     const extension = file.name.split('.').pop() ?? 'jpg'
     const path = `${session.user.id}/${Date.now()}.${extension}`
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: false })
+      .upload(path, file, { upsert: false, cacheControl: UPLOAD_CACHE_CONTROL })
 
     if (uploadError) return { error: uploadError.message }
 
@@ -220,13 +224,15 @@ export function useAuth() {
     const invalid = validateImageFile(originalFile)
     if (invalid) return { url: null, error: invalid }
     const file = await compressImage(originalFile)
+    const unusable = checkPreparedImage(file)
+    if (unusable) return { url: null, error: unusable }
 
     const extension = file.name.split('.').pop() ?? 'jpg'
     const path = `${session.user.id}/gallery/${Date.now()}.${extension}`
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: false })
+      .upload(path, file, { upsert: false, cacheControl: UPLOAD_CACHE_CONTROL })
 
     if (uploadError) return { url: null, error: uploadError.message }
 
@@ -241,9 +247,11 @@ export function useAuth() {
     const invalid = validateImageFile(originalFile)
     if (invalid) return { error: invalid }
     const file = await compressImage(originalFile)
+    const unusable = checkPreparedImage(file)
+    if (unusable) return { error: unusable }
     const extension = file.name.split('.').pop() ?? 'jpg'
     const path = `${session.user.id}/banner/${Date.now()}.${extension}`
-    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: false })
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: false, cacheControl: UPLOAD_CACHE_CONTROL })
     if (uploadError) return { error: uploadError.message }
     const { data } = supabase.storage.from('avatars').getPublicUrl(path)
     const { error: updateError } = await supabase

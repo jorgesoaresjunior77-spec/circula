@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { isCommunityMediaPath } from '../lib/communityMedia'
 import { getSignedUrl, peekSignedUrl } from '../lib/signedUrlCache'
 
-const DEFAULT_EXPIRES_IN = 3600 // 1 hora
+const DEFAULT_EXPIRES_IN = 7 * 24 * 3600 // 7 dias: URL estável entre sessões = cache do navegador
 
 /**
  * Fase 12.5B — resolve um valor salvo em `posts.image_url` /

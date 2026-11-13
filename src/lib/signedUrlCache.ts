@@ -13,7 +13,54 @@ interface PendingRequest {
   resolve: (url: string | null) => void
 }
 
+const STORAGE_KEY = 'circula:signed-urls:v1'
 const cache = new Map<string, CacheEntry>()
+
+// A URL assinada leva um token novo a cada pedido; se ela só vivesse na memória,
+// todo reload geraria uma URL diferente e o navegador rebaixaria a imagem. Guardar
+// no aparelho mantém a URL estável (e o cache HTTP funcionando) entre sessões.
+function loadPersisted() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return
+    const now = Date.now()
+    for (const [key, entry] of Object.entries(JSON.parse(raw) as Record<string, CacheEntry>)) {
+      if (entry && typeof entry.url === 'string' && entry.expiresAt - SAFETY_MARGIN_MS > now) cache.set(key, entry)
+    }
+  } catch {
+    /* sem storage ou JSON ruim: segue só com memória */
+  }
+}
+
+let persistTimer: ReturnType<typeof setTimeout> | null = null
+function schedulePersist() {
+  if (persistTimer) return
+  persistTimer = setTimeout(() => {
+    persistTimer = null
+    try {
+      const now = Date.now()
+      const out: Record<string, CacheEntry> = {}
+      cache.forEach((entry, key) => {
+        if (entry.expiresAt - SAFETY_MARGIN_MS > now) out[key] = entry
+      })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(out))
+    } catch {
+      /* cota cheia ou bloqueado: ignora */
+    }
+  }, 500)
+}
+
+/** Apaga as URLs guardadas (ao sair da conta, para o próximo usuário do aparelho). */
+export function clearPersistedSignedUrls() {
+  cache.clear()
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+loadPersisted()
 const inFlight = new Map<string, Promise<string | null>>()
 const queues = new Map<number, Map<string, PendingRequest[]>>()
 let flushScheduled = false
@@ -42,7 +89,10 @@ async function flush() {
     batches.map(async ([expiresIn, byPath]) => {
       const paths = Array.from(byPath.keys())
       const settle = (path: string, url: string | null) => {
-        if (url) cache.set(cacheKey(path, expiresIn), { url, expiresAt: Date.now() + expiresIn * 1000 })
+        if (url) {
+          cache.set(cacheKey(path, expiresIn), { url, expiresAt: Date.now() + expiresIn * 1000 })
+          schedulePersist()
+        }
         byPath.get(path)?.forEach((request) => request.resolve(url))
       }
 

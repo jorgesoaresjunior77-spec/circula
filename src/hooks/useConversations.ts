@@ -12,11 +12,17 @@ import type { ConversationOverview, StartConversationResult } from '../types/mes
 // ao focar a janela. Sem dependência nova — cliente Realtime já vem no
 // @supabase/supabase-js.
 
+// Foco da janela: só reconsulta se passou mais de 1 min; mensagens em rajada
+// (Realtime) viram uma única consulta.
+const MIN_FOCUS_REFRESH_MS = 60_000
+const REALTIME_DEBOUNCE_MS = 1500
+
 export function useConversations(profileId: string | null) {
   const [conversations, setConversations] = useState<ConversationOverview[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const mountedRef = useRef(true)
+  const lastRefreshRef = useRef(0)
 
   const refresh = useCallback(async () => {
     if (!profileId) {
@@ -25,6 +31,7 @@ export function useConversations(profileId: string | null) {
       return
     }
 
+    lastRefreshRef.current = Date.now()
     const { data, error: rpcError } = await supabase.rpc('conversations_overview')
 
     if (!mountedRef.current) return
@@ -53,23 +60,26 @@ export function useConversations(profileId: string | null) {
   useEffect(() => {
     if (!profileId) return
 
+    let debounce: ReturnType<typeof setTimeout> | null = null
     const channel = supabase
       .channel(`messages-overview-${profileId}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
         () => {
-          refresh()
+          if (debounce) clearTimeout(debounce)
+          debounce = setTimeout(() => void refresh(), REALTIME_DEBOUNCE_MS)
         },
       )
       .subscribe()
 
     function handleFocus() {
-      refresh()
+      if (Date.now() - lastRefreshRef.current > MIN_FOCUS_REFRESH_MS) refresh()
     }
     window.addEventListener('focus', handleFocus)
 
     return () => {
+      if (debounce) clearTimeout(debounce)
       supabase.removeChannel(channel)
       window.removeEventListener('focus', handleFocus)
     }

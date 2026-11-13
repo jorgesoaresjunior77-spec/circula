@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Bolinhas vermelhas nos cards da Home (estilo iPhone): novidades que
@@ -6,6 +6,8 @@ import { supabase } from '../lib/supabase'
 //  - newEvents: eventos futuros criados depois da última visita à página
 //    de Eventos (guardado no aparelho).
 //  - pendingCircleRequests: pedidos de novo Círculo aguardando a profissional.
+// Voltar à aba não precisa reconsultar tudo: só se passou mais de 1 minuto.
+const MIN_REFRESH_MS = 60_000
 const seenKey = (profileId: string) => `circula:events-seen:${profileId}`
 
 export function useHomeBadges(
@@ -18,7 +20,10 @@ export function useHomeBadges(
   const [pendingCircleRequests, setPendingCircleRequests] = useState(0)
   const [gardenPending, setGardenPending] = useState(false)
 
+  const lastLoadRef = useRef(0)
+
   const load = useCallback(async () => {
+    lastLoadRef.current = Date.now()
     if (!communityId || !profileId) {
       setNewEvents(0)
       setPendingCircleRequests(0)
@@ -91,7 +96,7 @@ export function useHomeBadges(
 
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === 'visible') void load()
+      if (document.visibilityState === 'visible' && Date.now() - lastLoadRef.current > MIN_REFRESH_MS) void load()
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)

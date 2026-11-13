@@ -48,3 +48,21 @@ export async function compressImage(file: File): Promise<File> {
     return file
   }
 }
+
+// Cache de 1 ano nos uploads: o nome do arquivo leva timestamp (nunca se repete),
+// então o navegador pode guardar a imagem sem rebaixar.
+export const UPLOAD_CACHE_CONTROL = '31536000'
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+const UPLOADABLE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+// Confere o arquivo JÁ preparado (depois de compressImage): HEIC que o navegador
+// não conseguiu converter, ou resultado ainda acima de 5 MB, não sobe.
+export function checkPreparedImage(file: { type: string; size: number }): string | null {
+  if (!UPLOADABLE_TYPES.includes(file.type)) {
+    return 'Não foi possível preparar essa imagem. Use JPG, PNG ou WebP.'
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return 'A imagem precisa ter no máximo 5 MB.'
+  }
+  return null
+}
