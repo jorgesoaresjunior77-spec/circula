@@ -1,45 +1,35 @@
 import { useEffect, useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
+import type { FormEvent } from 'react'
 import { useProducts } from '../hooks/useProducts'
-import type {
-  Product,
-  ProductDeliverableKind,
-  ProductInput,
-  ProductStatus,
-  ProductType,
-} from '../types/product'
-import {
-  PRODUCT_DELIVERABLE_KIND_LABELS,
-  PRODUCT_TYPE_LABELS,
-  isEventProductType,
-} from '../types/product'
+import type { Product, ProductCategory, ProductInput, ProductStatus } from '../types/product'
+import { formatPriceBRL } from '../types/product'
 import { ProductCard } from './ProductCard'
 import { EmptyState } from './EmptyState'
-import { CloseIcon } from './icons'
+import { ChevronLeftIcon, CloseIcon } from './icons'
 import { useProductCheckout } from '../hooks/useProductCheckout'
+import { useManagedContent } from '../hooks/useManagedContent'
+import { recordView } from '../lib/itemViews'
 import { useProductEntitlements } from '../hooks/useProductEntitlements'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
-import { shelfRows } from '../lib/storeShelves'
 import { useMyPackages } from '../hooks/usePackageAccess'
 import { canReadEbooks } from '../lib/packages'
-import { isDigitalProductType } from '../types/product'
 import { ProductPagesEditor } from './ProductPagesEditor'
 import { ProductReader } from './ProductReader'
 import { CoverImageInput } from './CoverImageInput'
 import { AnimatePresence, m, inViewOnce, riseVariants, staggerVariants, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
-const shelfStagger = staggerVariants(0.07, 0.1)
+// Loja por CATEGORIAS (rodada 2026-11-14):
+//  - a profissional cria as categorias (ex.: "E-books"), cada uma um cartão
+//    4:5 com imagem, no mesmo formato dos cartões da capa;
+//  - dentro da categoria ficam os produtos, cada um com capa, título e
+//    descrição; todos são digitais e lidos dentro do app (páginas em imagem,
+//    sem limite de quantidade);
+//  - saíram do cadastro: tipo, forma de entrega, evento online e local.
 
-/** Capa na prateleira: aceita caminho do Storage (upload) ou URL antiga. */
-function ShelfCover({ product }: { product: Product }) {
-  const { url } = useSignedImageUrl(product.cover_image_url)
-  return url ? (
-    <img src={url} alt="" loading="lazy" decoding="async" draggable={false} />
-  ) : (
-    <span className="store-shelf-blank">{product.title}</span>
-  )
-}
+const gridStagger = staggerVariants(0.07, 0.1)
+/** "Categoria" virtual dos produtos sem categoria (só aparece se houver algum). */
+const UNCATEGORIZED = '__sem_categoria__'
 
 interface ProductManagerProps {
   communityId: string
@@ -47,51 +37,24 @@ interface ProductManagerProps {
   canManage: boolean
   // Habilita o botão "Comprar" nos produtos publicados (só Member).
   canBuy?: boolean
-  /** Leva à página de Planos (produtos digitais com cadeado). */
+  /** Leva à página de Planos (produtos com cadeado). */
   onOpenPlans?: () => void
 }
 
-const PRODUCT_TYPES: ProductType[] = [
-  'course',
-  'ebook',
-  'workshop',
-  'event',
-  'consultation',
-  'physical',
-]
-
-const DELIVERABLE_KINDS: ProductDeliverableKind[] = ['none', 'file', 'external_link', 'scheduling']
-
 interface ProductFormValues {
-  type: ProductType
   title: string
   description: string
   coverImageUrl: string
   price: string
-  maxQuantity: string
-  deliverableKind: ProductDeliverableKind
-  deliverableUrl: string
-  eventStartsAt: string
-  eventIsOnline: boolean
-  eventLocation: string
-  requiresShipping: boolean
-  checkoutUrl: string
+  categoryId: string
 }
 
 const EMPTY_FORM: ProductFormValues = {
-  type: 'course',
   title: '',
   description: '',
   coverImageUrl: '',
   price: '',
-  maxQuantity: '',
-  deliverableKind: 'none',
-  deliverableUrl: '',
-  eventStartsAt: '',
-  eventIsOnline: false,
-  eventLocation: '',
-  requiresShipping: false,
-  checkoutUrl: '',
+  categoryId: '',
 }
 
 function parsePriceToCents(input: string): number | null {
@@ -107,58 +70,40 @@ function centsToPriceInput(cents: number): string {
   return (cents / 100).toFixed(2).replace('.', ',')
 }
 
-function formToInput(values: ProductFormValues): ProductInput | { error: string } {
+/** Todo produto novo/editado é digital, lido no app. O que já estava salvo em
+ *  campos antigos (link legado) é preservado a partir de `base`. */
+function formToInput(values: ProductFormValues, base?: Product): ProductInput | { error: string } {
   const title = values.title.trim()
   if (!title) return { error: 'Informe um título.' }
 
   const priceCents = parsePriceToCents(values.price)
   if (priceCents === null) return { error: 'Informe um preço válido (ex.: 14,90).' }
 
-  let maxQuantity: number | null = null
-  const rawMax = values.maxQuantity.trim()
-  if (rawMax !== '') {
-    const parsed = Number(rawMax)
-    if (!Number.isInteger(parsed) || parsed < 1) {
-      return { error: 'Quantidade máxima deve ser um número inteiro maior que zero.' }
-    }
-    maxQuantity = parsed
-  }
-
-  const event = isEventProductType(values.type)
-
   return {
-    type: values.type,
+    type: 'ebook',
     title,
     description: values.description.trim() || null,
     cover_image_url: values.coverImageUrl.trim() || null,
     price_cents: priceCents,
-    max_quantity: maxQuantity,
-    deliverable_kind: values.deliverableKind,
-    deliverable_url: values.deliverableUrl.trim() || null,
-    event_starts_at: event ? values.eventStartsAt.trim() || null : null,
-    event_is_online: event ? values.eventIsOnline : null,
-    event_location: event ? values.eventLocation.trim() || null : null,
-    requires_shipping: values.type === 'physical' ? values.requiresShipping : false,
-    // Legado: não é mais editado nem usado; só preserva o que já estava salvo.
-    checkout_url: values.checkoutUrl.trim() || null,
+    max_quantity: null,
+    deliverable_kind: 'none',
+    deliverable_url: null,
+    event_starts_at: null,
+    event_is_online: null,
+    event_location: null,
+    requires_shipping: false,
+    checkout_url: base?.checkout_url ?? null,
+    category_id: values.categoryId || null,
   }
 }
 
 function productToForm(product: Product): ProductFormValues {
   return {
-    type: product.type,
     title: product.title,
     description: product.description ?? '',
     coverImageUrl: product.cover_image_url ?? '',
     price: centsToPriceInput(product.price_cents),
-    maxQuantity: product.max_quantity !== null ? String(product.max_quantity) : '',
-    deliverableKind: product.deliverable_kind,
-    deliverableUrl: product.deliverable_url ?? '',
-    eventStartsAt: product.event_starts_at ? product.event_starts_at.slice(0, 16) : '',
-    eventIsOnline: product.event_is_online ?? false,
-    eventLocation: product.event_location ?? '',
-    requiresShipping: product.requires_shipping,
-    checkoutUrl: product.checkout_url ?? '',
+    categoryId: product.category_id ?? '',
   }
 }
 
@@ -168,30 +113,28 @@ interface ProductFieldsProps {
   onChange: (patch: Partial<ProductFormValues>) => void
   communityId: string
   profileId: string
+  categories: ProductCategory[]
 }
 
-function ProductFields({ idPrefix, values, onChange, communityId, profileId }: ProductFieldsProps) {
-  const digital = isDigitalProductType(values.type)
-  const event = isEventProductType(values.type)
-  const showDeliverableUrl =
-    values.deliverableKind === 'external_link' || values.deliverableKind === 'scheduling'
-
+function ProductFields({ idPrefix, values, onChange, communityId, profileId, categories }: ProductFieldsProps) {
   return (
     <>
-      <label htmlFor={`${idPrefix}-type`}>Tipo</label>
+      <label htmlFor={`${idPrefix}-category`}>Categoria</label>
       <select
-        id={`${idPrefix}-type`}
-        value={values.type}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          onChange({ type: e.target.value as ProductType })
-        }
+        id={`${idPrefix}-category`}
+        value={values.categoryId}
+        onChange={(e) => onChange({ categoryId: e.target.value })}
       >
-        {PRODUCT_TYPES.map((type) => (
-          <option key={type} value={type}>
-            {PRODUCT_TYPE_LABELS[type]}
+        <option value="">Sem categoria</option>
+        {categories.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.title}
           </option>
         ))}
       </select>
+      {categories.length === 0 && (
+        <p className="challenge-field-hint">Crie uma categoria acima (ex.: E-books) para organizar a Loja.</p>
+      )}
 
       <label htmlFor={`${idPrefix}-title`}>Título</label>
       <input
@@ -221,110 +164,160 @@ function ProductFields({ idPrefix, values, onChange, communityId, profileId }: P
         onChange={(e) => onChange({ price: e.target.value })}
         placeholder="Ex.: 14,90"
       />
-
-      {digital && (
-        <p className="challenge-field-hint">
-          Quem tem o pacote de E-books ou o plano completo lê sem pagar à parte. Este preço vale para quem
-          quiser comprar só este.
-        </p>
-      )}
+      <p className="challenge-field-hint">
+        Todos os produtos são digitais e lidos aqui no app. Quem tem o pacote de E-books ou o plano completo lê
+        sem pagar à parte; este preço vale para quem quiser comprar só este.
+      </p>
 
       <CoverImageInput
         value={values.coverImageUrl}
         communityId={communityId}
         uid={profileId}
-        label="Capa (aparece na prateleira da Loja)"
-        aspectRatio="3 / 4"
-        recommendedSize="1080 × 1440 px"
+        label="Capa do produto"
+        aspectRatio="4 / 5"
+        recommendedSize="1080 × 1350 px"
         onChange={(path) => onChange({ coverImageUrl: path })}
       />
-
-      {!digital && (
-        <>
-      <label htmlFor={`${idPrefix}-max`}>Quantidade máxima (opcional)</label>
-      <input
-        id={`${idPrefix}-max`}
-        type="number"
-        min={1}
-        value={values.maxQuantity}
-        onChange={(e) => onChange({ maxQuantity: e.target.value })}
-        placeholder="Vagas ou estoque"
-      />
-
-      <label htmlFor={`${idPrefix}-deliverable-kind`}>Forma de entrega</label>
-      <select
-        id={`${idPrefix}-deliverable-kind`}
-        value={values.deliverableKind}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          onChange({ deliverableKind: e.target.value as ProductDeliverableKind })
-        }
-      >
-        {DELIVERABLE_KINDS.map((kind) => (
-          <option key={kind} value={kind}>
-            {PRODUCT_DELIVERABLE_KIND_LABELS[kind]}
-          </option>
-        ))}
-      </select>
-
-      {showDeliverableUrl && (
-        <>
-          <label htmlFor={`${idPrefix}-deliverable-url`}>Link de entrega</label>
-          <input
-            id={`${idPrefix}-deliverable-url`}
-            type="url"
-            value={values.deliverableUrl}
-            onChange={(e) => onChange({ deliverableUrl: e.target.value })}
-            placeholder="https://..."
-          />
-        </>
-      )}
-
-        </>
-      )}
-
-      {event && (
-        <>
-          <label htmlFor={`${idPrefix}-event-start`}>Início do evento</label>
-          <input
-            id={`${idPrefix}-event-start`}
-            type="datetime-local"
-            value={values.eventStartsAt}
-            onChange={(e) => onChange({ eventStartsAt: e.target.value })}
-          />
-
-          <label htmlFor={`${idPrefix}-event-online`}>
-            <input
-              id={`${idPrefix}-event-online`}
-              type="checkbox"
-              checked={values.eventIsOnline}
-              onChange={(e) => onChange({ eventIsOnline: e.target.checked })}
-            />{' '}
-            Evento online
-          </label>
-
-          <label htmlFor={`${idPrefix}-event-location`}>Local do evento</label>
-          <input
-            id={`${idPrefix}-event-location`}
-            type="text"
-            value={values.eventLocation}
-            onChange={(e) => onChange({ eventLocation: e.target.value })}
-            placeholder="Endereço ou plataforma"
-          />
-        </>
-      )}
-
-      {values.type === 'physical' && (
-        <label htmlFor={`${idPrefix}-requires-shipping`}>
-          <input
-            id={`${idPrefix}-requires-shipping`}
-            type="checkbox"
-            checked={values.requiresShipping}
-            onChange={(e) => onChange({ requiresShipping: e.target.checked })}
-          />{' '}
-          Requer envio (endereço)
-        </label>
-      )}
     </>
+  )
+}
+
+/** Capa (categoria ou produto): caminho do Storage ou URL antiga. */
+function Cover({ path, className }: { path: string | null; className: string }) {
+  const { url } = useSignedImageUrl(path)
+  return url ? <img src={url} alt="" loading="lazy" decoding="async" draggable={false} className={className} /> : null
+}
+
+// ---- Categorias (profissional) ----------------------------------------------------
+function CategoryManager({
+  communityId,
+  profileId,
+  categories,
+  products,
+  save,
+  remove,
+}: {
+  communityId: string
+  profileId: string
+  categories: ProductCategory[]
+  products: Product[]
+  save: (id: string | null, values: Record<string, unknown>) => Promise<{ error: string | null }>
+  remove: (id: string) => Promise<{ error: string | null }>
+}) {
+  const [form, setForm] = useState<{ id: string | null; title: string; cover: string } | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    if (!form) return
+    if (!form.title.trim()) {
+      setError('Dê um nome à categoria.')
+      return
+    }
+    setBusy(true)
+    const values: Record<string, unknown> = { title: form.title.trim(), cover_image_url: form.cover || null }
+    if (!form.id) values.position = categories.reduce((max, c) => Math.max(max, c.position), 0) + 1
+    const r = await save(form.id, values)
+    setBusy(false)
+    if (r.error) {
+      setError(r.error)
+      return
+    }
+    setForm(null)
+    setError(null)
+  }
+
+  async function handleRemove(id: string) {
+    setBusy(true)
+    const r = await remove(id)
+    setBusy(false)
+    if (r.error) setError(r.error)
+  }
+
+  return (
+    <div className="cat-manager">
+      <h4 className="cat-manager-title">Categorias da Loja</h4>
+      <p className="challenge-field-hint">
+        Cada categoria vira um cartão na Loja (ex.: E-books, Guias, Cardápios). Os produtos ficam dentro dela.
+      </p>
+
+      {categories.length > 0 && (
+        <ul className="cat-manager-list">
+          {categories.map((c) => {
+            const count = products.filter((p) => p.category_id === c.id).length
+            return (
+              <li key={c.id} className="cat-manager-item">
+                <span className="cat-manager-thumb">
+                  <Cover path={c.cover_image_url} className="cat-manager-thumb-img" />
+                </span>
+                <span className="cat-manager-name">
+                  {c.title}
+                  <small>{count === 1 ? '1 produto' : `${count} produtos`}</small>
+                </span>
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => {
+                    setForm({ id: c.id, title: c.title, cover: c.cover_image_url ?? '' })
+                    setError(null)
+                  }}
+                >
+                  Editar
+                </button>
+                <button type="button" className="auth-link" disabled={busy} onClick={() => void handleRemove(c.id)}>
+                  Excluir
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+
+      {!form && (
+        <button
+          type="button"
+          className="store-new-btn"
+          onClick={() => {
+            setForm({ id: null, title: '', cover: '' })
+            setError(null)
+          }}
+        >
+          + Nova categoria
+        </button>
+      )}
+
+      {form && (
+        <form className="question-form" onSubmit={(e) => void submit(e)} aria-label={form.id ? 'Editar categoria' : 'Nova categoria'}>
+          <label htmlFor="cat-title">Nome da categoria</label>
+          <input
+            id="cat-title"
+            type="text"
+            maxLength={80}
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="Ex.: E-books"
+          />
+          <CoverImageInput
+            value={form.cover}
+            communityId={communityId}
+            uid={profileId}
+            label="Imagem do cartão"
+            aspectRatio="4 / 5"
+            recommendedSize="1080 × 1350 px"
+            onChange={(path) => setForm((f) => (f ? { ...f, cover: path } : f))}
+          />
+          {error && <p className="auth-error">{error}</p>}
+          <button type="submit" disabled={busy}>
+            {busy ? 'Salvando...' : 'Salvar categoria'}
+          </button>
+          <button type="button" className="auth-link" onClick={() => setForm(null)}>
+            Cancelar
+          </button>
+        </form>
+      )}
+      {!form && error && <p className="auth-error">{error}</p>}
+    </div>
   )
 }
 
@@ -337,6 +330,11 @@ export function ProductManager({
 }: ProductManagerProps) {
   const { products, loading, error, createProduct, updateProduct, setStatus, deleteProduct } =
     useProducts(communityId)
+  const {
+    items: categories,
+    save: saveCategory,
+    remove: removeCategory,
+  } = useManagedContent<ProductCategory>('product_categories', communityId, 'position')
 
   const showBuy = canBuy && !canManage
   const { buyProduct, pendingProductId } = useProductCheckout()
@@ -355,30 +353,40 @@ export function ProductManager({
 
   const [actionError, setActionError] = useState<string | null>(null)
 
-  // Membro: tem o pacote de E-books (ou o plano completo)? E qual e-book está aberto no leitor.
+  // Membro: tem o pacote de E-books (ou o plano completo)? E qual produto está aberto no leitor.
   const { packages } = useMyPackages(communityId, profileId, showBuy)
   const canRead = canReadEbooks(packages)
   const [readingId, setReadingId] = useState<string | null>(null)
   const readingProduct = readingId ? (products.find((p) => p.id === readingId) ?? null) : null
 
-  // Fundo da Loja (só a vitrine da membro usa): imagem própria ou, sem ela, o
-  // banner grande da Loja. Sem nenhuma, fica o degradê do CSS.
+  // Fundo da Loja (só a vitrine da membro usa).
   const { images: cardImages } = useCommunityCardImages(showBuy ? communityId : null)
   const { url: backgroundUrl } = useSignedImageUrl(
     cardImages.loja_fundo ?? cardImages.comunidade_grande ?? null,
   )
 
-  // --- Vitrine (Member): estado só de apresentação, sem query nova ---
+  // --- Vitrine (Member): categoria aberta e produto em detalhe ---
+  const [openCategoryId, setOpenCategoryId] = useState<string | null>(null)
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
 
   const publishedProducts = products.filter((product) => product.status === 'published')
+  const knownCategoryIds = new Set(categories.map((c) => c.id))
+  const uncategorized = publishedProducts.filter((p) => !p.category_id || !knownCategoryIds.has(p.category_id))
   const selectedProduct = selectedProductId
     ? (products.find((product) => product.id === selectedProductId) ?? null)
     : null
 
-  // Detalhe = overlay local (sem rota nova). ESC fecha; rolagem do fundo
-  // trava enquanto aberto — mesmo padrão já usado na folha de navegação
-  // (PrimaryNav.tsx).
+  const openCategory = categories.find((c) => c.id === openCategoryId) ?? null
+  const categoryProducts =
+    openCategoryId === UNCATEGORIZED
+      ? uncategorized
+      : openCategory
+        ? publishedProducts.filter((p) => p.category_id === openCategory.id)
+        : []
+  // Sem nenhuma categoria criada, a Loja mostra os produtos direto.
+  const flatStore = categories.length === 0
+
+  // Detalhe = overlay local. ESC fecha; rolagem do fundo trava enquanto aberto.
   useEffect(() => {
     if (!selectedProduct) return
 
@@ -395,9 +403,6 @@ export function ProductManager({
     }
   }, [selectedProduct])
 
-  // Mesmas props/lógica de compra de sempre — reaproveitadas nos 3
-  // lugares que renderizam ProductCard na vitrine (grade, destaque,
-  // detalhe), para não duplicar o fluxo de checkout.
   function buyPropsFor(product: Product) {
     return {
       canBuy: showBuy,
@@ -411,6 +416,7 @@ export function ProductManager({
       onRead: (p: Product) => {
         setSelectedProductId(null)
         setReadingId(p.id)
+        recordView(communityId, 'ebook', p.id)
       },
     }
   }
@@ -445,18 +451,18 @@ export function ProductManager({
     setActionError(null)
   }
 
-  async function handleSaveEdit(formEvent: FormEvent, productId: string) {
+  async function handleSaveEdit(formEvent: FormEvent, product: Product) {
     formEvent.preventDefault()
     setEditError(null)
 
-    const input = formToInput(editDraft)
+    const input = formToInput(editDraft, product)
     if ('error' in input) {
       setEditError(input.error)
       return
     }
 
     setSavingEdit(true)
-    const { error: updateErr } = await updateProduct(productId, input)
+    const { error: updateErr } = await updateProduct(product.id, input)
     setSavingEdit(false)
 
     if (updateErr) {
@@ -483,6 +489,41 @@ export function ProductManager({
     }
   }
 
+  function renderProductTiles(list: Product[]) {
+    if (list.length === 0) {
+      return <p className="store-room-text">Em breve, novos conteúdos por aqui.</p>
+    }
+    return (
+      <m.ul className="cat-products" {...inViewOnce} variants={gridStagger}>
+        {list.map((product) => {
+          const readable = canRead || ownedProductIds.has(product.id)
+          return (
+            <m.li key={product.id} variants={riseVariants}>
+              <m.button
+                type="button"
+                className="cat-product"
+                whileTap={{ scale: 0.97, transition: SPRING_TAP }}
+                onClick={() => setSelectedProductId(product.id)}
+                aria-label={`Ver detalhes de ${product.title}`}
+              >
+                <span className="cat-product-cover">
+                  <Cover path={product.cover_image_url} className="cat-product-cover-img" />
+                </span>
+                <span className="cat-product-body">
+                  <span className="cat-product-title">{product.title}</span>
+                  {product.description && <span className="cat-product-desc">{product.description}</span>}
+                  <span className="cat-product-foot">
+                    {readable ? 'Ler agora' : product.price_cents > 0 ? formatPriceBRL(product.price_cents) : 'Ver'}
+                  </span>
+                </span>
+              </m.button>
+            </m.li>
+          )
+        })}
+      </m.ul>
+    )
+  }
+
   return (
     <section
       className={`community-card community-card--quiet question-bank product-manager${
@@ -500,6 +541,17 @@ export function ProductManager({
         </>
       )}
 
+      {canManage && (
+        <CategoryManager
+          communityId={communityId}
+          profileId={profileId}
+          categories={categories}
+          products={products}
+          save={saveCategory}
+          remove={removeCategory}
+        />
+      )}
+
       {canManage && !showForm && (
         <div className="store-owner-actions">
           <button type="button" className="store-new-btn" onClick={() => setShowForm(true)}>
@@ -515,8 +567,12 @@ export function ProductManager({
             communityId={communityId}
             profileId={profileId}
             values={draft}
+            categories={categories}
             onChange={(patch) => setDraft((prev) => ({ ...prev, ...patch }))}
           />
+          <p className="challenge-field-hint">
+            Depois de salvar, toque em "Editar e páginas" no produto para enviar as páginas (sem limite).
+          </p>
           {createError && <p className="auth-error">{createError}</p>}
           <button type="submit" disabled={creating || !draft.title.trim()}>
             {creating ? 'Salvando...' : 'Adicionar produto'}
@@ -560,41 +616,65 @@ export function ProductManager({
 
       {!loading && !error && showBuy && (
         <div
-          className="store-room"
+          className="store-room store-room--categories"
           style={backgroundUrl ? { backgroundImage: `url("${backgroundUrl}")` } : undefined}
         >
           <div className="store-room-veil">
-            <p className="store-room-text">
-              {publishedProducts.length === 0
-                ? 'Em breve, novos conteúdos e produtos por aqui.'
-                : 'Toque em uma capa para ver os detalhes.'}
-            </p>
-            <m.div className="store-shelves" {...inViewOnce} variants={shelfStagger}>
-              {shelfRows(publishedProducts).map((row, r) => (
-                <div className="store-shelf" key={r}>
-                  <div className="store-shelf-row">
-                    {row.map((product, c) =>
-                      product ? (
+            {flatStore ? (
+              renderProductTiles(publishedProducts)
+            ) : openCategoryId === null ? (
+              <>
+                <p className="store-room-text">Escolha uma categoria.</p>
+                <m.ul className="cat-grid" {...inViewOnce} variants={gridStagger}>
+                  {categories.map((c) => {
+                    const count = publishedProducts.filter((p) => p.category_id === c.id).length
+                    return (
+                      <m.li key={c.id} variants={riseVariants}>
                         <m.button
-                          key={product.id}
                           type="button"
-                          className="store-shelf-item"
-                          variants={riseVariants}
-                          whileTap={{ scale: 0.95, transition: SPRING_TAP }}
-                          onClick={() => setSelectedProductId(product.id)}
-                          aria-label={`Ver detalhes de ${product.title}`}
+                          className="cat-card"
+                          whileTap={{ scale: 0.96, transition: SPRING_TAP }}
+                          onClick={() => setOpenCategoryId(c.id)}
+                          aria-label={`Abrir a categoria ${c.title}`}
                         >
-                          <ShelfCover product={product} />
+                          <span className="cat-card-frame">
+                            <Cover path={c.cover_image_url} className="cat-card-photo" />
+                            <span className="cat-card-title">{c.title}</span>
+                            <span className="cat-card-meta">{count === 1 ? '1 item' : `${count} itens`}</span>
+                          </span>
                         </m.button>
-                      ) : (
-                        <span key={c} className="store-shelf-item store-shelf-item--empty" aria-hidden="true" />
-                      ),
-                    )}
-                  </div>
-                  <div className="store-shelf-board" />
-                </div>
-              ))}
-            </m.div>
+                      </m.li>
+                    )
+                  })}
+                  {uncategorized.length > 0 && (
+                    <m.li variants={riseVariants}>
+                      <m.button
+                        type="button"
+                        className="cat-card"
+                        whileTap={{ scale: 0.96, transition: SPRING_TAP }}
+                        onClick={() => setOpenCategoryId(UNCATEGORIZED)}
+                        aria-label="Abrir outros produtos"
+                      >
+                        <span className="cat-card-frame">
+                          <span className="cat-card-title">Outros</span>
+                          <span className="cat-card-meta">
+                            {uncategorized.length === 1 ? '1 item' : `${uncategorized.length} itens`}
+                          </span>
+                        </span>
+                      </m.button>
+                    </m.li>
+                  )}
+                </m.ul>
+              </>
+            ) : (
+              <>
+                <button type="button" className="cat-back" onClick={() => setOpenCategoryId(null)}>
+                  <ChevronLeftIcon size={16} /> Categorias
+                </button>
+                <h3 className="cat-open-title">{openCategory?.title ?? 'Outros'}</h3>
+                {renderProductTiles(categoryProducts)}
+              </>
+            )}
           </div>
         </div>
       )}
@@ -604,20 +684,16 @@ export function ProductManager({
           {products.map((product) => (
             <li key={product.id} className="question-item product-item">
               {canManage && editingId === product.id ? (
-                <form
-                  className="question-edit-form"
-                  onSubmit={(formEvent) => handleSaveEdit(formEvent, product.id)}
-                >
+                <form className="question-edit-form" onSubmit={(formEvent) => handleSaveEdit(formEvent, product)}>
                   <ProductFields
                     idPrefix={`edit-product-${product.id}`}
                     communityId={communityId}
                     profileId={profileId}
                     values={editDraft}
+                    categories={categories}
                     onChange={(patch) => setEditDraft((prev) => ({ ...prev, ...patch }))}
                   />
-                  {isDigitalProductType(product.type) && (
-                    <ProductPagesEditor productId={product.id} communityId={communityId} profileId={profileId} />
-                  )}
+                  <ProductPagesEditor productId={product.id} communityId={communityId} profileId={profileId} />
                   {editError && <p className="auth-error">{editError}</p>}
                   <div className="question-item-actions">
                     <button type="button" className="auth-link" onClick={() => setEditingId(null)}>
@@ -634,26 +710,15 @@ export function ProductManager({
                 </form>
               ) : (
                 <>
-                  <ProductCard
-                    product={product}
-                    canBuy={showBuy}
-                    owned={ownedProductIds.has(product.id)}
-                    buying={pendingProductId === product.id}
-                    onBuy={
-                      showBuy
-                        ? (p) =>
-                            buyProduct(p.id).then((r) => ({
-                              error: r.error,
-                              invoiceUrl: r.invoiceUrl,
-                            }))
-                        : undefined
-                    }
-                  />
+                  <ProductCard product={product} />
+                  <p className="cat-product-where">
+                    Categoria: {categories.find((c) => c.id === product.category_id)?.title ?? 'sem categoria'}
+                  </p>
 
                   {canManage && (
                     <div className="question-item-actions">
                       <button type="button" onClick={() => startEdit(product)}>
-                        Editar
+                        Editar e páginas
                       </button>
 
                       {product.status !== 'published' && (
@@ -672,19 +737,13 @@ export function ProductManager({
                       )}
 
                       {product.status === 'published' && (
-                        <button
-                          type="button"
-                          onClick={() => handleStatusChange(product.id, 'archived')}
-                        >
+                        <button type="button" onClick={() => handleStatusChange(product.id, 'archived')}>
                           Arquivar
                         </button>
                       )}
 
                       {product.status === 'archived' && (
-                        <button
-                          type="button"
-                          onClick={() => handleStatusChange(product.id, 'draft')}
-                        >
+                        <button type="button" onClick={() => handleStatusChange(product.id, 'draft')}>
                           Voltar para rascunho
                         </button>
                       )}
@@ -699,13 +758,9 @@ export function ProductManager({
                     </div>
                   )}
 
-                  {canManage &&
-                    product.status !== 'published' &&
-                    product.price_cents <= 0 && (
-                      <p className="question-empty">
-                        Defina um preço maior que zero para publicar.
-                      </p>
-                    )}
+                  {canManage && product.status !== 'published' && product.price_cents <= 0 && (
+                    <p className="question-empty">Defina um preço maior que zero para publicar.</p>
+                  )}
                 </>
               )}
             </li>
@@ -714,38 +769,38 @@ export function ProductManager({
       )}
 
       <AnimatePresence>
-      {showBuy && selectedProduct && (
-        <m.div
-          key="product-detail"
-          className="product-detail-backdrop product-detail-backdrop--motion"
-          onClick={() => setSelectedProductId(null)}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.22 }}
-        >
+        {showBuy && selectedProduct && (
           <m.div
-            className="product-detail-panel"
-            initial={{ opacity: 0, y: 36, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1, transition: SPRING_SOFT }}
-            exit={{ opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.18 } }}
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Detalhes de ${selectedProduct.title}`}
-            onClick={(event) => event.stopPropagation()}
+            key="product-detail"
+            className="product-detail-backdrop product-detail-backdrop--motion"
+            onClick={() => setSelectedProductId(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
           >
-            <button
-              type="button"
-              className="product-detail-close"
-              onClick={() => setSelectedProductId(null)}
-              aria-label="Fechar"
+            <m.div
+              className="product-detail-panel"
+              initial={{ opacity: 0, y: 36, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: SPRING_SOFT }}
+              exit={{ opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.18 } }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Detalhes de ${selectedProduct.title}`}
+              onClick={(event) => event.stopPropagation()}
             >
-              <CloseIcon size={18} />
-            </button>
-            <ProductCard product={selectedProduct} variant="detail" {...buyPropsFor(selectedProduct)} />
+              <button
+                type="button"
+                className="product-detail-close"
+                onClick={() => setSelectedProductId(null)}
+                aria-label="Fechar"
+              >
+                <CloseIcon size={18} />
+              </button>
+              <ProductCard product={selectedProduct} variant="detail" {...buyPropsFor(selectedProduct)} />
+            </m.div>
           </m.div>
-        </m.div>
-      )}
+        )}
       </AnimatePresence>
 
       {showBuy && readingProduct && <ProductReader product={readingProduct} onClose={() => setReadingId(null)} />}

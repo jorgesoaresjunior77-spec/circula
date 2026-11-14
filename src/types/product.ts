@@ -33,6 +33,8 @@ export interface Product {
   // produtos digitais passaram a ser liberados pelo plano. A coluna segue
   // no banco e o valor é só preservado ao editar.
   checkout_url: string | null
+  /** Categoria da Loja (cartão criado pela profissional). */
+  category_id?: string | null
   created_at: string
   updated_at: string
 }
@@ -55,6 +57,7 @@ export interface ProductInput {
   event_location: string | null
   requires_shipping: boolean
   checkout_url: string | null
+  category_id: string | null
 }
 
 export type ProductResult = { error: string | null }
@@ -97,4 +100,14 @@ const BRL_FORMATTER = new Intl.NumberFormat('pt-BR', { style: 'currency', curren
 
 export function formatPriceBRL(cents: number): string {
   return BRL_FORMATTER.format(cents / 100)
+}
+
+/** Categoria da Loja: um cartão 4:5 criado pela profissional (ex.: "E-books"). */
+export interface ProductCategory {
+  id: string
+  community_id: string
+  title: string
+  cover_image_url: string | null
+  position: number
+  created_at: string
 }
