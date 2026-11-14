@@ -18,7 +18,7 @@ export const CIRCULA_MONTHLY_CENTS = 1490
 export const PRODUCT_MONTHLY_CENTS = 990
 
 export interface CatalogProduct {
-  key: 'magazine' | 'receitas' | 'ebooks'
+  key: 'magazine' | 'receitas' | 'ebooks' | 'help_nutri'
   name: string
   description: string
 }
@@ -27,6 +27,7 @@ export const PRODUCTS: CatalogProduct[] = [
   { key: 'magazine', name: 'Círcula Magazine', description: 'A revista mensal da comunidade.' },
   { key: 'receitas', name: 'Receitas', description: 'Receitas em formato de revista.' },
   { key: 'ebooks', name: 'E-books', description: 'Os e-books da nutricionista.' },
+  { key: 'help_nutri', name: 'Help Nutri', description: 'Chame a nutricionista direto pelo app.' },
 ]
 
 /** Preços de um produto avulso: semestral e anual com preço fechado. */
@@ -36,12 +37,13 @@ export const PRODUCT_PRICES_CENTS: Record<PlanCycle, number> = {
   annual: 7970,
 }
 
-/** Superpacote: Círcula + os 3 produtos. Descontos confirmados: 20% / 35%. */
+/** Superpacote: Círcula + os 4 produtos (revista, receitas, e-books e Help Nutri).
+ *  Descontos confirmados: 20% / 35%. Mensal 54,50 -> semestral 261,60 / anual 425,10. */
 export const PACK_MONTHLY_CENTS = CIRCULA_MONTHLY_CENTS + PRODUCTS.length * PRODUCT_MONTHLY_CENTS
 export const PACK_PRICES_CENTS: Record<PlanCycle, number> = {
   monthly: PACK_MONTHLY_CENTS,
-  semiannual: 21410,
-  annual: 34790,
+  semiannual: 26160,
+  annual: 42510,
 }
 
 export function formatBrl(cents: number): string {

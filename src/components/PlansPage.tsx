@@ -96,7 +96,7 @@ export function PlansPage({
       <h3 className="plans-heading">Superpacotes</h3>
       <article className="plans-card plans-card--pack">
         <h3>Círcula completo</h3>
-        <p className="plans-text">O Círcula mais a revista, as receitas e os e-books.</p>
+        <p className="plans-text">O Círcula mais a revista, as receitas, os e-books e o Help Nutri.</p>
         <PriceRow prices={PACK_PRICES_CENTS} monthly={PACK_MONTHLY_CENTS} />
         <button type="button" className="plans-soon" disabled>
           Em breve

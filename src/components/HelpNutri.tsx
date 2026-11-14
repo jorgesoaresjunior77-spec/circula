@@ -13,6 +13,10 @@ interface HelpNutriProps {
   onConsumedInitial: () => void
   onStartConversation: (otherProfileId: string) => Promise<{ id: string | null; error: string | null }>
   onActivity: () => void
+  /** Tem o pacote Help Nutri ou o plano completo. */
+  hasAccess?: boolean
+  /** Leva à página de Planos. */
+  onOpenPlans?: () => void
 }
 
 export function HelpNutri({
@@ -23,6 +27,8 @@ export function HelpNutri({
   onConsumedInitial,
   onStartConversation,
   onActivity,
+  hasAccess = true,
+  onOpenPlans,
 }: HelpNutriProps) {
   const [name, setName] = useState<string | null>(null)
   const [avatar, setAvatar] = useState<string | null>(null)
@@ -69,7 +75,7 @@ export function HelpNutri({
     setConversationId(id)
   }
 
-  if (conversationId) {
+  if (conversationId && hasAccess) {
     return (
       <section className="messages messages--thread help-nutri-thread">
         <div className="messages-pane messages-pane--detail">
@@ -90,13 +96,28 @@ export function HelpNutri({
     <section className="help-nutri">
       {avatar && <img className="help-nutri-avatar" src={avatar} alt="" />}
       <h2 className="help-nutri-title">Help Nutri</h2>
-      <button type="button" className="help-nutri-btn" onClick={() => void start()} disabled={busy}>
-        {busy ? 'Abrindo...' : 'Nova conversa'}
-        {unread > 0 && <span className="help-nutri-badge">{unread}</span>}
-      </button>
-      <p className="help-nutri-sub">Quer conversar com {name ?? 'a nutricionista'}?</p>
+      {hasAccess ? (
+        <>
+          <button type="button" className="help-nutri-btn" onClick={() => void start()} disabled={busy}>
+            {busy ? 'Abrindo...' : `Chamar ${firstName}`}
+            {unread > 0 && <span className="help-nutri-badge">{unread}</span>}
+          </button>
+          <p className="help-nutri-sub">Toque para falar direto com {name ?? 'a nutricionista'}.</p>
+        </>
+      ) : (
+        <>
+          <p className="help-nutri-sub">
+            O Help Nutri é para quem tem o pacote Help Nutri ou o plano completo. Com ele, você chama{' '}
+            {name ?? 'a nutricionista'} direto pelo app.
+          </p>
+          {onOpenPlans && (
+            <button type="button" className="help-nutri-btn" onClick={onOpenPlans}>
+              Ver planos
+            </button>
+          )}
+        </>
+      )}
       {error && <p className="auth-error">{error}</p>}
-      <span hidden>{firstName}</span>
     </section>
   )
 }

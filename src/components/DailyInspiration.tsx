@@ -16,6 +16,8 @@ interface DailyInspirationProps {
   communityId: string | null
   /** Outro modal (onboarding, tour, guia de instalação) está aberto: espera. */
   suppressed?: boolean
+  /** Chamado quando a mensagem do dia sai de cena (fechou, ou não havia nenhuma). */
+  onSettled?: () => void
 }
 
 /** Quanto tempo o popup fica antes de fechar sozinho. */
@@ -26,7 +28,7 @@ function todayIso(): string {
   return `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`
 }
 
-export function DailyInspiration({ communityId, suppressed = false }: DailyInspirationProps) {
+export function DailyInspiration({ communityId, suppressed = false, onSettled }: DailyInspirationProps) {
   const today = todayIso()
   const [item, setItem] = useState<Inspiration | null>(null)
   const [closed, setClosed] = useState(false)
@@ -41,15 +43,22 @@ export function DailyInspiration({ communityId, suppressed = false }: DailyInspi
         .eq('community_id', communityId)
         .in('status', ['published', 'auto'])
       if (cancelled) return
-      setItem(pickInspiration((data ?? []) as Inspiration[], today))
+      const picked = pickInspiration((data ?? []) as Inspiration[], today)
+      setItem(picked)
+      if (!picked) onSettled?.()
     })()
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [communityId, today])
 
   const open = !!item && !closed && !suppressed
-  const close = useCallback(() => setClosed(true), [])
+  const close = useCallback(() => {
+    setClosed(true)
+    onSettled?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Esc e tempo: o popup fecha sozinho.
   useEffect(() => {

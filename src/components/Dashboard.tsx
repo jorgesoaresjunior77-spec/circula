@@ -39,6 +39,7 @@ import { ReadingTipsPage } from './ReadingTipsPage'
 import { BreathingPage } from './BreathingPage'
 import { InspirationManagerPage } from './InspirationManagerPage'
 import { DailyInspiration } from './DailyInspiration'
+import { GardenReminder } from './GardenReminder'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -198,6 +199,7 @@ export function Dashboard({
   // Etapa 9 (evolução/gamificação) — tour guiado: disparado pelo fim do
   // onboarding (Etapa 8) ou manualmente ("Rever o tour" no Perfil).
   const [showTour, setShowTour] = useState(false)
+  const [inspirationSettled, setInspirationSettled] = useState(false)
   // Guia "colocar o Círcula na tela do celular" (Android/iPhone): aparece
   // sozinho, uma vez por aparelho, ao fim do tour (ou ao pular o
   // onboarding), e pode ser reaberto pelo Perfil.
@@ -633,6 +635,8 @@ export function Dashboard({
           onConsumedInitial={() => setPendingConversationId(null)}
           onStartConversation={startConversation}
           onActivity={refreshConversations}
+          hasAccess={canUseHelpNutri(myPackages)}
+          onOpenPlans={() => handleNavigate('planos')}
         />
       )
     }
@@ -1328,6 +1332,22 @@ export function Dashboard({
             showInstallGuide ||
             (profile.role === 'member' && profile.onboarding_completed_at === null)
           }
+          onSettled={() => setInspirationSettled(true)}
+        />
+      )}
+
+      {/* Lembrete do desafio do Jardim: depois da frase do dia, só para a membro. */}
+      {profile && profile.role === 'member' && (
+        <GardenReminder
+          pending={homeBadges.gardenPending}
+          ready={
+            inspirationSettled &&
+            !showTour &&
+            !showInstallGuide &&
+            profile.onboarding_completed_at !== null &&
+            effectiveNav !== 'jardim'
+          }
+          onGo={() => handleNavigate('jardim')}
         />
       )}
     </section>

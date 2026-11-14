@@ -8,8 +8,8 @@ import {
 } from './plansCatalog'
 
 describe('plansCatalog', () => {
-  it('o superpacote mensal é Círcula + 3 produtos', () => {
-    expect(PACK_MONTHLY_CENTS).toBe(4460)
+  it('o superpacote mensal é Círcula + 4 produtos (com o Help Nutri)', () => {
+    expect(PACK_MONTHLY_CENTS).toBe(5450)
   })
   it('calcula a economia frente ao mensal', () => {
     expect(savingsPercent('semiannual', PRODUCT_PRICES_CENTS.semiannual, 990)).toBe(16)

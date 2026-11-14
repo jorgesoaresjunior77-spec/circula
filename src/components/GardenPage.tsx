@@ -58,6 +58,7 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
   return (
     <section className="garden-page">
       <h2>Meu Jardim</h2>
+      <p className="garden-raffle-note">Interaja, faça desafios e participe de sorteios mensais.</p>
 
       {onOpenAgenda && <HomeWeekCalendar onOpen={onOpenAgenda} />}
 
