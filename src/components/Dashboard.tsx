@@ -915,7 +915,13 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'playlist') {
-      return <PlaylistPage />
+      return (
+        <PlaylistPage
+          communityId={resolvedCirclesCommunityId}
+          isOwner={profile.role === 'professional'}
+          profileId={profile.id}
+        />
+      )
     }
 
     if (effectiveNav === 'planos') {
@@ -953,6 +959,7 @@ export function Dashboard({
         <BreathingPage
           communityId={resolvedCirclesCommunityId}
           isOwner={profile.role === 'professional'}
+          profileId={profile.id}
         />
       )
     }

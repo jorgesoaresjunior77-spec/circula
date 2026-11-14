@@ -3,6 +3,13 @@ import type { FormEvent } from 'react'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { SESSION_KINDS, formatDuration, isValidAudioUrl } from '../lib/wellnessContent'
 import type { PublishStatus, SessionKind, WellnessSession } from '../lib/wellnessContent'
+import { useCommunitySessionPages } from '../hooks/useSessionPages'
+import type { SessionPage } from '../hooks/useSessionPages'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import type { MagazineIssue } from '../types/magazine'
+import { CoverImageInput } from './CoverImageInput'
+import { SessionPagesEditor } from './SessionPagesEditor'
+import { MagazineReader } from './HomeMagazineStrip'
 
 // Respiração e Meditação — sessões cadastradas pela profissional (ou
 // revisadas por quem responde pela técnica). O app não traz nenhuma
@@ -11,6 +18,8 @@ import type { PublishStatus, SessionKind, WellnessSession } from '../lib/wellnes
 interface BreathingPageProps {
   communityId: string
   isOwner: boolean
+  /** Quem está logada (envio do banner e das páginas). */
+  profileId?: string
 }
 
 interface FormState {
@@ -20,6 +29,7 @@ interface FormState {
   instructions: string
   duration: string
   audio: string
+  cover: string
   status: PublishStatus
 }
 
@@ -30,10 +40,27 @@ const EMPTY: FormState = {
   instructions: '',
   duration: '5',
   audio: '',
+  cover: '',
   status: 'draft',
 }
 
-export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
+function SessionBanner({ path }: { path: string | null | undefined }) {
+  const { url } = useSignedImageUrl(path ?? null)
+  return url ? <img className="breathing-banner" src={url} alt="" loading="lazy" decoding="async" /> : null
+}
+
+function toIssue(session: WellnessSession, pages: SessionPage[]): MagazineIssue {
+  return {
+    id: session.id,
+    community_id: session.community_id,
+    title: session.title,
+    cover_path: session.cover_image_url ?? null,
+    release_date: '',
+    pages: pages.map((pg) => ({ id: pg.id, issue_id: session.id, position: pg.position, image_path: pg.image_path })),
+  }
+}
+
+export function BreathingPage({ communityId, isOwner, profileId }: BreathingPageProps) {
   const { items, loading, error, save, remove } = useManagedContent<WellnessSession>(
     'wellness_sessions',
     communityId,
@@ -43,6 +70,10 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
   const [formError, setFormError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [pagesKey, setPagesKey] = useState(0)
+  const pagesBySession = useCommunitySessionPages(communityId, pagesKey)
+  const [readingId, setReadingId] = useState<string | null>(null)
+  const readingSession = readingId ? (items.find((i) => i.id === readingId) ?? null) : null
 
   function openEdit(s: WellnessSession) {
     setForm({
@@ -52,6 +83,7 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
       instructions: s.instructions ?? '',
       duration: String(s.duration_minutes),
       audio: s.audio_url ?? '',
+      cover: s.cover_image_url ?? '',
       status: s.status,
     })
     setFormError(null)
@@ -87,6 +119,7 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
       instructions: form.instructions.trim() || null,
       duration_minutes: minutes,
       audio_url: form.audio.trim() || null,
+      cover_image_url: form.cover || null,
       status: form.status,
     })
     setSaving(false)
@@ -139,6 +172,7 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
           <h3>{group.label}</h3>
           {group.sessions.map((s) => (
             <article key={s.id} className="breathing-card">
+              <SessionBanner path={s.cover_image_url} />
               <div className="breathing-head">
                 <h4>{s.title}</h4>
                 <span className="breathing-duration">{formatDuration(s.duration_minutes)}</span>
@@ -148,6 +182,11 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
               {s.audio_url && (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <audio controls preload="none" src={s.audio_url} aria-label={`Áudio: ${s.title}`} />
+              )}
+              {(pagesBySession[s.id]?.length ?? 0) > 0 && (
+                <button type="button" className="water-primary breathing-open" onClick={() => setReadingId(s.id)}>
+                  Ver o passo a passo
+                </button>
               )}
               {isOwner && (
                 <button type="button" className="water-link" onClick={() => openEdit(s)}>
@@ -204,6 +243,28 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
               onChange={(e) => setForm({ ...form, audio: e.target.value })}
             />
           </label>
+          {profileId && (
+            <CoverImageInput
+              value={form.cover}
+              communityId={communityId}
+              uid={profileId}
+              label="Banner da prática (opcional)"
+              aspectRatio="16 / 9"
+              recommendedSize="1600 × 900 px"
+              onChange={(path) => setForm((f) => (f ? { ...f, cover: path } : f))}
+            />
+          )}
+          {profileId && form.id && (
+            <SessionPagesEditor
+              sessionId={form.id}
+              communityId={communityId}
+              profileId={profileId}
+              onChanged={() => setPagesKey((k) => k + 1)}
+            />
+          )}
+          {profileId && !form.id && (
+            <p className="home-muted">Salve a prática e toque em "Editar" para enviar as páginas (imagens).</p>
+          )}
           <label>
             Situação
             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as PublishStatus })}>
@@ -231,6 +292,14 @@ export function BreathingPage({ communityId, isOwner }: BreathingPageProps) {
               ))}
           </div>
         </form>
+      )}
+
+      {readingSession && (
+        <MagazineReader
+          issue={toIssue(readingSession, pagesBySession[readingSession.id] ?? [])}
+          onClose={() => setReadingId(null)}
+          pageLimit={Number.POSITIVE_INFINITY}
+        />
       )}
     </section>
   )

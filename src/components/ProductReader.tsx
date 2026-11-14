@@ -39,7 +39,7 @@ export function ProductReader({ product, onClose }: Props) {
     id: product.id,
     community_id: product.community_id,
     title: product.title,
-    cover_path: null,
+    cover_path: product.cover_image_url,
     release_date: '',
     pages: pages.map((p) => ({
       id: p.id,
@@ -49,5 +49,5 @@ export function ProductReader({ product, onClose }: Props) {
     })),
   }
 
-  return <MagazineReader issue={issue} onClose={onClose} />
+  return <MagazineReader issue={issue} onClose={onClose} pageLimit={Number.POSITIVE_INFINITY} />
 }

@@ -94,13 +94,16 @@ export function MagazineReader({
   issue,
   onClose,
   onOffice,
+  pageLimit = MAGAZINE_PAGES_MAX,
 }: {
   issue: MagazineIssue | null
   onClose: () => void
   onOffice?: () => void
+  /** Máximo de páginas mostradas (a revista tem teto; e-books e práticas, não). */
+  pageLimit?: number
 }) {
   const slides: (string | null)[] = issue
-    ? [issue.cover_path, ...issue.pages.slice(0, MAGAZINE_PAGES_MAX).map((p) => p.image_path)]
+    ? [issue.cover_path, ...issue.pages.slice(0, pageLimit).map((p) => p.image_path)]
     : []
   const padded =
     slides.length > 1 ? slides : [slides[0] ?? null, ...Array(MAGAZINE_BLANK_PAGES).fill(null)]

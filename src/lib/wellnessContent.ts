@@ -53,6 +53,8 @@ export interface WellnessSession {
   instructions: string | null
   duration_minutes: number
   audio_url: string | null
+  /** Banner da prática (caminho no Storage). */
+  cover_image_url?: string | null
   status: PublishStatus
 }
 

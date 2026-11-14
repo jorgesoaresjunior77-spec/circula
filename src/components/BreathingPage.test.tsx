@@ -5,6 +5,13 @@ import { useManagedContent } from '../hooks/useManagedContent'
 import type { WellnessSession } from '../lib/wellnessContent'
 
 vi.mock('../hooks/useManagedContent')
+vi.mock('../hooks/useSessionPages', () => ({
+  useCommunitySessionPages: () => ({}),
+  useSessionPages: () => ({ pages: [], ready: true, addPage: vi.fn(), removePage: vi.fn() }),
+}))
+vi.mock('../hooks/useSignedImageUrl', () => ({ useSignedImageUrl: () => ({ url: null }) }))
+vi.mock('./HomeMagazineStrip', () => ({ MagazineReader: () => null }))
+vi.mock('./CoverImageInput', () => ({ CoverImageInput: () => null }))
 
 const save = vi.fn()
 const remove = vi.fn()
