@@ -1,3 +1,4 @@
+import { ViewCount } from './ViewCount'
 import { useState } from 'react'
 import { useMagazines } from '../hooks/useMagazines'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
@@ -36,6 +37,7 @@ function IssueEditor({
     <li className="card-images-row magazine-issue-row">
       <div className="card-images-info">
         <span className="card-images-name">{issue.title}</span>
+        <ViewCount communityId={issue.community_id} kind="magazine" itemId={issue.id} />
         <label className="card-images-hint">
           Sai em{' '}
           <input

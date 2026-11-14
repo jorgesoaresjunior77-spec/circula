@@ -17,6 +17,7 @@ import { canReadEbooks } from '../lib/packages'
 import { ProductPagesEditor } from './ProductPagesEditor'
 import { ProductReader } from './ProductReader'
 import { CoverImageInput } from './CoverImageInput'
+import { ViewCount } from './ViewCount'
 import { AnimatePresence, m, inViewOnce, riseVariants, staggerVariants, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
 // Loja por CATEGORIAS (rodada 2026-11-14):
@@ -713,6 +714,12 @@ export function ProductManager({
                   <ProductCard product={product} />
                   <p className="cat-product-where">
                     Categoria: {categories.find((c) => c.id === product.category_id)?.title ?? 'sem categoria'}
+                    {canManage && (
+                      <>
+                        {' · '}
+                        <ViewCount communityId={communityId} kind="ebook" itemId={product.id} />
+                      </>
+                    )}
                   </p>
 
                   {canManage && (

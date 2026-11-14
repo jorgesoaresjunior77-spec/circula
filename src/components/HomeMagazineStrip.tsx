@@ -1,3 +1,4 @@
+import { recordView } from '../lib/itemViews'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -703,6 +704,7 @@ export function HomeMagazineStrip({ issues, officeImage, manager }: HomeMagazine
     }
     setNotice(null)
     setReading(issue)
+    if (issue && !isOwner) recordView(issue.community_id, 'magazine', issue.id)
   }
 
   // Sempre uma pilha cheia: as edições reais na frente (a mais nova primeiro)

@@ -1,3 +1,4 @@
+import { ViewCount } from './ViewCount'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useManagedContent } from '../hooks/useManagedContent'
@@ -118,6 +119,9 @@ export function PartnersManager({ communityId, profileId }: Props) {
         {items.map((p) => (
           <li key={p.id} className="inspiration-item">
             <p className="inspiration-item-text">{p.name}</p>
+            <p className="inspiration-item-meta">
+              <ViewCount communityId={communityId} kind="partner_click" itemId={p.id} />
+            </p>
             <p className="inspiration-item-meta">
               Posição {p.position} · {p.status === 'published' ? 'Publicado' : 'Rascunho'}
             </p>

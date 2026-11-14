@@ -3,6 +3,7 @@ import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { marqueeRepeats, partnerLogoBoost, safePartnerLink } from '../lib/partners'
 import type { Partner } from '../lib/partners'
+import { recordView } from '../lib/itemViews'
 
 // Parceiros: os logos ficam lado a lado, nas cores originais, e a faixa anda
 // devagar para a esquerda, sem parar (como os cartões do Menu). Tocar no logo
@@ -29,6 +30,7 @@ function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
       rel="noopener noreferrer"
       aria-label={`${partner.name} (abre o site do parceiro)`}
       tabIndex={copy ? -1 : undefined}
+      onClick={() => recordView(partner.community_id, 'partner_click', partner.id)}
     >
       {img}
     </a>

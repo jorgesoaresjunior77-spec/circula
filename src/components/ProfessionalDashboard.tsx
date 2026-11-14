@@ -1,3 +1,4 @@
+import { EngagementRanking } from './EngagementInsights'
 import { useState } from 'react'
 import { useProfessionalDashboard } from '../hooks/useProfessionalDashboard'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
@@ -240,6 +241,9 @@ export function ProfessionalDashboard({
           </div>
         </div>
       </section>
+
+      {/* Top 10 de interação (base para os sorteios mensais). */}
+      <EngagementRanking communityId={community.id} />
 
       {/* 5 — Atividade recente (16.2.3-E): timeline plana, sem card. */}
       <section className="panel-overview-timeline-wrap" aria-label="Atividade recente">
