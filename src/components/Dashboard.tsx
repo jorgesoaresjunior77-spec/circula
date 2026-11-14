@@ -1242,6 +1242,7 @@ export function Dashboard({
         <div className="dashboard-main dashboard-main-solo">
           <ProfileCard
             profileId={viewingProfileId}
+            viewerId={profile?.id ?? null}
             onClose={() => setViewingProfileId(null)}
             communityId={myCommunities[0]?.id ?? communities[0]?.id ?? null}
             // Membro só conversa com a nutri (Help Nutri): o botão de mensagem

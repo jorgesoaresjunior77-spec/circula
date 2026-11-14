@@ -7,6 +7,7 @@ import { GardenProfileSummary } from './GardenProfileSummary'
 import { CommunitySubscriptionCard } from './CommunitySubscriptionCard'
 import { ImageCropper } from './ImageCropper'
 import { ProfileBanner } from './ProfileBanner'
+import { ProfileTestimonials } from './ProfileTestimonials'
 import { OnboardingAnswersView } from './OnboardingAnswersView'
 
 interface MyProfileProps {
@@ -43,6 +44,8 @@ export function MyProfile({
   const [fullName, setFullName] = useState(profile.full_name ?? '')
   const [bio, setBio] = useState(profile.bio ?? '')
   const [city, setCity] = useState(profile.city ?? '')
+  const [birthCity, setBirthCity] = useState(profile.birth_city ?? '')
+  const [birthDate, setBirthDate] = useState(profile.birth_date ?? '')
   const [interests, setInterests] = useState<string[]>(profile.interests)
   const [interestDraft, setInterestDraft] = useState('')
   const [saving, setSaving] = useState(false)
@@ -61,6 +64,8 @@ export function MyProfile({
     setFullName(profile.full_name ?? '')
     setBio(profile.bio ?? '')
     setCity(profile.city ?? '')
+    setBirthCity(profile.birth_city ?? '')
+    setBirthDate(profile.birth_date ?? '')
     setInterests(profile.interests)
     setInterestDraft('')
     setMessage(null)
@@ -96,6 +101,8 @@ export function MyProfile({
       full_name: fullName.trim() ? fullName.trim() : null,
       bio: bio.trim() ? bio.trim() : null,
       city: city.trim() ? city.trim() : null,
+      birth_city: birthCity.trim() ? birthCity.trim() : null,
+      birth_date: /^\d{4}-\d{2}-\d{2}$/.test(birthDate) ? birthDate : null,
       interests,
     })
 
@@ -215,6 +222,8 @@ export function MyProfile({
         }
       />
 
+      <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
+
       {crop && (
         <ImageCropper
           file={crop.file}
@@ -282,6 +291,24 @@ export function MyProfile({
             value={city}
             onChange={(event) => setCity(event.target.value)}
             placeholder="Ex: Belo Horizonte"
+          />
+
+          <label htmlFor="profile-birth-city">Cidade onde nasceu</label>
+          <input
+            id="profile-birth-city"
+            type="text"
+            maxLength={120}
+            value={birthCity}
+            onChange={(event) => setBirthCity(event.target.value)}
+          />
+
+          <label htmlFor="profile-birth-date">Data de aniversário</label>
+          <input
+            id="profile-birth-date"
+            type="date"
+            value={birthDate}
+            max={new Date().toISOString().slice(0, 10)}
+            onChange={(event) => setBirthDate(event.target.value)}
           />
 
           <label htmlFor="profile-bio">Sobre você</label>

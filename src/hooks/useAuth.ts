@@ -36,7 +36,7 @@ const PROFILE_SELECT_GARDEN = `${PROFILE_SELECT_BASE}, garden_color_one, garden_
 // inexistente já usado acima para garden_color_one/two — 3o nível, não
 // 2o: tenta com as colunas novas, cai para PROFILE_SELECT_GARDEN (sem
 // elas) se a 42703 disparar.
-const PROFILE_SELECT_ONBOARDING = `${PROFILE_SELECT_GARDEN}, onboarding_answers, onboarding_completed_at, tour_completed_at`
+const PROFILE_SELECT_ONBOARDING = `${PROFILE_SELECT_GARDEN}, onboarding_answers, onboarding_completed_at, tour_completed_at, birth_city, birth_date`
 // Código Postgres de "coluna inexistente" (42703), repassado pelo
 // PostgREST em error.code — é o único caso em que vale tentar de novo
 // sem as colunas novas. Qualquer outro erro (rede, RLS, sessão) não é

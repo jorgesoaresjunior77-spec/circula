@@ -15,6 +15,7 @@ import {
 } from '../lib/imc'
 import { ImcAvatarView } from './Doll3DView'
 import { m, SPRING_SOFT } from '../lib/motionKit'
+import { WeightHistory } from './WeightHistory'
 
 // Calculadora de IMC: a conta é feita no aparelho com o peso e a altura que a
 // própria usuária informa, e nada é salvo. Não é diagnóstico.
@@ -177,6 +178,9 @@ export function ImcPage({ onTalkToNutri }: ImcPageProps) {
         O IMC não considera massa muscular, idade, gestação nem saúde como um todo e não é um diagnóstico.
         Para entender o seu caso, converse com a sua nutricionista ou com o seu médico.
       </p>
+
+      {/* Histórico de peso com gráfico de evolução (salvo só na conta dela). */}
+      <WeightHistory />
     </section>
   )
 }

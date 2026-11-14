@@ -5,6 +5,7 @@ import { ABOUT_ME_OPTIONS } from '../lib/aboutMeOptions'
 import { ProfileGallery } from './ProfileGallery'
 import { GardenProfileSummary } from './GardenProfileSummary'
 import { ProfileBanner } from './ProfileBanner'
+import { ProfileTestimonials } from './ProfileTestimonials'
 
 interface ViewedProfile {
   id: string
@@ -24,6 +25,8 @@ interface ProfileCardProps {
   onStartConversation?: (profileId: string) => void
   /** Comunidade em comum: mostra o Meu Jardim da pessoa visitada. */
   communityId?: string | null
+  /** Quem está visitando (para escrever um depoimento). */
+  viewerId?: string | null
 }
 
 const OVERVIEW_LABELS: { key: keyof ProfileOverview; label: string }[] = [
@@ -34,7 +37,13 @@ const OVERVIEW_LABELS: { key: keyof ProfileOverview; label: string }[] = [
   { key: 'events', label: 'eventos' },
 ]
 
-export function ProfileCard({ profileId, onClose, onStartConversation, communityId = null }: ProfileCardProps) {
+export function ProfileCard({
+  profileId,
+  onClose,
+  onStartConversation,
+  communityId = null,
+  viewerId = null,
+}: ProfileCardProps) {
   const [profile, setProfile] = useState<ViewedProfile | null>(null)
   const [overview, setOverview] = useState<ProfileOverview | null>(null)
   const [loading, setLoading] = useState(true)
@@ -94,6 +103,8 @@ export function ProfileCard({ profileId, onClose, onStartConversation, community
             name={profile.full_name}
             city={profile.city}
           />
+
+          <ProfileTestimonials profileId={profileId} communityId={communityId} viewerId={viewerId} />
 
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 

@@ -38,6 +38,9 @@ function toggleInArray(list: string[], value: string): string[] {
 export function Onboarding({ profile, onUpdateProfile, onDone, onStartTour }: OnboardingProps) {
   const [step, setStep] = useState(0)
   const [preferredName, setPreferredName] = useState('')
+  const [birthCity, setBirthCity] = useState(profile.birth_city ?? '')
+  const [currentCity, setCurrentCity] = useState(profile.city ?? '')
+  const [birthDate, setBirthDate] = useState(profile.birth_date ?? '')
   const [currentMoment, setCurrentMoment] = useState('')
   const [interestTopics, setInterestTopics] = useState<string[]>([])
   const [participation, setParticipation] = useState<string[]>([])
@@ -75,6 +78,9 @@ export function Onboarding({ profile, onUpdateProfile, onDone, onStartTour }: On
       onboarding_answers: answers,
       onboarding_completed_at: new Date().toISOString(),
     }
+    if (birthCity.trim()) patch.birth_city = birthCity.trim()
+    if (currentCity.trim()) patch.city = currentCity.trim()
+    if (/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) patch.birth_date = birthDate
     if (interestTopics.length > 0) {
       const merged = new Set([...profile.interests, ...interestTopics])
       patch.interests = [...merged]
@@ -136,6 +142,38 @@ export function Onboarding({ profile, onUpdateProfile, onDone, onStartTour }: On
                 onChange={(e) => setPreferredName(e.target.value)}
                 placeholder="Ex.: Ju, Bia, Dona Marta..."
               />
+              <label className="onboarding-field">
+                Cidade onde nasceu
+                <input
+                  type="text"
+                  className="onboarding-input"
+                  maxLength={120}
+                  value={birthCity}
+                  onChange={(e) => setBirthCity(e.target.value)}
+                  placeholder="Ex.: Lajeado, RS"
+                />
+              </label>
+              <label className="onboarding-field">
+                Cidade onde mora hoje
+                <input
+                  type="text"
+                  className="onboarding-input"
+                  maxLength={120}
+                  value={currentCity}
+                  onChange={(e) => setCurrentCity(e.target.value)}
+                  placeholder="Ex.: Porto Alegre, RS"
+                />
+              </label>
+              <label className="onboarding-field">
+                Data de aniversário
+                <input
+                  type="date"
+                  className="onboarding-input"
+                  value={birthDate}
+                  max={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                />
+              </label>
             </>
           )}
 

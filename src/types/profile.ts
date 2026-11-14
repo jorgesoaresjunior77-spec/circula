@@ -19,6 +19,9 @@ export interface Profile {
   interests: string[]
   bio: string | null
   city: string | null
+  /** Cadastro: cidade onde nasceu e data de aniversário (AAAA-MM-DD). */
+  birth_city?: string | null
+  birth_date?: string | null
   /** Perfil (item 10) — até 12 fotos, URLs públicas do bucket `avatars`
    *  (mesmo bucket do avatar), ordem = ordem de exibição na grade. */
   gallery_photos: string[]
@@ -57,6 +60,8 @@ export interface ProfileUpdateInput {
   interests?: string[]
   bio?: string | null
   city?: string | null
+  birth_city?: string | null
+  birth_date?: string | null
   gallery_photos?: string[]
   garden_color_one?: GardenColor | null
   garden_color_two?: GardenColor | null
