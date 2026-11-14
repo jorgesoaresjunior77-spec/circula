@@ -1001,3 +1001,80 @@
   flex: 0 0 auto;
   color: #6b6058;
 }
+
+/* ---- Ajuda: categorias em cartões ---------------------------------------------------- */
+.help-page .help-categories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+  padding-bottom: 12px;
+}
+
+@media (min-width: 700px) {
+  .help-page .help-categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.help-page .help-category {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-height: 118px;
+  padding: 14px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #fffaf6, #f4e7dc);
+  box-shadow:
+    0 2px 0 #e0cfc0,
+    0 4px 0 #cdb8a6,
+    0 16px 18px -12px rgba(40, 32, 26, 0.5);
+  text-align: left;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.help-page .help-category:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #cdb8a6, 0 8px 10px -8px rgba(40, 32, 26, 0.5);
+}
+
+.help-page .help-category > svg {
+  display: none;
+}
+
+.help-page .help-category-text strong {
+  display: block;
+  font-family: var(--font-display, inherit);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.help-page .help-category-text span {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #8a7d72;
+}
+
+.help-page .help-category-count {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  min-width: 22px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #fde4ea;
+  color: #85293f;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.help-page .help-category-text {
+  padding-right: 26px;
+}

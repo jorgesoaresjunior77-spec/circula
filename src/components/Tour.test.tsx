@@ -74,8 +74,8 @@ describe('Tour', () => {
     const onDone = vi.fn()
     render(<Tour onNavigate={vi.fn()} onDone={onDone} />)
 
-    // 7 passos ao todo (índices 0-6) — 6 cliques em "Avançar" chegam ao último.
-    for (let i = 0; i < 6; i++) {
+    // 8 passos ao todo (índices 0-7) — 7 cliques em "Avançar" chegam ao último.
+    for (let i = 0; i < 7; i++) {
       fireEvent.click(screen.getByText('Avançar'))
     }
 

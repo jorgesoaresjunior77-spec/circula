@@ -26,7 +26,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     navKey: 'inicio',
     title: 'Página inicial',
-    text: 'Aqui você encontra sua comunidade, os Círculos, o Instagram e as novidades do dia.',
+    text: 'Aqui ficam a saudação e o tempo, os atalhos (Antes de Tudo, Água e IMC), o Menu, a agenda, os Círculos e a revista.',
   },
   {
     navKey: 'circulos',
@@ -41,17 +41,22 @@ const TOUR_STEPS: TourStep[] = [
   {
     navKey: 'feed',
     title: 'Publicações e interações',
-    text: 'O Feed reúne as publicações da comunidade — curta, comente e compartilhe suas experiências.',
+    text: 'O Feed reúne as publicações da comunidade. Curta, comente e responda: as respostas aparecem logo abaixo de cada mensagem. Toque na foto para ampliar.',
   },
   {
     navKey: 'jardim',
     title: 'Meu Jardim',
-    text: 'Seu espaço de evolução: desafios mensais, progressão anual e conquistas — tudo no seu ritmo.',
+    text: 'Todo dia tem um desafio: faça o check e a flor do mês ganha uma pétala. Interaja, faça desafios e participe de sorteios mensais.',
+  },
+  {
+    navKey: 'loja',
+    title: 'Loja',
+    text: 'Os conteúdos ficam em categorias. Toque em um cartão para ver os produtos e leia tudo aqui mesmo, no app.',
   },
   {
     navKey: 'perfil',
     title: 'Perfil pessoal',
-    text: 'Sua foto, suas fotos, seus interesses e sua evolução no Meu Jardim, tudo em um só lugar.',
+    text: 'Sua foto, sua capa com os depoimentos que você recebe, seus interesses e seu Jardim. Toque na foto de outra participante para visitar o perfil dela.',
   },
   {
     elementId: 'tour-notification-bell',

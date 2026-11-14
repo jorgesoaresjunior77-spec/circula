@@ -50,8 +50,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'pp-5',
         q: 'Como completar meu perfil?',
-        a: 'Toque em Meu perfil na barra de baixo e depois em Editar perfil. Você pode preencher o nome, a cidade, o campo Sobre você e os seus interesses. Salve no final. Quanto mais completo, mais fácil as outras participantes conhecerem você.',
-        k: 'perfil editar dados bio cidade interesses',
+        a: 'Toque em Meu perfil na barra de baixo e depois em Editar perfil. Você pode preencher o nome, a cidade onde mora, a cidade onde nasceu, a data de aniversário, o campo Sobre você e os seus interesses. Salve no final. Parte desses dados também é pedida na apresentação de boas-vindas, logo no primeiro acesso.',
+        k: 'perfil editar dados bio cidade nasceu aniversário interesses',
       },
       {
         id: 'pp-6',
@@ -62,8 +62,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'pp-7',
         q: 'Como alterar meus dados pessoais?',
-        a: 'Em Meu perfil, toque em Editar perfil e altere nome, cidade, texto Sobre você e interesses. Para mudar o e-mail da conta, fale com a nutricionista pelo Help Nutri, pois essa troca ainda não é feita dentro do app.',
-        k: 'dados nome cidade atualizar editar email',
+        a: 'Em Meu perfil, toque em Editar perfil e altere nome, cidade onde mora, cidade onde nasceu, data de aniversário, texto Sobre você e interesses. Para mudar o e-mail da conta, fale com a nutricionista, pois essa troca ainda não é feita dentro do app.',
+        k: 'dados nome cidade aniversário nascimento atualizar editar email',
       },
       {
         id: 'pp-8',
@@ -148,13 +148,13 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ap-1',
         q: 'Quais são os planos disponíveis?',
-        a: 'Na página Planos (card Assinaturas, no menu da página inicial) você vê o plano do Círcula nos ciclos mensal, semestral e anual, os conteúdos avulsos (Círcula Magazine, Receitas e E-books) e o superpacote Círcula completo. Os valores aparecem na própria página.',
-        k: 'planos preços valores mensal semestral anual pacote',
+        a: 'Na página Planos (card Assinaturas, no menu da página inicial) você vê o plano do Círcula nos ciclos mensal, semestral e anual, os conteúdos avulsos (Círcula Magazine, Receitas, E-books e Help Nutri, cada um por R$ 9,90 ao mês, com desconto no semestral e no anual) e o superpacote Círcula completo, que reúne tudo. Os valores aparecem na própria página.',
+        k: 'planos preços valores mensal semestral anual pacote help nutri 9,90',
       },
       {
         id: 'ap-2',
         q: 'Qual a diferença entre os planos?',
-        a: 'A diferença é o período e o desconto: quanto maior o ciclo (semestral ou anual), menor o valor por mês. O superpacote reúne o Círcula e os três conteúdos avulsos por um preço menor do que comprar cada um separado. A página Planos mostra a economia de cada opção.',
+        a: 'A diferença é o período e o desconto: quanto maior o ciclo (semestral ou anual), menor o valor por mês. O superpacote reúne o Círcula e os quatro conteúdos avulsos (revista, receitas, e-books e Help Nutri) por um preço menor do que comprar cada um separado. A página Planos mostra a economia de cada opção.',
         k: 'diferença planos economia desconto pacote',
       },
       {
@@ -337,25 +337,25 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'lo-1',
         q: 'Como funciona a loja do Círcula?',
-        a: 'A Loja reúne os produtos e materiais que a nutricionista oferece à comunidade, como e-books e conteúdos digitais. Você abre pela vitrine Loja ou pelo item Loja do Menu.',
-        k: 'loja funciona produtos comprar',
+        a: 'A Loja é organizada por categorias: cada categoria é um cartão (por exemplo, E-books). Toque no cartão para ver os produtos daquela categoria. Todos os produtos são digitais e lidos aqui mesmo, dentro do app. Você abre a Loja pelo cartão Loja do Menu.',
+        k: 'loja funciona produtos comprar categorias cartões',
       },
       {
         id: 'lo-2',
         q: 'Como encontrar produtos?',
-        a: 'Abra a Loja. Os produtos publicados aparecem em lista, com foto e nome. Role para ver todos.',
-        k: 'produtos encontrar procurar loja',
+        a: 'Abra a Loja e toque na categoria que procura. Dentro dela aparecem os produtos, cada um com capa, título e descrição. Use o botão Categorias para voltar e escolher outra.',
+        k: 'produtos encontrar procurar loja categoria',
       },
       {
         id: 'lo-3',
         q: 'Como visualizar os detalhes de um produto?',
-        a: 'Na Loja, toque no produto para ver a descrição, o valor e as informações do item.',
+        a: 'Dentro da categoria, toque no produto para ver a capa, a descrição completa e o valor.',
         k: 'detalhes produto descrição valor',
       },
       {
         id: 'lo-4',
         q: 'Como realizar uma compra?',
-        a: 'Abra o produto na Loja e siga o botão de compra. A finalização do pagamento acontece em uma página segura que abre para você. Se algo não funcionar, fale com a nutricionista pelo Help Nutri.',
+        a: 'Abra o produto e toque em Comprar. A finalização do pagamento acontece em uma página segura que abre para você. Quem tem o pacote de E-books ou o plano completo não precisa comprar: o botão já aparece como Ler.',
         k: 'comprar compra pagar pedido',
       },
       {
@@ -367,19 +367,19 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'lo-6',
         q: 'Como acessar um produto adquirido?',
-        a: 'Os produtos digitais comprados ficam disponíveis na própria Loja, no item que você adquiriu. Se não aparecer após a confirmação do pagamento, aguarde alguns minutos e atualize a página; persistindo, avise a nutricionista.',
-        k: 'acessar produto comprado adquirido meus materiais',
+        a: 'Depois do pagamento confirmado (ou se você tem o pacote de E-books ou o plano completo), abra o produto na Loja e toque em Ler. Ele abre no leitor do app, página por página, como a revista. Se não aparecer após a confirmação, aguarde alguns minutos e atualize a página.',
+        k: 'acessar produto comprado adquirido meus materiais ler leitor',
       },
       {
         id: 'lo-7',
         q: 'Como funciona a entrega de produtos digitais?',
-        a: 'Produtos digitais não têm frete: depois que o pagamento é confirmado, o acesso é liberado na Loja. Pode levar alguns minutos até a confirmação.',
-        k: 'entrega digital frete e-book download',
+        a: 'Não há entrega nem download: todos os produtos são digitais e lidos dentro do app. Depois que o pagamento é confirmado, o botão Ler é liberado no próprio produto. Pode levar alguns minutos até a confirmação.',
+        k: 'entrega digital frete e-book download ler',
       },
       {
         id: 'lo-8',
         q: 'Onde encontro meus materiais comprados?',
-        a: 'Na Loja, nos produtos que você adquiriu. Se um material não aparecer, confira se o pagamento foi confirmado e, se continuar faltando, fale com a nutricionista pelo Help Nutri.',
+        a: 'Na Loja, dentro da categoria do produto. Os que você já pode ler aparecem com a indicação Ler agora. Se um material não aparecer liberado, confira se o pagamento foi confirmado.',
         k: 'materiais comprados meus produtos biblioteca',
       },
     ],
@@ -435,8 +435,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'be-1',
         q: 'Como funciona a frase do dia?',
-        a: 'Uma vez por dia, ao abrir o app, aparece uma frase em um balão ao lado da sua saudação. A frase é sorteada entre as cadastradas pela comunidade e é a mesma para todas no dia. Toque no balão para ler inteira e no X para fechar.',
-        k: 'frase do dia mensagem balão inspiração',
+        a: 'Ao abrir o app, a mensagem do dia aparece em um pop-up no centro da tela. Ela fecha sozinha em alguns segundos, ou no X. É a mesma para todas no dia e só volta quando o app for aberto de novo.',
+        k: 'frase do dia mensagem popup inspiração',
       },
       {
         id: 'be-2',
@@ -447,14 +447,14 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'be-3',
         q: 'Como acessar os exercícios de respiração?',
-        a: 'No menu vertical da página inicial, toque em Respiração. Lá ficam as práticas de respiração e meditação cadastradas pela nutricionista.',
-        k: 'respiração meditação exercícios',
+        a: 'No menu da página inicial, toque em Respiração. Cada prática tem o seu banner, a duração e as orientações. Quando a nutricionista cadastrou imagens, aparece o botão Ver o passo a passo, que abre as páginas no leitor do app.',
+        k: 'respiração meditação exercícios passo a passo páginas',
       },
       {
         id: 'be-4',
         q: 'Como utilizar a playlist?',
-        a: 'A Playlist está chegando. Por enquanto a tela avisa que ainda não há playlists publicadas; quando houver, elas aparecem ali.',
-        k: 'playlist música',
+        a: 'No menu da página inicial, toque em Playlist. Cada playlist é um cartão com imagem; o botão Ouvir no Spotify abre a playlist no Spotify. Enquanto nenhuma for publicada, a tela avisa.',
+        k: 'playlist música spotify ouvir',
       },
       {
         id: 'be-5',
@@ -465,8 +465,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'be-6',
         q: 'Como utilizar o card IMC?',
-        a: 'Toque em IMC, informe a sua altura em centímetros e o seu peso em quilos e toque em Calcular. O app mostra o resultado, a faixa de referência, uma mensagem acolhedora e uma ilustração. A conta é feita no aparelho e nada é salvo.',
-        k: 'imc calculadora peso altura',
+        a: 'Toque em IMC, informe a sua altura em centímetros e o seu peso em quilos e toque em Calcular. O app mostra o resultado, a faixa de referência e uma mensagem acolhedora. A conta do IMC é feita no aparelho e não é salva. Logo abaixo fica Minha evolução, onde você pode registrar o peso quando quiser.',
+        k: 'imc calculadora peso altura evolução',
       },
       {
         id: 'be-7',
@@ -483,8 +483,20 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'be-9',
         q: 'Como falar com a nutricionista?',
-        a: 'Toque em Help Nutri no Menu da página inicial (ou em Falar com a nutri, na tela do IMC). Abre a conversa com a nutricionista da sua comunidade, onde você escreve a sua dúvida.',
-        k: 'falar nutricionista help nutri mensagem conversa contato',
+        a: 'Toque em Help Nutri no Menu da página inicial e depois no botão de chamar a nutricionista: abre a conversa direta com ela. O Help Nutri é para quem tem o pacote Help Nutri ou o plano completo; sem ele, a tela mostra o caminho para os Planos.',
+        k: 'falar nutricionista help nutri mensagem conversa contato chamar',
+      },
+      {
+        id: 'be-10',
+        q: 'Como acompanhar a evolução do meu peso?',
+        a: 'Na tela do IMC, em Minha evolução, digite o peso, escolha a data e toque em Registrar. O gráfico mostra o caminho desde o primeiro registro. Vale um registro por dia (registrar de novo no mesmo dia atualiza). Em Ver registros você pode apagar um lançamento. Só você vê esses números.',
+        k: 'peso histórico gráfico evolução registrar balança',
+      },
+      {
+        id: 'be-11',
+        q: 'Como funciona o desafio do Meu Jardim?',
+        a: 'Cada dia do mês tem um desafio. Abra o Meu Jardim, leia o desafio de hoje e faça o check: a flor do mês acende mais uma pétala. Enquanto o check do dia não é feito, o cartão do Jardim mostra uma bolinha vermelha e, depois da mensagem do dia, aparece um lembrete que leva direto até lá. Interaja, faça desafios e participe de sorteios mensais.',
+        k: 'jardim desafio check flor lembrete sorteio bolinha',
       },
     ],
   },
@@ -514,8 +526,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ci-4',
         q: 'Como interagir com outras participantes?',
-        a: 'No Feed você lê as publicações, reage e comenta, com respeito e carinho. Os comentários e respostas ficam fechados, vistos só por quem participa da comunidade. Dentro dos Círculos você também conversa com o grupo.',
-        k: 'interagir comentar curtir feed conversar participantes',
+        a: 'No Feed e dentro dos Círculos você lê as publicações, reage, comenta e responde aos comentários das outras. As respostas aparecem logo abaixo da mensagem de origem: até 6 ficam à vista e as seguintes abrem em Ver mais. Tudo é visto só por quem participa da comunidade.',
+        k: 'interagir comentar responder curtir feed conversar participantes círculos',
       },
       {
         id: 'ci-5',
@@ -535,6 +547,24 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         a: 'A comunidade Fluir & Florescer é um espaço de cuidado e amizade entre mulheres. Só participam as pessoas convidadas. A nutricionista cuida do ambiente, e pedimos sempre respeito, acolhimento e sigilo sobre o que é compartilhado.',
         k: 'comunidade feminina regras convivência respeito',
       },
+      {
+        id: 'ci-8',
+        q: 'Como escrever um depoimento para outra participante?',
+        a: 'Abra o perfil dela (toque na foto ou no nome, no Feed) e toque em Escrever um depoimento. O texto fica na capa do perfil dela. Vale um depoimento por pessoa; você pode apagar o seu, e quem recebeu pode tirar da própria capa.',
+        k: 'depoimento perfil capa escrever elogio',
+      },
+      {
+        id: 'ci-9',
+        q: 'Como publicar e ver fotos no Feed?',
+        a: 'Cada mensagem aceita uma foto. No Feed ela aparece pequena; toque na foto para abrir em tamanho maior e toque de novo para fechar.',
+        k: 'foto imagem feed publicar ampliar abrir',
+      },
+      {
+        id: 'ci-10',
+        q: 'Como visitar o perfil de outra participante?',
+        a: 'No Feed ou nos Círculos, toque na foto ou no nome de quem publicou. Abre o perfil dela, com a capa, os depoimentos, as fotos e o Meu Jardim.',
+        k: 'visitar perfil outra participante ver',
+      },
     ],
   },
   {
@@ -545,8 +575,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'pv-1',
         q: 'Quem pode visualizar meu perfil?',
-        a: 'O seu perfil é visto apenas por quem participa da mesma comunidade que você e pela nutricionista responsável. Pessoas de fora da comunidade não veem o seu perfil.',
-        k: 'quem vê perfil privacidade visualizar',
+        a: 'O seu perfil é visto apenas por quem participa da mesma comunidade que você e pela nutricionista responsável. As participantes podem visitar o perfil umas das outras tocando na foto ou no nome, no Feed. Pessoas de fora da comunidade não veem o seu perfil. O seu histórico de peso nunca aparece no perfil: só você vê.',
+        k: 'quem vê perfil privacidade visualizar visitar',
       },
       {
         id: 'pv-2',
