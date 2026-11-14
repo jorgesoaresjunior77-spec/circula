@@ -15,16 +15,22 @@ interface CommentThreadProps {
   ) => Promise<CreateCommentResult>
 }
 
+/** Quantas mensagens ficam à vista antes do "ver mais". */
+export const VISIBLE_LIMIT = 6
+
 export function CommentThread({ comment, canInteract, onReply }: CommentThreadProps) {
   const [replying, setReplying] = useState(false)
   // Resposta a uma resposta: fica agrupada sob o comentário-raiz, com @nome.
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null)
   const [showAllReplies, setShowAllReplies] = useState(false)
+  const [repliesHidden, setRepliesHidden] = useState(false)
 
-  // As respostas vêm fechadas, com aviso "Ver N respostas"; ao responder, abrem.
+  // As respostas aparecem logo abaixo da mensagem de origem: até 6 à vista;
+  // as seguintes ficam recolhidas, com um aviso para abrir.
   const replies = comment.replies ?? []
   const replyCount = replies.length
-  const visibleReplies = showAllReplies ? replies : []
+  const visibleReplies = repliesHidden ? [] : showAllReplies ? replies : replies.slice(0, VISIBLE_LIMIT)
+  const hiddenReplies = replyCount - Math.min(replyCount, VISIBLE_LIMIT)
 
   async function handleReplySubmit(
     content: string,
@@ -32,7 +38,10 @@ export function CommentThread({ comment, canInteract, onReply }: CommentThreadPr
   ): Promise<CreateCommentResult> {
     if (!onReply) return { error: 'Não é possível responder aqui.' }
     const result = await onReply(content, comment.id, file)
-    if (!result.error) setShowAllReplies(true)
+    if (!result.error) {
+      setShowAllReplies(true)
+      setRepliesHidden(false)
+    }
     return result
   }
 
@@ -69,10 +78,10 @@ export function CommentThread({ comment, canInteract, onReply }: CommentThreadPr
             <button
               type="button"
               className="comment-reply-action"
-              aria-expanded={showAllReplies}
-              onClick={() => setShowAllReplies((value) => !value)}
+              aria-expanded={!repliesHidden}
+              onClick={() => setRepliesHidden((value) => !value)}
             >
-              <ReplyIcon size={13} /> {showAllReplies ? 'Ocultar respostas' : `Ver ${repliesLabel}`}
+              <ReplyIcon size={13} /> {repliesHidden ? `Ver ${repliesLabel}` : 'Ocultar respostas'}
             </button>
           )}
         </div>
@@ -124,6 +133,11 @@ export function CommentThread({ comment, canInteract, onReply }: CommentThreadPr
         </ul>
       )}
 
+      {!repliesHidden && !showAllReplies && hiddenReplies > 0 && (
+        <button type="button" className="comment-more comment-more--replies" onClick={() => setShowAllReplies(true)}>
+          Ver mais {hiddenReplies} {hiddenReplies === 1 ? 'resposta' : 'respostas'}
+        </button>
+      )}
     </li>
   )
 }

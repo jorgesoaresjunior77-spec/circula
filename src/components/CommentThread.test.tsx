@@ -32,64 +32,60 @@ const THREAD = make('c1', 'Que lindo!', null, [
   make('r2', 'Também achei', 'c1'),
 ])
 
-describe('CommentThread — respostas fechadas com aviso', () => {
+describe('CommentThread — respostas à vista (até 6), o resto recolhido', () => {
   afterEach(() => cleanup())
 
-  it('mostra o comentário e um aviso "Ver 2 respostas", sem as respostas abertas', () => {
+  it('mostra o comentário com as respostas logo abaixo, já abertas', () => {
     render(<CommentThread comment={THREAD} canInteract onReply={vi.fn()} />)
 
     expect(screen.getByText('Que lindo!')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Ver 2 respostas/ })).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText('Concordo!')).not.toBeInTheDocument()
-  })
-
-  it('clicar no aviso abre as respostas e vira "Ocultar respostas"', () => {
-    render(<CommentThread comment={THREAD} canInteract onReply={vi.fn()} />)
-
-    fireEvent.click(screen.getByRole('button', { name: /Ver 2 respostas/ }))
     expect(screen.getByText('Concordo!')).toBeInTheDocument()
     expect(screen.getByText('Também achei')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Ocultar respostas/ })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('"Ocultar respostas" recolhe e "Ver 2 respostas" abre de novo', () => {
+    render(<CommentThread comment={THREAD} canInteract onReply={vi.fn()} />)
 
     fireEvent.click(screen.getByRole('button', { name: /Ocultar respostas/ }))
     expect(screen.queryByText('Concordo!')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Ver 2 respostas/ }))
+    expect(screen.getByText('Concordo!')).toBeInTheDocument()
   })
 
-  it('com 1 resposta o aviso fica no singular', () => {
-    render(
-      <CommentThread
-        comment={make('c2', 'Oi', null, [make('r3', 'Olá', 'c2')])}
-        canInteract
-        onReply={vi.fn()}
-      />,
-    )
-    expect(screen.getByRole('button', { name: /Ver 1 resposta$/ })).toBeInTheDocument()
+  it('com mais de 6 respostas, mostra 6 e recolhe as seguintes atrás de "Ver mais"', () => {
+    const many = Array.from({ length: 8 }, (_, i) => make('m' + i, 'Resposta ' + (i + 1), 'c9'))
+    render(<CommentThread comment={make('c9', 'Muitas', null, many)} canInteract onReply={vi.fn()} />)
+
+    expect(screen.getByText('Resposta 6')).toBeInTheDocument()
+    expect(screen.queryByText('Resposta 7')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Ver mais 2 respostas/ }))
+    expect(screen.getByText('Resposta 8')).toBeInTheDocument()
   })
 
   it('sem respostas não mostra aviso, só "Responder"', () => {
     render(<CommentThread comment={make('c3', 'Sozinho')} canInteract onReply={vi.fn()} />)
-    expect(screen.queryByRole('button', { name: /Ver .* resposta/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /respostas?$/ })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Responder/ })).toBeInTheDocument()
   })
 
-  it('responder continua disponível com as respostas fechadas e, ao responder, elas abrem', async () => {
+  it('responder envia a resposta para o comentário-raiz', async () => {
     const onReply = vi.fn().mockResolvedValue({ error: null })
-    render(<CommentThread comment={THREAD} canInteract onReply={onReply} />)
-
-    expect(screen.queryByText('Concordo!')).not.toBeInTheDocument()
+    render(<CommentThread comment={make('c4', 'Só eu')} canInteract onReply={onReply} />)
 
     fireEvent.click(screen.getByRole('button', { name: /Responder/ }))
     fireEvent.change(screen.getByPlaceholderText(/Responder a Bia/), { target: { value: 'Verdade!' } })
     const buttons = screen.getAllByRole('button', { name: 'Responder' })
     fireEvent.click(buttons[buttons.length - 1]) // o de enviar, dentro do formulário
 
-    await waitFor(() => expect(onReply).toHaveBeenCalledWith('Verdade!', 'c1', null))
-    expect(await screen.findByText('Concordo!')).toBeInTheDocument()
+    await waitFor(() => expect(onReply).toHaveBeenCalledWith('Verdade!', 'c4', null))
   })
 
-  it('quem não pode interagir ainda vê o aviso das respostas, mas não "Responder"', () => {
+  it('quem não pode interagir lê as respostas, mas não vê "Responder"', () => {
     render(<CommentThread comment={THREAD} canInteract={false} />)
-    expect(screen.getByRole('button', { name: /Ver 2 respostas/ })).toBeInTheDocument()
+    expect(screen.getByText('Concordo!')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Responder/ })).not.toBeInTheDocument()
   })
 })
-

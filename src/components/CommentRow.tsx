@@ -44,7 +44,15 @@ export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
         {!(comment.image_url && comment.content.trim() === '📷') && (
           <p className="comment-content">{comment.content}</p>
         )}
-        {imageUrl && <img className="comment-image" src={imageUrl} alt="" loading="lazy" />}
+        {imageUrl && (
+          <img
+            className="comment-image"
+            src={imageUrl}
+            alt=""
+            loading="lazy"
+            onClick={() => window.open(imageUrl, '_blank', 'noopener')}
+          />
+        )}
         {likes && comment.id && (
           <button
             type="button"

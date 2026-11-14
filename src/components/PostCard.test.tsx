@@ -63,85 +63,80 @@ function setup(overrides: Partial<React.ComponentProps<typeof PostCard>> = {}) {
   return { props, ...render(<PostCard {...props} />) }
 }
 
-describe('PostCard — conversa do feed fechada com aviso', () => {
+describe('PostCard — conversa do feed aberta abaixo da mensagem', () => {
   afterEach(() => cleanup())
 
-  it('mostra a mensagem e só um aviso para abrir os comentários e respostas (nada aberto)', () => {
-    setup({ commentCount: 5, topLevelCount: 3 })
-
-    expect(screen.getByText('Bom dia, meninas!')).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /Ver 3 comentários e 2 respostas/ }),
-    ).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByPlaceholderText('Escreva um comentário...')).not.toBeInTheDocument()
-  })
-
-  it('o aviso conta só comentários quando não há respostas', () => {
-    setup({ commentCount: 1, topLevelCount: 1 })
-    expect(screen.getByRole('button', { name: /Ver 1 comentário$/ })).toBeInTheDocument()
-  })
-
-  it('clicar no aviso carrega a conversa e abre os comentários com o campo para comentar', async () => {
+  it('com comentários, busca a conversa sozinho e mostra logo abaixo da mensagem', async () => {
     const comments = [comment('c1', 'Que lindo!')]
     const { props, rerender } = setup({ commentCount: 1, topLevelCount: 1 })
 
-    fireEvent.click(screen.getByRole('button', { name: /Ver 1 comentário/ }))
-    expect(props.onOpenComments).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('Bom dia, meninas!')).toBeInTheDocument()
+    await waitFor(() => expect(props.onOpenComments).toHaveBeenCalledTimes(1))
 
     rerender(<PostCard {...props} comments={comments} />)
-    await waitFor(() => expect(screen.getByText('Que lindo!')).toBeInTheDocument())
+    expect(await screen.findByText('Que lindo!')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Escreva um comentário...')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Ocultar comentários' })).toBeInTheDocument()
   })
 
-  it('"Ocultar comentários" fecha a conversa de novo', async () => {
+  it('mostra até 6 comentários e recolhe os seguintes atrás de "Ver mais"', async () => {
+    const comments = Array.from({ length: 8 }, (_, i) => comment('c' + i, 'Comentário ' + (i + 1)))
+    setup({ commentCount: 8, topLevelCount: 8, comments })
+
+    expect(await screen.findByText('Comentário 6')).toBeInTheDocument()
+    expect(screen.queryByText('Comentário 7')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Ver mais 2 comentários/ }))
+    expect(screen.getByText('Comentário 8')).toBeInTheDocument()
+  })
+
+  it('"Ocultar comentários" fecha a conversa e o aviso abre de novo', async () => {
     const comments = [comment('c1', 'Que lindo!')]
     setup({ commentCount: 1, topLevelCount: 1, comments })
+
+    expect(await screen.findByText('Que lindo!')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar comentários' }))
+    expect(screen.queryByText('Que lindo!')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Ver 1 comentário/ }))
     expect(await screen.findByText('Que lindo!')).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Ocultar comentários' }))
-    expect(screen.queryByText('Que lindo!')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Ver 1 comentário/ })).toBeInTheDocument()
   })
 
-  it('o botão de comentários (ícone) também abre e fecha a conversa', async () => {
+  it('o botão de comentários (ícone) também fecha e abre a conversa', async () => {
     const comments = [comment('c1', 'Que lindo!')]
     setup({ commentCount: 1, topLevelCount: 1, comments })
 
-    fireEvent.click(screen.getByRole('button', { name: '1' }))
     expect(await screen.findByText('Que lindo!')).toBeInTheDocument()
-
     fireEvent.click(screen.getByRole('button', { name: '1' }))
     expect(screen.queryByText('Que lindo!')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '1' }))
+    expect(await screen.findByText('Que lindo!')).toBeInTheDocument()
   })
 
-  it('sem comentários, quem pode interagir vê "Comentar", que abre o campo', async () => {
-    const { props, rerender } = setup({ commentCount: 0 })
-
-    fireEvent.click(screen.getByRole('button', { name: 'Comentar' }))
-    rerender(<PostCard {...props} comments={[]} />)
-
-    expect(await screen.findByPlaceholderText('Escreva um comentário...')).toBeInTheDocument()
-    expect(screen.getByText(/Ainda não há comentários/)).toBeInTheDocument()
+  it('sem comentários, quem pode interagir já vê o campo para comentar (sem buscar nada)', () => {
+    const { props } = setup({ commentCount: 0 })
+    expect(screen.getByPlaceholderText('Escreva um comentário...')).toBeInTheDocument()
+    expect(props.onOpenComments).not.toHaveBeenCalled()
   })
 
-  it('quem não pode interagir e não há comentários só vê um aviso, sem botão', () => {
+  it('quem não pode interagir e não há comentários só vê um aviso, sem campo', () => {
     setup({ commentCount: 0, canInteract: false })
     expect(screen.getByText('Ainda não há comentários.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Comentar' })).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Escreva um comentário...')).not.toBeInTheDocument()
   })
 
-  it('curtir continua disponível com a conversa fechada', () => {
-    const { props } = setup({ commentCount: 2, topLevelCount: 2, reactionCount: 4 })
+  it('curtir continua disponível', () => {
+    const { props } = setup({ commentCount: 0, reactionCount: 4 })
     fireEvent.click(screen.getByRole('button', { name: '4' }))
     expect(props.onToggleReaction).toHaveBeenCalledTimes(1)
   })
 
-  it('a foto do post usa a classe de imagem 4:5', () => {
+  it('a foto do post aparece pequena e abre inteira ao tocar', () => {
     setup({ post: { ...POST, image_url: 'foto.webp' } as Post })
-    const img = document.querySelector('img.post-image')
-    expect(img).not.toBeNull()
+    expect(document.querySelector('.post-image-thumb img.post-image')).not.toBeNull()
+    expect(screen.queryByRole('dialog', { name: 'Foto ampliada' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir a foto em tamanho maior' }))
+    expect(screen.getByRole('dialog', { name: 'Foto ampliada' })).toBeInTheDocument()
   })
 })

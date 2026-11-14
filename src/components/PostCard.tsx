@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '../types/post'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CommentList } from './CommentList'
-import { CommentThread } from './CommentThread'
+import { CommentThread, VISIBLE_LIMIT } from './CommentThread'
 import { CommentLikesContext, useCommentLikes } from '../hooks/useCommentLikes'
 import { uploadCommunityMedia } from '../lib/communityMedia'
 import { CommentForm } from './CommentForm'
@@ -75,7 +75,10 @@ export function PostCard({
   const { url: postImageUrl } = useSignedImageUrl(post.image_url)
   const [commentsOpen, setCommentsOpen] = useState(false)
   // Feed de Conversa: conversa (comentários + respostas) aberta ou fechada.
-  const [threadOpen, setThreadOpen] = useState(false)
+  // Aberta por padrão: as respostas aparecem logo abaixo da mensagem.
+  const [threadOpen, setThreadOpen] = useState(inlineConversation)
+  const [showAllThreads, setShowAllThreads] = useState(false)
+  const [imageOpen, setImageOpen] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
   const [reacting, setReacting] = useState(false)
   const [savingBookmark, setSavingBookmark] = useState(false)
@@ -88,6 +91,14 @@ export function PostCard({
     await onOpenComments()
     setLoadingComments(false)
   }
+
+  // Conversa aberta: busca os comentários assim que o card aparece (só se houver).
+  useEffect(() => {
+    if (inlineConversation && threadOpen && commentCount > 0 && comments === undefined) {
+      void loadFullThread()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inlineConversation, commentCount])
 
   async function handleToggleComments() {
     const nextOpen = !commentsOpen
@@ -242,7 +253,29 @@ export function PostCard({
       )}
 
       {!mediaAside && postImageUrl && (
-        <img className="post-image" src={postImageUrl} alt="" loading="lazy" />
+        <button
+          type="button"
+          className="post-image-thumb"
+          onClick={() => setImageOpen(true)}
+          aria-label="Abrir a foto em tamanho maior"
+        >
+          <img className="post-image" src={postImageUrl} alt="" loading="lazy" />
+        </button>
+      )}
+
+      {imageOpen && postImageUrl && (
+        <div
+          className="post-image-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto ampliada"
+          onClick={() => setImageOpen(false)}
+        >
+          <img src={postImageUrl} alt="" />
+          <button type="button" className="post-image-lightbox-close" aria-label="Fechar a foto">
+            ×
+          </button>
+        </div>
       )}
 
       <div className="post-actions">
@@ -296,7 +329,7 @@ export function PostCard({
               {expanded &&
                 ((comments ?? []).length > 0 ? (
                   <ul className="comment-thread-list">
-                    {(comments ?? []).map((thread) => (
+                    {(showAllThreads ? (comments ?? []) : (comments ?? []).slice(0, VISIBLE_LIMIT)).map((thread) => (
                       <CommentThread
                         key={thread.id}
                         comment={thread}
@@ -305,26 +338,33 @@ export function PostCard({
                       />
                     ))}
                   </ul>
-                ) : (
-                  !loadingComments && (
-                    <p className="comment-empty">
-                      Ainda não há comentários. Seja a primeira a comentar!
-                    </p>
-                  )
-                ))}
+                ) : null)}
+
+              {!loadingComments && commentCount === 0 && !canInteract && (
+                <p className="comment-empty">Ainda não há comentários.</p>
+              )}
+
+              {expanded && !showAllThreads && (comments ?? []).length > VISIBLE_LIMIT && (
+                <button type="button" className="comment-more" onClick={() => setShowAllThreads(true)}>
+                  Ver mais {(comments ?? []).length - VISIBLE_LIMIT}{' '}
+                  {(comments ?? []).length - VISIBLE_LIMIT === 1 ? 'comentário' : 'comentários'}
+                </button>
+              )}
 
               {canInteract && (
                 <CommentForm onSubmit={(text, file) => submitComment(text, null, file)} />
               )}
 
-              <button
-                type="button"
-                className="comment-more comment-more--close"
-                aria-expanded={true}
-                onClick={() => setThreadOpen(false)}
-              >
-                Ocultar comentários
-              </button>
+              {commentCount > 0 && (
+                <button
+                  type="button"
+                  className="comment-more comment-more--close"
+                  aria-expanded={true}
+                  onClick={() => setThreadOpen(false)}
+                >
+                  Ocultar comentários
+                </button>
+              )}
             </>
           )}
         </div>
