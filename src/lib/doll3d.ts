@@ -62,3 +62,24 @@ export function dressProfile(f: number): [number, number][] {
 export function waistRadius(f: number): number {
   return dressProfile(f)[5][0]
 }
+
+/**
+ * Figura do IMC (manequim): pontos (raio, altura) do tronco e do quadril, de
+ * baixo para cima. `f` é a largura da cintura/quadril (1 = referência); os
+ * ombros e a altura não mudam.
+ */
+export function figureProfile(f: number): [number, number][] {
+  return [
+    [0.02, 0.6],
+    [0.27 * f, 0.62],
+    [0.37 * f, 0.8],
+    [0.38 * f, 0.98],
+    [0.3 * f, 1.22],
+    [0.25 * f, 1.4],
+    [0.29 * (0.55 + 0.45 * f), 1.62],
+    [0.33 * (0.7 + 0.3 * f), 1.82],
+    [0.31, 1.98],
+    [0.17, 2.1],
+    [0.02, 2.14],
+  ]
+}

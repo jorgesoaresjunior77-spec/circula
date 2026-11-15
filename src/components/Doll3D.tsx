@@ -19,13 +19,14 @@ import {
   Scene,
   Shape,
   SphereGeometry,
+  TorusGeometry,
   Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { easeToward } from '../lib/waterBottle3d'
-import { BAND_WIDTH, HABIT_KEYS, dressProfile, grayMix, propTargets } from '../lib/doll3d'
+import { BAND_WIDTH, HABIT_KEYS, dressProfile, figureProfile, grayMix, propTargets } from '../lib/doll3d'
 import type { HabitPropKey } from '../lib/doll3d'
 import { colorAmount } from '../lib/habits'
 import type { ImcBand } from '../lib/imc'
@@ -55,8 +56,12 @@ const SKIN = 0xf1c7a4
 const HAIR = 0x6b4226
 const HAIR_FRONT = 0x55331c
 const DRESS = 0xe58a8a
-const IMC_DRESS = 0xd9b3a8
-const IMC_SKIN = 0xe9c9c0
+const IMC_DRESS = 0xc98f86
+const IMC_SKIN = 0xe6bfa8
+const IMC_HAIR = 0x5b4038
+const IMC_LEGS = 0x7d5f5a
+/** Cor de cada pétala do fundo, na ordem dos hábitos (HABIT_KEYS). */
+const PETAL_COLORS = [0xf6c945, 0x6cb6d6, 0x4f9a57, 0xb8453d, 0x8fd0cf, 0xf2b35e, 0xe4577a]
 
 /** Mistura duas cores 0xRRGGBB (t = 0 a primeira, t = 1 a segunda). */
 function lerpHex(a: number, b: number, t: number): number {
@@ -92,8 +97,8 @@ function heartShape(): Shape {
 }
 
 /** Pontos suavizados (curva de Catmull-Rom) do vestido: linhas bem arredondadas. */
-function smoothDress(f: number): Vector2[] {
-  const pts = dressProfile(f).map(([r, y]) => new Vector3(r, y, 0))
+function smoothDress(f: number, figure = false): Vector2[] {
+  const pts = (figure ? figureProfile(f) : dressProfile(f)).map(([r, y]) => new Vector3(r, y, 0))
   return new CatmullRomCurve3(pts, false, 'catmullrom', 0.5).getPoints(64).map((p) => new Vector2(Math.max(0.01, p.x), p.y))
 }
 
@@ -136,8 +141,8 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
 
     const scene = new Scene()
     const camera = new PerspectiveCamera(28, 1, 0.1, 60)
-    camera.position.set(0, habits ? 1.3 : 1.35, habits ? 10.4 : 7.6)
-    camera.lookAt(0, habits ? 1.25 : 1.3, 0)
+    camera.position.set(0, habits ? 1.5 : 1.4, habits ? 11.2 : 7.9)
+    camera.lookAt(0, habits ? 1.45 : 1.3, 0)
 
     const pmrem = new PMREMGenerator(renderer)
     const room = new RoomEnvironment()
@@ -181,74 +186,193 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
     const head = new Group()
     head.position.set(0, 2.62, 0)
     root.add(head)
-    const headMesh = new Mesh(geo(new SphereGeometry(0.34, 40, 32)), skin)
-    headMesh.scale.set(1, 1.08, 1)
+    const headR = habits ? 0.42 : 0.3
+    const headMesh = new Mesh(geo(new SphereGeometry(headR, 48, 36)), skin)
+    headMesh.scale.set(1, habits ? 1.04 : 1.14, habits ? 0.98 : 0.96)
     head.add(headMesh)
-    if (habits) {
-      const hairBack = new Mesh(geo(new SphereGeometry(0.385, 40, 32)), hairMat)
-      hairBack.scale.set(1, 1.12, 0.95)
-      hairBack.position.set(0, 0.03, -0.07)
-      head.add(hairBack)
-      const fringe = new Mesh(geo(new SphereGeometry(0.352, 40, 20, 0, Math.PI * 2, 0, Math.PI * 0.46)), fringeMat)
-      fringe.position.set(0, 0.04, 0.025)
-      fringe.rotation.x = 0.3
-      head.add(fringe)
-    }
     const hairLong = new Group()
     if (habits) {
-      const longHair = new Mesh(geo(new CapsuleGeometry(0.22, 0.5, 8, 24)), hairMat)
-      longHair.position.set(0, -0.42, -0.17)
+      // cabelo: calota, franja de lado, coque e duas mechas na frente dos ombros
+      const hairBack = new Mesh(geo(new SphereGeometry(0.465, 44, 32)), hairMat)
+      hairBack.scale.set(1.02, 1.06, 1)
+      hairBack.position.set(0, 0.04, -0.08)
+      head.add(hairBack)
+      const fringe = new Mesh(geo(new SphereGeometry(0.437, 44, 20, 0, Math.PI * 2, 0, Math.PI * 0.42)), fringeMat)
+      fringe.position.set(0, 0.05, 0.02)
+      fringe.rotation.set(0.3, 0, 0.28)
+      head.add(fringe)
+      const bun = new Mesh(geo(new SphereGeometry(0.2, 32, 24)), hairMat)
+      bun.position.set(0, 0.52, -0.14)
+      head.add(bun)
+      const lockGeo = geo(new CapsuleGeometry(0.1, 0.44, 8, 20))
+      for (const side of [-1, 1]) {
+        const lock = new Mesh(lockGeo, hairMat)
+        lock.position.set(side * 0.36, -0.32, -0.02)
+        lock.rotation.z = side * 0.1
+        hairLong.add(lock)
+      }
+      const longHair = new Mesh(geo(new CapsuleGeometry(0.27, 0.5, 8, 24)), hairMat)
+      longHair.position.set(0, -0.42, -0.2)
       hairLong.add(longHair)
       head.add(hairLong)
+
+      // rosto: olhos fechados sorrindo, bochechas e boca
+      const faceMat = std(0x5a3a2a, { roughness: 0.6 })
+      const eyeGeo = geo(new TorusGeometry(0.055, 0.013, 8, 24, Math.PI))
+      for (const side of [-1, 1]) {
+        const eye = new Mesh(eyeGeo, faceMat)
+        eye.position.set(side * 0.15, 0.0, 0.385)
+        eye.rotation.y = side * 0.35
+        head.add(eye)
+      }
+      const smile = new Mesh(geo(new TorusGeometry(0.06, 0.012, 8, 24, Math.PI)), faceMat)
+      smile.position.set(0, -0.13, 0.4)
+      smile.rotation.z = Math.PI
+      head.add(smile)
+      const blushMat = basic(0xf08f9c, 0.5)
+      const blushGeo = geo(new SphereGeometry(0.07, 20, 14))
+      for (const side of [-1, 1]) {
+        const blush = new Mesh(blushGeo, blushMat)
+        blush.scale.set(1, 0.6, 0.3)
+        blush.position.set(side * 0.25, -0.09, 0.335)
+        blush.rotation.y = side * 0.6
+        head.add(blush)
+      }
+    } else {
+      // IMC: cabelo preso (calota lisa e coque), sem rosto
+      const imcHair = std(IMC_HAIR, { roughness: 0.5 })
+      const cap = new Mesh(geo(new SphereGeometry(0.325, 44, 32)), imcHair)
+      cap.scale.set(1, 1.12, 1)
+      cap.position.set(0, 0.06, -0.06)
+      head.add(cap)
+      const bun = new Mesh(geo(new SphereGeometry(0.13, 28, 22)), imcHair)
+      bun.position.set(0, 0.36, -0.22)
+      head.add(bun)
     }
 
-    const neck = new Mesh(geo(new CylinderGeometry(0.1, 0.12, 0.26, 24)), skin)
-    neck.position.set(0, 2.27, 0)
+    const neck = new Mesh(geo(new CylinderGeometry(0.1, 0.12, 0.3, 24)), skin)
+    neck.position.set(0, 2.24, 0)
     root.add(neck)
 
-    // vestido: sólido de revolução suavizado; a largura muda com a faixa do IMC
-    let dressGeo = geo(new LatheGeometry(smoothDress(1), 72))
+    // corpo: sólido de revolução suavizado; a largura muda com a faixa do IMC.
+    // Hábitos = vestido rodado; IMC = tronco e quadril de manequim (achatado na
+    // profundidade, para parecer corpo e não um cone).
+    let dressGeo = geo(new LatheGeometry(smoothDress(1, !habits), 72))
     const dress = new Mesh(dressGeo, dressMat)
     dressMat.side = DoubleSide
+    const BODY_DEPTH = habits ? 1 : 0.72
+    dress.scale.z = BODY_DEPTH
     root.add(dress)
     let builtF = 1
 
-    // braços, mãos e pernas (cápsulas)
-    const armGeo = geo(new CapsuleGeometry(0.085, 0.6, 8, 20))
-    const handGeo = geo(new SphereGeometry(0.095, 24, 20))
-    const legGeo = geo(new CapsuleGeometry(0.1, 0.52, 8, 20))
-    const arms: Group[] = []
-    for (const side of [-1, 1]) {
-      const arm = new Group()
-      arm.position.set(side * 0.43, 1.93, 0)
-      const limb = new Mesh(armGeo, skin)
-      limb.position.set(0, -0.36, 0)
-      arm.add(limb)
-      const hand = new Mesh(handGeo, skin)
-      hand.position.set(0, -0.72, 0)
-      arm.add(hand)
-      arm.rotation.z = -side * 0.3
-      root.add(arm)
-      arms.push(arm)
+    // braços com ombro, cotovelo e mão (cada parte é uma cápsula arredondada)
+    interface Arm {
+      side: number
+      shoulder: Group
+      elbow: Group
     }
+    const sleeveGeo = geo(new SphereGeometry(habits ? 0.16 : 0.115, 28, 22))
+    const upperGeo = geo(new CapsuleGeometry(0.078, 0.36, 8, 20))
+    const jointGeo = geo(new SphereGeometry(0.08, 20, 16))
+    const foreGeo = geo(new CapsuleGeometry(0.07, 0.34, 8, 20))
+    const handGeo = geo(new SphereGeometry(0.1, 24, 20))
+    const SHOULDER_X = habits ? 0.37 : 0.36
+    // pose: hábitos = braços dobrados à frente (segurando o copo e o livro);
+    // IMC = braços soltos, um pouco afastados do corpo.
+    const POSE = habits
+      ? { out: 0.38, forward: -0.3, bend: -1.2, inward: 0.3 }
+      : { out: 0.2, forward: 0, bend: -0.14, inward: 0 }
+    const arms: Arm[] = []
+    for (const side of [-1, 1]) {
+      const shoulder = new Group()
+      shoulder.position.set(side * SHOULDER_X, 1.98, 0)
+      shoulder.add(new Mesh(sleeveGeo, dressMat))
+      const upper = new Mesh(upperGeo, skin)
+      upper.position.y = -0.27
+      shoulder.add(upper)
+      const elbow = new Group()
+      elbow.position.y = -0.52
+      shoulder.add(elbow)
+      elbow.add(new Mesh(jointGeo, skin))
+      const fore = new Mesh(foreGeo, skin)
+      fore.position.y = -0.24
+      elbow.add(fore)
+      const hand = new Mesh(handGeo, skin)
+      hand.scale.set(1, 1.15, 0.85)
+      hand.position.y = -0.5
+      elbow.add(hand)
+      shoulder.rotation.set(POSE.forward, 0, side * POSE.out)
+      elbow.rotation.set(POSE.bend, 0, -side * POSE.inward)
+      root.add(shoulder)
+      arms.push({ side, shoulder, elbow })
+    }
+
+    // pernas e sapatos
+    const legMat = habits ? skin : std(IMC_LEGS, { roughness: 0.5 })
+    const legGeo = geo(habits ? new CapsuleGeometry(0.1, 0.52, 8, 20) : new CapsuleGeometry(0.115, 0.8, 8, 22))
+    const LEG_Y = habits ? 0.1 : 0.2
     const legs: Mesh[] = []
     for (const side of [-1, 1]) {
-      const leg = new Mesh(legGeo, skin)
-      leg.position.set(side * 0.16, 0.1, 0)
+      const leg = new Mesh(legGeo, legMat)
+      leg.position.set(side * 0.16, LEG_Y, 0)
       root.add(leg)
       legs.push(leg)
     }
 
-    // tênis
-    const shoeMat = std(0x4f9a57, { roughness: 0.45 })
+    const shoeMat = std(habits ? 0x4f9a57 : 0x5d4640, { roughness: 0.45 })
     const shoeGeo = geo(new SphereGeometry(0.15, 28, 20))
     const shoes: Mesh[] = []
     for (const side of [-1, 1]) {
-      const shoe = new Mesh(shoeGeo, habits ? shoeMat : skin)
+      const shoe = new Mesh(shoeGeo, shoeMat)
       shoe.scale.set(1, 0.55, 1.55)
       shoe.position.set(side * 0.17, -0.32, 0.07)
       root.add(shoe)
       shoes.push(shoe)
+    }
+
+    // chão: sombra macia (e um pedestal baixo na figura do IMC)
+    {
+      const shadowMat = new MeshBasicMaterial({ color: 0x3b2a22, transparent: true, opacity: 0.16, depthWrite: false })
+      mats.push(shadowMat)
+      const shadow = new Mesh(geo(new SphereGeometry(0.62, 32, 12)), shadowMat)
+      shadow.scale.set(1, 0.03, 0.55)
+      shadow.position.set(0, -0.41, 0.05)
+      scene.add(shadow)
+      if (!habits) {
+        const baseMat = new MeshStandardMaterial({ color: 0xf6ece4, roughness: 0.4, metalness: 0.02 })
+        mats.push(baseMat)
+        const base = new Mesh(geo(new CylinderGeometry(0.82, 0.88, 0.1, 64)), baseMat)
+        base.position.y = -0.47
+        scene.add(base)
+      }
+    }
+
+    // fundo que acende (hábitos): uma flor de 7 pétalas atrás dela — cada hábito
+    // marcado acende a sua pétala; o miolo clareia conforme o dia avança.
+    const petalMats: MeshBasicMaterial[] = []
+    const mandala = new Group()
+    let coreMat: MeshBasicMaterial | null = null
+    if (habits) {
+      mandala.position.set(0, 1.55, -0.8)
+      root.add(mandala)
+      const petalGeo = geo(new SphereGeometry(0.5, 28, 18))
+      PETAL_COLORS.forEach((color, i) => {
+        const angle = Math.PI / 2 - (i * Math.PI * 2) / PETAL_COLORS.length
+        const mat = new MeshBasicMaterial({ color, transparent: true, opacity: 0.1, depthWrite: false })
+        mats.push(mat)
+        petalMats.push(mat)
+        const petal = new Mesh(petalGeo, mat)
+        petal.scale.set(0.62, 1.15, 0.05)
+        petal.position.set(Math.cos(angle) * 1.12, Math.sin(angle) * 1.12, 0)
+        petal.rotation.z = angle - Math.PI / 2
+        mandala.add(petal)
+      })
+      coreMat = new MeshBasicMaterial({ color: 0xfff1d6, transparent: true, opacity: 0.2, depthWrite: false })
+      mats.push(coreMat)
+      const core = new Mesh(geo(new SphereGeometry(0.95, 36, 20)), coreMat)
+      core.scale.set(1, 1, 0.04)
+      core.position.z = 0.03
+      mandala.add(core)
     }
 
     // ---- adereços dos hábitos ----
@@ -311,7 +435,9 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
         water.position.y = -0.055
         g.add(cup, water)
         g.rotation.z = 0.08
-        addProp('agua', g, [glassMat, waterMat], new Vector3(-0.78, 1.15, 0.12))
+        addProp('agua', g, [glassMat, waterMat], new Vector3(0, -0.47, 0.2))
+        arms[0].elbow.add(g)
+        g.rotation.set(-(POSE.forward + POSE.bend), 0, 0.08)
       }
       // leitura: livro arredondado na outra mão
       {
@@ -326,8 +452,9 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
         const pages = new Mesh(pg, pageMat)
         pages.position.z = 0.055
         g.add(pages)
-        g.rotation.set(0.2, -0.4, -0.12)
-        addProp('leitura', g, [bookMat, pageMat], new Vector3(0.8, 1.15, 0.14))
+        addProp('leitura', g, [bookMat, pageMat], new Vector3(0, -0.45, 0.22))
+        arms[1].elbow.add(g)
+        g.rotation.set(-(POSE.forward + POSE.bend) + 0.15, -0.35, 0)
       }
       // organização: caderninho flutuando
       {
@@ -352,8 +479,9 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       {
         const g = new Group()
         const auraMat = basic(0xd6ecec, 0.5)
-        const aura = new Mesh(geo(new SphereGeometry(1.75, 40, 32)), auraMat)
-        aura.position.z = -0.9
+        const aura = new Mesh(geo(new SphereGeometry(2.05, 40, 32)), auraMat)
+        aura.scale.z = 0.08
+        aura.position.z = -1.0
         g.add(aura)
         addProp('respiracao', g, [auraMat], new Vector3(0, 1.3, 0))
       }
@@ -421,7 +549,7 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
 
     function rebuildDress(f: number) {
       dressGeo.dispose()
-      dressGeo = new LatheGeometry(smoothDress(f), 72)
+      dressGeo = new LatheGeometry(smoothDress(f, !habits), 72)
       dress.geometry = dressGeo
       builtF = f
     }
@@ -435,7 +563,7 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
 
       // cor aos poucos (só nos hábitos)
       if (habits) color = easeToward(color, colorAmount(d), dt, 0.5)
-      if (shoeTint) shoeTint.base = habits ? lerpHex(0x9a9a9a, 0x4f9a57, props.exercicio.appear) : SKIN
+      if (shoeTint && habits) shoeTint.base = lerpHex(0x9a9a9a, 0x4f9a57, props.exercicio.appear)
       applyColor()
 
       // largura do corpo por faixa do IMC (suave)
@@ -447,16 +575,24 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       legs[1].position.x = legX
       shoes[0].position.x = -legX - 0.01
       shoes[1].position.x = legX + 0.01
+      if (!habits) {
+        const thick = 0.82 + 0.18 * widthF
+        for (const leg of legs) leg.scale.set(thick, 1, thick)
+        for (const arm of arms) arm.shoulder.position.x = arm.side * (SHOULDER_X + 0.05 * (widthF - 1))
+      }
 
       // respiração, balanço e flutuação
       const breathe = Math.sin(t * 1.6)
-      dress.scale.set(1 + breathe * 0.006, 1 + breathe * 0.012, 1 + breathe * 0.006)
+      dress.scale.set(1 + breathe * 0.006, 1 + breathe * 0.012, BODY_DEPTH * (1 + breathe * 0.006))
       head.position.y = 2.62 + breathe * 0.012
       head.rotation.z = Math.sin(t * 0.9) * 0.045
       head.rotation.y = Math.sin(t * 0.6) * 0.12
       hairLong.rotation.x = Math.sin(t * 1.1) * 0.05
-      arms[0].rotation.z = 0.3 + Math.sin(t * 1.3) * 0.04
-      arms[1].rotation.z = -0.3 - Math.sin(t * 1.3 + 0.8) * 0.04
+      for (const arm of arms) {
+        const sway = Math.sin(t * 1.3 + (arm.side > 0 ? 0.8 : 0))
+        arm.shoulder.rotation.z = arm.side * (POSE.out + sway * 0.03)
+        arm.elbow.rotation.x = POSE.bend + sway * 0.05 + breathe * 0.02
+      }
       root.position.y = Math.sin(t * 1.2) * 0.04
       if (!dragging) dragYaw = easeToward(dragYaw, 0, dt, 0.7)
       root.rotation.y = Math.sin(t * 0.5) * 0.3 + dragYaw
@@ -483,13 +619,19 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
           const s = (0.86 + 0.14 * p.appear) * (1 + p.boost)
           p.group.scale.setScalar(s)
         }
+        // fundo: cada pétala acende com o seu hábito; o miolo clareia com o dia
+        HABIT_KEYS.forEach((k, i) => {
+          petalMats[i].opacity = 0.1 + 0.78 * props[k].appear
+        })
+        if (coreMat) coreMat.opacity = 0.14 + 0.5 * color
+        mandala.rotation.z = Math.sin(t * 0.25) * 0.08
+        mandala.scale.setScalar(1 + Math.sin(t * 1.2) * 0.015)
         const rays = props.luz.group.getObjectByName('rays')
         if (rays) rays.rotation.z = t * 0.6
         props.luz.group.position.y = props.luz.home.y + Math.sin(t * 1.1) * 0.05
         props.espiritualidade.group.scale.multiplyScalar(1 + Math.max(0, Math.sin(t * 3.2)) * 0.1)
         props.espiritualidade.group.rotation.y = Math.sin(t * 0.7) * 0.4
         props.organizacao.group.position.y = props.organizacao.home.y + Math.sin(t * 1.4 + 1) * 0.07
-        props.agua.group.rotation.z = 0.08 + Math.sin(t * 1.5) * 0.03
         props.respiracao.group.scale.setScalar((0.86 + 0.14 * props.respiracao.appear) * (1 + Math.sin(t * 1.2) * 0.04 * props.respiracao.appear))
       }
 

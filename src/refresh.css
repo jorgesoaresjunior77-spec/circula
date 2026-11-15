@@ -1095,3 +1095,14 @@
   font-weight: 700;
   text-decoration: none;
 }
+
+/* ---- Bonecas 3D um pouco maiores (cabem os braços e o fundo de pétalas) ------------ */
+.doll3d--habits {
+  width: 176px;
+  height: 232px;
+}
+
+.doll3d--imc {
+  width: 150px;
+  height: 214px;
+}
