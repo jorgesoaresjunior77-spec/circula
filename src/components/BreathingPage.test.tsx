@@ -93,6 +93,7 @@ describe('BreathingPage — Respiração e Meditação', () => {
       instructions: null,
       duration_minutes: 7,
       audio_url: 'https://exemplo.com/x.mp3',
+      cover_image_url: null,
       status: 'draft',
     })
   })
