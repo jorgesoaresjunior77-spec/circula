@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { PlusIcon, CloseIcon } from './icons'
+import { PhotoSocial } from './PhotoSocial'
 
 // Perfil (item 10) — galeria de até 12 fotos.
 //
@@ -22,6 +23,8 @@ interface ProfileGalleryProps {
   onAdd?: (file: File) => void
   onReplace?: (index: number, file: File) => void
   onRemove?: (index: number) => void
+  /** Liga curtidas e comentários na foto ampliada: dona das fotos + quem está vendo. */
+  social?: { ownerId: string; viewerId: string }
 }
 
 export function ProfileGallery({
@@ -31,6 +34,7 @@ export function ProfileGallery({
   onAdd,
   onReplace,
   onRemove,
+  social,
 }: ProfileGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const addInputRef = useRef<HTMLInputElement>(null)
@@ -163,12 +167,22 @@ export function ProfileGallery({
           >
             <CloseIcon size={22} />
           </button>
-          <img loading="lazy" decoding="async"
-            src={photos[lightboxIndex]}
-            alt=""
-            className="profile-gallery-lightbox-img"
-            onClick={(event) => event.stopPropagation()}
-          />
+          <div className={`profile-gallery-lightbox-stage${social ? ' profile-gallery-lightbox-stage--social' : ''}`}>
+            <img loading="lazy" decoding="async"
+              src={photos[lightboxIndex]}
+              alt=""
+              className="profile-gallery-lightbox-img"
+              onClick={(event) => event.stopPropagation()}
+            />
+            {social && (
+              <PhotoSocial
+                key={photos[lightboxIndex]}
+                ownerId={social.ownerId}
+                photoUrl={photos[lightboxIndex]}
+                viewerId={social.viewerId}
+              />
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -208,6 +208,9 @@ export function MyProfile({
         avatarUrl={profile.avatar_url}
         name={profile.full_name}
         city={profile.city}
+        birthCity={profile.birth_city ?? null}
+        bio={profile.bio}
+        interests={profile.interests}
         actions={
           <>
             <label className="profile-pick-btn">
@@ -227,8 +230,8 @@ export function MyProfile({
       {crop && (
         <ImageCropper
           file={crop.file}
-          aspect={crop.kind === 'avatar' ? 1 : 3}
-          outputWidth={crop.kind === 'avatar' ? 800 : 1500}
+          aspect={crop.kind === 'avatar' ? 1 : 9 / 16}
+          outputWidth={crop.kind === 'avatar' ? 800 : 1080}
           round={crop.kind === 'avatar'}
           title={crop.kind === 'avatar' ? 'Ajustar sua foto' : 'Ajustar o banner'}
           onCancel={() => setCrop(null)}
@@ -413,6 +416,7 @@ export function MyProfile({
           onAdd={handleGalleryAdd}
           onReplace={handleGalleryReplace}
           onRemove={handleGalleryRemove}
+          social={{ ownerId: profile.id, viewerId: profile.id }}
         />
       </div>
 
