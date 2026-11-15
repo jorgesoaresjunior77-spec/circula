@@ -13,7 +13,6 @@ import {
   LatheGeometry,
   Mesh,
   MeshPhysicalMaterial,
-  MeshStandardMaterial,
   Object3D,
   PMREMGenerator,
   PerspectiveCamera,
@@ -26,6 +25,7 @@ import {
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import {
+  BOTTLE_PROFILE,
   INNER_PROFILE,
   OUTER_PROFILE,
   WATER_BOTTOM_Y,
@@ -36,7 +36,8 @@ import {
 } from '../lib/waterBottle3d'
 import type { Slosh } from '../lib/waterBottle3d'
 
-// Garrafa de água em 3D (Three.js): vidro transparente com reflexos naturais,
+// Copo de água em 3D (Three.js) — quando a pessoa registra água, uma garrafa
+// entra, inclina e despeja até o nível novo. Vidro transparente com reflexos naturais,
 // água com ondulação suave e pequenas bolhas, e uma comemoração discreta ao
 // atingir a meta. O NÍVEL vem só do dado real (`progress` = ml registrados ÷
 // meta do dia): nada é inventado aqui.
@@ -135,8 +136,8 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
 
     const scene = new Scene()
     const camera = new PerspectiveCamera(30, 1, 0.1, 50)
-    camera.position.set(0, 0.05, 5.7)
-    camera.lookAt(0, 0, 0)
+    camera.position.set(0, 0.8, 9.6)
+    camera.lookAt(0, 0.62, 0)
 
     // Reflexos naturais sem arquivo externo: ambiente de estúdio gerado na hora.
     const pmrem = new PMREMGenerator(renderer)
@@ -172,17 +173,56 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
     innerGlass.renderOrder = 3
     group.add(innerGlass)
 
-    // ---- tampa ----
-    const capMaterial = new MeshStandardMaterial({ color: 0x5a463a, roughness: 0.45, metalness: 0.15 })
-    const capGeometry = new CylinderGeometry(0.31, 0.31, 0.24, 40)
-    const cap = new Mesh(capGeometry, capMaterial)
-    cap.position.y = 1.3
-    group.add(cap)
-    const ringMaterial = new MeshStandardMaterial({ color: 0xc8b8a8, roughness: 0.3, metalness: 0.6 })
-    const ringGeometry = new CylinderGeometry(0.315, 0.315, 0.035, 40)
-    const ring = new Mesh(ringGeometry, ringMaterial)
-    ring.position.y = 1.19
-    group.add(ring)
+    // ---- garrafa que serve a água (aparece só enquanto o nível sobe) ----
+    const POUR_SCALE = 0.5
+    const pourGroup = new Group()
+    pourGroup.position.set(0.72, 2.0, 0)
+    pourGroup.visible = false
+    scene.add(pourGroup)
+    const pourGlassMaterial = new MeshPhysicalMaterial({
+      color: 0xffffff,
+      roughness: 0.06,
+      transparent: true,
+      opacity: 0,
+      envMapIntensity: 2,
+      clearcoat: 1,
+      side: DoubleSide,
+      depthWrite: false,
+    })
+    const pourWaterMaterial = new MeshPhysicalMaterial({
+      color: new Color(0x4aa6d2),
+      roughness: 0.1,
+      transparent: true,
+      opacity: 0,
+      envMapIntensity: 1.3,
+      depthWrite: false,
+    })
+    const pourBottleGeometry = new LatheGeometry(BOTTLE_PROFILE.map(([r, y]) => new Vector2(r * POUR_SCALE, y * POUR_SCALE)), 48)
+    const pourBottle = new Mesh(pourBottleGeometry, pourGlassMaterial)
+    pourBottle.renderOrder = 6
+    pourGroup.add(pourBottle)
+    const pourInsideGeometry = new LatheGeometry(
+      BOTTLE_PROFILE.slice(0, 7).map(([r, y]) => new Vector2(Math.max(0, r - 0.06) * POUR_SCALE, (y + 0.04) * POUR_SCALE)),
+      40,
+    )
+    const pourInside = new Mesh(pourInsideGeometry, pourWaterMaterial)
+    pourInside.renderOrder = 5
+    pourGroup.add(pourInside)
+    // fio de água: cilindro de altura 1, esticado da boca da garrafa até a superfície
+    const streamGeometry = new CylinderGeometry(0.045, 0.03, 1, 16, 1, true)
+    const streamMaterial = new MeshPhysicalMaterial({
+      color: new Color(0x8fd0ee),
+      roughness: 0.05,
+      transparent: true,
+      opacity: 0,
+      envMapIntensity: 2,
+      depthWrite: false,
+    })
+    const stream = new Mesh(streamGeometry, streamMaterial)
+    stream.renderOrder = 5
+    stream.visible = false
+    scene.add(stream)
+    let pour = 0
 
     // ---- água ----
     const waterMaterial = new MeshPhysicalMaterial({
@@ -298,7 +338,8 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
     host.addEventListener('pointercancel', onUp)
 
     // ---- laço de animação ----
-    let level = targetRef.current.progress
+    // Ao abrir, o copo começa vazio e a garrafa serve até o nível real do dia.
+    let level = 0
     let builtTop = Number.NaN
     let slosh: Slosh = { x: 0, v: 0 }
     let wasCelebrating = targetRef.current.celebrating
@@ -323,7 +364,7 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
         const a = Math.random() * Math.PI * 2
         const speed = 0.5 + Math.random() * 0.9
         sparkPositions[i * 3] = Math.cos(a) * 0.12
-        sparkPositions[i * 3 + 1] = 1.25
+        sparkPositions[i * 3 + 1] = 1.2
         sparkPositions[i * 3 + 2] = Math.sin(a) * 0.12
         sparkVelocity[i * 3] = Math.cos(a) * speed * 0.7
         sparkVelocity[i * 3 + 1] = 0.6 + Math.random() * 1.1
@@ -338,7 +379,8 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
       if (!visible || document.hidden) return
       try {
         draw(now)
-      } catch {
+      } catch (err) {
+        console.warn('[agua3d] voltando ao desenho simples:', err)
         // Qualquer falha de GPU/cena: volta para a garrafa SVG, sem quebrar a página.
         disposed = true
         failRef.current?.()
@@ -355,13 +397,41 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
       const { progress: wanted, celebrating: celebratingNow } = targetRef.current
       const target = Math.min(1, Math.max(0, wanted))
       const before = level
-      level = easeToward(level, target, dt, 0.5)
+      level = easeToward(level, target, dt, 0.9)
       // Um respingo quando o nível muda: a água balança e se acalma.
       const kick = (level - before) * 4
       slosh = stepSlosh(slosh, dt, kick)
 
       const top = waterTopY(level)
       if (Number.isNaN(builtTop) || Math.abs(top - builtTop) > 0.002) rebuildWater(top)
+
+      // Servindo: enquanto o nível está subindo, a garrafa entra, inclina e despeja.
+      const filling = target - level > 0.004
+      pour = easeToward(pour, filling ? 1 : 0, dt, filling ? 0.16 : 0.3)
+      pourGroup.visible = pour > 0.01
+      if (pourGroup.visible) {
+        const tilt = 0.5 + pour * 1.55
+        pourGroup.rotation.z = tilt
+        pourGroup.position.y = 2.2 - pour * 0.25
+        pourGlassMaterial.opacity = 0.28 * Math.min(1, pour * 1.6)
+        pourWaterMaterial.opacity = 0.8 * Math.min(1, pour * 1.6)
+        // boca da garrafa no mundo (o gargalo fica a 1,18 × escala do centro)
+        const reach = 1.18 * POUR_SCALE
+        const mouthX = pourGroup.position.x - Math.sin(tilt) * reach
+        const mouthY = pourGroup.position.y + Math.cos(tilt) * reach
+        const flowing = pour > 0.75 && filling
+        stream.visible = flowing
+        if (flowing) {
+          const length = Math.max(0.05, mouthY - top)
+          stream.scale.set(1 + Math.sin(time * 18) * 0.08, length, 1)
+          stream.position.set(mouthX, top + length / 2, 0)
+          streamMaterial.opacity = 0.75
+          // a água caindo agita a superfície
+          slosh = stepSlosh(slosh, dt, Math.sin(time * 9) * 0.25)
+        }
+      } else {
+        stream.visible = false
+      }
 
       // Superfície: ondas leves + inclinação do balanço.
       const radius = Math.max(0.02, innerRadiusAt(top) - 0.006)
@@ -468,10 +538,10 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
       host.removeEventListener('pointerup', onUp)
       host.removeEventListener('pointercancel', onUp)
       // Libera tudo que a GPU guardou.
-      for (const g of [outerGeometry, innerGeometry, capGeometry, ringGeometry, waterGeometry, disc.geometry, bubbleGeometry, sparkGeometry]) {
+      for (const g of [outerGeometry, innerGeometry, pourBottleGeometry, pourInsideGeometry, streamGeometry, waterGeometry, disc.geometry, bubbleGeometry, sparkGeometry]) {
         g.dispose()
       }
-      for (const m of [glassMaterial, capMaterial, ringMaterial, waterMaterial, surfaceMaterial, bubbleMaterial, sparkMaterial]) {
+      for (const m of [glassMaterial, pourGlassMaterial, pourWaterMaterial, streamMaterial, waterMaterial, surfaceMaterial, bubbleMaterial, sparkMaterial]) {
         m.dispose()
       }
       bubbles.dispose()
@@ -490,7 +560,7 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
       ref={hostRef}
       className="water-bottle3d"
       role="img"
-      aria-label={`Garrafa com ${percent}% da meta de água do dia`}
+      aria-label={`Copo com ${percent}% da meta de água do dia`}
     />
   )
 }

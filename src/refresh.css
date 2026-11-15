@@ -1106,3 +1106,23 @@
   width: 150px;
   height: 214px;
 }
+
+/* ---- Água: copo (SVG) com a garrafinha que serve quando o nível sobe -------------- */
+.water-glass-pourer {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.water-glass--pouring .water-glass-pourer {
+  opacity: 1;
+}
+
+.water-glass-stream {
+  opacity: 0.75;
+}
+
+/* ---- Água 3D: mais altura para caber a garrafa servindo ------------------------------ */
+.water-page .water-bottle3d {
+  width: 156px;
+  height: 250px;
+}

@@ -1,44 +1,58 @@
-// Garrafa de água 3D: contas e decisões que não dependem do Three.js (assim
-// dá para testar e o arquivo pesado só carrega quando a garrafa 3D é usada).
+// Água em 3D: contas e decisões que não dependem do Three.js (assim dá para
+// testar e o arquivo pesado só carrega quando o 3D é usado).
 //
-// Unidades da cena: a garrafa tem 2,4 de altura, de y = -1,2 (base) a y = 1,2
-// (boca). Os pontos são (raio, altura) e viram um sólido de revolução.
+// O recipiente é um COPO: 2,4 de altura, de y = -1,2 (base) a y = 1,18 (borda),
+// um pouco mais largo em cima. Os pontos são (raio, altura) e viram um sólido
+// de revolução. A garrafa só aparece para servir a água (ver BOTTLE_PROFILE).
 
 export type Point = readonly [number, number]
 
-/** Silhueta externa, da base à boca: corpo reto, ombro, gargalo e borda. */
+/** Silhueta externa do copo, da base à borda. */
 export const OUTER_PROFILE: readonly Point[] = [
   [0, -1.2],
-  [0.4, -1.2],
-  [0.55, -1.18],
-  [0.62, -1.12],
-  [0.66, -1.02],
-  [0.67, -0.9],
-  [0.67, 0.2],
-  [0.665, 0.38],
-  [0.64, 0.52],
-  [0.58, 0.66],
-  [0.46, 0.8],
-  [0.34, 0.9],
-  [0.27, 0.97],
-  [0.26, 1.05],
-  [0.26, 1.12],
-  [0.29, 1.14],
-  [0.29, 1.18],
+  [0.42, -1.2],
+  [0.5, -1.17],
+  [0.53, -1.1],
+  [0.56, -0.6],
+  [0.6, 0],
+  [0.64, 0.6],
+  [0.67, 1.1],
+  [0.68, 1.18],
 ]
 
 /** Espessura da parede de vidro. */
 export const GLASS_THICKNESS = 0.045
 
-/** Parede interna: o desenho externo encolhido pela espessura do vidro. */
-export const INNER_PROFILE: readonly Point[] = OUTER_PROFILE.slice(0, 14).map(([r, y], i): Point => [
-  Math.max(0, r - GLASS_THICKNESS),
-  i <= 3 ? y + 0.06 : y,
-])
+/** Parede interna do copo: fundo grosso e parede fina. */
+export const INNER_PROFILE: readonly Point[] = [
+  [0, -1.08],
+  [0.38, -1.08],
+  [0.455, -1.05],
+  [0.485, -1.0],
+  [0.515, -0.6],
+  [0.555, 0],
+  [0.595, 0.6],
+  [0.625, 1.1],
+  [0.635, 1.18],
+]
+
+/** Garrafa que serve a água (pequena, só visual): base, ombro, gargalo e boca. */
+export const BOTTLE_PROFILE: readonly Point[] = [
+  [0, -1.2],
+  [0.4, -1.2],
+  [0.62, -1.12],
+  [0.67, -0.9],
+  [0.67, 0.2],
+  [0.64, 0.52],
+  [0.46, 0.8],
+  [0.27, 0.97],
+  [0.26, 1.12],
+  [0.29, 1.18],
+]
 
 export const WATER_BOTTOM_Y = INNER_PROFILE[1][1]
-/** Garrafa "cheia" (100% da meta): a água chega ao início do gargalo. */
-export const WATER_FULL_Y = 0.9
+/** Copo "cheio" (100% da meta): a água chega perto da borda. */
+export const WATER_FULL_Y = 0.96
 
 /** Raio interno da garrafa numa altura (interpola entre os pontos). */
 export function innerRadiusAt(y: number): number {

@@ -12,7 +12,7 @@ describe('WaterBottleView — 3D ou SVG', () => {
     const { container } = render(<WaterBottleView progress={0.5} />)
     expect(container.querySelector('svg.water-bottle')).not.toBeNull()
     expect(container.querySelector('.water-bottle3d')).toBeNull()
-    expect(container.querySelector('[aria-label="Garrafa com 50% da meta de água do dia"]')).not.toBeNull()
+    expect(container.querySelector('[aria-label="Copo com 50% da meta de água do dia"]')).not.toBeNull()
   })
 
   it('mesmo forçando 3D, sem WebGL fica no SVG (o ajuste não ignora a falta de suporte)', () => {

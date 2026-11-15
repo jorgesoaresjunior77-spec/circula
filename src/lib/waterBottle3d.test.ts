@@ -24,8 +24,9 @@ describe('formato da garrafa', () => {
 
   it('o raio interno interpola entre os pontos e fecha no eixo na base', () => {
     expect(innerRadiusAt(WATER_BOTTOM_Y - 1)).toBe(INNER_PROFILE[0][0])
-    expect(innerRadiusAt(-0.2)).toBeGreaterThan(0.6)
-    expect(innerRadiusAt(WATER_FULL_Y)).toBeLessThan(innerRadiusAt(-0.2))
+    expect(innerRadiusAt(-0.2)).toBeGreaterThan(0.5)
+    // copo: mais largo em cima do que no meio
+    expect(innerRadiusAt(WATER_FULL_Y)).toBeGreaterThan(innerRadiusAt(-0.2))
   })
 })
 
@@ -46,9 +47,9 @@ describe('nível da água a partir do dado real', () => {
     }
   })
 
-  it('é calculado pelo volume: a metade da água fica abaixo da metade da altura (o gargalo é estreito)', () => {
+  it('é calculado pelo volume: a metade da água fica acima da metade da altura (o copo abre para cima)', () => {
     const middleByHeight = (WATER_BOTTOM_Y + WATER_FULL_Y) / 2
-    expect(waterTopY(0.5)).toBeLessThan(middleByHeight)
+    expect(waterTopY(0.5)).toBeGreaterThan(middleByHeight)
     // E o volume ali é mesmo a metade do volume de cheia.
     const half = volumeUpTo(waterTopY(0.5))
     const full = volumeUpTo(WATER_FULL_Y)
