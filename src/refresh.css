@@ -1126,3 +1126,157 @@
   width: 156px;
   height: 250px;
 }
+
+/* ======================================================================
+   Rodada 2026-11-15 (2ª lista do dia)
+   ====================================================================== */
+
+/* ---- Loja (membro): sem o invólucro branco de cantos retos em volta do cartão ------ */
+section.community-card.product-manager.product-manager--storefront,
+section.community-card.product-manager.product-manager--storefront::before,
+section.community-card.product-manager.product-manager--storefront::after {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+section.community-card.product-manager.product-manager--storefront {
+  padding: 0 !important;
+  overflow: visible;
+}
+
+/* ---- Topo: logo sem o quadrado ao tocar; sino e Sair 10% menores -------------------- */
+.brand-icon-btn,
+.brand-icon-btn:focus,
+.brand-icon-btn:focus-visible,
+.brand-icon-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.brand-icon-btn:hover .brand-icon,
+.brand-icon-btn:focus-visible .brand-icon,
+.brand-icon-btn:active .brand-icon,
+.brand-icon-btn:focus .brand-icon {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dashboard-header .notification-bell-button,
+.dashboard-header .dashboard-user > button {
+  scale: 0.9;
+}
+
+/* ---- Janela do sino: cabe inteira na tela (antes saía pela esquerda) --------------- */
+.notification-panel {
+  position: fixed;
+  top: 78px;
+  right: 10px;
+  left: auto;
+  width: min(360px, calc(100vw - 20px));
+  max-height: min(70dvh, 520px);
+  box-sizing: border-box;
+  border-radius: 18px;
+  z-index: 120;
+}
+
+.notification-item,
+.notification-list li {
+  overflow-wrap: anywhere;
+}
+
+/* ---- Feed: cabeçalho da comunidade ~30% mais baixo ---------------------------------- */
+.feed-masthead + .community-hero .community-hero-cover {
+  height: 118px !important;
+}
+
+.feed-masthead + .community-hero .community-hero-body {
+  padding-bottom: 12px !important;
+  gap: 6px !important;
+}
+
+.feed-masthead + .community-hero .community-hero-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.feed-masthead + .community-hero .community-hero-about-label {
+  display: none;
+}
+
+.feed-masthead + .community-hero .community-hero-stats {
+  margin-top: 4px;
+  gap: 6px;
+}
+
+.feed-masthead + .community-hero .community-hero-stat {
+  padding: 3px 9px;
+  font-size: 11.5px;
+}
+
+/* ---- Receitas: categorias menores, 3 por fila, com o relevo da Loja ----------------- */
+.rec-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 10px;
+  padding-bottom: 16px;
+}
+
+@media (min-width: 900px) {
+  .rec-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.rec-tile {
+  border-radius: 14px;
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 5px 0 #8f7a67,
+    0 14px 16px -8px rgba(40, 32, 26, 0.5);
+}
+
+.rec-tile:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #8f7a67, 0 8px 12px -6px rgba(40, 32, 26, 0.5);
+}
+
+/* ---- Círculos (lista completa): 3 por fila ------------------------------------------- */
+.circle-list-items,
+.circle-list .circle-list-items {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px 10px !important;
+}
+
+@media (min-width: 900px) {
+  .circle-list-items,
+  .circle-list .circle-list-items {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+}
+
+.circle-card--grid .circle-card-name {
+  font-size: 13.5px;
+  line-height: 1.2;
+}
+
+/* ---- Help Nutri: foto com borda em relevo (como a foto do topo) ---------------------- */
+.help-nutri-avatar {
+  width: 112px;
+  height: 112px;
+  outline: none;
+  box-shadow:
+    0 0 0 3px #f6efe7,
+    0 3px 0 3px #cdbcab,
+    0 6px 0 3px #a8937f,
+    0 18px 18px -4px rgba(40, 32, 26, 0.5);
+  margin-bottom: 10px;
+}

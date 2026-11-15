@@ -38,12 +38,14 @@ export const PRODUCT_PRICES_CENTS: Record<PlanCycle, number> = {
 }
 
 /** Superpacote: Círcula + os 4 produtos (revista, receitas, e-books e Help Nutri).
- *  Descontos confirmados: 20% / 35%. Mensal 54,50 -> semestral 261,60 / anual 425,10. */
-export const PACK_MONTHLY_CENTS = CIRCULA_MONTHLY_CENTS + PRODUCTS.length * PRODUCT_MONTHLY_CENTS
+ *  Preço fechado pedido em 2026-11-15: R$ 49,80 por mês (separado daria 54,50).
+ *  Semestral e anual mantêm os descontos de 20% / 35% sobre esse mensal:
+ *  239,04 e 388,44. */
+export const PACK_MONTHLY_CENTS = 4980
 export const PACK_PRICES_CENTS: Record<PlanCycle, number> = {
   monthly: PACK_MONTHLY_CENTS,
-  semiannual: 26160,
-  annual: 42510,
+  semiannual: 23904,
+  annual: 38844,
 }
 
 export function formatBrl(cents: number): string {
