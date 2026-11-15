@@ -19,6 +19,7 @@ export type NavKey =
   | 'planos'
   | 'playlist'
   | 'tempo'
+  | 'relogio'
   | 'ajuda'
   | 'antes-de-tudo'
   | 'leitura'

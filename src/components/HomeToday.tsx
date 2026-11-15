@@ -300,7 +300,14 @@ export function HomeToday({
       <hr className="home-section-divider" />
       <m.div className="home-time" {...inViewOnce} variants={riseVariants}>
         <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
-        <AnalogClock />
+        <button
+          type="button"
+          className="home-clock-open"
+          onClick={() => onNavigate('relogio')}
+          aria-label="Abrir o relógio do mundo"
+        >
+          <AnalogClock />
+        </button>
       </m.div>
 
       {/* Ajustes visuais (item 1) — linha fininha entre as 3 seções. Só

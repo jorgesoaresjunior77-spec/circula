@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 // Copo que se enche conforme a pessoa registra a água do dia. `progress` vai
-// de 0 (vazio) a 1 (cheio). Quando o nível sobe, uma garrafinha aparece
-// inclinada e despeja por um instante. SVG próprio, sem imagem externa.
+// de 0 (vazio) a 1 (cheio). Quando o nível sobe, a torneira ao lado
+// abre por um instante. SVG próprio, sem imagem externa.
 
 interface WaterBottleProps {
   progress: number
@@ -45,12 +45,14 @@ export function WaterBottle({ progress, celebrating = false }: WaterBottleProps)
           <path d={GLASS} />
         </clipPath>
       </defs>
+      {/* torneira: coluna, arco e bico sobre o copo (sempre à vista) */}
+      <g className="water-tap" aria-hidden="true">
+        <path d="M108 206 V34 a24 24 0 0 0 -48 0 V44" fill="none" className="water-tap-pipe" />
+        <rect x="54" y="42" width="12" height="6" rx="2" className="water-tap-tip" />
+        <rect x="100" y="196" width="16" height="10" rx="3" className="water-tap-tip" />
+      </g>
       <g className="water-glass-pourer" aria-hidden="true">
-        <g transform="translate(92 30) rotate(-118)">
-          <path className="water-bottle-outline" d="M-9 -22 V-14 C-9 -14 -15 -10 -15 -2 V22 a4 4 0 0 0 4 4 H11 a4 4 0 0 0 4 -4 V-2 C15 -10 9 -14 9 -14 V-22 Z" fill="none" />
-          <rect x="-13" y="2" width="26" height="22" rx="3" className="water-bottle-fill" />
-        </g>
-        <rect x="68" y="42" width="5" height={Math.max(4, y - 42)} rx="2.500" className="water-bottle-fill water-glass-stream" />
+        <rect x="57.500" y="48" width="5" height={Math.max(4, y - 48)} rx="2.500" className="water-bottle-fill water-glass-stream" />
       </g>
       <g clipPath="url(#water-bottle-body)">
         <rect x="0" y="0" width="120" height="220" className="water-bottle-empty" />

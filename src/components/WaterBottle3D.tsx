@@ -13,6 +13,7 @@ import {
   LatheGeometry,
   Mesh,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   Object3D,
   PMREMGenerator,
   PerspectiveCamera,
@@ -20,12 +21,12 @@ import {
   PointsMaterial,
   Scene,
   SphereGeometry,
+  TorusGeometry,
   Vector2,
   WebGLRenderer,
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import {
-  BOTTLE_PROFILE,
   INNER_PROFILE,
   OUTER_PROFILE,
   WATER_BOTTOM_Y,
@@ -36,8 +37,8 @@ import {
 } from '../lib/waterBottle3d'
 import type { Slosh } from '../lib/waterBottle3d'
 
-// Copo de água em 3D (Three.js) — quando a pessoa registra água, uma garrafa
-// entra, inclina e despeja até o nível novo. Vidro transparente com reflexos naturais,
+// Copo de água em 3D (Three.js) com uma torneira cromada ao lado — quando a
+// pessoa registra água (e ao abrir a tela), a torneira abre e enche até o nível real. Vidro transparente com reflexos naturais,
 // água com ondulação suave e pequenas bolhas, e uma comemoração discreta ao
 // atingir a meta. O NÍVEL vem só do dado real (`progress` = ml registrados ÷
 // meta do dia): nada é inventado aqui.
@@ -136,8 +137,8 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
 
     const scene = new Scene()
     const camera = new PerspectiveCamera(30, 1, 0.1, 50)
-    camera.position.set(0, 0.8, 9.6)
-    camera.lookAt(0, 0.62, 0)
+    camera.position.set(0.25, 0.75, 10.2)
+    camera.lookAt(0.25, 0.6, 0)
 
     // Reflexos naturais sem arquivo externo: ambiente de estúdio gerado na hora.
     const pmrem = new PMREMGenerator(renderer)
@@ -173,43 +174,58 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
     innerGlass.renderOrder = 3
     group.add(innerGlass)
 
-    // ---- garrafa que serve a água (aparece só enquanto o nível sobe) ----
-    const POUR_SCALE = 0.5
-    const pourGroup = new Group()
-    pourGroup.position.set(0.72, 2.0, 0)
-    pourGroup.visible = false
-    scene.add(pourGroup)
-    const pourGlassMaterial = new MeshPhysicalMaterial({
-      color: 0xffffff,
-      roughness: 0.06,
-      transparent: true,
-      opacity: 0,
-      envMapIntensity: 2,
-      clearcoat: 1,
-      side: DoubleSide,
-      depthWrite: false,
-    })
-    const pourWaterMaterial = new MeshPhysicalMaterial({
-      color: new Color(0x4aa6d2),
-      roughness: 0.1,
-      transparent: true,
-      opacity: 0,
-      envMapIntensity: 1.3,
-      depthWrite: false,
-    })
-    const pourBottleGeometry = new LatheGeometry(BOTTLE_PROFILE.map(([r, y]) => new Vector2(r * POUR_SCALE, y * POUR_SCALE)), 48)
-    const pourBottle = new Mesh(pourBottleGeometry, pourGlassMaterial)
-    pourBottle.renderOrder = 6
-    pourGroup.add(pourBottle)
-    const pourInsideGeometry = new LatheGeometry(
-      BOTTLE_PROFILE.slice(0, 7).map(([r, y]) => new Vector2(Math.max(0, r - 0.06) * POUR_SCALE, (y + 0.04) * POUR_SCALE)),
-      40,
-    )
-    const pourInside = new Mesh(pourInsideGeometry, pourWaterMaterial)
-    pourInside.renderOrder = 5
-    pourGroup.add(pourInside)
-    // fio de água: cilindro de altura 1, esticado da boca da garrafa até a superfície
-    const streamGeometry = new CylinderGeometry(0.045, 0.03, 1, 16, 1, true)
+    // ---- torneira cromada (fica sempre ao lado do copo; abre quando o nível sobe) ----
+    const chrome = new MeshStandardMaterial({ color: 0xdfe4e8, metalness: 1, roughness: 0.16, envMapIntensity: 1.6 })
+    const chromeDark = new MeshStandardMaterial({ color: 0xaab2b9, metalness: 1, roughness: 0.3, envMapIntensity: 1.3 })
+    const faucet = new Group()
+    scene.add(faucet)
+    const PIPE_X = 1.08
+    const ARC_R = 0.54
+    const ARC_Y = 1.72
+    // base no balcão, coluna, arco de "pescoço de cisne" e bico sobre o copo
+    const faucetBaseGeometry = new CylinderGeometry(0.2, 0.24, 0.1, 40)
+    const faucetBase = new Mesh(faucetBaseGeometry, chromeDark)
+    faucetBase.position.set(PIPE_X, -1.15, 0)
+    faucet.add(faucetBase)
+    const faucetBodyGeometry = new CylinderGeometry(0.13, 0.15, 0.5, 32)
+    const faucetBody = new Mesh(faucetBodyGeometry, chrome)
+    faucetBody.position.set(PIPE_X, -0.86, 0)
+    faucet.add(faucetBody)
+    const pipeHeight = ARC_Y + 0.62
+    const faucetPipeGeometry = new CylinderGeometry(0.075, 0.075, pipeHeight, 28)
+    const faucetPipe = new Mesh(faucetPipeGeometry, chrome)
+    faucetPipe.position.set(PIPE_X, -0.62 + pipeHeight / 2, 0)
+    faucet.add(faucetPipe)
+    const faucetArcGeometry = new TorusGeometry(ARC_R, 0.075, 18, 48, Math.PI)
+    const faucetArc = new Mesh(faucetArcGeometry, chrome)
+    faucetArc.position.set(PIPE_X - ARC_R, ARC_Y, 0)
+    faucet.add(faucetArc)
+    const SPOUT_X = PIPE_X - ARC_R * 2
+    const faucetSpoutGeometry = new CylinderGeometry(0.075, 0.09, 0.3, 28)
+    const faucetSpout = new Mesh(faucetSpoutGeometry, chrome)
+    faucetSpout.position.set(SPOUT_X, ARC_Y - 0.15, 0)
+    faucet.add(faucetSpout)
+    const faucetTipGeometry = new CylinderGeometry(0.1, 0.1, 0.07, 28)
+    const faucetTip = new Mesh(faucetTipGeometry, chromeDark)
+    faucetTip.position.set(SPOUT_X, ARC_Y - 0.32, 0)
+    faucet.add(faucetTip)
+    const SPOUT_Y = ARC_Y - 0.36
+    // alavanca: gira quando a água abre
+    const lever = new Group()
+    lever.position.set(PIPE_X, -0.62, 0)
+    faucet.add(lever)
+    const leverArmGeometry = new CylinderGeometry(0.04, 0.05, 0.42, 16)
+    const leverArm = new Mesh(leverArmGeometry, chrome)
+    leverArm.position.set(0.2, 0.06, 0)
+    leverArm.rotation.z = -Math.PI / 2 + 0.25
+    lever.add(leverArm)
+    const leverKnobGeometry = new SphereGeometry(0.075, 20, 16)
+    const leverKnob = new Mesh(leverKnobGeometry, chromeDark)
+    leverKnob.position.set(0.41, 0.11, 0)
+    lever.add(leverKnob)
+
+    // fio de água: cilindro de altura 1, esticado do bico até a superfície
+    const streamGeometry = new CylinderGeometry(0.05, 0.036, 1, 16, 1, true)
     const streamMaterial = new MeshPhysicalMaterial({
       color: new Color(0x8fd0ee),
       roughness: 0.05,
@@ -222,6 +238,11 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
     stream.renderOrder = 5
     stream.visible = false
     scene.add(stream)
+    // gota que fica pendurada no bico quando a torneira fecha
+    const dropGeometry = new SphereGeometry(0.035, 14, 12)
+    const drop = new Mesh(dropGeometry, streamMaterial)
+    drop.visible = false
+    scene.add(drop)
     let pour = 0
 
     // ---- água ----
@@ -405,32 +426,25 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
       const top = waterTopY(level)
       if (Number.isNaN(builtTop) || Math.abs(top - builtTop) > 0.002) rebuildWater(top)
 
-      // Servindo: enquanto o nível está subindo, a garrafa entra, inclina e despeja.
+      // Torneira: abre enquanto o nível está subindo e fecha quando chega no nível real.
       const filling = target - level > 0.004
-      pour = easeToward(pour, filling ? 1 : 0, dt, filling ? 0.16 : 0.3)
-      pourGroup.visible = pour > 0.01
-      if (pourGroup.visible) {
-        const tilt = 0.5 + pour * 1.55
-        pourGroup.rotation.z = tilt
-        pourGroup.position.y = 2.2 - pour * 0.25
-        pourGlassMaterial.opacity = 0.28 * Math.min(1, pour * 1.6)
-        pourWaterMaterial.opacity = 0.8 * Math.min(1, pour * 1.6)
-        // boca da garrafa no mundo (o gargalo fica a 1,18 × escala do centro)
-        const reach = 1.18 * POUR_SCALE
-        const mouthX = pourGroup.position.x - Math.sin(tilt) * reach
-        const mouthY = pourGroup.position.y + Math.cos(tilt) * reach
-        const flowing = pour > 0.75 && filling
-        stream.visible = flowing
-        if (flowing) {
-          const length = Math.max(0.05, mouthY - top)
-          stream.scale.set(1 + Math.sin(time * 18) * 0.08, length, 1)
-          stream.position.set(mouthX, top + length / 2, 0)
-          streamMaterial.opacity = 0.75
-          // a água caindo agita a superfície
-          slosh = stepSlosh(slosh, dt, Math.sin(time * 9) * 0.25)
-        }
-      } else {
-        stream.visible = false
+      pour = easeToward(pour, filling ? 1 : 0, dt, filling ? 0.12 : 0.22)
+      lever.rotation.z = pour * 0.7
+      lever.rotation.y = -pour * 0.5
+      const flowing = pour > 0.35
+      stream.visible = flowing
+      drop.visible = !flowing && pour > 0.02
+      if (flowing) {
+        const length = Math.max(0.05, SPOUT_Y - top)
+        const width = 0.6 + 0.4 * pour + Math.sin(time * 18) * 0.06
+        stream.scale.set(width, length, width)
+        stream.position.set(SPOUT_X, top + length / 2, 0)
+        streamMaterial.opacity = 0.78 * Math.min(1, (pour - 0.35) * 3)
+        // a água caindo agita a superfície
+        slosh = stepSlosh(slosh, dt, Math.sin(time * 9) * 0.25)
+      } else if (drop.visible) {
+        streamMaterial.opacity = 0.7
+        drop.position.set(SPOUT_X, SPOUT_Y - 0.03 - (1 - pour) * 0.05, 0)
       }
 
       // Superfície: ondas leves + inclinação do balanço.
@@ -538,10 +552,10 @@ export default function WaterBottle3D({ progress, celebrating = false, onFail }:
       host.removeEventListener('pointerup', onUp)
       host.removeEventListener('pointercancel', onUp)
       // Libera tudo que a GPU guardou.
-      for (const g of [outerGeometry, innerGeometry, pourBottleGeometry, pourInsideGeometry, streamGeometry, waterGeometry, disc.geometry, bubbleGeometry, sparkGeometry]) {
+      for (const g of [outerGeometry, innerGeometry, faucetBaseGeometry, faucetBodyGeometry, faucetPipeGeometry, faucetArcGeometry, faucetSpoutGeometry, faucetTipGeometry, leverArmGeometry, leverKnobGeometry, streamGeometry, dropGeometry, waterGeometry, disc.geometry, bubbleGeometry, sparkGeometry]) {
         g.dispose()
       }
-      for (const m of [glassMaterial, pourGlassMaterial, pourWaterMaterial, streamMaterial, waterMaterial, surfaceMaterial, bubbleMaterial, sparkMaterial]) {
+      for (const m of [glassMaterial, chrome, chromeDark, streamMaterial, waterMaterial, surfaceMaterial, bubbleMaterial, sparkMaterial]) {
         m.dispose()
       }
       bubbles.dispose()

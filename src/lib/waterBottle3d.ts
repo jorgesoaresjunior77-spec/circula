@@ -3,7 +3,7 @@
 //
 // O recipiente é um COPO: 2,4 de altura, de y = -1,2 (base) a y = 1,18 (borda),
 // um pouco mais largo em cima. Os pontos são (raio, altura) e viram um sólido
-// de revolução. A garrafa só aparece para servir a água (ver BOTTLE_PROFILE).
+// de revolução. Quem enche o copo é a torneira ao lado (ver WaterBottle3D).
 
 export type Point = readonly [number, number]
 
@@ -34,20 +34,6 @@ export const INNER_PROFILE: readonly Point[] = [
   [0.595, 0.6],
   [0.625, 1.1],
   [0.635, 1.18],
-]
-
-/** Garrafa que serve a água (pequena, só visual): base, ombro, gargalo e boca. */
-export const BOTTLE_PROFILE: readonly Point[] = [
-  [0, -1.2],
-  [0.4, -1.2],
-  [0.62, -1.12],
-  [0.67, -0.9],
-  [0.67, 0.2],
-  [0.64, 0.52],
-  [0.46, 0.8],
-  [0.27, 0.97],
-  [0.26, 1.12],
-  [0.29, 1.18],
 ]
 
 export const WATER_BOTTOM_Y = INNER_PROFILE[1][1]

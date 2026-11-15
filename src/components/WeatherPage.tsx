@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useWeather } from '../hooks/useWeather'
-import { cityLabel, describeWeather, searchCities, timeOnly, weekdayShort } from '../lib/weather'
+import { WEATHER_PHOTOS, cityLabel, describeWeather, searchCities, timeOnly, weatherScene, weekdayShort } from '../lib/weather'
 import type { WeatherCity } from '../lib/weather'
 import { WeatherIcon } from './WeatherIcon'
 
@@ -94,6 +94,8 @@ export function WeatherPage() {
   }
 
   const now = data ? describeWeather(data.current.code) : null
+  const sceneInfo = data && now ? weatherScene(now.kind, data.current.isDay, data.current.temp) : null
+  const photo = sceneInfo ? WEATHER_PHOTOS[sceneInfo.scene] : undefined
 
   return (
     <section className="weather-page">
@@ -119,12 +121,25 @@ export function WeatherPage() {
 
       {data && now && (
         <>
-          <article className="weather-now">
-            <WeatherIcon kind={now.kind} isDay={data.current.isDay} size={84} />
-            <div className="weather-now-text">
-              <p className="weather-temp">{Math.round(data.current.temp)}°</p>
-              <p className="weather-label">{now.label}</p>
+          <article
+            className={`weather-now weather-hero weather-hero--${sceneInfo?.scene ?? 'ceu-azul'}${photo ? ' weather-hero--photo' : ''}`}
+            style={
+              photo
+                ? {
+                    backgroundImage: `linear-gradient(180deg, rgba(20,14,10,0.15), rgba(20,14,10,0.6)), url("${photo.url}")`,
+                  }
+                : undefined
+            }
+          >
+            <div className="weather-hero-top">
+              <WeatherIcon kind={now.kind} isDay={data.current.isDay} size={72} />
+              <div className="weather-now-text">
+                <p className="weather-temp">{Math.round(data.current.temp)}°</p>
+                <p className="weather-label">{now.label}</p>
+              </div>
             </div>
+            {sceneInfo && <p className="weather-hero-phrase">{sceneInfo.phrase}</p>}
+            {photo && <p className="weather-hero-credit">{photo.credit}</p>}
           </article>
 
           <ul className="weather-facts">

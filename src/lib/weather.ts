@@ -184,3 +184,51 @@ export function weekdayShort(isoDate: string, index: number): string {
 export function timeOnly(iso: string | null): string {
   return iso ? iso.slice(11, 16) : '—'
 }
+
+// ---- Cenário da previsão (fundo da página) -----------------------------------
+// Cada combinação de tempo vira um "cenário" com uma frase. O fundo é uma FOTO
+// real quando há uma cadastrada em WEATHER_PHOTOS; sem foto, a página usa um
+// degradê com as cores daquele clima (ver refresh.css, .weather-hero--*).
+
+export type WeatherScene =
+  | 'praia'
+  | 'ceu-azul'
+  | 'frio'
+  | 'noite'
+  | 'sol-e-nuvens'
+  | 'nublado'
+  | 'neblina'
+  | 'chuva'
+  | 'tempestade'
+  | 'neve'
+
+export interface WeatherSceneInfo {
+  scene: WeatherScene
+  phrase: string
+}
+
+/** Escolhe o cenário pelo tipo de tempo, pelo dia/noite e pela temperatura. */
+export function weatherScene(kind: WeatherKind, isDay: boolean, temp: number): WeatherSceneInfo {
+  if (kind === 'storm') return { scene: 'tempestade', phrase: 'Tempestade lá fora. Fique em um lugar seguro e aconchegante.' }
+  if (kind === 'snow') return { scene: 'neve', phrase: 'Neve caindo. Dia de casaco, luvas e algo bem quente.' }
+  if (kind === 'rain' || kind === 'drizzle') {
+    return { scene: 'chuva', phrase: 'Dia de chuva. Leve o guarda-chuva e aproveite um chá quentinho.' }
+  }
+  if (kind === 'fog') return { scene: 'neblina', phrase: 'Neblina no ar. Vá com calma e atenção no caminho.' }
+  if (kind === 'cloudy') return { scene: 'nublado', phrase: 'Céu fechado. Um bom dia para uma caminhada leve.' }
+  if (!isDay) return { scene: 'noite', phrase: 'Noite tranquila. Hora de desacelerar e descansar.' }
+  if (kind === 'partly') return { scene: 'sol-e-nuvens', phrase: 'Sol entre nuvens. Um dia leve para estar ao ar livre.' }
+  if (temp >= 27) return { scene: 'praia', phrase: 'Sol e calor, clima de praia. Beba água e use protetor solar.' }
+  if (temp <= 12) return { scene: 'frio', phrase: 'Sol com friozinho. Um casaco leve resolve.' }
+  return { scene: 'ceu-azul', phrase: 'Céu azul e tempo agradável. Aproveite a luz do dia.' }
+}
+
+export interface WeatherPhoto {
+  /** Endereço https da foto (de preferência já reduzida, ~900 px de largura). */
+  url: string
+  /** Crédito mostrado no canto: "Foto: Nome / Fonte". */
+  credit: string
+}
+
+/** Fotos reais por cenário. Vazio = usa o degradê do clima. */
+export const WEATHER_PHOTOS: Partial<Record<WeatherScene, WeatherPhoto>> = {}
