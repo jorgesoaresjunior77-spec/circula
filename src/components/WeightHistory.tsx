@@ -174,7 +174,7 @@ export function WeightHistory() {
                 <g key={t}>
                   <line x1={PAD.left} x2={W - PAD.right} y1={y} y2={y} className="weight-chart-grid" />
                   <text x={PAD.left - 6} y={y + 3.5} textAnchor="end" className="weight-chart-label">
-                    {Math.round(value)}
+                    {geo.hi - geo.lo < 4 ? fmtKg(value) : Math.round(value)}
                   </text>
                 </g>
               )
