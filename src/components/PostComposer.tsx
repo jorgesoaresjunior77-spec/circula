@@ -3,9 +3,13 @@ import type { ChangeEvent, FormEvent } from 'react'
 import type { CreatePostResult } from '../types/post'
 import { EmojiPicker } from './EmojiPicker'
 import { FeedPhotoCropper } from './FeedPhotoCropper'
+import { cleanPollOptions } from '../lib/pollStore'
+import type { PollDraft } from '../lib/pollStore'
 
 interface PostComposerProps {
-  onPublish: (content: string, imageUrl: string | null) => Promise<CreatePostResult>
+  onPublish: (content: string, imageUrl: string | null, poll?: PollDraft | null) => Promise<CreatePostResult>
+  /** Mostra o botão de criar enquete (Feed e Círculos). */
+  allowPoll?: boolean
   onUploadImage: (file: File) => Promise<{ url: string | null; error: string | null }>
   /** Ex.: "Publicando no círculo Corrida de Rua" — só aparece se definido. */
   contextLabel?: string
@@ -20,12 +24,17 @@ export function PostComposer({
   contextLabel,
   authorName,
   authorAvatarUrl,
+  allowPoll = true,
 }: PostComposerProps) {
   const [content, setContent] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   // Foto escolhida, esperando o recorte 4:5 (estilo Instagram).
   const [cropping, setCropping] = useState<File | null>(null)
+  // Enquete (opcional): a pergunta é o texto da publicação.
+  const [pollOpen, setPollOpen] = useState(false)
+  const [pollOptions, setPollOptions] = useState<string[]>(['', ''])
+  const [pollMultiple, setPollMultiple] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Só apresentação: a linha-convite abre o formulário de sempre — nada
@@ -71,6 +80,17 @@ export function PostComposer({
     setLoading(true)
     setError(null)
 
+    let poll: PollDraft | null = null
+    if (pollOpen) {
+      const options = cleanPollOptions(pollOptions)
+      if (options.length < 2) {
+        setLoading(false)
+        setError('A enquete precisa de pelo menos 2 opções diferentes.')
+        return
+      }
+      poll = { options, allowMultiple: pollMultiple }
+    }
+
     let imageUrl: string | null = null
 
     if (imageFile) {
@@ -83,7 +103,7 @@ export function PostComposer({
       imageUrl = upload.url
     }
 
-    const { error: publishError } = await onPublish(content, imageUrl)
+    const { error: publishError } = await onPublish(content, imageUrl, poll)
 
     setLoading(false)
 
@@ -94,6 +114,9 @@ export function PostComposer({
 
     setContent('')
     removeImage()
+    setPollOpen(false)
+    setPollOptions(['', ''])
+    setPollMultiple(false)
     setExpanded(false)
   }
 
@@ -158,7 +181,55 @@ export function PostComposer({
             >
               Adicionar imagem
             </button>
+            {allowPoll && !pollOpen && (
+              <button type="button" className="auth-link" onClick={() => setPollOpen(true)} disabled={loading}>
+                Criar enquete
+              </button>
+            )}
           </div>
+        )}
+
+        {allowPoll && pollOpen && (
+          <fieldset className="poll-builder">
+            <legend>Enquete</legend>
+            <p className="home-muted">A pergunta é o texto acima. Escreva as opções (de 2 a 8).</p>
+            {pollOptions.map((value, index) => (
+              <div key={index} className="poll-builder-row">
+                <input
+                  type="text"
+                  maxLength={80}
+                  value={value}
+                  placeholder={`Opção ${index + 1}`}
+                  aria-label={`Opção ${index + 1} da enquete`}
+                  onChange={(event) =>
+                    setPollOptions((prev) => prev.map((item, i) => (i === index ? event.target.value : item)))
+                  }
+                />
+                {pollOptions.length > 2 && (
+                  <button
+                    type="button"
+                    className="auth-link"
+                    aria-label={`Remover a opção ${index + 1}`}
+                    onClick={() => setPollOptions((prev) => prev.filter((_, i) => i !== index))}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            {pollOptions.length < 8 && (
+              <button type="button" className="auth-link" onClick={() => setPollOptions((prev) => [...prev, ''])}>
+                + Adicionar opção
+              </button>
+            )}
+            <label className="poll-builder-multi">
+              <input type="checkbox" checked={pollMultiple} onChange={(event) => setPollMultiple(event.target.checked)} />{' '}
+              Permitir escolher mais de uma opção
+            </label>
+            <button type="button" className="auth-link" onClick={() => setPollOpen(false)}>
+              Remover enquete
+            </button>
+          </fieldset>
         )}
 
         <input

@@ -69,7 +69,7 @@ export function Feed({
     <div className="feed">
       {canPost && (
         <PostComposer
-          onPublish={(content, imageUrl) => createPost(authorId, content, imageUrl)}
+          onPublish={(content, imageUrl, poll) => createPost(authorId, content, imageUrl, poll)}
           onUploadImage={uploadPostImage}
           authorName={authorName}
           authorAvatarUrl={authorAvatarUrl}

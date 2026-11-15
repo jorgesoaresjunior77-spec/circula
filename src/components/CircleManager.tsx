@@ -25,12 +25,14 @@ export function CircleManager({
 
   const [name, setName] = useState('')
   const [coverImageUrl, setCoverImageUrl] = useState('')
+  const [description, setDescription] = useState('')
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editCoverImageUrl, setEditCoverImageUrl] = useState('')
+  const [editDescription, setEditDescription] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
 
   async function handleCreate(event: FormEvent) {
@@ -38,7 +40,7 @@ export function CircleManager({
     setCreating(true)
     setCreateError(null)
 
-    const { error: createErr } = await createCircle(profileId, name, coverImageUrl)
+    const { error: createErr } = await createCircle(profileId, name, coverImageUrl, description)
 
     setCreating(false)
 
@@ -49,9 +51,11 @@ export function CircleManager({
 
     setName('')
     setCoverImageUrl('')
+    setDescription('')
   }
 
-  function startEdit(id: string, currentName: string, currentCover: string | null) {
+  function startEdit(id: string, currentName: string, currentCover: string | null, currentDescription?: string | null) {
+    setEditDescription(currentDescription ?? '')
     setEditingId(id)
     setEditName(currentName)
     setEditCoverImageUrl(currentCover ?? '')
@@ -61,7 +65,7 @@ export function CircleManager({
     event.preventDefault()
     setSavingEdit(true)
 
-    const { error: updateErr } = await renameCircle(id, editName, editCoverImageUrl)
+    const { error: updateErr } = await renameCircle(id, editName, editCoverImageUrl, editDescription)
 
     setSavingEdit(false)
 
@@ -85,7 +89,9 @@ export function CircleManager({
               Círculo enviadas pelas participantes, antes do formulário de
               criação de sempre (a sugestão só inspira; criar o Círculo de
               verdade continua manual, abaixo). */}
-          <CircleRequestReview communityId={communityId} profileId={profileId} />
+          <div id="circle-requests-review">
+            <CircleRequestReview communityId={communityId} profileId={profileId} />
+          </div>
 
           <h3 className="panel-circles-eyebrow">Card "Novo Círculo"</h3>
           <p className="panel-circles-intro">
@@ -107,6 +113,20 @@ export function CircleManager({
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Ex.: Mães"
                 required
+              />
+            </div>
+
+            <div className="panel-circles-field">
+              <label className="panel-circles-label" htmlFor="circle-description">
+                Descrição (quem ainda não entrou lê isto)
+              </label>
+              <textarea
+                id="circle-description"
+                rows={3}
+                maxLength={600}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Sobre o que é este círculo e para quem é."
               />
             </div>
 
@@ -168,6 +188,19 @@ export function CircleManager({
                       />
                     </div>
 
+                    <div className="panel-circles-field">
+                      <label className="panel-circles-label" htmlFor={`edit-circle-description-${circle.id}`}>
+                        Descrição
+                      </label>
+                      <textarea
+                        id={`edit-circle-description-${circle.id}`}
+                        rows={3}
+                        maxLength={600}
+                        value={editDescription}
+                        onChange={(event) => setEditDescription(event.target.value)}
+                      />
+                    </div>
+
                     <CoverImageInput
                       id={`edit-circle-cover-${circle.id}`}
                       communityId={communityId}
@@ -210,7 +243,7 @@ export function CircleManager({
                         <button
                           type="button"
                           className="panel-circles-action"
-                          onClick={() => startEdit(circle.id, circle.name, circle.cover_image_url)}
+                          onClick={() => startEdit(circle.id, circle.name, circle.cover_image_url, circle.description)}
                         >
                           Editar
                         </button>

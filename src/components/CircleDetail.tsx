@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CircleWithMembers, JoinCircleResult } from '../types/circle'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { Feed } from './Feed'
@@ -12,6 +12,8 @@ interface CircleDetailProps {
   communityId: string
   communityName?: string
   isParticipating: boolean
+  /** A profissional dona da comunidade lê e publica em todos os círculos. */
+  isOwner?: boolean
   onBack: () => void
   onJoin: () => Promise<JoinCircleResult>
   onLeave: () => Promise<JoinCircleResult>
@@ -23,12 +25,54 @@ export function CircleDetail({
   communityId,
   communityName,
   isParticipating,
+  isOwner = false,
   onBack,
   onJoin,
   onLeave,
 }: CircleDetailProps) {
   const [working, setWorking] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+
+  // Boas-vindas: aparece para quem participa até ela fechar ou escrever a
+  // primeira mensagem (guardado neste aparelho, por círculo).
+  const welcomeKey = `circula:circle-welcome:${circle.id}:${profileId}`
+  const [welcomeSeen, setWelcomeSeen] = useState(() => {
+    try {
+      return localStorage.getItem(welcomeKey) === '1'
+    } catch {
+      return false
+    }
+  })
+  const feedRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    try {
+      setWelcomeSeen(localStorage.getItem(welcomeKey) === '1')
+    } catch {
+      setWelcomeSeen(false)
+    }
+  }, [welcomeKey])
+
+  function dismissWelcome() {
+    try {
+      localStorage.setItem(welcomeKey, '1')
+    } catch {
+      /* sem storage: some só nesta visita */
+    }
+    setWelcomeSeen(true)
+  }
+
+  function writeFirstMessage() {
+    dismissWelcome()
+    const root = feedRef.current
+    if (!root) return
+    root.querySelector<HTMLButtonElement>('.post-composer-invite-prompt')?.click()
+    window.setTimeout(() => {
+      const field = root.querySelector<HTMLTextAreaElement>('textarea')
+      field?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      field?.focus()
+    }, 120)
+  }
 
   async function handleToggle() {
     setWorking(true)
@@ -74,6 +118,8 @@ export function CircleDetail({
             <h2 className="community-hero-name">{circle.name}</h2>
           </div>
 
+          {circle.description && <p className="circle-detail-description">{circle.description}</p>}
+
           <p className="circle-detail-meta">
             {memberCount === 1 ? '1 mulher neste círculo' : `${memberCount} mulheres neste círculo`}
           </p>
@@ -109,19 +155,44 @@ export function CircleDetail({
         </div>
       </div>
 
-      {!isParticipating && (
-        <p className="circle-detail-hint">
-          Entre no círculo para publicar. Você já pode ver as publicações.
-        </p>
+      {!isParticipating && !isOwner && (
+        <div className="circle-detail-locked">
+          <p className="circle-detail-locked-title">As conversas são só para quem está no círculo</p>
+          <p className="circle-detail-hint">
+            Entre no círculo para ler as mensagens, responder, votar nas enquetes e participar.
+          </p>
+        </div>
       )}
 
-      <Feed
-        communityId={communityId}
-        authorId={profileId}
-        canPost={isParticipating}
-        circleId={circle.id}
-        circleName={circle.name}
-      />
+      {isParticipating && !welcomeSeen && (
+        <div className="circle-welcome" role="status">
+          <p className="circle-welcome-title">Bem-vinda ao círculo {circle.name}! 🌸</p>
+          <p className="circle-welcome-text">
+            Que bom ter você aqui. Este é um espaço de troca e acolhimento. Que tal se apresentar e deixar a sua
+            primeira mensagem?
+          </p>
+          <div className="circle-welcome-actions">
+            <button type="button" className="btn btn-primary" onClick={writeFirstMessage}>
+              Escrever minha primeira mensagem
+            </button>
+            <button type="button" className="auth-link" onClick={dismissWelcome}>
+              Agora não
+            </button>
+          </div>
+        </div>
+      )}
+
+      {(isParticipating || isOwner) && (
+        <div ref={feedRef}>
+          <Feed
+            communityId={communityId}
+            authorId={profileId}
+            canPost={isParticipating || isOwner}
+            circleId={circle.id}
+            circleName={circle.name}
+          />
+        </div>
+      )}
     </section>
   )
 }

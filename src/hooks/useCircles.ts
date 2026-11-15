@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { CircleResult, CircleWithMembers, JoinCircleResult } from '../types/circle'
 
 const CIRCLE_SELECT =
-  'id,community_id,name,cover_image_url,created_by,created_at,members:circle_members(id,circle_id,profile_id,joined_at,profile:profiles(id,full_name,avatar_url))'
+  'id,community_id,name,description,cover_image_url,created_by,created_at,members:circle_members(id,circle_id,profile_id,joined_at,profile:profiles(id,full_name,avatar_url))'
 
 export function useCircles(communityId: string | null) {
   const [circles, setCircles] = useState<CircleWithMembers[]>([])
@@ -45,6 +45,7 @@ export function useCircles(communityId: string | null) {
     createdBy: string,
     name: string,
     coverImageUrl?: string | null,
+    description?: string | null,
   ): Promise<CircleResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }
 
@@ -52,6 +53,7 @@ export function useCircles(communityId: string | null) {
       community_id: communityId,
       name,
       cover_image_url: coverImageUrl?.trim() ? coverImageUrl.trim() : null,
+      description: description?.trim() ? description.trim() : null,
       created_by: createdBy,
     })
 
@@ -65,8 +67,10 @@ export function useCircles(communityId: string | null) {
     circleId: string,
     name: string,
     coverImageUrl?: string | null,
+    description?: string | null,
   ): Promise<CircleResult> {
-    const patch: { name: string; cover_image_url?: string | null } = { name }
+    const patch: { name: string; cover_image_url?: string | null; description?: string | null } = { name }
+    if (description !== undefined) patch.description = description?.trim() ? description.trim() : null
     if (coverImageUrl !== undefined) {
       patch.cover_image_url = coverImageUrl?.trim() ? coverImageUrl.trim() : null
     }

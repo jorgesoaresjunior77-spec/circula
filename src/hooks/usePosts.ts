@@ -318,19 +318,34 @@ export function usePosts(
     authorId: string,
     content: string,
     imageUrl?: string | null,
+    poll?: { options: string[]; allowMultiple: boolean } | null,
   ): Promise<CreatePostResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }
 
-    const { error: insertError } = await supabase.from('posts').insert({
+    const row = {
       community_id: communityId,
       circle_id: circleId ?? null,
       author_id: authorId,
       content,
       image_url: imageUrl ?? null,
-    })
+    }
 
-    if (insertError) {
-      return { error: insertError.message }
+    if (poll && poll.options.length >= 2) {
+      // Com enquete: precisa do id da publicação para anexar as opções.
+      const { data: created, error: insertError } = await supabase.from('posts').insert(row).select('id').single()
+      if (insertError || !created) return { error: insertError?.message ?? 'Falha ao publicar.' }
+      const { error: pollError } = await supabase
+        .from('post_polls')
+        .insert({ post_id: (created as { id: string }).id, options: poll.options, allow_multiple: poll.allowMultiple })
+      if (pollError) {
+        await fetchPosts()
+        return { error: 'A publicação saiu, mas a enquete não pôde ser criada. Tente de novo.' }
+      }
+    } else {
+      const { error: insertError } = await supabase.from('posts').insert(row)
+      if (insertError) {
+        return { error: insertError.message }
+      }
     }
 
     await fetchPosts()

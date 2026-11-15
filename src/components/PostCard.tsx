@@ -10,6 +10,7 @@ import { CommentForm } from './CommentForm'
 import { HeartIcon, CommentIcon, BookmarkIcon } from './icons'
 import { GardenDailyPostCard } from './GardenDailyPostCard'
 import { GardenShareCard } from './GardenShareCard'
+import { PostPoll } from './PostPoll'
 
 interface PostCardProps {
   /** Abre o perfil de quem publicou (toque na foto ou no nome). */
@@ -197,7 +198,7 @@ export function PostCard({
       : `Ver ${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}`
 
   return (
-    <article className={`post-card${cardVariant}${editorialVariant}${mediaAsideVariant}`}>
+    <article id={`post-${post.id}`} className={`post-card${cardVariant}${editorialVariant}${mediaAsideVariant}`}>
       <div className="post-card-body">
       <div className="post-card-header">
         {onOpenAuthor ? (
@@ -251,6 +252,8 @@ export function PostCard({
       ) : (
         <p className="post-content">{post.content}</p>
       )}
+
+      {post.post_type === 'standard' && <PostPoll postId={post.id} viewerId={viewerId} canVote={canInteract} />}
 
       {!mediaAside && postImageUrl && (
         <button

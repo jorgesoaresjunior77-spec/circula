@@ -1512,3 +1512,269 @@ section.community-card.product-manager.product-manager--storefront {
   padding: 0;
   list-style: none;
 }
+
+/* ---- Pop-up dos compromissos de hoje ------------------------------------------------- */
+.agenda-popup {
+  position: relative;
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 32px));
+  max-height: 80dvh;
+  overflow-y: auto;
+  padding: 26px 22px 20px;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #fffaf6, #f4e7dc);
+  box-shadow:
+    0 2px 0 #e0cfc0,
+    0 4px 0 #cdb8a6,
+    0 30px 40px -18px rgba(40, 32, 26, 0.6);
+  color: #35302c;
+}
+
+.agenda-popup .inspiration-popup-close {
+  color: #35302c;
+}
+
+.agenda-popup-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b8475f;
+}
+
+.agenda-popup-title {
+  margin: 4px 0 14px;
+  font-family: var(--font-display, inherit);
+  font-size: 22px;
+}
+
+.agenda-popup-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-popup-list li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.agenda-popup-hour {
+  flex: 0 0 62px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #b8475f;
+}
+
+.agenda-popup-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.agenda-popup-text small {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: #6b6058;
+}
+
+.agenda-popup-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---- Destino de um aviso do sininho: destaque rápido -------------------------------- */
+.notification-target {
+  scroll-margin-top: 90px;
+  animation: notification-target 2.4s ease-out;
+  border-radius: 16px;
+}
+
+[id^='post-'],
+#circle-requests-review,
+#panel-participants-section {
+  scroll-margin-top: 90px;
+}
+
+@keyframes notification-target {
+  0%,
+  40% {
+    box-shadow: 0 0 0 4px rgba(201, 80, 108, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 4px rgba(201, 80, 108, 0);
+  }
+}
+
+/* ---- Enquetes ------------------------------------------------------------------------ */
+.post-poll {
+  margin: 10px 0 6px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: inset 0 0 0 1px rgba(53, 48, 44, 0.08);
+}
+
+.post-poll-hint,
+.post-poll-total {
+  margin: 0;
+  font-size: 12px;
+  color: #8a7d72;
+}
+
+.post-poll-options {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-poll-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  overflow: hidden;
+  border: 1.5px solid rgba(53, 48, 44, 0.16);
+  border-radius: 12px;
+  background: #fff;
+  color: #35302c;
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.post-poll-option:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.post-poll-option--chosen {
+  border-color: #c9506c;
+}
+
+.post-poll-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: #fde4ea;
+  transition: width 0.4s ease;
+}
+
+.post-poll-check,
+.post-poll-label,
+.post-poll-count {
+  position: relative;
+}
+
+.post-poll-check {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #c9a9b2;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+}
+
+.post-poll-option--chosen .post-poll-check {
+  border-color: #c9506c;
+  background: #c9506c;
+}
+
+.post-poll-label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.post-poll-count {
+  font-weight: 700;
+  color: #85293f;
+}
+
+.poll-builder {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid rgba(53, 48, 44, 0.16);
+  border-radius: 14px;
+}
+
+.poll-builder legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+.poll-builder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.poll-builder-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(53, 48, 44, 0.2);
+  border-radius: 10px;
+  font: inherit;
+}
+
+.poll-builder-multi {
+  font-size: 13.5px;
+}
+
+/* ---- Círculo: descrição, trava de leitura e boas-vindas ----------------------------- */
+.circle-detail-description {
+  margin: 4px 0 8px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.circle-detail-locked,
+.circle-welcome {
+  margin: 14px 0;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, #fff3f6, #fde4ea);
+  box-shadow: 0 2px 0 #f1c3cf, 0 14px 18px -12px rgba(133, 41, 63, 0.45);
+}
+
+.circle-detail-locked-title,
+.circle-welcome-title {
+  margin: 0 0 4px;
+  font-family: var(--font-display, inherit);
+  font-size: 17px;
+  color: #85293f;
+}
+
+.circle-welcome-text {
+  margin: 0 0 12px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #6b3a48;
+}
+
+.circle-welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}

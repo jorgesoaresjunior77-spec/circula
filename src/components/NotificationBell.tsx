@@ -36,9 +36,42 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   membership_requested: 'painel',
   membership_approved: 'feed',
   membership_rejected: 'inicio',
-  // Etapa 5 — a solicitação de Círculo vai para a dona revisar (Painel →
-  // Círculos, CircleRequestReview.tsx).
-  circle_request: 'painel',
+  // A solicitação de Círculo leva a dona direto à lista de pedidos, na tela
+  // de Círculos (CircleRequestReview, com as instruções da membro).
+  circle_request: 'circulos',
+  // O Círculo pedido foi criado: a membro vai para a lista de Círculos.
+  circle_request_approved: 'circulos',
+}
+
+/** Depois de navegar, rola até o ponto exato da ação (quando ele existe na tela). */
+function scrollTargetFor(notification: SocialNotification): string | null {
+  switch (notification.type) {
+    case 'circle_request':
+      return 'circle-requests-review'
+    case 'membership_requested':
+      return 'panel-participants-section'
+    case 'post_comment':
+    case 'post_reaction':
+      return notification.related_post_id ? `post-${notification.related_post_id}` : null
+    default:
+      return null
+  }
+}
+
+function scrollToWhenReady(id: string) {
+  let tries = 0
+  const timer = window.setInterval(() => {
+    tries += 1
+    const el = document.getElementById(id)
+    if (el) {
+      window.clearInterval(timer)
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      el.classList.add('notification-target')
+      window.setTimeout(() => el.classList.remove('notification-target'), 2600)
+    } else if (tries > 30) {
+      window.clearInterval(timer)
+    }
+  }, 150)
 }
 
 export function NotificationBell({
@@ -83,7 +116,9 @@ export function NotificationBell({
       onOpenConversation(notification.related_conversation_id)
       return
     }
-    onNavigate(TYPE_TO_NAV[notification.type])
+    onNavigate(TYPE_TO_NAV[notification.type] ?? 'inicio')
+    const target = scrollTargetFor(notification)
+    if (target) scrollToWhenReady(target)
   }
 
   return (

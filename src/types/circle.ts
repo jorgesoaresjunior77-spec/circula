@@ -2,6 +2,8 @@ export interface Circle {
   id: string
   community_id: string
   name: string
+  /** Apresentação do Círculo (quem ainda não entrou lê isto). */
+  description?: string | null
   cover_image_url: string | null
   created_by: string
   created_at: string

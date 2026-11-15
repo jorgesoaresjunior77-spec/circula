@@ -10,6 +10,8 @@ export type SocialNotificationType =
   /** Etapa 5 (evolução/experiência/gamificação) — nova solicitação de
    *  Círculo; migration 20261030130000, preparada e não aplicada. */
   | 'circle_request'
+  /** O pedido de Círculo da membro foi aprovado (o Círculo foi criado). */
+  | 'circle_request_approved'
 
 export interface NotificationActor {
   id: string

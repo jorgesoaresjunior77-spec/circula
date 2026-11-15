@@ -41,6 +41,7 @@ import { BreathingPage } from './BreathingPage'
 import { InspirationManagerPage } from './InspirationManagerPage'
 import { DailyInspiration } from './DailyInspiration'
 import { GardenReminder } from './GardenReminder'
+import { TodayAgendaPopup } from './TodayAgendaPopup'
 import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
@@ -784,6 +785,7 @@ export function Dashboard({
             isParticipating={selectedCircle.members.some(
               (member) => member.profile_id === profile.id,
             )}
+            isOwner={profile.role === 'professional'}
             onBack={() => setSelectedCircleId(null)}
             onJoin={() => joinCircle(selectedCircle.id, profile.id)}
             onLeave={() => leaveCircle(selectedCircle.id, profile.id)}
@@ -1340,6 +1342,21 @@ export function Dashboard({
             (profile.role === 'member' && profile.onboarding_completed_at === null)
           }
           onSettled={() => setInspirationSettled(true)}
+        />
+      )}
+
+      {/* Compromissos de hoje (Agenda): pop-up ao entrar, depois da frase do dia. */}
+      {profile && profile.role !== 'master' && (
+        <TodayAgendaPopup
+          profileId={profile.id}
+          ready={
+            inspirationSettled &&
+            !showTour &&
+            !showInstallGuide &&
+            !(profile.role === 'member' && profile.onboarding_completed_at === null) &&
+            effectiveNav !== 'agenda'
+          }
+          onOpenAgenda={() => handleNavigate('agenda')}
         />
       )}
 
