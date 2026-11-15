@@ -30,7 +30,10 @@ select pg_temp.expect_count('prof: SELECT community_members de A (todas)',
 
 select pg_temp.expect_count('prof: SELECT community_content de A',
   pg_temp.fx('prof'),
-  format('select count(*) from public.community_content where community_id = %L', pg_temp.fx('commA')), 2);
+  format('select count(*) from public.community_content where community_id = %L', pg_temp.fx('commA')),
+  -- Esperado calculado na hora (sem RLS): a dona vê TODO o conteúdo de A,
+  -- publicado ou rascunho.
+  (select count(*) from public.community_content where community_id = pg_temp.fx('commA')));
 
 select pg_temp.expect_bool('prof: can_view_post(postA) = true',
   pg_temp.fx('prof'),

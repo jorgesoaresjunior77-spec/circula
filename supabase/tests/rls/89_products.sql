@@ -67,8 +67,10 @@
 --
 -- Fixtures: 1 comunidade sintética C (dona = master, mesma técnica de
 -- 82/86/87/88) + 3 produtos sintéticos em A (real, dona = prof) e C.
--- Reaproveita o produto REAL publicado de A
--- (`1f1c7430-03d6-4c9b-ae27-ed0bd854c88b`, 3 pedidos reais associados)
+-- O produto publicado de A usado na leitura é o sintético P2
+-- (`91111111-0000-4000-8000-000000000002`). Antes era um produto REAL da comunidade, que deixou
+-- de existir em 2026-11 — cenário não deve depender de linha real.
+-- É usado
 -- só para leitura e para uma tentativa de escrita sempre bloqueada —
 -- nunca é alterado de fato (toda escrita roda em transação com
 -- ROLLBACK final). Tudo desfeito no ROLLBACK — nenhum dado persiste.
@@ -92,12 +94,12 @@ select pg_temp.expect_count('prof: vê o próprio rascunho P1 (dona)',
   pg_temp.fx('prof'),
   'select count(*) from public.products where id = ''91111111-0000-4000-8000-000000000001''', 1);
 
--- membro autorizado: member (ativo em A) vê o produto REAL publicado de
+-- membro autorizado: member (ativo em A) vê o produto publicado P2 de
 -- A, mas NÃO vê o rascunho sintético P1 (mesma comunidade, mas
 -- status<>'published' e member não é dona).
-select pg_temp.expect_count('member: vê o produto REAL publicado de A',
+select pg_temp.expect_count('member: vê o produto publicado de A (P2)',
   pg_temp.fx('member'),
-  format('select count(*) from public.products where id = %L', '1f1c7430-03d6-4c9b-ae27-ed0bd854c88b'), 1);
+  format('select count(*) from public.products where id = %L', '91111111-0000-4000-8000-000000000002'), 1);
 
 select pg_temp.expect_count('member: NÃO vê o rascunho P1 de A (mesma comunidade, mas draft)',
   pg_temp.fx('member'),
@@ -195,17 +197,9 @@ select pg_temp.expect_write('prof: UPDATE community_id de P2 para C (hijack, nã
          pg_temp.fx('commC')),
   false);
 
--- ================= INTEGRIDADE COMERCIAL =================================
--- Ler um produto (via bypass de member ativo + published) não implica
--- poder alterá-lo. Testado contra o produto REAL de A (3 pedidos
--- associados) — prova que RLS separa leitura de escrita mesmo em dado
--- de produção, sem nunca de fato alterar preço/pedido/entitlement/
--- payout ligados a ele (escrita sempre bloqueada, e mesmo se não
--- fosse, o ROLLBACK final desfaria).
-select pg_temp.expect_write('member: UPDATE price_cents do produto REAL de A (consegue LER, não ESCREVER) -> BLOQUEADO',
-  pg_temp.fx('member'),
-  'update public.products set price_cents = 1 where id = ''1f1c7430-03d6-4c9b-ae27-ed0bd854c88b''',
-  false);
+-- (O teste de escrita bloqueada contra o produto REAL de A saiu em 2026-11-15:
+-- o produto real deixou de existir e o mesmo caso já é coberto acima por
+-- "member: UPDATE price_cents de P2 ... -> BLOQUEADO".)
 
 -- ================= ESCRITA: DELETE ========================================
 

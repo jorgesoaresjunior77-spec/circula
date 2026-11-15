@@ -25,7 +25,12 @@ select pg_temp.expect_count('member-ativo: SELECT joy_moments de A',
 
 select pg_temp.expect_count('member-ativo: SELECT community_content publicado de A',
   pg_temp.fx('member'),
-  format('select count(*) from public.community_content where community_id = %L', pg_temp.fx('commA')), 2);
+  format('select count(*) from public.community_content where community_id = %L', pg_temp.fx('commA')),
+  -- Esperado calculado na hora (sem RLS, como dono do banco): a membro ativa
+  -- vê exatamente o que está PUBLICADO em A. Número fixo quebrava a cada
+  -- conteúdo novo cadastrado na comunidade real.
+  (select count(*) from public.community_content
+    where community_id = pg_temp.fx('commA') and status = 'published'));
 
 select pg_temp.expect_count('member-ativo: SELECT community_members (só a própria linha)',
   pg_temp.fx('member'),
