@@ -1078,3 +1078,20 @@
 .help-page .help-category-text {
   padding-right: 26px;
 }
+
+/* ---- Convite: o link aparece com o nome @Círcula.app (o endereço real segue por trás) */
+.invite-mask-row {
+  margin: 10px 0 4px;
+  font-size: 13.5px;
+  color: #6b6058;
+}
+
+.invite-mask {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #fde4ea;
+  color: #85293f;
+  font-weight: 700;
+  text-decoration: none;
+}

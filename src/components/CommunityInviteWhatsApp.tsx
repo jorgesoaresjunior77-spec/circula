@@ -142,6 +142,12 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
           : 'Com DDD. O WhatsApp abre na conversa dessa pessoa, com a mensagem pronta; o envio é você quem faz, de lá.'}
       </p>
 
+      <p className="invite-mask-row">
+        Link de convite:{' '}
+        <a className="invite-mask" href={inviteUrl} target="_blank" rel="noopener noreferrer" title={inviteUrl}>
+          @Círcula.app
+        </a>
+      </p>
       <p className="challenge-field-hint">
         A mensagem é toda sua: escolha uma sugestão ou escreva a sua e mantenha o link.
       </p>
