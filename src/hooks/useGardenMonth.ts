@@ -74,7 +74,10 @@ export function useGardenMonth(communityId: string | null, profileId: string | n
       new Set(((c.data ?? []) as { month_id: string; day: number }[]).map((x) => `${x.month_id}:${x.day}`)),
     )
     setLoading(false)
-  }, [communityId, profileId])
+    // `today.year` nas dependências: na virada do ano os meses são buscados de
+    // novo, e o girassol do ano recomeça zerado (só entram os meses do ano atual).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [communityId, profileId, today.year])
 
   useEffect(() => {
     void load()

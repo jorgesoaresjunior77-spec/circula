@@ -1998,3 +1998,71 @@ section.community-card.product-manager.product-manager--storefront {
 .photo-social-form button:disabled {
   opacity: 0.5;
 }
+
+/* ---- Eventos no padrão da Loja: próximo evento grande; os demais em cartões menores -- */
+.event-list--editorial .event-card.event-card--featured {
+  overflow: hidden;
+  border-radius: 22px;
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 6px 0 #8f7a67,
+    0 24px 28px -14px rgba(40, 32, 26, 0.55);
+}
+
+.event-list--editorial .event-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 12px;
+  padding-bottom: 12px;
+}
+
+@media (min-width: 760px) {
+  .event-list--editorial .event-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.event-list--editorial .event-card.event-card--grid {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fffaf6;
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 14px 16px -8px rgba(40, 32, 26, 0.45);
+}
+
+.event-list--editorial .event-card--grid .event-card-body {
+  padding: 10px 10px 12px;
+  gap: 4px;
+}
+
+.event-list--editorial .event-card--grid .event-card-title {
+  font-size: 14.5px;
+  line-height: 1.2;
+}
+
+.event-list--editorial .event-card--grid .event-card-when,
+.event-list--editorial .event-card--grid .event-card-meta {
+  font-size: 11.5px;
+}
+
+/* No cartão pequeno ficam só a capa, a data e o título; o resto abre ao tocar. */
+.event-list--editorial .event-card--grid .event-card-desc,
+.event-list--editorial .event-card--grid .event-card-people,
+.event-list--editorial .event-card--grid .event-card-footer-actions,
+.event-list--editorial .event-card--grid .event-participant-list {
+  display: none;
+}
+
+.event-past {
+  margin-top: 26px;
+}
+
+.event-grid--past .event-card--grid {
+  opacity: 0.92;
+}
+
+.event-grid--past .event-card--grid .event-card-cover img {
+  filter: saturate(0.75);
+}

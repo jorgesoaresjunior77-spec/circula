@@ -86,6 +86,18 @@ export function EventList({
   // `visible` continua sendo exatamente a mesma lista/lógica de sempre.
   const featured = filter === 'proximos' ? (visible[0] ?? null) : null
   const gridItems = filter === 'proximos' ? visible.slice(1) : visible
+  // Na aba "Próximos", os eventos que já aconteceram ficam em sequência
+  // logo abaixo, em cartões menores (do mais recente para o mais antigo).
+  const pastItems = useMemo(
+    () =>
+      filter === 'proximos'
+        ? events
+            .filter((event) => isPastEvent(event.starts_at, event.ends_at) && event.status !== 'draft')
+            .slice()
+            .sort((a, b) => b.starts_at.localeCompare(a.starts_at))
+        : [],
+    [events, filter],
+  )
 
   // Fase D — detalhe = overlay local (sem rota nova). Busca em `events`
   // (a lista completa vinda do hook, não a `visible` filtrada pela aba),
@@ -159,7 +171,7 @@ export function EventList({
         )}
 
         <div className="event-upcoming">
-          <p className="section-label">Próximos encontros</p>
+          <p className="section-label">{featured ? 'Outros encontros' : 'Encontros'}</p>
 
           <div className="event-filters" role="tablist" aria-label="Filtrar eventos">
             {FILTERS.map((item) => (
@@ -189,7 +201,7 @@ export function EventList({
           )}
           {!loading && error && <p className="auth-error">{error}</p>}
 
-          {!loading && !error && visible.length === 0 && (
+          {!loading && !error && visible.length === 0 && !(filter === 'proximos' && pastItems.length > 0) && (
             <EmptyState
               message={
                 filter === 'meus'
@@ -204,6 +216,13 @@ export function EventList({
           {!loading && !error && gridItems.length > 0 && (
             <div className="event-grid">
               {gridItems.map((event) => renderCard(event, 'grid'))}
+            </div>
+          )}
+
+          {!loading && !error && pastItems.length > 0 && (
+            <div className="event-past">
+              <p className="section-label">Já aconteceram</p>
+              <div className="event-grid event-grid--past">{pastItems.map((event) => renderCard(event, 'grid'))}</div>
             </div>
           )}
         </div>
