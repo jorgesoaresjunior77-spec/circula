@@ -1,31 +1,29 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { render, screen, cleanup, fireEvent } from '@testing-library/react'
-import { Tour } from './Tour'
+import { Tour, TOUR_STEPS } from './Tour'
 
-// Cria os elementos reais que o Tour procura por id (tour-nav-desktop-*,
-// tour-nav-mobile-*, tour-notification-bell) — simula o layout real do
-// app sem montar PrimaryNav/NotificationBell inteiros. `offsetParent`
-// não existe em jsdom por padrão (sempre null) — sobrescrito aqui para
-// simular "visível" no layout desktop.
-function mountFakeNav() {
+// Cria alguns dos elementos reais que o Tour procura (atalhos, sino, botões
+// da barra). `offsetParent` não existe em jsdom por padrão (sempre null) —
+// sobrescrito aqui para simular "visível".
+function mountFakeHome() {
   document.body.innerHTML = `
-    <button id="tour-nav-desktop-inicio">Início</button>
-    <button id="tour-nav-desktop-circulos">Círculos</button>
-    <button id="tour-nav-desktop-feed">Feed</button>
-    <button id="tour-nav-desktop-jardim">Meu Jardim</button>
-    <button id="tour-nav-desktop-perfil">Perfil</button>
+    <header class="home-greeting">Bom dia</header>
+    <section class="home-tools">Atalhos</section>
+    <button id="tour-nav-mobile-feed">Feed</button>
+    <button id="tour-nav-mobile-perfil">Perfil</button>
     <button id="tour-notification-bell">Sino</button>
   `
-  for (const el of document.querySelectorAll('button')) {
+  for (const el of document.body.querySelectorAll<HTMLElement>('*')) {
     Object.defineProperty(el, 'offsetParent', { get: () => document.body })
     el.getBoundingClientRect = () =>
       ({ top: 10, left: 10, width: 40, height: 40, right: 50, bottom: 50, x: 10, y: 10, toJSON() {} }) as DOMRect
+    el.scrollIntoView = () => {}
   }
 }
 
 describe('Tour', () => {
   beforeEach(() => {
-    mountFakeNav()
+    mountFakeHome()
   })
 
   afterEach(() => {
@@ -33,24 +31,38 @@ describe('Tour', () => {
     document.body.innerHTML = ''
   })
 
-  it('navega para o destino real de cada passo que tem navKey', () => {
+  it('acontece na página inicial: navega para o Início uma vez, ao abrir', () => {
     const onNavigate = vi.fn()
     render(<Tour onNavigate={onNavigate} onDone={vi.fn()} />)
+    expect(onNavigate).toHaveBeenCalledTimes(1)
     expect(onNavigate).toHaveBeenCalledWith('inicio')
+
+    fireEvent.click(screen.getByText('Avançar'))
+    expect(onNavigate).toHaveBeenCalledTimes(1) // não sai da página inicial
   })
 
-  it('avança pelos passos na ordem, navegando a cada um', () => {
-    const onNavigate = vi.fn()
-    render(<Tour onNavigate={onNavigate} onDone={vi.fn()} />)
+  it('avança pelos passos na ordem', () => {
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
 
-    expect(screen.getByText('Página inicial')).toBeInTheDocument()
-
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Página inicial')
     fireEvent.click(screen.getByText('Avançar'))
-    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Círculos')
-    expect(onNavigate).toHaveBeenLastCalledWith('circulos')
-
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Atalhos do dia')
     fireEvent.click(screen.getByText('Avançar'))
-    expect(screen.getByText('Como participar de um círculo')).toBeInTheDocument()
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Menu')
+  })
+
+  it('mostra o contador de passos', () => {
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
+    expect(screen.getByText(`1 / ${TOUR_STEPS.length}`)).toBeInTheDocument()
+  })
+
+  it('um passo cujo alvo não existe na tela não trava: o balão aparece sem destaque', () => {
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
+    fireEvent.click(screen.getByText('Avançar'))
+    fireEvent.click(screen.getByText('Avançar')) // "Menu": .exp-strip não foi montado
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Menu')
+    expect(document.querySelector('.tour-spotlight')).toBeNull()
+    expect(document.querySelector('.tour-overlay-dim')).not.toBeNull()
   })
 
   it('"Voltar" funciona e não aparece no primeiro passo', () => {
@@ -60,7 +72,7 @@ describe('Tour', () => {
     fireEvent.click(screen.getByText('Avançar'))
     expect(screen.getByText('Voltar')).toBeInTheDocument()
     fireEvent.click(screen.getByText('Voltar'))
-    expect(screen.getByText('Página inicial')).toBeInTheDocument()
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Página inicial')
   })
 
   it('"Pular tour" encerra imediatamente, de qualquer passo', () => {
@@ -74,12 +86,11 @@ describe('Tour', () => {
     const onDone = vi.fn()
     render(<Tour onNavigate={vi.fn()} onDone={onDone} />)
 
-    // 8 passos ao todo (índices 0-7) — 7 cliques em "Avançar" chegam ao último.
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < TOUR_STEPS.length - 1; i++) {
       fireEvent.click(screen.getByText('Avançar'))
     }
 
-    expect(screen.getByText('Notificações')).toBeInTheDocument()
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Notificações')
     expect(onDone).not.toHaveBeenCalled()
     fireEvent.click(screen.getByText('Encerrar'))
     expect(onDone).toHaveBeenCalledTimes(1)

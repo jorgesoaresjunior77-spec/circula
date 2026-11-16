@@ -1,67 +1,71 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { NavKey } from './PrimaryNav'
 
-// Etapa 9 (evolução/experiência/gamificação) — tour guiado real: destaca
-// elementos VERDADEIROS da interface (nunca uma captura de tela ou
-// ilustração) via um "buraco" de spotlight sobre o elemento + um cartão
-// de texto ao lado. `navKey`, quando presente, navega para aquele
-// destino ANTES de medir a posição — a pessoa vê a tela de verdade atrás
-// do destaque, não só o nome dela. `elementId` é usado para alvos que
-// não são da navegação principal (ex.: sino de notificações).
+// Tour guiado: acontece todo na PÁGINA INICIAL e aponta, um por vez, os
+// lugares de verdade onde a pessoa toca para entrar e interagir (atalhos,
+// Menu, agenda, Círculos, revista, Feed, perfil e sino). Cada passo destaca
+// o elemento real da tela com um "buraco" de luz e mostra um balão ao lado.
 //
-// Cada passo mede a posição do elemento-alvo no momento em que entra
-// (useLayoutEffect-like via useEffect + rAF) e reage a resize/scroll —
-// funciona tanto no layout desktop (.topnav-item) quanto na cápsula
-// mobile (.bottom-nav-item), escolhendo qualquer um dos dois ids que
-// estiver de fato visível (offsetParent !== null).
+// O alvo é procurado por seletores CSS, em ordem; vale o primeiro que estiver
+// visível. Se nenhum existir (ex.: comunidade ainda sem Círculos), o balão
+// aparece no centro, sem destaque — o tour nunca trava.
+//
+// O balão mede a própria altura e se posiciona abaixo do alvo quando cabe,
+// acima quando não cabe e, se o alvo ocupa quase a tela toda, fica preso no
+// rodapé da tela — sempre inteiro dentro da tela.
 
 interface TourStep {
-  navKey?: NavKey
-  elementId?: string
+  /** Seletores do alvo, em ordem de preferência. */
+  targets: string[]
   title: string
   text: string
 }
 
-const TOUR_STEPS: TourStep[] = [
+export const TOUR_STEPS: TourStep[] = [
   {
-    navKey: 'inicio',
+    targets: ['.home-greeting', '#tour-nav-desktop-inicio', '#tour-nav-mobile-inicio'],
     title: 'Página inicial',
-    text: 'Aqui ficam a saudação e o tempo, os atalhos (Antes de Tudo, Água e IMC), o Menu, a agenda, os Círculos e a revista.',
+    text: 'Tudo começa aqui. Toque no sol para ver a previsão do tempo da sua cidade.',
   },
   {
-    navKey: 'circulos',
+    targets: ['.home-tools'],
+    title: 'Atalhos do dia',
+    text: 'Antes de Tudo (seus hábitos da manhã), Água (quanto você já bebeu) e IMC. Toque em um deles para abrir.',
+  },
+  {
+    targets: ['.exp-strip', '.exp-viewport'],
+    title: 'Menu',
+    text: 'Deslize para o lado e toque em um cartão: Eventos, Loja, Receitas, Meu Jardim e Help Nutri.',
+  },
+  {
+    targets: ['.home-time'],
+    title: 'Agenda e relógio',
+    text: 'Toque na agenda para anotar compromissos. Toque no relógio para ver a hora e o clima em qualquer lugar do mundo.',
+  },
+  {
+    targets: ['.circ-strip'],
     title: 'Círculos',
-    text: 'Pequenos grupos dentro da comunidade, por tema ou interesse — entre em quantos quiser.',
+    text: 'Grupos por tema. Toque em um Círculo, entre nele e deixe a sua primeira mensagem. Você também pode sugerir um novo.',
   },
   {
-    navKey: 'circulos',
-    title: 'Como participar de um círculo',
-    text: 'Toque em um Círculo para ver as publicações dele e no botão "Participar" para entrar.',
+    targets: ['.mag2-viewport', '.mag2-stack'],
+    title: 'Revista',
+    text: 'Toque em uma capa para ler a edição inteira aqui mesmo, virando as páginas.',
   },
   {
-    navKey: 'feed',
-    title: 'Publicações e interações',
-    text: 'O Feed reúne as publicações da comunidade. Curta, comente e responda: as respostas aparecem logo abaixo de cada mensagem. Toque na foto para ampliar.',
+    targets: ['#tour-nav-mobile-feed', '#tour-nav-desktop-feed'],
+    title: 'Feed',
+    text: 'Aqui ficam as conversas da comunidade. Publique, curta, comente, responda e vote nas enquetes.',
   },
   {
-    navKey: 'jardim',
-    title: 'Meu Jardim',
-    text: 'Todo dia tem um desafio: faça o check e a flor do mês ganha uma pétala. Interaja, faça desafios e participe de sorteios mensais.',
+    targets: ['#tour-nav-mobile-perfil', '#tour-nav-desktop-perfil'],
+    title: 'Meu perfil',
+    text: 'Sua capa, suas fotos e os depoimentos que você recebe. No Feed, toque na foto de outra participante para visitar o perfil dela.',
   },
   {
-    navKey: 'loja',
-    title: 'Loja',
-    text: 'Os conteúdos ficam em categorias. Toque em um cartão para ver os produtos e leia tudo aqui mesmo, no app.',
-  },
-  {
-    navKey: 'perfil',
-    title: 'Perfil pessoal',
-    text: 'Sua foto, sua capa com os depoimentos que você recebe, seus interesses e seu Jardim. Toque na foto de outra participante para visitar o perfil dela.',
-  },
-  {
-    elementId: 'tour-notification-bell',
+    targets: ['#tour-notification-bell'],
     title: 'Notificações',
-    text: 'O sino avisa sobre respostas, novidades da comunidade e tudo que precisa da sua atenção.',
+    text: 'O sino avisa sobre respostas e novidades. Toque em um aviso e ele leva você direto ao lugar.',
   },
 ]
 
@@ -77,56 +81,72 @@ interface SpotlightRect {
   height: number
 }
 
-function findVisibleElement(step: TourStep): HTMLElement | null {
-  if (step.elementId) return document.getElementById(step.elementId)
-  if (!step.navKey) return null
-  const desktop = document.getElementById(`tour-nav-desktop-${step.navKey}`)
-  if (desktop && desktop.offsetParent !== null) return desktop
-  const mobile = document.getElementById(`tour-nav-mobile-${step.navKey}`)
-  if (mobile && mobile.offsetParent !== null) return mobile
-  return desktop ?? mobile
+const CARD_GAP = 12
+const EDGE = 12
+
+function isVisible(el: HTMLElement): boolean {
+  // jsdom não calcula layout: lá `offsetParent` só existe quando o teste define.
+  return el.offsetParent !== null || el.getClientRects().length > 0
+}
+
+function findTarget(step: TourStep): HTMLElement | null {
+  let fallback: HTMLElement | null = null
+  for (const selector of step.targets) {
+    const el = document.querySelector<HTMLElement>(selector)
+    if (!el) continue
+    if (isVisible(el)) return el
+    fallback ??= el
+  }
+  return fallback
 }
 
 export function Tour({ onNavigate, onDone }: TourProps) {
   const [stepIndex, setStepIndex] = useState(0)
   const [rect, setRect] = useState<SpotlightRect | null>(null)
+  const [cardHeight, setCardHeight] = useState(190)
+  const cardRef = useRef<HTMLDivElement>(null)
   const step = TOUR_STEPS[stepIndex]
   const isLast = stepIndex === TOUR_STEPS.length - 1
 
   const measure = useCallback(() => {
-    const el = findVisibleElement(step)
+    const el = findTarget(step)
     if (!el) {
       setRect(null)
       return
     }
     const box = el.getBoundingClientRect()
     const padding = 6
-    setRect({
-      top: box.top - padding,
-      left: box.left - padding,
-      width: box.width + padding * 2,
-      height: box.height + padding * 2,
-    })
+    // Recorta o destaque à área visível: um alvo mais alto que a tela não
+    // empurra o balão para fora.
+    const top = Math.max(EDGE / 2, box.top - padding)
+    const bottom = Math.min(window.innerHeight - EDGE / 2, box.bottom + padding)
+    const left = Math.max(EDGE / 2, box.left - padding)
+    const right = Math.min(window.innerWidth - EDGE / 2, box.right + padding)
+    if (bottom - top < 8 || right - left < 8) {
+      setRect(null)
+      return
+    }
+    setRect({ top, left, width: right - left, height: bottom - top })
   }, [step])
 
+  // O tour inteiro acontece na página inicial.
   useEffect(() => {
-    if (step.navKey) onNavigate(step.navKey)
-    // Dá um instante para a navegação re-renderizar antes de medir —
-    // sem isto, a 1a medição de cada passo pode pegar a tela ANTERIOR
-    // ainda montada (um frame de atraso é imperceptível aqui).
+    onNavigate('inicio')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    // Um instante para a tela renderizar; depois traz o alvo para o meio da
+    // tela e mede. Mede de novo logo depois, para pegar a posição já parada.
     const raf = requestAnimationFrame(() => {
-      // Achado em teste real — sem isto, um alvo fora da área visível
-      // (ex.: página já rolada para baixo quando o tour começa, ou ao
-      // reabrir pelo Perfil) deixava o spotlight e o cartão posicionados
-      // fora da tela, invisíveis, até a pessoa rolar manualmente. Rola
-      // só NESTE momento (troca de passo) — nunca durante resize/scroll
-      // (o outro efeito abaixo só remede, não rola de novo), para não
-      // brigar com uma rolagem manual em andamento.
-      const el = findVisibleElement(step)
-      el?.scrollIntoView({ block: 'center', behavior: 'instant' })
+      findTarget(step)?.scrollIntoView({ block: 'center', behavior: 'instant' })
       measure()
     })
-    return () => cancelAnimationFrame(raf)
+    const settle = window.setTimeout(measure, 350)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.clearTimeout(settle)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex])
 
@@ -139,6 +159,12 @@ export function Tour({ onNavigate, onDone }: TourProps) {
     }
   }, [measure])
 
+  // Altura real do balão (muda com o tamanho do texto de cada passo).
+  useLayoutEffect(() => {
+    const h = cardRef.current?.offsetHeight
+    if (h && Math.abs(h - cardHeight) > 2) setCardHeight(h)
+  }, [stepIndex, rect, cardHeight])
+
   function goNext() {
     if (isLast) onDone()
     else setStepIndex((i) => i + 1)
@@ -148,15 +174,25 @@ export function Tour({ onNavigate, onDone }: TourProps) {
     if (stepIndex > 0) setStepIndex((i) => i - 1)
   }
 
-  // Cartão abaixo do alvo quando há espaço; senão, acima.
-  const cardTop = rect
-    ? rect.top + rect.height + 12 + 160 < window.innerHeight
-      ? rect.top + rect.height + 12
-      : Math.max(12, rect.top - 172)
-    : window.innerHeight / 2 - 80
-  const cardLeft = rect
-    ? Math.min(Math.max(12, rect.left), window.innerWidth - 300)
-    : window.innerWidth / 2 - 150
+  const viewW = window.innerWidth
+  const viewH = window.innerHeight
+  const cardWidth = Math.min(340, viewW - EDGE * 2)
+
+  let cardTop: number
+  let cardLeft: number
+  if (!rect) {
+    cardTop = Math.max(EDGE, viewH / 2 - cardHeight / 2)
+    cardLeft = Math.max(EDGE, viewW / 2 - cardWidth / 2)
+  } else {
+    const below = rect.top + rect.height + CARD_GAP
+    const above = rect.top - CARD_GAP - cardHeight
+    if (below + cardHeight <= viewH - EDGE) cardTop = below
+    else if (above >= EDGE) cardTop = above
+    else cardTop = viewH - cardHeight - EDGE // alvo grande: balão preso no rodapé
+    // Centraliza no alvo, sem sair pelas laterais.
+    const centered = rect.left + rect.width / 2 - cardWidth / 2
+    cardLeft = Math.min(Math.max(EDGE, centered), viewW - cardWidth - EDGE)
+  }
 
   return (
     <div className="tour-overlay" role="dialog" aria-modal="true" aria-label="Tour guiado do Círcula">
@@ -168,7 +204,7 @@ export function Tour({ onNavigate, onDone }: TourProps) {
       )}
       {!rect && <div className="tour-overlay-dim" />}
 
-      <div className="tour-card" style={{ top: cardTop, left: cardLeft }}>
+      <div ref={cardRef} className="tour-card" style={{ top: cardTop, left: cardLeft, width: cardWidth }}>
         <p className="tour-card-step">
           {stepIndex + 1} / {TOUR_STEPS.length}
         </p>
