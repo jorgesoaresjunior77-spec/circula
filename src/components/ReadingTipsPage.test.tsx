@@ -54,8 +54,10 @@ describe('ReadingTipsPage — Dicas de Leitura', () => {
     render(<ReadingTipsPage communityId="c1" profileId="p1" isOwner={false} />)
 
     expect(screen.getByRole('region', { name: 'Saúde' })).toBeInTheDocument()
+    // O cartão mostra só capa, título e autor; os detalhes abrem ao tocar.
+    fireEvent.click(screen.getByRole('button', { name: /Livro de teste/ }))
     expect(screen.getByRole('heading', { name: 'Livro de teste' })).toBeInTheDocument()
-    expect(screen.getByText('Autora de teste')).toBeInTheDocument()
+    expect(screen.getAllByText('Autora de teste').length).toBeGreaterThan(0)
     expect(screen.getByText('Um resumo.')).toBeInTheDocument()
     expect(screen.getByText('Aprendizado 1')).toBeInTheDocument()
     expect(screen.getByText('Porque sim.')).toBeInTheDocument()
@@ -71,6 +73,7 @@ describe('ReadingTipsPage — Dicas de Leitura', () => {
     mockContent([LIVRO])
     render(<ReadingTipsPage communityId="c1" profileId="p1" isOwner={false} />)
     expect(screen.queryByRole('button', { name: 'Novo livro' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Livro de teste/ }))
     expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument()
   })
 
@@ -116,6 +119,7 @@ describe('ReadingTipsPage — Dicas de Leitura', () => {
     mockContent([{ ...LIVRO, status: 'draft' }])
     render(<ReadingTipsPage communityId="c1" profileId="p1" isOwner />)
 
+    fireEvent.click(screen.getByRole('button', { name: /Livro de teste/ }))
     expect(screen.getByText(/Rascunho — só você vê/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Editar' }))
     expect(screen.getByLabelText('Título')).toHaveValue('Livro de teste')

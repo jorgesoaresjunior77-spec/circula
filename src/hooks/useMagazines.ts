@@ -91,6 +91,24 @@ export function useMagazines(communityId: string | null) {
     [communityId, run],
   )
 
+  const addPages = useCallback(
+    (issue: MagazineIssue, imagePaths: string[]): Promise<Result> => {
+      if (!communityId) return Promise.resolve({ error: 'Sem comunidade selecionada.' })
+      const start = issue.pages.reduce((max, p) => Math.max(max, p.position), 0)
+      return run(
+        supabase.from('magazine_pages').insert(
+          imagePaths.map((image_path, i) => ({
+            issue_id: issue.id,
+            community_id: communityId,
+            position: start + i + 1,
+            image_path,
+          })),
+        ),
+      )
+    },
+    [communityId, run],
+  )
+
   const replacePage = useCallback(
     (pageId: string, imagePath: string) =>
       run(supabase.from('magazine_pages').update({ image_path: imagePath }).eq('id', pageId)),
@@ -110,6 +128,7 @@ export function useMagazines(communityId: string | null) {
     updateIssue,
     deleteIssue,
     addPage,
+    addPages,
     replacePage,
     removePage,
   }

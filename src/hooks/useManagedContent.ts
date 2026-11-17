@@ -12,6 +12,7 @@ export type ManagedTable =
   | 'community_partners'
   | 'product_categories'
   | 'community_playlists'
+  | 'wellness_articles'
 
 export function useManagedContent<T extends { id: string }>(
   table: ManagedTable,

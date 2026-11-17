@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canReadEbooks, canUseHelpNutri } from './packages'
+import { canReadEbooks, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from './packages'
 
 describe('packages', () => {
   it('sem pacote, tudo bloqueado', () => {
@@ -17,5 +17,18 @@ describe('packages', () => {
   it('o plano completo vale pelos dois', () => {
     expect(canUseHelpNutri(['total'])).toBe(true)
     expect(canReadEbooks(['total'])).toBe(true)
+  })
+
+  it('Respiração e Wellness têm pacote próprio, e o Premium vale por todos', () => {
+    expect(canUseBreathing([])).toBe(false)
+    expect(canUseBreathing(['wellness'])).toBe(false)
+    expect(canUseBreathing(['respiracao'])).toBe(true)
+    expect(canReadWellness(['respiracao'])).toBe(false)
+    expect(canReadWellness(['wellness'])).toBe(true)
+    expect(canReadReadingTips(['wellness'])).toBe(false)
+    expect(canReadReadingTips(['leitura'])).toBe(true)
+    for (const fn of [canUseBreathing, canReadWellness, canReadReadingTips, canUseHelpNutri, canReadEbooks]) {
+      expect(fn(['premium'])).toBe(true)
+    }
   })
 })

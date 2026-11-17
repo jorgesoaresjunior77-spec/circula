@@ -12,6 +12,7 @@ import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
 import { CircleImagesManager } from './CircleImagesManager'
 import { PartnersManager } from './PartnersManager'
+import { ContentSchedulePanel } from './ContentSchedulePanel'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
   AddMemberResult,
@@ -29,6 +30,7 @@ import type {
 // ProfessionalDashboard continuar funcionando sem mudar lá.
 type PanelTab =
   | 'visao'
+  | 'agenda'
   | 'participantes'
   | 'publicacoes'
   | 'eventos'
@@ -43,6 +45,7 @@ type PanelTab =
 
 const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
+  { key: 'agenda', label: 'Agenda de conteúdos' },
   { key: 'publicacoes', label: 'Publicações' },
   { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'metricas', label: 'Métricas' },
@@ -193,6 +196,12 @@ export function ProfessionalPanel({
             />
           </section>
 
+        </div>
+      )}
+
+      {activeTab === 'agenda' && (
+        <div className="panel-tab-content">
+          <ContentSchedulePanel communityId={communityId} />
         </div>
       )}
 

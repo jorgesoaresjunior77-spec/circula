@@ -2112,3 +2112,805 @@ section.community-card.product-manager.product-manager--storefront {
     0 0 0 3px rgba(255, 255, 255, 0.9),
     0 0 0 9999px rgba(35, 30, 28, 0.66);
 }
+
+/* ---- Dicas de Leitura: cartões padronizados, 3 por fila, capa inteira à vista ------------ */
+.reading-page .reading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 10px;
+}
+
+@media (min-width: 900px) {
+  .reading-page .reading-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.reading-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: var(--graphite);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.reading-tile-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  border-radius: 14px;
+  background: var(--n-100);
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 5px 0 #8f7a67,
+    0 14px 16px -8px rgba(40, 32, 26, 0.5);
+}
+
+.reading-tile:active .reading-tile-cover {
+  transform: translateY(4px);
+}
+
+.reading-tile-title {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.reading-tile-author {
+  font-size: 11.5px;
+  color: var(--n-600);
+  line-height: 1.2;
+}
+
+.reading-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(30, 24, 20, 0.5);
+}
+
+.reading-detail {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-5, 20px);
+  border-radius: 22px 22px 0 0;
+  background: var(--c-white);
+}
+
+.reading-detail-cover {
+  align-self: center;
+  width: min(220px, 60%);
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px -10px rgba(40, 32, 26, 0.5);
+}
+
+.reading-detail-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--graphite);
+}
+
+/* ---- Parceiros: faixa mais alta, cartões maiores e sombra suave de folhas de coqueiro ------ */
+.home-partners {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 230px;
+  justify-content: center;
+  gap: 18px;
+  padding: 34px 0 30px;
+  margin-top: 14px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255, 251, 246, 0.9), rgba(247, 239, 230, 0.7));
+  box-shadow: inset 0 0 0 1px rgba(143, 122, 103, 0.14), 0 10px 26px -18px rgba(40, 32, 26, 0.35);
+}
+
+.home-partners > .home-partners-title,
+.home-partners > .partner-viewport {
+  position: relative;
+  z-index: 1;
+}
+
+.home-partners .partner-seq {
+  gap: 56px;
+  padding: 12px 28px;
+}
+
+.home-partners .partner-logo {
+  height: 92px;
+}
+
+.home-partners .partner-logo img {
+  max-height: 92px;
+  max-width: 260px;
+}
+
+.palm-shadows {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  color: rgba(40, 32, 26, 1);
+}
+
+.palm-shadow {
+  position: absolute;
+  display: block;
+  width: 62%;
+  max-width: 340px;
+  opacity: 0.1;
+  filter: blur(5px);
+  transform-origin: 40% 100%;
+  animation: palm-sway 9s ease-in-out infinite;
+}
+
+.palm-shadow .palm-frond {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: currentColor;
+}
+
+.palm-shadow--a {
+  left: -14%;
+  top: -34%;
+  transform: rotate(38deg);
+}
+
+.palm-shadow--b {
+  right: -16%;
+  top: -40%;
+  width: 56%;
+  opacity: 0.085;
+  transform: rotate(-36deg) scaleX(-1);
+  animation-duration: 11s;
+  animation-delay: -3s;
+}
+
+.palm-shadow--c {
+  left: 28%;
+  bottom: -52%;
+  width: 46%;
+  opacity: 0.07;
+  transform: rotate(172deg);
+  animation-duration: 13s;
+  animation-delay: -6s;
+}
+
+@keyframes palm-sway {
+  0%,
+  100% {
+    margin-left: 0;
+    rotate: -2.5deg;
+  }
+  50% {
+    margin-left: 6px;
+    rotate: 3deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palm-shadow {
+    animation: none;
+  }
+}
+
+.home-partners .partner-logo--boost {
+  height: 106px;
+}
+
+/* ---- Painel: Agenda de conteúdos ---------------------------------------------------------- */
+.schedule-panel,
+.schedule-form,
+.schedule-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.schedule-type {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--c-white);
+  font: inherit;
+  font-size: 13px;
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.schedule-type--on {
+  background: var(--graphite);
+  border-color: var(--graphite);
+  color: #fff;
+}
+
+.schedule-group-title {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--n-600);
+}
+
+.schedule-group-title--late {
+  color: #a33;
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.schedule-item--done {
+  opacity: 0.6;
+}
+
+.schedule-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.schedule-tag {
+  align-self: flex-start;
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--n-100);
+  color: var(--n-700);
+}
+
+.schedule-notes {
+  font-size: 12.5px;
+  color: var(--n-600);
+}
+
+.schedule-date {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+/* ---- Perfil: visitas e seguir ------------------------------------------------------------- */
+.profile-visit-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.profile-visit-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.profile-visit-stat strong {
+  font-size: 20px;
+  color: var(--graphite);
+}
+
+.profile-visit-stat span {
+  font-size: 11px;
+  color: var(--n-600);
+}
+
+.profile-follow-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.profile-follow-count {
+  font-size: 13px;
+  color: var(--n-600);
+}
+
+.profile-follow-button--on {
+  background: transparent;
+  border: 1px solid var(--graphite);
+  color: var(--graphite);
+}
+
+/* ---- Planos: cartões iguais, 3 por fila, com ícone próprio -------------------------------- */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 10px;
+}
+
+@media (min-width: 900px) {
+  .plans-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.plan-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  min-height: 150px;
+  padding: 16px 8px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffdfa, #f4ece3);
+  color: var(--graphite);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 5px 0 #8f7a67,
+    0 14px 16px -8px rgba(40, 32, 26, 0.5);
+}
+
+.plan-tile:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #8f7a67, 0 8px 12px -6px rgba(40, 32, 26, 0.5);
+}
+
+.plan-tile--premium {
+  background: linear-gradient(180deg, #fff7e6, #f0dcb8);
+}
+
+.plan-tile-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(143, 122, 103, 0.25);
+  color: #7a6350;
+}
+
+.plan-tile-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.plan-tile-price {
+  margin-top: auto;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.plan-tile-unit {
+  font-size: 11px;
+  color: var(--n-600);
+}
+
+.plan-tile-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--graphite);
+  color: #fff;
+  font-size: 10.5px;
+}
+
+.plans-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(30, 24, 20, 0.5);
+}
+
+.plans-sheet {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  border-radius: 22px 22px 0 0 !important;
+}
+
+.plans-sheet-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--graphite);
+}
+
+/* ---- Previsão: cena animada (nuvens fofas, chuva, neve, sol, lua, relâmpago) ---------------- */
+.weather-page .weather-now.weather-hero {
+  min-height: 380px;
+}
+
+.weather-page .weather-hero > .weather-hero-top,
+.weather-page .weather-hero > .weather-hero-phrase,
+.weather-page .weather-hero > .weather-hero-credit {
+  position: relative;
+  z-index: 2;
+}
+
+.wx3-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wx3-cloud {
+  --s: 1;
+  position: absolute;
+  width: calc(96px * var(--s));
+  height: calc(54px * var(--s));
+  animation: wx3-drift 9s ease-in-out infinite alternate;
+  filter: drop-shadow(0 8px 8px rgba(20, 24, 40, 0.22));
+}
+
+.wx3-cloud--light {
+  --c1: #ffffff;
+  --c2: #e7eef6;
+  --c3: rgba(150, 170, 200, 0.55);
+}
+
+.wx3-cloud--grey {
+  --c1: #dfe4e9;
+  --c2: #8f9aa6;
+  --c3: rgba(80, 92, 108, 0.6);
+}
+
+.wx3-cloud--dark {
+  --c1: #9aa3ae;
+  --c2: #5d6671;
+  --c3: rgba(24, 30, 40, 0.7);
+}
+
+.wx3-puff {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, var(--c1), var(--c2) 72%);
+  box-shadow: inset -5px -7px 12px var(--c3);
+}
+
+.wx3-puff--a {
+  left: 2%;
+  width: 40%;
+  height: 62%;
+}
+
+.wx3-puff--b {
+  left: 22%;
+  width: 50%;
+  height: 100%;
+}
+
+.wx3-puff--c {
+  right: 2%;
+  width: 42%;
+  height: 68%;
+}
+
+.wx3-puff--base {
+  left: 8%;
+  width: 84%;
+  height: 44%;
+  border-radius: 999px;
+}
+
+@keyframes wx3-drift {
+  from {
+    transform: translate(-10px, 0);
+  }
+  to {
+    transform: translate(12px, -6px);
+  }
+}
+
+/* chuva e neve caem de cada nuvem */
+.wx3-drops {
+  position: absolute;
+  top: 88%;
+  left: 8%;
+  width: 84%;
+  height: 130px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent);
+  mask-image: linear-gradient(180deg, #000 55%, transparent);
+}
+
+.wx3-drops s {
+  position: absolute;
+  top: -14px;
+  display: block;
+  animation: wx3-fall 0.9s linear infinite;
+}
+
+.wx3-drops--rain s,
+.wx3-drops--drizzle s {
+  width: 1.6px;
+  height: 11px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(220, 235, 255, 0), rgba(220, 235, 255, 0.95));
+}
+
+.wx3-drops--drizzle s {
+  height: 7px;
+  opacity: 0.75;
+}
+
+.wx3-drops--snow s {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.9);
+  animation-name: wx3-snow;
+}
+
+@keyframes wx3-fall {
+  to {
+    transform: translateY(150px);
+  }
+}
+
+@keyframes wx3-snow {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(7px, 70px);
+  }
+  100% {
+    transform: translate(-3px, 140px);
+  }
+}
+
+/* sol */
+.wx3-sun {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  width: 120px;
+  height: 120px;
+}
+
+.wx3-sun-core {
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fffbe2, #ffd95e 62%, #ffb52e);
+  box-shadow: 0 0 40px 16px rgba(255, 214, 90, 0.55);
+  animation: wx3-pulse 4.5s ease-in-out infinite;
+}
+
+.wx3-sun-rays {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 236, 160, 0.5) 0 6deg, rgba(255, 236, 160, 0) 6deg 20deg);
+  -webkit-mask-image: radial-gradient(circle, transparent 28%, #000 36%, transparent 70%);
+  mask-image: radial-gradient(circle, transparent 28%, #000 36%, transparent 70%);
+  animation: wx3-spin 40s linear infinite;
+}
+
+@keyframes wx3-pulse {
+  50% {
+    box-shadow: 0 0 52px 22px rgba(255, 214, 90, 0.7);
+  }
+}
+
+@keyframes wx3-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* lua e estrelas */
+.wx3-moon {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset -14px 4px 0 0 #fff4d2, 0 0 30px 6px rgba(255, 244, 210, 0.35);
+  transform: rotate(-18deg);
+}
+
+.wx3-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  animation: wx3-twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes wx3-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+/* neblina */
+.wx3-haze {
+  position: absolute;
+  left: -30%;
+  width: 160%;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%);
+  filter: blur(6px);
+  animation: wx3-haze 14s ease-in-out infinite alternate;
+}
+
+.wx3-haze--1 {
+  top: 30%;
+}
+
+.wx3-haze--2 {
+  top: 48%;
+  animation-duration: 18s;
+  animation-delay: -5s;
+}
+
+.wx3-haze--3 {
+  top: 64%;
+  animation-duration: 22s;
+  animation-delay: -9s;
+}
+
+@keyframes wx3-haze {
+  from {
+    transform: translateX(-6%);
+  }
+  to {
+    transform: translateX(6%);
+  }
+}
+
+/* relâmpago */
+.wx3-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 60% 20%, rgba(255, 255, 255, 0.85), rgba(200, 215, 255, 0) 60%);
+  opacity: 0;
+  animation: wx3-flash 7s linear infinite;
+}
+
+@keyframes wx3-flash {
+  0%,
+  86%,
+  100% {
+    opacity: 0;
+  }
+  88% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.1;
+  }
+  92% {
+    opacity: 0.7;
+  }
+  96% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wx3-cloud,
+  .wx3-drops s,
+  .wx3-sun-core,
+  .wx3-sun-rays,
+  .wx3-star,
+  .wx3-haze,
+  .wx3-flash {
+    animation: none;
+  }
+  .wx3-flash {
+    display: none;
+  }
+}
+
+/* ---- Planos: compra avulsa e aviso de plano pago ----------------------------------------- */
+.addon-checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addon-cycles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.package-paywall {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}

@@ -7,6 +7,7 @@ import { GardenProfileSummary } from './GardenProfileSummary'
 import { CommunitySubscriptionCard } from './CommunitySubscriptionCard'
 import { ImageCropper } from './ImageCropper'
 import { ProfileBanner } from './ProfileBanner'
+import { ProfileVisitStats } from './ProfileVisitStats'
 import { ProfileTestimonials } from './ProfileTestimonials'
 import { OnboardingAnswersView } from './OnboardingAnswersView'
 
@@ -224,6 +225,8 @@ export function MyProfile({
           </>
         }
       />
+
+      <ProfileVisitStats profileId={profile.id} />
 
       <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
 

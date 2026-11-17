@@ -5,6 +5,7 @@ import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { suggestedReleaseDate, nextMagazineMessage } from '../lib/magazineSchedule'
 import type { MagazineIssue } from '../types/magazine'
 import { CoverImageInput } from './CoverImageInput'
+import { MultiPageUpload } from './MultiPageUpload'
 
 // Painel → Imagens da comunidade → Revista Círcula Woman Magazine.
 // Edições (capa + data de lançamento + páginas) e o fundo do Escritório
@@ -76,8 +77,17 @@ function IssueEditor({
         />
 
         <p className="card-images-guide">
-          <span>Páginas ({issue.pages.length}/12)</span>
+          <span>Páginas ({issue.pages.length}) — sem limite</span>
         </p>
+        <MultiPageUpload
+          communityId={communityId}
+          uid={profileId}
+          label="Enviar todas as páginas de uma vez"
+          onUploaded={async (paths) => {
+            const r = await api.addPages(issue, paths)
+            return r.error ? 'Não foi possível salvar as páginas agora. Tente novamente.' : null
+          }}
+        />
         <ol className="magazine-pages-list">
           {issue.pages.map((page, i) => (
             <li key={page.id}>
@@ -95,9 +105,8 @@ function IssueEditor({
               />
             </li>
           ))}
-          {issue.pages.length < 12 && (
           <li>
-            <span className="magazine-page-num">Nova página</span>
+            <span className="magazine-page-num">Nova página (uma só)</span>
             <CoverImageInput
               key={`new-${issue.pages.length}`}
               value=""
@@ -109,7 +118,6 @@ function IssueEditor({
               onChange={(path) => path && void guard(api.addPage(issue, path))}
             />
           </li>
-          )}
         </ol>
         {error && (
           <p className="card-images-error" role="alert">

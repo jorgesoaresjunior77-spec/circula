@@ -5,6 +5,7 @@ import { ProfileGallery } from './ProfileGallery'
 import { GardenProfileSummary } from './GardenProfileSummary'
 import { ProfileBanner } from './ProfileBanner'
 import { ProfileTestimonials } from './ProfileTestimonials'
+import { recordProfileVisit, useFollow } from '../hooks/useFollow'
 
 interface ViewedProfile {
   id: string
@@ -48,6 +49,11 @@ export function ProfileCard({
   const [overview, setOverview] = useState<ProfileOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const follow = useFollow(viewerId, profileId)
+
+  useEffect(() => {
+    recordProfileVisit(viewerId, profileId)
+  }, [viewerId, profileId])
 
   useEffect(() => {
     let active = true
@@ -141,6 +147,24 @@ export function ProfileCard({
               </div>
             </>
           )}
+
+          <div className="profile-follow-row">
+            {viewerId && viewerId !== profileId && (
+              <button
+                type="button"
+                className={`btn profile-follow-button${follow.following ? ' profile-follow-button--on' : ' btn-primary'}`}
+                onClick={() => void follow.toggle()}
+                disabled={follow.busy}
+                aria-pressed={follow.following}
+              >
+                {follow.following ? 'Seguindo' : 'Seguir'}
+              </button>
+            )}
+            <span className="profile-follow-count">
+              {follow.followers} {follow.followers === 1 ? 'seguidora' : 'seguidoras'}
+            </span>
+          </div>
+          {follow.error && <p className="auth-error">{follow.error}</p>}
 
           {onStartConversation && (
             <button

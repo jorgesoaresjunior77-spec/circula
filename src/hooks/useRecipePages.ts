@@ -2,9 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Páginas (imagens) de uma receita em formato de revista. A RLS decide o
-// que cada papel enxerga (membro: só de receita publicada).
-
-export const RECIPE_PAGES_MAX = 5
+// que cada papel enxerga (membro: só de receita publicada). Sem limite de páginas.
 
 export interface RecipePage {
   id: string
@@ -41,7 +39,6 @@ export function useRecipePages(contentId: string | null, communityId: string | n
   const addPage = useCallback(
     async (imagePath: string): Promise<Result> => {
       if (!contentId || !communityId) return { error: 'Salve a receita antes de adicionar páginas.' }
-      if (pages.length >= RECIPE_PAGES_MAX) return { error: `No máximo ${RECIPE_PAGES_MAX} páginas.` }
       const next = pages.reduce((max, p) => Math.max(max, p.position), 0) + 1
       const { error } = await supabase.from('recipe_pages').insert({
         content_id: contentId,
@@ -50,6 +47,25 @@ export function useRecipePages(contentId: string | null, communityId: string | n
         image_path: imagePath,
       })
       if (error) return { error: 'Não foi possível salvar a página agora.' }
+      reload()
+      return { error: null }
+    },
+    [contentId, communityId, pages, reload],
+  )
+
+  const addPages = useCallback(
+    async (imagePaths: string[]): Promise<Result> => {
+      if (!contentId || !communityId) return { error: 'Salve a receita antes de adicionar páginas.' }
+      const start = pages.reduce((max, p) => Math.max(max, p.position), 0)
+      const { error } = await supabase.from('recipe_pages').insert(
+        imagePaths.map((image_path, i) => ({
+          content_id: contentId,
+          community_id: communityId,
+          position: start + i + 1,
+          image_path,
+        })),
+      )
+      if (error) return { error: 'Não foi possível salvar as páginas agora.' }
       reload()
       return { error: null }
     },
@@ -66,5 +82,5 @@ export function useRecipePages(contentId: string | null, communityId: string | n
     [reload],
   )
 
-  return { pages, addPage, removePage }
+  return { pages, addPage, addPages, removePage }
 }

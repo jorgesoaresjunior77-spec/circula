@@ -245,8 +245,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 're-4',
         q: 'Como abrir uma matéria?',
-        a: 'A revista é lida página a página. Abra a edição, deslize para virar as páginas e use os botões + e − (ou dois toques) para ampliar uma página e ler com conforto. O botão Baixar salva a página que está na tela.',
-        k: 'matéria página zoom ampliar baixar download',
+        a: 'A revista é lida página a página. Abra a edição, deslize para virar as páginas e use os botões + e − (ou dois toques) para ampliar uma página e ler com conforto.',
+        k: 'matéria página zoom ampliar',
       },
       {
         id: 're-5',

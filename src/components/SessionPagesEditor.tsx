@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSessionPages } from '../hooks/useSessionPages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
+import { MultiPageUpload } from './MultiPageUpload'
 
 // Profissional: páginas (imagens) de uma prática de respiração/meditação, na
 // ordem de leitura — igual às páginas de e-book, receita e revista.
@@ -19,7 +20,7 @@ function Thumb({ path }: { path: string }) {
 }
 
 export function SessionPagesEditor({ sessionId, communityId, profileId, onChanged }: Props) {
-  const { pages, addPage, removePage } = useSessionPages(sessionId, communityId)
+  const { pages, addPage, addPages, removePage } = useSessionPages(sessionId, communityId)
   const [error, setError] = useState<string | null>(null)
   const [fieldKey, setFieldKey] = useState(0)
 
@@ -59,12 +60,21 @@ export function SessionPagesEditor({ sessionId, communityId, profileId, onChange
           </li>
         ))}
       </ol>
+      <MultiPageUpload
+        communityId={communityId}
+        uid={profileId}
+        onUploaded={async (paths) => {
+          const r = await addPages(paths)
+          if (!r.error) onChanged?.()
+          return r.error
+        }}
+      />
       <CoverImageInput
         key={fieldKey}
         value=""
         communityId={communityId}
         uid={profileId}
-        label="Adicionar página"
+        label="Ou adicionar uma página só"
         aspectRatio="3 / 4"
         recommendedSize="1080 × 1440 px"
         onChange={(path) => void handleNew(path)}

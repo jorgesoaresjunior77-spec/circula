@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useProductPages } from '../hooks/useProductPages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
+import { MultiPageUpload } from './MultiPageUpload'
 
 // Profissional: páginas prontas do e-book (imagens), na ordem de leitura. A
 // membro com o pacote lê no leitor da revista, dentro do Círcula, sem baixar.
@@ -18,7 +19,7 @@ function Thumb({ path }: { path: string }) {
 }
 
 export function ProductPagesEditor({ productId, communityId, profileId }: Props) {
-  const { pages, addPage, removePage } = useProductPages(productId, communityId)
+  const { pages, addPage, addPages, removePage } = useProductPages(productId, communityId)
   const [error, setError] = useState<string | null>(null)
   // Muda a cada página enviada para limpar o campo de upload.
   const [fieldKey, setFieldKey] = useState(0)
@@ -56,18 +57,21 @@ export function ProductPagesEditor({ productId, communityId, profileId }: Props)
           </li>
         ))}
       </ol>
-      {
-        <CoverImageInput
-          key={fieldKey}
-          value=""
-          communityId={communityId}
-          uid={profileId}
-          label="Adicionar página"
-          aspectRatio="3 / 4"
-          recommendedSize="1080 × 1440 px"
-          onChange={(path) => void handleNew(path)}
-        />
-      }
+      <MultiPageUpload
+        communityId={communityId}
+        uid={profileId}
+        onUploaded={async (paths) => (await addPages(paths)).error}
+      />
+      <CoverImageInput
+        key={fieldKey}
+        value=""
+        communityId={communityId}
+        uid={profileId}
+        label="Ou adicionar uma página só"
+        aspectRatio="3 / 4"
+        recommendedSize="1080 × 1440 px"
+        onChange={(path) => void handleNew(path)}
+      />
       {error && <p className="auth-error">{error}</p>}
     </fieldset>
   )

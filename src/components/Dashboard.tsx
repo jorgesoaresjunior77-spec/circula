@@ -1,6 +1,7 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canUseHelpNutri } from '../lib/packages'
+import { canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
+import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
@@ -38,6 +39,7 @@ import { WorldClockPage } from './WorldClockPage'
 import { AntesDeTudoPage } from './AntesDeTudoPage'
 import { ReadingTipsPage } from './ReadingTipsPage'
 import { BreathingPage } from './BreathingPage'
+import { WellnessPage } from './WellnessPage'
 import { InspirationManagerPage } from './InspirationManagerPage'
 import { DailyInspiration } from './DailyInspiration'
 import { GardenReminder } from './GardenReminder'
@@ -158,7 +160,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
 
 export function Dashboard({
   profile,
@@ -189,7 +191,7 @@ export function Dashboard({
   // comunidade dela. Sem pacote liberado, o Help Nutri fica bloqueado.
   const packageCommunityId =
     communities.find((c) => c.community_members.some((mb) => mb.profile?.id === profile?.id))?.id ?? null
-  const { packages: myPackages } = useMyPackages(packageCommunityId, profile?.id ?? null, profile?.role === 'member')
+  const { packages: myPackages, loading: packagesLoading } = useMyPackages(packageCommunityId, profile?.id ?? null, profile?.role === 'member')
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
   const [feedRefreshToken, setFeedRefreshToken] = useState(0)
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
@@ -352,6 +354,12 @@ export function Dashboard({
     navItems.push({
       key: 'respiracao',
       label: 'Respiração',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
+      key: 'wellness',
+      label: 'Wellness',
       Icon: HeartIcon,
       inBottomNav: false,
     })
@@ -938,12 +946,12 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'planos') {
-      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} />
+      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} />
     }
 
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela
     // profissional da comunidade; membro vê só o publicado (RLS).
-    if (effectiveNav === 'leitura' || effectiveNav === 'respiracao') {
+    if (effectiveNav === 'leitura' || effectiveNav === 'respiracao' || effectiveNav === 'wellness') {
       if (circlesRelevantCommunities.length === 0) {
         return <p>Você ainda não faz parte de nenhuma comunidade.</p>
       }
@@ -954,11 +962,56 @@ export function Dashboard({
             {renderCommunityPicker(
               effectiveNav === 'leitura'
                 ? 'Dicas de Leitura · escolha uma comunidade'
-                : 'Respiração e Meditação · escolha uma comunidade',
+                : effectiveNav === 'wellness'
+                  ? 'Wellness · escolha uma comunidade'
+                  : 'Respiração e Meditação · escolha uma comunidade',
               circlesRelevantCommunities,
               setCirclesCommunityId,
             )}
           </>
+        )
+      }
+
+      // Respiração, Dicas de Leitura e Wellness são planos pagos: a membro precisa
+      // do pacote (ou do Círcula Premium). A profissional vê tudo.
+      if (profile.role === 'member') {
+        if (packagesLoading) return <p className="home-muted">Carregando…</p>
+        if (effectiveNav === 'respiracao' && !canUseBreathing(myPackages)) {
+          return (
+            <PackagePaywall
+              title="Respiração e Meditação"
+              planName="Respiração"
+              onOpenPlans={() => handleNavigate('planos')}
+            />
+          )
+        }
+        if (effectiveNav === 'leitura' && !canReadReadingTips(myPackages)) {
+          return (
+            <PackagePaywall
+              title="Dicas de Leitura"
+              planName="Dicas de Leitura"
+              onOpenPlans={() => handleNavigate('planos')}
+            />
+          )
+        }
+        if (effectiveNav === 'wellness' && !canReadWellness(myPackages)) {
+          return (
+            <PackagePaywall
+              title="Wellness"
+              planName="Wellness"
+              onOpenPlans={() => handleNavigate('planos')}
+            />
+          )
+        }
+      }
+
+      if (effectiveNav === 'wellness') {
+        return (
+          <WellnessPage
+            communityId={resolvedCirclesCommunityId}
+            profileId={profile.id}
+            isOwner={profile.role === 'professional'}
+          />
         )
       }
 

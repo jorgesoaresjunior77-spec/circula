@@ -4,6 +4,8 @@ import { addCycleMonths } from '../_shared/asaas.ts'
 import { timingSafeEqualStrings } from '../_shared/security.ts'
 import { classifyWebhookPayload } from '../_shared/webhookPayload.ts'
 import { isNoSplitSubscription } from '../_shared/communitySplitMode.ts'
+import { packagesForPlan } from '../_shared/addonPlans.ts'
+import type { AddonPlanKey } from '../_shared/addonPlans.ts'
 
 const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
 
@@ -311,6 +313,75 @@ async function handleCommunitySubscriptionEvent(
   // PAYMENT_CREATED / PAYMENT_DELETED / outros: o upsert de status acima já
   // registrou; nenhuma transição de assinatura.
   console.log('asaas-webhook: evento de assinatura de comunidade sem transição', event, subId)
+}
+
+// Assinatura avulsa (addon_subscriptions): pagamento confirmado ativa a linha e
+// libera o pacote em member_package_access; atraso marca past_due; estorno,
+// chargeback ou cobrança apagada cancelam e retiram o pacote. Idempotente.
+async function handleAddonSubscriptionEvent(
+  admin: ReturnType<typeof createClient>,
+  event: string,
+  payment: AsaasPayment,
+) {
+  const { data: addon } = await admin
+    .from('addon_subscriptions')
+    .select('*')
+    .eq('asaas_subscription_id', payment.subscription as string)
+    .maybeSingle()
+  if (!addon) return
+
+  const packages = packagesForPlan(addon.plan_key as AddonPlanKey)
+  const now = new Date()
+
+  if (CONFIRMED_EVENTS.has(event)) {
+    const base =
+      addon.current_period_end && new Date(addon.current_period_end as string) > now
+        ? new Date(addon.current_period_end as string)
+        : now
+    const cycle = addon.billing_cycle as 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
+    await admin
+      .from('addon_subscriptions')
+      .update({
+        status: 'active',
+        current_period_end: addCycleMonths(base, cycle).toISOString(),
+        updated_at: now.toISOString(),
+      })
+      .eq('id', addon.id)
+    for (const pkg of packages) {
+      await admin
+        .from('member_package_access')
+        .upsert(
+          { community_id: addon.community_id, profile_id: addon.profile_id, package: pkg },
+          { onConflict: 'community_id,profile_id,package', ignoreDuplicates: true },
+        )
+    }
+    return
+  }
+
+  if (OVERDUE_EVENTS.has(event)) {
+    if (addon.status === 'active' || addon.status === 'pending') {
+      await admin
+        .from('addon_subscriptions')
+        .update({ status: 'past_due', updated_at: now.toISOString() })
+        .eq('id', addon.id)
+    }
+    return
+  }
+
+  if (REFUND_EVENTS.has(event) || CHARGEBACK_EVENTS.has(event)) {
+    await admin
+      .from('addon_subscriptions')
+      .update({ status: 'canceled', updated_at: now.toISOString() })
+      .eq('id', addon.id)
+    for (const pkg of packages) {
+      await admin
+        .from('member_package_access')
+        .delete()
+        .eq('community_id', addon.community_id)
+        .eq('profile_id', addon.profile_id)
+        .eq('package', pkg)
+    }
+  }
 }
 
 // Processa eventos Asaas cujo externalReference e product_order:<order_id>.
@@ -625,7 +696,10 @@ Deno.serve(async (req) => {
         throw subscriptionError
       }
 
-      if (subscription && subscription.subject === 'community') {
+      if (!subscription) {
+        // Assinatura avulsa de conteúdo / Círcula Premium (addon_subscriptions).
+        await handleAddonSubscriptionEvent(admin, event, payment)
+      } else if (subscription.subject === 'community') {
         // FASE 16.2.4-B — fluxo financeiro próprio da assinatura de comunidade.
         await handleCommunitySubscriptionEvent(admin, event, payment, subscription)
       } else if (subscription) {

@@ -57,6 +57,25 @@ export function useProductPages(productId: string | null, communityId: string | 
     [productId, communityId, pages, reload],
   )
 
+  const addPages = useCallback(
+    async (imagePaths: string[]): Promise<Result> => {
+      if (!productId || !communityId) return { error: 'Salve o produto antes de adicionar páginas.' }
+      const start = pages.reduce((max, p) => Math.max(max, p.position), 0)
+      const { error } = await supabase.from('product_pages').insert(
+        imagePaths.map((image_path, i) => ({
+          product_id: productId,
+          community_id: communityId,
+          position: start + i + 1,
+          image_path,
+        })),
+      )
+      if (error) return { error: 'Não foi possível salvar as páginas agora.' }
+      reload()
+      return { error: null }
+    },
+    [productId, communityId, pages, reload],
+  )
+
   const removePage = useCallback(
     async (pageId: string): Promise<Result> => {
       const { error } = await supabase.from('product_pages').delete().eq('id', pageId)
@@ -67,5 +86,5 @@ export function useProductPages(productId: string | null, communityId: string | 
     [reload],
   )
 
-  return { pages, ready, addPage, removePage }
+  return { pages, ready, addPage, addPages, removePage }
 }

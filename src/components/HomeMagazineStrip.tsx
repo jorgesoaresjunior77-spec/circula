@@ -48,7 +48,6 @@ function brDate(iso: string): string {
 
 export const MAGAZINE_STACK_MAX = 6
 export const MAGAZINE_SHELF_MAX = 12
-export const MAGAZINE_PAGES_MAX = 12
 const SHELF_ROW = 4
 
 function Cover({ path, title }: { path: string | null; title: string }) {
@@ -95,12 +94,12 @@ export function MagazineReader({
   issue,
   onClose,
   onOffice,
-  pageLimit = MAGAZINE_PAGES_MAX,
+  pageLimit = Number.POSITIVE_INFINITY,
 }: {
   issue: MagazineIssue | null
   onClose: () => void
   onOffice?: () => void
-  /** Máximo de páginas mostradas (a revista tem teto; e-books e práticas, não). */
+  /** Máximo de páginas mostradas (por padrão, sem limite). */
   pageLimit?: number
 }) {
   const slides: (string | null)[] = issue
@@ -113,8 +112,6 @@ export function MagazineReader({
   const [hint, setHint] = useState(true)
   const [zoomed, setZoomed] = useState(false)
   const [turn, setTurn] = useState<Turn | null>(null)
-  const [downloadError, setDownloadError] = useState(false)
-  const { url: currentUrl } = useSignedImageUrl(padded[index])
 
   const indexRef = useRef(0)
   const turnRef = useRef<Turn | null>(null)
@@ -411,29 +408,6 @@ export function MagazineReader({
     return () => el.removeEventListener('wheel', onWheel)
   }, [applyView, boundedView, fromCenter])
 
-  async function handleDownload() {
-    if (!currentUrl) return
-    setDownloadError(false)
-    try {
-      const res = await fetch(currentUrl)
-      if (!res.ok) throw new Error('download')
-      const blob = await res.blob()
-      const ext = blob.type.split('/')[1]?.replace('jpeg', 'jpg') || 'webp'
-      const base = (issue?.title ?? 'revista').replace(/[^\w-]+/g, '-')
-      const part = index === 0 ? 'capa' : 'pagina-' + index
-      const a = document.createElement('a')
-      const objectUrl = URL.createObjectURL(blob)
-      a.href = objectUrl
-      a.download = base + '-' + part + '.' + ext
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000)
-    } catch {
-      setDownloadError(true)
-    }
-  }
-
   useEffect(() => {
     const t = window.setTimeout(() => setHint(false), 4500)
     return () => window.clearTimeout(t)
@@ -493,16 +467,6 @@ export function MagazineReader({
         </div>
       </div>
       {hint && <p className="mag2-hint">Deslize para virar a página · dois dedos para ampliar</p>}
-      {downloadError && (
-        <p className="mag2-error" role="alert">
-          Não foi possível baixar agora. Tente novamente.
-        </p>
-      )}
-      <div className="mag2-tools">
-        <button type="button" className="mag2-download" onClick={() => void handleDownload()} disabled={!currentUrl} aria-label="Baixar esta página">
-          Baixar
-        </button>
-      </div>
       <div className="mag2-controls">
         <button type="button" onClick={prev} disabled={index === 0} aria-label="Página anterior">
           ‹

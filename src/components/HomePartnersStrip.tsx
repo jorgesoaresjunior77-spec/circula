@@ -1,3 +1,4 @@
+import type React from 'react'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
@@ -39,6 +40,40 @@ function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
   )
 }
 
+// Sombras suaves de folhas de coqueiro: duas palmas desenhadas em SVG, bem
+// desfocadas e quase transparentes, que balançam devagar atrás dos logos.
+// Só decoração (escondida de leitores de tela, sem receber toque).
+function Frond({ leaflets = 15 }: { leaflets?: number }) {
+  // Nervura central curva (de baixo para cima) com folíolos dos dois lados.
+  const parts: React.ReactElement[] = []
+  for (let i = 1; i <= leaflets; i++) {
+    const t = i / (leaflets + 1)
+    const x = 100 + 30 * t * t * 3 // curva leve para a direita
+    const y = 230 - 215 * t
+    const size = 62 * Math.sin(Math.PI * Math.min(1, t * 1.05 + 0.08)) + 10
+    parts.push(
+      <ellipse key={'l' + i} cx={x - size / 2} cy={y} rx={size / 2} ry={4.2} transform={`rotate(${-28 - 14 * t} ${x} ${y})`} />,
+      <ellipse key={'r' + i} cx={x + size / 2} cy={y} rx={size / 2} ry={4.2} transform={`rotate(${28 + 14 * t} ${x} ${y})`} />,
+    )
+  }
+  return (
+    <svg viewBox="0 0 260 240" className="palm-frond" focusable="false">
+      <path d="M100 236 Q 112 120 190 14" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
+      {parts}
+    </svg>
+  )
+}
+
+function PalmShadows() {
+  return (
+    <div className="palm-shadows" aria-hidden="true">
+      <span className="palm-shadow palm-shadow--a"><Frond /></span>
+      <span className="palm-shadow palm-shadow--b"><Frond leaflets={13} /></span>
+      <span className="palm-shadow palm-shadow--c"><Frond leaflets={14} /></span>
+    </div>
+  )
+}
+
 export function HomePartnersStrip({ communityId }: { communityId: string }) {
   const { items } = useManagedContent<Partner>('community_partners', communityId, 'position')
   const partners = items.filter((p) => p.status === 'published')
@@ -63,6 +98,7 @@ export function HomePartnersStrip({ communityId }: { communityId: string }) {
 
   return (
     <m.section className="home-partners" aria-label="Parceiros" {...inViewOnce} variants={riseVariants}>
+      <PalmShadows />
       <h3 className="home-partners-title">Parceiros</h3>
       <div className="partner-viewport">
         <div className="partner-track" style={{ animationDuration: `${perHalf * PARTNER_SECONDS_PER_LOGO}s` }}>

@@ -4,6 +4,7 @@ import { useWeather } from '../hooks/useWeather'
 import { WEATHER_PHOTOS, cityLabel, describeWeather, searchCities, timeOnly, weatherScene, weekdayShort } from '../lib/weather'
 import type { WeatherCity } from '../lib/weather'
 import { WeatherIcon } from './WeatherIcon'
+import { WeatherScene } from './WeatherScene'
 
 // Página da previsão do tempo: agora, detalhes e próximos 7 dias. A cidade é
 // escolhida aqui e fica só neste aparelho; a previsão acompanha a cidade.
@@ -131,6 +132,7 @@ export function WeatherPage() {
                 : undefined
             }
           >
+            <WeatherScene kind={now.kind} isDay={data.current.isDay} />
             <div className="weather-hero-top">
               <WeatherIcon kind={now.kind} isDay={data.current.isDay} size={72} />
               <div className="weather-now-text">

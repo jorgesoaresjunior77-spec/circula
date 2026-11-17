@@ -1,21 +1,30 @@
+import { useState } from 'react'
 import { useBillingPlans } from '../hooks/useBillingPlans'
 import {
   CIRCULA_MONTHLY_CENTS,
   CYCLE_LABEL,
-  PACK_MONTHLY_CENTS,
-  PACK_PRICES_CENTS,
+  PREMIUM_MONTHLY_CENTS,
+  PREMIUM_PRICES_CENTS,
+  PREMIUM_SEPARATE_MONTHLY_CENTS,
   PRODUCTS,
-  PRODUCT_MONTHLY_CENTS,
-  PRODUCT_PRICES_CENTS,
   formatBrl,
+  pricesOf,
   savingsPercent,
 } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
+import { AddonCheckout } from './AddonCheckout'
+import { PLAN_ICONS } from './PlanIcons'
+import { useMyPackages } from '../hooks/usePackageAccess'
 import { SubscriptionPanel } from './SubscriptionPanel'
 
-// Página de Planos da membro: o plano do Círcula, os conteúdos avulsos e os
-// superpacotes. Hoje só a assinatura mensal do Círcula tem cobrança ligada
-// (Asaas em Sandbox); o resto aparece como "em breve", sem compra.
+// Página de Planos da membro: o plano do Círcula, cada conteúdo avulso e o
+// Círcula Premium (tudo junto, com desconto), todos em cartões do mesmo
+// tamanho, 3 por fila. Tocar no cartão abre os preços por ciclo. Hoje só a
+// assinatura mensal do Círcula tem cobrança ligada (Asaas em Sandbox); os
+// demais mostram "Em breve" até a compra ser liberada.
+
+// Conteúdos avulsos com cobrança ligada no Asaas. Os demais aparecem como "Em breve".
+const BUYABLE: PlanKey[] = ['respiracao', 'wellness', 'leitura']
 
 const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
 const API_CYCLE: Record<string, PlanCycle> = {
@@ -23,6 +32,8 @@ const API_CYCLE: Record<string, PlanCycle> = {
   SEMIANNUALLY: 'semiannual',
   YEARLY: 'annual',
 }
+
+type PlanKey = 'circula' | 'premium' | (typeof PRODUCTS)[number]['key']
 
 function PriceRow({ prices, monthly }: { prices: Record<PlanCycle, number>; monthly: number }) {
   return (
@@ -41,16 +52,54 @@ function PriceRow({ prices, monthly }: { prices: Record<PlanCycle, number>; mont
   )
 }
 
+function PlanTile({
+  planKey,
+  name,
+  monthly,
+  badge,
+  onOpen,
+}: {
+  planKey: PlanKey
+  name: string
+  monthly: number
+  badge?: string
+  onOpen: () => void
+}) {
+  const Icon = PLAN_ICONS[planKey]
+  return (
+    <button
+      type="button"
+      className={`plan-tile${planKey === 'premium' ? ' plan-tile--premium' : ''}`}
+      onClick={onOpen}
+      aria-label={`${name}, ${formatBrl(monthly)} por mês`}
+    >
+      <span className="plan-tile-icon">
+        <Icon />
+      </span>
+      <span className="plan-tile-name">{name}</span>
+      <span className="plan-tile-price">{formatBrl(monthly)}</span>
+      <span className="plan-tile-unit">por mês</span>
+      {badge && <span className="plan-tile-badge">{badge}</span>}
+    </button>
+  )
+}
+
 export function PlansPage({
   communityId,
   viewOnly = false,
+  profileId = null,
 }: {
   communityId: string | null
   /** A profissional vê a página como a membro vê, mas não assina (ela é a
    *  responsável pela comunidade e hoje é isenta de pagamento). */
   viewOnly?: boolean
+  /** Quem está vendo (para saber quais pacotes já tem). */
+  profileId?: string | null
 }) {
+  const { packages } = useMyPackages(communityId, profileId, !viewOnly)
   const { plans } = useBillingPlans('community')
+  const [open, setOpen] = useState<PlanKey | null>(null)
+
   const circulaPrices: Record<PlanCycle, number> = {
     monthly: CIRCULA_MONTHLY_CENTS,
     semiannual: CIRCULA_MONTHLY_CENTS * 6,
@@ -61,52 +110,118 @@ export function PlansPage({
     if (cycle) circulaPrices[cycle] = p.price_cents
   }
 
+  const product = PRODUCTS.find((p) => p.key === open) ?? null
+  const premiumOff = Math.round(
+    (1 - PREMIUM_MONTHLY_CENTS / PREMIUM_SEPARATE_MONTHLY_CENTS) * 100,
+  )
+
   return (
     <section className="plans-page">
       <h2>Planos</h2>
 
-      <article className="plans-card">
-        <h3>Círcula</h3>
-        <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
-        <PriceRow prices={circulaPrices} monthly={circulaPrices.monthly} />
-        <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
-        {viewOnly ? (
-          <p className="home-muted">
-            Esta é a página que a membro vê. Como responsável pela comunidade, você não precisa assinar.
-          </p>
-        ) : communityId ? (
-          <SubscriptionPanel subject="community" communityId={communityId} />
-        ) : (
-          <p className="home-muted">Entre em uma comunidade para assinar.</p>
-        )}
-      </article>
+      <div className="plans-grid">
+        <PlanTile
+          planKey="circula"
+          name="Círcula"
+          monthly={circulaPrices.monthly}
+          onOpen={() => setOpen('circula')}
+        />
+      </div>
 
       <h3 className="plans-heading">Conteúdos avulsos</h3>
-      {PRODUCTS.map((p) => (
-        <article key={p.key} className="plans-card">
-          <h3>{p.name}</h3>
-          <p className="plans-text">{p.description}</p>
-          <PriceRow prices={PRODUCT_PRICES_CENTS} monthly={PRODUCT_MONTHLY_CENTS} />
-          <button type="button" className="plans-soon" disabled>
-            Em breve
-          </button>
-        </article>
-      ))}
+      <div className="plans-grid">
+        {PRODUCTS.map((p) => (
+          <PlanTile
+            key={p.key}
+            planKey={p.key}
+            name={p.name}
+            monthly={p.monthlyCents}
+            onOpen={() => setOpen(p.key)}
+          />
+        ))}
+      </div>
 
       <h3 className="plans-heading">Superpacotes</h3>
-      <article className="plans-card plans-card--pack">
-        <h3>Círcula completo</h3>
-        <p className="plans-text">O Círcula mais a revista, as receitas, os e-books e o Help Nutri.</p>
-        <PriceRow prices={PACK_PRICES_CENTS} monthly={PACK_MONTHLY_CENTS} />
-        <button type="button" className="plans-soon" disabled>
-          Em breve
-        </button>
-      </article>
+      <div className="plans-grid">
+        <PlanTile
+          planKey="premium"
+          name="Círcula Premium"
+          monthly={PREMIUM_MONTHLY_CENTS}
+          badge={`${premiumOff}% off`}
+          onOpen={() => setOpen('premium')}
+        />
+      </div>
 
       <p className="plans-note">
-        Valores em reais, cobrados pelo ciclo escolhido. Conteúdos avulsos e pacotes serão liberados
+        Valores em reais, cobrados pelo ciclo escolhido. Conteúdos avulsos e o Premium serão liberados
         em breve.
       </p>
+
+      {open && (
+        <div className="plans-sheet-backdrop" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
+          <article className="plans-card plans-sheet" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="plans-sheet-close" onClick={() => setOpen(null)} aria-label="Fechar">
+              ×
+            </button>
+
+            {open === 'circula' && (
+              <>
+                <h3>Círcula</h3>
+                <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
+                <PriceRow prices={circulaPrices} monthly={circulaPrices.monthly} />
+                <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
+                {viewOnly ? (
+                  <p className="home-muted">
+                    Esta é a página que a membro vê. Como responsável pela comunidade, você não precisa
+                    assinar.
+                  </p>
+                ) : communityId ? (
+                  <SubscriptionPanel subject="community" communityId={communityId} />
+                ) : (
+                  <p className="home-muted">Entre em uma comunidade para assinar.</p>
+                )}
+              </>
+            )}
+
+            {open === 'premium' && (
+              <>
+                <h3>Círcula Premium</h3>
+                <p className="plans-text">
+                  O Círcula mais a revista, as receitas, os e-books, o Help Nutri, a respiração, as
+                  playlists e o wellness, tudo junto e com desconto. Separado, o mensal sairia{' '}
+                  {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
+                </p>
+                <PriceRow prices={PREMIUM_PRICES_CENTS} monthly={PREMIUM_MONTHLY_CENTS} />
+                <button type="button" className="plans-soon" disabled>
+                  Em breve
+                </button>
+              </>
+            )}
+
+            {product && (
+              <>
+                <h3>{product.name}</h3>
+                <p className="plans-text">{product.description}</p>
+                <PriceRow prices={pricesOf(product)} monthly={product.monthlyCents} />
+                {BUYABLE.includes(product.key) && !viewOnly ? (
+                  <AddonCheckout
+                    planKey={product.key}
+                    communityId={communityId}
+                    prices={pricesOf(product)}
+                    owned={packages.has(product.key as never) || packages.has('premium')}
+                  />
+                ) : BUYABLE.includes(product.key) ? (
+                  <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
+                ) : (
+                  <button type="button" className="plans-soon" disabled>
+                    Em breve
+                  </button>
+                )}
+              </>
+            )}
+          </article>
+        </div>
+      )}
     </section>
   )
 }

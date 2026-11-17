@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { RECIPE_PAGES_MAX, useRecipePages } from '../hooks/useRecipePages'
+import { useRecipePages } from '../hooks/useRecipePages'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
+import { MultiPageUpload } from './MultiPageUpload'
 
 // Profissional: páginas prontas da receita em formato de revista (capa,
 // ingredientes, modo de fazer, informação nutricional, prato pronto...).
@@ -18,7 +19,7 @@ function Thumb({ path }: { path: string }) {
 }
 
 export function RecipePagesEditor({ contentId, communityId, profileId }: Props) {
-  const { pages, addPage, removePage } = useRecipePages(contentId, communityId)
+  const { pages, addPage, addPages, removePage } = useRecipePages(contentId, communityId)
   const [error, setError] = useState<string | null>(null)
   // Muda a cada página enviada para limpar o campo de upload.
   const [fieldKey, setFieldKey] = useState(0)
@@ -42,7 +43,7 @@ export function RecipePagesEditor({ contentId, communityId, profileId }: Props) 
       <legend>Páginas da receita em formato de revista</legend>
       <p className="home-muted">
         Suba as páginas prontas, na ordem: ingredientes, modo de fazer, informação nutricional e prato
-        pronto. A foto da receita acima serve de capa. Até {RECIPE_PAGES_MAX} páginas.
+        pronto. A foto da receita acima serve de capa. Não há limite de páginas.
       </p>
       <ol className="rec-pages-list">
         {pages.map((p, i) => (
@@ -55,18 +56,21 @@ export function RecipePagesEditor({ contentId, communityId, profileId }: Props) 
           </li>
         ))}
       </ol>
-      {pages.length < RECIPE_PAGES_MAX && (
-        <CoverImageInput
-          key={fieldKey}
-          value=""
-          communityId={communityId}
-          uid={profileId}
-          label="Adicionar página"
-          aspectRatio="3 / 4"
-          recommendedSize="1080 × 1440 px"
-          onChange={(path) => void handleNew(path)}
-        />
-      )}
+      <MultiPageUpload
+        communityId={communityId}
+        uid={profileId}
+        onUploaded={async (paths) => (await addPages(paths)).error}
+      />
+      <CoverImageInput
+        key={fieldKey}
+        value=""
+        communityId={communityId}
+        uid={profileId}
+        label="Ou adicionar uma página só"
+        aspectRatio="3 / 4"
+        recommendedSize="1080 × 1440 px"
+        onChange={(path) => void handleNew(path)}
+      />
       {error && <p className="auth-error">{error}</p>}
     </fieldset>
   )

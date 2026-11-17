@@ -40,16 +40,39 @@ const EMPTY: FormState = {
   status: 'draft',
 }
 
-function ReadingCard({ tip, onEdit }: { tip: ReadingTip; onEdit?: () => void }) {
+function ReadingTile({ tip, onOpen }: { tip: ReadingTip; onOpen: () => void }) {
   const { url } = useSignedImageUrl(tip.cover_image_url)
   return (
-    <article className="reading-card">
+    <button type="button" className="reading-tile" onClick={onOpen} aria-label={`${tip.title}, de ${tip.author}`}>
       {url ? (
-        <img loading="lazy" decoding="async" className="reading-cover" src={url} alt={`Capa de ${tip.title}`} />
+        <img loading="lazy" decoding="async" className="reading-tile-cover" src={url} alt="" />
       ) : (
-        <div className="reading-cover reading-cover--blank" aria-hidden="true" />
+        <span className="reading-tile-cover reading-tile-cover--blank" aria-hidden="true" />
       )}
-      <div className="reading-body">
+      <span className="reading-tile-title">{tip.title}</span>
+      <span className="reading-tile-author">{tip.author}</span>
+      {tip.status === 'draft' && <span className="reading-draft">Rascunho</span>}
+    </button>
+  )
+}
+
+function ReadingDetail({
+  tip,
+  onClose,
+  onEdit,
+}: {
+  tip: ReadingTip
+  onClose: () => void
+  onEdit?: () => void
+}) {
+  const { url } = useSignedImageUrl(tip.cover_image_url)
+  return (
+    <div className="reading-detail-backdrop" role="dialog" aria-modal="true" aria-label={tip.title} onClick={onClose}>
+      <article className="reading-detail" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="reading-detail-close" onClick={onClose} aria-label="Fechar">
+          ×
+        </button>
+        {url && <img className="reading-detail-cover" src={url} alt={`Capa de ${tip.title}`} />}
         <h4 className="reading-title">{tip.title}</h4>
         <p className="reading-author">{tip.author}</p>
         {tip.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
@@ -71,8 +94,8 @@ function ReadingCard({ tip, onEdit }: { tip: ReadingTip; onEdit?: () => void }) 
             Editar
           </button>
         )}
-      </div>
-    </article>
+      </article>
+    </div>
   )
 }
 
@@ -82,8 +105,11 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
   const [formError, setFormError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
+  const openTip = items.find((i) => i.id === openId) ?? null
 
   function openEdit(tip: ReadingTip) {
+    setOpenId(null)
     setForm({
       id: tip.id,
       theme: tip.theme,
@@ -166,11 +192,21 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
       {groups.map((group) => (
         <section key={group.key} className="reading-group" aria-label={group.label}>
           <h3>{group.label}</h3>
-          {group.tips.map((tip) => (
-            <ReadingCard key={tip.id} tip={tip} onEdit={isOwner ? () => openEdit(tip) : undefined} />
-          ))}
+          <div className="reading-grid">
+            {group.tips.map((tip) => (
+              <ReadingTile key={tip.id} tip={tip} onOpen={() => setOpenId(tip.id)} />
+            ))}
+          </div>
         </section>
       ))}
+
+      {openTip && (
+        <ReadingDetail
+          tip={openTip}
+          onClose={() => setOpenId(null)}
+          onEdit={isOwner ? () => openEdit(openTip) : undefined}
+        />
+      )}
 
       {isOwner && !form && (
         <button type="button" className="water-primary" onClick={() => setForm({ ...EMPTY })}>
