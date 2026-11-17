@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { usePlatformAccessBlocked } from './hooks/usePlatformAccessBlocked'
 import { Login } from './components/Login'
@@ -44,6 +44,13 @@ function App() {
   // Estado de view da navegação primária (Etapa 7). View state local —
   // sem router, sem dependência nova. Só o Dashboard o consome.
   const [activeNav, setActiveNav] = useState<NavKey>('inicio')
+
+  // Todo login começa na Dashboard (Início), seja qual for a última página
+  // aberta antes de sair: ao entrar, sair ou trocar de conta, volta ao início.
+  const userId = session?.user.id ?? null
+  useEffect(() => {
+    setActiveNav('inicio')
+  }, [userId])
 
   // Convite da comunidade por link (WhatsApp): `?convite=<token>`. Sem
   // sessão mostra o cadastro de participante; com sessão entra na

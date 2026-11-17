@@ -48,7 +48,8 @@ function CategoryCard({
   )
 }
 
-function RecipeRow({
+// Receita no mesmo cartão das categorias (foto, véu e título por cima).
+function RecipeCard({
   recipe,
   views,
   index,
@@ -61,26 +62,20 @@ function RecipeRow({
 }) {
   const draft = recipe.status !== 'published'
   return (
-    <button type="button" className="rec-row" style={{ '--i': index } as CSSProperties} onClick={onOpen}>
-      <span className="rec-row-thumb" aria-hidden="true">
+    <button type="button" className="rec-tile" style={{ '--i': index } as CSSProperties} onClick={onOpen}>
+      <span className="rec-tile-media" aria-hidden="true">
         <Photo path={recipe.cover_image_url} />
       </span>
-      <span className="rec-row-body">
-        <strong className="rec-row-title">{recipe.title}</strong>
-        {recipe.summary && <span className="rec-row-desc">{recipe.summary}</span>}
+      <span className="rec-tile-veil" aria-hidden="true" />
+      <span className="rec-tile-body">
+        <strong className="rec-tile-title">{recipe.title}</strong>
         {(views !== undefined || draft) && (
-          <span className="rec-row-meta">
-            {draft && <span className="rec-chip">Rascunho</span>}
-            {views !== undefined && (
-              <span>
-                {views} {views === 1 ? 'visualização' : 'visualizações'}
-              </span>
-            )}
+          <span className="rec-pill">
+            {draft ? 'Rascunho' : ''}
+            {draft && views !== undefined ? ' · ' : ''}
+            {views !== undefined ? `${views} ${views === 1 ? 'visualização' : 'visualizações'}` : ''}
           </span>
         )}
-      </span>
-      <span className="rec-row-go" aria-hidden="true">
-        ›
       </span>
     </button>
   )
@@ -248,30 +243,6 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
             ))}
           </select>
         </label>
-        <label>
-          Descrição curta
-          <textarea
-            rows={2}
-            value={editRec.summary ?? ''}
-            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), summary: e.target.value }))}
-          />
-        </label>
-        <label>
-          Ingredientes
-          <textarea
-            rows={5}
-            value={editRec.ingredients ?? ''}
-            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), ingredients: e.target.value }))}
-          />
-        </label>
-        <label>
-          Modo de preparo
-          <textarea
-            rows={6}
-            value={editRec.body ?? ''}
-            onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), body: e.target.value }))}
-          />
-        </label>
         <CoverImageInput
           value={editRec.cover_image_url ?? ''}
           communityId={communityId}
@@ -436,9 +407,9 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           </div>
         )}
         {list.length === 0 && <p className="home-muted">Nenhuma receita aqui ainda.</p>}
-        <div className="rec-list">
+        <div className="rec-grid">
           {list.map((r, i) => (
-            <RecipeRow
+            <RecipeCard
               key={r.id}
               recipe={r}
               index={i}

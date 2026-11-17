@@ -5,6 +5,7 @@ import { useCommunityExtraMetrics } from '../hooks/useCommunityExtraMetrics'
 import type { MetricsPeriodDays } from '../types/communityMetrics'
 import { MOOD_META, MOOD_ORDER } from '../types/mood'
 import { EngagementRanking, ViewsOverview } from './EngagementInsights'
+import { CommunityInsights } from './CommunityInsights'
 
 interface CommunityMetricsPanelProps {
   communityId: string
@@ -179,6 +180,7 @@ export function CommunityMetricsPanel({ communityId }: CommunityMetricsPanelProp
         </>
       )}
 
+      <CommunityInsights communityId={communityId} />
       <ViewsOverview communityId={communityId} />
       <EngagementRanking communityId={communityId} />
     </section>

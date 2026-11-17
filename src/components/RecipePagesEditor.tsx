@@ -40,10 +40,10 @@ export function RecipePagesEditor({ contentId, communityId, profileId }: Props) 
 
   return (
     <fieldset className="rec-pages-editor">
-      <legend>Páginas da receita em formato de revista</legend>
+      <legend>Imagens da receita</legend>
       <p className="home-muted">
-        Suba as páginas prontas, na ordem: ingredientes, modo de fazer, informação nutricional e prato
-        pronto. A foto da receita acima serve de capa. Não há limite de páginas.
+        Suba cerca de 6 imagens, na ordem: ingredientes, modo de fazer, informação nutricional e prato
+        pronto. A foto da receita acima serve de capa. Ficam três por linha.
       </p>
       <ol className="rec-pages-list">
         {pages.map((p, i) => (

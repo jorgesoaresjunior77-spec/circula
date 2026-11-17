@@ -2268,9 +2268,10 @@ section.community-card.product-manager.product-manager--storefront {
   --spin: 12deg;
   position: absolute;
   display: block;
-  opacity: 0.92;
+  /* Marca-d'água: transparente e dessaturado, sem cor forte nem sombra. */
+  opacity: 0.16;
   animation: sunflower-float 10s ease-in-out infinite;
-  filter: drop-shadow(0 4px 5px rgba(120, 80, 10, 0.18));
+  filter: saturate(0.45);
 }
 
 .sunflower-svg {
@@ -2885,4 +2886,314 @@ section.community-card.product-manager.product-manager--storefront {
   border-radius: 18px;
   background: var(--c-white);
   box-shadow: var(--shadow-sm);
+}
+
+/* ---- Agenda de conteúdos: calendário mensal e regras ------------------------------------- */
+.schedule-cal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.schedule-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: capitalize;
+}
+
+.schedule-cal-nav {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.schedule-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.schedule-cal-wd {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+.schedule-cal-empty {
+  min-height: 44px;
+}
+
+.schedule-cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  padding: 6px 0 4px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 14px;
+}
+
+.schedule-cal-day--today {
+  background: rgba(0, 0, 0, 0.06);
+  font-weight: 700;
+}
+
+.schedule-cal-day--picked {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+.schedule-cal-dots {
+  display: flex;
+  gap: 3px;
+  min-height: 8px;
+}
+
+.schedule-cal-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.schedule-cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.schedule-cal-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.schedule-cal-legend i,
+.schedule-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.schedule-cal-summary {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.schedule-rules-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.schedule-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.schedule-rules label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.schedule-rules input,
+.schedule-rules textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--circula-taupe);
+  border-radius: 10px;
+  font: inherit;
+}
+
+.schedule-rules-title {
+  margin: 0;
+  font-size: 15px;
+}
+
+.schedule-rules-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ---- Métricas: gráficos de barras simples ------------------------------------------------ */
+.insight-pair {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.insight-card-title {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.insight-card-value {
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.insight-delta {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.insight-delta--up {
+  color: #2f7d4a;
+  opacity: 1;
+}
+
+.insight-delta--down {
+  color: #b24a3a;
+  opacity: 1;
+}
+
+.insight-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 110px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.insight-bars li {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.insight-bar {
+  display: block;
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: #7b5ea7;
+}
+
+.insight-bars--clicks .insight-bar {
+  background: #d4a017;
+}
+
+.insight-bars--growth .insight-bar {
+  background: #2a9d8f;
+}
+
+.insight-bar-num {
+  font-size: 10px;
+  min-height: 12px;
+}
+
+.insight-bar-label {
+  font-size: 9px;
+  margin-top: 3px;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .insight-pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---- Capa da revista inteira (Dashboard e Escritório Editorial) -------------------------- */
+.mag2-stack-item .mag-cover,
+.mag-shelf-cover:not(.mag-shelf-cover--empty) {
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
+  overflow: visible;
+}
+
+.mag2-stack-item .mag-cover-img,
+.mag-shelf-cover .mag-cover-img {
+  object-fit: contain;
+  background: transparent;
+  filter: drop-shadow(0 10px 12px rgba(40, 32, 26, 0.38));
+}
+
+/* ---- Miniaturas menores, três por linha (revista e receitas) ----------------------------- */
+.magazine-pages-list,
+.rec-pages-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rec-pages-list li {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.rec-pages-list .rec-pages-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+}
+
+.magazine-pages-list .magazine-page-num {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.magazine-pages-list .cover-image-input-size-hint,
+.magazine-pages-list .cover-image-input-label {
+  display: none;
+}
+
+.magazine-pages-list .cover-image-input-pick,
+.magazine-pages-list .cover-image-input-actions .auth-link {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.magazine-pages-list .cover-image-input-actions {
+  gap: 4px;
+  flex-wrap: wrap;
 }
