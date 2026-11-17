@@ -1,0 +1,378 @@
+/* ---- Gestão Nutricional (área da nutricionista) ----------------------------------------- */
+.nutri-module,
+.nutri-record {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.nutri-module h2,
+.nutri-module h3,
+.nutri-record h2 {
+  margin: 0;
+}
+
+.nutri-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nutri-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-stat strong {
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.nutri-stat span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.nutri-stat--warn strong {
+  color: #b24a3a;
+}
+
+.nutri-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.nutri-shortcuts button:disabled {
+  opacity: 0.55;
+}
+
+.nutri-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nutri-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+
+.nutri-row span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.nutri-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-form h3,
+.nutri-form h4 {
+  margin: 0;
+}
+
+.nutri-form label,
+.nutri-anamnesis label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.nutri-form input,
+.nutri-form select,
+.nutri-form textarea,
+.nutri-anamnesis input,
+.nutri-anamnesis select,
+.nutri-anamnesis textarea,
+.nutri-inline select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--circula-taupe);
+  border-radius: 10px;
+  font: inherit;
+  background: #fff;
+}
+
+.nutri-row,
+.nutri-grid2 {
+  min-width: 0;
+}
+
+.nutri-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.nutri-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.nutri-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.nutri-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nutri-tab {
+  flex: none;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.nutri-tab--on {
+  background: var(--ink-action);
+  color: #fff;
+}
+
+.nutri-tab--soon {
+  opacity: 0.45;
+  font-size: 12px;
+}
+
+.nutri-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nutri-facts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+}
+
+.nutri-fact {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-fact dt {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.nutri-fact dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.nutri-section {
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.nutri-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  background: transparent;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.nutri-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.nutri-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.nutri-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.nutri-check input {
+  width: auto !important;
+}
+
+.nutri-progress {
+  margin: 0 0 6px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.nutri-calc {
+  margin: 0;
+  font-size: 13px;
+}
+
+.nutri-chart {
+  width: 100%;
+  height: auto;
+  color: #2a9d8f;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+.nutri-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nutri-timeline-item {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-timeline-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nutri-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nutri-facts li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 12px;
+}
+
+.nutri-delta {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nutri-notes {
+  margin: 8px 0 0;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.nutri-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.nutri-chip--realizada {
+  background: rgba(47, 125, 74, 0.18);
+}
+
+.nutri-chip--cancelada {
+  background: rgba(178, 74, 58, 0.18);
+}
+
+.nutri-compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.nutri-compare th,
+.nutri-compare td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: right;
+}
+
+.nutri-compare th:first-child,
+.nutri-compare td:first-child {
+  text-align: left;
+}
+
+@media (min-width: 640px) {
+  .nutri-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .nutri-shortcuts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Menu inferior com 6 destinos (Painel + Gestão Nutricional): cabem sem rolar. */
+.bottom-nav-list:has(> li:nth-child(6)) .bottom-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 2px;
+  margin: 6px 1px;
+}
+
+.bottom-nav-list:has(> li:nth-child(6)) .bottom-nav-label {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.05;
+  font-size: 9.5px;
+}

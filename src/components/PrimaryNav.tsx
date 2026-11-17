@@ -31,6 +31,7 @@ export type NavKey =
   | 'salvos'
   | 'mensagens'
   | 'painel'
+  | 'nutri'
   | 'loja'
   | 'perfil'
 

@@ -74,6 +74,7 @@ import {
   HomeIcon,
   MessageIcon,
   PanelIcon,
+  ClipboardIcon,
   SproutIcon,
   StoreIcon,
   UserIcon,
@@ -102,6 +103,7 @@ const WellnessPage = lazy(() => import('./WellnessPage').then((m) => ({ default:
 const WeatherPage = lazy(() => import('./WeatherPage').then((m) => ({ default: m.WeatherPage })))
 const HelpPage = lazy(() => import('./HelpPage').then((m) => ({ default: m.HelpPage })))
 const InspirationManagerPage = lazy(() => import('./InspirationManagerPage').then((m) => ({ default: m.InspirationManagerPage })))
+const NutriModule = lazy(() => import('./nutri/NutriModule').then((m) => ({ default: m.NutriModule })))
 const GardenMonthManager = lazy(() => import('./GardenMonthManager').then((m) => ({ default: m.GardenMonthManager })))
 interface CommunityPickerOptionProps {
   community: CommunityWithMembers
@@ -451,6 +453,7 @@ export function Dashboard({
   navItems.push({ key: 'ajuda', label: 'Ajuda', Icon: HelpIcon, inBottomNav: true })
   if (canHostDestinations) {
     navItems.push({ key: 'painel', label: 'Painel', Icon: PanelIcon, inBottomNav: true })
+    navItems.push({ key: 'nutri', label: 'Gestão Nutricional', Icon: ClipboardIcon, inBottomNav: true })
   }
   if (profile) {
     navItems.push({ key: 'perfil', label: 'Meu perfil', Icon: UserIcon, inBottomNav: true })
@@ -1162,6 +1165,10 @@ export function Dashboard({
       }
 
       const community = communities[0]
+
+      if (effectiveNav === 'nutri') {
+        return <NutriModule communityId={community.id} />
+      }
 
       if (effectiveNav === 'painel') {
         return (

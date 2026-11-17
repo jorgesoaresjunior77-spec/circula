@@ -105,6 +105,17 @@ export function CirclesIcon({ size = 20, className }: IconProps) {
   )
 }
 
+export function ClipboardIcon({ size = 20, className }: IconProps) {
+  return (
+    <Icon size={size} className={className}>
+      <rect x="5" y="4.5" width="14" height="16.5" rx="2.2" />
+      <path d="M9 4.5V3.6c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.9" />
+      <path d="M12 10.2c-1.5-1.6-4-.2-3 1.8.6 1.1 3 2.6 3 2.6s2.400-1.500 3-2.600c1-2-1.500-3.400-3-1.800z" />
+      <path d="M8.500 17.500h7" />
+    </Icon>
+  )
+}
+
 export function PanelIcon({ size = 20, className }: IconProps) {
   return (
     <Icon size={size} className={className}>

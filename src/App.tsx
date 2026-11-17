@@ -22,6 +22,7 @@ import './circles.css'
 import './community.css'
 import './home3d.css'
 import './imc.css'
+import './nutri.css'
 import './refresh.css'
 
 function App() {
