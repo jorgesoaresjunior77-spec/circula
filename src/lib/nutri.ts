@@ -26,6 +26,7 @@ export interface Patient {
   allergies: string | null
   intolerances: string | null
   status: 'ativo' | 'inativo'
+  linked_profile_id?: string | null
   created_at: string
 }
 
@@ -52,6 +53,7 @@ export interface Assessment {
   custom: { name: string; value: number; unit: string }[]
   source: string | null
   notes: string | null
+  shared_with_patient?: boolean
 }
 
 export type AssessmentInput = Partial<Omit<Assessment, 'id' | 'patient_id'>> & { assessed_on: string }

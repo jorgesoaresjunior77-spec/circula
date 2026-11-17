@@ -28,10 +28,13 @@ const AREA_FIELDS: { key: keyof PatientInput; label: string }[] = [
 
 export function PatientForm({
   patient,
+  members = [],
   onSave,
   onCancel,
 }: {
   patient: Patient | null
+  /** Participantes da comunidade, para vincular à área da paciente. */
+  members?: { id: string; full_name: string | null }[]
   onSave: (input: PatientInput) => Promise<{ error: string | null }>
   onCancel: () => void
 }) {
@@ -108,6 +111,20 @@ export function PatientForm({
           />
         </label>
       ))}
+      {members.length > 0 && (
+        <label>
+          Vincular à participante (área da paciente)
+          <select value={draft.linked_profile_id ?? ''} onChange={(e) => setDraft((d) => ({ ...d, linked_profile_id: e.target.value || null }))}>
+            <option value="">Sem vínculo</option>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.full_name ?? 'Participante'}
+              </option>
+            ))}
+          </select>
+          <small>Quem está vinculada vê, no perfil, só o que você compartilhar.</small>
+        </label>
+      )}
       <label>
         Situação
         <select value={draft.status ?? 'ativo'} onChange={(e) => setDraft((d) => ({ ...d, status: e.target.value as 'ativo' | 'inativo' }))}>

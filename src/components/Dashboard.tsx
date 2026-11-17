@@ -1167,7 +1167,7 @@ export function Dashboard({
       const community = communities[0]
 
       if (effectiveNav === 'nutri') {
-        return <NutriModule communityId={community.id} />
+        return <NutriModule communityId={community.id} nutriName={profile.full_name ?? ''} />
       }
 
       if (effectiveNav === 'painel') {

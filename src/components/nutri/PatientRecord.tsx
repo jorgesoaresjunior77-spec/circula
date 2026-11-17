@@ -7,6 +7,8 @@ import { AssessmentsTab } from './AssessmentsTab'
 import { ConsultationsTab } from './ConsultationsTab'
 import { PatientForm } from './PatientForm'
 import { PlanTab } from './PlanTab'
+import { DocumentsTab, ExamsTab } from './FilesTabs'
+import { assessmentHtml, evolutionHtml, printDocument } from '../../lib/nutriPrint'
 import type { Recipe } from '../../hooks/useNutriPlan'
 import type { Food } from '../../lib/nutriPlan'
 
@@ -14,7 +16,7 @@ import type { Food } from '../../lib/nutriPlan'
 // exames, receitas e documentos chegam nas próximas etapas e aparecem
 // marcadas como "em breve" para o caminho ficar visível.
 
-export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'consultas' | 'obs' | 'historico'
+export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'consultas' | 'obs' | 'historico'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
@@ -22,12 +24,12 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'anamnese', label: 'Anamnese' },
   { key: 'avaliacao', label: 'Avaliação e medidas' },
   { key: 'plano', label: 'Planejamento alimentar' },
+  { key: 'exames', label: 'Exames' },
+  { key: 'documentos', label: 'Documentos' },
   { key: 'consultas', label: 'Consultas e evolução' },
   { key: 'obs', label: 'Observações' },
   { key: 'historico', label: 'Histórico de alterações' },
 ]
-
-const SOON = ['Exames', 'Documentos']
 
 function Fact({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (value === null || value === undefined || value === '') return null
@@ -48,6 +50,8 @@ export function PatientRecord({
   initialTab = 'resumo',
   foods,
   recipes,
+  nutriName,
+  members,
 }: {
   patient: Patient
   communityId: string
@@ -57,6 +61,8 @@ export function PatientRecord({
   initialTab?: Tab
   foods: Food[]
   recipes: Recipe[]
+  nutriName: string
+  members: { id: string; full_name: string | null }[]
 }) {
   const rec = usePatientRecord(patient.id, communityId)
   const [tab, setTab] = useState<Tab>(initialTab)
@@ -99,11 +105,6 @@ export function PatientRecord({
             {t.label}
           </button>
         ))}
-        {SOON.map((s) => (
-          <span key={s} className="nutri-tab nutri-tab--soon" title="Chega nas próximas etapas">
-            {s} · em breve
-          </span>
-        ))}
       </div>
 
       {rec.loading ? (
@@ -138,6 +139,7 @@ export function PatientRecord({
             (editing ? (
               <PatientForm
                 patient={patient}
+                members={members}
                 onSave={async (input) => {
                   const r = await onSavePatient(input)
                   if (!r.error) {
@@ -182,7 +184,14 @@ export function PatientRecord({
           )}
 
           {tab === 'avaliacao' && (
-            <AssessmentsTab assessments={rec.assessments} sex={patient.sex} onAdd={rec.addAssessment} onRemove={rec.removeAssessment} />
+            <AssessmentsTab
+              assessments={rec.assessments}
+              sex={patient.sex}
+              onAdd={rec.addAssessment}
+              onRemove={rec.removeAssessment}
+              onPdf={(a) => printDocument(assessmentHtml(a, rec.assessments, patient.full_name, nutriName))}
+              onEvolutionPdf={() => printDocument(evolutionHtml(rec.assessments, rec.consultations, patient.full_name, nutriName))}
+            />
           )}
 
           {tab === 'plano' && (
@@ -192,8 +201,14 @@ export function PatientRecord({
               foods={foods}
               recipes={recipes}
               basics={{ sex: patient.sex, age, weightKg: last?.weight_kg ?? null, heightCm: lastHeight }}
+              patientName={patient.full_name}
+              nutriName={nutriName}
             />
           )}
+
+          {tab === 'exames' && <ExamsTab patientId={patient.id} communityId={communityId} />}
+
+          {tab === 'documentos' && <DocumentsTab patientId={patient.id} communityId={communityId} />}
 
           {tab === 'consultas' && (
             <ConsultationsTab consultations={rec.consultations} onAdd={rec.addConsultation} onSetStatus={rec.setConsultationStatus} />

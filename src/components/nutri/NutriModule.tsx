@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../../lib/supabase'
 import { useNutriOverview } from '../../hooks/useNutri'
 import { ageFrom, brDate, isoToday, needsReturn, daysBetween } from '../../lib/nutri'
 import type { Patient } from '../../lib/nutri'
@@ -32,9 +33,29 @@ function Stat({ value, label, tone }: { value: string | number; label: string; t
   )
 }
 
-export function NutriModule({ communityId }: { communityId: string }) {
+export function NutriModule({ communityId, nutriName }: { communityId: string; nutriName: string }) {
   const ov = useNutriOverview(communityId)
   const lib = useNutriLibrary(communityId)
+  const [members, setMembers] = useState<{ id: string; full_name: string | null }[]>([])
+
+  // Participantes da comunidade, para vincular uma paciente à área dela.
+  useEffect(() => {
+    let cancelled = false
+    void supabase
+      .from('community_members')
+      .select('profile:profiles(id,full_name)')
+      .eq('community_id', communityId)
+      .eq('status', 'active')
+      .limit(1000)
+      .then(({ data }) => {
+        if (cancelled) return
+        const rows = (data as unknown as { profile: { id: string; full_name: string | null } | null }[] | null) ?? []
+        setMembers(rows.map((r) => r.profile).filter((p): p is { id: string; full_name: string | null } => !!p).sort((a, b) => (a.full_name ?? '').localeCompare(b.full_name ?? '', 'pt-BR')))
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [communityId])
   const [view, setView] = useState<View>({ name: 'home' })
   const [query, setQuery] = useState('')
   const today = isoToday()
@@ -82,6 +103,7 @@ export function NutriModule({ communityId }: { communityId: string }) {
       <section className="nutri-module">
         <PatientForm
           patient={null}
+          members={members}
           onCancel={() => setView({ name: 'home' })}
           onSave={async (input) => {
             const r = await ov.savePatient(null, input)
@@ -105,6 +127,8 @@ export function NutriModule({ communityId }: { communityId: string }) {
           initialTab={view.tab}
           foods={lib.foods}
           recipes={lib.recipes}
+          nutriName={nutriName}
+          members={members}
           onBack={() => setView({ name: 'list', intent: null })}
           onChanged={ov.reload}
           onSavePatient={async (input) => ov.savePatient(patient.id, input)}

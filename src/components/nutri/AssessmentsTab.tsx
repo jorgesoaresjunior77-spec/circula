@@ -78,11 +78,15 @@ export function AssessmentsTab({
   sex,
   onAdd,
   onRemove,
+  onPdf,
+  onEvolutionPdf,
 }: {
   assessments: Assessment[]
   sex: 'F' | 'M' | null
   onAdd: (input: AssessmentInput) => Promise<{ error: string | null }>
   onRemove: (id: string, on: string) => Promise<{ error: string | null }>
+  onPdf: (a: Assessment) => void
+  onEvolutionPdf: () => void
 }) {
   const sorted = useMemo(() => sortAssessments(assessments), [assessments])
   const [adding, setAdding] = useState(false)
@@ -90,6 +94,7 @@ export function AssessmentsTab({
   const [vals, setVals] = useState<Record<string, string>>({})
   const [source, setSource] = useState('')
   const [notes, setNotes] = useState('')
+  const [share, setShare] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [chartKey, setChartKey] = useState<keyof Assessment>('weight_kg')
@@ -101,7 +106,7 @@ export function AssessmentsTab({
 
   async function submit(e: FormEvent) {
     e.preventDefault()
-    const input: AssessmentInput = { assessed_on: date, source: source.trim() || null, notes: notes.trim() || null }
+    const input: AssessmentInput = { assessed_on: date, source: source.trim() || null, notes: notes.trim() || null, shared_with_patient: share }
     let any = false
     for (const m of ALL_MEASURES) {
       const v = num(vals[m.key] ?? '')
@@ -126,6 +131,7 @@ export function AssessmentsTab({
     setVals({})
     setNotes('')
     setSource('')
+    setShare(false)
   }
 
   const chartDefs = ALL_MEASURES.filter((m) => sorted.filter((a) => a[m.key] != null).length > 0)
@@ -172,6 +178,10 @@ export function AssessmentsTab({
             Observações
             <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </label>
+          <label className="nutri-check">
+            <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} />
+            Mostrar na evolução da paciente (peso e medidas; as observações nunca aparecem)
+          </label>
           {error && (
             <p className="auth-error" role="alert">
               {error}
@@ -193,6 +203,9 @@ export function AssessmentsTab({
       {sorted.length > 0 && (
         <>
           <h3>Evolução</h3>
+          <button type="button" className="auth-link" onClick={onEvolutionPdf}>
+            Relatório de evolução (PDF)
+          </button>
           <label className="nutri-inline">
             Indicador
             <select value={String(chartKey)} onChange={(e) => setChartKey(e.target.value as keyof Assessment)}>
@@ -217,6 +230,9 @@ export function AssessmentsTab({
                 <li key={s.id} className="nutri-timeline-item">
                   <div className="nutri-timeline-head">
                     <strong>{brDate(s.assessed_on)}</strong>
+                    <button type="button" className="auth-link" onClick={() => onPdf(s)}>
+                      PDF
+                    </button>
                     <button
                       type="button"
                       className="auth-link"

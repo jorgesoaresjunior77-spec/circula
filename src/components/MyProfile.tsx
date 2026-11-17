@@ -10,6 +10,7 @@ import { ProfileBanner } from './ProfileBanner'
 import { ProfileVisitStats } from './ProfileVisitStats'
 import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 import { InviteFriends } from './InviteFriends'
+import { MyNutriPlan } from './MyNutriPlan'
 import { ProfileTestimonials } from './ProfileTestimonials'
 import { OnboardingAnswersView } from './OnboardingAnswersView'
 
@@ -440,6 +441,8 @@ export function MyProfile({
           )}
         </div>
       )}
+
+      {profile.role === 'member' && <MyNutriPlan />}
 
       {profile.role === 'member' && communityId && (
         <div className="profile-invite-section">

@@ -516,3 +516,26 @@
 .nutri-chip--arquivado {
   background: rgba(0, 0, 0, 0.08);
 }
+
+/* ---- Gestão Nutricional: área da paciente ---------------------------------------------------- */
+.my-nutri {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.my-nutri h3,
+.my-nutri h4 {
+  margin: 0;
+}
+
+.my-nutri-items {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.my-nutri-items li + li {
+  margin-top: 6px;
+}

@@ -4,6 +4,7 @@ import type { Recipe } from '../../hooks/useNutriPlan'
 import { brDate } from '../../lib/nutri'
 import { dayTotals, uid } from '../../lib/nutriPlan'
 import type { Food, Plan } from '../../lib/nutriPlan'
+import { planHtml, printDocument } from '../../lib/nutriPrint'
 import { PlanEditor, emptyPlan } from './PlanEditor'
 import type { PatientBasics, PlanDraft } from './PlanEditor'
 
@@ -37,12 +38,16 @@ export function PlanTab({
   foods,
   recipes,
   basics,
+  patientName,
+  nutriName,
 }: {
   patientId: string
   communityId: string
   foods: Food[]
   recipes: Recipe[]
   basics: PatientBasics
+  patientName: string
+  nutriName: string
 }) {
   const { plans, loading, savePlan, setStatus } = usePatientPlans(patientId, communityId)
   const [editing, setEditing] = useState<{ id: string | null; draft: PlanDraft } | null>(null)
@@ -107,6 +112,15 @@ export function PlanTab({
               <div className="nutri-actions nutri-actions--start">
                 <button type="button" className="auth-link" onClick={() => setEditing({ id: pl.id, draft: toDraft(pl, false) })}>
                   Editar
+                </button>
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => {
+                    if (!printDocument(planHtml(pl, patientName, nutriName))) setError('O navegador bloqueou a janela do PDF. Permita pop-ups e tente de novo.')
+                  }}
+                >
+                  Gerar PDF
                 </button>
                 <button type="button" className="auth-link" onClick={() => setEditing({ id: null, draft: toDraft(pl, true) })}>
                   Nova versão
