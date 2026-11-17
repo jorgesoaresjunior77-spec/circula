@@ -3311,3 +3311,54 @@ section.community-card.product-manager.product-manager--storefront {
     transform: none;
   }
 }
+
+/* ---- Confete de celebração --------------------------------------------------------------- */
+.confetti {
+  position: fixed;
+  left: 50%;
+  top: 38%;
+  width: 0;
+  height: 0;
+  z-index: 1300;
+  pointer-events: none;
+}
+
+.confetti i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti-burst 1.8s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes confetti-burst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0);
+  }
+  35% {
+    opacity: 1;
+    transform: translate(calc(var(--x) * 0.7), var(--rise)) rotate(calc(var(--spin) * 0.4));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--fall)) rotate(var(--spin));
+  }
+}
+
+/* ---- Capa da revista cresce até a página aberta (View Transitions) ----------------------- */
+.mag2-sheet {
+  view-transition-name: mag-open;
+}
+
+::view-transition-group(mag-open) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(mag-open) {
+    animation-duration: 0.01s;
+  }
+}

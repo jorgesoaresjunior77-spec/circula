@@ -1,4 +1,5 @@
 import { recordView } from '../lib/itemViews'
+import { morphOpen } from '../lib/viewTransition'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -578,7 +579,7 @@ function Stack({
   hideBadges = false,
 }: {
   issues: (MagazineIssue | null)[]
-  onOpen: (issue: MagazineIssue | null) => void
+  onOpen: (issue: MagazineIssue | null, from?: HTMLElement) => void
   /** A profissional vê tudo sem selo. */
   hideBadges?: boolean
 }) {
@@ -626,12 +627,12 @@ function Stack({
                   sendFrontToBack()
                 }
               }}
-              onClick={() => {
+              onClick={(e) => {
                 if (justSwiped.current) {
                   justSwiped.current = false
                   return
                 }
-                onOpen(issue)
+                onOpen(issue, e.currentTarget)
               }}
             >
               <Cover path={issue?.cover_path ?? null} title={issue?.title ?? ''} />
@@ -661,13 +662,13 @@ export function HomeMagazineStrip({ issues, officeImage, manager }: HomeMagazine
   const [notice, setNotice] = useState<string | null>(null)
   const isOwner = !!manager
 
-  function handleOpen(issue: MagazineIssue | null) {
+  function handleOpen(issue: MagazineIssue | null, from?: HTMLElement) {
     if (!isOwner && isUpcoming(issue) && issue) {
       setNotice(`A edição ${issue.title} será liberada em ${brDate(issue.release_date)}.`)
       return
     }
     setNotice(null)
-    setReading(issue)
+    morphOpen(from, 'mag-open', () => setReading(issue))
     if (issue && !isOwner) recordView(issue.community_id, 'magazine', issue.id)
   }
 

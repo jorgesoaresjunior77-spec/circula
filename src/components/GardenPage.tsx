@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Confetti } from './Confetti'
 import { daysInMonth, useGardenMonth } from '../hooks/useGardenMonth'
 import { MonthFlower, YearTree } from './GardenArt'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
@@ -71,6 +72,7 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
           <p className="home-muted">Carregando…</p>
         ) : current ? (
           <>
+            <Confetti fire={doneToday} ready={!g.loading} />
             <MonthFlower days={current.days} checked={checkedNow} />
             <div className="garden-today">
               <p className="garden-today-label">Desafio de hoje · dia {g.today.day}</p>
