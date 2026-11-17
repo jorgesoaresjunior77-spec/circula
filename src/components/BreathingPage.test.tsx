@@ -54,7 +54,7 @@ describe('BreathingPage — Respiração e Meditação', () => {
 
   it('mostra a sessão no tipo certo, com duração, orientações e áudio', () => {
     mockContent([SESSAO])
-    const { container } = render(<BreathingPage communityId="c1" isOwner={false} />)
+    render(<BreathingPage communityId="c1" isOwner={false} />)
 
     expect(screen.getByRole('region', { name: 'Respiração guiada' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Pausa de respiração' })).toBeInTheDocument()

@@ -26,25 +26,11 @@ import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { HelpNutri } from './HelpNutri'
 import { FeedNotices } from './FeedNotices'
-import { RecipesPage } from './RecipesPage'
 import { EventManager } from './EventManager'
 import { CircleManager } from './CircleManager'
-import { GardenPage } from './GardenPage'
-import { AgendaPage } from './AgendaPage'
-import { WaterPage } from './WaterPage'
-import { ImcPage } from './ImcPage'
-import { PlansPage } from './PlansPage'
-import { PlaylistPage } from './PlaylistPage'
-import { WorldClockPage } from './WorldClockPage'
-import { AntesDeTudoPage } from './AntesDeTudoPage'
-import { ReadingTipsPage } from './ReadingTipsPage'
-import { BreathingPage } from './BreathingPage'
-import { WellnessPage } from './WellnessPage'
-import { InspirationManagerPage } from './InspirationManagerPage'
 import { DailyInspiration } from './DailyInspiration'
 import { GardenReminder } from './GardenReminder'
 import { TodayAgendaPopup } from './TodayAgendaPopup'
-import { GardenMonthManager } from './GardenMonthManager'
 // Code-splitting: ProfessionalPanel e MasterPanel só são necessários para
 // os papéis professional/master, respectivamente — carregados sob
 // demanda em vez de entrarem no bundle inicial de toda usuária (ver
@@ -70,8 +56,6 @@ import { MemberCommunityCard } from './MemberCommunityCard'
 import { HomeToday } from './HomeToday'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeGreeting } from './HomeGreeting'
-import { HelpPage } from './HelpPage'
-import { WeatherPage } from './WeatherPage'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
 import { useHomeBadges } from '../hooks/useHomeBadges'
@@ -102,6 +86,23 @@ const SavedItems = lazy(() => import('./SavedItems').then((m) => ({ default: m.S
 const CircleDetail = lazy(() => import('./CircleDetail').then((m) => ({ default: m.CircleDetail })))
 const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => ({ default: m.CircleRequestForm })))
 
+// Telas abertas só quando a pessoa chega nelas: saem do pacote inicial.
+const RecipesPage = lazy(() => import('./RecipesPage').then((m) => ({ default: m.RecipesPage })))
+const GardenPage = lazy(() => import('./GardenPage').then((m) => ({ default: m.GardenPage })))
+const AgendaPage = lazy(() => import('./AgendaPage').then((m) => ({ default: m.AgendaPage })))
+const WaterPage = lazy(() => import('./WaterPage').then((m) => ({ default: m.WaterPage })))
+const ImcPage = lazy(() => import('./ImcPage').then((m) => ({ default: m.ImcPage })))
+const PlansPage = lazy(() => import('./PlansPage').then((m) => ({ default: m.PlansPage })))
+const PlaylistPage = lazy(() => import('./PlaylistPage').then((m) => ({ default: m.PlaylistPage })))
+const WorldClockPage = lazy(() => import('./WorldClockPage').then((m) => ({ default: m.WorldClockPage })))
+const AntesDeTudoPage = lazy(() => import('./AntesDeTudoPage').then((m) => ({ default: m.AntesDeTudoPage })))
+const ReadingTipsPage = lazy(() => import('./ReadingTipsPage').then((m) => ({ default: m.ReadingTipsPage })))
+const BreathingPage = lazy(() => import('./BreathingPage').then((m) => ({ default: m.BreathingPage })))
+const WellnessPage = lazy(() => import('./WellnessPage').then((m) => ({ default: m.WellnessPage })))
+const WeatherPage = lazy(() => import('./WeatherPage').then((m) => ({ default: m.WeatherPage })))
+const HelpPage = lazy(() => import('./HelpPage').then((m) => ({ default: m.HelpPage })))
+const InspirationManagerPage = lazy(() => import('./InspirationManagerPage').then((m) => ({ default: m.InspirationManagerPage })))
+const GardenMonthManager = lazy(() => import('./GardenMonthManager').then((m) => ({ default: m.GardenMonthManager })))
 interface CommunityPickerOptionProps {
   community: CommunityWithMembers
   memberCount?: number
@@ -221,6 +222,26 @@ export function Dashboard({
     // offerInstallGuide só lê storage/navegador; roda uma vez por carregamento
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
+  // Com a tela em repouso, já baixa as telas mais abertas: o toque nos cartões
+  // da Home fica instantâneo sem pesar na abertura do app.
+  useEffect(() => {
+    const warm = () => {
+      void import('./RecipesPage')
+      void import('./PlansPage')
+      void import('./WellnessPage')
+      void import('./WeatherPage')
+      void import('./BreathingPage')
+      void import('./ReadingTipsPage')
+      void import('./PlaylistPage')
+    }
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(warm, { timeout: 8000 })
+      return () => (window as unknown as { cancelIdleCallback?: (n: number) => void }).cancelIdleCallback?.(id)
+    }
+    const t = window.setTimeout(warm, 4000)
+    return () => window.clearTimeout(t)
+  }, [])
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
   const [circlesCommunityId, setCirclesCommunityId] = useState<string | null>(null)
 

@@ -3270,3 +3270,44 @@ section.community-card.product-manager.product-manager--storefront {
 .profile-invite-section {
   margin-top: 18px;
 }
+
+/* ---- Micro-interações leves (só CSS, sem JavaScript) ------------------------------------- */
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.32);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.post-reaction--active svg {
+  animation: heart-pop 0.35s ease-out;
+}
+
+.post-reaction:active,
+.plan-tile:active,
+.rec-tile:active {
+  transform: scale(0.97);
+}
+
+.post-reaction,
+.plan-tile,
+.rec-tile {
+  transition: transform 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-reaction--active svg {
+    animation: none;
+  }
+
+  .post-reaction:active,
+  .plan-tile:active,
+  .rec-tile:active {
+    transform: none;
+  }
+}
