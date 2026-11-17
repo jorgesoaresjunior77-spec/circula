@@ -27,6 +27,7 @@ export function useNutriOverview(communityId: string | null) {
   const [patients, setPatients] = useState<Patient[]>([])
   const [consultations, setConsultations] = useState<Consultation[]>([])
   const [assessedIds, setAssessedIds] = useState<Set<string>>(new Set())
+  const [activePlans, setActivePlans] = useState(0)
   const [loading, setLoading] = useState(!!communityId)
   const [failed, setFailed] = useState(false)
   const [token, setToken] = useState(0)
@@ -35,13 +36,15 @@ export function useNutriOverview(communityId: string | null) {
     if (!communityId) return
     let cancelled = false
     void (async () => {
-      const [p, c, a] = await Promise.all([
+      const [p, c, a, pl] = await Promise.all([
         supabase.from('nutri_patients').select(PATIENT_COLS).eq('community_id', communityId).order('full_name').limit(1000),
         supabase.from('nutri_consultations').select(CONSULT_COLS).eq('community_id', communityId).order('scheduled_on', { ascending: false }).limit(3000),
         supabase.from('nutri_assessments').select('patient_id').eq('community_id', communityId).limit(5000),
+        supabase.from('nutri_plans').select('id', { count: 'exact', head: true }).eq('community_id', communityId).eq('status', 'ativo'),
       ])
       if (cancelled) return
-      setFailed(!!(p.error || c.error || a.error))
+      setFailed(!!(p.error || c.error || a.error || pl.error))
+      setActivePlans(pl.count ?? 0)
       setPatients((p.data as Patient[] | null) ?? [])
       setConsultations((c.data as Consultation[] | null) ?? [])
       setAssessedIds(new Set(((a.data as { patient_id: string }[] | null) ?? []).map((r) => r.patient_id)))
@@ -91,7 +94,7 @@ export function useNutriOverview(communityId: string | null) {
     [communityId, reload],
   )
 
-  return { patients, consultations, assessedIds, loading, failed, reload, savePatient, addConsultation }
+  return { patients, consultations, assessedIds, activePlans, loading, failed, reload, savePatient, addConsultation }
 }
 
 /** Prontuário de um paciente: avaliações, anamnese, consultas e histórico de alterações. */

@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react'
 import { useNutriOverview } from '../../hooks/useNutri'
 import { ageFrom, brDate, isoToday, needsReturn, daysBetween } from '../../lib/nutri'
 import type { Patient } from '../../lib/nutri'
+import { useNutriLibrary } from '../../hooks/useNutriPlan'
+import { FoodsManager } from './FoodsManager'
+import { RecipesManager } from './RecipesManager'
 import { PatientForm } from './PatientForm'
 import { PatientRecord } from './PatientRecord'
 import type { Tab } from './PatientRecord'
@@ -14,6 +17,8 @@ type View =
   | { name: 'home' }
   | { name: 'list'; intent: Tab | null }
   | { name: 'new' }
+  | { name: 'foods' }
+  | { name: 'recipes' }
   | { name: 'record'; id: string; tab: Tab }
 
 const NEW_DAYS = 30
@@ -29,6 +34,7 @@ function Stat({ value, label, tone }: { value: string | number; label: string; t
 
 export function NutriModule({ communityId }: { communityId: string }) {
   const ov = useNutriOverview(communityId)
+  const lib = useNutriLibrary(communityId)
   const [view, setView] = useState<View>({ name: 'home' })
   const [query, setQuery] = useState('')
   const today = isoToday()
@@ -54,6 +60,22 @@ export function NutriModule({ communityId }: { communityId: string }) {
   }, [ov.patients, ov.consultations, ov.assessedIds, today])
 
   if (ov.loading) return <p className="home-muted">Carregando Gestão Nutricional…</p>
+
+  if (view.name === 'foods') {
+    return (
+      <section className="nutri-module">
+        <FoodsManager foods={lib.foods} onSave={lib.saveFood} onImport={lib.importFoods} onRemove={lib.removeFood} onBack={() => setView({ name: 'home' })} />
+      </section>
+    )
+  }
+
+  if (view.name === 'recipes') {
+    return (
+      <section className="nutri-module">
+        <RecipesManager recipes={lib.recipes} foods={lib.foods} onSave={lib.saveRecipe} onRemove={lib.removeRecipe} onBack={() => setView({ name: 'home' })} />
+      </section>
+    )
+  }
 
   if (view.name === 'new') {
     return (
@@ -81,6 +103,8 @@ export function NutriModule({ communityId }: { communityId: string }) {
           patient={patient}
           communityId={communityId}
           initialTab={view.tab}
+          foods={lib.foods}
+          recipes={lib.recipes}
           onBack={() => setView({ name: 'list', intent: null })}
           onChanged={ov.reload}
           onSavePatient={async (input) => ov.savePatient(patient.id, input)}
@@ -132,7 +156,7 @@ export function NutriModule({ communityId }: { communityId: string }) {
         <Stat value={stats.fresh} label={`Novas (${NEW_DAYS} dias)`} />
         <Stat value={stats.scheduled} label="Consultas agendadas" />
         <Stat value={stats.needReturn} label="Precisam de retorno" tone={stats.needReturn ? 'warn' : undefined} />
-        <Stat value="—" label="Planos alimentares (em breve)" />
+        <Stat value={ov.activePlans} label="Planos alimentares ativos" />
         <Stat value={stats.pending} label="Avaliações pendentes" tone={stats.pending ? 'warn' : undefined} />
       </div>
 
@@ -143,8 +167,14 @@ export function NutriModule({ communityId }: { communityId: string }) {
         <button type="button" className="water-primary" onClick={() => setView({ name: 'list', intent: 'avaliacao' })}>
           Nova avaliação nutricional
         </button>
-        <button type="button" className="water-primary" disabled title="Chega na próxima etapa">
-          Criar plano alimentar · em breve
+        <button type="button" className="water-primary" onClick={() => setView({ name: 'list', intent: 'plano' })}>
+          Criar plano alimentar
+        </button>
+        <button type="button" className="water-primary" onClick={() => setView({ name: 'foods' })}>
+          Banco de alimentos
+        </button>
+        <button type="button" className="water-primary" onClick={() => setView({ name: 'recipes' })}>
+          Receitas
         </button>
         <button type="button" className="water-primary" onClick={() => setView({ name: 'list', intent: null })}>
           Consultar pacientes

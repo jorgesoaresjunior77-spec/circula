@@ -6,24 +6,28 @@ import { AnamnesisForm } from './AnamnesisForm'
 import { AssessmentsTab } from './AssessmentsTab'
 import { ConsultationsTab } from './ConsultationsTab'
 import { PatientForm } from './PatientForm'
+import { PlanTab } from './PlanTab'
+import type { Recipe } from '../../hooks/useNutriPlan'
+import type { Food } from '../../lib/nutriPlan'
 
 // Prontuário digital do paciente, em abas. As abas de plano alimentar,
 // exames, receitas e documentos chegam nas próximas etapas e aparecem
 // marcadas como "em breve" para o caminho ficar visível.
 
-export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'consultas' | 'obs' | 'historico'
+export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'consultas' | 'obs' | 'historico'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
   { key: 'dados', label: 'Dados pessoais' },
   { key: 'anamnese', label: 'Anamnese' },
   { key: 'avaliacao', label: 'Avaliação e medidas' },
+  { key: 'plano', label: 'Planejamento alimentar' },
   { key: 'consultas', label: 'Consultas e evolução' },
   { key: 'obs', label: 'Observações' },
   { key: 'historico', label: 'Histórico de alterações' },
 ]
 
-const SOON = ['Planejamento alimentar', 'Exames', 'Receitas', 'Documentos']
+const SOON = ['Exames', 'Documentos']
 
 function Fact({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (value === null || value === undefined || value === '') return null
@@ -42,6 +46,8 @@ export function PatientRecord({
   onBack,
   onChanged,
   initialTab = 'resumo',
+  foods,
+  recipes,
 }: {
   patient: Patient
   communityId: string
@@ -49,6 +55,8 @@ export function PatientRecord({
   onBack: () => void
   onChanged: () => void
   initialTab?: Tab
+  foods: Food[]
+  recipes: Recipe[]
 }) {
   const rec = usePatientRecord(patient.id, communityId)
   const [tab, setTab] = useState<Tab>(initialTab)
@@ -175,6 +183,16 @@ export function PatientRecord({
 
           {tab === 'avaliacao' && (
             <AssessmentsTab assessments={rec.assessments} sex={patient.sex} onAdd={rec.addAssessment} onRemove={rec.removeAssessment} />
+          )}
+
+          {tab === 'plano' && (
+            <PlanTab
+              patientId={patient.id}
+              communityId={communityId}
+              foods={foods}
+              recipes={recipes}
+              basics={{ sex: patient.sex, age, weightKg: last?.weight_kg ?? null, heightCm: lastHeight }}
+            />
           )}
 
           {tab === 'consultas' && (
