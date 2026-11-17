@@ -40,36 +40,92 @@ function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
   )
 }
 
-// Sombras suaves de folhas de coqueiro: duas palmas desenhadas em SVG, bem
-// desfocadas e quase transparentes, que balançam devagar atrás dos logos.
-// Só decoração (escondida de leitores de tela, sem receber toque).
-function Frond({ leaflets = 15 }: { leaflets?: number }) {
-  // Nervura central curva (de baixo para cima) com folíolos dos dois lados.
-  const parts: React.ReactElement[] = []
-  for (let i = 1; i <= leaflets; i++) {
-    const t = i / (leaflets + 1)
-    const x = 100 + 30 * t * t * 3 // curva leve para a direita
-    const y = 230 - 215 * t
-    const size = 62 * Math.sin(Math.PI * Math.min(1, t * 1.05 + 0.08)) + 10
-    parts.push(
-      <ellipse key={'l' + i} cx={x - size / 2} cy={y} rx={size / 2} ry={4.2} transform={`rotate(${-28 - 14 * t} ${x} ${y})`} />,
-      <ellipse key={'r' + i} cx={x + size / 2} cy={y} rx={size / 2} ry={4.2} transform={`rotate(${28 + 14 * t} ${x} ${y})`} />,
-    )
-  }
+// Girassóis flutuando dentro do card: flores desenhadas em SVG que sobem e
+// descem devagar, giram de leve e variam de tamanho e de nitidez (as menores
+// ficam um pouco desfocadas, para dar profundidade). Só decoração: escondida
+// de leitores de tela, sem receber toque, paradas com "reduzir movimento".
+function Sunflower() {
+  const petals = Array.from({ length: 16 }, (_, i) => (
+    <ellipse
+      key={i}
+      cx="50"
+      cy="19"
+      rx="7.2"
+      ry="17"
+      transform={`rotate(${(i * 360) / 16} 50 50)`}
+    />
+  ))
+  const back = Array.from({ length: 16 }, (_, i) => (
+    <ellipse
+      key={i}
+      cx="50"
+      cy="21"
+      rx="7"
+      ry="16"
+      transform={`rotate(${(i * 360) / 16 + 11.25} 50 50)`}
+    />
+  ))
+  const seeds = Array.from({ length: 22 }, (_, i) => {
+    const r = 3.5 + 11 * Math.sqrt((i + 0.5) / 22)
+    const ang = i * 2.39996 // ângulo dourado, como as sementes de verdade
+    return <circle key={i} cx={50 + r * Math.cos(ang)} cy={50 + r * Math.sin(ang)} r="1.5" />
+  })
   return (
-    <svg viewBox="0 0 260 240" className="palm-frond" focusable="false">
-      <path d="M100 236 Q 112 120 190 14" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
-      {parts}
+    <svg viewBox="0 0 100 100" className="sunflower-svg" focusable="false">
+      <defs>
+        <radialGradient id="sf-petal" cx="50%" cy="20%" r="80%">
+          <stop offset="0" stopColor="#ffe36a" />
+          <stop offset="1" stopColor="#f5a817" />
+        </radialGradient>
+        <radialGradient id="sf-back" cx="50%" cy="20%" r="80%">
+          <stop offset="0" stopColor="#f6c52f" />
+          <stop offset="1" stopColor="#d98a0c" />
+        </radialGradient>
+        <radialGradient id="sf-core" cx="42%" cy="38%" r="70%">
+          <stop offset="0" stopColor="#8a5a2b" />
+          <stop offset="1" stopColor="#3e2412" />
+        </radialGradient>
+      </defs>
+      <g fill="url(#sf-back)">{back}</g>
+      <g fill="url(#sf-petal)">{petals}</g>
+      <circle cx="50" cy="50" r="16" fill="url(#sf-core)" />
+      <g fill="#c99a52" opacity="0.7">{seeds}</g>
     </svg>
   )
 }
 
-function PalmShadows() {
+const SUNFLOWERS: { x: number; y: number; size: number; dur: number; delay: number; blur: number; spin: number }[] = [
+  { x: 4, y: 10, size: 84, dur: 9, delay: 0, blur: 0, spin: 14 },
+  { x: 84, y: 6, size: 68, dur: 11, delay: -3, blur: 0, spin: -12 },
+  { x: 40, y: 74, size: 60, dur: 10, delay: -5, blur: 1, spin: 10 },
+  { x: 92, y: 62, size: 46, dur: 8, delay: -2, blur: 2, spin: -16 },
+  { x: 18, y: 66, size: 44, dur: 12, delay: -7, blur: 2, spin: 12 },
+  { x: 62, y: 4, size: 38, dur: 13, delay: -9, blur: 3, spin: -10 },
+]
+
+function FloatingSunflowers() {
   return (
-    <div className="palm-shadows" aria-hidden="true">
-      <span className="palm-shadow palm-shadow--a"><Frond /></span>
-      <span className="palm-shadow palm-shadow--b"><Frond leaflets={13} /></span>
-      <span className="palm-shadow palm-shadow--c"><Frond leaflets={14} /></span>
+    <div className="sunflowers" aria-hidden="true">
+      {SUNFLOWERS.map((f, i) => (
+        <span
+          key={i}
+          className="sunflower"
+          style={
+            {
+              left: `${f.x}%`,
+              top: `${f.y}%`,
+              width: f.size,
+              height: f.size,
+              filter: f.blur ? `blur(${f.blur}px)` : undefined,
+              animationDuration: `${f.dur}s`,
+              animationDelay: `${f.delay}s`,
+              '--spin': `${f.spin}deg`,
+            } as React.CSSProperties
+          }
+        >
+          <Sunflower />
+        </span>
+      ))}
     </div>
   )
 }
@@ -98,7 +154,7 @@ export function HomePartnersStrip({ communityId }: { communityId: string }) {
 
   return (
     <m.section className="home-partners" aria-label="Parceiros" {...inViewOnce} variants={riseVariants}>
-      <PalmShadows />
+      <FloatingSunflowers />
       <h3 className="home-partners-title">Parceiros</h3>
       <div className="partner-viewport">
         <div className="partner-track" style={{ animationDuration: `${perHalf * PARTNER_SECONDS_PER_LOGO}s` }}>
