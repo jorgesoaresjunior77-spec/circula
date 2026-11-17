@@ -6,6 +6,7 @@ import type { Patient } from '../../lib/nutri'
 import { useNutriLibrary } from '../../hooks/useNutriPlan'
 import { FoodsManager } from './FoodsManager'
 import { RecipesManager } from './RecipesManager'
+import { buildWhatsAppUrl, normalizeWhatsAppNumber } from '../../lib/phone'
 import { PatientForm } from './PatientForm'
 import { PatientRecord } from './PatientRecord'
 import type { Tab } from './PatientRecord'
@@ -59,6 +60,7 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
   const [view, setView] = useState<View>({ name: 'home' })
   const [query, setQuery] = useState('')
   const today = isoToday()
+  const tomorrow = isoToday(new Date(Date.now() + 86_400_000))
 
   const byId = useMemo(() => new Map(ov.patients.map((p) => [p.id, p])), [ov.patients])
 
@@ -75,6 +77,7 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
       scheduled: upcoming.length,
       needReturn: active.filter((p) => needsReturn(consultsOf(p.id), today)).length,
       pending: active.filter((p) => !ov.assessedIds.has(p.id)).length,
+      returns: active.filter((p) => needsReturn(consultsOf(p.id), today)),
       upcoming: upcoming.slice(0, 5),
       recent: [...ov.patients].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5),
     }
@@ -129,6 +132,7 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
           recipes={lib.recipes}
           nutriName={nutriName}
           members={members}
+          otherPatients={ov.patients.filter((x) => x.id !== patient.id).map((x) => ({ id: x.id, full_name: x.full_name }))}
           onBack={() => setView({ name: 'list', intent: null })}
           onChanged={ov.reload}
           onSavePatient={async (input) => ov.savePatient(patient.id, input)}
@@ -208,6 +212,22 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
         </button>
       </div>
 
+      <h3>Precisam de retorno</h3>
+      {stats.returns.length === 0 ? (
+        <p className="home-muted">Ninguém com retorno pendente.</p>
+      ) : (
+        <ul className="nutri-list">
+          {stats.returns.map((p) => (
+            <li key={p.id} className="nutri-row nutri-row--split">
+              <button type="button" className="nutri-link" onClick={() => setView({ name: 'record', id: p.id, tab: 'consultas' })}>
+                <strong>{p.full_name}</strong>
+              </button>
+              <ReminderButton patient={p} text={`Oi, ${p.full_name.split(' ')[0]}! Tudo bem? Já está na hora do seu retorno. Vamos marcar um horário? 💛`} />
+            </li>
+          ))}
+        </ul>
+      )}
+
       <h3>Pacientes recentes</h3>
       {stats.recent.length === 0 ? (
         <p className="home-muted">Nenhuma paciente cadastrada ainda.</p>
@@ -228,6 +248,9 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
             const p = byId.get(c.patient_id)
             return (
               <li key={c.id}>
+                {p && c.scheduled_on <= tomorrow && (
+                  <ReminderButton patient={p} text={`Oi, ${p.full_name.split(' ')[0]}! Passando para lembrar da sua ${c.kind === 'retorno' ? 'consulta de retorno' : 'consulta'} em ${brDate(c.scheduled_on)}${c.scheduled_time ? ` às ${c.scheduled_time}` : ''}. Te espero! 💛`} />
+                )}
                 <button type="button" className="nutri-row" onClick={() => p && setView({ name: 'record', id: p.id, tab: 'consultas' })}>
                   <strong>{p?.full_name ?? 'Paciente'}</strong>
                   <span>
@@ -241,6 +264,17 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
         </ul>
       )}
     </section>
+  )
+}
+
+/** Abre o WhatsApp com a mensagem pronta; quem envia é a nutricionista. */
+function ReminderButton({ patient, text }: { patient: Patient; text: string }) {
+  const number = normalizeWhatsAppNumber(patient.whatsapp || patient.phone || '')
+  if (!number) return <span className="home-muted">sem WhatsApp</span>
+  return (
+    <button type="button" className="auth-link" onClick={() => window.open(buildWhatsAppUrl(number, text), '_blank', 'noopener,noreferrer')}>
+      Lembrar pelo WhatsApp
+    </button>
   )
 }
 

@@ -338,3 +338,31 @@ export function parseFoodsCsv(text: string): { rows: FoodRow[]; skipped: number;
   }
   return { rows, skipped, error: rows.length === 0 ? 'Nenhum alimento válido no arquivo.' : null }
 }
+
+export interface ShoppingLine {
+  name: string
+  grams: number | null
+  /** Quantas vezes o item aparece no plano (por dia). */
+  times: number
+}
+
+/**
+ * Lista de compras: soma as quantidades de cada alimento do plano e multiplica
+ * pelos dias. Itens sem gramas entram só pelo nome (a nutricionista decide a
+ * quantidade). Alimentos iguais são somados pelo nome.
+ */
+export function shoppingList(meals: PlanMeal[], days: number): ShoppingLine[] {
+  const map = new Map<string, ShoppingLine>()
+  for (const m of meals) {
+    for (const i of m.items) {
+      const name = i.name.trim()
+      if (!name) continue
+      const key = name.toLowerCase()
+      const cur = map.get(key) ?? { name, grams: null, times: 0 }
+      cur.times += 1
+      if (i.grams) cur.grams = (cur.grams ?? 0) + i.grams * Math.max(1, days)
+      map.set(key, cur)
+    }
+  }
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+}

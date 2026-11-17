@@ -1,0 +1,592 @@
+nome;categoria;medida;porcao;kcal;proteina;carboidrato;gordura;gordura saturada;fibra;sodio
+"Arroz, integral, cozido";"Cereais e derivados";"100 g";100;124;2,6;25,8;1,0;0,3;2,7;1
+"Arroz, integral, cru";"Cereais e derivados";"100 g";100;360;7,3;77,5;1,9;0,3;4,8;2
+"Arroz, tipo 1, cozido";"Cereais e derivados";"100 g";100;128;2,5;28,1;0,2;0,2;1,6;1
+"Arroz, tipo 1, cru";"Cereais e derivados";"100 g";100;358;7,2;78,8;0,3;0,1;1,6;1
+"Arroz, tipo 2, cozido";"Cereais e derivados";"100 g";100;130;2,6;28,2;0,4;0,1;1,1;2
+"Arroz, tipo 2, cru";"Cereais e derivados";"100 g";100;358;7,2;78,9;0,3;0,1;1,7;1
+"Aveia, flocos, crua";"Cereais e derivados";"100 g";100;394;13,9;66,6;8,5;1,5;9,1;5
+"Biscoito, doce, maisena";"Cereais e derivados";"100 g";100;443;8,1;75,2;12,0;3,9;2,1;352
+"Biscoito, doce, recheado com chocolate";"Cereais e derivados";"100 g";100;472;6,4;70,5;19,6;6,2;3,0;239
+"Biscoito, doce, recheado com morango";"Cereais e derivados";"100 g";100;471;5,7;71,0;19,6;6,1;1,5;230
+"Biscoito, doce, wafer, recheado de chocolate";"Cereais e derivados";"100 g";100;502;5,6;67,5;24,7;6,5;1,8;137
+"Biscoito, doce, wafer, recheado de morango";"Cereais e derivados";"100 g";100;513;4,5;67,4;26,4;6,7;0,8;120
+"Biscoito, salgado, cream cracker";"Cereais e derivados";"100 g";100;432;10,1;68,7;14,4;4,4;2,5;854
+"Bolo, mistura para";"Cereais e derivados";"100 g";100;419;6,2;84,7;6,1;2,1;1,7;463
+"Bolo, pronto, aipim";"Cereais e derivados";"100 g";100;324;4,4;47,9;12,7;5,0;0,7;111
+"Bolo, pronto, chocolate";"Cereais e derivados";"100 g";100;410;6,2;54,7;18,5;5,5;1,4;283
+"Bolo, pronto, coco";"Cereais e derivados";"100 g";100;333;5,7;52,3;11,3;4,9;1,1;190
+"Bolo, pronto, milho";"Cereais e derivados";"100 g";100;311;4,8;45,1;12,4;4,5;0,7;134
+"Canjica, branca, crua";"Cereais e derivados";"100 g";100;358;7,2;78,1;1,0;0,3;5,5;1
+"Canjica, com leite integral";"Cereais e derivados";"100 g";100;112;2,4;23,6;1,2;0,6;1,2;28
+"Cereais, milho, flocos, com sal";"Cereais e derivados";"100 g";100;370;7,3;80,8;1,6;0,5;5,3;272
+"Cereais, milho, flocos, sem sal";"Cereais e derivados";"100 g";100;363;6,9;80,4;1,2;0,3;1,8;31
+"Cereais, mingau, milho, infantil";"Cereais e derivados";"100 g";100;394;6,4;87,3;1,1;0,3;3,2;399
+"Cereais, mistura para vitamina, trigo, cevada e aveia";"Cereais e derivados";"100 g";100;381;8,9;81,6;2,1;0,5;5,0;1163
+"Cereal matinal, milho";"Cereais e derivados";"100 g";100;365;7,2;83,8;1,0;0,4;4,1;655
+"Cereal matinal, milho, açúcar";"Cereais e derivados";"100 g";100;377;4,7;88,8;0,7;0,2;2,1;405
+"Creme de arroz, pó";"Cereais e derivados";"100 g";100;386;7,0;83,9;1,2;0,4;1,1;1
+"Creme de milho, pó";"Cereais e derivados";"100 g";100;333;4,8;86,1;1,6;0,3;3,7;594
+"Curau, milho verde";"Cereais e derivados";"100 g";100;78;2,4;13,9;1,6;0,8;0,5;21
+"Curau, milho verde, mistura para";"Cereais e derivados";"100 g";100;402;2,2;79,8;13,4;3,0;2,5;223
+"Farinha, de arroz, enriquecida";"Cereais e derivados";"100 g";100;363;1,3;85,5;0,3;0,2;0,6;17
+"Farinha, de centeio, integral";"Cereais e derivados";"100 g";100;336;12,5;73,3;1,8;0,3;15,5;41
+"Farinha, de milho, amarela";"Cereais e derivados";"100 g";100;351;7,2;79,1;1,5;0,4;5,5;45
+"Farinha, de rosca";"Cereais e derivados";"100 g";100;371;11,4;75,8;1,5;0,6;4,8;333
+"Farinha, de trigo";"Cereais e derivados";"100 g";100;360;9,8;75,1;1,4;0,3;2,3;1
+"Farinha, láctea, de cereais";"Cereais e derivados";"100 g";100;415;11,9;77,8;5,8;3,3;1,9;125
+"Lasanha, massa fresca, cozida";"Cereais e derivados";"100 g";100;164;5,8;32,5;1,2;0,6;1,6;207
+"Lasanha, massa fresca, crua";"Cereais e derivados";"100 g";100;220;7,0;45,1;1,3;0,5;1,6;667
+"Macarrão, instantâneo";"Cereais e derivados";"100 g";100;436;8,8;62,4;17,2;;5,6;1516
+"Macarrão, trigo, cru";"Cereais e derivados";"100 g";100;371;10,0;77,9;1,3;;2,9;7
+"Macarrão, trigo, cru, com ovos";"Cereais e derivados";"100 g";100;371;10,3;76,6;2,0;0,5;2,3;15
+"Milho, amido, cru";"Cereais e derivados";"100 g";100;361;0,6;87,1;0,0;;0,7;8
+"Milho, fubá, cru";"Cereais e derivados";"100 g";100;353;7,2;78,9;1,9;0,4;4,7;0
+"Milho, verde, cru";"Cereais e derivados";"100 g";100;138;6,6;28,6;0,6;0,2;3,9;1
+"Milho, verde, enlatado, drenado";"Cereais e derivados";"100 g";100;98;3,2;17,1;2,4;0,6;4,6;260
+"Mingau tradicional, pó";"Cereais e derivados";"100 g";100;373;0,6;89,3;0,4;0,1;0,9;15
+"Pamonha, barra para cozimento, pré-cozida";"Cereais e derivados";"100 g";100;171;2,6;30,7;4,8;0,5;2,4;132
+"Pão, aveia, forma";"Cereais e derivados";"100 g";100;343;12,4;59,6;5,7;1,1;6,0;606
+"Pão, de soja";"Cereais e derivados";"100 g";100;309;11,3;56,5;3,6;0,7;5,7;663
+"Pão, glúten, forma";"Cereais e derivados";"100 g";100;253;12,0;44,1;2,7;0,5;2,5;22
+"Pão, milho, forma";"Cereais e derivados";"100 g";100;292;8,3;56,4;3,1;0,6;4,3;507
+"Pão, trigo, forma, integral";"Cereais e derivados";"100 g";100;253;9,4;49,9;3,7;0,7;6,9;506
+"Pão, trigo, francês";"Cereais e derivados";"100 g";100;300;8,0;58,6;3,1;1,0;2,3;648
+"Pão, trigo, sovado";"Cereais e derivados";"100 g";100;311;8,4;61,5;2,8;0,8;2,4;431
+"Pastel, de carne, cru";"Cereais e derivados";"100 g";100;289;10,7;42,0;8,8;3,7;1,0;1309
+"Pastel, de carne, frito";"Cereais e derivados";"100 g";100;388;10,1;43,8;20,1;4,8;1,0;1040
+"Pastel, de queijo, cru";"Cereais e derivados";"100 g";100;308;9,9;45,9;9,6;;1,1;985
+"Pastel, de queijo, frito";"Cereais e derivados";"100 g";100;422;8,7;48,1;22,7;;0,9;821
+"Pastel, massa, crua";"Cereais e derivados";"100 g";100;310;6,9;57,4;5,5;2,1;1,4;1344
+"Pastel, massa, frita";"Cereais e derivados";"100 g";100;570;6,0;49,3;40,9;6,9;1,3;1175
+"Pipoca, com óleo de soja, sem sal";"Cereais e derivados";"100 g";100;448;9,9;70,3;15,9;2,4;14,3;4
+"Polenta, pré-cozida";"Cereais e derivados";"100 g";100;103;2,3;23,3;0,3;;2,4;442
+"Torrada, pão francês";"Cereais e derivados";"100 g";100;377;10,5;74,6;3,3;0,9;3,4;829
+"Abóbora, cabotian, cozida";"Verduras, hortaliças e derivados";"100 g";100;48;1,4;10,8;0,7;0,1;2,5;1
+"Abóbora, cabotian, crua";"Verduras, hortaliças e derivados";"100 g";100;39;1,7;8,4;0,5;0,1;2,2;0
+"Abóbora, menina brasileira, crua";"Verduras, hortaliças e derivados";"100 g";100;14;0,6;3,3;0,0;;1,2;0
+"Abóbora, moranga, crua";"Verduras, hortaliças e derivados";"100 g";100;12;1,0;2,7;0,1;;1,7;0
+"Abóbora, moranga, refogada";"Verduras, hortaliças e derivados";"100 g";100;29;0,4;6,0;0,8;0,1;1,5;3
+"Abóbora, pescoço, crua";"Verduras, hortaliças e derivados";"100 g";100;24;0,7;6,1;0,1;;2,3;1
+"Abobrinha, italiana, cozida";"Verduras, hortaliças e derivados";"100 g";100;15;1,1;3,0;0,2;0,1;1,6;1
+"Abobrinha, italiana, crua";"Verduras, hortaliças e derivados";"100 g";100;19;1,1;4,3;0,1;;1,4;0
+"Abobrinha, italiana, refogada";"Verduras, hortaliças e derivados";"100 g";100;24;1,1;4,2;0,8;0,1;1,4;2
+"Abobrinha, paulista, crua";"Verduras, hortaliças e derivados";"100 g";100;31;0,6;7,9;0,1;;2,6;1
+"Acelga, crua";"Verduras, hortaliças e derivados";"100 g";100;21;1,4;4,6;0,1;;1,1;1
+"Agrião, cru";"Verduras, hortaliças e derivados";"100 g";100;17;2,7;2,3;0,2;;2,1;7
+"Aipo, cru";"Verduras, hortaliças e derivados";"100 g";100;19;0,8;4,3;0,1;;1,0;10
+"Alface, americana, crua";"Verduras, hortaliças e derivados";"100 g";100;9;0,6;1,7;0,1;;1,0;7
+"Alface, crespa, crua";"Verduras, hortaliças e derivados";"100 g";100;11;1,3;1,7;0,2;;1,8;3
+"Alface, lisa, crua";"Verduras, hortaliças e derivados";"100 g";100;14;1,7;2,4;0,1;;2,3;4
+"Alface, roxa, crua";"Verduras, hortaliças e derivados";"100 g";100;13;0,9;2,5;0,2;;2,0;7
+"Alfavaca, crua";"Verduras, hortaliças e derivados";"100 g";100;29;2,7;5,2;0,5;0,1;4,1;5
+"Alho, cru";"Verduras, hortaliças e derivados";"100 g";100;113;7,0;23,9;0,2;;4,3;5
+"Alho-poró, cru";"Verduras, hortaliças e derivados";"100 g";100;32;1,4;6,9;0,1;;2,5;2
+"Almeirão, cru";"Verduras, hortaliças e derivados";"100 g";100;18;1,8;3,3;0,2;;2,6;2
+"Almeirão, refogado";"Verduras, hortaliças e derivados";"100 g";100;65;1,7;5,7;4,8;0,8;3,4;15
+"Batata, baroa, cozida";"Verduras, hortaliças e derivados";"100 g";100;80;0,9;18,9;0,2;;1,8;2
+"Batata, baroa, crua";"Verduras, hortaliças e derivados";"100 g";100;101;1,0;24,0;0,2;;2,1;0
+"Batata, doce, cozida";"Verduras, hortaliças e derivados";"100 g";100;77;0,6;18,4;0,1;;2,2;3
+"Batata, doce, crua";"Verduras, hortaliças e derivados";"100 g";100;118;1,3;28,2;0,1;;2,6;9
+"Batata, frita, tipo chips, industrializada";"Verduras, hortaliças e derivados";"100 g";100;543;5,6;51,2;36,6;12,9;2,5;607
+"Batata, inglesa, cozida";"Verduras, hortaliças e derivados";"100 g";100;52;1,2;11,9;0,0;;1,3;2
+"Batata, inglesa, crua";"Verduras, hortaliças e derivados";"100 g";100;64;1,8;14,7;0,0;;1,2;0
+"Batata, inglesa, frita";"Verduras, hortaliças e derivados";"100 g";100;267;5,0;35,6;13,1;2,1;8,1;2
+"Batata, inglesa, sauté";"Verduras, hortaliças e derivados";"100 g";100;68;1,3;14,1;0,9;0,3;1,4;8
+"Berinjela, cozida";"Verduras, hortaliças e derivados";"100 g";100;19;0,7;4,5;0,1;;2,5;1
+"Berinjela, crua";"Verduras, hortaliças e derivados";"100 g";100;20;1,2;4,4;0,1;;2,9;0
+"Beterraba, cozida";"Verduras, hortaliças e derivados";"100 g";100;32;1,3;7,2;0,1;;1,9;23
+"Beterraba, crua";"Verduras, hortaliças e derivados";"100 g";100;49;1,9;11,1;0,1;;3,4;10
+"Biscoito, polvilho doce";"Verduras, hortaliças e derivados";"100 g";100;438;1,3;80,5;12,2;2,4;1,2;98
+"Brócolis, cozido";"Verduras, hortaliças e derivados";"100 g";100;25;2,1;4,4;0,5;0,1;3,4;2
+"Brócolis, cru";"Verduras, hortaliças e derivados";"100 g";100;25;3,6;4,0;0,3;0,1;2,9;3
+"Cará, cozido";"Verduras, hortaliças e derivados";"100 g";100;78;1,5;18,9;0,1;;2,6;1
+"Cará, cru";"Verduras, hortaliças e derivados";"100 g";100;96;2,3;23,0;0,1;;7,3;0
+"Caruru, cru";"Verduras, hortaliças e derivados";"100 g";100;34;3,2;6,0;0,6;0,1;4,5;14
+"Catalonha, crua";"Verduras, hortaliças e derivados";"100 g";100;24;1,9;4,8;0,3;0,1;2,0;9
+"Catalonha, refogada";"Verduras, hortaliças e derivados";"100 g";100;63;2,0;4,8;4,8;0,7;3,7;25
+"Cebola, crua";"Verduras, hortaliças e derivados";"100 g";100;39;1,7;8,9;0,1;;2,2;1
+"Cebolinha, crua";"Verduras, hortaliças e derivados";"100 g";100;20;1,9;3,4;0,4;;3,6;2
+"Cenoura, cozida";"Verduras, hortaliças e derivados";"100 g";100;30;0,8;6,7;0,2;0,0;2,6;8
+"Cenoura, crua";"Verduras, hortaliças e derivados";"100 g";100;34;1,3;7,7;0,2;;3,2;3
+"Chicória, crua";"Verduras, hortaliças e derivados";"100 g";100;14;1,1;2,9;0,1;;2,2;14
+"Chuchu, cozido";"Verduras, hortaliças e derivados";"100 g";100;19;0,4;4,8;0,0;;1,0;2
+"Chuchu, cru";"Verduras, hortaliças e derivados";"100 g";100;17;0,7;4,1;0,1;;1,3;0
+"Coentro, folhas desidratadas";"Verduras, hortaliças e derivados";"100 g";100;309;20,9;48,0;10,4;;37,3;18
+"Couve, manteiga, crua";"Verduras, hortaliças e derivados";"100 g";100;27;2,9;4,3;0,5;0,1;3,1;6
+"Couve, manteiga, refogada ";"Verduras, hortaliças e derivados";"100 g";100;90;1,7;8,7;6,6;1,0;5,7;11
+"Couve-flor, crua";"Verduras, hortaliças e derivados";"100 g";100;23;1,9;4,5;0,2;;2,4;3
+"Couve-flor, cozida";"Verduras, hortaliças e derivados";"100 g";100;19;1,2;3,9;0,3;0,1;2,1;2
+"Espinafre, Nova Zelândia, cru";"Verduras, hortaliças e derivados";"100 g";100;16;2,0;2,6;0,2;;2,1;17
+"Espinafre, Nova Zelândia, refogado";"Verduras, hortaliças e derivados";"100 g";100;67;2,7;4,2;5,4;0,9;2,5;47
+"Farinha, de mandioca, crua";"Verduras, hortaliças e derivados";"100 g";100;361;1,6;87,9;0,3;0,1;6,4;1
+"Farinha, de mandioca, torrada";"Verduras, hortaliças e derivados";"100 g";100;365;1,2;89,2;0,3;0,1;6,5;10
+"Farinha, de puba";"Verduras, hortaliças e derivados";"100 g";100;360;1,6;87,3;0,5;0,2;4,2;4
+"Fécula, de mandioca";"Verduras, hortaliças e derivados";"100 g";100;331;0,5;81,1;0,3;;0,6;2
+"Feijão, broto, cru";"Verduras, hortaliças e derivados";"100 g";100;39;4,2;7,8;0,1;;2,0;2
+"Inhame, cru";"Verduras, hortaliças e derivados";"100 g";100;97;2,1;23,2;0,2;0,1;1,7;0
+"Jiló, cru";"Verduras, hortaliças e derivados";"100 g";100;27;1,4;6,2;0,2;0,1;4,8;0
+"Jurubeba, crua";"Verduras, hortaliças e derivados";"100 g";100;126;4,4;23,1;3,9;0,5;23,9;1
+"Mandioca, cozida";"Verduras, hortaliças e derivados";"100 g";100;125;0,6;30,1;0,3;0,1;1,6;1
+"Mandioca, crua";"Verduras, hortaliças e derivados";"100 g";100;151;1,1;36,2;0,3;0,1;1,9;2
+"Mandioca, farofa, temperada";"Verduras, hortaliças e derivados";"100 g";100;406;2,1;80,3;9,1;1,9;7,8;575
+"Mandioca, frita";"Verduras, hortaliças e derivados";"100 g";100;300;1,4;50,3;11,2;1,7;1,9;9
+"Manjericão, cru";"Verduras, hortaliças e derivados";"100 g";100;21;2,0;3,6;0,4;0,1;3,3;4
+"Maxixe, cru";"Verduras, hortaliças e derivados";"100 g";100;14;1,4;2,7;0,1;;2,2;11
+"Mostarda, folha, crua";"Verduras, hortaliças e derivados";"100 g";100;18;2,1;3,2;0,2;;1,9;3
+"Nhoque, batata, cozido";"Verduras, hortaliças e derivados";"100 g";100;181;5,9;36,8;1,9;0,6;1,8;7
+"Nabo, cru";"Verduras, hortaliças e derivados";"100 g";100;18;1,2;4,1;0,1;;2,6;2
+"Palmito, juçara, em conserva";"Verduras, hortaliças e derivados";"100 g";100;23;1,8;4,3;0,4;0,1;3,2;514
+"Palmito, pupunha, em conserva";"Verduras, hortaliças e derivados";"100 g";100;29;2,5;5,5;0,5;;2,6;563
+"Pão, de queijo, assado";"Verduras, hortaliças e derivados";"100 g";100;363;5,1;34,2;24,6;;0,6;773
+"Pão, de queijo, cru";"Verduras, hortaliças e derivados";"100 g";100;295;3,6;38,5;14,0;3,4;1,0;405
+"Pepino, cru";"Verduras, hortaliças e derivados";"100 g";100;10;0,9;2,0;0,0;;1,1;0
+"Pimentão, amarelo, cru";"Verduras, hortaliças e derivados";"100 g";100;28;1,2;6,0;0,4;;1,9;0
+"Pimentão, verde, cru";"Verduras, hortaliças e derivados";"100 g";100;21;1,1;4,9;0,2;;2,6;0
+"Pimentão, vermelho, cru";"Verduras, hortaliças e derivados";"100 g";100;23;1,0;5,5;0,1;;1,6;0
+"Polvilho, doce";"Verduras, hortaliças e derivados";"100 g";100;351;0,4;86,8;0,0;;0,2;2
+"Quiabo, cru";"Verduras, hortaliças e derivados";"100 g";100;30;1,9;6,4;0,3;;4,6;1
+"Rabanete, cru";"Verduras, hortaliças e derivados";"100 g";100;14;1,4;2,7;0,1;;2,2;11
+"Repolho, branco, cru";"Verduras, hortaliças e derivados";"100 g";100;17;0,9;3,9;0,1;;1,9;4
+"Repolho, roxo, cru";"Verduras, hortaliças e derivados";"100 g";100;31;1,9;7,2;0,1;;2,0;2
+"Repolho, roxo, refogado";"Verduras, hortaliças e derivados";"100 g";100;42;1,8;7,6;1,2;0,2;1,8;3
+"Rúcula, crua";"Verduras, hortaliças e derivados";"100 g";100;13;1,8;2,2;0,1;;1,7;9
+"Salsa, crua";"Verduras, hortaliças e derivados";"100 g";100;33;3,3;5,7;0,6;0,1;1,9;2
+"Seleta de legumes, enlatada";"Verduras, hortaliças e derivados";"100 g";100;57;3,4;12,7;0,4;0,1;3,1;398
+"Serralha, crua";"Verduras, hortaliças e derivados";"100 g";100;30;2,7;4,9;0,7;0,1;3,5;19
+"Taioba, crua";"Verduras, hortaliças e derivados";"100 g";100;34;2,9;5,4;0,9;0,2;4,5;1
+"Tomate, com semente, cru";"Verduras, hortaliças e derivados";"100 g";100;15;1,1;3,1;0,2;;1,2;1
+"Tomate, extrato";"Verduras, hortaliças e derivados";"100 g";100;61;2,4;15,0;0,2;;2,8;498
+"Tomate, molho industrializado";"Verduras, hortaliças e derivados";"100 g";100;38;1,4;7,7;0,9;0,1;3,1;418
+"Tomate, purê";"Verduras, hortaliças e derivados";"100 g";100;28;1,4;6,9;0,0;;1,0;104
+"Tomate, salada";"Verduras, hortaliças e derivados";"100 g";100;21;0,8;5,1;0,0;;2,3;5
+"Vagem, crua";"Verduras, hortaliças e derivados";"100 g";100;25;1,8;5,3;0,2;;2,4;0
+"Abacate, cru";"Frutas e derivados";"100 g";100;96;1,2;6,0;8,4;2,3;6,3;0
+"Abacaxi, cru";"Frutas e derivados";"100 g";100;48;0,9;12,3;0,1;;1,0;0
+"Abacaxi, polpa, congelada";"Frutas e derivados";"100 g";100;31;0,5;7,8;0,1;;0,3;1
+"Abiu, cru";"Frutas e derivados";"100 g";100;62;0,8;14,9;0,7;0,3;1,7;0
+"Açaí, polpa, com xarope de guaraná e glucose";"Frutas e derivados";"100 g";100;110;0,7;21,5;3,7;0,7;1,7;15
+"Açaí, polpa, congelada";"Frutas e derivados";"100 g";100;58;0,8;6,2;3,9;0,7;2,6;5
+"Acerola, crua";"Frutas e derivados";"100 g";100;33;0,9;8,0;0,2;;1,5;0
+"Acerola, polpa, congelada";"Frutas e derivados";"100 g";100;22;0,6;5,5;0,0;;0,7;1
+"Ameixa, calda, enlatada ";"Frutas e derivados";"100 g";100;183;0,4;46,9;0,0;;0,5;3
+"Ameixa, crua";"Frutas e derivados";"100 g";100;53;0,8;13,9;0,0;;2,4;0
+"Ameixa, em calda, enlatada, drenada ";"Frutas e derivados";"100 g";100;177;1,0;47,7;0,3;0,1;4,5;3
+"Atemóia, crua";"Frutas e derivados";"100 g";100;97;1,0;25,3;0,3;0,1;2,1;1
+"Banana, da terra, crua";"Frutas e derivados";"100 g";100;128;1,4;33,7;0,2;;1,5;0
+"Banana, doce em barra";"Frutas e derivados";"100 g";100;280;2,2;75,7;0,1;;3,8;10
+"Banana, figo, crua";"Frutas e derivados";"100 g";100;105;1,1;27,8;0,1;;2,8;0
+"Banana, maçã, crua";"Frutas e derivados";"100 g";100;87;1,8;22,3;0,1;;2,6;0
+"Banana, nanica, crua";"Frutas e derivados";"100 g";100;92;1,4;23,8;0,1;;1,9;0
+"Banana, ouro, crua";"Frutas e derivados";"100 g";100;112;1,5;29,3;0,2;;2,0;0
+"Banana, pacova, crua";"Frutas e derivados";"100 g";100;78;1,2;20,3;0,1;;2,0;1
+"Banana, prata, crua";"Frutas e derivados";"100 g";100;98;1,3;26,0;0,1;;2,0;0
+"Cacau, cru";"Frutas e derivados";"100 g";100;74;1,0;19,4;0,1;;2,2;1
+"Cajá-Manga, cru";"Frutas e derivados";"100 g";100;46;1,3;11,4;0,0;;2,6;1
+"Cajá, polpa, congelada";"Frutas e derivados";"100 g";100;26;0,6;6,4;0,2;;1,4;7
+"Caju, cru";"Frutas e derivados";"100 g";100;43;1,0;10,3;0,3;;1,7;3
+"Caju, polpa, congelada";"Frutas e derivados";"100 g";100;37;0,5;9,4;0,2;;0,8;4
+"Caju, suco concentrado, envasado";"Frutas e derivados";"100 g";100;45;0,4;10,7;0,2;;0,6;45
+"Caqui, chocolate, cru";"Frutas e derivados";"100 g";100;71;0,4;19,3;0,1;;6,5;2
+"Carambola, crua";"Frutas e derivados";"100 g";100;46;0,9;11,5;0,2;;2,0;4
+"Ciriguela, crua";"Frutas e derivados";"100 g";100;76;1,4;18,9;0,4;0,2;3,9;2
+"Cupuaçu, cru";"Frutas e derivados";"100 g";100;49;1,2;10,4;1,0;0,4;3,1;3
+"Cupuaçu, polpa, congelada";"Frutas e derivados";"100 g";100;49;0,8;11,4;0,6;0,3;1,6;1
+"Figo, cru";"Frutas e derivados";"100 g";100;41;1,0;10,2;0,2;;1,8;0
+"Figo, enlatado, em calda";"Frutas e derivados";"100 g";100;184;0,6;50,3;0,2;;2,0;7
+"Fruta-pão, crua";"Frutas e derivados";"100 g";100;67;1,1;17,2;0,2;0,1;5,5;1
+"Goiaba, branca, com casca, crua";"Frutas e derivados";"100 g";100;52;0,9;12,4;0,5;0,1;6,3;0
+"Goiaba, doce em pasta";"Frutas e derivados";"100 g";100;269;0,6;74,1;0,0;;3,7;4
+"Goiaba, doce, cascão";"Frutas e derivados";"100 g";100;286;0,4;78,7;0,1;;4,4;11
+"Goiaba, vermelha, com casca, crua";"Frutas e derivados";"100 g";100;54;1,1;13,0;0,4;0,1;6,2;0
+"Graviola, crua";"Frutas e derivados";"100 g";100;62;0,8;15,8;0,2;0,0;1,9;4
+"Graviola, polpa, congelada";"Frutas e derivados";"100 g";100;38;0,6;9,8;0,1;;1,2;3
+"Jabuticaba, crua";"Frutas e derivados";"100 g";100;58;0,6;15,3;0,1;;2,3;0
+"Jaca, crua";"Frutas e derivados";"100 g";100;88;1,4;22,5;0,3;0,1;2,4;2
+"Jambo, cru";"Frutas e derivados";"100 g";100;27;0,9;6,5;0,1;;5,1;22
+"Jamelão, cru";"Frutas e derivados";"100 g";100;41;0,5;10,6;0,1;;1,8;1
+"Kiwi, cru";"Frutas e derivados";"100 g";100;51;1,3;11,5;0,6;0,1;2,7;0
+"Laranja, baía, crua";"Frutas e derivados";"100 g";100;45;1,0;11,5;0,1;;1,1;0
+"Laranja, baía, suco";"Frutas e derivados";"100 g";100;37;0,7;8,7;0,0;;0,0;0
+"Laranja, da terra, crua";"Frutas e derivados";"100 g";100;51;1,1;12,9;0,2;;4,0;1
+"Laranja, da terra, suco";"Frutas e derivados";"100 g";100;41;0,7;9,6;0,1;;1,0;0
+"Laranja, lima, crua";"Frutas e derivados";"100 g";100;46;1,1;11,5;0,1;;1,8;1
+"Laranja, lima, suco";"Frutas e derivados";"100 g";100;39;0,7;9,2;0,1;;0,4;0
+"Laranja, pêra, crua";"Frutas e derivados";"100 g";100;37;1,0;8,9;0,1;;0,8;0
+"Laranja, pêra, suco";"Frutas e derivados";"100 g";100;33;0,7;7,6;0,1;;0,0;0
+"Laranja, valência, crua";"Frutas e derivados";"100 g";100;46;0,8;11,7;0,2;;1,7;1
+"Laranja, valência, suco";"Frutas e derivados";"100 g";100;36;0,5;8,6;0,1;;0,4;0
+"Limão, cravo, suco";"Frutas e derivados";"100 g";100;14;0,3;5,2;0,0;;0,0;0
+"Limão, galego, suco";"Frutas e derivados";"100 g";100;22;0,6;7,3;0,1;;0,0;0
+"Limão, tahiti, cru";"Frutas e derivados";"100 g";100;32;0,9;11,1;0,1;;1,2;1
+"Maçã, Argentina, com casca, crua";"Frutas e derivados";"100 g";100;63;0,2;16,6;0,2;0,1;2,0;1
+"Maçã, Fuji, com casca, crua";"Frutas e derivados";"100 g";100;56;0,3;15,2;0,0;;1,3;0
+"Macaúba, crua";"Frutas e derivados";"100 g";100;404;2,1;13,9;40,7;7,1;13,4;1
+" Mamão, doce em calda, drenado";"Frutas e derivados";"100 g";100;196;0,2;54,0;0,1;;1,3;3
+"Mamão, Formosa, cru";"Frutas e derivados";"100 g";100;45;0,8;11,6;0,1;;1,8;3
+"Mamão, Papaia, cru";"Frutas e derivados";"100 g";100;40;0,5;10,4;0,1;;1,0;2
+" Mamão verde, doce em calda, drenado";"Frutas e derivados";"100 g";100;209;0,3;57,6;0,1;;1,2;5
+"Manga, Haden, crua";"Frutas e derivados";"100 g";100;64;0,4;16,7;0,3;0,1;1,6;1
+"Manga, Palmer, crua";"Frutas e derivados";"100 g";100;72;0,4;19,4;0,2;;1,6;2
+"Manga, polpa, congelada";"Frutas e derivados";"100 g";100;48;0,4;12,5;0,2;0,1;1,1;7
+"Manga, Tommy Atkins, crua";"Frutas e derivados";"100 g";100;51;0,9;12,8;0,2;0,1;2,1;0
+"Maracujá, cru";"Frutas e derivados";"100 g";100;68;2,0;12,3;2,1;0,2;1,1;2
+"Maracujá, polpa, congelada";"Frutas e derivados";"100 g";100;39;0,8;9,6;0,2;;0,5;8
+"Maracujá, suco concentrado, envasado";"Frutas e derivados";"100 g";100;42;0,8;9,6;0,2;;0,4;22
+"Melancia, crua";"Frutas e derivados";"100 g";100;33;0,9;8,1;0,0;;0,1;0
+"Melão, cru";"Frutas e derivados";"100 g";100;29;0,7;7,5;0,0;;0,3;11
+"Mexerica, Murcote, crua";"Frutas e derivados";"100 g";100;58;0,9;14,9;0,1;;3,1;1
+"Mexerica, Rio, crua";"Frutas e derivados";"100 g";100;37;0,7;9,3;0,1;;2,7;2
+"Morango, cru";"Frutas e derivados";"100 g";100;30;0,9;6,8;0,3;;1,7;0
+"Nêspera, crua";"Frutas e derivados";"100 g";100;43;0,3;11,5;0,0;;3,0;0
+"Pequi, cru";"Frutas e derivados";"100 g";100;205;2,3;13,0;18,0;;19,0;0
+"Pêra, Park, crua";"Frutas e derivados";"100 g";100;61;0,2;16,1;0,2;0,1;3,0;1
+"Pêra, Williams, crua";"Frutas e derivados";"100 g";100;53;0,6;14,0;0,1;;3,0;0
+"Pêssego, Aurora, cru";"Frutas e derivados";"100 g";100;36;0,8;9,3;0,0;;1,4;0
+"Pêssego, enlatado, em calda";"Frutas e derivados";"100 g";100;63;0,7;16,9;0,0;;1,0;3
+"Pinha, crua";"Frutas e derivados";"100 g";100;88;1,5;22,4;0,3;0,1;3,4;1
+"Pitanga, crua";"Frutas e derivados";"100 g";100;41;0,9;10,2;0,2;;3,2;2
+"Pitanga, polpa, congelada";"Frutas e derivados";"100 g";100;19;0,3;4,8;0,1;;0,7;5
+"Romã, crua";"Frutas e derivados";"100 g";100;56;0,4;15,1;0,0;;0,4;1
+"Tamarindo, cru";"Frutas e derivados";"100 g";100;276;3,2;72,5;0,5;0,1;6,4;0
+"Tangerina, Poncã, crua";"Frutas e derivados";"100 g";100;38;0,8;9,6;0,1;;0,9;0
+"Tangerina, Poncã, suco";"Frutas e derivados";"100 g";100;36;0,5;8,8;0,0;;0,0;0
+"Tucumã, cru";"Frutas e derivados";"100 g";100;262;2,1;26,5;19,1;4,7;12,7;4
+"Umbu, cru";"Frutas e derivados";"100 g";100;37;0,8;9,4;0,0;;2,0;0
+"Umbu, polpa, congelada";"Frutas e derivados";"100 g";100;34;0,5;8,8;0,1;;1,3;6
+"Uva, Itália, crua";"Frutas e derivados";"100 g";100;53;0,7;13,6;0,2;;0,9;0
+"Uva, Rubi, crua";"Frutas e derivados";"100 g";100;49;0,6;12,7;0,2;;0,9;8
+"Uva, suco concentrado, envasado";"Frutas e derivados";"100 g";100;58;0,0;14,7;0,0;;0,2;10
+"Azeite, de dendê";"Gorduras e óleos";"100 g";100;884;;;100,0;43,1;;
+"Azeite, de oliva, extra virgem";"Gorduras e óleos";"100 g";100;884;;;100,0;14,9;;
+"Manteiga, com sal";"Gorduras e óleos";"100 g";100;726;0,4;0,1;82,4;49,2;;579
+"Manteiga, sem sal";"Gorduras e óleos";"100 g";100;758;0,4;0,0;86,0;51,5;;4
+"Margarina, com óleo hidrogenado, com sal (65% de lipídeos)";"Gorduras e óleos";"100 g";100;596;0,0;0,0;67,4;14,9;;894
+"Margarina, com óleo hidrogenado, sem sal (80% de lipídeos)";"Gorduras e óleos";"100 g";100;723;0,0;0,0;81,7;;;78
+"Margarina, com óleo interesterificado, com sal (65%de lipídeos)";"Gorduras e óleos";"100 g";100;594;0,0;0,0;67,2;21,9;;561
+"Margarina, com óleo interesterificado, sem sal (65% de lipídeos)";"Gorduras e óleos";"100 g";100;593;0,0;0,0;67,1;20,9;;33
+"Óleo, de babaçu";"Gorduras e óleos";"100 g";100;884;;;100,0;50,9;;
+"Óleo, de canola";"Gorduras e óleos";"100 g";100;884;;;100,0;7,9;;
+"Óleo, de girassol";"Gorduras e óleos";"100 g";100;884;;;100,0;10,8;;
+"Óleo, de milho";"Gorduras e óleos";"100 g";100;884;;;100,0;15,2;;
+"Óleo, de pequi";"Gorduras e óleos";"100 g";100;884;;;100,0;39,9;;
+"Óleo, de soja";"Gorduras e óleos";"100 g";100;884;;;100,0;15,2;;
+"Abadejo, filé, congelado, assado";"Pescados e frutos do mar";"100 g";100;112;23,5;0,0;1,2;0,6;;334
+"Abadejo, filé, congelado,cozido";"Pescados e frutos do mar";"100 g";100;91;19,3;0,0;0,9;0,4;;189
+"Abadejo, filé, congelado, cru";"Pescados e frutos do mar";"100 g";100;59;13,1;0,0;0,4;0,1;;79
+"Abadejo, filé, congelado, grelhado";"Pescados e frutos do mar";"100 g";100;130;27,6;0,0;1,3;0,6;;305
+"Atum, conserva em óleo";"Pescados e frutos do mar";"100 g";100;166;26,2;0,0;6,0;1,0;;362
+"Atum, fresco, cru";"Pescados e frutos do mar";"100 g";100;118;25,7;0,0;0,9;0,5;;30
+"Bacalhau, salgado, cru";"Pescados e frutos do mar";"100 g";100;136;29,0;0,0;1,3;0,6;;13585
+"Bacalhau, salgado, refogado";"Pescados e frutos do mar";"100 g";100;140;24,0;1,2;3,6;0,9;;1256
+"Cação, posta, com farinha de trigo, frita";"Pescados e frutos do mar";"100 g";100;208;25,0;3,1;10,0;1,5;0,5;160
+"Cação, posta, cozida";"Pescados e frutos do mar";"100 g";100;116;25,6;0,0;0,7;0,2;;115
+"Cação, posta, crua";"Pescados e frutos do mar";"100 g";100;83;17,9;0,0;0,8;0,1;;176
+"Camarão, Rio Grande, grande, cozido";"Pescados e frutos do mar";"100 g";100;90;19,0;0,0;1,0;0,4;;367
+"Camarão, Rio Grande, grande, cru";"Pescados e frutos do mar";"100 g";100;47;10,0;0,0;0,5;0,1;;201
+"Camarão, Sete Barbas, sem cabeça, com casca, frito";"Pescados e frutos do mar";"100 g";100;231;18,4;2,9;15,6;2,5;;99
+"Caranguejo, cozido";"Pescados e frutos do mar";"100 g";100;83;18,5;0,0;0,4;0,2;;360
+"Corimba, cru";"Pescados e frutos do mar";"100 g";100;128;17,4;0,0;6,0;2,5;;47
+"Corimbatá, assado";"Pescados e frutos do mar";"100 g";100;261;19,9;0,0;19,6;4,8;;40
+"Corimbatá, cozido";"Pescados e frutos do mar";"100 g";100;239;20,1;0,0;16,9;4,5;;37
+"Corvina de água doce, crua";"Pescados e frutos do mar";"100 g";100;101;18,9;0,0;2,2;1,2;;45
+"Corvina do mar, crua";"Pescados e frutos do mar";"100 g";100;94;18,6;0,0;1,6;0,7;;68
+"Corvina grande, assada";"Pescados e frutos do mar";"100 g";100;147;26,8;0,0;3,6;1,5;;85
+"Corvina grande, cozida";"Pescados e frutos do mar";"100 g";100;100;23,4;0,0;2,6;0,7;;68
+"Dourada de água doce, fresca";"Pescados e frutos do mar";"100 g";100;131;18,8;0,0;5,6;3,0;;40
+"Lambari, congelado, cru";"Pescados e frutos do mar";"100 g";100;131;16,8;0,0;6,5;2,0;;48
+"Lambari, congelado, frito";"Pescados e frutos do mar";"100 g";100;327;28,4;0,0;22,8;5,5;;65
+"Lambari, fresco, cru";"Pescados e frutos do mar";"100 g";100;152;15,7;0,0;9,4;3,4;;41
+"Manjuba, com farinha de trigo, frita";"Pescados e frutos do mar";"100 g";100;344;23,5;10,2;22,6;5,5;0,4;37
+"Manjuba, frita";"Pescados e frutos do mar";"100 g";100;349;30,1;0,0;24,5;5,3;;41
+"Merluza, filé, assado";"Pescados e frutos do mar";"100 g";100;122;26,6;0,0;0,9;0,2;;120
+"Merluza, filé, cru";"Pescados e frutos do mar";"100 g";100;89;16,6;0,0;2,0;0,9;;80
+"Merluza, filé, frito";"Pescados e frutos do mar";"100 g";100;192;26,9;0,0;8,5;1,4;;90
+"Pescada, branca, crua";"Pescados e frutos do mar";"100 g";100;111;16,3;0,0;4,6;0,8;;76
+"Pescada, branca, frita";"Pescados e frutos do mar";"100 g";100;223;27,4;0,0;11,8;2,3;;107
+"Pescada, filé, com farinha de trigo, frito";"Pescados e frutos do mar";"100 g";100;283;21,4;5,0;19,1;2,2;0,0;91
+"Pescada, filé, cru";"Pescados e frutos do mar";"100 g";100;107;16,7;0,0;4,0;0,9;;77
+"Pescada, filé, frito";"Pescados e frutos do mar";"100 g";100;154;28,6;0,0;3,6;1,0;;115
+"Pescada, filé, molho escabeche";"Pescados e frutos do mar";"100 g";100;142;11,8;5,0;8,0;1,3;0,8;51
+"Pescadinha, crua";"Pescados e frutos do mar";"100 g";100;76;15,5;0,0;1,1;0,3;;120
+"Pintado, assado";"Pescados e frutos do mar";"100 g";100;192;36,5;0,0;4,0;1,8;;81
+"Pintado, cru";"Pescados e frutos do mar";"100 g";100;91;18,6;0,0;1,3;0,6;;43
+"Pintado, grelhado";"Pescados e frutos do mar";"100 g";100;152;30,8;0,0;2,3;1,1;;53
+"Porquinho, cru";"Pescados e frutos do mar";"100 g";100;93;20,5;0,0;0,6;0,4;;67
+"Salmão, filé, com pele, fresco,  grelhado";"Pescados e frutos do mar";"100 g";100;229;23,9;0,0;14,0;3,1;;85
+"Salmão, sem pele, fresco, cru";"Pescados e frutos do mar";"100 g";100;170;19,3;0,0;9,7;2,5;;64
+"Salmão, sem pele, fresco, grelhado";"Pescados e frutos do mar";"100 g";100;243;26,1;0,0;14,5;3,6;;96
+"Sardinha, assada";"Pescados e frutos do mar";"100 g";100;164;32,2;0,0;3,0;1,7;;74
+"Sardinha, conserva em óleo";"Pescados e frutos do mar";"100 g";100;285;15,9;0,0;24,0;4,1;;666
+"Sardinha, frita";"Pescados e frutos do mar";"100 g";100;257;33,4;0,0;12,7;2,6;;60
+"Sardinha, inteira, crua";"Pescados e frutos do mar";"100 g";100;114;21,1;0,0;2,7;1,7;;60
+"Tucunaré, filé, congelado, cru";"Pescados e frutos do mar";"100 g";100;88;18,0;0,0;1,2;0,6;;57
+"Apresuntado";"Carnes e derivados";"100 g";100;129;13,5;2,9;6,7;1,9;;943
+"Caldo de carne, tablete";"Carnes e derivados";"100 g";100;241;7,8;15,1;16,6;7,8;0,6;22180
+"Caldo de galinha, tablete";"Carnes e derivados";"100 g";100;251;6,3;10,6;20,4;9,4;11,8;22300
+"Carne, bovina, acém, moído, cozido";"Carnes e derivados";"100 g";100;212;26,7;0,0;10,9;4,8;;52
+"Carne, bovina, acém, moído, cru";"Carnes e derivados";"100 g";100;137;19,4;0,0;5,9;2,7;;49
+"Carne, bovina, acém, sem gordura, cozido";"Carnes e derivados";"100 g";100;215;27,3;0,0;10,9;5,5;;56
+"Carne, bovina, acém, sem gordura, cru";"Carnes e derivados";"100 g";100;144;20,8;0,0;6,1;2,8;;50
+"Carne, bovina, almôndegas, cruas";"Carnes e derivados";"100 g";100;189;12,3;9,8;11,2;3,9;;621
+"Carne, bovina, almôndegas, fritas";"Carnes e derivados";"100 g";100;272;18,2;14,3;15,8;4,2;;1030
+"Carne, bovina, bucho, cozido";"Carnes e derivados";"100 g";100;133;21,6;0,0;4,5;2,4;;38
+"Carne, bovina, bucho, cru";"Carnes e derivados";"100 g";100;137;20,5;0,0;5,5;3,3;;45
+"Carne, bovina, capa de contra-filé, com gordura, crua";"Carnes e derivados";"100 g";100;217;19,2;0,0;15,0;6,9;;58
+"Carne, bovina, capa de contra-filé, com gordura, grelhada";"Carnes e derivados";"100 g";100;312;30,7;0,0;20,0;8,8;;81
+"Carne, bovina, capa de contra-filé, sem gordura, crua";"Carnes e derivados";"100 g";100;131;21,5;0,0;4,3;1,9;;79
+"Carne, bovina, capa de contra-filé, sem gordura, grelhada";"Carnes e derivados";"100 g";100;239;35,1;0,0;10,0;4,3;;83
+"Carne, bovina, charque, cozido";"Carnes e derivados";"100 g";100;263;36,4;0,0;11,9;4,8;;1443
+"Carne, bovina, charque, cru";"Carnes e derivados";"100 g";100;249;22,7;0,0;16,8;8,7;;5875
+"Carne, bovina, contra-filé, à milanesa";"Carnes e derivados";"100 g";100;352;20,6;12,2;24,0;7,2;0,4;77
+"Carne, bovina, contra-filé de costela, cru";"Carnes e derivados";"100 g";100;202;19,8;0,0;13,1;6,7;;39
+"Carne, bovina, contra-filé de costela, grelhado";"Carnes e derivados";"100 g";100;275;29,9;0,0;16,3;8,8;;51
+"Carne, bovina, contra-filé, com gordura, cru";"Carnes e derivados";"100 g";100;206;21,2;0,0;12,8;5,6;;44
+"Carne, bovina, contra-filé, com gordura, grelhado";"Carnes e derivados";"100 g";100;278;32,4;0,0;15,5;7,4;;57
+"Carne, bovina, contra-filé, sem gordura, cru";"Carnes e derivados";"100 g";100;157;24,0;0,0;6,0;2,7;;53
+"Carne, bovina, contra-filé, sem gordura, grelhado";"Carnes e derivados";"100 g";100;194;35,9;0,0;4,5;2,0;;58
+"Carne, bovina, costela, assada";"Carnes e derivados";"100 g";100;373;28,8;0,0;27,7;11,8;;92
+"Carne, bovina, costela, crua";"Carnes e derivados";"100 g";100;358;16,7;0,0;31,8;14,9;;70
+"Carne, bovina, coxão duro, sem gordura, cozido";"Carnes e derivados";"100 g";100;217;31,9;0,0;8,9;3,5;;41
+"Carne, bovina, coxão duro, sem gordura, cru";"Carnes e derivados";"100 g";100;148;21,5;0,0;6,2;2,9;;49
+"Carne, bovina, coxão mole, sem gordura, cozido";"Carnes e derivados";"100 g";100;219;32,4;0,0;8,9;4,3;;44
+"Carne, bovina, coxão mole, sem gordura, cru";"Carnes e derivados";"100 g";100;169;21,2;0,0;8,7;3,9;;61
+"Carne, bovina, cupim, assado";"Carnes e derivados";"100 g";100;330;28,6;0,0;23,0;5,5;;72
+"Carne, bovina, cupim, cru";"Carnes e derivados";"100 g";100;221;19,5;0,0;15,3;6,8;;47
+"Carne, bovina, fígado, cru";"Carnes e derivados";"100 g";100;141;20,7;1,1;5,4;2,8;;76
+"Carne, bovina, fígado, grelhado";"Carnes e derivados";"100 g";100;225;29,9;4,2;9,0;4,7;;82
+"Carne, bovina, filé mingnon, sem gordura, cru";"Carnes e derivados";"100 g";100;143;21,6;0,0;5,6;2,9;;49
+"Carne, bovina, filé mingnon, sem gordura, grelhado";"Carnes e derivados";"100 g";100;220;32,8;0,0;8,8;4,5;;58
+"Carne, bovina, flanco, sem gordura, cozido";"Carnes e derivados";"100 g";100;196;29,4;0,0;7,8;3,9;;42
+"Carne, bovina, flanco, sem gordura, cru";"Carnes e derivados";"100 g";100;141;20,0;0,0;6,2;3,1;;54
+"Carne, bovina, fraldinha, com gordura, cozida";"Carnes e derivados";"100 g";100;338;24,2;0,0;26,0;12,1;;39
+"Carne, bovina, fraldinha, com gordura, crua";"Carnes e derivados";"100 g";100;221;17,6;0,0;16,1;7,3;;51
+"Carne, bovina, lagarto, cozido";"Carnes e derivados";"100 g";100;222;32,9;0,0;9,1;3,9;;48
+"Carne, bovina, lagarto, cru";"Carnes e derivados";"100 g";100;135;20,5;0,0;5,2;2,3;;54
+"Carne, bovina, língua, cozida";"Carnes e derivados";"100 g";100;315;21,4;0,0;24,8;11,2;;59
+"Carne, bovina, língua, crua";"Carnes e derivados";"100 g";100;215;17,1;0,0;15,8;6,8;;73
+"Carne, bovina, maminha, crua";"Carnes e derivados";"100 g";100;153;20,9;0,0;7,0;3,1;;37
+"Carne, bovina, maminha, grelhada";"Carnes e derivados";"100 g";100;153;30,7;0,0;2,4;9,7;;58
+"Carne, bovina, miolo de alcatra, sem gordura, cru";"Carnes e derivados";"100 g";100;163;21,6;0,0;7,8;3,4;;43
+"Carne, bovina, miolo de alcatra, sem gordura, grelhado";"Carnes e derivados";"100 g";100;241;31,9;0,0;11,6;5,1;;52
+"Carne, bovina, músculo, sem gordura, cozido";"Carnes e derivados";"100 g";100;194;31,2;0,0;6,7;2,9;;62
+"Carne, bovina, músculo, sem gordura, cru";"Carnes e derivados";"100 g";100;142;21,6;0,0;5,5;2,2;;66
+"Carne, bovina, paleta, com gordura, crua";"Carnes e derivados";"100 g";100;159;21,4;0,0;7,5;3,5;;65
+"Carne, bovina, paleta, sem gordura, cozida";"Carnes e derivados";"100 g";100;194;29,7;0,0;7,4;3,4;;58
+"Carne, bovina, paleta, sem gordura, crua";"Carnes e derivados";"100 g";100;141;21,0;0,0;5,7;2,7;;66
+"Carne, bovina, patinho, sem gordura, cru";"Carnes e derivados";"100 g";100;133;21,7;0,0;4,5;2,0;;49
+"Carne, bovina, patinho, sem gordura, grelhado";"Carnes e derivados";"100 g";100;219;35,9;0,0;7,3;3,1;;60
+"Carne, bovina, peito, sem gordura, cozido";"Carnes e derivados";"100 g";100;338;22,2;0,0;27,0;11,7;;56
+"Carne, bovina, peito, sem gordura, cru";"Carnes e derivados";"100 g";100;259;17,6;0,0;20,4;8,2;;64
+"Carne, bovina, picanha, com gordura, crua";"Carnes e derivados";"100 g";100;213;18,8;0,0;14,7;6,1;;38
+"Carne, bovina, picanha, com gordura, grelhada";"Carnes e derivados";"100 g";100;289;26,4;0,0;19,5;7,9;;60
+"Carne, bovina, picanha, sem gordura, crua";"Carnes e derivados";"100 g";100;134;21,3;0,0;4,7;2,0;;61
+"Carne, bovina, picanha, sem gordura, grelhada";"Carnes e derivados";"100 g";100;238;31,9;0,0;11,3;4,5;;61
+"Carne, bovina, seca, cozida";"Carnes e derivados";"100 g";100;313;26,9;0,0;21,9;10,5;;1943
+"Carne, bovina, seca, crua";"Carnes e derivados";"100 g";100;313;19,7;0,0;25,4;8,7;;4440
+"Coxinha de frango, frita";"Carnes e derivados";"100 g";100;283;9,6;34,5;11,8;2,6;5,0;532
+"Croquete, de carne, cru";"Carnes e derivados";"100 g";100;246;12,0;13,9;15,6;;;711
+"Croquete, de carne, frito";"Carnes e derivados";"100 g";100;347;16,9;18,1;22,7;5,1;;916
+"Empada de frango, pré-cozida, assada";"Carnes e derivados";"100 g";100;358;6,9;47,5;15,6;;2,2;525
+"Empada, de frango, pré-cozida";"Carnes e derivados";"100 g";100;377;7,3;35,5;22,9;5,4;2,2;771
+"Frango, asa, com pele, crua";"Carnes e derivados";"100 g";100;213;18,1;0,0;15,1;4,4;;96
+"Frango, caipira, inteiro, com pele, cozido";"Carnes e derivados";"100 g";100;243;23,9;0,0;15,6;4,4;;56
+"Frango, caipira, inteiro, sem pele, cozido";"Carnes e derivados";"100 g";100;196;29,6;0,0;7,7;2,2;;53
+"Frango, coração, cru";"Carnes e derivados";"100 g";100;222;12,6;0,0;18,6;4,9;;95
+"Frango, coração, grelhado";"Carnes e derivados";"100 g";100;207;22,4;0,6;12,1;3,5;;128
+"Frango, coxa, com pele, assada";"Carnes e derivados";"100 g";100;215;28,5;0,1;10,4;3,1;;95
+"Frango, coxa, com pele, crua";"Carnes e derivados";"100 g";100;161;17,1;0,0;9,8;3,0;;95
+"Frango, coxa, sem pele, cozida";"Carnes e derivados";"100 g";100;167;26,9;0,0;5,8;2,0;;64
+"Frango, coxa, sem pele, crua";"Carnes e derivados";"100 g";100;120;17,8;0,0;4,9;1,6;;98
+"Frango, fígado, cru";"Carnes e derivados";"100 g";100;106;17,6;0,0;3,5;1,3;;82
+"Frango, filé, à milanesa";"Carnes e derivados";"100 g";100;221;28,5;7,5;7,8;1,6;1,1;122
+"Frango, inteiro, com pele, cru";"Carnes e derivados";"100 g";100;226;16,4;0,0;17,3;5,2;;63
+"Frango, inteiro, sem pele, assado";"Carnes e derivados";"100 g";100;187;28,0;0,0;7,5;2,1;;70
+"Frango, inteiro, sem pele, cozido";"Carnes e derivados";"100 g";100;170;25,0;0,0;7,1;2,2;;51
+"Frango, inteiro, sem pele, cru";"Carnes e derivados";"100 g";100;129;20,6;0,0;4,6;1,4;;73
+"Frango, peito, com pele, assado";"Carnes e derivados";"100 g";100;212;33,4;0,0;7,6;2,2;;56
+"Frango, peito, com pele, cru";"Carnes e derivados";"100 g";100;149;20,8;0,0;6,7;2,2;;62
+"Frango, peito, sem pele, cozido";"Carnes e derivados";"100 g";100;163;31,5;0,0;3,2;1,1;;36
+"Frango, peito, sem pele, cru";"Carnes e derivados";"100 g";100;119;21,5;0,0;3,0;1,1;;56
+"Frango, peito, sem pele, grelhado";"Carnes e derivados";"100 g";100;159;32,0;0,0;2,5;0,9;;50
+"Frango, sobrecoxa, com pele, assada";"Carnes e derivados";"100 g";100;260;28,7;0,0;15,2;4,2;;96
+"Frango, sobrecoxa, com pele, crua";"Carnes e derivados";"100 g";100;255;15,5;0,0;20,9;6,5;;68
+"Frango, sobrecoxa, sem pele, assada";"Carnes e derivados";"100 g";100;233;29,2;0,0;12,0;3,3;;106
+"Frango, sobrecoxa, sem pele, crua";"Carnes e derivados";"100 g";100;162;17,6;0,0;9,6;3,0;;80
+"Hambúrguer, bovino, cru";"Carnes e derivados";"100 g";100;215;13,2;4,2;16,2;5,7;;869
+"Hambúrguer, bovino, frito";"Carnes e derivados";"100 g";100;258;20,0;6,3;17,0;5,9;;1252
+"Hambúrguer, bovino, grelhado";"Carnes e derivados";"100 g";100;210;13,2;11,3;12,4;5,1;;1090
+"Lingüiça, frango, crua";"Carnes e derivados";"100 g";100;218;14,2;0,0;17,4;5,2;;1126
+"Lingüiça, frango, frita";"Carnes e derivados";"100 g";100;245;18,3;0,0;18,5;5,0;;1374
+"Lingüiça, frango, grelhada";"Carnes e derivados";"100 g";100;244;18,2;0,0;18,4;4,7;;1351
+"Lingüiça, porco, crua";"Carnes e derivados";"100 g";100;227;16,1;0,0;17,6;4,0;;1176
+"Lingüiça, porco, frita";"Carnes e derivados";"100 g";100;280;20,5;0,0;21,3;6,5;;1432
+"Lingüiça, porco, grelhada";"Carnes e derivados";"100 g";100;296;23,2;0,0;21,9;7,0;;1456
+"Mortadela";"Carnes e derivados";"100 g";100;269;12,0;5,8;21,6;6,1;;1212
+"Peru, congelado, assado";"Carnes e derivados";"100 g";100;163;26,2;0,0;5,7;1,6;;628
+"Peru, congelado, cru";"Carnes e derivados";"100 g";100;94;18,1;0,0;1,8;0,4;;711
+"Porco, bisteca, crua";"Carnes e derivados";"100 g";100;164;21,5;0,0;8,0;3,5;;54
+"Porco, bisteca, frita";"Carnes e derivados";"100 g";100;311;33,7;0,0;18,5;6,0;;63
+"Porco, bisteca, grelhada";"Carnes e derivados";"100 g";100;280;28,9;0,0;17,4;7,5;;51
+"Porco, costela, assada";"Carnes e derivados";"100 g";100;402;30,2;0,0;30,3;11,8;;63
+"Porco, costela, crua";"Carnes e derivados";"100 g";100;256;18,0;0,0;19,8;7,4;;88
+"Porco, lombo, assado";"Carnes e derivados";"100 g";100;210;35,7;0,0;6,4;2,6;;39
+"Porco, lombo, cru";"Carnes e derivados";"100 g";100;176;22,6;0,0;8,8;3,3;;53
+"Porco, orelha, salgada, crua";"Carnes e derivados";"100 g";100;258;18,5;0,0;19,9;7,3;;616
+"Porco, pernil, assado";"Carnes e derivados";"100 g";100;262;32,1;0,0;13,9;4,8;;62
+"Porco, pernil, cru";"Carnes e derivados";"100 g";100;186;20,1;0,0;11,1;4,2;;102
+"Porco, rabo, salgado, cru";"Carnes e derivados";"100 g";100;377;15,6;0,0;34,5;11,6;;1158
+"Presunto, com capa de gordura";"Carnes e derivados";"100 g";100;128;14,4;1,4;6,8;1,9;;1021
+"Presunto, sem capa de gordura";"Carnes e derivados";"100 g";100;94;14,3;2,1;2,7;0,9;;1039
+"Quibe, assado";"Carnes e derivados";"100 g";100;136;14,6;12,9;2,7;1,2;1,9;40
+"Quibe, cru";"Carnes e derivados";"100 g";100;109;12,4;10,8;1,7;0,7;1,6;39
+"Quibe, frito";"Carnes e derivados";"100 g";100;254;14,9;12,3;15,8;4,6;;836
+"Salame";"Carnes e derivados";"100 g";100;398;25,8;2,9;30,6;9,6;;1574
+"Toucinho, cru";"Carnes e derivados";"100 g";100;593;11,5;0,0;60,3;17,7;;50
+"Toucinho, frito";"Carnes e derivados";"100 g";100;697;27,3;0,0;64,3;20,0;;125
+"Bebida láctea, pêssego";"Leite e derivados";"100 g";100;55;2,1;7,6;1,9;1,1;0,3;46
+"Creme de Leite";"Leite e derivados";"100 g";100;221;1,5;4,5;22,5;11,8;;52
+"Iogurte, natural";"Leite e derivados";"100 g";100;51;4,1;1,9;3,0;1,8;;52
+"Iogurte, natural, desnatado";"Leite e derivados";"100 g";100;41;3,8;5,8;0,3;0,2;;60
+"Iogurte, sabor morango";"Leite e derivados";"100 g";100;70;2,7;9,7;2,3;1,4;0,2;38
+"Iogurte, sabor pêssego";"Leite e derivados";"100 g";100;68;2,5;9,4;2,3;1,4;0,7;37
+"Leite, condensado";"Leite e derivados";"100 g";100;313;7,7;57,0;6,7;4,2;;94
+"Leite, de cabra";"Leite e derivados";"100 g";100;66;3,1;5,2;3,8;2,4;;74
+"Leite, de vaca, achocolatado";"Leite e derivados";"100 g";100;83;2,1;14,2;2,2;1,1;0,6;72
+"Leite, de vaca, desnatado, pó";"Leite e derivados";"100 g";100;362;34,7;53,0;0,9;0,6;;432
+"Leite, de vaca, integral, pó";"Leite e derivados";"100 g";100;497;25,4;39,2;26,9;16,3;;323
+"Leite, fermentado";"Leite e derivados";"100 g";100;70;1,9;15,7;0,1;;;33
+"Queijo, minas, frescal";"Leite e derivados";"100 g";100;264;17,4;3,2;20,2;11,4;;31
+"Queijo, minas, meia cura";"Leite e derivados";"100 g";100;321;21,2;3,6;24,6;13,2;;501
+"Queijo, mozarela";"Leite e derivados";"100 g";100;330;22,6;3,0;25,2;14,2;;581
+"Queijo, parmesão";"Leite e derivados";"100 g";100;453;35,6;1,7;33,5;19,7;;1844
+"Queijo, pasteurizado";"Leite e derivados";"100 g";100;303;9,4;5,7;27,4;15,9;;780
+"Queijo, petit suisse, morango";"Leite e derivados";"100 g";100;121;5,8;18,5;2,8;1,6;;412
+"Queijo, prato";"Leite e derivados";"100 g";100;360;22,7;1,9;29,1;16,3;;580
+"Queijo, requeijão, cremoso";"Leite e derivados";"100 g";100;257;9,6;2,4;23,4;13,7;;558
+"Queijo, ricota";"Leite e derivados";"100 g";100;140;12,6;3,8;8,1;4,5;;283
+"Bebida isotônica, sabores variados";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;26;0,0;6,4;0,0;;;44
+"Café, infusão 10%";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;9;0,7;1,5;0,1;;;1
+"Cana, aguardente 1";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;216;;;;;;3
+"Cana, caldo de";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;65;0,0;18,2;0,0;;0,1;0
+"Cerveja, pilsen 2";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;41;0,6;3,3;0,0;;;4
+"Chá, erva-doce, infusão 5%";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;1;0,0;0,4;0,0;;;1
+"Chá, mate, infusão 5%";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;3;0,0;0,6;0,1;;;0
+"Chá, preto, infusão 5%";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;2;0,0;0,6;0,0;;;0
+"Coco, água de";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;22;0,0;5,3;0,0;;0,1;2
+"Refrigerante, tipo água tônica";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;31;0,0;8,0;0,0;;;8
+"Refrigerante, tipo cola";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;34;0,0;8,7;0,0;;;7
+"Refrigerante, tipo guaraná";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;39;0,0;10,0;0,0;;;9
+"Refrigerante, tipo laranja";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;46;0,0;11,8;0,0;;;9
+"Refrigerante, tipo limão";"Bebidas (alcoólicas e não alcoólicas)";"100 g";100;40;0,0;10,3;0,0;;;9
+"Omelete, de queijo";"Ovos e derivados";"100 g";100;268;15,6;0,4;22,0;6,4;;216
+"Ovo, de codorna, inteiro, cru";"Ovos e derivados";"100 g";100;177;13,7;0,8;12,7;8,9;;129
+"Ovo, de galinha, clara, cozida/10minutos";"Ovos e derivados";"100 g";100;59;13,4;0,0;0,1;;;181
+"Ovo, de galinha, gema, cozida/10minutos";"Ovos e derivados";"100 g";100;353;15,9;1,6;30,8;9,2;;45
+"Ovo, de galinha, inteiro, cozido/10minutos";"Ovos e derivados";"100 g";100;146;13,3;0,6;9,5;2,9;;146
+"Ovo, de galinha, inteiro, cru";"Ovos e derivados";"100 g";100;143;13,0;1,6;8,9;2,6;;168
+"Ovo, de galinha, inteiro, frito";"Ovos e derivados";"100 g";100;240;15,6;1,2;18,6;4,1;;166
+"Achocolatado, pó";"Produtos açucarados";"100 g";100;401;4,2;91,2;2,2;1,1;3,9;65
+"Açúcar, cristal";"Produtos açucarados";"100 g";100;387;0,3;99,6;0,0;;;0
+"Açúcar, mascavo";"Produtos açucarados";"100 g";100;369;0,8;94,5;0,1;;;25
+"Açúcar, refinado";"Produtos açucarados";"100 g";100;387;0,3;99,5;0,0;;;12
+"Chocolate, ao leite";"Produtos açucarados";"100 g";100;540;7,2;59,6;30,3;17,5;2,2;77
+"Chocolate, ao leite, com castanha do Pará";"Produtos açucarados";"100 g";100;559;7,4;55,4;34,2;14,1;2,5;64
+"Chocolate, ao leite, dietético";"Produtos açucarados";"100 g";100;557;6,9;56,3;33,8;19,2;2,8;85
+"Chocolate, meio amargo";"Produtos açucarados";"100 g";100;475;4,9;62,4;29,9;13,1;4,9;9
+"Cocada branca";"Produtos açucarados";"100 g";100;449;1,1;81,4;13,6;8,4;3,6;29
+"Doce, de abóbora, cremoso";"Produtos açucarados";"100 g";100;199;0,9;54,6;0,2;0,0;2,3;0
+"Doce, de leite, cremoso";"Produtos açucarados";"100 g";100;306;5,5;59,5;6,0;1,3;;120
+"Geléia, mocotó, natural";"Produtos açucarados";"100 g";100;106;2,1;24,2;0,1;0,0;;43
+"Glicose de milho";"Produtos açucarados";"100 g";100;292;0,0;79,4;0,0;;;59
+"Maria mole";"Produtos açucarados";"100 g";100;301;3,8;73,6;0,2;;0,7;15
+"Maria mole, coco queimado";"Produtos açucarados";"100 g";100;307;3,9;75,1;0,1;;0,6;14
+"Marmelada";"Produtos açucarados";"100 g";100;257;0,4;70,8;0,1;;4,1;11
+"Mel, de abelha";"Produtos açucarados";"100 g";100;309;0,0;84,0;0,0;;;6
+"Melado";"Produtos açucarados";"100 g";100;297;0,0;76,6;0,0;;;4
+"Quindim";"Produtos açucarados";"100 g";100;411;4,7;46,3;24,4;11,3;3,2;27
+"Rapadura";"Produtos açucarados";"100 g";100;352;1,0;90,8;0,1;;;22
+"Café, pó, torrado";"Miscelâneas";"100 g";100;419;14,7;65,8;11,9;5,3;51,2;1
+"Capuccino, pó";"Miscelâneas";"100 g";100;417;11,3;73,6;8,6;4,0;2,4;382
+"Fermento em pó, químico";"Miscelâneas";"100 g";100;90;0,5;43,9;0,1;;;10052
+"Fermento, biológico, levedura, tablete";"Miscelâneas";"100 g";100;90;17,0;7,7;1,5;;4,2;40
+"Gelatina, sabores variados, pó";"Miscelâneas";"100 g";100;380;8,9;89,2;0,0;;;235
+"Shoyu";"Miscelâneas";"100 g";100;61;3,3;11,6;0,3;0,0;;5024
+"Tempero a base de sal";"Miscelâneas";"100 g";100;21;2,7;2,1;0,3;;0,6;32560
+"Azeitona, preta, conserva";"Outros alimentos industrializados";"100 g";100;194;1,2;5,5;20,3;3,5;4,6;1567
+"Azeitona, verde, conserva";"Outros alimentos industrializados";"100 g";100;137;0,9;4,1;14,2;2,3;3,8;1347
+"Chantilly, spray, com gordura vegetal";"Outros alimentos industrializados";"100 g";100;315;0,5;16,9;27,3;25,9;;110
+"Leite, de coco";"Outros alimentos industrializados";"100 g";100;166;1,0;2,2;18,4;15,6;0,7;44
+"Maionese, tradicional com ovos";"Outros alimentos industrializados";"100 g";100;302;0,6;7,9;30,5;4,1;;787
+"Acarajé";"Alimentos preparados";"100 g";100;289;8,3;19,1;19,9;9,1;9,4;305
+"Arroz carreteiro";"Alimentos preparados";"100 g";100;154;10,8;11,6;7,1;3,2;1,5;1622
+"Baião de dois, arroz e feijão-de-corda";"Alimentos preparados";"100 g";100;136;6,2;20,4;3,2;0,6;5,1;93
+"Barreado";"Alimentos preparados";"100 g";100;165;18,3;0,2;9,5;3,3;0,1;48
+"Bife à cavalo, com contra filé";"Alimentos preparados";"100 g";100;291;23,7;0,0;21,1;7,9;;83
+"Bolinho de arroz";"Alimentos preparados";"100 g";100;274;8,0;41,7;8,3;1,8;2,7;59
+"Camarão à baiana";"Alimentos preparados";"100 g";100;101;7,9;3,2;6,0;1,6;0,4;85
+"Charuto, de repolho";"Alimentos preparados";"100 g";100;78;6,8;10,1;1,1;0,5;1,5;12
+"Cuscuz, de milho, cozido com sal";"Alimentos preparados";"100 g";100;113;2,2;25,3;0,7;0,2;2,1;248
+"Cuscuz, paulista";"Alimentos preparados";"100 g";100;142;2,6;22,5;4,6;1,8;2,4;236
+"Cuxá, molho";"Alimentos preparados";"100 g";100;80;5,6;5,7;3,6;0,6;3,0;1344
+"Dobradinha";"Alimentos preparados";"100 g";100;125;19,8;0,0;4,4;2,5;;29
+"Estrogonofe de carne";"Alimentos preparados";"100 g";100;173;15,0;3,0;10,8;5,3;;123
+"Estrogonofe de frango";"Alimentos preparados";"100 g";100;157;17,6;2,6;8,0;3,7;;99
+"Feijão tropeiro mineiro";"Alimentos preparados";"100 g";100;152;10,2;19,6;6,8;2,2;3,6;365
+"Feijoada";"Alimentos preparados";"100 g";100;117;8,7;11,6;6,5;1,9;5,1;278
+"Frango, com açafrão";"Alimentos preparados";"100 g";100;113;9,7;4,1;6,2;1,6;0,2;29
+"Macarrão, molho bolognesa";"Alimentos preparados";"100 g";100;120;4,9;22,5;0,9;0,3;0,8;9
+"Maniçoba";"Alimentos preparados";"100 g";100;134;10,0;3,4;8,7;2,9;2,2;407
+"Quibebe";"Alimentos preparados";"100 g";100;86;8,6;6,6;2,7;1,0;1,7;247
+"Salada, de legumes, com maionese";"Alimentos preparados";"100 g";100;96;1,1;8,9;7,0;1,1;2,2;228
+"Salada, de legumes, cozida no vapor";"Alimentos preparados";"100 g";100;35;2,0;7,1;0,3;0,1;2,5;3
+"Salpicão, de frango";"Alimentos preparados";"100 g";100;148;13,9;4,6;7,8;1,3;0,4;248
+"Sarapatel";"Alimentos preparados";"100 g";100;123;18,5;1,1;4,4;1,4;;216
+"Tabule";"Alimentos preparados";"100 g";100;57;2,0;10,6;1,2;0,2;2,1;1
+"Tacacá";"Alimentos preparados";"100 g";100;47;7,0;3,4;0,4;0,2;0,2;1349
+"Tapioca, com manteiga";"Alimentos preparados";"100 g";100;348;0,1;63,6;10,9;6,0;0,0;158
+"Tucupi, com pimenta-de-cheiro";"Alimentos preparados";"100 g";100;27;2,1;4,7;0,3;0,1;0,2;5
+"Vaca atolada";"Alimentos preparados";"100 g";100;145;5,1;10,1;9,3;4,1;2,3;26
+"Vatapá";"Alimentos preparados";"100 g";100;255;6,0;9,7;23,2;7,5;1,7;880
+"Virado à paulista";"Alimentos preparados";"100 g";100;307;10,2;14,1;25,6;8,3;2,2;346
+"Yakisoba";"Alimentos preparados";"100 g";100;113;7,5;18,3;2,6;0,6;1,1;794
+"Amendoim, grão, cru";"Leguminosas e derivados";"100 g";100;544;27,2;20,3;43,9;8,7;8,0;0
+"Amendoim, torrado, salgado";"Leguminosas e derivados";"100 g";100;606;22,5;18,7;54,0;9,7;7,8;376
+"Ervilha, em vagem";"Leguminosas e derivados";"100 g";100;88;7,5;14,2;0,5;0,0;9,7;0
+"Ervilha, enlatada, drenada";"Leguminosas e derivados";"100 g";100;74;4,6;13,4;0,4;0,1;5,1;372
+"Feijão, carioca, cozido";"Leguminosas e derivados";"100 g";100;76;4,8;13,6;0,5;0,1;8,5;2
+"Feijão, carioca, cru";"Leguminosas e derivados";"100 g";100;329;20,0;61,2;1,3;0,2;18,4;0
+"Feijão, fradinho, cozido";"Leguminosas e derivados";"100 g";100;78;5,1;13,5;0,6;0,2;7,5;1
+"Feijão, fradinho, cru";"Leguminosas e derivados";"100 g";100;339;20,2;61,2;2,4;0,7;23,6;10
+"Feijão, jalo, cozido";"Leguminosas e derivados";"100 g";100;93;6,1;16,5;0,5;0,1;13,9;1
+"Feijão, jalo, cru";"Leguminosas e derivados";"100 g";100;328;20,1;61,5;0,9;0,3;30,3;25
+"Feijão, preto, cozido";"Leguminosas e derivados";"100 g";100;77;4,5;14,0;0,5;0,1;8,4;2
+"Feijão, preto, cru";"Leguminosas e derivados";"100 g";100;324;21,3;58,8;1,2;0,2;21,8;0
+"Feijão, rajado, cozido";"Leguminosas e derivados";"100 g";100;85;5,5;15,3;0,4;0,1;9,3;1
+"Feijão, rajado, cru";"Leguminosas e derivados";"100 g";100;326;17,3;62,9;1,2;0,4;24,0;14
+"Feijão, rosinha, cozido";"Leguminosas e derivados";"100 g";100;68;4,5;11,8;0,5;0,2;4,8;2
+"Feijão, rosinha, cru";"Leguminosas e derivados";"100 g";100;337;20,9;62,2;1,3;0,6;20,6;24
+"Feijão, roxo, cozido";"Leguminosas e derivados";"100 g";100;77;5,7;12,9;0,5;0,1;11,5;1
+"Feijão, roxo, cru";"Leguminosas e derivados";"100 g";100;331;22,2;60,0;1,2;0,3;33,8;10
+"Grão-de-bico, cru";"Leguminosas e derivados";"100 g";100;355;21,2;57,9;5,4;0,9;12,4;5
+"Guandu, cru";"Leguminosas e derivados";"100 g";100;344;19,0;64,0;2,1;0,6;21,3;2
+"Lentilha, cozida";"Leguminosas e derivados";"100 g";100;93;6,3;16,3;0,5;0,1;7,9;1
+"Lentilha, crua";"Leguminosas e derivados";"100 g";100;339;23,2;62,0;0,8;0,1;16,9;0
+"Paçoca, amendoim";"Leguminosas e derivados";"100 g";100;487;16,0;52,4;26,1;4,1;7,3;167
+"Pé-de-moleque, amendoim";"Leguminosas e derivados";"100 g";100;503;13,2;54,7;28,0;5,1;3,4;16
+"Soja, farinha";"Leguminosas e derivados";"100 g";100;404;36,0;38,4;14,6;;20,2;6
+"Soja, extrato solúvel, natural, fluido";"Leguminosas e derivados";"100 g";100;39;2,4;4,3;1,6;0,2;0,4;57
+"Soja, extrato solúvel, pó";"Leguminosas e derivados";"100 g";100;459;35,7;28,5;26,2;3,3;7,3;83
+"Soja, queijo (tofu)";"Leguminosas e derivados";"100 g";100;64;6,6;2,1;4,0;0,4;0,8;1
+"Tremoço, cru";"Leguminosas e derivados";"100 g";100;381;33,6;43,8;10,3;1,2;32,3;3
+"Tremoço, em conserva";"Leguminosas e derivados";"100 g";100;121;11,1;12,4;3,8;0,4;14,4;1809
+"Amêndoa, torrada, salgada";"Nozes e sementes";"100 g";100;581;18,6;29,5;47,3;4,8;11,6;279
+"Castanha-de-caju, torrada, salgada";"Nozes e sementes";"100 g";100;570;18,5;29,1;46,3;7,7;3,7;125
+"Castanha-do-Brasil, crua";"Nozes e sementes";"100 g";100;643;14,5;15,1;63,5;15,3;7,9;1
+"Coco, cru";"Nozes e sementes";"100 g";100;406;3,7;10,4;42,0;30,0;5,4;15
+"Farinha, de mesocarpo de babaçu, crua";"Nozes e sementes";"100 g";100;329;1,4;79,2;0,2;;17,9;12
+"Gergelim, semente";"Nozes e sementes";"100 g";100;584;21,2;21,6;50,4;7,8;11,9;3
+"Linhaça, semente";"Nozes e sementes";"100 g";100;495;14,1;43,3;32,3;4,2;33,5;9
+"Pinhão, cozido";"Nozes e sementes";"100 g";100;174;3,0;43,9;0,7;0,3;15,6;1
+"Pupunha, cozida";"Nozes e sementes";"100 g";100;219;2,5;29,6;12,8;3,1;4,3;1
+"Noz, crua";"Nozes e sementes";"100 g";100;620;14,0;18,4;59,4;5,6;7,2;5

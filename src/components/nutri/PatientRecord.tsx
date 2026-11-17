@@ -7,6 +7,8 @@ import { AssessmentsTab } from './AssessmentsTab'
 import { ConsultationsTab } from './ConsultationsTab'
 import { PatientForm } from './PatientForm'
 import { PlanTab } from './PlanTab'
+import { PrivacyTab } from './PrivacyTab'
+import { PatientPhoto } from './PatientPhoto'
 import { DocumentsTab, ExamsTab } from './FilesTabs'
 import { assessmentHtml, evolutionHtml, printDocument } from '../../lib/nutriPrint'
 import type { Recipe } from '../../hooks/useNutriPlan'
@@ -16,7 +18,7 @@ import type { Food } from '../../lib/nutriPlan'
 // exames, receitas e documentos chegam nas próximas etapas e aparecem
 // marcadas como "em breve" para o caminho ficar visível.
 
-export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'consultas' | 'obs' | 'historico'
+export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'privacidade' | 'consultas' | 'obs' | 'historico'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
@@ -26,6 +28,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'plano', label: 'Planejamento alimentar' },
   { key: 'exames', label: 'Exames' },
   { key: 'documentos', label: 'Documentos' },
+  { key: 'privacidade', label: 'Privacidade (LGPD)' },
   { key: 'consultas', label: 'Consultas e evolução' },
   { key: 'obs', label: 'Observações' },
   { key: 'historico', label: 'Histórico de alterações' },
@@ -52,6 +55,7 @@ export function PatientRecord({
   recipes,
   nutriName,
   members,
+  otherPatients,
 }: {
   patient: Patient
   communityId: string
@@ -63,6 +67,7 @@ export function PatientRecord({
   recipes: Recipe[]
   nutriName: string
   members: { id: string; full_name: string | null }[]
+  otherPatients: { id: string; full_name: string }[]
 }) {
   const rec = usePatientRecord(patient.id, communityId)
   const [tab, setTab] = useState<Tab>(initialTab)
@@ -82,10 +87,12 @@ export function PatientRecord({
         ‹ Pacientes
       </button>
       <header className="nutri-record-head">
+        <PatientPhoto patient={patient} communityId={communityId} onChanged={onChanged} />
         <h2>{patient.full_name}</h2>
         <p className="home-muted">
           {age !== null ? `${age} anos` : 'Idade não informada'} · {patient.status === 'ativo' ? 'Ativa' : 'Inativa'}
           {returnDue ? ' · precisa de retorno' : ''}
+          {patient.consent_at ? '' : ' · sem consentimento registrado'}
         </p>
       </header>
 
@@ -203,12 +210,15 @@ export function PatientRecord({
               basics={{ sex: patient.sex, age, weightKg: last?.weight_kg ?? null, heightCm: lastHeight }}
               patientName={patient.full_name}
               nutriName={nutriName}
+              otherPatients={otherPatients}
             />
           )}
 
           {tab === 'exames' && <ExamsTab patientId={patient.id} communityId={communityId} />}
 
           {tab === 'documentos' && <DocumentsTab patientId={patient.id} communityId={communityId} />}
+
+          {tab === 'privacidade' && <PrivacyTab patient={patient} nutriName={nutriName} onChanged={onChanged} onErased={onBack} />}
 
           {tab === 'consultas' && (
             <ConsultationsTab consultations={rec.consultations} onAdd={rec.addConsultation} onSetStatus={rec.setConsultationStatus} />

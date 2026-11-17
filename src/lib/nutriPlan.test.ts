@@ -87,3 +87,23 @@ describe('importação CSV', () => {
     expect(parseFoodsCsv('a;b\n1;2').error).toMatch(/nome/)
   })
 })
+
+describe('lista de compras', () => {
+  it('soma alimentos iguais, multiplica pelos dias e mantém itens sem gramas', async () => {
+    const { shoppingList } = await import('./nutriPlan')
+    const mk = (name: string, grams: number | null) => ({
+      id: name + grams, kind: 'food' as const, refId: null, name, grams, household: '', portions: '', prep: '', note: '', nutrients: null, substitutions: [],
+    })
+    const list = shoppingList(
+      [
+        { id: 'a', name: 'Almoço', time: '', notes: '', items: [mk('Arroz', 100), mk('Alface', null)] },
+        { id: 'b', name: 'Jantar', time: '', notes: '', items: [mk('arroz', 50)] },
+      ],
+      7,
+    )
+    expect(list).toEqual([
+      { name: 'Alface', grams: null, times: 1 },
+      { name: 'Arroz', grams: 1050, times: 2 },
+    ])
+  })
+})

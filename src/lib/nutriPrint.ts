@@ -5,7 +5,7 @@
 
 import { brDate, bmi, derive, diff, heightAt, sortAssessments, ALL_MEASURES } from './nutri'
 import type { Assessment, Consultation } from './nutri'
-import { dayTotals, macroSplit, mealTotals } from './nutriPlan'
+import { dayTotals, macroSplit, mealTotals, shoppingList } from './nutriPlan'
 import type { Plan } from './nutriPlan'
 
 export function esc(v: string | number | null | undefined): string {
@@ -42,7 +42,7 @@ footer.doc { margin-top: 22px; padding-top: 8px; border-top: 1px solid #e6d9cd; 
 @media screen { body { max-width: 760px; margin: 0 auto; padding: 16px; } }
 `
 
-function shell(title: string, patient: string, nutri: string, body: string, when: string): string {
+export function shell(title: string, patient: string, nutri: string, body: string, when: string): string {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} — ${esc(patient)}</title><style>${STYLE}</style></head><body>
 <header class="doc"><div class="brand">Círcula · Fluir &amp; Florescer</div><h1>${esc(title)}</h1>
 <div class="meta">Paciente: <strong>${esc(patient)}</strong> · Nutricionista: <strong>${esc(nutri || '—')}</strong> · Elaborado em ${esc(when)}</div></header>
@@ -143,4 +143,18 @@ export function printDocument(html: string): boolean {
   w.focus()
   window.setTimeout(() => w.print(), 350)
   return true
+}
+
+export function shoppingHtml(plan: Plan, days: number, patient: string, nutri: string, when = brDate(new Date().toISOString())): string {
+  const lines = shoppingList(plan.meals, days)
+  const rows = lines
+    .map(
+      (l) =>
+        `<tr><td>☐ ${esc(l.name)}</td><td class="num">${l.grams ? (l.grams >= 1000 ? fmt(l.grams / 1000, 2) + ' kg' : fmt(l.grams, 0) + ' g') : '—'}</td></tr>`,
+    )
+    .join('')
+  const body = `<h2>Lista de compras para ${esc(days)} dia(s)</h2>
+<p class="meta">Baseada no plano "${esc(plan.name)}". Quantidades somadas dos alimentos do plano; confira com sua nutricionista antes de comprar.</p>
+<table><thead><tr><th>Alimento</th><th class="num">Quantidade</th></tr></thead><tbody>${rows || '<tr><td colspan="2">O plano ainda não tem alimentos.</td></tr>'}</tbody></table>`
+  return shell('Lista de compras', patient, nutri, body, when)
 }

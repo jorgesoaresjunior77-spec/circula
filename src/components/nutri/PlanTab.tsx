@@ -4,7 +4,7 @@ import type { Recipe } from '../../hooks/useNutriPlan'
 import { brDate } from '../../lib/nutri'
 import { dayTotals, uid } from '../../lib/nutriPlan'
 import type { Food, Plan } from '../../lib/nutriPlan'
-import { planHtml, printDocument } from '../../lib/nutriPrint'
+import { planHtml, printDocument, shoppingHtml } from '../../lib/nutriPrint'
 import { PlanEditor, emptyPlan } from './PlanEditor'
 import type { PatientBasics, PlanDraft } from './PlanEditor'
 
@@ -40,6 +40,7 @@ export function PlanTab({
   basics,
   patientName,
   nutriName,
+  otherPatients,
 }: {
   patientId: string
   communityId: string
@@ -48,8 +49,12 @@ export function PlanTab({
   basics: PatientBasics
   patientName: string
   nutriName: string
+  otherPatients: { id: string; full_name: string }[]
 }) {
-  const { plans, loading, savePlan, setStatus } = usePatientPlans(patientId, communityId)
+  const { plans, loading, savePlan, setStatus, copyTo } = usePatientPlans(patientId, communityId)
+  const [shopDays, setShopDays] = useState(7)
+  const [copying, setCopying] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [editing, setEditing] = useState<{ id: string | null; draft: PlanDraft } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -91,6 +96,15 @@ export function PlanTab({
           {error}
         </p>
       )}
+      {notice && (
+        <p className="auth-success" role="status">
+          {notice}
+        </p>
+      )}
+      <label className="nutri-inline">
+        Dias da lista de compras
+        <input inputMode="numeric" value={shopDays} onChange={(e) => setShopDays(Math.min(60, Math.max(1, Number(e.target.value) || 1)))} />
+      </label>
       {plans.length === 0 && <p className="home-muted">Nenhum plano criado para esta paciente.</p>}
       <ul className="nutri-timeline">
         {plans.map((pl) => {
@@ -125,6 +139,20 @@ export function PlanTab({
                 <button type="button" className="auth-link" onClick={() => setEditing({ id: null, draft: toDraft(pl, true) })}>
                   Nova versão
                 </button>
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => {
+                    if (!printDocument(shoppingHtml(pl, shopDays, patientName, nutriName))) setError('O navegador bloqueou a janela do PDF. Permita pop-ups e tente de novo.')
+                  }}
+                >
+                  Lista de compras
+                </button>
+                {otherPatients.length > 0 && (
+                  <button type="button" className="auth-link" onClick={() => setCopying(copying === pl.id ? null : pl.id)}>
+                    Copiar para outra paciente
+                  </button>
+                )}
                 {pl.status !== 'ativo' && (
                   <button type="button" className="auth-link" onClick={() => void activate(pl)}>
                     Ativar
@@ -136,6 +164,27 @@ export function PlanTab({
                   </button>
                 )}
               </div>
+              {copying === pl.id && (
+                <select
+                  aria-label="Copiar para a paciente"
+                  value=""
+                  onChange={async (e) => {
+                    const target = otherPatients.find((x) => x.id === e.target.value)
+                    if (!target) return
+                    const r = await copyTo(pl, target.id)
+                    setCopying(null)
+                    if (r.error) setError(r.error)
+                    else setNotice(`Plano copiado para ${target.full_name} como rascunho.`)
+                  }}
+                >
+                  <option value="">Escolha a paciente…</option>
+                  {otherPatients.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.full_name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </li>
           )
         })}

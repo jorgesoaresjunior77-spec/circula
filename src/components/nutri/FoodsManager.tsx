@@ -88,6 +88,29 @@ export function FoodsManager({
     setPending({ rows: parsed.rows, skipped: parsed.skipped })
   }
 
+  async function loadTaco() {
+    setError(null)
+    setMsg(null)
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}taco-4a-edicao.csv`)
+      if (!res.ok) throw new Error('http')
+      const parsed = parseFoodsCsv(await res.text())
+      if (parsed.error) {
+        setError(parsed.error)
+        return
+      }
+      const have = new Set(foods.map((f) => f.name.trim().toLowerCase()))
+      const fresh = parsed.rows.filter((r) => !have.has(r.name.trim().toLowerCase()))
+      if (fresh.length === 0) {
+        setMsg('A tabela TACO já está no seu banco de alimentos.')
+        return
+      }
+      setPending({ rows: fresh, skipped: parsed.rows.length - fresh.length })
+    } catch {
+      setError('Não foi possível carregar a tabela TACO agora. Verifique a internet e tente de novo.')
+    }
+  }
+
   async function confirmImport() {
     if (!pending) return
     const r = await onImport(pending.rows)
@@ -165,11 +188,19 @@ export function FoodsManager({
         <button type="button" className="water-primary" onClick={() => setEditing({ id: null, row: { ...EMPTY } })}>
           Novo alimento
         </button>
+        <button type="button" className="water-primary" onClick={() => void loadTaco()}>
+          Importar a tabela TACO
+        </button>
         <button type="button" className="water-primary" onClick={() => fileRef.current?.click()}>
-          Importar CSV
+          Importar outro CSV
         </button>
         <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={(e) => void pickFile(e.target.files?.[0])} />
       </div>
+      <p className="home-muted">
+        A tabela TACO traz 591 alimentos brasileiros com os valores por 100 g. Fonte: Tabela Brasileira de Composição de
+        Alimentos (TACO), 4ª edição ampliada e revisada, NEPA/UNICAMP, 2011. Alimentos sem valor medido na tabela ficam em
+        branco, e o app nunca preenche esses valores por conta própria.
+      </p>
       <details className="nutri-help">
         <summary>Como montar o CSV</summary>
         <p>
@@ -183,7 +214,7 @@ export function FoodsManager({
         <div className="nutri-form">
           <p>
             Encontrei <strong>{pending.rows.length}</strong> alimentos
-            {pending.skipped ? ` (${pending.skipped} linhas ignoradas por falta de nome ou porção)` : ''}. Importar?
+            {pending.skipped ? ` (${pending.skipped} já existentes ou sem dados foram deixados de fora)` : ''}. Importar?
           </p>
           <div className="nutri-actions">
             <button type="button" className="auth-link" onClick={() => setPending(null)}>

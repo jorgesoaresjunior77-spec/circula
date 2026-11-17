@@ -11,7 +11,7 @@ type Result = { error: string | null }
 const FAIL = 'Não foi possível salvar agora. Tente novamente.'
 
 const PATIENT_COLS =
-  'id,community_id,full_name,photo_path,birth_date,sex,phone,whatsapp,email,cpf,profession,marital_status,address,notes,linked_profile_id,main_goal,secondary_goals,follow_up_history,food_preferences,food_restrictions,allergies,intolerances,status,created_at'
+  'id,community_id,full_name,photo_path,birth_date,sex,phone,whatsapp,email,cpf,profession,marital_status,address,notes,linked_profile_id,consent_at,consent_note,main_goal,secondary_goals,follow_up_history,food_preferences,food_restrictions,allergies,intolerances,status,created_at'
 const CONSULT_COLS = 'id,patient_id,kind,status,scheduled_on,scheduled_time,evolution,next_return_on'
 const ASSESS_COLS =
   'id,patient_id,assessed_on,weight_kg,height_cm,abdomen_cm,waist_cm,hip_cm,arm_cm,thigh_cm,calf_cm,body_fat_pct,muscle_mass_kg,fat_mass_kg,body_water_pct,bone_mass_kg,skinfolds,custom,source,notes,shared_with_patient'

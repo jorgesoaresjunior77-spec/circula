@@ -361,6 +361,22 @@ export function PlanEditor({
               <button type="button" className="auth-link" onClick={() => setMeal(m.id, { items: [...m.items, newItem({})] })}>
                 + Item livre
               </button>
+              <button
+                type="button"
+                className="auth-link"
+                onClick={() => {
+                  const copy: PlanMeal = {
+                    ...m,
+                    id: uid(),
+                    name: `${m.name} (cópia)`,
+                    items: m.items.map((i) => ({ ...i, id: uid(), substitutions: i.substitutions.map((x) => ({ ...x, id: uid() })) })),
+                  }
+                  const at = p.meals.findIndex((x) => x.id === m.id)
+                  set({ meals: [...p.meals.slice(0, at + 1), copy, ...p.meals.slice(at + 1)] })
+                }}
+              >
+                Duplicar refeição
+              </button>
               <button type="button" className="auth-link" onClick={() => set({ meals: p.meals.filter((x) => x.id !== m.id) })}>
                 Excluir refeição
               </button>

@@ -27,6 +27,8 @@ export interface Patient {
   intolerances: string | null
   status: 'ativo' | 'inativo'
   linked_profile_id?: string | null
+  consent_at?: string | null
+  consent_note?: string | null
   created_at: string
 }
 

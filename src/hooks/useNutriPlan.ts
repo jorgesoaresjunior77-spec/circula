@@ -223,6 +223,27 @@ export function usePatientPlans(patientId: string, communityId: string) {
     [patientId, communityId, reload],
   )
 
+  const copyTo = useCallback(
+    async (plan: Plan, targetPatientId: string): Promise<Result> => {
+      const { id: _id, patient_id: _pid, created_at: _ca, ...rest } = plan
+      void _id
+      void _pid
+      void _ca
+      const row = { ...rest, name: `${plan.name} (cópia)`, status: 'rascunho', shared_with_patient: false, patient_id: targetPatientId, community_id: communityId }
+      const { error } = await supabase.from('nutri_plans').insert(row)
+      if (error) return { error: FAIL }
+      await supabase.from('nutri_record_log').insert({
+        community_id: communityId,
+        patient_id: targetPatientId,
+        section: 'Planejamento alimentar',
+        action: 'criou',
+        summary: `Cópia do plano "${plan.name}"`.slice(0, 200),
+      })
+      return { error: null }
+    },
+    [communityId],
+  )
+
   const setStatus = useCallback(
     async (id: string, status: Plan['status']): Promise<Result> => {
       const { error } = await supabase.from('nutri_plans').update({ status, updated_at: new Date().toISOString() }).eq('id', id)
@@ -233,5 +254,5 @@ export function usePatientPlans(patientId: string, communityId: string) {
     [reload],
   )
 
-  return { plans, loading, savePlan, setStatus }
+  return { plans, loading, savePlan, setStatus, copyTo }
 }
