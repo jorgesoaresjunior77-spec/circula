@@ -355,6 +355,21 @@ async function handleAddonSubscriptionEvent(
           { onConflict: 'community_id,profile_id,package', ignoreDuplicates: true },
         )
     }
+    // O Premium inclui o Círcula: mantém a assinatura da comunidade em dia
+    // enquanto o Premium estiver pago (não reativa assinatura cancelada).
+    if (addon.plan_key === 'premium') {
+      await admin
+        .from('subscriptions')
+        .update({
+          status: 'active',
+          current_period_end: addCycleMonths(base, cycle).toISOString(),
+          grace_period_ends_at: null,
+        })
+        .eq('profile_id', addon.profile_id)
+        .eq('community_id', addon.community_id)
+        .eq('subject', 'community')
+        .neq('status', 'canceled')
+    }
     return
   }
 

@@ -8,6 +8,8 @@ import { CommunitySubscriptionCard } from './CommunitySubscriptionCard'
 import { ImageCropper } from './ImageCropper'
 import { ProfileBanner } from './ProfileBanner'
 import { ProfileVisitStats } from './ProfileVisitStats'
+import { SubscriptionLevelCard } from './SubscriptionLevelCard'
+import { InviteFriends } from './InviteFriends'
 import { ProfileTestimonials } from './ProfileTestimonials'
 import { OnboardingAnswersView } from './OnboardingAnswersView'
 
@@ -440,8 +442,16 @@ export function MyProfile({
       )}
 
       {profile.role === 'member' && communityId && (
+        <div className="profile-invite-section">
+          <p className="profile-section-label">Convidar amigas</p>
+          <InviteFriends communityId={communityId} />
+        </div>
+      )}
+
+      {profile.role === 'member' && communityId && (
         <div className="profile-subscription-section">
           <p className="profile-section-label">Minha assinatura</p>
+          <SubscriptionLevelCard communityId={communityId} profileId={profile.id} />
           <CommunitySubscriptionCard communityId={communityId} />
         </div>
       )}

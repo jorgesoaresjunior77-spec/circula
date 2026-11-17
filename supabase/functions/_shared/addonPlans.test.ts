@@ -30,7 +30,7 @@ describe('addonPlans', () => {
 
   it('o Premium libera o pacote premium; revista e receitas ainda não têm trava', () => {
     expect(packagesForPlan('premium')).toEqual(['premium'])
-    expect(packagesForPlan('magazine')).toEqual([])
+    expect(packagesForPlan('magazine')).toEqual(['magazine'])
     expect(packagesForPlan('wellness')).toEqual(['wellness'])
   })
 })

@@ -2231,8 +2231,8 @@ section.community-card.product-manager.product-manager--storefront {
   padding: 34px 0 30px;
   margin-top: 14px;
   border: 0;
-  border-radius: 26px;
-  background: linear-gradient(180deg, rgba(255, 252, 246, 0.85), rgba(250, 240, 214, 0.55));
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
 }
 
@@ -2269,9 +2269,9 @@ section.community-card.product-manager.product-manager--storefront {
   position: absolute;
   display: block;
   /* Marca-d'água: transparente e dessaturado, sem cor forte nem sombra. */
-  opacity: 0.16;
+  opacity: 0.2;
   animation: sunflower-float 10s ease-in-out infinite;
-  filter: saturate(0.45);
+  filter: none;
 }
 
 .sunflower-svg {
@@ -3153,7 +3153,20 @@ section.community-card.product-manager.product-manager--storefront {
 .mag-shelf-cover .mag-cover-img {
   object-fit: contain;
   background: transparent;
-  filter: drop-shadow(0 10px 12px rgba(40, 32, 26, 0.38));
+  /* sombra para separar uma revista da outra na pilha */
+  filter: drop-shadow(-8px 6px 9px rgba(30, 22, 16, 0.55)) drop-shadow(0 0 1.5px rgba(30, 22, 16, 0.6));
+  transition: filter 0.45s ease;
+}
+
+.mag2-stack-item {
+  transition:
+    left 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.45s ease;
+}
+
+/* Na troca, a que vai para trás projeta sombra sobre a da frente. */
+.mag2-stack-item[style*="--mag-pos: 0"] .mag-cover-img {
+  filter: drop-shadow(-12px 8px 14px rgba(30, 22, 16, 0.6)) drop-shadow(0 0 2px rgba(30, 22, 16, 0.65));
 }
 
 /* ---- Miniaturas menores, três por linha (revista e receitas) ----------------------------- */
@@ -3196,4 +3209,64 @@ section.community-card.product-manager.product-manager--storefront {
 .magazine-pages-list .cover-image-input-actions {
   gap: 4px;
   flex-wrap: wrap;
+}
+
+/* ---- Nível da assinatura ---------------------------------------------------------------- */
+.sub-level {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.sub-level-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.sub-level-name {
+  margin: 0;
+  font-size: 22px;
+}
+
+.sub-level-name--premium {
+  color: #9a6b12;
+}
+
+.sub-level-hint {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.sub-level-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sub-level-products li {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+}
+
+.invite-friends {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-invite-section {
+  margin-top: 18px;
 }

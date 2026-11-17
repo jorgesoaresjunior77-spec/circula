@@ -61,7 +61,9 @@ export function PackageAccessManager({ community, profileId }: Props) {
         <ul className="package-list">
           {members.map((member) => (
             <li key={member.id} className="package-row">
-              <span className="package-row-name">{member.full_name ?? 'Participante'}</span>
+              <span className="package-row-name">
+                {member.full_name ?? 'Participante'} <small>· {has(member.id, 'premium') ? 'Premium' : 'Círcula'}</small>
+              </span>
               <span className="package-row-options">
                 {PACKAGE_KEYS.map((pkg) => {
                   const on = has(member.id, pkg)

@@ -74,22 +74,22 @@ function Sunflower() {
     <svg viewBox="0 0 100 100" className="sunflower-svg" focusable="false">
       <defs>
         <radialGradient id="sf-petal" cx="50%" cy="20%" r="80%">
-          <stop offset="0" stopColor="#ffe36a" />
-          <stop offset="1" stopColor="#f5a817" />
+          <stop offset="0" stopColor="#cdbfae" />
+          <stop offset="1" stopColor="#b5a48f" />
         </radialGradient>
         <radialGradient id="sf-back" cx="50%" cy="20%" r="80%">
-          <stop offset="0" stopColor="#f6c52f" />
-          <stop offset="1" stopColor="#d98a0c" />
+          <stop offset="0" stopColor="#c4b5a2" />
+          <stop offset="1" stopColor="#a8957e" />
         </radialGradient>
         <radialGradient id="sf-core" cx="42%" cy="38%" r="70%">
-          <stop offset="0" stopColor="#8a5a2b" />
-          <stop offset="1" stopColor="#3e2412" />
+          <stop offset="0" stopColor="#8b7a69" />
+          <stop offset="1" stopColor="#6a5b4e" />
         </radialGradient>
       </defs>
       <g fill="url(#sf-back)">{back}</g>
       <g fill="url(#sf-petal)">{petals}</g>
       <circle cx="50" cy="50" r="16" fill="url(#sf-core)" />
-      <g fill="#c99a52" opacity="0.7">{seeds}</g>
+      <g fill="#b9a893" opacity="0.7">{seeds}</g>
     </svg>
   )
 }

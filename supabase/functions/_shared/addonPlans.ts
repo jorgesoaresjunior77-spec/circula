@@ -84,6 +84,10 @@ export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle): number {
  *  (tabela member_package_access). O Premium libera todos. */
 export function packagesForPlan(key: AddonPlanKey): string[] {
   switch (key) {
+    case 'magazine':
+      return ['magazine']
+    case 'receitas':
+      return ['receitas']
     case 'help_nutri':
       return ['help_nutri']
     case 'ebooks':
@@ -99,7 +103,6 @@ export function packagesForPlan(key: AddonPlanKey): string[] {
     case 'premium':
       return ['premium']
     default:
-      // magazine e receitas ainda não têm trava no app.
       return []
   }
 }

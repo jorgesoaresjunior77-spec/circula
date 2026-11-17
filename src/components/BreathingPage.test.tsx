@@ -60,7 +60,7 @@ describe('BreathingPage — Respiração e Meditação', () => {
     expect(screen.getByRole('heading', { name: 'Pausa de respiração' })).toBeInTheDocument()
     expect(screen.getByText('5 min')).toBeInTheDocument()
     expect(screen.getByText('Sente-se com conforto.')).toBeInTheDocument()
-    expect(container.querySelector('audio')).toHaveAttribute('src', 'https://exemplo.com/a.mp3')
+    expect(screen.getByRole('link', { name: /Ouvir no Spotify/ })).toHaveAttribute('href', 'https://exemplo.com/a.mp3')
   })
 
   it('sessões de durações diferentes aparecem com a duração formatada', () => {
@@ -81,7 +81,7 @@ describe('BreathingPage — Respiração e Meditação', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nova sessão' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Respirar' } })
     fireEvent.change(screen.getByLabelText('Duração (minutos)'), { target: { value: '7' } })
-    fireEvent.change(screen.getByLabelText('Link do áudio (opcional, https)'), {
+    fireEvent.change(screen.getByLabelText('Link do Spotify (opcional, https)'), {
       target: { value: 'https://exemplo.com/x.mp3' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
@@ -104,7 +104,7 @@ describe('BreathingPage — Respiração e Meditação', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Nova sessão' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'X' } })
-    fireEvent.change(screen.getByLabelText('Link do áudio (opcional, https)'), {
+    fireEvent.change(screen.getByLabelText('Link do Spotify (opcional, https)'), {
       target: { value: 'http://exemplo.com/x.mp3' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))

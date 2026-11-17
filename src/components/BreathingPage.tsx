@@ -180,8 +180,9 @@ export function BreathingPage({ communityId, isOwner, profileId }: BreathingPage
               {s.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
               {s.instructions && <p className="reading-text">{s.instructions}</p>}
               {s.audio_url && (
-                // eslint-disable-next-line jsx-a11y/media-has-caption
-                <audio controls preload="none" src={s.audio_url} aria-label={`Áudio: ${s.title}`} />
+                <a className="playlist-card-open" href={s.audio_url} target="_blank" rel="noopener noreferrer">
+                  Ouvir no Spotify
+                </a>
               )}
               {(pagesBySession[s.id]?.length ?? 0) > 0 && (
                 <button type="button" className="water-primary breathing-open" onClick={() => setReadingId(s.id)}>
@@ -235,10 +236,10 @@ export function BreathingPage({ communityId, isOwner, profileId }: BreathingPage
             <textarea rows={5} maxLength={4000} value={form.instructions} onChange={(e) => setForm({ ...form, instructions: e.target.value })} />
           </label>
           <label>
-            Link do áudio (opcional, https)
+            Link do Spotify (opcional, https)
             <input
               type="url"
-              placeholder="https://"
+              placeholder="https://open.spotify.com/..."
               value={form.audio}
               onChange={(e) => setForm({ ...form, audio: e.target.value })}
             />

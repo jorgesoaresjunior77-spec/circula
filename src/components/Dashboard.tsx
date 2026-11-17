@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
+import { canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -936,6 +936,12 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'playlist') {
+      if (profile.role === 'member') {
+        if (packagesLoading) return <p className="home-muted">Carregando…</p>
+        if (!canListenPlaylist(myPackages)) {
+          return <PackagePaywall title="Playlist" planName="Playlist" onOpenPlans={() => handleNavigate('planos')} />
+        }
+      }
       return (
         <PlaylistPage
           communityId={resolvedCirclesCommunityId}

@@ -16,15 +16,15 @@ import { AddonCheckout } from './AddonCheckout'
 import { PLAN_ICONS } from './PlanIcons'
 import { useMyPackages } from '../hooks/usePackageAccess'
 import { SubscriptionPanel } from './SubscriptionPanel'
+import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 
 // Página de Planos da membro: o plano do Círcula, cada conteúdo avulso e o
 // Círcula Premium (tudo junto, com desconto), todos em cartões do mesmo
-// tamanho, 3 por fila. Tocar no cartão abre os preços por ciclo. Hoje só a
-// assinatura mensal do Círcula tem cobrança ligada (Asaas em Sandbox); os
-// demais mostram "Em breve" até a compra ser liberada.
+// tamanho, 3 por fila. Tocar no cartão abre os preços por ciclo e a compra
+// (Asaas em Sandbox).
 
-// Conteúdos avulsos com cobrança ligada no Asaas. Os demais aparecem como "Em breve".
-const BUYABLE: PlanKey[] = ['respiracao', 'wellness', 'leitura']
+// Todos os planos têm cobrança no Asaas (Sandbox por enquanto).
+const BUYABLE: PlanKey[] = [...PRODUCTS.map((p) => p.key), 'premium']
 
 const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
 const API_CYCLE: Record<string, PlanCycle> = {
@@ -119,6 +119,8 @@ export function PlansPage({
     <section className="plans-page">
       <h2>Planos</h2>
 
+      {!viewOnly && communityId && profileId && <SubscriptionLevelCard communityId={communityId} profileId={profileId} />}
+
       <div className="plans-grid">
         <PlanTile
           planKey="circula"
@@ -153,8 +155,7 @@ export function PlansPage({
       </div>
 
       <p className="plans-note">
-        Valores em reais, cobrados pelo ciclo escolhido. Conteúdos avulsos e o Premium serão liberados
-        em breve.
+        Valores em reais, cobrados pelo ciclo escolhido. O acesso libera quando o pagamento é confirmado.
       </p>
 
       {open && (
@@ -192,9 +193,16 @@ export function PlansPage({
                   {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
                 </p>
                 <PriceRow prices={PREMIUM_PRICES_CENTS} monthly={PREMIUM_MONTHLY_CENTS} />
-                <button type="button" className="plans-soon" disabled>
-                  Em breve
-                </button>
+                {viewOnly ? (
+                  <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
+                ) : (
+                  <AddonCheckout
+                    planKey="premium"
+                    communityId={communityId}
+                    prices={PREMIUM_PRICES_CENTS}
+                    owned={packages.has('premium')}
+                  />
+                )}
               </>
             )}
 
@@ -212,11 +220,7 @@ export function PlansPage({
                   />
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
-                ) : (
-                  <button type="button" className="plans-soon" disabled>
-                    Em breve
-                  </button>
-                )}
+                ) : null}
               </>
             )}
           </article>

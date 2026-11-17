@@ -159,20 +159,16 @@ export function PostComposer({
         />
         <EmojiPicker onPick={(e) => setContent((c) => c + e)} />
 
-        {imagePreview ? (
+        {imagePreview && (
           <div className="post-composer-image">
             <img loading="lazy" decoding="async" src={imagePreview} alt="Pré-visualização da imagem do post" />
-            <button
-              type="button"
-              className="auth-link"
-              onClick={removeImage}
-              disabled={loading}
-            >
+            <button type="button" className="auth-link" onClick={removeImage} disabled={loading}>
               Remover imagem
             </button>
           </div>
-        ) : (
-          <div className="post-composer-actions">
+        )}
+        <div className="post-composer-actions">
+          {!imagePreview && (
             <button
               type="button"
               className="auth-link post-composer-image-btn"
@@ -181,13 +177,13 @@ export function PostComposer({
             >
               Adicionar imagem
             </button>
-            {allowPoll && !pollOpen && (
-              <button type="button" className="auth-link" onClick={() => setPollOpen(true)} disabled={loading}>
-                Criar enquete
-              </button>
-            )}
-          </div>
-        )}
+          )}
+          {allowPoll && !pollOpen && (
+            <button type="button" className="auth-link" onClick={() => setPollOpen(true)} disabled={loading}>
+              Criar enquete
+            </button>
+          )}
+        </div>
 
         {allowPoll && pollOpen && (
           <fieldset className="poll-builder">
