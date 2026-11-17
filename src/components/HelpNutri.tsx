@@ -94,7 +94,7 @@ export function HelpNutri({
 
   return (
     <section className="help-nutri">
-      {avatar && <img className="help-nutri-avatar" src={avatar} alt="" />}
+      {avatar && <img className="help-nutri-avatar" src={avatar} alt="" loading="lazy" decoding="async" />}
       <h2 className="help-nutri-title">Help Nutri</h2>
       {hasAccess ? (
         <>

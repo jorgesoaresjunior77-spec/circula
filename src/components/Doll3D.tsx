@@ -1,3 +1,4 @@
+import { maxPixelRatio } from '../lib/deviceTier'
 import { useEffect, useRef } from 'react'
 import {
   ACESFilmicToneMapping,
@@ -131,7 +132,7 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       failRef.current?.()
       return
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxPixelRatio()))
     renderer.toneMapping = ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.05
     renderer.setClearColor(0x000000, 0)

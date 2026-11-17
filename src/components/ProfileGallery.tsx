@@ -84,7 +84,7 @@ export function ProfileGallery({
               onClick={() => setLightboxIndex(index)}
               aria-label={`Ver foto ${index + 1} ampliada`}
             >
-              <img src={url} alt="" />
+              <img src={url} alt="" loading="lazy" decoding="async" />
             </button>
             {editable && (
               <div className="profile-gallery-slot-actions">

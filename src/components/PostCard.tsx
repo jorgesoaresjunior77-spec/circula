@@ -274,7 +274,7 @@ export function PostCard({
           aria-label="Foto ampliada"
           onClick={() => setImageOpen(false)}
         >
-          <img src={postImageUrl} alt="" />
+          <img src={postImageUrl} alt="" loading="lazy" decoding="async" />
           <button type="button" className="post-image-lightbox-close" aria-label="Fechar a foto">
             ×
           </button>

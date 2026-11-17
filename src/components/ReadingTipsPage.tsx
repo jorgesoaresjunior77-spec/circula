@@ -72,7 +72,7 @@ function ReadingDetail({
         <button type="button" className="reading-detail-close" onClick={onClose} aria-label="Fechar">
           ×
         </button>
-        {url && <img className="reading-detail-cover" src={url} alt={`Capa de ${tip.title}`} />}
+        {url && <img className="reading-detail-cover" src={url} alt={`Capa de ${tip.title}`} decoding="async" />}
         <h4 className="reading-title">{tip.title}</h4>
         <p className="reading-author">{tip.author}</p>
         {tip.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}

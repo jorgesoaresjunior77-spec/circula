@@ -16,7 +16,7 @@ interface Props {
 
 function Thumb({ path }: { path: string }) {
   const { url } = useSignedImageUrl(path)
-  return url ? <img src={url} alt="" className="rec-pages-thumb" /> : <span className="rec-pages-thumb" />
+  return url ? <img src={url} alt="" className="rec-pages-thumb" loading="lazy" decoding="async" /> : <span className="rec-pages-thumb" />
 }
 
 export function SessionPagesEditor({ sessionId, communityId, profileId, onChanged }: Props) {
