@@ -77,13 +77,22 @@
   display: flex;
   flex-direction: column;
   aspect-ratio: auto;
+  overflow: visible;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
+  color: var(--circula-mocha);
 }
 
+/* A imagem é o cartão (com o relevo); o nome fica escrito logo abaixo dele. */
 .rec-tile--photo .rec-tile-media {
   position: static;
   z-index: auto;
   display: block;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--elev-2);
+  background: linear-gradient(145deg, #ead9c8, #d4b69f);
 }
 
 .rec-tile--photo .rec-tile-media img {
@@ -92,12 +101,30 @@
 }
 
 .rec-tile-caption {
-  display: block;
-  padding: 6px 10px 8px;
-  background: var(--c-white, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 2px 0;
+  text-align: left;
+}
+
+.rec-tile-caption-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 13.5px;
+  line-height: 1.22;
+  color: var(--circula-mocha);
+}
+
+.rec-tile-caption-meta {
   font-family: var(--font-label);
   font-size: 10.5px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--circula-taupe);
 }
 

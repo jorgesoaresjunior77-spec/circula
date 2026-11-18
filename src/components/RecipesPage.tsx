@@ -49,7 +49,12 @@ function CategoryCard({
       <span className="rec-tile-media" aria-hidden="true">
         <Photo path={cat.cover_path} />
       </span>
-      {!hasPhoto && (
+      {hasPhoto ? (
+        <span className="rec-tile-caption">
+          <strong className="rec-tile-caption-title">{cat.name}</strong>
+          <span className="rec-tile-caption-meta">{countLabel}</span>
+        </span>
+      ) : (
         <>
           <span className="rec-tile-veil" aria-hidden="true" />
           <span className="rec-tile-body">
@@ -97,7 +102,10 @@ function RecipeCard({
         <Photo path={recipe.cover_image_url} />
       </span>
       {hasPhoto ? (
-        meta && <span className="rec-tile-caption">{meta}</span>
+        <span className="rec-tile-caption">
+          <strong className="rec-tile-caption-title">{recipe.title}</strong>
+          {meta && <span className="rec-tile-caption-meta">{meta}</span>}
+        </span>
       ) : (
         <>
           <span className="rec-tile-veil" aria-hidden="true" />
