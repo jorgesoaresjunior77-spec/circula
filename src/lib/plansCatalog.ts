@@ -107,3 +107,31 @@ export function savingsPercent(cycle: PlanCycle, priceCents: number, monthlyCent
   if (full <= 0 || priceCents >= full) return 0
   return Math.round((1 - priceCents / full) * 100)
 }
+
+export interface CycleBreakdown {
+  months: number
+  /** Valor sem nenhum desconto: referência mensal × meses. */
+  fullCents: number
+  /** Total que a pessoa paga no ciclo. */
+  totalCents: number
+  /** Quanto ela deixa de pagar. */
+  savedCents: number
+  percent: number
+  /** Valor médio por mês no ciclo. */
+  perMonthCents: number
+}
+
+/** Detalha o ciclo: valor original, total pago, economia em R$ e em %. */
+export function cycleBreakdown(cycle: PlanCycle, totalCents: number, referenceMonthlyCents: number): CycleBreakdown {
+  const months = CYCLE_MONTHS[cycle]
+  const fullCents = referenceMonthlyCents * months
+  const savedCents = Math.max(0, fullCents - totalCents)
+  return {
+    months,
+    fullCents,
+    totalCents,
+    savedCents,
+    percent: fullCents > 0 ? Math.round((savedCents / fullCents) * 100) : 0,
+    perMonthCents: Math.round(totalCents / months),
+  }
+}

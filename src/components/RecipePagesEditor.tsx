@@ -43,7 +43,7 @@ export function RecipePagesEditor({ contentId, communityId, profileId }: Props) 
       <legend>Imagens da receita</legend>
       <p className="home-muted">
         Suba cerca de 6 imagens, na ordem: ingredientes, modo de fazer, informação nutricional e prato
-        pronto. A foto da receita acima serve de capa. Ficam três por linha.
+        pronto. A foto real do prato pronto (acima) é a imagem principal do card da receita. Ficam três por linha.
       </p>
       <ol className="rec-pages-list">
         {pages.map((p, i) => (

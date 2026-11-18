@@ -296,7 +296,7 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
           value={editRec.cover_image_url ?? ''}
           communityId={communityId}
           uid={profileId}
-          label="Foto da receita"
+          label="Foto real do prato pronto"
           aspectRatio="3 / 4"
           recommendedSize="1080 × 1440 px"
           onChange={(p) => setEditRec((prev) => ({ ...(prev ?? {}), cover_image_url: p }))}

@@ -14,6 +14,8 @@ interface ImageCropperProps {
   onDone: (file: File) => void
 }
 
+const NUDGE = 14
+
 export function ImageCropper({
   file,
   aspect,
@@ -76,6 +78,16 @@ export function ImageCropper({
     drag.current = null
   }
 
+  // Botões de posição: levam a imagem para cima, baixo e lados, em passos pequenos.
+  function nudge(dx: number, dy: number) {
+    setPos((p) => clamp(p.x + dx, p.y + dy))
+  }
+
+  function reset() {
+    setZoom(1)
+    setPos({ x: 0, y: 0 })
+  }
+
   async function confirm() {
     const m = metrics()
     const img = imgRef.current
@@ -106,7 +118,9 @@ export function ImageCropper({
     <div className="cropper-backdrop" role="dialog" aria-modal="true" aria-label={title}>
       <div className="cropper">
         <h3 className="cropper-title">{title}</h3>
-        <p className="cropper-hint">Arraste para alinhar e use o zoom.</p>
+        <p className="cropper-hint">
+          Arraste a imagem para os lados e para cima/baixo, ou use os botões. O que aparece na moldura é o que será salvo.
+        </p>
         <div
           ref={boxRef}
           className={`cropper-frame${round ? ' cropper-frame--round' : ''}`}
@@ -150,6 +164,13 @@ export function ImageCropper({
             onChange={(e) => setZoom(Number(e.target.value))}
           />
         </label>
+        <div className="cropper-nudge" role="group" aria-label="Posição da imagem">
+          <button type="button" aria-label="Mover a imagem para cima" onClick={() => nudge(0, -NUDGE)}>↑</button>
+          <button type="button" aria-label="Mover a imagem para a esquerda" onClick={() => nudge(-NUDGE, 0)}>←</button>
+          <button type="button" aria-label="Mover a imagem para baixo" onClick={() => nudge(0, NUDGE)}>↓</button>
+          <button type="button" aria-label="Mover a imagem para a direita" onClick={() => nudge(NUDGE, 0)}>→</button>
+          <button type="button" className="cropper-reset" onClick={reset}>Centralizar</button>
+        </div>
         <div className="cropper-actions">
           <button type="button" className="auth-link" onClick={onCancel}>
             Cancelar

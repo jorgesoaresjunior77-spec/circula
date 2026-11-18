@@ -3379,3 +3379,311 @@ section.community-card.product-manager.product-manager--storefront {
   line-height: 1.4;
   color: var(--circula-taupe);
 }
+
+/* ---- Menu inferior da Nutri (6 destinos): mais largo, ícones maiores e mais folga ---- */
+@media (max-width: 1023px) {
+  .bottom-nav:has(.bottom-nav-list > li:nth-child(6)) {
+    width: calc(100vw - 20px);
+    max-width: 460px;
+  }
+
+  .bottom-nav-list:has(> li:nth-child(6)) {
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .bottom-nav-list:has(> li:nth-child(6)) .bottom-nav-item {
+    padding: 6px 4px;
+  }
+
+  .bottom-nav-list:has(> li:nth-child(6)) .bottom-nav-item .nav-icon-wrap {
+    transform: scale(1.1);
+  }
+
+  .bottom-nav-list:has(> li:nth-child(6)) .bottom-nav-label {
+    margin-top: 2px;
+  }
+}
+
+/* ---- Perfil: as duas flores soltas, sem o card em volta, e mais espaço entre elas ---- */
+.garden-profile-summary {
+  gap: 56px;
+}
+
+.garden-profile-summary .garden-glass-card {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+
+/* ---- Revista na Home: capas arredondadas e sombras mais leves ---- */
+.mag2-stack .mag2-stack-item .mag-cover-img,
+.mag2-stack .mag2-stack-item .mag-cover-blank {
+  border-radius: 12px;
+  filter: brightness(calc(1 - var(--mag-pos, 0) * 0.03)) drop-shadow(5px 1px 6px rgba(22, 16, 11, 0.26))
+    drop-shadow(0 4px 6px rgba(22, 16, 11, 0.1));
+}
+
+.mag2-stack .mag2-stack-item[style*="--mag-pos: 0"] .mag-cover-img,
+.mag2-stack .mag2-stack-item[style*="--mag-pos: 0"] .mag-cover-blank {
+  filter: drop-shadow(6px 2px 8px rgba(22, 16, 11, 0.3)) drop-shadow(0 5px 8px rgba(22, 16, 11, 0.12));
+}
+
+/* ---- Chat (Help Nutri e mensagens): cores diferentes para cada lado ----
+   Minhas mensagens: mocha, à direita. Da outra pessoa: bege claro, à esquerda. */
+.message-bubble {
+  max-width: 80%;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 18px 18px 18px 5px;
+  background: #f1e6da;
+  box-shadow: 0 1px 2px rgba(60, 44, 32, 0.1);
+}
+
+.message-bubble .message-bubble-body {
+  color: #3a2f27;
+  font-weight: 400;
+}
+
+.message-bubble .message-bubble-meta {
+  color: rgba(58, 47, 39, 0.6);
+}
+
+.message-bubble--mine {
+  border-radius: 18px 18px 5px 18px;
+  background: linear-gradient(145deg, #8a6c57, #6f5342);
+}
+
+.message-bubble--mine .message-bubble-body {
+  color: #fff;
+}
+
+.message-bubble--mine .message-bubble-meta {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.message-bubble--mine .message-bubble-read {
+  color: #e8f3d6;
+}
+
+/* ---- Receitas: título e contagem/visualizações centralizados nos cards ---- */
+.rec-tile-caption {
+  align-items: center;
+  text-align: center;
+  padding: 10px 6px 0;
+}
+
+.rec-tile-caption-title,
+.rec-tile-caption-meta {
+  width: 100%;
+  text-align: center;
+}
+
+/* ---- Planos: valor original, desconto, total e economia por ciclo ---- */
+.plans-prices--detail {
+  grid-template-columns: 1fr;
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.plans-prices--detail .plans-cycle {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(120, 98, 78, 0.16);
+}
+
+.plans-cycle-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--circula-mocha);
+}
+
+.plans-cycle-head em {
+  font-style: normal;
+  font-size: 11.5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #e8f1dc;
+  color: #4d6b2f;
+}
+
+.plans-cycle-total {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plans-cycle-total s {
+  font-size: 13px;
+  color: var(--circula-taupe);
+}
+
+.plans-cycle-total strong {
+  font-size: 22px;
+  color: var(--circula-mocha);
+}
+
+.plans-cycle-total small {
+  font-size: 11px;
+  color: var(--circula-taupe);
+}
+
+.plans-cycle-detail {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--graphite-soft, #6b6560);
+}
+
+/* ---- Visualizador de imagem com zoom de pinça ---- */
+.zoom-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 14, 11, 0.94);
+}
+
+.zoom-viewer-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.zoom-viewer-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.zoom-viewer-close {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.zoom-viewer-hint {
+  margin: 0;
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---- Wellness: cards das matérias (imagem 16:9, título e descrição abaixo) ---- */
+.reading-page .wellness-grid,
+.wellness-grid {
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.wellness-tile.reading-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 0 14px;
+  overflow: hidden;
+  text-align: left;
+}
+
+.wellness-tile .wellness-tile-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  border-radius: 14px 14px 0 0;
+}
+
+.wellness-tile .reading-tile-title {
+  margin: 12px 14px 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.wellness-tile .reading-tile-author {
+  margin: 4px 14px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.wellness-zoomable {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.wellness-reader .wellness-reader-img,
+.wellness-reader .wellness-reader-cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+@media (min-width: 700px) {
+  .reading-page .wellness-grid,
+  .wellness-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* A capa real é mais estreita que o espaço: o <img> acompanha a largura da imagem,
+   assim o arredondamento e a sombra seguem a borda da capa (sem faixa transparente). */
+.mag2-stack .mag2-stack-item .mag-cover-img {
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.plans-prices--detail .plans-cycle {
+  text-align: left;
+  align-items: start;
+}
+
+.plans-prices--detail .plans-cycle-detail {
+  text-align: left;
+}
+
+.plans-prices--detail .plans-cycle-detail strong {
+  font-size: inherit;
+  font-family: inherit;
+  color: #4d6b2f;
+}

@@ -12,7 +12,7 @@ export interface WorldPlace extends WeatherCity {
 /** Os três lugares fixos no topo da página. */
 export const PINNED_PLACES: WorldPlace[] = [
   { name: 'Brasília', country: 'Brasil', latitude: -15.78, longitude: -47.93, timezone: 'America/Sao_Paulo' },
-  { name: 'Lisboa', country: 'Portugal', latitude: 38.72, longitude: -9.14, timezone: 'Europe/Lisbon' },
+  { name: 'Pequim', country: 'China', latitude: 39.9, longitude: 116.41, timezone: 'Asia/Shanghai' },
   { name: 'Nova York', country: 'Estados Unidos', latitude: 40.71, longitude: -74.01, timezone: 'America/New_York' },
 ]
 

@@ -6,6 +6,7 @@ import { ARTICLE_MAX_IMAGES, ARTICLE_MIN_IMAGES, layoutArticle, splitParagraphs 
 import type { WellnessArticle } from '../lib/wellnessArticles'
 import { CoverImageInput } from './CoverImageInput'
 import { MultiPageUpload } from './MultiPageUpload'
+import { ImageZoomViewer } from './ImageZoomViewer'
 
 // Wellness: matérias da profissional sobre o mundo do bem-estar. A membro vê
 // os cartões (3 por fila, como nas outras páginas) e abre a matéria inteira,
@@ -39,6 +40,21 @@ function Img({ path, className, alt = '' }: { path: string | null; className: st
   )
 }
 
+// Imagem da matéria: cabe na largura do celular e abre em tela cheia com zoom de pinça.
+function ZoomableImg({ path, className }: { path: string | null; className: string }) {
+  const { url } = useSignedImageUrl(path)
+  const [open, setOpen] = useState(false)
+  if (!url) return <span className={`${className} ${className}--blank`} aria-hidden="true" />
+  return (
+    <>
+      <button type="button" className="wellness-zoomable" onClick={() => setOpen(true)} aria-label="Ampliar imagem">
+        <img className={className} src={url} alt="" loading="lazy" decoding="async" />
+      </button>
+      {open && <ImageZoomViewer src={url} onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
 function ArticleTile({ article, onOpen }: { article: WellnessArticle; onOpen: () => void }) {
   const cover = article.cover_path ?? article.image_paths[0] ?? null
   return (
@@ -67,7 +83,7 @@ function ArticleReader({
         <button type="button" className="reading-detail-close" onClick={onClose} aria-label="Fechar">
           ×
         </button>
-        {article.cover_path && <Img path={article.cover_path} className="wellness-reader-cover" alt="" />}
+        {article.cover_path && <ZoomableImg path={article.cover_path} className="wellness-reader-cover" />}
         <h3 className="wellness-reader-title">{article.title}</h3>
         {article.description && <p className="wellness-reader-lead">{article.description}</p>}
         {article.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
@@ -77,7 +93,7 @@ function ArticleReader({
               {b.text}
             </p>
           ) : (
-            <Img key={i} path={b.path} className="wellness-reader-img" />
+            <ZoomableImg key={i} path={b.path} className="wellness-reader-img" />
           ),
         )}
         {onEdit && (
@@ -188,7 +204,7 @@ export function WellnessPage({ communityId, profileId, isOwner }: Props) {
       )}
 
       {items.length > 0 && (
-        <div className="reading-grid">
+        <div className="reading-grid wellness-grid">
           {[...items].reverse().map((a) => (
             <ArticleTile key={a.id} article={a} onOpen={() => setOpenId(a.id)} />
           ))}

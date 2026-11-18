@@ -113,19 +113,49 @@ export function ProfileCard({
             interests={profile.interests}
           />
 
-          <ProfileTestimonials profileId={profileId} communityId={communityId} viewerId={viewerId} />
+          <div className="profile-follow-row">
+            {viewerId && viewerId !== profileId && (
+              <button
+                type="button"
+                className={`btn profile-follow-button${follow.following ? ' profile-follow-button--on' : ' btn-primary'}`}
+                onClick={() => void follow.toggle()}
+                disabled={follow.busy}
+                aria-pressed={follow.following}
+              >
+                {follow.following ? 'Seguindo' : 'Seguir'}
+              </button>
+            )}
+          </div>
+          {follow.error && <p className="auth-error">{follow.error}</p>}
 
-          {/* Item 10 — galeria (só leitura): visível se houver fotos,
-              mesma RLS de `profiles` de sempre — nada novo de permissão. */}
-          {profile.gallery_photos.length > 0 && (
-            <div className="profile-gallery-section">
-              <p className="profile-section-label">Fotos</p>
-              <ProfileGallery
-                photos={profile.gallery_photos}
-                social={viewerId ? { ownerId: profileId, viewerId } : undefined}
-              />
-            </div>
-          )}
+          <ProfileTestimonials
+            profileId={profileId}
+            communityId={communityId}
+            viewerId={viewerId}
+            between={
+              <>
+                <div className="profile-visit-stats" aria-label="Seguidoras">
+                  <div className="profile-visit-stat">
+                    <strong>{follow.followers}</strong>
+                    <span>{follow.followers === 1 ? 'seguidora' : 'seguidoras'}</span>
+                  </div>
+                </div>
+
+                  {/* Item 10 — galeria (só leitura): visível se houver fotos,
+                      mesma RLS de `profiles` de sempre — nada novo de permissão. */}
+                  {profile.gallery_photos.length > 0 && (
+                    <div className="profile-gallery-section">
+                      <p className="profile-section-label">Fotos</p>
+                      <ProfileGallery
+                        photos={profile.gallery_photos}
+                        social={viewerId ? { ownerId: profileId, viewerId } : undefined}
+                      />
+                    </div>
+                  )}
+
+              </>
+            }
+          />
 
           {communityId && (
             <div className="profile-garden-section">
@@ -147,24 +177,6 @@ export function ProfileCard({
               </div>
             </>
           )}
-
-          <div className="profile-follow-row">
-            {viewerId && viewerId !== profileId && (
-              <button
-                type="button"
-                className={`btn profile-follow-button${follow.following ? ' profile-follow-button--on' : ' btn-primary'}`}
-                onClick={() => void follow.toggle()}
-                disabled={follow.busy}
-                aria-pressed={follow.following}
-              >
-                {follow.following ? 'Seguindo' : 'Seguir'}
-              </button>
-            )}
-            <span className="profile-follow-count">
-              {follow.followers} {follow.followers === 1 ? 'seguidora' : 'seguidoras'}
-            </span>
-          </div>
-          {follow.error && <p className="auth-error">{follow.error}</p>}
 
           {onStartConversation && (
             <button

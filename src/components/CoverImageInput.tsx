@@ -2,6 +2,15 @@ import { useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { uploadCommunityMedia } from '../lib/communityMedia'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { ImageCropper } from './ImageCropper'
+
+/** "3 / 4" -> 0.75. Sem proporção informada, usa 16:9 (o frame padrão). */
+function parseAspect(value?: string): number {
+  const m = value?.match(/^\s*([\d.]+)\s*\/\s*([\d.]+)\s*$/)
+  const w = m ? Number(m[1]) : 16
+  const h = m ? Number(m[2]) : 9
+  return w > 0 && h > 0 ? w / h : 16 / 9
+}
 
 interface CoverImageInputProps {
   /** Path/URL de capa já persistida (`''` = sem capa) — path novo do
@@ -59,17 +68,38 @@ export function CoverImageInput({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [localPreview, setLocalPreview] = useState<string | null>(null)
+  // Arquivo aguardando enquadramento (recorte) antes de subir.
+  const [pending, setPending] = useState<File | null>(null)
 
   const { url: savedPreviewUrl } = useSignedImageUrl(value || null)
   const preview = localPreview ?? savedPreviewUrl
   const controlsDisabled = disabled || uploading
 
-  async function handleFile(event: ChangeEvent<HTMLInputElement>) {
+  function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     // Permite reselecionar o mesmo arquivo depois de um erro.
     event.target.value = ''
     if (!file) return
+    setError(null)
+    // Antes de subir, a pessoa enquadra a imagem (arrastar, posicionar, prévia).
+    setPending(file)
+  }
 
+  // Reabre a imagem já salva para ajustar o enquadramento.
+  async function handleEditSaved() {
+    if (!savedPreviewUrl && !localPreview) return
+    setError(null)
+    try {
+      const res = await fetch((localPreview ?? savedPreviewUrl) as string)
+      const blob = await res.blob()
+      setPending(new File([blob], 'imagem', { type: blob.type || 'image/webp' }))
+    } catch {
+      setError('Não foi possível abrir a imagem para editar. Escolha o arquivo de novo.')
+    }
+  }
+
+  async function uploadCropped(file: File) {
+    setPending(null)
     setError(null)
     const objectUrl = URL.createObjectURL(file)
     setLocalPreview(objectUrl)
@@ -136,6 +166,11 @@ export function CoverImageInput({
           {uploading ? 'Enviando…' : preview ? 'Trocar imagem' : 'Selecionar imagem'}
         </button>
         {preview && !uploading && (
+          <button type="button" className="cover-image-input-pick" onClick={() => void handleEditSaved()} disabled={controlsDisabled}>
+            Editar enquadramento
+          </button>
+        )}
+        {preview && !uploading && (
           <button
             type="button"
             className="auth-link"
@@ -148,6 +183,17 @@ export function CoverImageInput({
       </div>
 
       {error && <p className="auth-error">{error}</p>}
+
+      {pending && (
+        <ImageCropper
+          file={pending}
+          aspect={parseAspect(aspectRatio)}
+          outputWidth={1440}
+          title="Ajustar imagem"
+          onCancel={() => setPending(null)}
+          onDone={(f) => void uploadCropped(f)}
+        />
+      )}
 
       <input
         ref={inputRef}

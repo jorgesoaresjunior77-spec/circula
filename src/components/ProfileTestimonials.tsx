@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Depoimentos: uma membro escreve para outra, e o texto fica na capa do
@@ -20,11 +20,13 @@ interface Props {
   communityId: string | null
   /** Quem está olhando. */
   viewerId: string | null
+  /** Conteúdo (cards, fotos) mostrado entre o botão de depoimento e a lista. */
+  between?: ReactNode
 }
 
 const MAX = 600
 
-export function ProfileTestimonials({ profileId, communityId, viewerId }: Props) {
+export function ProfileTestimonials({ profileId, communityId, viewerId, between }: Props) {
   const [items, setItems] = useState<Testimonial[]>([])
   const [loaded, setLoaded] = useState(false)
   const [text, setText] = useState('')
@@ -82,61 +84,30 @@ export function ProfileTestimonials({ profileId, communityId, viewerId }: Props)
     else void load()
   }
 
-  if (!loaded) return null
+  if (!loaded) return <>{between}</>
   if (items.length === 0 && !canWrite) {
-    return isOwnProfile ? (
-      <div className="testimonials">
-        <p className="profile-section-label">Depoimentos</p>
-        <p className="home-muted">
-          Quando outra participante escrever um depoimento para você, ele aparece aqui, na sua capa.
-        </p>
-      </div>
-    ) : null
+    return (
+      <>
+        {between}
+        {isOwnProfile && (
+          <div className="testimonials">
+            <p className="profile-section-label">Depoimentos</p>
+            <p className="home-muted">
+              Quando outra participante escrever um depoimento para você, ele aparece aqui, na sua capa.
+            </p>
+          </div>
+        )}
+      </>
+    )
   }
 
   return (
-    <div className="testimonials">
-      <p className="profile-section-label">Depoimentos</p>
-
-      {items.length > 0 && (
-        <ul className="testimonials-list">
-          {items.map((t) => {
-            const name = t.author?.full_name ?? 'Participante'
-            const canRemove = t.author_id === viewerId || isOwnProfile
-            return (
-              <li key={t.id} className="testimonial">
-                <span className="testimonial-avatar" aria-hidden="true">
-                  {t.author?.avatar_url ? (
-                    <img src={t.author.avatar_url} alt="" loading="lazy" decoding="async" />
-                  ) : (
-                    <span>{name.charAt(0).toUpperCase()}</span>
-                  )}
-                </span>
-                <div className="testimonial-body">
-                  <p className="testimonial-text">“{t.content}”</p>
-                  <p className="testimonial-author">
-                    {name}
-                    {canRemove && (
-                      <button
-                        type="button"
-                        className="auth-link testimonial-remove"
-                        disabled={busy}
-                        onClick={() => void removeItem(t.id)}
-                      >
-                        {isOwnProfile && t.author_id !== viewerId ? 'Tirar da minha capa' : 'Apagar'}
-                      </button>
-                    )}
-                  </p>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-
+    <>
+      {(canWrite || error) && (
+        <div className="testimonials testimonials--write">
       {canWrite && !writing && (
         <button type="button" className="btn btn-primary testimonial-write" onClick={() => setWriting(true)}>
-          Escrever um depoimento
+          Deixar depoimento
         </button>
       )}
 
@@ -166,6 +137,52 @@ export function ProfileTestimonials({ profileId, communityId, viewerId }: Props)
       )}
 
       {error && <p className="auth-error">{error}</p>}
-    </div>
+        </div>
+      )}
+
+      {between}
+
+      {items.length > 0 && (
+        <div className="testimonials">
+          <p className="profile-section-label">Depoimentos</p>
+        {items.length > 0 && (
+          <ul className="testimonials-list">
+            {items.map((t) => {
+              const name = t.author?.full_name ?? 'Participante'
+              const canRemove = t.author_id === viewerId || isOwnProfile
+              return (
+                <li key={t.id} className="testimonial">
+                  <span className="testimonial-avatar" aria-hidden="true">
+                    {t.author?.avatar_url ? (
+                      <img src={t.author.avatar_url} alt="" loading="lazy" decoding="async" />
+                    ) : (
+                      <span>{name.charAt(0).toUpperCase()}</span>
+                    )}
+                  </span>
+                  <div className="testimonial-body">
+                    <p className="testimonial-text">“{t.content}”</p>
+                    <p className="testimonial-author">
+                      {name}
+                      {canRemove && (
+                        <button
+                          type="button"
+                          className="auth-link testimonial-remove"
+                          disabled={busy}
+                          onClick={() => void removeItem(t.id)}
+                        >
+                          {isOwnProfile && t.author_id !== viewerId ? 'Tirar da minha capa' : 'Apagar'}
+                        </button>
+                      )}
+                    </p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        </div>
+      )}
+    </>
   )
 }

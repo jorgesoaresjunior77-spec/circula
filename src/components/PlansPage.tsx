@@ -7,9 +7,9 @@ import {
   PREMIUM_PRICES_CENTS,
   PREMIUM_SEPARATE_MONTHLY_CENTS,
   PRODUCTS,
+  cycleBreakdown,
   formatBrl,
   pricesOf,
-  savingsPercent,
 } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
 import { AddonCheckout } from './AddonCheckout'
@@ -35,20 +35,58 @@ const API_CYCLE: Record<string, PlanCycle> = {
 
 type PlanKey = 'circula' | 'premium' | (typeof PRODUCTS)[number]['key']
 
-function PriceRow({ prices, monthly }: { prices: Record<PlanCycle, number>; monthly: number }) {
+/** Quanto custa em cada ciclo, com o valor sem desconto, o desconto aplicado, o total e a economia.
+ *  `reference` é o mensal de partida (sem desconto) e `discountNote` explica de onde vem o desconto. */
+function PriceRow({
+  prices,
+  reference,
+  referenceLabel = 'Valor mensal',
+  discountNote,
+}: {
+  prices: Record<PlanCycle, number>
+  reference: number
+  referenceLabel?: string
+  discountNote?: string
+}) {
   return (
-    <ul className="plans-prices">
-      {CYCLES.map((c) => {
-        const off = savingsPercent(c, prices[c], monthly)
-        return (
-          <li key={c}>
-            <span>{CYCLE_LABEL[c]}</span>
-            <strong>{formatBrl(prices[c])}</strong>
-            {off > 0 && <em>{off}% de economia</em>}
-          </li>
-        )
-      })}
-    </ul>
+    <div className="plans-prices-wrap">
+      <ul className="plans-prices plans-prices--detail">
+        {CYCLES.map((c) => {
+          const b = cycleBreakdown(c, prices[c], reference)
+          const discounted = b.savedCents > 0
+          return (
+            <li key={c} className="plans-cycle">
+              <div className="plans-cycle-head">
+                <span>
+                  {CYCLE_LABEL[c]}
+                  {b.months > 1 ? ` · ${b.months} meses` : ''}
+                </span>
+                {discounted && <em>{b.percent}% de desconto</em>}
+              </div>
+              <div className="plans-cycle-total">
+                {discounted && <s>{formatBrl(b.fullCents)}</s>}
+                <strong>{formatBrl(b.totalCents)}</strong>
+                <small>total a pagar</small>
+              </div>
+              <p className="plans-cycle-detail">
+                {b.months > 1 ? `Equivale a ${formatBrl(b.perMonthCents)} por mês. ` : ''}
+                {discounted ? (
+                  <>
+                    Você economiza <strong>{formatBrl(b.savedCents)}</strong>.
+                  </>
+                ) : (
+                  'Sem desconto neste ciclo.'
+                )}
+              </p>
+            </li>
+          )
+        })}
+      </ul>
+      <p className="plans-note">
+        {referenceLabel}: {formatBrl(reference)}. O valor riscado é o total sem desconto no ciclo.
+        {discountNote ? ` ${discountNote}` : ''}
+      </p>
+    </div>
   )
 }
 
@@ -169,7 +207,7 @@ export function PlansPage({
               <>
                 <h3>Círcula</h3>
                 <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
-                <PriceRow prices={circulaPrices} monthly={circulaPrices.monthly} />
+                <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
                 <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
                 {viewOnly ? (
                   <p className="home-muted">
@@ -192,7 +230,12 @@ export function PlansPage({
                   playlists, o wellness, as dicas de leitura e a Minha Lista, tudo junto e com desconto. Separado, o mensal sairia{' '}
                   {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
                 </p>
-                <PriceRow prices={PREMIUM_PRICES_CENTS} monthly={PREMIUM_MONTHLY_CENTS} />
+                <PriceRow
+                  prices={PREMIUM_PRICES_CENTS}
+                  reference={PREMIUM_SEPARATE_MONTHLY_CENTS}
+                  referenceLabel="Tudo separado, por mês"
+                  discountNote={`Descontos: o pacote completo custa ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês em vez de ${formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)} (${premiumOff}% a menos), e pagar por 6 ou 12 meses de uma vez dá mais 20% ou 35% sobre o mensal do Premium.`}
+                />
                 {viewOnly ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
                 ) : (
@@ -210,7 +253,11 @@ export function PlansPage({
               <>
                 <h3>{product.name}</h3>
                 <p className="plans-text">{product.description}</p>
-                <PriceRow prices={pricesOf(product)} monthly={product.monthlyCents} />
+                <PriceRow
+                  prices={pricesOf(product)}
+                  reference={product.monthlyCents}
+                  discountNote="Pagando 6 ou 12 meses de uma vez, o desconto vem sobre o mensal."
+                />
                 {BUYABLE.includes(product.key) && !viewOnly ? (
                   <AddonCheckout
                     planKey={product.key}

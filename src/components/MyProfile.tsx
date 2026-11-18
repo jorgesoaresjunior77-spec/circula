@@ -231,8 +231,6 @@ export function MyProfile({
 
       <ProfileVisitStats profileId={profile.id} />
 
-      <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
-
       {crop && (
         <ImageCropper
           file={crop.file}
@@ -251,36 +249,7 @@ export function MyProfile({
 
       {!editing ? (
         <div className="profile-info-block">
-          {profile.bio && <p className="profile-bio">{profile.bio}</p>}
-          {(() => {
-            const aboutMe = ABOUT_ME_OPTIONS.filter((option) => profile.interests.includes(option))
-            return (
-              aboutMe.length > 0 && (
-                <div className="profile-about-me">
-                  <p className="profile-section-label">Um pouco sobre mim</p>
-                  <div className="interest-tags interest-tags--view">
-                    {aboutMe.map((item) => (
-                      <span key={item} className="interest-tag">{item}</span>
-                    ))}
-                  </div>
-                </div>
-              )
-            )
-          })()}
-          {(() => {
-            const freeform = profile.interests.filter(
-              (interest) => !(ABOUT_ME_OPTIONS as readonly string[]).includes(interest),
-            )
-            return (
-              freeform.length > 0 && (
-                <div className="interest-tags interest-tags--view">
-                  {freeform.map((interest) => (
-                    <span key={interest} className="interest-tag">{interest}</span>
-                  ))}
-                </div>
-              )
-            )
-          })()}
+          {/* Bio e interesses já aparecem no cabeçalho do perfil: não repetir aqui. */}
           <OnboardingAnswersView answers={profile.onboarding_answers ?? null} />
         </div>
       ) : (
@@ -406,13 +375,6 @@ export function MyProfile({
         </form>
       )}
 
-      {communityId && (
-        <div className="profile-garden-section">
-          <p className="profile-section-label">Meu Jardim</p>
-          <GardenProfileSummary communityId={communityId} profileId={profile.id} />
-        </div>
-      )}
-
       <div className="profile-gallery-section">
         <p className="profile-section-label">Minhas fotos</p>
         <ProfileGallery
@@ -425,6 +387,15 @@ export function MyProfile({
           social={{ ownerId: profile.id, viewerId: profile.id }}
         />
       </div>
+
+      {communityId && (
+        <div className="profile-garden-section">
+          <p className="profile-section-label">Meu Jardim</p>
+          <GardenProfileSummary communityId={communityId} profileId={profile.id} />
+        </div>
+      )}
+
+      <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
 
       {!editing && (
         <div className="profile-actions-row profile-actions-row--inline">
