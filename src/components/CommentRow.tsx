@@ -14,6 +14,8 @@ interface CommentRowProps {
   comment: CommentRowData
   /** 'root' = comentário-raiz (avatar maior). 'reply' = resposta agrupada. */
   variant?: 'root' | 'reply'
+  /** Tocar na foto ou no nome abre o perfil de quem comentou. */
+  onOpenAuthor?: (profileId: string) => void
 }
 
 /**
@@ -21,8 +23,15 @@ interface CommentRowProps {
  * Compartilhada por CommentList (leitura) e CommentThread (interativo)
  * para não duplicar a marcação.
  */
-export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
+export function CommentRow({ comment, variant = 'root', onOpenAuthor }: CommentRowProps) {
   const name = comment.author?.full_name ?? 'Participante'
+  const authorId = comment.author?.id
+  const open = onOpenAuthor && authorId ? () => onOpenAuthor(authorId) : null
+  const avatar = comment.author?.avatar_url ? (
+    <img loading="lazy" decoding="async" src={comment.author.avatar_url} alt="" />
+  ) : (
+    <span>{name.charAt(0).toUpperCase()}</span>
+  )
   const { url: imageUrl } = useSignedImageUrl(comment.image_url ?? null)
   const likes = useCommentLikesContext()
   const liked = !!comment.id && !!likes?.mine.has(comment.id)
@@ -30,16 +39,30 @@ export function CommentRow({ comment, variant = 'root' }: CommentRowProps) {
 
   return (
     <div className={`comment-item comment-item--${variant}`}>
-      <div className="comment-avatar" aria-hidden="true">
-        {comment.author?.avatar_url ? (
-          <img loading="lazy" decoding="async" src={comment.author.avatar_url} alt="" />
-        ) : (
-          <span>{name.charAt(0).toUpperCase()}</span>
-        )}
-      </div>
+      {open ? (
+        <button
+          type="button"
+          className="comment-avatar comment-avatar--open"
+          onClick={open}
+          aria-label={`Ver o perfil de ${name}`}
+        >
+          {avatar}
+        </button>
+      ) : (
+        <div className="comment-avatar" aria-hidden="true">
+          {avatar}
+        </div>
+      )}
       <div className="comment-item-main">
         <p className="comment-author">
-          {name} <span className="comment-time">{formatRelativeTime(comment.created_at)}</span>
+          {open ? (
+            <button type="button" className="comment-author-open" onClick={open}>
+              {name}
+            </button>
+          ) : (
+            name
+          )}{' '}
+          <span className="comment-time">{formatRelativeTime(comment.created_at)}</span>
         </p>
         {!(comment.image_url && comment.content.trim() === '📷') && (
           <p className="comment-content">{comment.content}</p>

@@ -338,6 +338,7 @@ export function PostCard({
                         comment={thread}
                         canInteract={canInteract}
                         onReply={canInteract ? handleReply : undefined}
+                        onOpenAuthor={onOpenAuthor}
                       />
                     ))}
                   </ul>
@@ -377,7 +378,7 @@ export function PostCard({
         <div className="post-comments">
           {loadingComments && <p>Carregando comentários...</p>}
 
-          {!loadingComments && <CommentList comments={comments ?? []} />}
+          {!loadingComments && <CommentList comments={comments ?? []} onOpenAuthor={onOpenAuthor} />}
 
           {canInteract && <CommentForm onSubmit={(text, file) => submitComment(text, null, file)} />}
         </div>

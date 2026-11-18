@@ -12,6 +12,8 @@ export interface CommentLike {
 
 interface CommentListProps {
   comments: CommentLike[]
+  /** Quando informado, a foto e o nome de quem comentou abrem o perfil dela. */
+  onOpenAuthor?: (profileId: string) => void
 }
 
 /**
@@ -20,7 +22,7 @@ interface CommentListProps {
  * Quando um item traz `replies`, elas aparecem agrupadas e recuadas —
  * fontes sem árvore (desafios) continuam planas.
  */
-export function CommentList({ comments }: CommentListProps) {
+export function CommentList({ comments, onOpenAuthor }: CommentListProps) {
   if (comments.length === 0) {
     return <p className="comment-empty">Ainda não há comentários. Seja a primeira a comentar!</p>
   }
@@ -29,12 +31,12 @@ export function CommentList({ comments }: CommentListProps) {
     <ul className="comment-list">
       {comments.map((comment) => (
         <li key={comment.id}>
-          <CommentRow comment={comment} />
+          <CommentRow comment={comment} onOpenAuthor={onOpenAuthor} />
           {comment.replies && comment.replies.length > 0 && (
             <ul className="comment-list comment-list--replies">
               {comment.replies.map((reply) => (
                 <li key={reply.id}>
-                  <CommentRow comment={reply} variant="reply" />
+                  <CommentRow comment={reply} variant="reply" onOpenAuthor={onOpenAuthor} />
                 </li>
               ))}
             </ul>

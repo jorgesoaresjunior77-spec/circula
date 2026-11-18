@@ -13,12 +13,14 @@ interface CommentThreadProps {
     parentCommentId: string,
     imageFile?: File | null,
   ) => Promise<CreateCommentResult>
+  /** Tocar na foto ou no nome de quem comentou abre o perfil dela. */
+  onOpenAuthor?: (profileId: string) => void
 }
 
 /** Quantas mensagens ficam à vista antes do "ver mais". */
 export const VISIBLE_LIMIT = 6
 
-export function CommentThread({ comment, canInteract, onReply }: CommentThreadProps) {
+export function CommentThread({ comment, canInteract, onReply, onOpenAuthor }: CommentThreadProps) {
   const [replying, setReplying] = useState(false)
   // Resposta a uma resposta: fica agrupada sob o comentário-raiz, com @nome.
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null)
@@ -61,7 +63,7 @@ export function CommentThread({ comment, canInteract, onReply }: CommentThreadPr
 
   return (
     <li className="comment-thread">
-      <CommentRow comment={comment} variant="root" />
+      <CommentRow comment={comment} variant="root" onOpenAuthor={onOpenAuthor} />
 
       {(canReply || replyCount > 0) && (
         <div className="comment-thread-actions">
@@ -104,7 +106,7 @@ export function CommentThread({ comment, canInteract, onReply }: CommentThreadPr
         <ul className="comment-replies">
           {visibleReplies.map((reply) => (
             <li key={reply.id}>
-              <CommentRow comment={reply} variant="reply" />
+              <CommentRow comment={reply} variant="reply" onOpenAuthor={onOpenAuthor} />
               {canReply && (
                 <button
                   type="button"

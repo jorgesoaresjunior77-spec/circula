@@ -1295,6 +1295,16 @@ button.post-avatar.post-avatar--open {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Comentários: mesma coisa para a foto e o nome de quem comentou. */
+button.comment-avatar.comment-avatar--open {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.comment-author-open,
 button.post-author-open {
   margin: 0;
   padding: 0;
