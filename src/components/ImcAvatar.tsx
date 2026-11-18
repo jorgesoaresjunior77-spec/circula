@@ -46,6 +46,15 @@ export function ImcAvatar({ band }: { band: ImcBand }) {
       </defs>
       <circle cx={cx} cy="26" r="13" fill="url(#imc-avatar-fill)" />
       <path d={`M ${cx - 6} 38 L ${cx - 6} 43 L ${cx + 6} 43 L ${cx + 6} 38 Z`} fill="url(#imc-avatar-fill)" />
+      {/* Braços relaxados ao lado do corpo, acompanhando a largura do quadril. */}
+      <path
+        d={`M ${cx - shoulder + 1} 50 C ${cx - shoulder - 6} 64, ${cx - hip - 7} 88, ${cx - hip - 6} 106 L ${cx - hip - 1} 107 C ${cx - hip} 90, ${cx - shoulder + 2} 66, ${cx - shoulder + 6} 54 Z`}
+        fill="url(#imc-avatar-fill)"
+      />
+      <path
+        d={`M ${cx + shoulder - 1} 50 C ${cx + shoulder + 6} 64, ${cx + hip + 7} 88, ${cx + hip + 6} 106 L ${cx + hip + 1} 107 C ${cx + hip} 90, ${cx + shoulder - 2} 66, ${cx + shoulder - 6} 54 Z`}
+        fill="url(#imc-avatar-fill)"
+      />
       <path d={body} fill="url(#imc-avatar-fill)" />
     </svg>
   )
