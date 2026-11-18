@@ -230,5 +230,46 @@ export interface WeatherPhoto {
   credit: string
 }
 
-/** Fotos reais por cenário. Vazio = usa o degradê do clima. */
-export const WEATHER_PHOTOS: Partial<Record<WeatherScene, WeatherPhoto>> = {}
+/** Fotos reais por cenário (Wikimedia Commons, licenças livres; o crédito aparece na página). Sem foto = degradê do clima. */
+export const WEATHER_PHOTOS: Partial<Record<WeatherScene, WeatherPhoto>> = {
+  praia: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Beach%2C_New_Brighton%2C_New_Zealand_06.jpg/960px-Beach%2C_New_Brighton%2C_New_Zealand_06.jpg',
+    credit: 'Foto: Michal Klajban / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  'ceu-azul': {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/D%C3%BClmen%2C_Wildpark_--_2018_--_1458-62.jpg/960px-D%C3%BClmen%2C_Wildpark_--_2018_--_1458-62.jpg',
+    credit: 'Foto: Dietmar Rabich / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  frio: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Zon_komt_op_boven_een_winters_landschap._Locatie%2C_Langweerderwielen_%28Langwarder_Wielen%29_en_omgeving.jpg/960px-Zon_komt_op_boven_een_winters_landschap._Locatie%2C_Langweerderwielen_%28Langwarder_Wielen%29_en_omgeving.jpg',
+    credit: 'Foto: Dominicus Johannes Bergsma / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  noite: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/036_Milky_Way_during_Perseids_seen_from_Oeschinensee_with_water_reflections_Photo_by_Giles_Laurent.jpg/960px-036_Milky_Way_during_Perseids_seen_from_Oeschinensee_with_water_reflections_Photo_by_Giles_Laurent.jpg',
+    credit: 'Foto: Giles Laurent / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  'sol-e-nuvens': {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Summer_clouds_over_Tuntorp_3.jpg/960px-Summer_clouds_over_Tuntorp_3.jpg',
+    credit: 'Foto: W.carter / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  nublado: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Tsitsikamma_National_Park_%28ZA%29%2C_Kanus_an_der_K%C3%BCste_--_2024_--_1990.jpg/960px-Tsitsikamma_National_Park_%28ZA%29%2C_Kanus_an_der_K%C3%BCste_--_2024_--_1990.jpg',
+    credit: 'Foto: Dietmar Rabich / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  neblina: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Foggy_Fanal_forest_in_Seixal%2C_Porto_Moniz%2C_Madeira%2C_2023_May.jpg/960px-Foggy_Fanal_forest_in_Seixal%2C_Porto_Moniz%2C_Madeira%2C_2023_May.jpg',
+    credit: 'Foto: Ximonic (Simo Räsänen) / Wikimedia Commons (CC BY-SA 4.0)',
+  },
+  chuva: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Jetty_at_Gullmarsvik_on_a_rainy_day.jpg/960px-Jetty_at_Gullmarsvik_on_a_rainy_day.jpg',
+    credit: 'Foto: W.carter / Wikimedia Commons (Public domain)',
+  },
+  tempestade: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Sheet_Lightning_over_Mt_Wellington.jpg/960px-Sheet_Lightning_over_Mt_Wellington.jpg',
+    credit: 'Foto: JJ Harrison / Wikimedia Commons (CC BY-SA 3.0)',
+  },
+  neve: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Snow_Scene_at_Shipka_Pass_1.JPG/960px-Snow_Scene_at_Shipka_Pass_1.JPG',
+    credit: 'Foto: Psy guy / Wikimedia Commons (CC BY-SA 3.0)',
+  },
+}
