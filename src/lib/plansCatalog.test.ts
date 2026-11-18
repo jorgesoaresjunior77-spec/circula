@@ -17,10 +17,16 @@ describe('plansCatalog', () => {
     expect(by.playlist).toBe(580)
     expect(by.wellness).toBe(450)
     expect(by.leitura).toBe(450)
+    expect(by.minha_lista).toBe(490)
   })
   it('o Premium sai mais barato que a soma de tudo separado', () => {
-    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(7510)
+    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(8000)
     expect(PREMIUM_MONTHLY_CENTS).toBeLessThan(PREMIUM_SEPARATE_MONTHLY_CENTS)
+  })
+  it('Premium: R$ 59,80, e semestral/anual mantêm 20% e 35% sobre o novo valor', () => {
+    expect(PREMIUM_MONTHLY_CENTS).toBe(5980)
+    expect(PREMIUM_PRICES_CENTS.semiannual).toBe(Math.round(5980 * 6 * 0.8))
+    expect(PREMIUM_PRICES_CENTS.annual).toBe(Math.round(5980 * 12 * 0.65))
   })
   it('calcula a economia frente ao mensal', () => {
     expect(savingsPercent('semiannual', PRODUCT_PRICES_CENTS.semiannual, 990)).toBe(16)

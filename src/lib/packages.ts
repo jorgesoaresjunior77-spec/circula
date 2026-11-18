@@ -13,6 +13,7 @@ export type PackageKey =
   | 'premium'
   | 'magazine'
   | 'receitas'
+  | 'minha_lista'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -23,6 +24,7 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'playlist',
   'magazine',
   'receitas',
+  'minha_lista',
   'premium',
   'total',
 ]
@@ -38,6 +40,7 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   premium: 'Círcula Premium',
   magazine: 'Círcula Magazine',
   receitas: 'Receitas',
+  minha_lista: 'Minha Lista',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -51,6 +54,7 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   premium: 'Vale por todos os conteúdos pagos.',
   magazine: 'Pode ler a revista.',
   receitas: 'Pode ver as receitas.',
+  minha_lista: 'Pode usar a Minha Lista (listas de compras).',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -87,4 +91,9 @@ export function canReadWellness(owned: Owned): boolean {
 /** Pode ouvir as Playlists: pacote Playlist ou Círcula Premium. */
 export function canListenPlaylist(owned: Owned): boolean {
   return has(owned, 'playlist') || has(owned, 'premium')
+}
+
+/** Pode usar a Minha Lista: pacote Minha Lista ou Círcula Premium (que já a inclui). */
+export function canUseMinhaLista(owned: Owned): boolean {
+  return has(owned, 'minha_lista') || has(owned, 'premium')
 }

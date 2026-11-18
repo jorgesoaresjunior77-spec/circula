@@ -32,5 +32,6 @@ describe('addonPlans', () => {
     expect(packagesForPlan('premium')).toEqual(['premium'])
     expect(packagesForPlan('magazine')).toEqual(['magazine'])
     expect(packagesForPlan('wellness')).toEqual(['wellness'])
+    expect(packagesForPlan('minha_lista')).toEqual(['minha_lista'])
   })
 })

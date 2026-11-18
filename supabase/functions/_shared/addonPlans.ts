@@ -12,6 +12,7 @@ export type AddonPlanKey =
   | 'playlist'
   | 'wellness'
   | 'leitura'
+  | 'minha_lista'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -25,6 +26,7 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'playlist',
   'wellness',
   'leitura',
+  'minha_lista',
   'premium',
 ]
 
@@ -37,6 +39,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   playlist: 'Playlist',
   wellness: 'Wellness',
   leitura: 'Dicas de Leitura',
+  minha_lista: 'Minha Lista',
   premium: 'Círcula Premium',
 }
 
@@ -49,12 +52,13 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   playlist: 580,
   wellness: 450,
   leitura: 450,
-  premium: 5990,
+  minha_lista: 490,
+  premium: 5980,
 }
 
 // Preços fechados que já existiam no catálogo do app.
 const CLOSED: Partial<Record<AddonPlanKey, Record<AsaasCycle, number>>> = {
-  premium: { MONTHLY: 5990, SEMIANNUALLY: 28752, YEARLY: 46722 },
+  premium: { MONTHLY: 5980, SEMIANNUALLY: 28704, YEARLY: 46644 },
 }
 const NINETY_NINETY: Record<AsaasCycle, number> = { MONTHLY: 990, SEMIANNUALLY: 4980, YEARLY: 7970 }
 
@@ -100,6 +104,8 @@ export function packagesForPlan(key: AddonPlanKey): string[] {
       return ['wellness']
     case 'leitura':
       return ['leitura']
+    case 'minha_lista':
+      return ['minha_lista']
     case 'premium':
       return ['premium']
     default:

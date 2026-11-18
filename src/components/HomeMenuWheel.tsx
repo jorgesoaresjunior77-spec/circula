@@ -5,7 +5,7 @@ import type { CommunityCardKey } from '../types/communityCards'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
 // Menu vertical contínuo: Dicas de leitura, Respiração, Assinaturas,
-// Playlist e Wellness. Cards finos, todos do mesmo tamanho, com a imagem encostada à
+// Playlist, Wellness e Lista de Compras. Cards finos, todos do mesmo tamanho, com a imagem encostada à
 // esquerda e o título ao lado, em vidro transparente. A lista sobe sem parar,
 // como uma roda: o card que sai por cima volta por baixo, sem pausa nem salto.
 // Com "reduzir movimento", vira uma lista parada.
@@ -54,12 +54,21 @@ const LeafSvg = (
   </svg>
 )
 
+const CartSvg = (
+  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+    <path d="M3 4h2.400l2.200 11h10.400l2-8H6.200" />
+    <circle cx="9.500" cy="19.500" r="1.400" />
+    <circle cx="17" cy="19.500" r="1.400" />
+  </svg>
+)
+
 const ALL_ITEMS: Item[] = [
   { key: 'leitura', imageKey: 'menu_leitura', title: 'Dicas de leitura', tint: 'linear-gradient(135deg,#f3dccf,#e8c3b3)', icon: BookSvg },
   { key: 'respiracao', imageKey: 'menu_respiracao', title: 'Respiração', tint: 'linear-gradient(135deg,#d8e6dc,#bcd3c4)', icon: BreathSvg },
   { key: 'planos', imageKey: 'menu_planos', title: 'Assinaturas', tint: 'linear-gradient(135deg,#efe2c8,#e3cda4)', icon: StarSvg },
   { key: 'playlist', imageKey: 'menu_playlist', title: 'Playlist', tint: 'linear-gradient(135deg,#dcd6ea,#c6bddb)', icon: MusicSvg },
   { key: 'wellness', imageKey: 'menu_wellness', title: 'Wellness', tint: 'linear-gradient(135deg,#d3e4d6,#b4d0bb)', icon: LeafSvg },
+  { key: 'lista', imageKey: 'menu_lista', title: 'Lista de Compras', tint: 'linear-gradient(135deg,#f1dcc6,#e6c3a0)', icon: CartSvg },
 ]
 
 /** Miniatura do card: a foto da profissional ocupa ~60% da largura (com fade

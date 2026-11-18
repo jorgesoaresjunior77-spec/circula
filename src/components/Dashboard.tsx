@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
+import { canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -103,6 +103,7 @@ const WellnessPage = lazy(() => import('./WellnessPage').then((m) => ({ default:
 const WeatherPage = lazy(() => import('./WeatherPage').then((m) => ({ default: m.WeatherPage })))
 const HelpPage = lazy(() => import('./HelpPage').then((m) => ({ default: m.HelpPage })))
 const InspirationManagerPage = lazy(() => import('./InspirationManagerPage').then((m) => ({ default: m.InspirationManagerPage })))
+const MinhaListaPage = lazy(() => import('./minhalista/MinhaListaPage').then((m) => ({ default: m.MinhaListaPage })))
 const NutriModule = lazy(() => import('./nutri/NutriModule').then((m) => ({ default: m.NutriModule })))
 const GardenMonthManager = lazy(() => import('./GardenMonthManager').then((m) => ({ default: m.GardenMonthManager })))
 interface CommunityPickerOptionProps {
@@ -163,7 +164,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
 
 export function Dashboard({
   profile,
@@ -386,6 +387,7 @@ export function Dashboard({
       Icon: HeartIcon,
       inBottomNav: false,
     })
+    navItems.push({ key: 'lista', label: 'Lista de Compras', Icon: StoreIcon, inBottomNav: false })
     // Mensagens do dia (pop-up diário) — só a profissional cadastra.
     if (profile?.role === 'professional') {
       navItems.push({
@@ -921,6 +923,8 @@ export function Dashboard({
           communityId={resolvedCirclesCommunityId}
           profileId={profile.id}
           isOwner={profile.role === 'professional'}
+          canUseLista={profile.role === 'professional' || canUseMinhaLista(myPackages)}
+          onOpenPlans={() => handleNavigate('planos')}
         />
       )
     }
@@ -981,7 +985,7 @@ export function Dashboard({
 
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela
     // profissional da comunidade; membro vê só o publicado (RLS).
-    if (effectiveNav === 'leitura' || effectiveNav === 'respiracao' || effectiveNav === 'wellness') {
+    if (effectiveNav === 'leitura' || effectiveNav === 'respiracao' || effectiveNav === 'wellness' || effectiveNav === 'lista') {
       if (circlesRelevantCommunities.length === 0) {
         return <p>Você ainda não faz parte de nenhuma comunidade.</p>
       }
@@ -994,7 +998,9 @@ export function Dashboard({
                 ? 'Dicas de Leitura · escolha uma comunidade'
                 : effectiveNav === 'wellness'
                   ? 'Wellness · escolha uma comunidade'
-                  : 'Respiração e Meditação · escolha uma comunidade',
+                  : effectiveNav === 'lista'
+                    ? 'Lista de Compras · escolha uma comunidade'
+                    : 'Respiração e Meditação · escolha uma comunidade',
               circlesRelevantCommunities,
               setCirclesCommunityId,
             )}
@@ -1033,6 +1039,19 @@ export function Dashboard({
             />
           )
         }
+      }
+
+      if (effectiveNav === 'lista') {
+        if (profile.role === 'member' && packagesLoading) return <p className="home-muted">Carregando…</p>
+        return (
+          <MinhaListaPage
+            communityId={resolvedCirclesCommunityId}
+            profileId={profile.id}
+            firstName={(profile.full_name ?? '').split(' ')[0] || 'tudo bem'}
+            canUse={profile.role === 'professional' || canUseMinhaLista(myPackages)}
+            onOpenPlans={() => handleNavigate('planos')}
+          />
+        )
       }
 
       if (effectiveNav === 'wellness') {

@@ -25,6 +25,7 @@ export type NavKey =
   | 'leitura'
   | 'respiracao'
   | 'wellness'
+  | 'lista'
   | 'inspiracoes'
   // 'salvos' permanece no tipo: destino desativado da navegação primária
   // na Fase 1 (Módulo 7 despriorizado), código mantido dormente.

@@ -5,10 +5,10 @@ import { HomeMenuWheel } from './HomeMenuWheel'
 describe('HomeMenuWheel — menu vertical contínuo', () => {
   afterEach(() => cleanup())
 
-  it('mostra os 5 cards na ordem e cada um abre o seu destino', () => {
+  it('mostra os 6 cards na ordem e cada um abre o seu destino', () => {
     const onNavigate = vi.fn()
     render(<HomeMenuWheel onNavigate={onNavigate} />)
-    // A segunda volta da roda é cópia (aria-hidden): só as 5 reais são acessíveis.
+    // A segunda volta da roda é cópia (aria-hidden): só as 6 reais são acessíveis.
     const buttons = screen.getAllByRole('button')
     expect(buttons.map((b) => b.textContent)).toEqual([
       'Dicas de leitura',
@@ -16,15 +16,16 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
       'Assinaturas',
       'Playlist',
       'Wellness',
+      'Lista de Compras',
     ])
     buttons.forEach((b) => fireEvent.click(b))
-    expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'planos', 'playlist', 'wellness'])
+    expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'planos', 'playlist', 'wellness', 'lista'])
   })
 
   it('a profissional não vê Assinaturas', () => {
     render(<HomeMenuWheel onNavigate={vi.fn()} showSubscriptions={false} />)
     expect(screen.queryByRole('button', { name: 'Assinaturas' })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('button')).toHaveLength(4)
+    expect(screen.getAllByRole('button')).toHaveLength(5)
   })
 
   it('com foto cadastrada mostra a imagem; sem foto, o ícone de sempre', () => {
@@ -38,7 +39,7 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
     const imgs = container.querySelectorAll('.wheel-thumb--photo img')
     expect(imgs).toHaveLength(2)
     expect(imgs[0]).toHaveAttribute('src', 'https://exemplo.com/leitura.jpg')
-    // Respiração, Assinaturas, Playlist e Wellness seguem com o degradê e o ícone.
-    expect(container.querySelectorAll('.wheel-thumb:not(.wheel-thumb--photo) svg')).toHaveLength(8)
+    // Respiração, Assinaturas, Playlist, Wellness e Lista de Compras seguem com o degradê e o ícone.
+    expect(container.querySelectorAll('.wheel-thumb:not(.wheel-thumb--photo) svg')).toHaveLength(10)
   })
 })

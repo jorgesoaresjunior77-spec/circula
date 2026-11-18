@@ -58,6 +58,7 @@ export type CommunityCardKey =
   | 'menu_planos'
   | 'menu_playlist'
   | 'menu_wellness'
+  | 'menu_lista'
   | 'loja_fundo'
 
 export interface CommunityCardMeta {
@@ -92,6 +93,7 @@ export const MENU_CARD_META: CommunityCardMeta[] = [
   { key: 'menu_planos', label: 'Assinaturas', hint: 'Card da roda de menu da Home (só a membro vê).' },
   { key: 'menu_playlist', label: 'Playlist', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_wellness', label: 'Wellness', hint: 'Card da roda de menu da Home.' },
+  { key: 'menu_lista', label: 'Lista de Compras', hint: 'Card da roda de menu da Home.' },
 ]
 
 export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)

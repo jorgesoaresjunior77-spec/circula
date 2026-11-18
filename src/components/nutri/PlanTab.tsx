@@ -5,6 +5,8 @@ import { brDate } from '../../lib/nutri'
 import { dayTotals, uid } from '../../lib/nutriPlan'
 import type { Food, Plan } from '../../lib/nutriPlan'
 import { planHtml, printDocument, shoppingHtml } from '../../lib/nutriPrint'
+import { createListFromPlan } from '../../hooks/useShopping'
+import { shoppingList } from '../../lib/nutriPlan'
 import { PlanEditor, emptyPlan } from './PlanEditor'
 import type { PatientBasics, PlanDraft } from './PlanEditor'
 
@@ -41,6 +43,7 @@ export function PlanTab({
   patientName,
   nutriName,
   otherPatients,
+  linkedProfileId,
 }: {
   patientId: string
   communityId: string
@@ -50,6 +53,8 @@ export function PlanTab({
   patientName: string
   nutriName: string
   otherPatients: { id: string; full_name: string }[]
+  /** Participante vinculada à paciente (recebe a lista de compras, se houver). */
+  linkedProfileId: string | null
 }) {
   const { plans, loading, savePlan, setStatus, copyTo } = usePatientPlans(patientId, communityId)
   const [shopDays, setShopDays] = useState(7)
@@ -147,6 +152,30 @@ export function PlanTab({
                   }}
                 >
                   Lista de compras
+                </button>
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={async () => {
+                    setError(null)
+                    const lines = shoppingList(pl.meals, shopDays).map((l) => ({ name: l.name, grams: l.grams }))
+                    const r = await createListFromPlan({
+                      communityId,
+                      name: `Compras: ${patientName.split(' ')[0]} · ${pl.name}`,
+                      notes: `Lista para ${shopDays} dia(s), a partir do plano "${pl.name}".`,
+                      lines,
+                      shareWith: linkedProfileId,
+                    })
+                    if (r.error) setError(r.error)
+                    else
+                      setNotice(
+                        linkedProfileId
+                          ? 'Lista criada na sua Minha Lista e compartilhada com a paciente.'
+                          : 'Lista criada na sua Minha Lista. Para compartilhar com a paciente, vincule-a a uma participante no cadastro.',
+                      )
+                  }}
+                >
+                  Lista de compras na Minha Lista
                 </button>
                 {otherPatients.length > 0 && (
                   <button type="button" className="auth-link" onClick={() => setCopying(copying === pl.id ? null : pl.id)}>

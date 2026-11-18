@@ -28,6 +28,7 @@ export type ProductKey =
   | 'playlist'
   | 'wellness'
   | 'leitura'
+  | 'minha_lista'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -45,6 +46,12 @@ export const PRODUCTS: CatalogProduct[] = [
   { key: 'playlist', name: 'Playlist', description: 'As playlists da nutricionista para cada momento.', monthlyCents: 580 },
   { key: 'wellness', name: 'Wellness', description: 'Matérias da nutricionista sobre o mundo do bem-estar.', monthlyCents: 450 },
   { key: 'leitura', name: 'Dicas de Leitura', description: 'As recomendações de livros da nutricionista, por tema.', monthlyCents: 450 },
+  {
+    key: 'minha_lista',
+    name: 'Minha Lista',
+    description: 'Organize suas compras, planeje sua alimentação e tenha tudo o que precisa sempre à mão.',
+    monthlyCents: 490,
+  },
 ]
 
 /** Arredonda para dezenas de centavos (R$ 0,10), como nos preços fechados. */
@@ -80,13 +87,14 @@ export const PREMIUM_SEPARATE_MONTHLY_CENTS =
   CIRCULA_MONTHLY_CENTS + PRODUCTS.reduce((sum, p) => sum + p.monthlyCents, 0)
 
 /** Círcula Premium: o Círcula e todos os conteúdos juntos, com desconto.
- *  Mensal R$ 59,90 (valor confirmado pelo usuário em 2026-11-17; separado
- *  seria R$ 75,10, com as Dicas de Leitura); semestral 20% e anual 35% de economia sobre o mensal. */
-export const PREMIUM_MONTHLY_CENTS = 5990
+ *  Mensal R$ 59,80 (valor oficial definido pelo usuário em 2026-11-18, já com a
+ *  Minha Lista; separado seria R$ 80,00); semestral 20% e anual 35% de economia
+ *  sobre o mensal (regra que já existia, recalculada sobre o novo valor). */
+export const PREMIUM_MONTHLY_CENTS = 5980
 export const PREMIUM_PRICES_CENTS: Record<PlanCycle, number> = {
   monthly: PREMIUM_MONTHLY_CENTS,
-  semiannual: 28752,
-  annual: 46722,
+  semiannual: 28704, // 5980 × 6 × 0,80
+  annual: 46644, // 5980 × 12 × 0,65
 }
 
 export function formatBrl(cents: number): string {

@@ -211,6 +211,7 @@ export function PatientRecord({
               patientName={patient.full_name}
               nutriName={nutriName}
               otherPatients={otherPatients}
+              linkedProfileId={patient.linked_profile_id ?? null}
             />
           )}
 

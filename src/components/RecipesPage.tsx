@@ -6,6 +6,7 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
 import { RecipeMagazineView } from './RecipeMagazineView'
 import { RecipePagesEditor } from './RecipePagesEditor'
+import { AddRecipeToList } from './minhalista/AddRecipeToList'
 import { ChevronLeftIcon } from './icons'
 import { isList, recipeItems } from '../lib/recipeText'
 
@@ -13,6 +14,9 @@ interface RecipesPageProps {
   communityId: string
   profileId: string
   isOwner: boolean
+  /** Tem a Minha Lista (ou o Premium). */
+  canUseLista?: boolean
+  onOpenPlans?: () => void
 }
 
 function Photo({ path }: { path: string | null }) {
@@ -89,7 +93,7 @@ function BackButton({ onClick, children }: { onClick: () => void; children: stri
   )
 }
 
-export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProps) {
+export function RecipesPage({ communityId, profileId, isOwner, canUseLista = false, onOpenPlans }: RecipesPageProps) {
   const api = useRecipes(communityId, profileId, isOwner)
   const [catId, setCatId] = useState<string | null>(null)
   const [open, setOpen] = useState<Recipe | null>(null)
@@ -243,6 +247,17 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
             ))}
           </select>
         </label>
+        <details className="rec-ingredients-field" open={!!(editRec.ingredients ?? '').trim()}>
+          <summary>Ingredientes para a Minha Lista (opcional)</summary>
+          <label>
+            Um ingrediente por linha, com a quantidade (ex.: 2 ovos, 200 g de frango)
+            <textarea
+              rows={5}
+              value={editRec.ingredients ?? ''}
+              onChange={(e) => setEditRec((prev) => ({ ...(prev ?? {}), ingredients: e.target.value }))}
+            />
+          </label>
+        </details>
         <CoverImageInput
           value={editRec.cover_image_url ?? ''}
           communityId={communityId}
@@ -314,6 +329,7 @@ export function RecipesPage({ communityId, profileId, isOwner }: RecipesPageProp
           <h2>{fresh.title}</h2>
           {fresh.summary && <p className="rec-lead">{fresh.summary}</p>}
         </header>
+        <AddRecipeToList recipe={fresh} communityId={communityId} profileId={profileId} canUse={canUseLista} onOpenPlans={onOpenPlans ?? (() => {})} />
         <RecipeMagazineView
           recipeId={fresh.id}
           communityId={communityId}
