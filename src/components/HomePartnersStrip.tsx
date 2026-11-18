@@ -40,60 +40,10 @@ function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
   )
 }
 
-// Girassóis flutuando dentro do card: flores desenhadas em SVG que sobem e
-// descem devagar, giram de leve e variam de tamanho e de nitidez (as menores
-// ficam um pouco desfocadas, para dar profundidade). Só decoração: escondida
-// de leitores de tela, sem receber toque, paradas com "reduzir movimento".
-function Sunflower() {
-  const petals = Array.from({ length: 16 }, (_, i) => (
-    <ellipse
-      key={i}
-      cx="50"
-      cy="19"
-      rx="7.2"
-      ry="17"
-      transform={`rotate(${(i * 360) / 16} 50 50)`}
-    />
-  ))
-  const back = Array.from({ length: 16 }, (_, i) => (
-    <ellipse
-      key={i}
-      cx="50"
-      cy="21"
-      rx="7"
-      ry="16"
-      transform={`rotate(${(i * 360) / 16 + 11.25} 50 50)`}
-    />
-  ))
-  const seeds = Array.from({ length: 22 }, (_, i) => {
-    const r = 3.5 + 11 * Math.sqrt((i + 0.5) / 22)
-    const ang = i * 2.39996 // ângulo dourado, como as sementes de verdade
-    return <circle key={i} cx={50 + r * Math.cos(ang)} cy={50 + r * Math.sin(ang)} r="1.5" />
-  })
-  return (
-    <svg viewBox="0 0 100 100" className="sunflower-svg" focusable="false">
-      <defs>
-        <radialGradient id="sf-petal" cx="50%" cy="20%" r="80%">
-          <stop offset="0" stopColor="#cdbfae" />
-          <stop offset="1" stopColor="#b5a48f" />
-        </radialGradient>
-        <radialGradient id="sf-back" cx="50%" cy="20%" r="80%">
-          <stop offset="0" stopColor="#c4b5a2" />
-          <stop offset="1" stopColor="#a8957e" />
-        </radialGradient>
-        <radialGradient id="sf-core" cx="42%" cy="38%" r="70%">
-          <stop offset="0" stopColor="#8b7a69" />
-          <stop offset="1" stopColor="#6a5b4e" />
-        </radialGradient>
-      </defs>
-      <g fill="url(#sf-back)">{back}</g>
-      <g fill="url(#sf-petal)">{petals}</g>
-      <circle cx="50" cy="50" r="16" fill="url(#sf-core)" />
-      <g fill="#b9a893" opacity="0.7">{seeds}</g>
-    </svg>
-  )
-}
-
+// Bolinhas redondas quase imperceptíveis no fundo do card, como sombras suaves que
+// sobem e descem devagar (as menores ficam um pouco desfocadas, para dar
+// profundidade). Só decoração: escondidas de leitores de tela, sem receber toque,
+// paradas com "reduzir movimento".
 const SUNFLOWERS: { x: number; y: number; size: number; dur: number; delay: number; blur: number; spin: number }[] = [
   { x: 4, y: 10, size: 84, dur: 9, delay: 0, blur: 0, spin: 14 },
   { x: 84, y: 6, size: 68, dur: 11, delay: -3, blur: 0, spin: -12 },
@@ -103,7 +53,7 @@ const SUNFLOWERS: { x: number; y: number; size: number; dur: number; delay: numb
   { x: 62, y: 4, size: 38, dur: 13, delay: -9, blur: 3, spin: -10 },
 ]
 
-function FloatingSunflowers() {
+function FloatingDots() {
   return (
     <div className="sunflowers" aria-hidden="true">
       {SUNFLOWERS.map((f, i) => (
@@ -122,9 +72,7 @@ function FloatingSunflowers() {
               '--spin': `${f.spin}deg`,
             } as React.CSSProperties
           }
-        >
-          <Sunflower />
-        </span>
+        />
       ))}
     </div>
   )
@@ -154,7 +102,7 @@ export function HomePartnersStrip({ communityId }: { communityId: string }) {
 
   return (
     <m.section className="home-partners" aria-label="Parceiros" {...inViewOnce} variants={riseVariants}>
-      <FloatingSunflowers />
+      <FloatingDots />
       <h3 className="home-partners-title">Parceiros</h3>
       <div className="partner-viewport">
         <div className="partner-track" style={{ animationDuration: `${perHalf * PARTNER_SECONDS_PER_LOGO}s` }}>

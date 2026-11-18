@@ -71,6 +71,36 @@
   transform: scale(0.985);
 }
 
+/* Com foto: o cartão é a própria imagem, do tamanho dela (formato de revista,
+   3:4). Nada é cortado e nada fica escrito por cima. */
+.rec-tile--photo {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: auto;
+  background: transparent;
+}
+
+.rec-tile--photo .rec-tile-media {
+  position: static;
+  z-index: auto;
+  display: block;
+}
+
+.rec-tile--photo .rec-tile-media img {
+  height: auto;
+  object-fit: contain;
+}
+
+.rec-tile-caption {
+  display: block;
+  padding: 6px 10px 8px;
+  background: var(--c-white, #fff);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--circula-taupe);
+}
+
 .rec-tile-media {
   position: absolute;
   inset: 0;

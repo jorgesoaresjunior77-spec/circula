@@ -2268,16 +2268,12 @@ section.community-card.product-manager.product-manager--storefront {
   --spin: 12deg;
   position: absolute;
   display: block;
-  /* Marca-d'água: transparente e dessaturado, sem cor forte nem sombra. */
-  opacity: 0.2;
+  /* Bolinha redonda quase imperceptível, só uma sombra suave de fundo. */
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(120, 98, 78, 0.55), rgba(120, 98, 78, 0.28) 58%, rgba(120, 98, 78, 0) 100%);
+  opacity: 0.13;
   animation: sunflower-float 10s ease-in-out infinite;
   filter: none;
-}
-
-.sunflower-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 @keyframes sunflower-float {
@@ -3005,42 +3001,35 @@ section.community-card.product-manager.product-manager--storefront {
   gap: 14px;
 }
 
-.schedule-rules {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-  border-radius: 20px;
-  background: var(--c-white);
-  box-shadow: var(--shadow-sm);
-}
-
-.schedule-rules label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-}
-
-.schedule-rules input,
-.schedule-rules textarea {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  border: 1px solid var(--circula-taupe);
-  border-radius: 10px;
-  font: inherit;
-}
-
 .schedule-rules-title {
   margin: 0;
   font-size: 15px;
 }
 
-.schedule-rules-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.schedule-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+  border-radius: 20px;
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+}
+
+.schedule-rules-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.schedule-rules-list i {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
 }
 
 /* ---- Métricas: gráficos de barras simples ------------------------------------------------ */
@@ -3361,4 +3350,23 @@ section.community-card.product-manager.product-manager--storefront {
   ::view-transition-group(mag-open) {
     animation-duration: 0.01s;
   }
+}
+
+/* ---- Revista: dá para ver que são várias edições, uma sobre a outra ----------------------- */
+/* Cada capa projeta sombra PARA A DIREITA (é lá que fica a revista de trás), as de trás
+   escurecem um pouco a cada posição e as capas "em breve" (sem imagem) também ganham sombra. */
+.mag2-stack .mag2-stack-item .mag-cover-img,
+.mag2-stack .mag2-stack-item .mag-cover-blank {
+  filter: brightness(calc(1 - var(--mag-pos, 0) * 0.05)) drop-shadow(8px 1px 7px rgba(22, 16, 11, 0.55))
+    drop-shadow(0 7px 8px rgba(22, 16, 11, 0.22)) drop-shadow(0 0 1px rgba(22, 16, 11, 0.7));
+}
+
+.mag2-stack .mag2-stack-item[style*="--mag-pos: 0"] .mag-cover-img,
+.mag2-stack .mag2-stack-item[style*="--mag-pos: 0"] .mag-cover-blank {
+  filter: drop-shadow(11px 2px 11px rgba(22, 16, 11, 0.62)) drop-shadow(0 9px 11px rgba(22, 16, 11, 0.26))
+    drop-shadow(0 0 1.5px rgba(22, 16, 11, 0.75));
+}
+
+.mag2-stack .mag2-stack-item .mag-cover-blank {
+  border: 1px solid rgba(120, 98, 78, 0.28);
 }

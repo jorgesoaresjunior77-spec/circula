@@ -35,19 +35,30 @@ function CategoryCard({
   index: number
   onOpen: () => void
 }) {
+  const hasPhoto = !!cat.cover_path
+  const countLabel = `${count} ${count === 1 ? 'receita' : 'receitas'}`
+  // Com foto, o cartão é só a imagem inteira (a capa já traz as escritas).
   return (
-    <button type="button" className="rec-tile" style={{ '--i': index } as CSSProperties} onClick={onOpen}>
+    <button
+      type="button"
+      className={`rec-tile${hasPhoto ? ' rec-tile--photo' : ''}`}
+      style={{ '--i': index } as CSSProperties}
+      onClick={onOpen}
+      aria-label={`${cat.name}, ${countLabel}`}
+    >
       <span className="rec-tile-media" aria-hidden="true">
         <Photo path={cat.cover_path} />
       </span>
-      <span className="rec-tile-veil" aria-hidden="true" />
-      <span className="rec-tile-body">
-        <strong className="rec-tile-title">{cat.name}</strong>
-        {cat.description && <span className="rec-tile-desc">{cat.description}</span>}
-        <span className="rec-pill">
-          {count} {count === 1 ? 'receita' : 'receitas'}
-        </span>
-      </span>
+      {!hasPhoto && (
+        <>
+          <span className="rec-tile-veil" aria-hidden="true" />
+          <span className="rec-tile-body">
+            <strong className="rec-tile-title">{cat.name}</strong>
+            {cat.description && <span className="rec-tile-desc">{cat.description}</span>}
+            <span className="rec-pill">{countLabel}</span>
+          </span>
+        </>
+      )}
     </button>
   )
 }
@@ -65,22 +76,37 @@ function RecipeCard({
   onOpen: () => void
 }) {
   const draft = recipe.status !== 'published'
+  const hasPhoto = !!recipe.cover_image_url
+  const meta =
+    draft || views !== undefined
+      ? `${draft ? 'Rascunho' : ''}${draft && views !== undefined ? ' · ' : ''}${
+          views !== undefined ? `${views} ${views === 1 ? 'visualização' : 'visualizações'}` : ''
+        }`
+      : null
+  // Com foto, o cartão é só a imagem inteira; rascunho e visualizações (só para
+  // a dona) ficam numa linha logo abaixo, nunca por cima da imagem.
   return (
-    <button type="button" className="rec-tile" style={{ '--i': index } as CSSProperties} onClick={onOpen}>
+    <button
+      type="button"
+      className={`rec-tile${hasPhoto ? ' rec-tile--photo' : ''}`}
+      style={{ '--i': index } as CSSProperties}
+      onClick={onOpen}
+      aria-label={recipe.title}
+    >
       <span className="rec-tile-media" aria-hidden="true">
         <Photo path={recipe.cover_image_url} />
       </span>
-      <span className="rec-tile-veil" aria-hidden="true" />
-      <span className="rec-tile-body">
-        <strong className="rec-tile-title">{recipe.title}</strong>
-        {(views !== undefined || draft) && (
-          <span className="rec-pill">
-            {draft ? 'Rascunho' : ''}
-            {draft && views !== undefined ? ' · ' : ''}
-            {views !== undefined ? `${views} ${views === 1 ? 'visualização' : 'visualizações'}` : ''}
+      {hasPhoto ? (
+        meta && <span className="rec-tile-caption">{meta}</span>
+      ) : (
+        <>
+          <span className="rec-tile-veil" aria-hidden="true" />
+          <span className="rec-tile-body">
+            <strong className="rec-tile-title">{recipe.title}</strong>
+            {meta && <span className="rec-pill">{meta}</span>}
           </span>
-        )}
-      </span>
+        </>
+      )}
     </button>
   )
 }
@@ -188,8 +214,8 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
           communityId={communityId}
           uid={profileId}
           label="Imagem da categoria"
-          aspectRatio="4 / 5"
-          recommendedSize="1080 × 1350 px"
+          aspectRatio="3 / 4"
+          recommendedSize="1080 × 1440 px"
           onChange={(p) => setEditCat((prev) => ({ ...(prev ?? {}), cover_path: p }))}
         />
         {error && <p className="auth-error">{error}</p>}
@@ -263,8 +289,8 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
           communityId={communityId}
           uid={profileId}
           label="Foto da receita"
-          aspectRatio="4 / 5"
-          recommendedSize="1080 × 1350 px"
+          aspectRatio="3 / 4"
+          recommendedSize="1080 × 1440 px"
           onChange={(p) => setEditRec((prev) => ({ ...(prev ?? {}), cover_image_url: p }))}
         />
         {editRec.id ? (
