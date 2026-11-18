@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { m, inViewOnce, riseVariants, tapPress } from '../lib/motionKit'
 import type { CircleWithMembers } from '../types/circle'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
@@ -154,7 +155,9 @@ export function HomeCirclesSection({
 
   const renderSeq = (clone: boolean, key?: string) => (
     <ul className="circ-seq" aria-hidden={clone || undefined} key={key} ref={clone ? undefined : seqRef}>
-      {Array.from({ length: repeat }, (_, r) => renderCards(clone || r > 0, `${key ?? 'real'}-${r}`))}
+      {Array.from({ length: repeat }, (_, r) => (
+        <Fragment key={`${key ?? 'real'}-${r}`}>{renderCards(clone || r > 0, `${key ?? 'real'}-${r}`)}</Fragment>
+      ))}
     </ul>
   )
 
