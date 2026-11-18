@@ -1,14 +1,10 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { useContentSchedule } from '../hooks/useContentSchedule'
-import { useContentRules } from '../hooks/useContentRules'
 import {
   CONTENT_TYPES,
   MONTH_NAMES,
-  PHASES,
   TYPE_COLORS,
   contentTypeLabel,
-  groupSchedule,
   itemsByDay,
   monthGrid,
   monthKey,
@@ -16,105 +12,13 @@ import {
   phaseLabel,
   shortDate,
 } from '../lib/contentSchedule'
-import type { ContentType, ScheduleItem, SchedulePhase, ScheduleRules } from '../lib/contentSchedule'
+import { CONTENT_RULES, RULES_START, ruleItems } from '../lib/contentRules'
 
 const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 
-function RulesCard({
-  month,
-  title,
-  rules,
-  onSave,
-}: {
-  month: string
-  title: string
-  rules: ScheduleRules
-  onSave: (v: ScheduleRules) => Promise<{ error: string | null }>
-}) {
-  const [draft, setDraft] = useState<ScheduleRules>(rules)
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [saving, setSaving] = useState(false)
-  const num = (v: string): number | null => (v === '' ? null : Math.max(0, Math.min(50, Number(v) || 0)))
-
-  async function save(e: FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    setMsg(null)
-    const r = await onSave({ ...draft, month })
-    setSaving(false)
-    setMsg(r.error ? { ok: false, text: r.error } : { ok: true, text: 'Regras salvas.' })
-  }
-
-  return (
-    <form className="schedule-rules" onSubmit={(e) => void save(e)} aria-label={title}>
-      <h5 className="schedule-rules-title">{title}</h5>
-      <div className="schedule-rules-row">
-        <label>
-          Dias de produção
-          <input
-            type="number"
-            min={0}
-            max={31}
-            inputMode="numeric"
-            value={draft.production_days ?? ''}
-            onChange={(e) => setDraft({ ...draft, production_days: num(e.target.value) })}
-          />
-        </label>
-        <label>
-          Publicações por semana
-          <input
-            type="number"
-            min={0}
-            max={50}
-            inputMode="numeric"
-            value={draft.posts_per_week ?? ''}
-            onChange={(e) => setDraft({ ...draft, posts_per_week: num(e.target.value) })}
-          />
-        </label>
-      </div>
-      <label>
-        Frequência das publicações
-        <input
-          type="text"
-          maxLength={600}
-          placeholder="Ex.: terças e sextas, às 10h"
-          value={draft.frequency}
-          onChange={(e) => setDraft({ ...draft, frequency: e.target.value })}
-        />
-      </label>
-      <label>
-        Regras para postagem
-        <textarea
-          rows={3}
-          maxLength={4000}
-          value={draft.posting_rules}
-          onChange={(e) => setDraft({ ...draft, posting_rules: e.target.value })}
-        />
-      </label>
-      <label>
-        Organização dos conteúdos no mês
-        <textarea
-          rows={3}
-          maxLength={4000}
-          value={draft.organization}
-          onChange={(e) => setDraft({ ...draft, organization: e.target.value })}
-        />
-      </label>
-      <button type="submit" className="cover-image-input-pick" disabled={saving}>
-        {saving ? 'Salvando…' : 'Salvar regras'}
-      </button>
-      {msg && (
-        <p className={msg.ok ? 'auth-success' : 'auth-error'} role={msg.ok ? 'status' : 'alert'}>
-          {msg.text}
-        </p>
-      )}
-    </form>
-  )
-}
-
-// Painel → Agenda de conteúdos: a profissional anota quando precisa publicar
-// cada tipo de conteúdo (evento, loja, receitas, revista, respiração,
-// playlist, dicas de leitura, wellness). É só um lembrete dela.
+// Painel → Agenda de conteúdos: o calendário se preenche sozinho pelas regras
+// fixas (lib/contentRules), a partir de 01/12/2026, e o sino avisa a
+// profissional um dia antes de cada publicação. É só um lembrete dela.
 
 function todayIso(): string {
   const d = new Date()
@@ -123,58 +27,21 @@ function todayIso(): string {
   return `${d.getFullYear()}-${mm}-${dd}`
 }
 
-const GROUPS: { key: 'late' | 'today' | 'upcoming' | 'done'; title: string }[] = [
-  { key: 'late', title: 'Atrasados' },
-  { key: 'today', title: 'Hoje' },
-  { key: 'upcoming', title: 'Próximos' },
-  { key: 'done', title: 'Já publicados' },
-]
-
 export function ContentSchedulePanel({ communityId }: { communityId: string }) {
-  const { items, loading, add, setDone, remove } = useContentSchedule(communityId)
-  const rulesApi = useContentRules(communityId)
-  const [type, setType] = useState<ContentType>('revista')
-  const [phase, setPhase] = useState<SchedulePhase>('publicacao')
+  const { items, loading } = useContentSchedule(communityId)
   const now = new Date()
   const [cursor, setCursor] = useState({ year: now.getFullYear(), month: now.getMonth() })
-  const [title, setTitle] = useState('')
   const [date, setDate] = useState(todayIso())
-  const [notes, setNotes] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (!title.trim()) {
-      setError('Dê um nome ao lembrete.')
-      return
-    }
-    if (!date) {
-      setError('Escolha a data.')
-      return
-    }
-    setSaving(true)
-    setError(null)
-    const r = await add({ content_type: type, phase, title, notes, scheduled_on: date })
-    setSaving(false)
-    if (r.error) {
-      setError(r.error)
-      return
-    }
-    setTitle('')
-    setNotes('')
-  }
-
-  async function run(op: Promise<{ error: string | null }>) {
-    setError(null)
-    const r = await op
-    if (r.error) setError(r.error)
-  }
-
-  const groups = groupSchedule(items, todayIso())
   const key = monthKey(cursor.year, cursor.month)
-  const byDay = itemsByDay(items)
-  const summary = monthSummary(items, key)
+  const monthEnd = `${key}-${String(new Date(cursor.year, cursor.month + 1, 0).getDate()).padStart(2, '0')}`
+  // Itens anotados antes + os que as regras fixas preveem para o mês na tela
+  // e para o dia escolhido (que pode estar em outro mês).
+  const monthItems = [...items, ...ruleItems(`${key}-01`, monthEnd, communityId)]
+  const byDay = itemsByDay(
+    date.startsWith(`${key}-`) ? monthItems : [...monthItems, ...ruleItems(date, date, communityId)],
+  )
+  const summary = monthSummary(monthItems, key)
   const dayItems = byDay[date] ?? []
 
   function shiftMonth(delta: number) {
@@ -187,7 +54,8 @@ export function ContentSchedulePanel({ communityId }: { communityId: string }) {
       <header className="card-images-head">
         <h4 className="card-images-title">Agenda de conteúdos</h4>
         <p className="card-images-desc">
-          Anote quando cada conteúdo precisa entrar no Círcula. É só um lembrete seu: as participantes não veem.
+          O calendário se preenche sozinho pelas regras abaixo, a partir de 01/12/2026. Um dia antes de cada publicação
+          você recebe um aviso no sininho. É só um lembrete seu: as participantes não veem.
         </p>
       </header>
 
@@ -242,7 +110,7 @@ export function ContentSchedulePanel({ communityId }: { communityId: string }) {
             })}
         </div>
         <ul className="schedule-cal-legend" aria-label="Legenda das cores">
-          {CONTENT_TYPES.map((t) => (
+          {CONTENT_TYPES.filter((t) => t.key !== 'outro').map((t) => (
             <li key={t.key}>
               <i style={{ background: TYPE_COLORS[t.key] }} aria-hidden="true" />
               {t.label}
@@ -251,13 +119,15 @@ export function ContentSchedulePanel({ communityId }: { communityId: string }) {
         </ul>
         <p className="schedule-cal-summary">
           {summary.total === 0
-            ? 'Nada anotado neste mês.'
-            : `${summary.productionDays} dia(s) de produção · ${summary.publishDays} dia(s) de publicação · ${summary.total} item(ns).`}
+            ? key < RULES_START.slice(0, 7)
+              ? 'As regras valem a partir de dezembro de 2026.'
+              : 'Nada previsto neste mês.'
+            : `${summary.publishDays} dia(s) de publicação · ${summary.total} item(ns).`}
         </p>
         <div className="schedule-cal-day-list">
           <h5 className="schedule-group-title">Dia {shortDate(date)}</h5>
           {dayItems.length === 0 ? (
-            <p className="home-muted">Nada neste dia. Use o formulário abaixo para anotar.</p>
+            <p className="home-muted">Nada neste dia.</p>
           ) : (
             <ul className="schedule-list">
               {dayItems.map((it) => (
@@ -277,121 +147,18 @@ export function ContentSchedulePanel({ communityId }: { communityId: string }) {
       </section>
 
       <section className="schedule-rules-wrap" aria-label="Regras de conteúdo">
-        <RulesCard
-          key={`m-${key}-${rulesApi.loading}`}
-          month={key}
-          title={`Regras de ${MONTH_NAMES[cursor.month]} de ${cursor.year}`}
-          rules={rulesApi.get(key)}
-          onSave={rulesApi.save}
-        />
-        <RulesCard
-          key={`g-${rulesApi.loading}`}
-          month="geral"
-          title="Regras gerais (valem para todos os meses)"
-          rules={rulesApi.get('geral')}
-          onSave={rulesApi.save}
-        />
+        <h5 className="schedule-rules-title">Regras fixas (valem a partir de 01/12/2026)</h5>
+        <ul className="schedule-rules-list">
+          {CONTENT_RULES.map((r) => (
+            <li key={r.type}>
+              <i style={{ background: TYPE_COLORS[r.type] }} aria-hidden="true" />
+              <strong>{contentTypeLabel(r.type)}</strong>: {r.summary.toLowerCase()}
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <form className="schedule-form" onSubmit={(e) => void handleSubmit(e)}>
-        <div className="schedule-types" role="radiogroup" aria-label="Produção ou publicação">
-          {PHASES.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              role="radio"
-              aria-checked={phase === p.key}
-              className={`schedule-type${phase === p.key ? ' schedule-type--on' : ''}`}
-              onClick={() => setPhase(p.key)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <div className="schedule-types" role="radiogroup" aria-label="Tipo de conteúdo">
-          {CONTENT_TYPES.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              role="radio"
-              aria-checked={type === t.key}
-              className={`schedule-type${type === t.key ? ' schedule-type--on' : ''}`}
-              onClick={() => setType(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <input
-          type="text"
-          className="magazine-input"
-          placeholder="O que publicar (ex.: Revista de dezembro)"
-          value={title}
-          maxLength={160}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <label className="card-images-hint">
-          Para o dia <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </label>
-        <textarea
-          className="magazine-input"
-          rows={2}
-          maxLength={600}
-          placeholder="Observação (opcional)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-        <button type="submit" className="cover-image-input-pick" disabled={saving}>
-          {saving ? 'Salvando…' : 'Anotar na agenda'}
-        </button>
-        {error && (
-          <p className="auth-error" role="alert">
-            {error}
-          </p>
-        )}
-      </form>
-
       {loading && <p className="home-muted">Carregando…</p>}
-      {!loading && items.length === 0 && <p className="home-muted">Nenhum lembrete ainda.</p>}
-
-      {GROUPS.map((g) =>
-        groups[g.key].length === 0 ? null : (
-          <section key={g.key} className="schedule-group">
-            <h5 className={`schedule-group-title schedule-group-title--${g.key}`}>{g.title}</h5>
-            <ul className="schedule-list">
-              {groups[g.key].map((it: ScheduleItem) => (
-                <li key={it.id} className={`schedule-item${it.done ? ' schedule-item--done' : ''}`}>
-                  <label className="schedule-check">
-                    <input
-                      type="checkbox"
-                      checked={it.done}
-                      onChange={(e) => void run(setDone(it.id, e.target.checked))}
-                      aria-label={`Marcar ${it.title} como publicado`}
-                    />
-                  </label>
-                  <div className="schedule-body">
-                    <span className="schedule-tag">
-                      {contentTypeLabel(it.content_type)} · {phaseLabel(it.phase)}
-                    </span>
-                    <strong>{it.title}</strong>
-                    {it.notes && <span className="schedule-notes">{it.notes}</span>}
-                  </div>
-                  <span className="schedule-date">{shortDate(it.scheduled_on)}</span>
-                  <button
-                    type="button"
-                    className="auth-link"
-                    onClick={() => {
-                      if (window.confirm(`Excluir "${it.title}" da agenda?`)) void run(remove(it.id))
-                    }}
-                  >
-                    Excluir
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ),
-      )}
     </section>
   )
 }

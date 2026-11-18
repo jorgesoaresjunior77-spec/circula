@@ -1,6 +1,7 @@
 import { m } from '../lib/motionKit'
 import { useEffect, useRef, useState } from 'react'
 import { useSocialNotifications } from '../hooks/useSocialNotifications'
+import { useContentReminders } from '../hooks/useContentReminders'
 import type { SocialNotification, SocialNotificationType } from '../types/notification'
 import type { NavKey } from './PrimaryNav'
 import { NotificationList } from './NotificationList'
@@ -14,6 +15,8 @@ interface NotificationBellProps {
   onOpenConversation?: (conversationId: string) => void
   /** D1 — só a Professional tem assinatura de plataforma para avisar. */
   showBillingStatus?: boolean
+  /** Só a Professional: avisos de "amanhã é dia de publicar" da agenda de conteúdos. */
+  showContentReminders?: boolean
 }
 
 // Destino de navegação por tipo — mapeado só para chaves de navegação
@@ -79,9 +82,19 @@ export function NotificationBell({
   onNavigate,
   onOpenConversation,
   showBillingStatus = false,
+  showContentReminders = false,
 }: NotificationBellProps) {
-  const { notifications, loading, error, unreadCount, markRead, markAllRead, refresh } =
-    useSocialNotifications(profileId)
+  const {
+    notifications,
+    loading,
+    error,
+    unreadCount: socialUnread,
+    markRead,
+    markAllRead,
+    refresh,
+  } = useSocialNotifications(profileId)
+  const content = useContentReminders(showContentReminders)
+  const unreadCount = socialUnread + content.unreadCount
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -159,11 +172,36 @@ export function NotificationBell({
           <div className="notification-panel-head">
             <span className="notification-panel-title">Notificações</span>
             {unreadCount > 0 && (
-              <button type="button" className="auth-link" onClick={() => markAllRead()}>
+              <button
+                type="button"
+                className="auth-link"
+                onClick={() => {
+                  markAllRead()
+                  content.reminders.forEach((r) => content.markRead(r.key))
+                }}
+              >
                 Marcar todas como lidas
               </button>
             )}
           </div>
+          {content.reminders.map((r) => (
+            <button
+              key={r.key}
+              type="button"
+              className={`notification-item notification-item--reminder${r.read ? '' : ' notification-item--unread'}`}
+              onClick={() => {
+                content.markRead(r.key)
+                setOpen(false)
+                onNavigate('painel')
+              }}
+            >
+              <span className="notification-body">
+                <span className="notification-title">{r.title}</span>
+                <span className="notification-text">{r.text}</span>
+              </span>
+              {!r.read && <span className="notification-dot" aria-label="Não lida" />}
+            </button>
+          ))}
           {showBillingStatus && (
             <NotificationBillingStatus
               onActivate={() => {

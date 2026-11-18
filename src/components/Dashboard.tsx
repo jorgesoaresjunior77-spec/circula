@@ -455,7 +455,7 @@ export function Dashboard({
   navItems.push({ key: 'ajuda', label: 'Ajuda', Icon: HelpIcon, inBottomNav: true })
   if (canHostDestinations) {
     navItems.push({ key: 'painel', label: 'Painel', Icon: PanelIcon, inBottomNav: true })
-    navItems.push({ key: 'nutri', label: 'Gestão Nutricional', Icon: ClipboardIcon, inBottomNav: true })
+    navItems.push({ key: 'nutri', label: 'Nutri', Icon: ClipboardIcon, inBottomNav: true })
   }
   if (profile) {
     navItems.push({ key: 'perfil', label: 'Meu perfil', Icon: UserIcon, inBottomNav: true })
@@ -1315,6 +1315,7 @@ export function Dashboard({
               onNavigate={handleNavigate}
               onOpenConversation={openConversationById}
               showBillingStatus={profile.role === 'professional'}
+              showContentReminders={profile.role === 'professional'}
             />
           )}
           <span className="dashboard-user-avatar" aria-hidden="true">
