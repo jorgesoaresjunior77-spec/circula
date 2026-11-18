@@ -45,12 +45,19 @@ function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
 // profundidade). Só decoração: escondidas de leitores de tela, sem receber toque,
 // paradas com "reduzir movimento".
 const SUNFLOWERS: { x: number; y: number; size: number; dur: number; delay: number; blur: number; spin: number }[] = [
-  { x: 4, y: 10, size: 84, dur: 9, delay: 0, blur: 0, spin: 14 },
-  { x: 84, y: 6, size: 68, dur: 11, delay: -3, blur: 0, spin: -12 },
-  { x: 40, y: 74, size: 60, dur: 10, delay: -5, blur: 1, spin: 10 },
-  { x: 92, y: 62, size: 46, dur: 8, delay: -2, blur: 2, spin: -16 },
-  { x: 18, y: 66, size: 44, dur: 12, delay: -7, blur: 2, spin: 12 },
-  { x: 62, y: 4, size: 38, dur: 13, delay: -9, blur: 3, spin: -10 },
+  { x: 4, y: 5, size: 84, dur: 9, delay: 0, blur: 0, spin: 14 },
+  { x: 84, y: 3, size: 68, dur: 11, delay: -3, blur: 0, spin: -12 },
+  { x: 62, y: 2, size: 38, dur: 13, delay: -9, blur: 3, spin: -10 },
+  { x: 40, y: 38, size: 60, dur: 10, delay: -5, blur: 1, spin: 10 },
+  { x: 92, y: 33, size: 46, dur: 8, delay: -2, blur: 2, spin: -16 },
+  { x: 18, y: 35, size: 44, dur: 12, delay: -7, blur: 2, spin: 12 },
+  // Desce pela área abaixo do card, até o fim da página.
+  { x: 70, y: 54, size: 72, dur: 11, delay: -4, blur: 0, spin: 12 },
+  { x: 8, y: 62, size: 78, dur: 10, delay: -6, blur: 1, spin: -14 },
+  { x: 48, y: 72, size: 52, dur: 12, delay: -1, blur: 2, spin: 10 },
+  { x: 88, y: 80, size: 64, dur: 9, delay: -8, blur: 1, spin: -12 },
+  { x: 26, y: 86, size: 58, dur: 13, delay: -3, blur: 2, spin: 14 },
+  { x: 62, y: 92, size: 70, dur: 10, delay: -5, blur: 0, spin: -10 },
 ]
 
 function FloatingDots() {

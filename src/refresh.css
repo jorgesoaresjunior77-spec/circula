@@ -2224,7 +2224,7 @@ section.community-card.product-manager.product-manager--storefront {
 .home-partners {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
   min-height: 230px;
   justify-content: center;
   gap: 18px;
@@ -2258,7 +2258,8 @@ section.community-card.product-manager.product-manager--storefront {
 
 .sunflowers {
   position: absolute;
-  inset: 0;
+  /* Passa do card e desce até o fim da página (folga do rodapé/menu). */
+  inset: 0 0 -270px 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
