@@ -3,13 +3,15 @@ import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { evaluatePassword, isPasswordValid } from '../lib/passwordPolicy'
 import { EMAIL_NOT_CONFIRMED_MESSAGE } from '../lib/authErrors'
+import { LOGIN_PHONE_EXAMPLE, LOGIN_PHONE_HINT, normalizeLoginPhone } from '../lib/phone'
 import { useInvitePreview } from '../hooks/useInvitePreview'
 import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 
 // Cadastro de participante pelo link de convite da comunidade (enviado
-// pela Profissional no WhatsApp). Fluxo: nome + e-mail + senha → conta →
+// pela Profissional no WhatsApp). Fluxo: nome + celular (login) + e-mail
+// (só no cadastro) + senha → conta →
 // o App entra na comunidade com o token (join_community_by_invite) →
 // onboarding → tour → app. O token fica guardado no navegador, então
 // também vale se o projeto exigir confirmação de e-mail ou se a pessoa
@@ -25,6 +27,7 @@ interface MemberSignupProps {
 export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
   const preview = useInvitePreview(token)
   const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -42,6 +45,12 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
       setError('Informe como você gostaria de ser chamada.')
       return
     }
+    // O celular é o login; o e-mail fica só no cadastro (confirmação e recuperação).
+    const phoneDigits = normalizeLoginPhone(phone)
+    if (!phoneDigits) {
+      setError(`Informe o celular com DDD e 9, só números. Ex.: ${LOGIN_PHONE_EXAMPLE}.`)
+      return
+    }
     if (!accepted) {
       setError('Para criar a conta, aceite os Termos de Uso e a Política de Privacidade.')
       return
@@ -57,7 +66,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { full_name: name.trim(), ...consentMetadata() }, emailRedirectTo: APP_URL },
+      options: { data: { full_name: name.trim(), phone: phoneDigits, ...consentMetadata() }, emailRedirectTo: APP_URL },
     })
     setLoading(false)
 
@@ -65,7 +74,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
       setError(
         signUpError.code === 'weak_password'
           ? 'Essa senha não foi aceita. Tente uma senha mais longa.'
-          : 'Não foi possível criar a conta agora. Confira o e-mail e tente novamente.',
+          : 'Não foi possível criar a conta agora. Confira o celular e o e-mail (o celular pode já estar em uso) e tente novamente.',
       )
       return
     }
@@ -73,7 +82,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
     // E-mail já cadastrado: o Supabase devolve um usuário "fantasma"
     // (identities vazio) para não revelar quem tem conta.
     if (data.user && (data.user.identities?.length ?? 0) === 0) {
-      setError('Este e-mail já pode ter uma conta. Use "Já tenho conta" para entrar.')
+      setError('Este e-mail já pode ter uma conta. Use "Já tenho conta" para entrar com o seu celular.')
       return
     }
 
@@ -130,7 +139,20 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
             required
           />
 
-          <label htmlFor="member-signup-email">E-mail (será o seu login)</label>
+          <label htmlFor="member-signup-phone">Celular (será o seu login)</label>
+          <input
+            id="member-signup-phone"
+            type="tel"
+            inputMode="numeric"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            autoComplete="username"
+            placeholder={LOGIN_PHONE_EXAMPLE}
+            required
+          />
+          <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
+
+          <label htmlFor="member-signup-email">E-mail (para o seu cadastro)</label>
           <input
             id="member-signup-email"
             type="email"

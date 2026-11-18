@@ -9,10 +9,11 @@ vi.mock('../hooks/useInvitePreview')
 
 const TOKEN = 'abc123abc123abc123abc123'
 
-function fill(password: string, accept = true) {
+function fill(password: string, accept = true, phone = '(51) 99650-9660') {
   if (accept) fireEvent.click(screen.getByLabelText(/Li e aceito/))
   fireEvent.change(screen.getByLabelText('Como podemos te chamar?'), { target: { value: 'Ana' } })
-  fireEvent.change(screen.getByLabelText('E-mail (será o seu login)'), { target: { value: 'ana@exemplo.com' } })
+  fireEvent.change(screen.getByLabelText('Celular (será o seu login)'), { target: { value: phone } })
+  fireEvent.change(screen.getByLabelText('E-mail (para o seu cadastro)'), { target: { value: 'ana@exemplo.com' } })
   fireEvent.change(screen.getByLabelText('Crie uma senha'), { target: { value: password } })
 }
 
@@ -59,7 +60,15 @@ describe('MemberSignup', () => {
     expect(supabase.auth.signUp).not.toHaveBeenCalled()
   })
 
-  it('cria a conta como participante (sem account_type) com nome, e-mail e senha', async () => {
+  it('NÃO cria a conta com celular fora do padrão (DDD + 9 + número)', async () => {
+    render(<MemberSignup token={TOKEN} onHaveAccount={vi.fn()} />)
+    fill('Senha1!', true, '996509660')
+    fireEvent.click(screen.getByText('Criar minha conta'))
+    expect(await screen.findByRole('alert')).toHaveTextContent('51996509660')
+    expect(supabase.auth.signUp).not.toHaveBeenCalled()
+  })
+
+  it('cria a conta como participante (sem account_type) com nome, celular, e-mail e senha', async () => {
     render(<MemberSignup token={TOKEN} onHaveAccount={vi.fn()} />)
     fill('Senha1!')
     fireEvent.click(screen.getByText('Criar minha conta'))
@@ -71,7 +80,8 @@ describe('MemberSignup', () => {
     }
     expect(args.email).toBe('ana@exemplo.com')
     expect(args.password).toBe('Senha1!')
-    expect(args.options.data).toMatchObject({ full_name: 'Ana', terms_version: expect.any(String) })
+    // o celular (login) vai só com dígitos; o e-mail é o do cadastro
+    expect(args.options.data).toMatchObject({ full_name: 'Ana', phone: '51996509660', terms_version: expect.any(String) })
     expect(args.options.data.terms_accepted_at).toBeTruthy()
     expect(args.options.data).not.toHaveProperty('account_type')
   })

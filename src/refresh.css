@@ -3370,3 +3370,11 @@ section.community-card.product-manager.product-manager--storefront {
 .mag2-stack .mag2-stack-item .mag-cover-blank {
   border: 1px solid rgba(120, 98, 78, 0.28);
 }
+
+/* ---- Login por celular: dica embaixo do campo --------------------------------------------- */
+.auth-hint {
+  margin: -2px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--circula-taupe);
+}

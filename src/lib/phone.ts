@@ -26,6 +26,24 @@ export function normalizeWhatsAppNumber(input: string): string | null {
   return `55${national}`
 }
 
+// ---- Celular como login ------------------------------------------------------
+// Padrão do Círcula: DDD + 9 + número, só dígitos (ex.: 51996509660). Quem
+// digita com parênteses, traço, espaços ou +55 também funciona: sai sempre no
+// padrão. Fora disso devolve null. Mesma regra da tabela login_phones.
+export function normalizeLoginPhone(input: string): string | null {
+  let digits = input.replace(/\D/g, '')
+  if (digits.length === 13 && digits.startsWith('55')) digits = digits.slice(2)
+  return /^[1-9][0-9]9[0-9]{8}$/.test(digits) ? digits : null
+}
+
+/** "51996509660" -> "(51) 99650-9660", só para mostrar. */
+export function formatLoginPhone(phone: string): string {
+  return `(${phone.slice(0, 2)}) ${phone.slice(2, 7)}-${phone.slice(7)}`
+}
+
+export const LOGIN_PHONE_EXAMPLE = '51996509660'
+export const LOGIN_PHONE_HINT = 'DDD + 9 + número, só números. Ex.: 51996509660'
+
 export function buildWhatsAppUrl(number: string, text: string): string {
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`
 }

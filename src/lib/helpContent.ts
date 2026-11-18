@@ -87,7 +87,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ca-1',
         q: 'Esqueci minha senha. Como recuperar?',
-        a: 'Na tela de entrada, toque em Esqueci minha senha, informe o e-mail da conta e envie. Você recebe um link por e-mail; abra o link e escolha uma nova senha. Se o e-mail não chegar, olhe também a caixa de spam e aguarde alguns minutos.',
+        a: 'Na tela de entrada, toque em Esqueci minha senha, informe o seu celular (DDD + 9 + número, só números) e envie. Você recebe um link no e-mail do seu cadastro; abra o link e escolha uma nova senha. Se o e-mail não chegar, olhe também a caixa de spam e aguarde alguns minutos.',
         k: 'senha recuperar esqueci redefinir recuperação acesso',
       },
       {
@@ -129,7 +129,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ca-8',
         q: 'O que fazer se não conseguir entrar?',
-        a: 'Confira se o e-mail está escrito corretamente e use o olhinho para ver a senha digitada. Se não lembrar da senha, use Esqueci minha senha. Se o erro continuar, ou se a mensagem falar de assinatura ou acesso bloqueado, fale com a nutricionista pelo Help Nutri ou por outro canal que ela já usa com você.',
+        a: 'Confira se o celular está escrito com DDD e 9, só números (ex.: 51996509660), e use o olhinho para ver a senha digitada. Se não lembrar da senha, use Esqueci minha senha. Se o erro continuar, ou se a mensagem falar de assinatura ou acesso bloqueado, fale com a nutricionista pelo Help Nutri ou por outro canal que ela já usa com você.',
         k: 'não consigo entrar erro login acesso bloqueado problema',
       },
       {

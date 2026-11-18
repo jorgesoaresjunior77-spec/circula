@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildWhatsAppUrl, normalizeWhatsAppNumber } from './phone'
+import { buildWhatsAppUrl, formatLoginPhone, normalizeLoginPhone, normalizeWhatsAppNumber } from './phone'
 
 describe('normalizeWhatsAppNumber', () => {
   it('aceita celular com DDD em vários formatos e devolve 55 + número', () => {
@@ -41,5 +41,27 @@ describe('buildWhatsAppUrl', () => {
     expect(buildWhatsAppUrl('5551999998888', 'Oi! Vem.')).toBe(
       'https://wa.me/5551999998888?text=Oi!%20Vem.',
     )
+  })
+})
+
+describe('celular de login (DDD + 9 + número)', () => {
+  it('aceita o padrão do Círcula e variações de digitação', () => {
+    expect(normalizeLoginPhone('51996509660')).toBe('51996509660')
+    expect(normalizeLoginPhone('(51) 99650-9660')).toBe('51996509660')
+    expect(normalizeLoginPhone('+55 51 99650-9660')).toBe('51996509660')
+    expect(normalizeLoginPhone('5551980327288')).toBe('51980327288')
+  })
+
+  it('recusa o que não é celular com DDD', () => {
+    expect(normalizeLoginPhone('')).toBeNull()
+    expect(normalizeLoginPhone('996509660')).toBeNull() // sem DDD
+    expect(normalizeLoginPhone('5136509660')).toBeNull() // fixo
+    expect(normalizeLoginPhone('51896509660')).toBeNull() // falta o 9
+    expect(normalizeLoginPhone('051996509660')).toBeNull() // DDD com zero
+    expect(normalizeLoginPhone('ana@exemplo.com')).toBeNull()
+  })
+
+  it('formata para mostrar', () => {
+    expect(formatLoginPhone('51996509660')).toBe('(51) 99650-9660')
   })
 })

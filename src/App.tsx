@@ -6,6 +6,8 @@ import { Dashboard } from './components/Dashboard'
 import { ResetPassword } from './components/ResetPassword'
 import { AccessBlockedScreen } from './components/AccessBlockedScreen'
 import { MemberSignup } from './components/MemberSignup'
+import { PhoneRequired } from './components/PhoneRequired'
+import { useLoginPhone } from './hooks/useLoginPhone'
 import { captureInviteTokenFromUrl } from './lib/inviteToken'
 import { useJoinInvite } from './hooks/useJoinInvite'
 import type { NavKey } from './components/PrimaryNav'
@@ -42,6 +44,8 @@ function App() {
     uploadGalleryPhoto,
   } = useAuth()
   const { blocked, checked } = usePlatformAccessBlocked(profile)
+  // O login é o celular: quem ainda não tem um cadastrado cadastra antes de seguir.
+  const loginPhone = useLoginPhone(session?.user.id ?? null)
 
   // Estado de view da navegação primária (Etapa 7). View state local —
   // sem router, sem dependência nova. Só o Dashboard o consome.
@@ -63,7 +67,10 @@ function App() {
 
   // Fase 14.2 — no primeiro acesso via convite não esperamos o check de
   // billing da plataforma: a nova Member vai direto para "Defina sua senha".
-  if (initializing || (session && !recoveryMode && !mustSetPassword && !checked)) {
+  if (
+    initializing ||
+    (session && !recoveryMode && !mustSetPassword && (!checked || loginPhone.status === 'loading'))
+  ) {
     return (
       <section id="center">
         <p>Carregando...</p>
@@ -95,6 +102,8 @@ function App() {
         <p>Entrando na comunidade...</p>
       ) : session && blocked ? (
         <AccessBlockedScreen onSignOut={signOut} />
+      ) : session && loginPhone.status === 'missing' ? (
+        <PhoneRequired onSaved={loginPhone.markHas} onSignOut={signOut} />
       ) : session ? (
         <Dashboard
           profile={profile}

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import { signInErrorMessage } from '../lib/authErrors'
+import { EMAIL_NOT_CONFIRMED_MESSAGE, signInErrorMessage } from '../lib/authErrors'
+import { LOGIN_PHONE_EXAMPLE, LOGIN_PHONE_HINT, normalizeLoginPhone } from '../lib/phone'
+import { requestPasswordResetByPhone, rememberCredentials, signInWithPhone } from '../lib/phoneLogin'
 import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
@@ -14,13 +16,18 @@ import circulaLogo from '../assets/circula-logo.png'
 // senha (14.1) quanto no e-mail de confirmação do cadastro (15.1).
 const APP_URL = `${window.location.origin}${import.meta.env.BASE_URL}`
 const FORGOT_PASSWORD_GENERIC_MESSAGE =
-  'Se este e-mail estiver cadastrado, você receberá um link de recuperação em instantes.'
+  'Se este cadastro existir, você receberá um link de recuperação no e-mail da conta em instantes.'
+const SIGNUP_PHONE_MESSAGE = `Informe o celular com DDD e 9, só números. Ex.: ${LOGIN_PHONE_EXAMPLE}.`
 const FORGOT_PASSWORD_ERROR_MESSAGE =
   'Não foi possível enviar o e-mail de recuperação agora. Tente novamente em alguns minutos.'
 const SIGNUP_MIN_PASSWORD = 6
 
 export function Login() {
+  // O login é o celular. "Entrar com e-mail" existe só para contas antigas
+  // que ainda não cadastraram celular.
+  const [useEmail, setUseEmail] = useState(false)
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,6 +42,7 @@ export function Login() {
   // Fase 15.1 — cadastro público de profissional.
   const [signupName, setSignupName] = useState('')
   const [signupEmail, setSignupEmail] = useState('')
+  const [signupPhone, setSignupPhone] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
   const [signupAccepted, setSignupAccepted] = useState(false)
   const [signupLoading, setSignupLoading] = useState(false)
@@ -46,27 +54,38 @@ export function Login() {
     setLoading(true)
     setError(null)
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    if (useEmail) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
+      if (signInError) {
+        setError(signInErrorMessage(signInError))
+        setLoading(false)
+        return
+      }
+      void rememberCredentials(email.trim(), password)
+      return
+    }
 
-    if (signInError) {
-      setError(signInErrorMessage(signInError))
+    const { error: phoneError } = await signInWithPhone(phone, password)
+    if (phoneError) {
+      setError(phoneError.code === 'email_not_confirmed' ? EMAIL_NOT_CONFIRMED_MESSAGE : phoneError.message)
       setLoading(false)
     }
   }
 
   function handleShowForgotPassword() {
     setMode('forgot-password')
-    setForgotEmail(email)
+    setForgotEmail(useEmail ? email : phone)
     setForgotError(null)
     setForgotSuccess(false)
   }
 
   function handleShowSignUp() {
     setMode('signup')
-    setSignupEmail(email)
+    setSignupEmail(useEmail ? email : '')
+    setSignupPhone(useEmail ? '' : phone)
     setSignupError(null)
     setSignupNeedsConfirmation(false)
   }
@@ -84,14 +103,15 @@ export function Login() {
     setForgotLoading(true)
     setForgotError(null)
 
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-      forgotEmail,
-      { redirectTo: APP_URL },
-    )
+    // Celular (padrão) ou e-mail: o link sempre vai para o e-mail da conta.
+    const typed = forgotEmail.trim()
+    const failed = typed.includes('@')
+      ? !!(await supabase.auth.resetPasswordForEmail(typed, { redirectTo: APP_URL })).error
+      : (await requestPasswordResetByPhone(typed)).error
 
     setForgotLoading(false)
 
-    if (resetError) {
+    if (failed) {
       setForgotError(FORGOT_PASSWORD_ERROR_MESSAGE)
       return
     }
@@ -105,6 +125,11 @@ export function Login() {
 
     if (!signupName.trim()) {
       setSignupError('Informe seu nome.')
+      return
+    }
+    const signupPhoneDigits = normalizeLoginPhone(signupPhone)
+    if (!signupPhoneDigits) {
+      setSignupError(SIGNUP_PHONE_MESSAGE)
       return
     }
     if (!signupAccepted) {
@@ -125,7 +150,7 @@ export function Login() {
       email: signupEmail,
       password: signupPassword,
       options: {
-        data: { full_name: signupName.trim(), account_type: 'professional', ...consentMetadata() },
+        data: { full_name: signupName.trim(), account_type: 'professional', phone: signupPhoneDigits, ...consentMetadata() },
         emailRedirectTo: APP_URL,
       },
     })
@@ -172,15 +197,17 @@ export function Login() {
           </>
         ) : (
           <form onSubmit={handleForgotPasswordSubmit}>
-            <label htmlFor="forgot-email">E-mail</label>
+            <label htmlFor="forgot-email">Celular</label>
             <input
               id="forgot-email"
-              type="email"
+              type="text"
               value={forgotEmail}
               onChange={(event) => setForgotEmail(event.target.value)}
-              autoComplete="email"
+              autoComplete="username"
+              placeholder={LOGIN_PHONE_EXAMPLE}
               required
             />
+            <p className="auth-hint">O link vai para o e-mail do seu cadastro.</p>
 
             {forgotError && <p className="auth-error">{forgotError}</p>}
 
@@ -237,7 +264,20 @@ export function Login() {
               required
             />
 
-            <label htmlFor="signup-email">E-mail</label>
+            <label htmlFor="signup-phone">Celular (será o seu login)</label>
+            <input
+              id="signup-phone"
+              type="tel"
+              inputMode="numeric"
+              value={signupPhone}
+              onChange={(event) => setSignupPhone(event.target.value)}
+              autoComplete="username"
+              placeholder={LOGIN_PHONE_EXAMPLE}
+              required
+            />
+            <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
+
+            <label htmlFor="signup-email">E-mail (para o seu cadastro)</label>
             <input
               id="signup-email"
               type="email"
@@ -279,15 +319,35 @@ export function Login() {
       <p className="auth-subtitle">Entre com sua conta</p>
 
       <form onSubmit={handleSubmit}>
-        <label htmlFor="email">E-mail</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          autoComplete="email"
-          required
-        />
+        {useEmail ? (
+          <>
+            <label htmlFor="email">E-mail</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              autoComplete="username"
+              required
+            />
+          </>
+        ) : (
+          <>
+            <label htmlFor="phone">Celular</label>
+            <input
+              id="phone"
+              name="username"
+              type="tel"
+              inputMode="numeric"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              autoComplete="username"
+              placeholder={LOGIN_PHONE_EXAMPLE}
+              required
+            />
+            <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
+          </>
+        )}
 
         <label htmlFor="password">Senha</label>
         <PasswordInput
@@ -314,6 +374,17 @@ export function Login() {
 
         <button type="button" className="auth-link" onClick={handleShowSignUp}>
           Criar conta de profissional
+        </button>
+
+        <button
+          type="button"
+          className="auth-link"
+          onClick={() => {
+            setUseEmail((v) => !v)
+            setError(null)
+          }}
+        >
+          {useEmail ? 'Entrar com o celular' : 'Entrar com e-mail'}
         </button>
       </form>
     </section>
