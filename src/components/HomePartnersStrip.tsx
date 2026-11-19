@@ -1,9 +1,11 @@
+import type React from 'react'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { marqueeRepeats, partnerLogoBoost, safePartnerLink } from '../lib/partners'
 import type { Partner } from '../lib/partners'
 import { recordView } from '../lib/itemViews'
+import { useLogoContent } from '../hooks/useLogoContent'
 
 // Parceiros: os logos ficam lado a lado, nas cores originais, e a faixa anda
 // devagar para a esquerda, sem parar (como os cartões do Menu). Tocar no logo
@@ -19,9 +21,12 @@ export const PARTNER_SECONDS_PER_LOGO = 7
 function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
   const { url } = useSignedImageUrl(partner.logo_path)
   const link = safePartnerLink(partner.link_url)
-  const cls = partnerLogoBoost(partner.name) ? 'partner-logo partner-logo--boost' : 'partner-logo'
+  const content = useLogoContent(url)
+  const cls = !content && partnerLogoBoost(partner.name) ? 'partner-logo partner-logo--boost' : 'partner-logo'
   if (!url) return <span className="partner-logo partner-logo--loading" aria-hidden="true" />
-  const img = <img src={url} alt={link || copy ? '' : partner.name} draggable={false} />
+  // Cada logo é ajustado pelo tamanho do DESENHO (sem a margem em volta): todos ficam do mesmo tamanho visual.
+  const style = content ? ({ '--ca': content.aspect, '--ch': content.ch } as React.CSSProperties) : undefined
+  const img = <img className={content ? 'partner-img--fit' : undefined} style={style} src={url} alt={link || copy ? '' : partner.name} draggable={false} />
   return link ? (
     <a
       className={cls}

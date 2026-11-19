@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { PrayingHands } from './PrayingHands'
 import { useGratitude } from '../hooks/useGratitude'
-import { amenMessage, prayerOfTheDay, streak } from '../lib/gratitude'
+import { BUILTIN_PRAYERS, amenMessage, prayerOfTheDay, streak, topGratitudes } from '../lib/gratitude'
 import { brDate, isoToday } from '../lib/nutri'
 
 // Diário da Gratidão: Oração do Dia, Gratidão de Hoje, Meus Pedidos e Minha
@@ -28,17 +28,24 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
   const [msg, setMsg] = useState<string | null>(null)
   const [prayerForm, setPrayerForm] = useState<{ id: string | null; title: string; body: string; status: 'draft' | 'published' } | null>(null)
 
-  const prayer = prayerOfTheDay(g.prayers, today)
+  const [prayerOffset, setPrayerOffset] = useState(0)
+  // sorteio entre as orações tradicionais do app e as cadastradas pela nutricionista
+  const prayer = prayerOfTheDay([...BUILTIN_PRAYERS, ...g.prayers], today, prayerOffset)
   const todayEntry = g.entries.find((e) => e.day === today)
-  const draft = items ?? todayEntry?.items ?? ['']
+  const draft = Array.from({ length: 5 }, (_, i) => (items ?? todayEntry?.items ?? [])[i] ?? '')
+  const allFilled = draft.every((x) => x.trim().length > 0)
+  const month = today.slice(0, 7)
+  const year = today.slice(0, 4)
+  const topMonth = topGratitudes(g.entries, month)
+  const topYear = topGratitudes(g.entries, year)
   const days = Array.from(new Set([...g.entries.map((e) => e.day), ...g.amenDays]))
   const run = streak(days, today)
   const amenToday = amen || g.amenDays.includes(today)
 
   async function saveGratitude(e: FormEvent) {
     e.preventDefault()
-    const clean = draft.map((s) => s.trim()).filter(Boolean).slice(0, 5)
-    if (clean.length === 0) return setMsg('Escreva pelo menos uma gratidão.')
+    const clean = draft.map((s) => s.trim())
+    if (clean.some((x) => !x)) return setMsg('Preencha as 5 gratidões para guardar.')
     const r = await g.saveToday(today, clean)
     setMsg(r.error ?? 'Gratidão guardada. 💛')
     if (!r.error) setItems(null)
@@ -115,6 +122,9 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
               ))}
             </article>
           )}
+          <button type="button" className="water-link" onClick={() => { setPrayerOffset((n) => n + 1); setAmen(false) }}>
+            Ler outra oração
+          </button>
           {prayer && !amenToday && (
             <button
               type="button"
@@ -140,24 +150,31 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
         <>
           {back}
           <h2>Gratidão de Hoje</h2>
-          <p className="home-muted">Escreva até 5 coisas pelas quais você é grata hoje, grandes ou pequenas.</p>
-          <form className="pn-form" onSubmit={(e) => void saveGratitude(e)}>
+          <p className="home-muted">Escreva 5 coisas pelas quais você é grata hoje, grandes ou pequenas. O botão só libera quando as 5 estiverem preenchidas.</p>
+          <form className="pn-form diary-five" onSubmit={(e) => void saveGratitude(e)}>
             {draft.map((it, i) => (
               <label key={i}>
                 {i + 1}.
                 <input value={it} maxLength={200} onChange={(e) => setItems(draft.map((x, j) => (j === i ? e.target.value : x)))} placeholder="Sou grata por…" />
               </label>
             ))}
-            {draft.length < 5 && (
-              <button type="button" onClick={() => setItems([...draft, ''])}>
-                + Mais uma
-              </button>
-            )}
-            <button type="submit" className="water-primary">
-              Guardar
+            <button type="submit" className="water-primary" disabled={!allFilled}>
+              Guardar ({draft.filter((x) => x.trim()).length}/5)
             </button>
           </form>
           {msg && <p className="home-muted" role="status">{msg}</p>}
+
+          <h3>O que mais agradeci</h3>
+          <div className="diary-top">
+            <section>
+              <h4>No mês</h4>
+              {topMonth.length === 0 ? <p className="home-muted">Ainda sem registros neste mês.</p> : <ol>{topMonth.map((t) => <li key={t.label}><strong>{t.label}</strong> <span className="home-muted">{t.count}×</span></li>)}</ol>}
+            </section>
+            <section>
+              <h4>No ano</h4>
+              {topYear.length === 0 ? <p className="home-muted">Ainda sem registros neste ano.</p> : <ol>{topYear.map((t) => <li key={t.label}><strong>{t.label}</strong> <span className="home-muted">{t.count}×</span></li>)}</ol>}
+            </section>
+          </div>
         </>
       )}
 
@@ -165,10 +182,10 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
         <>
           {back}
           <h2>Meus Pedidos</h2>
-          <form className="pn-form" onSubmit={(e) => void addRequest(e)}>
+          <form className="pn-form diary-request" onSubmit={(e) => void addRequest(e)}>
             <label>
               Novo pedido
-              <textarea rows={2} value={req} maxLength={500} onChange={(e) => setReq(e.target.value)} />
+              <textarea rows={4} value={req} maxLength={500} onChange={(e) => setReq(e.target.value)} placeholder="Escreva do começo ao fim o que você leva em oração…" />
             </label>
             <button type="submit" className="water-primary">
               Entregar em oração

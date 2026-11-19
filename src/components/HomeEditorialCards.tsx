@@ -147,19 +147,6 @@ export function HomeEditorialCards({
       onActivate: () => onNavigate('eventos'),
     },
     {
-      key: 'receitas',
-      eyebrow: 'Receitas',
-      tag: featuredRecipe?.category ?? null,
-      image: receitasCoverGrande ?? featuredRecipeCover ?? receitasCover ?? null,
-      title: featuredRecipe ? featuredRecipe.title : 'Receitas da comunidade',
-      subtitle: featuredRecipe
-        ? (featuredRecipe.summary ?? null)
-        : 'Em breve, novas receitas por aqui',
-      footer: pluralNote(recipesCount, 'outra receita', 'outras receitas'),
-      cta: 'Ver receitas',
-      onActivate: () => onNavigate('receitas'),
-    },
-    {
       key: 'loja',
       eyebrow: 'Loja',
       tag: featuredProduct ? PRODUCT_TYPE_LABELS[featuredProduct.type] : null,
@@ -171,6 +158,19 @@ export function HomeEditorialCards({
       footer: pluralNote(productsCount, 'outro produto', 'outros produtos'),
       cta: 'Ver loja',
       onActivate: () => onNavigate('loja'),
+    },
+    {
+      key: 'receitas',
+      eyebrow: 'Receitas',
+      tag: featuredRecipe?.category ?? null,
+      image: receitasCoverGrande ?? featuredRecipeCover ?? receitasCover ?? null,
+      title: featuredRecipe ? featuredRecipe.title : 'Receitas da comunidade',
+      subtitle: featuredRecipe
+        ? (featuredRecipe.summary ?? null)
+        : 'Em breve, novas receitas por aqui',
+      footer: pluralNote(recipesCount, 'outra receita', 'outras receitas'),
+      cta: 'Ver receitas',
+      onActivate: () => onNavigate('receitas'),
     },
   ]
 

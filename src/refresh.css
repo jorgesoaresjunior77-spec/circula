@@ -5946,3 +5946,244 @@ section.community-card.product-manager.product-manager--storefront {
 .ex-admin-fig {
   grid-template-columns: 90px;
 }
+
+/* ======================= Rodada 2026-11-20 ======================= */
+:root {
+  --card-lift:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 5px 0 #8f7a67,
+    0 16px 18px -8px rgba(40, 32, 26, 0.5),
+    0 34px 36px -22px rgba(40, 32, 26, 0.45);
+}
+
+/* ---- Parceiros: todos do mesmo tamanho visual e um pouco mais afastados ---- */
+.home-partners .partner-logo {
+  overflow: visible;
+}
+
+.home-partners .partner-logo img.partner-img--fit {
+  width: auto;
+  max-width: none;
+  max-height: none;
+  height: calc(min(56px, 17cqw / var(--ca)) / var(--ch));
+}
+
+/* ---- Cards finos de cima: pelo menos 4 inteiros por vez ---- */
+.exp-viewport {
+  container-type: inline-size;
+}
+
+.exp-card-item {
+  width: max(60px, calc((100cqw - 3 * var(--space-3) - 12px) / 4));
+}
+
+@media (min-width: 768px) {
+  .exp-card-item {
+    width: clamp(110px, calc((100cqw - 3 * var(--space-3) - 12px) / 4), 168px);
+  }
+}
+
+/* ---- Meu Chef e Diário da Gratidão: mesma borda dos cards da Loja, ponto no meio ---- */
+.home-pair {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 54px;
+}
+
+.home-pair > .menu-banner-wrap {
+  margin: 8px 0 0;
+}
+
+.home-pair > .menu-banner-wrap:first-child {
+  flex: 0 0 calc(60% - 14px);
+}
+
+.home-pair .menu-banner {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--card-lift);
+  overflow: hidden;
+}
+
+.home-pair .menu-banner:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #8f7a67, 0 8px 12px -6px rgba(40, 32, 26, 0.5);
+}
+
+.home-pair .menu-banner-photo {
+  outline: none;
+  border-radius: 0;
+}
+
+.home-pair .menu-banner-text {
+  border-radius: 0;
+}
+
+.home-pair-dot {
+  align-self: center;
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--circula-mocha);
+  opacity: 0.55;
+}
+
+.gratitude-photo {
+  background: linear-gradient(160deg, #f8efe1, #efdfc8);
+}
+
+.gratitude-text {
+  background: #f8f0e3;
+}
+
+/* ---- Flores até o fim: o que é transparente ganha fundo próprio, para elas não passarem atrás ---- */
+.home-wheel .wheel-card {
+  background: #fbf4ea;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.home-partners,
+.home-institutional-note,
+.home-footer {
+  position: relative;
+  background: var(--page-bg);
+}
+
+/* ---- Card único Planos e assinaturas (duas coroas) ---- */
+.home-plans-wrap {
+  margin: 26px 0 30px;
+}
+
+.home-plans-card {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 18px 16px 20px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: #fbf4ea;
+  box-shadow: var(--card-lift);
+  font: inherit;
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.home-plans-card:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #8f7a67, 0 8px 12px -6px rgba(40, 32, 26, 0.5);
+}
+
+.home-plans-crowns {
+  width: min(78%, 280px);
+  height: auto;
+  overflow: visible;
+}
+
+.home-plans-crown {
+  filter: drop-shadow(0 4px 4px rgba(70, 45, 30, 0.35)) drop-shadow(0 0 1.5px rgba(70, 45, 30, 0.3));
+}
+
+.home-plans-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--circula-mocha);
+  letter-spacing: 0.02em;
+}
+
+/* ---- Janela "Nova lista de compras" ---- */
+.ml-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(35, 30, 28, 0.55);
+}
+
+.ml-modal {
+  width: min(520px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 18px;
+  border-radius: 22px;
+  background: #fffaf6;
+  box-shadow: var(--card-lift);
+}
+
+.ml-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ml-modal-head h3 {
+  margin: 0;
+}
+
+.ml-modal-x {
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ml-modal textarea,
+.ml-modal input {
+  width: 100%;
+  font: inherit;
+  border: 1px solid rgba(120, 96, 78, 0.3);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.ml-whats {
+  background: #2f9e57;
+}
+
+/* ---- Diário: 5 gratidões, histórico e pedidos de ponta a ponta ---- */
+.diary-five {
+  grid-template-columns: 1fr;
+}
+
+.diary-five input,
+.diary-request textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.diary-request {
+  grid-template-columns: 1fr;
+}
+
+.diary-request label,
+.diary-request textarea {
+  width: 100%;
+}
+
+.diary-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.diary-top section {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(190, 150, 100, 0.12);
+}
+
+.diary-top ol {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}

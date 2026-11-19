@@ -8,6 +8,7 @@ import { formatBrl } from '../../lib/plansCatalog'
 import { ListView } from './ListView'
 import { MinhaListaCommercial } from './MinhaListaCommercial'
 import { RecipeToList } from './RecipeToList'
+import { NewListDialog } from './NewListDialog'
 
 // Minha Lista: painel com as listas, criar lista, montar com receitas e
 // histórico. Quem não tem o serviço vê a página comercial. Quem já criou
@@ -55,6 +56,8 @@ export function MinhaListaPage({
   const recipesApi = useRecipes(communityId, profileId, false)
   const [view, setView] = useState<View>({ name: 'home' })
   const [fromRecipes, setFromRecipes] = useState(false)
+  const [newDialog, setNewDialog] = useState(false)
+  const [lockMsg, setLockMsg] = useState(false)
   const [form, setForm] = useState({ name: '', description: '', planned_for: '' })
   const [error, setError] = useState<string | null>(null)
 
@@ -220,10 +223,10 @@ export function MinhaListaPage({
       </div>
 
       <div className="ml-actions ml-actions--start">
-        <button type="button" className="water-primary" disabled={!canUse} onClick={() => setView({ name: 'new' })}>
+        <button type="button" className="water-primary" onClick={() => (canUse ? setNewDialog(true) : setLockMsg(true))}>
           Criar nova lista
         </button>
-        <button type="button" className="water-primary" disabled={!canUse} onClick={() => setFromRecipes(true)}>
+        <button type="button" className="water-primary" onClick={() => (canUse ? setFromRecipes(true) : setLockMsg(true))}>
           Montar lista com receitas
         </button>
         <button type="button" className="auth-link" onClick={() => setView({ name: 'history' })}>
@@ -231,6 +234,11 @@ export function MinhaListaPage({
         </button>
       </div>
 
+      {lockMsg && !canUse && (
+        <p className="auth-error" role="alert">
+          Para criar listas, ative a Minha Lista em Planos e assinaturas.
+        </p>
+      )}
       {api.error && (
         <p className="auth-error" role="alert">
           {api.error}
@@ -245,6 +253,17 @@ export function MinhaListaPage({
             <ListCard key={l.id} list={l} api={api} mine={l.owner_id === profileId} onOpen={() => setView({ name: 'list', id: l.id })} />
           ))}
         </div>
+      )}
+
+      {newDialog && (
+        <NewListDialog
+          api={api}
+          onClose={() => setNewDialog(false)}
+          onCreated={(id) => {
+            setNewDialog(false)
+            setView({ name: 'list', id })
+          }}
+        />
       )}
 
       {fromRecipes && (

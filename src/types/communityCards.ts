@@ -143,8 +143,8 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
   },
   {
     key: 'banner_exercicios',
-    label: 'Exercícios',
-    hint: 'Foto do card "Exercícios" na Home (movimento em casa, tapete, luz natural). Aparece no card, em 16:9.',
+    label: 'Se exercite em casa',
+    hint: 'Foto do card "Se exercite em casa" (movimento em casa, tapete, luz natural). Aparece no menu fino da Home e no menu de baixo.',
   },
   {
     key: 'banner_series',

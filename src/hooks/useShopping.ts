@@ -107,7 +107,7 @@ export function useShopping(communityId: string | null, profileId: string | null
         })
         .select('id')
         .single()
-      if (e || !data) return { error: FAIL }
+      if (e || !data) return { error: e ? `${FAIL} (${e.code ?? e.message})` : FAIL }
       const id = (data as { id: string }).id
       if (drafts.length > 0) {
         const ins = await supabase.from('shopping_list_items').insert(drafts.map((d, i) => toRow(id, d, i)))

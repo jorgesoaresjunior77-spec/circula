@@ -20,6 +20,7 @@ import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { MagazineManager } from './MagazineManager'
 import { HomeMenuBanner } from './HomeMenuBanner'
 import { HomeGratitudeCard } from './HomeGratitudeCard'
+import { HomePlansCard } from './HomePlansCard'
 import { HomeEditorialCards } from './HomeEditorialCards'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
 import { AnalogClock } from './AnalogClock'
@@ -175,6 +176,7 @@ export function HomeToday({
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
   const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
   const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
+  const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
@@ -298,6 +300,7 @@ export function HomeToday({
         lojaCover={lojaCover}
         receitasCover={receitasCover}
         jardimCover={jardimCover}
+        exerciciosCover={exerciciosCover}
         badges={badges}
         onNavigate={onNavigate}
       />
@@ -378,19 +381,22 @@ export function HomeToday({
       <hr className="home-section-divider" />
       <div className="home-pair">
         <HomeMenuBanner image={cardapioCover} onOpen={() => onNavigate('cardapio')} />
+        <span className="home-pair-dot" aria-hidden="true" />
         <HomeGratitudeCard image={diarioCover} onOpen={() => onNavigate('diario')} />
       </div>
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
 
-      </div>
+      <HomePlansCard onOpen={() => onNavigate('planos')} />
 
+      {/* Até o fim do app: parceiros e rodapé têm fundo próprio, então as flores não passam atrás deles. */}
       <HomePartnersStrip communityId={focusCommunity.id} />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.
       </p>
       <HomeFooter />
+      </div>
     </div>
   )
 }

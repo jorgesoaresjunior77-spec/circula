@@ -34,11 +34,6 @@ const BreathSvg = (
     <circle cx="12" cy="12" r="10" opacity="0.4" />
   </svg>
 )
-const StarSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
-    <path d="m12 3 2.600 5.600 6.100.8-4.500 4.200 1.100 6-5.300-3-5.300 3 1.100-6L3.300 9.400l6.100-.8Z" />
-  </svg>
-)
 const MusicSvg = (
   <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
     <path d="M9 18V6l11-2v12" />
@@ -78,11 +73,10 @@ const ScreenSvg = (
 const ALL_ITEMS: Item[] = [
   { key: 'leitura', imageKey: 'menu_leitura', title: 'Dicas de leitura', tint: 'linear-gradient(135deg,#f3dccf,#e8c3b3)', icon: BookSvg },
   { key: 'respiracao', imageKey: 'menu_respiracao', title: 'Respiração', tint: 'linear-gradient(135deg,#d8e6dc,#bcd3c4)', icon: BreathSvg },
-  { key: 'planos', imageKey: 'menu_planos', title: 'Assinaturas', tint: 'linear-gradient(135deg,#efe2c8,#e3cda4)', icon: StarSvg },
   { key: 'playlist', imageKey: 'menu_playlist', title: 'Playlist', tint: 'linear-gradient(135deg,#dcd6ea,#c6bddb)', icon: MusicSvg },
   { key: 'wellness', imageKey: 'menu_wellness', title: 'Wellness', tint: 'linear-gradient(135deg,#d3e4d6,#b4d0bb)', icon: LeafSvg },
   { key: 'lista', imageKey: 'menu_lista', title: 'Lista de Compras', tint: 'linear-gradient(135deg,#f1dcc6,#e6c3a0)', icon: CartSvg },
-  { key: 'exercicios', imageKey: 'banner_exercicios', title: 'Exercícios', tint: 'linear-gradient(135deg,#f6dfd2,#ebc2ae)', icon: DumbbellSvg },
+  { key: 'exercicios', imageKey: 'banner_exercicios', title: 'Se exercite em casa', tint: 'linear-gradient(135deg,#f6dfd2,#ebc2ae)', icon: DumbbellSvg },
   { key: 'series', imageKey: 'banner_series', title: 'Dicas de Séries / Filmes', tint: 'linear-gradient(135deg,#e0dcee,#c9c2de)', icon: ScreenSvg },
 ]
 
@@ -113,9 +107,10 @@ interface Props {
 }
 
 export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true }: Props) {
-  const items = ALL_ITEMS.filter((i) => i.key !== 'planos' || showSubscriptions)
-  // Segundos por volta: cerca de 4 s por card — suave e constante.
-  const duration = items.length * 4
+  void showSubscriptions
+  const items = ALL_ITEMS
+  // Segundos por volta: cerca de 3,4 s por card — suave e constante (um pouco mais ágil).
+  const duration = items.length * 3.4
 
   const render = (copy: boolean) =>
     items.map((item) => (

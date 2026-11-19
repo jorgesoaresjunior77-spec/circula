@@ -55,6 +55,8 @@ interface HomeExperienceStripProps {
    *  Jardim", cadastrada pela Profissional em Painel → Imagens da
    *  comunidade (chave `jardim`, migration 20261030120000). */
   jardimCover?: string | null
+  /** Capa do card "Se exercite em casa" (mesma imagem do menu de baixo). */
+  exerciciosCover?: string | null
   /** Bolinhas vermelhas por card (chave do card -> quantidade). */
   badges?: Record<string, number>
   onNavigate: (key: NavKey) => void
@@ -89,6 +91,7 @@ export function HomeExperienceStrip({
   lojaCover,
   receitasCover,
   jardimCover,
+  exerciciosCover,
   badges = {},
   onNavigate,
 }: HomeExperienceStripProps) {
@@ -132,6 +135,13 @@ export function HomeExperienceStrip({
         ariaLabel: 'Receitas',
       },
       {
+        key: 'exercicios',
+        title: 'Se exercite em casa',
+        image: exerciciosCover ?? null,
+        onActivate: () => onNavigate('exercicios'),
+        ariaLabel: 'Se exercite em casa',
+      },
+      {
         key: 'jardim',
         title: 'Meu Jardim',
         image: jardimCover ?? null,
@@ -147,6 +157,7 @@ export function HomeExperienceStrip({
       lojaCover,
       receitasCover,
       jardimCover,
+      exerciciosCover,
       onNavigate,
     ],
   )
