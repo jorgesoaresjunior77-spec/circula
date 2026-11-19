@@ -5273,3 +5273,659 @@ section.community-card.product-manager.product-manager--storefront {
   align-items: flex-start;
   font-size: 14px;
 }
+
+/* ---- Exercícios ---- */
+.menu-banner-wrap--full .menu-banner,
+.menu-banner--full {
+  width: 100%;
+}
+
+.exfig {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ex-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ex-pair figure {
+  margin: 0;
+  background: #fffaf4;
+  border: 1px solid rgba(120, 96, 78, 0.2);
+  border-radius: 16px;
+  padding: 6px;
+}
+
+.ex-pair figcaption {
+  text-align: center;
+  font-size: 12px;
+  color: var(--circula-taupe);
+}
+
+.ex-steps {
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.ex-caution {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(190, 150, 100, 0.14);
+}
+
+.ex-cta {
+  display: block;
+  width: 100%;
+  margin: 14px 0 18px;
+  padding: 22px 16px;
+  border: 0;
+  border-radius: 22px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--circula-mocha), #b0805a);
+  box-shadow: 0 14px 28px -14px rgba(90, 60, 40, 0.6);
+}
+
+.ex-big {
+  border: 0;
+  border-radius: 16px;
+  padding: 16px 22px;
+  min-height: 56px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 17px;
+  color: #fff;
+  background: var(--circula-mocha);
+}
+
+.ex-big:disabled {
+  opacity: 0.5;
+}
+
+.ex-quick {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 10px;
+  margin: 10px 0 18px;
+}
+
+.ex-filters {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ex-filters input,
+.ex-filters select,
+.ex-today select,
+.pn-list select {
+  width: 100%;
+  border: 1px solid rgba(120, 96, 78, 0.3);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #fff;
+}
+
+.ex-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.ex-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.ex-tile {
+  border: 1px solid rgba(120, 96, 78, 0.22);
+  border-radius: 18px;
+  background: #fff;
+  padding: 8px;
+  text-align: left;
+  font: inherit;
+  display: grid;
+  gap: 4px;
+}
+
+.ex-tile-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.ex-pick {
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+  margin: 8px 0;
+}
+
+.ex-today {
+  outline: 2px solid rgba(190, 150, 100, 0.5);
+}
+
+.ex-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.ex-controls button:not(.ex-big) {
+  border: 1px solid rgba(120, 96, 78, 0.35);
+  background: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: inherit;
+}
+
+.ex-player {
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.ex-player-top {
+  display: grid;
+  gap: 2px;
+}
+
+.ex-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(120, 96, 78, 0.15);
+  overflow: hidden;
+}
+
+.ex-progress span {
+  display: block;
+  height: 100%;
+  background: #8bbf7a;
+  transition: width 0.4s ease;
+}
+
+.ex-clock {
+  margin: 0;
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--circula-mocha);
+}
+
+.ex-set {
+  margin: 0;
+  font-weight: 600;
+}
+
+.ex-player .ex-steps {
+  text-align: left;
+}
+
+.ex-summary-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.ex-articles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 10px 0 16px;
+}
+
+.ex-article-tile {
+  border: 1px solid rgba(120, 96, 78, 0.22);
+  border-radius: 18px;
+  background: #fff;
+  padding: 8px;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  font: inherit;
+}
+
+.ex-article-thumb,
+.ex-article-cover,
+.ex-cover-ph {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  background: rgba(120, 96, 78, 0.12);
+}
+
+.ex-article-title {
+  font-weight: 600;
+}
+
+.ex-lede {
+  font-size: 16px;
+  color: var(--circula-taupe);
+}
+
+.ex-offer-list {
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.ex-admin {
+  display: grid;
+  gap: 14px;
+}
+
+.ex-admin-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ex-admin-fig {
+  display: grid;
+  grid-template-columns: 70px 70px;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.ex-fieldset {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(120, 96, 78, 0.22);
+  border-radius: 12px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+/* ---- Dicas de Séries / Filmes ---- */
+.sf-list {
+  display: grid;
+  gap: 14px;
+  margin: 12px 0;
+}
+
+.sf-card {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(120, 96, 78, 0.22);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.sf-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  background: rgba(120, 96, 78, 0.12);
+}
+
+.sf-info h3 {
+  margin: 0 0 4px;
+}
+
+.sf-meta {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--circula-taupe);
+}
+
+.sf-age {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  background: #3f9a4b;
+}
+
+.sf-age--10 { background: #2b8fc9; }
+.sf-age--12 { background: #d9a520; }
+.sf-age--14 { background: #e07a1f; }
+.sf-age--16 { background: #d4452b; }
+.sf-age--18 { background: #222; }
+
+.sf-link {
+  display: inline-block;
+  text-decoration: none;
+  margin-top: 6px;
+}
+
+/* ---- Meu Chef (60%) ao lado do Diário da Gratidão (40%) ---- */
+.home-pair {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.home-pair > .menu-banner-wrap {
+  flex: 0 0 calc(60% - 6px);
+  min-width: 0;
+}
+
+.home-pair > .menu-banner-wrap .menu-banner {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.gratitude-card-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+}
+
+.gratitude-card {
+  position: relative;
+  width: 100%;
+  border: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  padding: 14px 10px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  font: inherit;
+  color: #5a3b24;
+  background: radial-gradient(circle at 50% 0%, #fff3d6 0%, #f3dcc0 45%, #d9b48c 100%);
+  box-shadow: 0 14px 30px -14px rgba(53, 48, 44, 0.5);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.gratitude-card:active {
+  transform: scale(0.985);
+}
+
+.gratitude-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.gratitude-card > *:not(.gratitude-card-bg) {
+  position: relative;
+}
+
+.gratitude-card-title {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.15;
+}
+
+.gratitude-card-cta {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--circula-mocha);
+}
+
+/* ---- Mãos em oração (animação) ---- */
+.praying-left {
+  transform-origin: -1px 80px;
+  animation: pray-left 3.6s ease-in-out infinite;
+}
+
+.praying-right {
+  transform-origin: 1px 80px;
+  animation: pray-right 3.6s ease-in-out infinite;
+}
+
+.praying-glow {
+  opacity: 0.25;
+  animation: pray-glow 3.6s ease-in-out infinite;
+}
+
+.praying-rays {
+  opacity: 0;
+  animation: pray-rays 3.6s ease-in-out infinite;
+}
+
+@keyframes pray-left {
+  0% { transform: translateX(-16px) rotate(-16deg); }
+  45%, 85% { transform: translateX(0) rotate(0deg); }
+  100% { transform: translateX(-16px) rotate(-16deg); }
+}
+
+@keyframes pray-right {
+  0% { transform: translateX(16px) rotate(16deg); }
+  45%, 85% { transform: translateX(0) rotate(0deg); }
+  100% { transform: translateX(16px) rotate(16deg); }
+}
+
+@keyframes pray-glow {
+  0%, 100% { opacity: 0.12; }
+  55%, 85% { opacity: 0.55; }
+}
+
+@keyframes pray-rays {
+  0%, 40% { opacity: 0; }
+  60%, 85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .praying-left,
+  .praying-right,
+  .praying-glow,
+  .praying-rays {
+    animation: none;
+  }
+  .praying-rays {
+    opacity: 1;
+  }
+}
+
+/* ---- Diário da Gratidão ---- */
+.diary-hero {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 20% 0%, #fff3d6, #f3dcc0 60%, #e2c4a2);
+}
+
+.diary-hero h2 {
+  margin: 0 0 4px;
+}
+
+.diary-streak {
+  font-weight: 600;
+}
+
+.diary-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.diary-tile {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(120, 96, 78, 0.22);
+  background: #fffaf4;
+  font: inherit;
+}
+
+.diary-tile-icon {
+  font-size: 26px;
+}
+
+.diary-prayer {
+  padding: 18px;
+  border-radius: 20px;
+  background: #fffaf4;
+  border: 1px solid rgba(190, 150, 100, 0.35);
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+.diary-amen {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px;
+}
+
+.diary-stats {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+
+.diary-stats li {
+  padding: 12px 6px;
+  border-radius: 16px;
+  background: rgba(190, 150, 100, 0.14);
+}
+
+.diary-stats strong {
+  display: block;
+  font-size: 24px;
+}
+
+/* ---- Tour: Marluce (bonequinha) e animações explicativas ---- */
+.tour-guide-wrap {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+  transition:
+    top 0.25s ease,
+    left 0.25s ease;
+}
+
+.tour-guide {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 6px 8px rgba(40, 32, 26, 0.3));
+}
+
+.tour-guide-bob {
+  animation: guide-bob 3.2s ease-in-out infinite;
+}
+
+.tour-guide-arm {
+  transform: rotate(var(--point, 20deg));
+  transition: transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+.tour-guide-sway {
+  animation: guide-sway 1.6s ease-in-out infinite;
+}
+
+.tour-guide-eyes {
+  transform-origin: 50px 35px;
+  animation: guide-blink 4.5s infinite;
+}
+
+@keyframes guide-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes guide-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+@keyframes guide-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+.tour-gesture {
+  position: fixed;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.tour-gesture-ring {
+  position: absolute;
+  left: -22px;
+  top: -22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  animation: gesture-ring 1.6s ease-out infinite;
+}
+
+.tour-gesture-hand {
+  position: absolute;
+  left: -14px;
+  top: -6px;
+  font-size: 28px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+  animation: gesture-tap 1.6s ease-in-out infinite;
+}
+
+.tour-gesture--swipe .tour-gesture-hand {
+  animation: gesture-swipe 1.8s ease-in-out infinite;
+}
+
+.tour-gesture--swipe .tour-gesture-ring {
+  display: none;
+}
+
+@keyframes gesture-ring {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes gesture-tap {
+  0%, 100% { transform: translateY(8px) scale(1); }
+  40% { transform: translateY(0) scale(0.92); }
+}
+
+@keyframes gesture-swipe {
+  0% { transform: translateX(-40px); opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { transform: translateX(40px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-guide-bob,
+  .tour-guide-sway,
+  .tour-guide-eyes,
+  .tour-gesture-ring,
+  .tour-gesture-hand {
+    animation: none;
+  }
+}

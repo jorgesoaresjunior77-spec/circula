@@ -31,6 +31,8 @@ export type ProductKey =
   | 'minha_lista'
   | 'meu_chef'
   | 'lista_inteligente'
+  | 'exercicios'
+  | 'series_filmes'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -66,7 +68,27 @@ export const PRODUCTS: CatalogProduct[] = [
     description: 'A lista de compras do seu cardápio, somada e organizada por seção, pronta para salvar em PDF.',
     monthlyCents: 380,
   },
+  {
+    key: 'exercicios',
+    name: 'Exercícios',
+    description: 'Matérias e uma biblioteca de exercícios para fazer em casa, só com o peso do corpo, com treinos e acompanhamento.',
+    monthlyCents: 590,
+  },
+  {
+    key: 'series_filmes',
+    name: 'Dicas de Séries e Filmes',
+    description: 'Curadoria de séries e filmes para a comunidade, com onde assistir. Você assina as plataformas à parte.',
+    monthlyCents: 290,
+  },
 ]
+
+/** Preços editados pelo Master (tabela product_price_overrides): troca o valor mensal em memória. */
+export function applyPriceOverrides(rows: { plan_key: string; monthly_cents: number }[]): void {
+  for (const r of rows) {
+    const p = PRODUCTS.find((x) => x.key === r.plan_key)
+    if (p && Number.isFinite(r.monthly_cents) && r.monthly_cents >= 100) p.monthlyCents = r.monthly_cents
+  }
+}
 
 /** Arredonda para dezenas de centavos (R$ 0,10), como nos preços fechados. */
 function roundDime(cents: number): number {

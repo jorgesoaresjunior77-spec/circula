@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { NavKey } from './PrimaryNav'
+import { TourGuide } from './TourGuide'
+import type { GuideMood } from './TourGuide'
 
 // Tour guiado: acontece todo na PÁGINA INICIAL e aponta, um por vez, os
 // lugares de verdade onde a pessoa toca para entrar e interagir (atalhos,
@@ -19,6 +21,10 @@ interface TourStep {
   targets: string[]
   title: string
   text: string
+  /** Passo que só existe quando o elemento está na tela (ex.: botão Nutri só para paciente). */
+  optional?: boolean
+  /** Animação explicativa sobre o destaque: tocar ou deslizar. */
+  gesture?: 'tap' | 'swipe'
 }
 
 export const TOUR_STEPS: TourStep[] = [
@@ -36,6 +42,21 @@ export const TOUR_STEPS: TourStep[] = [
     targets: ['.exp-strip', '.exp-viewport'],
     title: 'Menu',
     text: 'Deslize para o lado e toque em um cartão: Eventos, Loja, Receitas, Meu Jardim e Help Nutri.',
+    gesture: 'swipe',
+  },
+  {
+    targets: ['.menu-banner-wrap[aria-label="Exercícios"]'],
+    title: 'Exercícios',
+    text: 'Matérias e o botão SE EXERCITE EM CASA: uma biblioteca de exercícios com o peso do corpo, desenhos passo a passo, treinos de 5 a 30 minutos e a sua semana.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
+    targets: ['.menu-banner-wrap[aria-label="Dicas de Séries e Filmes"]'],
+    title: 'Dicas de Séries / Filmes',
+    text: 'Indicações da nutricionista para assistir com calma, com a plataforma e a classificação. O link abre onde você assiste.',
+    optional: true,
+    gesture: 'tap',
   },
   {
     targets: ['.home-time'],
@@ -51,11 +72,33 @@ export const TOUR_STEPS: TourStep[] = [
     targets: ['.mag2-viewport', '.mag2-stack'],
     title: 'Revista',
     text: 'Toque em uma capa para ler a edição inteira aqui mesmo, virando as páginas.',
+    gesture: 'tap',
+  },
+  {
+    targets: ['.home-pair .menu-banner-wrap'],
+    title: 'Meu Chef',
+    text: 'Escolha os pratos e receba bem: o Meu Chef monta o cardápio do seu encontro com as receitas da nutricionista.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
+    targets: ['.gratitude-card-wrap'],
+    title: 'Diário da Gratidão',
+    text: 'Oração do Dia, Gratidão de Hoje, Meus Pedidos e Minha Jornada. É um momento só seu, e tudo o que você escreve fica privado.',
+    optional: true,
+    gesture: 'tap',
   },
   {
     targets: ['#tour-nav-mobile-feed', '#tour-nav-desktop-feed'],
     title: 'Feed',
     text: 'Aqui ficam as conversas da comunidade. Publique, curta, comente, responda e vote nas enquetes.',
+  },
+  {
+    targets: ['#tour-nav-mobile-nutri', '#tour-nav-desktop-nutri'],
+    title: 'Nutri',
+    text: 'O seu plano alimentar, a agenda de consultas (você pode cancelar ou pedir reagendamento), orientações e tarefas, medidas e fotos de evolução.',
+    optional: true,
+    gesture: 'tap',
   },
   {
     targets: ['#tour-nav-mobile-perfil', '#tour-nav-desktop-perfil'],
@@ -105,8 +148,10 @@ export function Tour({ onNavigate, onDone }: TourProps) {
   const [rect, setRect] = useState<SpotlightRect | null>(null)
   const [cardHeight, setCardHeight] = useState(190)
   const cardRef = useRef<HTMLDivElement>(null)
-  const step = TOUR_STEPS[stepIndex]
-  const isLast = stepIndex === TOUR_STEPS.length - 1
+  // Passos opcionais só entram se o elemento existe na tela (ex.: Nutri só para paciente).
+  const [steps] = useState(() => TOUR_STEPS.filter((st) => !st.optional || findTarget(st)))
+  const step = steps[stepIndex]
+  const isLast = stepIndex === steps.length - 1
 
   const measure = useCallback(() => {
     const el = findTarget(step)
@@ -194,6 +239,14 @@ export function Tour({ onNavigate, onDone }: TourProps) {
     cardLeft = Math.min(Math.max(EDGE, centered), viewW - cardWidth - EDGE)
   }
 
+  // A bonequinha fica na quina do balão (em cima; embaixo quando o balão está no topo da tela)
+  // e aponta o braço para o centro do destaque.
+  const guideAbove = cardTop >= 96
+  const guideX = cardLeft + 36
+  const guideY = guideAbove ? cardTop - 40 : cardTop + cardHeight + 40
+  const pointAngle = rect ? (Math.atan2(rect.top + rect.height / 2 - guideY, rect.left + rect.width / 2 - guideX) * 180) / Math.PI : 20
+  const mood: GuideMood = (['smile', 'happy', 'wink'] as GuideMood[])[stepIndex % 3]
+
   return (
     <div className="tour-overlay" role="dialog" aria-modal="true" aria-label="Tour guiado do Círcula">
       {rect && (
@@ -203,10 +256,20 @@ export function Tour({ onNavigate, onDone }: TourProps) {
         />
       )}
       {!rect && <div className="tour-overlay-dim" />}
+      {rect && step.gesture && (
+        <div className={`tour-gesture tour-gesture--${step.gesture}`} aria-hidden="true" style={{ top: rect.top + rect.height / 2, left: rect.left + rect.width / 2 }}>
+          <span className="tour-gesture-ring" />
+          <span className="tour-gesture-hand">{step.gesture === 'swipe' ? '👉' : '👆'}</span>
+        </div>
+      )}
+
+      <div className={`tour-guide-wrap${guideAbove ? '' : ' tour-guide-wrap--below'}`} style={{ top: guideAbove ? cardTop - 84 : cardTop + cardHeight - 6, left: cardLeft + 4 }}>
+        <TourGuide mood={mood} pointAngle={pointAngle} />
+      </div>
 
       <div ref={cardRef} className="tour-card" style={{ top: cardTop, left: cardLeft, width: cardWidth }}>
         <p className="tour-card-step">
-          {stepIndex + 1} / {TOUR_STEPS.length}
+          {stepIndex + 1} / {steps.length}
         </p>
         <h3 className="tour-card-title">{step.title}</h3>
         <p className="tour-card-text">{step.text}</p>

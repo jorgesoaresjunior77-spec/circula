@@ -53,7 +53,7 @@ describe('Tour', () => {
 
   it('mostra o contador de passos', () => {
     render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
-    expect(screen.getByText(`1 / ${TOUR_STEPS.length}`)).toBeInTheDocument()
+    expect(screen.getByText(`1 / ${TOUR_STEPS.filter((st) => !st.optional).length}`)).toBeInTheDocument()
   })
 
   it('um passo cujo alvo não existe na tela não trava: o balão aparece sem destaque', () => {
@@ -86,7 +86,7 @@ describe('Tour', () => {
     const onDone = vi.fn()
     render(<Tour onNavigate={vi.fn()} onDone={onDone} />)
 
-    for (let i = 0; i < TOUR_STEPS.length - 1; i++) {
+    for (let i = 0; i < TOUR_STEPS.filter((st) => !st.optional).length - 1; i++) {
       fireEvent.click(screen.getByText('Avançar'))
     }
 
@@ -94,5 +94,30 @@ describe('Tour', () => {
     expect(onDone).not.toHaveBeenCalled()
     fireEvent.click(screen.getByText('Encerrar'))
     expect(onDone).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Tour — passos opcionais e guia', () => {
+  afterEach(() => {
+    cleanup()
+    document.body.innerHTML = ''
+  })
+
+  it('passos opcionais só entram quando o elemento está na tela', () => {
+    document.body.innerHTML = '<header class="home-greeting">Bom dia</header><button id="tour-nav-mobile-nutri">Nutri</button>'
+    for (const el of document.body.querySelectorAll<HTMLElement>('*')) {
+      Object.defineProperty(el, 'offsetParent', { get: () => document.body })
+      el.getBoundingClientRect = () => ({ top: 10, left: 10, width: 40, height: 40, right: 50, bottom: 50, x: 10, y: 10, toJSON() {} }) as DOMRect
+      el.scrollIntoView = () => {}
+    }
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
+    const base = TOUR_STEPS.filter((st) => !st.optional).length
+    expect(screen.getByText(`1 / ${base + 1}`)).toBeInTheDocument()
+  })
+
+  it('a Marluce acompanha o tour', () => {
+    document.body.innerHTML = '<header class="home-greeting">Bom dia</header>'
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
+    expect(document.querySelector('.tour-guide')).not.toBeNull()
   })
 })

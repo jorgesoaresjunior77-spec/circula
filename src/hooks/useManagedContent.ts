@@ -13,6 +13,8 @@ export type ManagedTable =
   | 'product_categories'
   | 'community_playlists'
   | 'wellness_articles'
+  | 'exercise_articles'
+  | 'series_picks'
 
 export function useManagedContent<T extends { id: string }>(
   table: ManagedTable,

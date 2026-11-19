@@ -130,6 +130,24 @@ export function ChefPlanIcon(p: Props) {
   )
 }
 
+export function ExercisePlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M6 12v8M26 12v8M9.500 9v14M22.500 9v14M9.500 16h13" />
+    </Svg>
+  )
+}
+
+export function SeriesPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <rect x="5" y="8" width="22" height="15" rx="2.500" />
+      <path d="M13.500 12.500l6 3.500-6 3.500z" />
+      <path d="M11 26.500h10" />
+    </Svg>
+  )
+}
+
 export function PremiumPlanIcon(p: Props) {
   return (
     <Svg {...p}>
@@ -155,4 +173,6 @@ export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) =
   minha_lista: ListPlanIcon,
   meu_chef: ChefPlanIcon,
   lista_inteligente: ListPlanIcon,
+  exercicios: ExercisePlanIcon,
+  series_filmes: SeriesPlanIcon,
 }

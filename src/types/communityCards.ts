@@ -61,6 +61,9 @@ export type CommunityCardKey =
   | 'menu_lista'
   | 'loja_fundo'
   | 'banner_cardapio'
+  | 'banner_exercicios'
+  | 'banner_series'
+  | 'banner_diario'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -138,6 +141,21 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     label: 'Meu Chef',
     hint: 'Foto do card "Meu Chef" na Home (mesa posta, pratos bem apresentados). Aparece no topo do card, em 16:9.',
   },
+  {
+    key: 'banner_exercicios',
+    label: 'Exercícios',
+    hint: 'Foto do card "Exercícios" na Home (movimento em casa, tapete, luz natural). Aparece no card, em 16:9.',
+  },
+  {
+    key: 'banner_series',
+    label: 'Dicas de Séries / Filmes',
+    hint: 'Foto do card "Dicas de Séries / Filmes" na Home (sofá, tela, clima aconchegante). Aparece no card, em 16:9.',
+  },
+  {
+    key: 'banner_diario',
+    label: 'Diário da Gratidão',
+    hint: 'Imagem do card "Diário da Gratidão" na Home (luz de amanhecer, mãos em oração, diário aberto). Aparece no card.',
+  },
 ]
 
 export const EDITORIAL_CARD_KEYS = EDITORIAL_CARD_META.map((c) => c.key)
@@ -170,6 +188,9 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'jornada_grande':
     case 'comunidade_grande':
     case 'banner_cardapio':
+    case 'banner_exercicios':
+    case 'banner_series':
+    case 'banner_diario':
       return SPEC_BANNER
     case 'loja_fundo':
     case 'revista_escritorio':

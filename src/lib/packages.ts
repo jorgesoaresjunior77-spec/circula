@@ -16,6 +16,8 @@ export type PackageKey =
   | 'minha_lista'
   | 'meu_chef'
   | 'lista_inteligente'
+  | 'exercicios'
+  | 'series_filmes'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -29,6 +31,8 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'minha_lista',
   'meu_chef',
   'lista_inteligente',
+  'exercicios',
+  'series_filmes',
   'premium',
   'total',
 ]
@@ -47,6 +51,8 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   minha_lista: 'Minha Lista',
   meu_chef: 'Meu Chef',
   lista_inteligente: 'Lista de compras inteligente',
+  exercicios: 'Exercícios',
+  series_filmes: 'Dicas de Séries e Filmes',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -63,6 +69,8 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   minha_lista: 'Pode usar a Minha Lista (listas de compras).',
   meu_chef: 'Pode montar cardápios com o Meu Chef.',
   lista_inteligente: 'Pode salvar a lista de compras inteligente do Meu Chef.',
+  exercicios: 'Pode usar a biblioteca de exercícios e as matérias.',
+  series_filmes: 'Pode ver as dicas de séries e filmes.',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -114,4 +122,14 @@ export function canUseChef(owned: Owned): boolean {
 /** Pode salvar a lista de compras inteligente: pacote próprio ou Círcula Premium. */
 export function canUseSmartList(owned: Owned): boolean {
   return has(owned, 'lista_inteligente') || has(owned, 'premium')
+}
+
+/** Pode usar a biblioteca de Exercícios: pacote Exercícios ou Círcula Premium. */
+export function canUseExercises(owned: Owned): boolean {
+  return has(owned, 'exercicios') || has(owned, 'premium')
+}
+
+/** Pode ver as Dicas de Séries e Filmes: pacote próprio ou Círcula Premium. */
+export function canUseSeriesFilmes(owned: Owned): boolean {
+  return has(owned, 'series_filmes') || has(owned, 'premium')
 }

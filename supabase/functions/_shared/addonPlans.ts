@@ -15,6 +15,8 @@ export type AddonPlanKey =
   | 'minha_lista'
   | 'meu_chef'
   | 'lista_inteligente'
+  | 'exercicios'
+  | 'series_filmes'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -31,6 +33,8 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'minha_lista',
   'meu_chef',
   'lista_inteligente',
+  'exercicios',
+  'series_filmes',
   'premium',
 ]
 
@@ -46,6 +50,8 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   minha_lista: 'Minha Lista',
   meu_chef: 'Meu Chef',
   lista_inteligente: 'Lista de compras inteligente',
+  exercicios: 'Exercícios',
+  series_filmes: 'Dicas de Séries e Filmes',
   premium: 'Círcula Premium',
 }
 
@@ -61,6 +67,8 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   minha_lista: 490,
   meu_chef: 890,
   lista_inteligente: 380,
+  exercicios: 590,
+  series_filmes: 290,
   premium: 5980,
 }
 
@@ -83,10 +91,11 @@ export function isAsaasCycle(v: unknown): v is AsaasCycle {
 }
 
 /** Preço em centavos do plano no ciclo pedido. */
-export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle): number {
+/** `overrideMonthly`: valor mensal editado pelo Master (tabela product_price_overrides), se houver. */
+export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle, overrideMonthly?: number | null): number {
   const closed = CLOSED[key]
   if (closed) return closed[cycle]
-  const monthly = MONTHLY[key]
+  const monthly = overrideMonthly && overrideMonthly >= 100 ? overrideMonthly : MONTHLY[key]
   if (monthly === 990) return NINETY_NINETY[cycle]
   if (cycle === 'MONTHLY') return monthly
   return cycle === 'SEMIANNUALLY' ? roundDime(monthly * 6 * 0.84) : roundDime(monthly * 12 * 0.67)
@@ -118,6 +127,10 @@ export function packagesForPlan(key: AddonPlanKey): string[] {
       return ['meu_chef']
     case 'lista_inteligente':
       return ['lista_inteligente']
+    case 'exercicios':
+      return ['exercicios']
+    case 'series_filmes':
+      return ['series_filmes']
     case 'premium':
       return ['premium']
     default:

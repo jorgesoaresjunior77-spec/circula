@@ -90,7 +90,9 @@ Deno.serve(async (req) => {
       })
     }
 
-    const priceCents = addonPriceCents(planKey, cycle)
+    // preço editado pelo Master (se houver) vale no lugar do catálogo; nunca vem do navegador
+    const { data: override } = await admin.from('product_price_overrides').select('monthly_cents').eq('plan_key', planKey).maybeSingle()
+    const priceCents = addonPriceCents(planKey, cycle, (override?.monthly_cents as number | undefined) ?? null)
 
     const { data: profile } = await admin.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
 

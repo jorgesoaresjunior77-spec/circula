@@ -20,9 +20,11 @@ describe('plansCatalog', () => {
     expect(by.minha_lista).toBe(490)
     expect(by.meu_chef).toBe(890)
     expect(by.lista_inteligente).toBe(380)
+    expect(by.exercicios).toBe(590)
+    expect(by.series_filmes).toBe(290)
   })
   it('o Premium sai mais barato que a soma de tudo separado', () => {
-    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(9270)
+    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(10150)
     expect(PREMIUM_MONTHLY_CENTS).toBeLessThan(PREMIUM_SEPARATE_MONTHLY_CENTS)
   })
   it('Premium: R$ 59,80, e semestral/anual mantêm 20% e 35% sobre o novo valor', () => {

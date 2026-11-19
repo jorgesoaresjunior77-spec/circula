@@ -4,7 +4,7 @@ import { ownedProductNames, subscriptionLevel } from './subscriptionLevel'
 describe('subscriptionLevel', () => {
   it('Premium vale por tudo', () => {
     expect(subscriptionLevel(new Set(['premium']), null).id).toBe('premium')
-    expect(ownedProductNames(new Set(['premium']))).toHaveLength(11)
+    expect(ownedProductNames(new Set(['premium']))).toHaveLength(13)
   })
   it('plano da comunidade ativo é o nível Círcula', () => {
     expect(subscriptionLevel(new Set(), 'active').id).toBe('circula')

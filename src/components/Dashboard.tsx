@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canUseChef, canUseSmartList, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
+import { canUseSeriesFilmes, canUseExercises, canUseChef, canUseSmartList, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -93,6 +93,9 @@ const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => (
 
 // Telas abertas só quando a pessoa chega nelas: saem do pacote inicial.
 const RecipesPage = lazy(() => import('./RecipesPage').then((m) => ({ default: m.RecipesPage })))
+const ExercisesPage = lazy(() => import('./ExercisesPage').then((m) => ({ default: m.ExercisesPage })))
+const SeriesPage = lazy(() => import('./SeriesPage').then((m) => ({ default: m.SeriesPage })))
+const DiarioPage = lazy(() => import('./DiarioPage').then((m) => ({ default: m.DiarioPage })))
 const MenuBuilderPage = lazy(() => import('./MenuBuilderPage').then((m) => ({ default: m.MenuBuilderPage })))
 const GardenPage = lazy(() => import('./GardenPage').then((m) => ({ default: m.GardenPage })))
 const AgendaPage = lazy(() => import('./AgendaPage').then((m) => ({ default: m.AgendaPage })))
@@ -169,7 +172,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'diario']
 
 export function Dashboard({
   profile,
@@ -373,6 +376,24 @@ export function Dashboard({
       Icon: BookIcon,
       inBottomNav: false,
     })
+    navItems.push({
+      key: 'exercicios',
+      label: 'Exercícios',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
+      key: 'series',
+      label: 'Séries / Filmes',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
+      key: 'diario',
+      label: 'Diário da Gratidão',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
     // Meu Jardim — desafios de atividades diárias. Mesma resolução de
     // comunidade de círculos/eventos/receitas (community-picker quando
     // houver mais de uma relevante).
@@ -521,7 +542,10 @@ export function Dashboard({
     effectiveNav === 'circulos' ||
     effectiveNav === 'eventos' ||
     effectiveNav === 'receitas' ||
-    effectiveNav === 'cardapio'
+    effectiveNav === 'cardapio' ||
+    effectiveNav === 'exercicios' ||
+    effectiveNav === 'series' ||
+    effectiveNav === 'diario'
   const {
     circles,
     loading: circlesLoading,
@@ -988,6 +1012,59 @@ export function Dashboard({
           onOpenPlans={() => handleNavigate('planos')}
         />
       )
+    }
+
+    // EXERCÍCIOS — matérias e biblioteca; o acesso é travado no banco pelo pacote.
+    if (effectiveNav === 'exercicios') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+      if (!resolvedCirclesCommunityId) {
+        return <>{renderCommunityPicker('Exercícios · escolha uma comunidade', circlesRelevantCommunities, setCirclesCommunityId)}</>
+      }
+      if (profile.role === 'member' && packagesLoading) return <p className="home-muted">Carregando…</p>
+      return (
+        <ExercisesPage
+          communityId={resolvedCirclesCommunityId}
+          profileId={profile.id}
+          isOwner={profile.role === 'professional'}
+          isMaster={false}
+          canUse={profile.role === 'professional' || canUseExercises(myPackages)}
+          onOpenPlans={() => handleNavigate('planos')}
+        />
+      )
+    }
+
+    // DICAS DE SÉRIES / FILMES — curadoria; o acesso é travado no banco pelo pacote.
+    if (effectiveNav === 'series') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+      if (!resolvedCirclesCommunityId) {
+        return <>{renderCommunityPicker('Séries / Filmes · escolha uma comunidade', circlesRelevantCommunities, setCirclesCommunityId)}</>
+      }
+      if (profile.role === 'member' && packagesLoading) return <p className="home-muted">Carregando…</p>
+      return (
+        <SeriesPage
+          communityId={resolvedCirclesCommunityId}
+          profileId={profile.id}
+          isOwner={profile.role === 'professional'}
+          isMaster={false}
+          canUse={profile.role === 'professional' || canUseSeriesFilmes(myPackages)}
+          onOpenPlans={() => handleNavigate('planos')}
+        />
+      )
+    }
+
+    // DIÁRIO DA GRATIDÃO — orações da nutricionista; os registros são privados.
+    if (effectiveNav === 'diario') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+      if (!resolvedCirclesCommunityId) {
+        return <>{renderCommunityPicker('Diário da Gratidão · escolha uma comunidade', circlesRelevantCommunities, setCirclesCommunityId)}</>
+      }
+      return <DiarioPage communityId={resolvedCirclesCommunityId} profileId={profile.id} isOwner={profile.role === 'professional'} />
     }
 
     // ANTES DE TUDO — dado pessoal, não depende de comunidade em foco.
