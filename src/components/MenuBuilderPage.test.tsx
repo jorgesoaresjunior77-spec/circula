@@ -3,8 +3,8 @@ import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import { MenuBuilderPage } from './MenuBuilderPage'
 import type { MenuRecipe } from '../lib/menuBuilder'
 
-const printDocument = vi.fn(() => true)
-vi.mock('../lib/nutriPrint', async (orig) => ({ ...(await orig<typeof import('../lib/nutriPrint')>()), printDocument: (h: string) => printDocument(h) }))
+const printDocument = vi.fn((_html: string) => true)
+vi.mock('../lib/nutriPrint', async (importOriginal) => ({ ...(await importOriginal<typeof import('../lib/nutriPrint')>()), printDocument: (h: string) => printDocument(h) }))
 vi.mock('../hooks/useSignedImageUrl', () => ({ useSignedImageUrl: () => ({ url: null }) }))
 
 const RECIPES: MenuRecipe[] = [
