@@ -24,7 +24,7 @@ import {
   viewForPinch,
 } from '../lib/magazineGestures'
 import type { MagView, TurnDir } from '../lib/magazineGestures'
-import { todayParts } from '../lib/weekCalendar'
+import { MONTH_LABELS, todayParts } from '../lib/weekCalendar'
 
 function todayIso(): string {
   const t = todayParts()
@@ -48,8 +48,27 @@ function brDate(iso: string): string {
 // Escritório Editorial (a "banca" com as prateleiras).
 
 export const MAGAZINE_STACK_MAX = 6
-export const MAGAZINE_SHELF_MAX = 12
-const SHELF_ROW = 4
+export const MAGAZINE_SHELF_MAX = 9
+const SHELF_ROW = 3
+
+/** Proporção (largura/altura) da capa de uma edição, lida da própria imagem. */
+function useCoverRatio(path: string | null | undefined): number | null {
+  const { url } = useSignedImageUrl(path ?? null)
+  const [ratio, setRatio] = useState<number | null>(null)
+  useEffect(() => {
+    if (!url) return
+    let active = true
+    const img = new Image()
+    img.onload = () => {
+      if (active && img.naturalWidth > 0 && img.naturalHeight > 0) setRatio(img.naturalWidth / img.naturalHeight)
+    }
+    img.src = url
+    return () => {
+      active = false
+    }
+  }, [url])
+  return ratio
+}
 
 function Cover({ path, title }: { path: string | null; title: string }) {
   const { url } = useSignedImageUrl(path)
@@ -113,6 +132,7 @@ export function MagazineReader({
   const [hint, setHint] = useState(true)
   const [zoomed, setZoomed] = useState(false)
   const [turn, setTurn] = useState<Turn | null>(null)
+  const [auto, setAuto] = useState(false)
 
   const indexRef = useRef(0)
   const turnRef = useRef<Turn | null>(null)
@@ -173,7 +193,7 @@ export function MagazineReader({
     progressRef.current = p
     const flap = flapRef.current
     if (!flap) return
-    const ease = 'cubic-bezier(0.3, 0.7, 0.25, 1)'
+    const ease = 'cubic-bezier(0.45, 0.05, 0.25, 1)'
     flap.style.transition = ms ? `transform ${ms}ms ${ease}` : 'none'
     flap.style.transform = `rotateY(${flapAngle(p)}deg)`
     const shade = flapShadeRef.current
@@ -266,6 +286,19 @@ export function MagazineReader({
   const next = useCallback(() => goTo(indexRef.current + 1), [goTo])
 
   useEffect(() => () => window.clearTimeout(settleTimer.current), [])
+
+  // Passagem automática: vira a página sozinha, com calma, até o fim.
+  useEffect(() => {
+    if (!auto) return
+    const id = window.setInterval(() => {
+      if (indexRef.current >= total - 1) {
+        setAuto(false)
+        return
+      }
+      if (!turnRef.current && viewRef.current.z <= 1.001) goTo(indexRef.current + 1)
+    }, 4200)
+    return () => window.clearInterval(id)
+  }, [auto, total, goTo])
 
   // ---- gestos --------------------------------------------------------------
   function toggleDoubleTapZoom(x: number, y: number) {
@@ -472,6 +505,15 @@ export function MagazineReader({
         <button type="button" onClick={prev} disabled={index === 0} aria-label="Página anterior">
           ‹
         </button>
+        <button
+          type="button"
+          className="mag2-auto"
+          onClick={() => setAuto((v) => !v)}
+          aria-pressed={auto}
+          aria-label={auto ? 'Parar a passagem automática' : 'Passar as páginas automaticamente'}
+        >
+          {auto ? '❚❚' : '▶'}
+        </button>
         {onOffice && (
           <button type="button" className="mag2-office" onClick={onOffice}>
             Entrar no Escritório Editorial
@@ -523,11 +565,40 @@ function EditorialOffice({
     }
   }, [onClose])
 
+  const [history, setHistory] = useState(false)
+  const ratio = useCoverRatio(issues.find((i) => i.cover_path)?.cover_path)
   const shelved = issues.slice(0, MAGAZINE_SHELF_MAX)
+  const older = issues.slice(MAGAZINE_SHELF_MAX)
   const rows: MagazineIssue[][] = []
   for (let i = 0; i < shelved.length; i += SHELF_ROW) rows.push(shelved.slice(i, i + SHELF_ROW))
   // Sempre mostra as prateleiras (vazias enquanto não há edição).
   while (rows.length < 3) rows.push([])
+
+  // Histórico: o que não coube nas três prateleiras, uma prateleira por ano e mês.
+  const byMonth = new Map<string, MagazineIssue[]>()
+  for (const issue of older) {
+    const key = issue.release_date.slice(0, 7)
+    byMonth.set(key, [...(byMonth.get(key) ?? []), issue])
+  }
+  const months = [...byMonth.entries()].sort((x, y) => (x[0] < y[0] ? 1 : -1))
+
+  function renderShelf(row: MagazineIssue[], key: string | number) {
+    return (
+      <div className="mag-shelf" key={key}>
+        <div className="mag-shelf-row">
+          {Array.from({ length: SHELF_ROW }, (_, c) => {
+            const issue = row[c]
+            return issue ? (
+              <ShelfCover key={issue.id} issue={issue} onOpen={() => onRead(issue)} />
+            ) : (
+              <span key={c} className="mag-shelf-cover mag-shelf-cover--empty" aria-hidden="true" />
+            )
+          })}
+        </div>
+        <div className="mag-shelf-board" />
+      </div>
+    )
+  }
 
   return (
     <div
@@ -535,33 +606,46 @@ function EditorialOffice({
       role="dialog"
       aria-modal="true"
       aria-label="Escritório Editorial"
-      style={image ? { backgroundImage: `url("${image}")` } : undefined}
+      style={{
+        ...(image ? { backgroundImage: `url("${image}")` } : {}),
+        ['--mag-ratio' as string]: ratio ?? 0.75,
+      }}
     >
       <div className="mag-office-veil">
         <button type="button" className="mag2-close" onClick={onClose} aria-label="Fechar" data-autofocus>
           <CloseIcon />
         </button>
         <h3 className="mag-office-title">Revista Círcula Magazine</h3>
-        <p className="mag-office-text">Bem-vinda ao Escritório Editorial da Círcula Magazine.</p>
-        <p className="mag-office-text">{nextMagazineMessage()}</p>
+        <p className="mag-office-text">
+          {history ? 'Histórico: as edições mais antigas, por ano e mês.' : 'Bem-vinda ao Escritório Editorial da Círcula Magazine.'}
+        </p>
+        {!history && <p className="mag-office-text">{nextMagazineMessage()}</p>}
 
-        <div className="mag-newsstand">
-          {rows.map((row, r) => (
-            <div className="mag-shelf" key={r}>
-              <div className="mag-shelf-row">
-                {Array.from({ length: SHELF_ROW }, (_, c) => {
-                  const issue = row[c]
-                  return issue ? (
-                    <ShelfCover key={issue.id} issue={issue} onOpen={() => onRead(issue)} />
-                  ) : (
-                    <span key={c} className="mag-shelf-cover mag-shelf-cover--empty" aria-hidden="true" />
-                  )
-                })}
-              </div>
-              <div className="mag-shelf-board" />
-            </div>
-          ))}
-        </div>
+        {history ? (
+          <div className="mag-newsstand">
+            {months.map(([key, list]) => {
+              const [year, month] = key.split('-')
+              const shelves: MagazineIssue[][] = []
+              for (let i = 0; i < list.length; i += SHELF_ROW) shelves.push(list.slice(i, i + SHELF_ROW))
+              return (
+                <section key={key} className="mag-history-group">
+                  <h4 className="mag-history-title">
+                    {MONTH_LABELS[Number(month) - 1]} de {year}
+                  </h4>
+                  {shelves.map((row, r) => renderShelf(row, `${key}-${r}`))}
+                </section>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="mag-newsstand">{rows.map((row, r) => renderShelf(row, r))}</div>
+        )}
+
+        {older.length > 0 && (
+          <button type="button" className="mag-office-btn" onClick={() => setHistory((v) => !v)}>
+            {history ? 'Voltar às prateleiras' : `Histórico (${older.length})`}
+          </button>
+        )}
 
         {manager && <div className="mag-office-manager">{manager}</div>}
 
@@ -598,9 +682,10 @@ function Stack({
     setOrder((o) => (o.length > 1 ? [...o.slice(1), o[0]] : o))
   }
 
+  const ratio = useCoverRatio(issues.find((i) => i?.cover_path)?.cover_path)
   const n = issues.length
   return (
-    <ul className="mag2-stack" style={{ ['--mag-n' as string]: n }}>
+    <ul className="mag2-stack" style={{ ['--mag-n' as string]: n, ['--mag-ratio' as string]: ratio ?? 0.75 }}>
       {issues.map((issue, idx) => {
         const pos = order.indexOf(idx)
         const isFront = pos === 0

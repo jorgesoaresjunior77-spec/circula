@@ -30,14 +30,6 @@ interface ProfileCardProps {
   viewerId?: string | null
 }
 
-const OVERVIEW_LABELS: { key: keyof ProfileOverview; label: string }[] = [
-  { key: 'posts', label: 'publicações' },
-  { key: 'comments', label: 'comentários' },
-  { key: 'circles', label: 'círculos' },
-  { key: 'content', label: 'conteúdos' },
-  { key: 'events', label: 'eventos' },
-]
-
 export function ProfileCard({
   profileId,
   onClose,
@@ -113,18 +105,33 @@ export function ProfileCard({
             interests={profile.interests}
           />
 
-          <div className="profile-follow-row">
-            {viewerId && viewerId !== profileId && (
+          {/* Logo abaixo do banner: seguir e a atividade da pessoa no Círcula. */}
+          <div className="profile-visit-stats profile-visit-stats--visitor" aria-label="Atividade no Círcula">
+            {viewerId && viewerId !== profileId ? (
               <button
                 type="button"
-                className={`btn profile-follow-button${follow.following ? ' profile-follow-button--on' : ' btn-primary'}`}
+                className={`profile-visit-stat profile-follow-card${follow.following ? ' profile-follow-card--on' : ''}`}
                 onClick={() => void follow.toggle()}
                 disabled={follow.busy}
                 aria-pressed={follow.following}
               >
-                {follow.following ? 'Seguindo' : 'Seguir'}
+                <strong>{follow.following ? 'Seguindo' : 'Seguir'}</strong>
+                <span>{follow.followers} {follow.followers === 1 ? 'seguidora' : 'seguidoras'}</span>
               </button>
+            ) : (
+              <div className="profile-visit-stat">
+                <strong>{follow.followers}</strong>
+                <span>{follow.followers === 1 ? 'seguidora' : 'seguidoras'}</span>
+              </div>
             )}
+            <div className="profile-visit-stat">
+              <strong>{overview?.posts ?? '–'}</strong>
+              <span>publicações</span>
+            </div>
+            <div className="profile-visit-stat">
+              <strong>{overview?.content ?? '–'}</strong>
+              <span>conteúdos</span>
+            </div>
           </div>
           {follow.error && <p className="auth-error">{follow.error}</p>}
 
@@ -134,13 +141,6 @@ export function ProfileCard({
             viewerId={viewerId}
             between={
               <>
-                <div className="profile-visit-stats" aria-label="Seguidoras">
-                  <div className="profile-visit-stat">
-                    <strong>{follow.followers}</strong>
-                    <span>{follow.followers === 1 ? 'seguidora' : 'seguidoras'}</span>
-                  </div>
-                </div>
-
                   {/* Item 10 — galeria (só leitura): visível se houver fotos,
                       mesma RLS de `profiles` de sempre — nada novo de permissão. */}
                   {profile.gallery_photos.length > 0 && (
@@ -159,23 +159,9 @@ export function ProfileCard({
 
           {communityId && (
             <div className="profile-garden-section">
-              <p className="profile-section-label">Meu Jardim</p>
+              <p className="profile-section-label profile-section-label--garden">Meu Jardim</p>
               <GardenProfileSummary communityId={communityId} profileId={profileId} />
             </div>
-          )}
-
-          {overview && (
-            <>
-              <p className="profile-overview-heading">Atividade no Círcula</p>
-              <div className="profile-overview">
-                {OVERVIEW_LABELS.filter(({ key }) => overview[key] > 0).map(({ key, label }) => (
-                  <div key={key} className="profile-overview-item">
-                    <span className="profile-overview-value">{overview[key]}</span>
-                    <span className="profile-overview-label">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </>
           )}
 
           {onStartConversation && (

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
-import { EDITORIAL_CARD_META, EDITORIAL_CARD_IMAGE_FORMAT } from '../types/communityCards'
+import { EDITORIAL_CARD_META, EDITORIAL_CARD_IMAGE_FORMAT, cardImageSpec } from '../types/communityCards'
 import type { CommunityCardKey } from '../types/communityCards'
 import { CoverImageInput } from './CoverImageInput'
 
@@ -73,11 +73,11 @@ export function EditorialCardImagesManager({
                   uid={profileId}
                   label=""
                   onChange={(path) => void handleChange(key, path)}
-                  aspectRatio="16 / 9"
-                  recommendedSize="1600 × 900 px"
+                  aspectRatio={cardImageSpec(key).aspect}
+                  recommendedSize={cardImageSpec(key).size}
                 />
                 <p className="card-images-guide">
-                  <span>Formato recomendado: 16:9</span>
+                  <span>Tamanho exato: {cardImageSpec(key).size} ({cardImageSpec(key).format})</span>
                   <span>Até 5 MB</span>
                 </p>
                 {errorKey === key && (

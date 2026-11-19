@@ -13,6 +13,8 @@ export type AddonPlanKey =
   | 'wellness'
   | 'leitura'
   | 'minha_lista'
+  | 'meu_chef'
+  | 'lista_inteligente'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -27,6 +29,8 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'wellness',
   'leitura',
   'minha_lista',
+  'meu_chef',
+  'lista_inteligente',
   'premium',
 ]
 
@@ -40,6 +44,8 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   wellness: 'Wellness',
   leitura: 'Dicas de Leitura',
   minha_lista: 'Minha Lista',
+  meu_chef: 'Meu Chef',
+  lista_inteligente: 'Lista de compras inteligente',
   premium: 'Círcula Premium',
 }
 
@@ -53,6 +59,8 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   wellness: 450,
   leitura: 450,
   minha_lista: 490,
+  meu_chef: 890,
+  lista_inteligente: 380,
   premium: 5980,
 }
 
@@ -106,9 +114,43 @@ export function packagesForPlan(key: AddonPlanKey): string[] {
       return ['leitura']
     case 'minha_lista':
       return ['minha_lista']
+    case 'meu_chef':
+      return ['meu_chef']
+    case 'lista_inteligente':
+      return ['lista_inteligente']
     case 'premium':
       return ['premium']
     default:
       return []
   }
+}
+
+/** Dias de tolerância depois do fim do período pago antes de retirar o acesso. */
+export const ADDON_GRACE_DAYS = 3
+
+function plusCycle(from: Date, cycle: AsaasCycle): Date {
+  const months = cycle === 'MONTHLY' ? 1 : cycle === 'SEMIANNUALLY' ? 6 : 12
+  const result = new Date(from)
+  result.setUTCMonth(result.getUTCMonth() + months)
+  return result
+}
+
+/**
+ * Novo fim do período pago depois de um pagamento confirmado, ou null quando
+ * este pagamento já foi contado. Parte do VENCIMENTO da cobrança (não de
+ * "agora"), então PAYMENT_CONFIRMED e PAYMENT_RECEIVED da mesma cobrança, que
+ * chegam em dias diferentes, não somam dois ciclos. Pagamento muito atrasado
+ * recebe um ciclo inteiro a partir de hoje.
+ */
+export function addonPeriodEnd(
+  dueDate: string | undefined,
+  cycle: AsaasCycle,
+  currentEnd: string | null,
+  now: Date = new Date(),
+): Date | null {
+  const due = dueDate && /^\d{4}-\d{2}-\d{2}$/.test(dueDate) ? new Date(`${dueDate}T00:00:00Z`) : now
+  let target = plusCycle(due, cycle)
+  if (target.getTime() <= now.getTime()) target = plusCycle(now, cycle)
+  if (currentEnd && new Date(currentEnd).getTime() >= target.getTime()) return null
+  return target
 }

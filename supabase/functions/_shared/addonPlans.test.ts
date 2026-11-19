@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ADDON_PLAN_KEYS, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan } from './addonPlans.ts'
+import { ADDON_PLAN_KEYS, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan } from './addonPlans.ts'
 import { PREMIUM_PRICES_CENTS, PRODUCTS, pricesOf } from '../../../src/lib/plansCatalog.ts'
 
 // O servidor e o app têm cada um o seu catálogo; este teste garante que os
@@ -33,5 +33,36 @@ describe('addonPlans', () => {
     expect(packagesForPlan('magazine')).toEqual(['magazine'])
     expect(packagesForPlan('wellness')).toEqual(['wellness'])
     expect(packagesForPlan('minha_lista')).toEqual(['minha_lista'])
+  })
+})
+
+describe('addonPeriodEnd', () => {
+  const now = new Date('2026-11-19T12:00:00Z')
+  it('primeiro pagamento: um ciclo a partir do vencimento', () => {
+    expect(addonPeriodEnd('2026-11-19', 'MONTHLY', null, now)?.toISOString()).toBe('2026-12-19T00:00:00.000Z')
+  })
+  it('PAYMENT_RECEIVED depois de PAYMENT_CONFIRMED não soma de novo', () => {
+    const first = addonPeriodEnd('2026-11-19', 'MONTHLY', null, now)!
+    expect(addonPeriodEnd('2026-11-19', 'MONTHLY', first.toISOString(), new Date('2026-11-21T12:00:00Z'))).toBeNull()
+  })
+  it('renovação: o vencimento seguinte estende mais um ciclo', () => {
+    const next = addonPeriodEnd('2026-12-19', 'MONTHLY', '2026-12-19T00:00:00.000Z', new Date('2026-12-19T09:00:00Z'))
+    expect(next?.toISOString()).toBe('2027-01-19T00:00:00.000Z')
+  })
+  it('pagamento muito atrasado ganha um ciclo inteiro a partir de hoje', () => {
+    expect(addonPeriodEnd('2026-08-01', 'MONTHLY', null, now)?.toISOString()).toBe('2026-12-19T12:00:00.000Z')
+  })
+  it('semestral e anual somam 6 e 12 meses', () => {
+    expect(addonPeriodEnd('2026-11-19', 'SEMIANNUALLY', null, now)?.toISOString()).toBe('2027-05-19T00:00:00.000Z')
+    expect(addonPeriodEnd('2026-11-19', 'YEARLY', null, now)?.toISOString()).toBe('2027-11-19T00:00:00.000Z')
+  })
+})
+
+describe('novos planos', () => {
+  it('Meu Chef e Lista inteligente têm preço e pacote próprios', () => {
+    expect(addonPriceCents('meu_chef', 'MONTHLY')).toBe(890)
+    expect(addonPriceCents('lista_inteligente', 'MONTHLY')).toBe(380)
+    expect(packagesForPlan('meu_chef')).toEqual(['meu_chef'])
+    expect(packagesForPlan('lista_inteligente')).toEqual(['lista_inteligente'])
   })
 })

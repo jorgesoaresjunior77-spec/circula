@@ -63,7 +63,7 @@ export function shoppingPdfHtml(answers: MenuAnswers, result: MenuResult, items:
 
   const mins = totalMinutes(result)
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lista de compras — ${esc(title)}</title><style>${STYLE}</style></head><body>
-<header class="doc"><div class="brand">Círcula · Crie seu Cardápio</div><h1>Lista de compras</h1>
+<header class="doc"><div class="brand">Círcula · Meu Chef</div><h1>Lista de compras</h1>
 <div class="meta"><strong>${esc(title)}</strong> · ${info.map(esc).join(' · ')}</div></header>
 <h2>Seu cardápio</h2><ul class="menu" style="list-style:none;margin:0;padding:0">${menuList}</ul>
 ${mins > 0 ? `<p class="meta">Tempo de preparo somado das receitas: cerca de ${Math.floor(mins / 60) > 0 ? `${Math.floor(mins / 60)} h ` : ''}${mins % 60 > 0 ? `${mins % 60} min` : ''}.</p>` : ''}

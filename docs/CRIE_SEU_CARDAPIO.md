@@ -40,3 +40,10 @@ Cobrir também os estilos (brasileira, italiana, mediterrânea, contemporânea, 
 prática) e, em cada tipo de prato, ao menos algumas opções sem glúten, sem lactose, vegetarianas e veganas.
 Os ingredientes devem ter uma linha por item com quantidade ("200 g de frango"), pois é daí que sai a lista de
 compras. O rendimento (porções) precisa estar na ficha para o app ajustar as quantidades.
+
+## Meu Chef e Lista de compras inteligente (2026-11-19)
+- O card passou a se chamar **Meu Chef** ("Receba bem"): 70% da largura, com a mesma borda dos outros cards.
+- É uma assinatura avulsa de **R$ 8,90/mês** (`meu_chef`). Salvar a lista de compras em PDF é outra, de
+  **R$ 3,80/mês** (`lista_inteligente`). O Círcula Premium inclui as duas.
+- Ao terminar um cardápio, quem ainda não tem a Lista de compras inteligente vê o convite para assinar.
+- A foto do card é cadastrada em Painel → Imagens da comunidade → "Meu Chef" (16:9, 1600 × 900 px).

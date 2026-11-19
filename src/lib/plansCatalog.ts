@@ -29,6 +29,8 @@ export type ProductKey =
   | 'wellness'
   | 'leitura'
   | 'minha_lista'
+  | 'meu_chef'
+  | 'lista_inteligente'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -51,6 +53,18 @@ export const PRODUCTS: CatalogProduct[] = [
     name: 'Minha Lista',
     description: 'Organize suas compras, planeje sua alimentação e tenha tudo o que precisa sempre à mão.',
     monthlyCents: 490,
+  },
+  {
+    key: 'meu_chef',
+    name: 'Meu Chef',
+    description: 'Monte o cardápio do seu encontro com as receitas da nutricionista. Receba bem, sem complicação.',
+    monthlyCents: 890,
+  },
+  {
+    key: 'lista_inteligente',
+    name: 'Lista de compras inteligente',
+    description: 'A lista de compras do seu cardápio, somada e organizada por seção, pronta para salvar em PDF.',
+    monthlyCents: 380,
   },
 ]
 
@@ -88,7 +102,7 @@ export const PREMIUM_SEPARATE_MONTHLY_CENTS =
 
 /** Círcula Premium: o Círcula e todos os conteúdos juntos, com desconto.
  *  Mensal R$ 59,80 (valor oficial definido pelo usuário em 2026-11-18, já com a
- *  Minha Lista; separado seria R$ 80,00); semestral 20% e anual 35% de economia
+ *  Minha Lista; separado seria R$ 92,70 com Meu Chef e Lista inteligente); semestral 20% e anual 35% de economia
  *  sobre o mensal (regra que já existia, recalculada sobre o novo valor). */
 export const PREMIUM_MONTHLY_CENTS = 5980
 export const PREMIUM_PRICES_CENTS: Record<PlanCycle, number> = {

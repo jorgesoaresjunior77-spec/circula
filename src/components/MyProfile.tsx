@@ -390,7 +390,7 @@ export function MyProfile({
 
       {communityId && (
         <div className="profile-garden-section">
-          <p className="profile-section-label">Meu Jardim</p>
+          <p className="profile-section-label profile-section-label--garden">Meu Jardim</p>
           <GardenProfileSummary communityId={communityId} profileId={profile.id} />
         </div>
       )}
@@ -417,14 +417,14 @@ export function MyProfile({
 
       {profile.role === 'member' && communityId && (
         <div className="profile-invite-section">
-          <p className="profile-section-label">Convidar amigas</p>
+          <p className="profile-section-label profile-section-label--spaced">Convidar amigas</p>
           <InviteFriends communityId={communityId} />
         </div>
       )}
 
       {profile.role === 'member' && communityId && (
         <div className="profile-subscription-section">
-          <p className="profile-section-label">Minha assinatura</p>
+          <p className="profile-section-label profile-section-label--spaced">Minha assinatura</p>
           <SubscriptionLevelCard communityId={communityId} profileId={profile.id} />
           <CommunitySubscriptionCard communityId={communityId} />
         </div>

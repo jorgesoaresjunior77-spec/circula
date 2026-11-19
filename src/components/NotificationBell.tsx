@@ -2,6 +2,7 @@ import { m } from '../lib/motionKit'
 import { useEffect, useRef, useState } from 'react'
 import { useSocialNotifications } from '../hooks/useSocialNotifications'
 import { useContentReminders } from '../hooks/useContentReminders'
+import { useTodayAppointments } from '../hooks/useTodayAppointments'
 import type { SocialNotification, SocialNotificationType } from '../types/notification'
 import type { NavKey } from './PrimaryNav'
 import { NotificationList } from './NotificationList'
@@ -94,7 +95,8 @@ export function NotificationBell({
     refresh,
   } = useSocialNotifications(profileId)
   const content = useContentReminders(showContentReminders)
-  const unreadCount = socialUnread + content.unreadCount
+  const agenda = useTodayAppointments(profileId)
+  const unreadCount = socialUnread + content.unreadCount + agenda.unreadCount
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -178,12 +180,33 @@ export function NotificationBell({
                 onClick={() => {
                   markAllRead()
                   content.reminders.forEach((r) => content.markRead(r.key))
+                  agenda.markRead(agenda.appointments.map((a) => a.id))
                 }}
               >
                 Marcar todas como lidas
               </button>
             )}
           </div>
+          {agenda.appointments.map((a) => (
+            <button
+              key={`agenda-${a.id}`}
+              type="button"
+              className={`notification-item notification-item--reminder${a.read ? '' : ' notification-item--unread'}`}
+              onClick={() => {
+                agenda.markRead([a.id])
+                setOpen(false)
+                onNavigate('agenda')
+              }}
+            >
+              <span className="notification-body">
+                <span className="notification-title">Compromisso de hoje</span>
+                <span className="notification-text">
+                  {a.all_day ? 'Dia todo' : new Date(a.starts_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · {a.title}
+                </span>
+              </span>
+              {!a.read && <span className="notification-dot" aria-label="Não lida" />}
+            </button>
+          ))}
           {content.reminders.map((r) => (
             <button
               key={r.key}

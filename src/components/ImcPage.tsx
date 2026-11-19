@@ -16,9 +16,10 @@ import {
 import { ImcAvatarView } from './Doll3DView'
 import { m, SPRING_SOFT } from '../lib/motionKit'
 import { WeightHistory } from './WeightHistory'
+import { supabase } from '../lib/supabase'
 
 // Calculadora de IMC: a conta é feita no aparelho com o peso e a altura que a
-// própria usuária informa, e nada é salvo. Não é diagnóstico.
+// própria usuária informa, e o peso fica guardado só na conta dela para a evolução. Não é diagnóstico.
 
 interface ImcPageProps {
   /** Abre a conversa com a nutricionista (só para a membro). */
@@ -59,6 +60,7 @@ export function ImcPage({ onTalkToNutri }: ImcPageProps) {
   const [weight, setWeight] = useState('')
   const [result, setResult] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [historyKey, setHistoryKey] = useState(0)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -76,6 +78,22 @@ export function ImcPage({ onTalkToNutri }: ImcPageProps) {
     }
     setError(null)
     setResult(calcImc(w, h))
+    void saveWeight(w)
+  }
+
+  // O peso calculado já entra na evolução (um registro por dia), sem digitar de novo.
+  async function saveWeight(w: number) {
+    const d = new Date()
+    const p = (n: number) => String(n).padStart(2, '0')
+    const today = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+    try {
+      const { error: e } = await supabase
+        .from('weight_entries')
+        .upsert({ weight_kg: Math.round(w * 100) / 100, measured_on: today }, { onConflict: 'profile_id,measured_on' })
+      if (!e) setHistoryKey((k) => k + 1)
+    } catch {
+      /* sem conta ou sem rede: o cálculo continua valendo */
+    }
   }
 
   const band = result === null ? null : imcBand(result)
@@ -180,7 +198,7 @@ export function ImcPage({ onTalkToNutri }: ImcPageProps) {
       </p>
 
       {/* Histórico de peso com gráfico de evolução (salvo só na conta dela). */}
-      <WeightHistory />
+      <WeightHistory refreshKey={historyKey} />
     </section>
   )
 }

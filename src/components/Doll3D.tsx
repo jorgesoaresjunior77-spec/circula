@@ -14,6 +14,7 @@ import {
   Material,
   Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   PMREMGenerator,
   PerspectiveCamera,
@@ -103,6 +104,22 @@ function smoothDress(f: number, figure = false): Vector2[] {
   return new CatmullRomCurve3(pts, false, 'catmullrom', 0.5).getPoints(64).map((p) => new Vector2(Math.max(0.01, p.x), p.y))
 }
 
+/** Membro afilado (coxa/braço): perfil suave, pontas arredondadas, centrado na origem. */
+function taperedLimb(rTop: number, rBottom: number, length: number, bulge = 1.06): LatheGeometry {
+  const h = length / 2
+  const pts = [
+    new Vector3(0.001, -h - rBottom, 0),
+    new Vector3(rBottom * 0.72, -h - rBottom * 0.68, 0),
+    new Vector3(rBottom, -h, 0),
+    new Vector3(((rTop + rBottom) / 2) * bulge, -h * 0.1, 0),
+    new Vector3(rTop, h, 0),
+    new Vector3(rTop * 0.72, h + rTop * 0.68, 0),
+    new Vector3(0.001, h + rTop, 0),
+  ]
+  const curve = new CatmullRomCurve3(pts, false, 'catmullrom', 0.5)
+  return new LatheGeometry(curve.getPoints(28).map((p) => new Vector2(Math.max(0.001, p.x), p.y)), 32)
+}
+
 interface Tint {
   mat: MeshStandardMaterial | MeshBasicMaterial
   base: number
@@ -161,8 +178,8 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       geoms.push(g)
       return g
     }
-    const std = (color: number, extra: { transparent?: boolean; roughness?: number; metalness?: number } = {}) => {
-      const m = new MeshStandardMaterial({ color, roughness: extra.roughness ?? 0.55, metalness: extra.metalness ?? 0.02, transparent: extra.transparent ?? false })
+    const std = (color: number, extra: { transparent?: boolean; roughness?: number; metalness?: number; clearcoat?: number } = {}) => {
+      const m = new MeshPhysicalMaterial({ color, roughness: extra.roughness ?? 0.55, metalness: extra.metalness ?? 0.02, transparent: extra.transparent ?? false, clearcoat: extra.clearcoat ?? 0.18, clearcoatRoughness: 0.45, sheen: 0.25, sheenRoughness: 0.6 })
       mats.push(m)
       tints.push({ mat: m, base: color })
       return m
@@ -181,7 +198,7 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
     const skinColor = habits ? SKIN : IMC_SKIN
     const skin = std(skinColor)
     const dressMat = std(habits ? DRESS : IMC_DRESS, { roughness: 0.5 })
-    const hairMat = std(HAIR, { roughness: 0.6 })
+    const hairMat = std(HAIR, { roughness: 0.4, clearcoat: 0.55 })
     const fringeMat = std(HAIR_FRONT, { roughness: 0.6 })
 
     const head = new Group()
@@ -249,9 +266,79 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       const bun = new Mesh(geo(new SphereGeometry(0.13, 28, 22)), imcHair)
       bun.position.set(0, 0.36, -0.22)
       head.add(bun)
+      // franja lateral suave sobre a testa
+      const sweep = new Mesh(geo(new SphereGeometry(0.315, 40, 18, 0, Math.PI * 2, 0, Math.PI * 0.4)), imcHair)
+      sweep.scale.set(1, 1.12, 0.98)
+      sweep.position.set(0.0, 0.07, 0.015)
+      sweep.rotation.set(0.34, 0, 0.3)
+      head.add(sweep)
+
+      // rosto: olhos com íris, cílios, sobrancelhas, nariz, lábios e bochechas
+      const frontZ = (x: number, y: number) => 0.3 * 0.96 * Math.sqrt(Math.max(0.05, 1 - (x / 0.3) ** 2 - (y / (0.3 * 1.14)) ** 2))
+      const white = std(0xfdfaf6, { roughness: 0.25, clearcoat: 0.9 })
+      const iris = std(0x5a3a28, { roughness: 0.2, clearcoat: 0.9 })
+      const pupil = std(0x1a100c, { roughness: 0.3 })
+      const lash = std(0x2a1812, { roughness: 0.5 })
+      const sclera = geo(new SphereGeometry(0.046, 24, 18))
+      const irisGeo = geo(new SphereGeometry(0.03, 20, 16))
+      const pupilGeo = geo(new SphereGeometry(0.015, 14, 12))
+      const glintGeo = geo(new SphereGeometry(0.007, 10, 8))
+      const lashGeo = geo(new TorusGeometry(0.05, 0.0075, 6, 20, Math.PI * 0.95))
+      const browGeo = geo(new CapsuleGeometry(0.0085, 0.07, 4, 10))
+      for (const side of [-1, 1]) {
+        const ex = side * 0.108
+        const ey = 0.02
+        const ez = frontZ(ex, ey) - 0.012
+        const eye = new Mesh(sclera, white)
+        eye.scale.set(1, 0.82, 0.55)
+        eye.position.set(ex, ey, ez)
+        head.add(eye)
+        const ir = new Mesh(irisGeo, iris)
+        ir.scale.set(1, 1, 0.55)
+        ir.position.set(ex, ey - 0.002, ez + 0.017)
+        head.add(ir)
+        const pu = new Mesh(pupilGeo, pupil)
+        pu.scale.set(1, 1, 0.5)
+        pu.position.set(ex, ey - 0.002, ez + 0.027)
+        head.add(pu)
+        const glint = new Mesh(glintGeo, basic(0xffffff, 0.95))
+        glint.position.set(ex + 0.011, ey + 0.012, ez + 0.032)
+        head.add(glint)
+        const lashes = new Mesh(lashGeo, lash)
+        lashes.position.set(ex, ey + 0.003, ez + 0.012)
+        lashes.rotation.set(0, side * 0.32, 0)
+        lashes.scale.set(1, 0.75, 0.7)
+        head.add(lashes)
+        const brow = new Mesh(browGeo, lash)
+        brow.position.set(ex + side * 0.006, ey + 0.083, frontZ(ex, ey + 0.083) - 0.004)
+        brow.rotation.set(0, side * 0.45, Math.PI / 2 + side * -0.12)
+        head.add(brow)
+      }
+      const nose = new Mesh(geo(new SphereGeometry(0.026, 18, 14)), skin)
+      nose.scale.set(1, 1.15, 0.85)
+      nose.position.set(0, -0.052, frontZ(0, -0.052) + 0.004)
+      head.add(nose)
+      const lipMat = std(0xc4545f, { roughness: 0.25, clearcoat: 0.9 })
+      const upperLip = new Mesh(geo(new SphereGeometry(0.036, 20, 14)), lipMat)
+      upperLip.scale.set(1.25, 0.34, 0.5)
+      upperLip.position.set(0, -0.122, frontZ(0, -0.122) - 0.002)
+      head.add(upperLip)
+      const lowerLip = new Mesh(geo(new SphereGeometry(0.036, 20, 14)), lipMat)
+      lowerLip.scale.set(1.1, 0.4, 0.55)
+      lowerLip.position.set(0, -0.145, frontZ(0, -0.145) - 0.002)
+      head.add(lowerLip)
+      const blushMat2 = basic(0xf08f9c, 0.32)
+      const blushGeo2 = geo(new SphereGeometry(0.052, 18, 12))
+      for (const side of [-1, 1]) {
+        const bl = new Mesh(blushGeo2, blushMat2)
+        bl.scale.set(1, 0.6, 0.25)
+        bl.position.set(side * 0.18, -0.07, frontZ(side * 0.18, -0.07) - 0.004)
+        bl.rotation.y = side * 0.7
+        head.add(bl)
+      }
     }
 
-    const neck = new Mesh(geo(new CylinderGeometry(0.1, 0.12, 0.3, 24)), skin)
+    const neck = new Mesh(geo(taperedLimb(habits ? 0.082 : 0.062, habits ? 0.1 : 0.078, 0.22, 0.96)), skin)
     neck.position.set(0, 2.24, 0)
     root.add(neck)
 
@@ -273,9 +360,9 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       elbow: Group
     }
     const sleeveGeo = geo(new SphereGeometry(habits ? 0.16 : 0.115, 28, 22))
-    const upperGeo = geo(new CapsuleGeometry(0.078, 0.36, 8, 20))
+    const upperGeo = geo(taperedLimb(0.082, 0.06, 0.36))
     const jointGeo = geo(new SphereGeometry(0.08, 20, 16))
-    const foreGeo = geo(new CapsuleGeometry(0.07, 0.34, 8, 20))
+    const foreGeo = geo(taperedLimb(0.062, 0.044, 0.34, 1.12))
     const handGeo = geo(new SphereGeometry(0.1, 24, 20))
     const SHOULDER_X = habits ? 0.37 : 0.36
     // pose: hábitos = braços dobrados à frente (segurando o copo e o livro);
@@ -310,7 +397,7 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
 
     // pernas e sapatos
     const legMat = habits ? skin : std(IMC_LEGS, { roughness: 0.5 })
-    const legGeo = geo(habits ? new CapsuleGeometry(0.1, 0.52, 8, 20) : new CapsuleGeometry(0.115, 0.8, 8, 22))
+    const legGeo = geo(habits ? taperedLimb(0.105, 0.072, 0.52, 1.1) : taperedLimb(0.118, 0.07, 0.8, 1.14))
     const LEG_Y = habits ? 0.1 : 0.2
     const legs: Mesh[] = []
     for (const side of [-1, 1]) {
@@ -320,7 +407,7 @@ export default function Doll3D({ mode, done = 0, checked, band = 'referencia', a
       legs.push(leg)
     }
 
-    const shoeMat = std(habits ? 0x4f9a57 : 0x5d4640, { roughness: 0.45 })
+    const shoeMat = std(habits ? 0x4f9a57 : 0x5d4640, { roughness: 0.3, clearcoat: 0.7 })
     const shoeGeo = geo(new SphereGeometry(0.15, 28, 20))
     const shoes: Mesh[] = []
     for (const side of [-1, 1]) {

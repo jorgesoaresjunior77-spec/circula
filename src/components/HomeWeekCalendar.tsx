@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from './icons'
+import { useTodayAppointments } from '../hooks/useTodayAppointments'
 import { WEEKDAY_LABELS, todayParts, weekDays, weekTitle } from '../lib/weekCalendar'
 
 // Calendário compacto da Home — sem card, sem fundo próprio: só a
@@ -11,9 +12,12 @@ import { WEEKDAY_LABELS, todayParts, weekDays, weekTitle } from '../lib/weekCale
 
 interface HomeWeekCalendarProps {
   onOpen: () => void
+  /** Com a pessoa conhecida, um ponto vermelho avisa que há compromisso hoje. */
+  profileId?: string | null
 }
 
-export function HomeWeekCalendar({ onOpen }: HomeWeekCalendarProps) {
+export function HomeWeekCalendar({ onOpen, profileId = null }: HomeWeekCalendarProps) {
+  const { hasToday } = useTodayAppointments(profileId)
   const [weekOffset, setWeekOffset] = useState(0)
   const today = useMemo(() => todayParts(), [])
   const days = useMemo(() => weekDays(today, weekOffset), [today, weekOffset])
@@ -21,7 +25,10 @@ export function HomeWeekCalendar({ onOpen }: HomeWeekCalendarProps) {
 
   return (
     <section className="home-week" aria-label="Calendário da semana">
-      <span className="home-week-eyebrow">Agenda</span>
+      <span className="home-week-eyebrow">
+        Agenda
+        {hasToday && <span className="home-week-alert" role="img" aria-label="Você tem compromisso hoje" />}
+      </span>
       <button
         type="button"
         className="home-week-open"

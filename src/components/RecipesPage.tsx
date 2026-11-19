@@ -3,6 +3,7 @@ import type { CSSProperties, FormEvent } from 'react'
 import { useRecipes } from '../hooks/useRecipes'
 import type { Recipe, RecipeCategory } from '../hooks/useRecipes'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { CoverImageInput } from './CoverImageInput'
 import { RecipeMagazineView } from './RecipeMagazineView'
 import { RecipePagesEditor } from './RecipePagesEditor'
@@ -36,35 +37,18 @@ function CategoryCard({
   index: number
   onOpen: () => void
 }) {
-  const hasPhoto = !!cat.cover_path
   const countLabel = `${count} ${count === 1 ? 'receita' : 'receitas'}`
-  // Com foto, o cartão é só a imagem inteira (a capa já traz as escritas).
+  // Cartão com borda e o nome da categoria (como na Loja), sobre o banner da página.
   return (
     <button
       type="button"
-      className={`rec-tile${hasPhoto ? ' rec-tile--photo' : ''}`}
+      className="rec-cat-card"
       style={{ '--i': index } as CSSProperties}
       onClick={onOpen}
       aria-label={`${cat.name}, ${countLabel}`}
     >
-      <span className="rec-tile-media" aria-hidden="true">
-        <Photo path={cat.cover_path} />
-      </span>
-      {hasPhoto ? (
-        <span className="rec-tile-caption">
-          <strong className="rec-tile-caption-title">{cat.name}</strong>
-          <span className="rec-tile-caption-meta">{countLabel}</span>
-        </span>
-      ) : (
-        <>
-          <span className="rec-tile-veil" aria-hidden="true" />
-          <span className="rec-tile-body">
-            <strong className="rec-tile-title">{cat.name}</strong>
-            {cat.description && <span className="rec-tile-desc">{cat.description}</span>}
-            <span className="rec-pill">{countLabel}</span>
-          </span>
-        </>
-      )}
+      <strong className="rec-cat-card-title">{cat.name}</strong>
+      <span className="rec-cat-card-meta">{countLabel}</span>
     </button>
   )
 }
@@ -130,6 +114,8 @@ function BackButton({ onClick, children }: { onClick: () => void; children: stri
 
 export function RecipesPage({ communityId, profileId, isOwner, canUseLista = false, onOpenPlans }: RecipesPageProps) {
   const api = useRecipes(communityId, profileId, isOwner)
+  const { images: cardImages } = useCommunityCardImages(communityId)
+  const { url: bannerUrl } = useSignedImageUrl(cardImages.jornada_grande ?? cardImages.jornada ?? null)
   const [catId, setCatId] = useState<string | null>(null)
   const [open, setOpen] = useState<Recipe | null>(null)
   const [editCat, setEditCat] = useState<Partial<RecipeCategory> | null>(null)
@@ -500,7 +486,11 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
             : 'Em breve novas receitas por aqui.'}
         </p>
       )}
-      <div className="rec-grid">
+      <div
+        className="rec-room"
+        style={bannerUrl ? { backgroundImage: `url("${bannerUrl}")` } : undefined}
+      >
+      <div className="rec-cat-grid">
         {api.categories.map((c, i) => (
           <CategoryCard
             key={c.id}
@@ -524,6 +514,7 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
             onOpen={() => setCatId('sem-categoria')}
           />
         )}
+      </div>
       </div>
     </section>
   )

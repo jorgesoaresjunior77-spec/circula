@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
+import { canUseChef, canUseSmartList, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -352,7 +352,7 @@ export function Dashboard({
     })
     navItems.push({
       key: 'cardapio',
-      label: 'Crie seu Cardápio',
+      label: 'Meu Chef',
       Icon: BookIcon,
       inBottomNav: false,
     })
@@ -947,14 +947,27 @@ export function Dashboard({
         return (
           <>
             {renderCommunityPicker(
-              'Crie seu Cardápio · escolha uma comunidade',
+              'Meu Chef · escolha uma comunidade',
               circlesRelevantCommunities,
               setCirclesCommunityId,
             )}
           </>
         )
       }
-      return <MenuBuilderPage communityId={resolvedCirclesCommunityId} onBack={() => handleNavigate('inicio')} />
+      if (profile.role === 'member') {
+        if (packagesLoading) return <p className="home-muted">Carregando…</p>
+        if (!canUseChef(myPackages)) {
+          return <PackagePaywall title="Meu Chef" planName="Meu Chef" onOpenPlans={() => handleNavigate('planos')} />
+        }
+      }
+      return (
+        <MenuBuilderPage
+          communityId={resolvedCirclesCommunityId}
+          onBack={() => handleNavigate('inicio')}
+          canSaveList={profile.role === 'professional' || canUseSmartList(myPackages)}
+          onOpenPlans={() => handleNavigate('planos')}
+        />
+      )
     }
 
     // ANTES DE TUDO — dado pessoal, não depende de comunidade em foco.

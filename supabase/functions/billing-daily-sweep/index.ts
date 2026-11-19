@@ -1,5 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { ADDON_GRACE_DAYS, packagesForPlan } from '../_shared/addonPlans.ts'
+import type { AddonPlanKey } from '../_shared/addonPlans.ts'
 
 // =====================================================================
 // FASE 16.2.4-C — Sweep diário do ciclo de cobrança
@@ -122,6 +124,32 @@ Deno.serve(async (req) => {
       .lte('current_period_end', nowIso)
       .select('id, profile_id')
 
+    // --- H: assinatura AVULSA (conteúdos, Meu Chef, Premium) vencida ---
+    // Sem pagamento depois do fim do período + tolerância, o acesso sai
+    // (member_package_access). Se pagar depois, o webhook devolve. O sweep
+    // nunca mexe em cobrança nem no Asaas.
+    const addonCutoff = new Date(Date.now() - ADDON_GRACE_DAYS * 86_400_000).toISOString()
+    const { data: lapsedAddons } = await admin
+      .from('addon_subscriptions')
+      .select('id, profile_id, community_id, plan_key, status')
+      .in('status', ['active', 'past_due'])
+      .lte('current_period_end', addonCutoff)
+    let addonsRevoked = 0
+    for (const addon of lapsedAddons ?? []) {
+      for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey)) {
+        await admin
+          .from('member_package_access')
+          .delete()
+          .eq('community_id', addon.community_id as string)
+          .eq('profile_id', addon.profile_id as string)
+          .eq('package', pkg)
+      }
+      if (addon.status === 'active') {
+        await admin.from('addon_subscriptions').update({ status: 'past_due', updated_at: nowIso }).eq('id', addon.id as string)
+      }
+      addonsRevoked += 1
+    }
+
     const justBlocked = [
       ...(blockedTrial ?? []),
       ...(blockedGrace ?? []),
@@ -192,6 +220,7 @@ Deno.serve(async (req) => {
         blocked_grace: (blockedGrace?.length ?? 0) + (blockedGraceMissing?.length ?? 0),
         blocked_canceled: blockedCanceled?.length ?? 0,
         notifications_created: notificationsCreated,
+        addons_revoked: addonsRevoked,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )

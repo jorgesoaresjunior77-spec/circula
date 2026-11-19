@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import { IMC_WEIGHT_MAX_KG, IMC_WEIGHT_MIN_KG, parseDecimal } from '../lib/imc'
 import { m } from '../lib/motionKit'
 
 // Histórico de peso: a própria pessoa registra o peso do dia e acompanha a
@@ -17,12 +15,6 @@ interface Entry {
 const W = 320
 const H = 150
 const PAD = { top: 16, right: 14, bottom: 24, left: 34 }
-
-function todayIso(): string {
-  const d = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
-}
 
 function shortDate(iso: string): string {
   const [, mm, dd] = iso.split('-')
@@ -51,13 +43,10 @@ export function chartGeometry(entries: { weight_kg: number }[]) {
   return { points, path, lo, hi }
 }
 
-export function WeightHistory() {
+export function WeightHistory({ refreshKey = 0 }: { refreshKey?: number }) {
   const [entries, setEntries] = useState<Entry[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [weight, setWeight] = useState('')
-  const [date, setDate] = useState(todayIso())
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     const { data } = await supabase
@@ -71,32 +60,7 @@ export function WeightHistory() {
 
   useEffect(() => {
     void load()
-  }, [load])
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    const w = parseDecimal(weight)
-    if (w === null || w < IMC_WEIGHT_MIN_KG || w > IMC_WEIGHT_MAX_KG) {
-      setError(`Informe o peso em quilos, entre ${IMC_WEIGHT_MIN_KG} e ${IMC_WEIGHT_MAX_KG}.`)
-      return
-    }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > todayIso()) {
-      setError('Escolha uma data de hoje ou anterior.')
-      return
-    }
-    setBusy(true)
-    setError(null)
-    const { error: saveError } = await supabase
-      .from('weight_entries')
-      .upsert({ weight_kg: Math.round(w * 100) / 100, measured_on: date }, { onConflict: 'profile_id,measured_on' })
-    setBusy(false)
-    if (saveError) {
-      setError('Não foi possível salvar agora. Tente novamente.')
-      return
-    }
-    setWeight('')
-    void load()
-  }
+  }, [load, refreshKey])
 
   async function removeEntry(id: string) {
     setBusy(true)
@@ -114,32 +78,11 @@ export function WeightHistory() {
     <section className="weight-history" aria-label="Histórico de peso">
       <h3>Minha evolução</h3>
       <p className="home-muted">
-        Registre seu peso quando quiser e acompanhe o caminho. Só você vê estes números.
+        Cada vez que você calcula o IMC, o peso fica guardado aqui automaticamente. Só você vê estes números.
       </p>
 
-      <form className="weight-form" onSubmit={(e) => void handleSubmit(e)}>
-        <label>
-          Peso (kg)
-          <input
-            type="text"
-            inputMode="decimal"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            placeholder="Ex.: 64,5"
-          />
-        </label>
-        <label>
-          Data
-          <input type="date" value={date} max={todayIso()} onChange={(e) => setDate(e.target.value)} />
-        </label>
-        <button type="submit" className="water-primary" disabled={busy || !weight.trim()}>
-          {busy ? 'Salvando…' : 'Registrar'}
-        </button>
-      </form>
-      {error && <p className="auth-error">{error}</p>}
-
       {loaded && entries.length === 0 && (
-        <p className="home-muted">Ainda não há registros. O gráfico aparece a partir do primeiro.</p>
+        <p className="home-muted">Ainda não há registros. Calcule seu IMC acima e o gráfico aparece a partir do primeiro cálculo.</p>
       )}
 
       {geo && last && (

@@ -68,7 +68,9 @@ function Layer({ z, children }: { z: number; children: React.ReactNode }) {
 // ---------------------------------------------------------------------------
 // Flor do mês
 // ---------------------------------------------------------------------------
-export function MonthFlower({ days, checked }: { days: number; checked: Set<number> }) {
+export const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
+export function MonthFlower({ days, checked, month }: { days: number; checked: Set<number>; month?: number }) {
   const ids = useIds()
   const done = checked.size
   const complete = done >= days && days > 0
@@ -142,13 +144,28 @@ export function MonthFlower({ days, checked }: { days: number; checked: Set<numb
           <g transform="translate(150 150)">
             <circle r="42" fill={`url(#${complete ? ids.core : ids.coreOff})`} stroke={OUTLINE} strokeWidth="2" />
             <ellipse cx="-13" cy="-17" rx="14" ry="8" fill="#fff" opacity="0.7" transform="rotate(-24 -13 -17)" />
-            {complete && (
+            {complete && !month && (
               <g fill="none" stroke="#7a4a1c" strokeWidth="3" strokeLinecap="round">
                 <path d="M-16 -3 q4.500 -6 9 0" />
                 <path d="M7 -3 q4.500 -6 9 0" />
                 <path d="M-12 10 q12 12 24 0" />
               </g>
             )}
+            {month && month >= 1 && month <= 12 && (
+              <text textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="600" fill="#5a3b24" className="ga3d-month-name">
+                {MONTH_NAMES[month - 1]}
+              </text>
+            )}
+          </g>
+          {/* o dia, pequeno, na ponta de cada pétala */}
+          <g transform="translate(150 150)" className="ga3d-days">
+            {Array.from({ length: days }, (_, i) => (
+              <g key={i} transform={`rotate(${i * step}) translate(0 -122)`}>
+                <text transform={`rotate(${-i * step})`} textAnchor="middle" dominantBaseline="central" fontSize="8.5" fontWeight="600" fill="#4a3428">
+                  {i + 1}
+                </text>
+              </g>
+            ))}
           </g>
         </Layer>
       </m.div>

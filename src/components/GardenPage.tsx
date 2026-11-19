@@ -61,7 +61,7 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
       <h2>Meu Jardim</h2>
       <p className="garden-raffle-note">Interaja, faça desafios e participe de sorteios mensais.</p>
 
-      {onOpenAgenda && <HomeWeekCalendar onOpen={onOpenAgenda} />}
+      {onOpenAgenda && <HomeWeekCalendar onOpen={onOpenAgenda} profileId={profileId} />}
 
       <m.article className="garden-panel" {...inViewOnce} variants={riseVariants}>
         <h3>

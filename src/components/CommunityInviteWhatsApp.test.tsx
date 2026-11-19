@@ -32,7 +32,8 @@ describe('CommunityInviteWhatsApp', () => {
 
     const textarea = screen.getByLabelText('Mensagem') as HTMLTextAreaElement
     expect(textarea.value).toContain('Fluir & Florescer')
-    expect(textarea.value).toContain(INVITE_URL)
+    expect(textarea.value).toContain('@circulaapp')
+    expect(textarea.value).not.toContain(INVITE_URL)
   })
 
   it('trocar de sugestão substitui o texto, e o campo continua editável', () => {
@@ -57,7 +58,9 @@ describe('CommunityInviteWhatsApp', () => {
 
     fireEvent.click(screen.getByText('Copiar mensagem'))
     await vi.waitFor(() => {
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('Texto editado pela profissional.')
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`Texto editado pela profissional.
+
+${INVITE_URL}`)
     })
   })
 
@@ -70,7 +73,9 @@ describe('CommunityInviteWhatsApp', () => {
     fireEvent.click(screen.getByText('Compartilhar no WhatsApp'))
 
     expect(window.open).toHaveBeenCalledWith(
-      `https://wa.me/?text=${encodeURIComponent('Oi! Vem pro Círcula.')}`,
+      `https://wa.me/?text=${encodeURIComponent(`Oi! Vem pro Círcula.
+
+${INVITE_URL}`)}`,
       '_blank',
       'noopener,noreferrer',
     )
@@ -90,7 +95,9 @@ describe('CommunityInviteWhatsApp', () => {
     fireEvent.click(send)
 
     expect(window.open).toHaveBeenCalledWith(
-      `https://wa.me/5551999998888?text=${encodeURIComponent('Oi! Vem pro Círcula.')}`,
+      `https://wa.me/5551999998888?text=${encodeURIComponent(`Oi! Vem pro Círcula.
+
+${INVITE_URL}`)}`,
       '_blank',
       'noopener,noreferrer',
     )
@@ -148,7 +155,7 @@ describe('CommunityInviteWhatsApp — link de convite', () => {
     const link = mockLink({ token: 'abc123abc123abc123abc123', url: INVITE_URL })
     render(<CommunityInviteWhatsApp communityId="c1" communityName="Fluir & Florescer" />)
 
-    expect((screen.getByLabelText('Mensagem') as HTMLTextAreaElement).value).toContain(INVITE_URL)
+    expect((screen.getByLabelText('Mensagem') as HTMLTextAreaElement).value).toContain('@circulaapp')
 
     fireEvent.click(screen.getByText('Gerar um novo link'))
     expect(link.regenerate).toHaveBeenCalled()

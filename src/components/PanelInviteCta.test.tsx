@@ -44,7 +44,7 @@ describe('PanelInviteCta', () => {
     fireEvent.click(screen.getByRole('button', { name: /Convidar pelo WhatsApp/ }))
 
     expect(screen.getByLabelText('WhatsApp da pessoa')).toBeInTheDocument()
-    expect((screen.getByLabelText('Mensagem') as HTMLTextAreaElement).value).toContain(INVITE_URL)
+    expect((screen.getByLabelText('Mensagem') as HTMLTextAreaElement).value).toContain('@circulaapp')
     expect(screen.getByRole('button', { name: /Fechar convite/ })).toHaveAttribute('aria-expanded', 'true')
   })
 

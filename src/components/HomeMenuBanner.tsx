@@ -8,18 +8,17 @@ import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 
 export function HomeMenuBanner({ image, onOpen }: { image: string | null; onOpen: () => void }) {
   return (
-    <m.section className="menu-banner-wrap" {...inViewOnce} variants={riseVariants} aria-label="Crie seu Cardápio">
+    <m.section className="menu-banner-wrap" {...inViewOnce} variants={riseVariants} aria-label="Meu Chef">
       <button type="button" className="menu-banner" onClick={onOpen}>
         <span className={`menu-banner-photo${image ? '' : ' menu-banner-photo--empty'}`} aria-hidden="true">
           {image && <img src={image} alt="" loading="lazy" decoding="async" />}
         </span>
         <span className="menu-banner-text">
+          <span className="menu-banner-title">Meu Chef</span>
           <span className="menu-banner-eyebrow">Receba bem</span>
-          <span className="menu-banner-title">Crie seu Cardápio</span>
           <span className="menu-banner-copy">
             Escolha os pratos, organize os detalhes e receba seus convidados sem complicação.
           </span>
-          <span className="menu-banner-cta">Montar meu cardápio</span>
         </span>
       </button>
     </m.section>

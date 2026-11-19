@@ -99,8 +99,8 @@ describe('virada de página', () => {
   })
 
   it('a duração é curta (nunca mais de meio segundo) e proporcional ao que falta', () => {
-    expect(settleMs(0, 1)).toBeLessThanOrEqual(460)
-    expect(settleMs(0.9, 1)).toBe(220)
+    expect(settleMs(0, 1)).toBeLessThanOrEqual(760)
+    expect(settleMs(0.9, 1)).toBe(380)
     expect(settleMs(0.5, 1)).toBeLessThan(settleMs(0, 1))
   })
 })

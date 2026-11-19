@@ -92,7 +92,18 @@ function PickCard({ pick, guests }: { pick: MenuPick; guests: number }) {
   )
 }
 
-export function MenuBuilderPage({ communityId, onBack }: { communityId: string | null; onBack?: () => void }) {
+export function MenuBuilderPage({
+  communityId,
+  onBack,
+  canSaveList = true,
+  onOpenPlans,
+}: {
+  communityId: string | null
+  onBack?: () => void
+  /** Tem a assinatura Lista de compras inteligente (ou o Premium)? */
+  canSaveList?: boolean
+  onOpenPlans?: () => void
+}) {
   const { recipes, loading, error } = useMenuLibrary(communityId)
   const [answers, setAnswers] = useState<MenuAnswers>(EMPTY_ANSWERS)
   const [step, setStep] = useState(0)
@@ -138,7 +149,7 @@ export function MenuBuilderPage({ communityId, onBack }: { communityId: string |
 
   const intro = (
     <header className="menu-head">
-      <p className="menu-eyebrow">Crie seu Cardápio</p>
+      <p className="menu-eyebrow">Meu Chef · Receba bem</p>
       <h2>Vamos preparar algo especial?</h2>
       <p>
         Conte um pouco sobre o seu encontro. Nós vamos ajudar você a montar um cardápio completo, com receitas
@@ -222,13 +233,29 @@ export function MenuBuilderPage({ communityId, onBack }: { communityId: string |
         <div className="menu-actions">
           {result.sections.length > 0 && (
             <>
-              <button type="button" className="btn btn-primary menu-pdf" onClick={savePdf}>
-                Salve sua lista de compras
-              </button>
-              <p className="home-muted">
-                Abre a lista em PDF. Escolha "Salvar como PDF" para baixar no celular e depois compartilhe pelo WhatsApp.
-              </p>
-              {printError && <p className="auth-error">{printError}</p>}
+              {canSaveList ? (
+                <>
+                  <button type="button" className="btn btn-primary menu-pdf" onClick={savePdf}>
+                    Salve sua lista de compras
+                  </button>
+                  <p className="home-muted">
+                    Abre a lista em PDF. Escolha "Salvar como PDF" para baixar no celular e depois compartilhe pelo WhatsApp.
+                  </p>
+                  {printError && <p className="auth-error">{printError}</p>}
+                </>
+              ) : (
+                <div className="menu-upsell">
+                  <strong>Lista de compras inteligente</strong>
+                  <p>
+                    Leve este cardápio para o mercado: todos os ingredientes somados, na quantidade certa para {answers.guests}{' '}
+                    {answers.guests === 1 ? 'pessoa' : 'pessoas'} e organizados por seção, prontos para salvar em PDF.
+                  </p>
+                  <span className="menu-upsell-price">R$ 3,80 por mês</span>
+                  <button type="button" className="btn btn-primary menu-pdf" onClick={() => onOpenPlans?.()}>
+                    Assinar a lista de compras
+                  </button>
+                </div>
+              )}
               <button type="button" className="auth-link" onClick={() => setVariant((v) => v + 1)}>
                 Ver outra sugestão
               </button>
@@ -253,7 +280,7 @@ export function MenuBuilderPage({ communityId, onBack }: { communityId: string |
         </div>
       </div>
 
-      <div className="menu-step">
+      <div className={`menu-step${step === 0 ? ' menu-step--meeting' : ''}`}>
         {step === 0 && (
           <>
             <label>

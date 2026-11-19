@@ -4119,3 +4119,754 @@ section.community-card.product-manager.product-manager--storefront {
 .menu-banner {
   font-family: var(--font-body, inherit);
 }
+
+/* ======================= Rodada 2026-11-19 ======================= */
+/* ---- Meu Chef: card a 70% da largura, mesma borda dos demais cards ---- */
+.menu-banner-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 34px;
+}
+
+.menu-banner {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  min-width: 240px;
+  min-height: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.menu-banner-photo {
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+}
+
+.menu-banner-text {
+  align-items: center;
+  gap: 4px;
+  padding: 14px 16px 18px;
+  text-align: center;
+}
+
+.menu-banner-title {
+  order: 1;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(34px, 9vw, 46px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--circula-mocha);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.menu-banner-eyebrow {
+  order: 2;
+  font-size: 12px;
+}
+
+.menu-banner-copy {
+  order: 3;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .menu-banner {
+    grid-template-columns: none;
+  }
+}
+
+/* ---- Meu Chef, etapa 1: campos maiores e mais altos ---- */
+.menu-step--meeting input[type='text'],
+.menu-step--meeting input[type='number'],
+.menu-step--meeting input[type='date'],
+.menu-step--meeting input[type='time'] {
+  min-height: 58px;
+  padding: 14px 16px;
+  font-size: 18px;
+  border-radius: 16px;
+}
+
+.menu-step--meeting label {
+  font-size: 15px;
+  gap: 8px;
+}
+
+/* ---- Meu Chef: convite para a Lista de compras inteligente ---- */
+.menu-upsell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+}
+
+.menu-upsell strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.menu-upsell p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite-soft, #6b6560);
+}
+
+.menu-upsell-price {
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+/* ---- Perfil: bordas iguais às dos demais cards ---- */
+.profile-visit-stat,
+.sub-level,
+.community-card--quiet,
+.profile-gallery-slot {
+  border: 1px solid var(--border-soft);
+}
+
+.profile-visit-stat {
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+}
+
+.sub-level {
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+}
+
+.profile-gallery-slot {
+  border-radius: var(--card-radius);
+  box-sizing: border-box;
+}
+
+.profile-subscription-section,
+.profile-invite-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.profile-section-label--spaced {
+  margin-bottom: 4px;
+}
+
+/* ---- Perfil: Meu Jardim ---- */
+.profile-section-label--garden {
+  margin: 8px 0 4px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--circula-mocha);
+}
+
+.garden-flower-title {
+  margin: 0 0 4px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--circula-mocha);
+}
+
+.garden-profile-summary {
+  align-items: center;
+  gap: 26px;
+}
+
+.garden-divider {
+  width: 62%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid rgba(120, 96, 78, 0.28);
+}
+
+.garden-profile-summary .garden-glass-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Sombras das flores: mais leves e atrás de cada flor. */
+.ga3d-layer:nth-child(1) {
+  filter: drop-shadow(0 2px 2px rgba(40, 32, 26, 0.12));
+}
+
+.ga3d-layer:nth-child(2) {
+  filter: drop-shadow(0 4px 3px rgba(40, 32, 26, 0.16));
+}
+
+.ga3d-layer:nth-child(3) {
+  filter: drop-shadow(0 4px 3px rgba(40, 32, 26, 0.18));
+}
+
+.ga3d-ground {
+  z-index: -1;
+  bottom: -4%;
+  background: radial-gradient(ellipse at center, rgba(40, 32, 26, 0.24), rgba(40, 32, 26, 0.06) 50%, rgba(40, 32, 26, 0) 72%);
+}
+
+.ga3d-days text,
+.ga3d-month-name {
+  font-family: var(--font-body, inherit);
+  pointer-events: none;
+}
+
+/* ---- Perfil visitado: seguir + publicações + conteúdos logo abaixo do banner ---- */
+.profile-visit-stats--visitor {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.profile-follow-card {
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+
+.profile-follow-card strong {
+  font-size: 16px;
+  color: var(--circula-mocha);
+}
+
+.profile-follow-card--on {
+  background: rgba(238, 127, 152, 0.1);
+}
+
+/* ---- Loja: título da categoria legível sobre a foto de fundo ---- */
+.cat-open-title {
+  display: block;
+  margin: 12px 0 14px;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(30, 20, 14, 0.75), 0 0 2px rgba(30, 20, 14, 0.6);
+}
+
+.cat-product-foot {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cat-product-price {
+  font-size: 15px;
+  color: var(--circula-mocha);
+}
+
+.cat-product-read {
+  font-size: 12px;
+  color: #6b6058;
+}
+
+/* ---- Receitas: banner grande ao fundo e categorias em cards com borda ---- */
+.rec-room {
+  min-height: 62vh;
+  padding: 120px 14px 22px;
+  border-radius: var(--card-radius-lg);
+  background: linear-gradient(160deg, #e9dccd, #cdb7a2) center / cover no-repeat;
+}
+
+.rec-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .rec-cat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.rec-cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 84px;
+  padding: 14px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+  color: var(--circula-mocha);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  animation: rec-in 0.5s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.rec-cat-card:active {
+  transform: scale(0.98);
+}
+
+.rec-cat-card-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.rec-cat-card-meta {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--circula-taupe);
+}
+
+/* Receitas dentro da categoria: título inteiro, sem cortar. */
+.rec-tile-caption-title {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+  font-size: 15px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.rec-tile--photo .rec-tile-media {
+  border: 1px solid var(--border-soft);
+}
+
+/* ---- Agenda: ponto vermelho quando há compromisso hoje ---- */
+.home-week-alert {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: #e0302b;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 8px rgba(224, 48, 43, 0.6);
+}
+
+/* ---- Relógio do mundo: foto real do lugar no topo de cada cartão ---- */
+.wclock-card-photo {
+  position: relative;
+  margin: -2px -2px 10px;
+  overflow: hidden;
+  border-radius: 14px;
+  aspect-ratio: 16 / 9;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.wclock-card-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wclock-card-photo figcaption {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ---- Relógio da Home: um balanço bem pequeno e contínuo ---- */
+.home-clock .home-clock-3d {
+  animation: clock-sway-small 5.5s ease-in-out infinite alternate;
+}
+
+@keyframes clock-sway-small {
+  from {
+    transform: translateY(-1.5px) rotateX(7deg) rotateY(-5deg) rotateZ(-0.8deg);
+  }
+  to {
+    transform: translateY(1.5px) rotateX(4deg) rotateY(5deg) rotateZ(0.8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-clock .home-clock-3d {
+    animation: none;
+  }
+}
+
+/* ---- Revistas: todas na mesma proporção da primeira capa ---- */
+.mag2-stack {
+  height: calc(var(--mag-w) / var(--mag-ratio, 0.75));
+}
+
+.mag2-stack .mag2-stack-item .mag-cover {
+  aspect-ratio: var(--mag-ratio, 0.75);
+}
+
+.mag2-stack .mag2-stack-item .mag-cover-img,
+.mag2-stack .mag2-stack-item .mag-cover-blank {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 900px) {
+  .mag2-stack {
+    height: calc(240px / var(--mag-ratio, 0.75));
+  }
+}
+
+.mag-shelf-cover {
+  aspect-ratio: var(--mag-ratio, 0.75);
+}
+
+.mag-shelf-cover .mag-cover-img,
+.mag-shelf-cover .mag-cover-blank {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* ---- Escritório: título do nome da revista livre do botão fechar ---- */
+.mag-office-veil {
+  padding-top: 84px;
+}
+
+.mag-office-title {
+  max-width: calc(100% - 112px);
+  margin-inline: auto;
+  font-size: clamp(24px, 6vw, 40px);
+  line-height: 1.1;
+}
+
+.mag-shelf-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 18px;
+}
+
+.mag-history-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.mag-history-title {
+  margin: 8px 0 2px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- Leitor: botão de passagem automática ---- */
+.mag2-controls .mag2-auto {
+  font-size: 15px;
+  padding: 0 14px;
+}
+
+.mag2-controls .mag2-auto[aria-pressed='true'] {
+  background: var(--circula-mocha, #5a463a);
+  color: #fff;
+}
+
+/* A folha vira com mais suavidade: perspectiva mais funda. */
+.mag2-sheet {
+  perspective: 1800px;
+}
+
+/* ---- Respiração: cards das práticas; a técnica inteira abre em página própria ---- */
+.breathing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 700px) {
+  .breathing-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.breathing-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px 8px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--circula-mocha);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.breathing-tile:active {
+  transform: scale(0.98);
+}
+
+.breathing-tile-media {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: calc(var(--card-radius-lg) - 6px);
+  background: linear-gradient(145deg, #ead9c8, #d4b69f);
+}
+
+.breathing-tile-media .breathing-banner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.breathing-tile-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.breathing-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.breathing-detail .breathing-banner {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--card-radius-lg);
+}
+
+/* ---- Playlist: banner 16:9 com a legenda embaixo, de canto a canto ---- */
+.playlist-grid {
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 700px) {
+  .playlist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.playlist-card {
+  gap: 8px;
+  padding: 0 0 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.playlist-card-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: linear-gradient(145deg, #ead9c8, #d4b69f);
+}
+
+.playlist-card-title {
+  display: block;
+  padding: 4px 16px 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--circula-mocha);
+}
+
+.playlist-card > .playlist-card-desc,
+.playlist-card > .reading-draft,
+.playlist-card > .water-link {
+  margin-inline: 16px;
+}
+
+.playlist-card > .playlist-card-open {
+  margin-inline: 16px;
+}
+
+/* ---- Flores de fundo: da revista até o fim da página ---- */
+.home-flower-zone {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.home-flower-zone > :not(.home-flowers) {
+  position: relative;
+  z-index: 1;
+}
+
+.home-flowers {
+  position: absolute;
+  inset: 0 -12px;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-flower {
+  --spin: 12deg;
+  position: absolute;
+  display: block;
+  opacity: 0.38;
+  animation: home-flower-float 12s ease-in-out infinite;
+}
+
+@keyframes home-flower-float {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(calc(var(--spin) * -0.5));
+  }
+  33% {
+    transform: translate(6px, -10px) rotate(calc(var(--spin) * 0.4));
+  }
+  66% {
+    transform: translate(-5px, -3px) rotate(var(--spin));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-flower {
+    animation: none;
+  }
+}
+
+/* ---- Parceiros: exatamente 3 logos visíveis; só depois deles começa a sombra branca ---- */
+.partner-viewport {
+  container-type: inline-size;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+}
+
+.home-partners .partner-seq,
+.partner-seq {
+  gap: 0;
+  padding: 6px 0 8px;
+}
+
+.partner-item {
+  width: calc((100cqw - 14cqw) / 3);
+  justify-content: center;
+}
+
+.home-partners .partner-logo,
+.home-partners .partner-logo.partner-logo--boost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 84px;
+}
+
+.home-partners .partner-logo img,
+.home-partners .partner-logo--boost img {
+  max-width: 88%;
+  max-height: 84px;
+  object-fit: contain;
+}
+
+/* ---- Rodapé ---- */
+.home-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 8px 8px;
+  text-align: center;
+  border-top: 1px solid rgba(120, 96, 78, 0.22);
+}
+
+.home-footer-brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--circula-mocha);
+}
+
+.home-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.home-footer-links a {
+  color: var(--circula-mocha);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-footer-line {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--circula-taupe);
+}
+
+.home-footer-maker strong {
+  color: var(--circula-mocha);
+  letter-spacing: 0.02em;
+}
+
+/* ---- Menu inferior da Nutri: cápsula que se adapta aos ícones (não mais larga) ---- */
+@media (max-width: 1023px) {
+  .bottom-nav:has(.bottom-nav-list > li:nth-child(6)) {
+    width: fit-content;
+    max-width: calc(100vw - 24px);
+  }
+
+  .bottom-nav-list:has(> li:nth-child(6)) {
+    padding: 0 6px;
+    gap: 0;
+  }
+
+  .bottom-nav-list:has(> li:nth-child(6)) .bottom-nav-item {
+    min-width: 0;
+    padding: 6px 7px;
+  }
+}
+
+/* ---- Feed: "quantas mulheres" centralizado dentro do botão ---- */
+.feed-masthead + .community-hero .community-hero-stats {
+  justify-content: center;
+}
+
+.feed-masthead + .community-hero .community-hero-stat {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}

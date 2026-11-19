@@ -14,6 +14,8 @@ export type PackageKey =
   | 'magazine'
   | 'receitas'
   | 'minha_lista'
+  | 'meu_chef'
+  | 'lista_inteligente'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -25,6 +27,8 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'magazine',
   'receitas',
   'minha_lista',
+  'meu_chef',
+  'lista_inteligente',
   'premium',
   'total',
 ]
@@ -41,6 +45,8 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   magazine: 'Círcula Magazine',
   receitas: 'Receitas',
   minha_lista: 'Minha Lista',
+  meu_chef: 'Meu Chef',
+  lista_inteligente: 'Lista de compras inteligente',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -55,6 +61,8 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   magazine: 'Pode ler a revista.',
   receitas: 'Pode ver as receitas.',
   minha_lista: 'Pode usar a Minha Lista (listas de compras).',
+  meu_chef: 'Pode montar cardápios com o Meu Chef.',
+  lista_inteligente: 'Pode salvar a lista de compras inteligente do Meu Chef.',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -96,4 +104,14 @@ export function canListenPlaylist(owned: Owned): boolean {
 /** Pode usar a Minha Lista: pacote Minha Lista ou Círcula Premium (que já a inclui). */
 export function canUseMinhaLista(owned: Owned): boolean {
   return has(owned, 'minha_lista') || has(owned, 'premium')
+}
+
+/** Pode usar o Meu Chef (montar cardápios): pacote Meu Chef ou Círcula Premium. */
+export function canUseChef(owned: Owned): boolean {
+  return has(owned, 'meu_chef') || has(owned, 'premium')
+}
+
+/** Pode salvar a lista de compras inteligente: pacote próprio ou Círcula Premium. */
+export function canUseSmartList(owned: Owned): boolean {
+  return has(owned, 'lista_inteligente') || has(owned, 'premium')
 }

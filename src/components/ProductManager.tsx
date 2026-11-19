@@ -514,7 +514,8 @@ export function ProductManager({
                   <span className="cat-product-title">{product.title}</span>
                   {product.description && <span className="cat-product-desc">{product.description}</span>}
                   <span className="cat-product-foot">
-                    {readable ? 'Ler agora' : product.price_cents > 0 ? formatPriceBRL(product.price_cents) : 'Ver'}
+                    {product.price_cents > 0 && <strong className="cat-product-price">{formatPriceBRL(product.price_cents)}</strong>}
+                    {readable ? <span className="cat-product-read">Ler agora</span> : product.price_cents > 0 ? <span className="cat-product-read">Comprar avulso</span> : 'Ver'}
                   </span>
                 </span>
               </m.button>

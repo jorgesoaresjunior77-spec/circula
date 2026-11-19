@@ -4,6 +4,7 @@ import {
   COMMUNITY_CARD_META,
   MENU_CARD_META,
   COMMUNITY_CARD_IMAGE_FORMAT,
+  cardImageSpec,
 } from '../types/communityCards'
 import type { CommunityCardKey } from '../types/communityCards'
 import { CoverImageInput } from './CoverImageInput'
@@ -71,12 +72,13 @@ export function CommunityCardImagesManager({
                   uid={profileId}
                   label=""
                   onChange={(path) => void handleChange(key, path)}
-                  recommendedSize="1080 × 1350 px"
+                  aspectRatio={cardImageSpec(key).aspect}
+                  recommendedSize={cardImageSpec(key).size}
                 />
                 {/* Orientação discreta, só no Painel da Profissional — nunca
                     chega à Home nem aos membros. */}
                 <p className="card-images-guide">
-                  <span>Formato recomendado: 4:5</span>
+                  <span>Tamanho exato: {cardImageSpec(key).size} ({cardImageSpec(key).format})</span>
                   <span>Até 5 MB</span>
                 </p>
                 {errorKey === key && (

@@ -4,7 +4,7 @@ import { addCycleMonths } from '../_shared/asaas.ts'
 import { timingSafeEqualStrings } from '../_shared/security.ts'
 import { classifyWebhookPayload } from '../_shared/webhookPayload.ts'
 import { isNoSplitSubscription } from '../_shared/communitySplitMode.ts'
-import { packagesForPlan } from '../_shared/addonPlans.ts'
+import { addonPeriodEnd, packagesForPlan } from '../_shared/addonPlans.ts'
 import type { AddonPlanKey } from '../_shared/addonPlans.ts'
 
 const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
@@ -316,8 +316,9 @@ async function handleCommunitySubscriptionEvent(
 }
 
 // Assinatura avulsa (addon_subscriptions): pagamento confirmado ativa a linha e
-// libera o pacote em member_package_access; atraso marca past_due; estorno,
-// chargeback ou cobrança apagada cancelam e retiram o pacote. Idempotente.
+// libera o pacote em member_package_access; atraso marca past_due (o
+// billing-daily-sweep retira o pacote se o atraso passar da tolerância);
+// estorno ou chargeback cancelam e retiram o pacote. Idempotente.
 async function handleAddonSubscriptionEvent(
   admin: ReturnType<typeof createClient>,
   event: string,
@@ -334,16 +335,21 @@ async function handleAddonSubscriptionEvent(
   const now = new Date()
 
   if (CONFIRMED_EVENTS.has(event)) {
-    const base =
-      addon.current_period_end && new Date(addon.current_period_end as string) > now
-        ? new Date(addon.current_period_end as string)
-        : now
+    // Assinatura cancelada (estorno, chargeback) nunca reabre por um evento
+    // reentregue: o acesso só volta com uma assinatura nova.
+    if (addon.status === 'canceled') {
+      console.log('asaas-webhook: pagamento confirmado ignorado — assinatura avulsa cancelada', addon.id, payment.id)
+      return
+    }
     const cycle = addon.billing_cycle as 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
+    // O fim do período parte do VENCIMENTO da cobrança: PAYMENT_CONFIRMED e
+    // PAYMENT_RECEIVED do mesmo pagamento não somam dois ciclos.
+    const newEnd = addonPeriodEnd(payment.dueDate, cycle, (addon.current_period_end as string | null) ?? null, now)
     await admin
       .from('addon_subscriptions')
       .update({
         status: 'active',
-        current_period_end: addCycleMonths(base, cycle).toISOString(),
+        ...(newEnd ? { current_period_end: newEnd.toISOString() } : {}),
         updated_at: now.toISOString(),
       })
       .eq('id', addon.id)
@@ -357,12 +363,12 @@ async function handleAddonSubscriptionEvent(
     }
     // O Premium inclui o Círcula: mantém a assinatura da comunidade em dia
     // enquanto o Premium estiver pago (não reativa assinatura cancelada).
-    if (addon.plan_key === 'premium') {
+    if (addon.plan_key === 'premium' && newEnd) {
       await admin
         .from('subscriptions')
         .update({
           status: 'active',
-          current_period_end: addCycleMonths(base, cycle).toISOString(),
+          current_period_end: newEnd.toISOString(),
           grace_period_ends_at: null,
         })
         .eq('profile_id', addon.profile_id)

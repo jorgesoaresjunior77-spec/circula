@@ -57,8 +57,11 @@ describe('BreathingPage — Respiração e Meditação', () => {
     render(<BreathingPage communityId="c1" isOwner={false} />)
 
     expect(screen.getByRole('region', { name: 'Respiração guiada' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Pausa de respiração' })).toBeInTheDocument()
+    // Nenhuma técnica abre sozinha: só o card, com nome e duração.
+    expect(screen.queryByText('Sente-se com conforto.')).not.toBeInTheDocument()
     expect(screen.getByText('5 min')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Abrir Pausa de respiração/ }))
+    expect(screen.getByRole('heading', { name: 'Pausa de respiração' })).toBeInTheDocument()
     expect(screen.getByText('Sente-se com conforto.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Ouvir no Spotify/ })).toHaveAttribute('href', 'https://exemplo.com/a.mp3')
   })

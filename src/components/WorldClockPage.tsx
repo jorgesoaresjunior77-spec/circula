@@ -13,6 +13,8 @@ import {
 } from '../lib/worldClock'
 import type { WorldPlace } from '../lib/worldClock'
 import { WeatherIcon } from './WeatherIcon'
+import { fetchPlacePhoto } from '../lib/placePhoto'
+import type { PlacePhoto } from '../lib/placePhoto'
 
 // Relógio do mundo: a pessoa digita o nome de um lugar e vê que horas são lá,
 // a diferença para Brasília e como está o tempo — ajuda a organizar a mala de
@@ -49,6 +51,17 @@ function PlaceCard({ place, now, featured = false }: { place: WorldPlace; now: D
   const key = placeKey(place)
   const [data, setData] = useState<WeatherData | null>(() => weatherCache.get(key) ?? null)
   const [failed, setFailed] = useState(false)
+  const [photo, setPhoto] = useState<PlacePhoto | null>(null)
+
+  useEffect(() => {
+    let active = true
+    void fetchPlacePhoto(place.name, place.country).then((p) => {
+      if (active) setPhoto(p)
+    })
+    return () => {
+      active = false
+    }
+  }, [place.name, place.country])
 
   useEffect(() => {
     const cached = weatherCache.get(key)
@@ -79,6 +92,12 @@ function PlaceCard({ place, now, featured = false }: { place: WorldPlace; now: D
 
   return (
     <article className={`wclock-card${featured ? ' wclock-card--featured' : ''} weather-hero--${scene?.scene ?? 'ceu-azul'}`}>
+      {photo && (
+        <figure className="wclock-card-photo">
+          <img src={photo.url} alt={`Foto de ${place.name}`} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+          <figcaption>Foto: Wikipédia</figcaption>
+        </figure>
+      )}
       <div className="wclock-card-head">
         <div className="wclock-card-place">
           <strong>{place.name}</strong>

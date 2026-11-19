@@ -74,6 +74,9 @@ export function BreathingPage({ communityId, isOwner, profileId }: BreathingPage
   const pagesBySession = useCommunitySessionPages(communityId, pagesKey)
   const [readingId, setReadingId] = useState<string | null>(null)
   const readingSession = readingId ? (items.find((i) => i.id === readingId) ?? null) : null
+  // Página da técnica: abre ao tocar no card (sem nenhuma técnica aberta por padrão).
+  const [detailId, setDetailId] = useState<string | null>(null)
+  const detail = detailId ? (items.find((i) => i.id === detailId) ?? null) : null
 
   function openEdit(s: WellnessSession) {
     setForm({
@@ -167,37 +170,60 @@ export function BreathingPage({ communityId, isOwner, profileId }: BreathingPage
         </p>
       )}
 
-      {groups.map((group) => (
-        <section key={group.key} className="breathing-group" aria-label={group.label}>
-          <h3>{group.label}</h3>
-          {group.sessions.map((s) => (
-            <article key={s.id} className="breathing-card">
-              <SessionBanner path={s.cover_image_url} />
-              <div className="breathing-head">
-                <h4>{s.title}</h4>
-                <span className="breathing-duration">{formatDuration(s.duration_minutes)}</span>
-              </div>
-              {s.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
-              {s.instructions && <p className="reading-text">{s.instructions}</p>}
-              {s.audio_url && (
-                <a className="playlist-card-open" href={s.audio_url} target="_blank" rel="noopener noreferrer">
-                  Ouvir no Spotify
-                </a>
-              )}
-              {(pagesBySession[s.id]?.length ?? 0) > 0 && (
-                <button type="button" className="water-primary breathing-open" onClick={() => setReadingId(s.id)}>
-                  Ver o passo a passo
+      {!detail &&
+        groups.map((group) => (
+          <section key={group.key} className="breathing-group" aria-label={group.label}>
+            <h3>{group.label}</h3>
+            <div className="breathing-grid">
+              {group.sessions.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className="breathing-tile"
+                  onClick={() => setDetailId(s.id)}
+                  aria-label={`Abrir ${s.title}, ${formatDuration(s.duration_minutes)}`}
+                >
+                  <span className="breathing-tile-media">
+                    <SessionBanner path={s.cover_image_url} />
+                  </span>
+                  <span className="breathing-tile-title">{s.title}</span>
+                  <span className="breathing-duration">{formatDuration(s.duration_minutes)}</span>
+                  {s.status === 'draft' && <span className="reading-draft">Rascunho</span>}
                 </button>
-              )}
-              {isOwner && (
-                <button type="button" className="water-link" onClick={() => openEdit(s)}>
-                  Editar
-                </button>
-              )}
-            </article>
-          ))}
-        </section>
-      ))}
+              ))}
+            </div>
+          </section>
+        ))}
+
+      {detail && (
+        <article className="breathing-detail">
+          <button type="button" className="water-link" onClick={() => setDetailId(null)}>
+            ← Todas as práticas
+          </button>
+          <SessionBanner path={detail.cover_image_url} />
+          <div className="breathing-head">
+            <h3>{detail.title}</h3>
+            <span className="breathing-duration">{formatDuration(detail.duration_minutes)}</span>
+          </div>
+          {detail.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
+          {detail.instructions && <p className="reading-text">{detail.instructions}</p>}
+          {detail.audio_url && (
+            <a className="playlist-card-open" href={detail.audio_url} target="_blank" rel="noopener noreferrer">
+              Ouvir no Spotify
+            </a>
+          )}
+          {(pagesBySession[detail.id]?.length ?? 0) > 0 && (
+            <button type="button" className="water-primary breathing-open" onClick={() => setReadingId(detail.id)}>
+              Ver o passo a passo
+            </button>
+          )}
+          {isOwner && (
+            <button type="button" className="water-link" onClick={() => openEdit(detail)}>
+              Editar
+            </button>
+          )}
+        </article>
+      )}
 
       {isOwner && !form && (
         <button type="button" className="water-primary" onClick={() => setForm({ ...EMPTY })}>

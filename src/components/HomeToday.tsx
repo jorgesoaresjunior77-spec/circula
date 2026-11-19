@@ -25,6 +25,8 @@ import { AnalogClock } from './AnalogClock'
 import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
+import { HomeFlowerBackground } from './HomeFlowerBackground'
+import { HomeFooter } from './HomeFooter'
 import { HomeMenuWheel } from './HomeMenuWheel'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
@@ -301,7 +303,7 @@ export function HomeToday({
       {/* Agenda e relógio: logo abaixo do Menu. */}
       <hr className="home-section-divider" />
       <m.div className="home-time" {...inViewOnce} variants={riseVariants}>
-        <HomeWeekCalendar onOpen={() => onNavigate('agenda')} />
+        <HomeWeekCalendar onOpen={() => onNavigate('agenda')} profileId={profile.id} />
         <button
           type="button"
           className="home-clock-open"
@@ -332,7 +334,9 @@ export function HomeToday({
         newCircleBadge={badges['novo-circulo'] ?? 0}
       />
 
-      {/* Revista Círcula Woman Magazine (substitui a faixa do Instagram). */}
+      {/* Da revista até o fim da página, flores de pétalas redondas ao fundo. */}
+      <div className="home-flower-zone">
+      <HomeFlowerBackground />
       <hr className="home-section-divider" />
       <HomeMagazineStrip
         issues={magazineIssues}
@@ -378,6 +382,8 @@ export function HomeToday({
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.
       </p>
+      <HomeFooter />
+      </div>
     </div>
   )
 }

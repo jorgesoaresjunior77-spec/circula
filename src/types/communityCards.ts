@@ -100,7 +100,7 @@ export const MENU_CARD_META: CommunityCardMeta[] = [
 export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)
 
 export const COMMUNITY_CARD_IMAGE_FORMAT =
-  'Formato recomendado: retrato 4:5 (ex.: 1080 × 1350 px). JPG, PNG ou WebP, até 5 MB. Outras proporções são aceitas, mas podem aparecer recortadas.'
+  'Cada imagem tem o tamanho exato indicado abaixo, igual ao espaço dela no app. JPG, PNG ou WebP, até 5 MB. O recorte já sai na proporção certa.'
 
 // Banners editoriais grandes (Receitas/Eventos/Loja na Home, ver
 // HomeEditorialCards.tsx) — independentes das capas acima. Reusam as
@@ -135,8 +135,8 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
   },
   {
     key: 'banner_cardapio',
-    label: 'Crie seu Cardápio',
-    hint: 'Foto do banner "Crie seu Cardápio" na Home (mesa posta, pratos bem apresentados). Ocupa cerca de 42% do banner.',
+    label: 'Meu Chef',
+    hint: 'Foto do card "Meu Chef" na Home (mesa posta, pratos bem apresentados). Aparece no topo do card, em 16:9.',
   },
 ]
 
@@ -147,4 +147,41 @@ export const EDITORIAL_CARD_KEYS = EDITORIAL_CARD_META.map((c) => c.key)
 // contêiner é o que realmente minimiza corte (object-fit: cover só
 // precisa agir quando a proporção enviada diverge desta).
 export const EDITORIAL_CARD_IMAGE_FORMAT =
-  'Formato recomendado: paisagem 16:9 (ex.: 1600 × 900 px). JPG, PNG ou WebP, até 5 MB. Outras proporções são aceitas, mas podem aparecer recortadas.'
+  'Cada imagem tem o tamanho exato indicado abaixo, igual ao espaço dela no app. JPG, PNG ou WebP, até 5 MB. O recorte já sai na proporção certa.'
+
+/** Tamanho exato de cada imagem, igual ao espaço onde ela aparece no app (sem sobra nem corte). */
+export interface CardImageSpec {
+  /** Proporção para o recorte (largura / altura). */
+  aspect: string
+  /** Tamanho em pixels, como mostrado à profissional. */
+  size: string
+  /** Texto curto de formato. */
+  format: string
+}
+
+const SPEC_PORTRAIT: CardImageSpec = { aspect: '4 / 5', size: '1080 × 1350 px', format: 'retrato 4:5' }
+const SPEC_BANNER: CardImageSpec = { aspect: '16 / 9', size: '1600 × 900 px', format: 'paisagem 16:9' }
+const SPEC_WHEEL: CardImageSpec = { aspect: '10 / 3', size: '1200 × 360 px', format: 'faixa 10:3' }
+const SPEC_BACKGROUND: CardImageSpec = { aspect: '9 / 16', size: '1080 × 1920 px', format: 'vertical 9:16' }
+
+export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
+  switch (key) {
+    case 'eventos_grande':
+    case 'jornada_grande':
+    case 'comunidade_grande':
+    case 'banner_cardapio':
+      return SPEC_BANNER
+    case 'loja_fundo':
+    case 'revista_escritorio':
+      return SPEC_BACKGROUND
+    case 'menu_leitura':
+    case 'menu_respiracao':
+    case 'menu_planos':
+    case 'menu_playlist':
+    case 'menu_wellness':
+    case 'menu_lista':
+      return SPEC_WHEEL
+    default:
+      return SPEC_PORTRAIT
+  }
+}

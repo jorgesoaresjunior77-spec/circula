@@ -117,10 +117,10 @@ export function PlaylistPage({ communityId = null, isOwner = false, profileId }:
         <ul className="playlist-grid">
           {items.map((pl) => (
             <li key={pl.id} className="playlist-card">
-              <div className="playlist-card-frame cat-card-frame">
+              <div className="playlist-card-frame">
                 <PlaylistCover path={pl.cover_image_url} />
-                <span className="cat-card-title">{pl.title}</span>
               </div>
+              <strong className="playlist-card-title">{pl.title}</strong>
               {pl.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
               {pl.description && <p className="playlist-card-desc">{pl.description}</p>}
               <a className="playlist-card-open" href={pl.spotify_url} target="_blank" rel="noopener noreferrer">
@@ -181,8 +181,8 @@ export function PlaylistPage({ communityId = null, isOwner = false, profileId }:
             communityId={communityId}
             uid={profileId}
             label="Imagem do cartão"
-            aspectRatio="4 / 5"
-            recommendedSize="1080 × 1350 px"
+            aspectRatio="16 / 9"
+            recommendedSize="1600 × 900 px"
             onChange={(path) => setForm((f) => (f ? { ...f, cover: path } : f))}
           />
           <label>

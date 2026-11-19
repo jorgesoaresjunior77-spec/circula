@@ -94,5 +94,5 @@ export function castShade(p: number): number {
 
 /** Duração para terminar a virada: curta e proporcional ao que falta. */
 export function settleMs(fromP: number, toP: number): number {
-  return Math.round(Math.min(460, Math.max(220, Math.abs(toP - fromP) * 460)))
+  return Math.round(Math.min(760, Math.max(380, Math.abs(toP - fromP) * 760)))
 }

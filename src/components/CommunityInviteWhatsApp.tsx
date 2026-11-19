@@ -81,17 +81,30 @@ export function CommunityInviteWhatsApp({ communityId, communityName, autoCreate
   )
 }
 
+export const INVITE_LINK_LABEL = '@circulaapp'
+
+/** Troca a frase @circulaapp pelo link real; sem a frase, o link vai no fim da mensagem. */
+export function withRealLink(message: string, inviteUrl: string): string {
+  if (message.includes(INVITE_LINK_LABEL)) return message.split(INVITE_LINK_LABEL).join(inviteUrl)
+  return `${message.trimEnd()}
+
+${inviteUrl}`
+}
+
 interface InviteMessageComposerProps {
   communityName: string
   inviteUrl: string
 }
 
 export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessageComposerProps) {
+  // Na tela o link aparece como a frase @circulaapp; o endereço de verdade entra na
+  // mensagem só na hora de enviar, copiar ou compartilhar.
   const suggestions = useMemo(
-    () => buildInviteMessageSuggestions(communityName, inviteUrl),
-    [communityName, inviteUrl],
+    () => buildInviteMessageSuggestions(communityName, INVITE_LINK_LABEL),
+    [communityName],
   )
   const [message, setMessage] = useState(suggestions[0])
+  const finalMessage = withRealLink(message, inviteUrl)
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [phone, setPhone] = useState('')
   const number = normalizeWhatsAppNumber(phone)
@@ -99,7 +112,7 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(message)
+      await navigator.clipboard.writeText(finalMessage)
       setCopyState('copied')
     } catch {
       setCopyState('error')
@@ -109,11 +122,11 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
 
   function handleSendToNumber() {
     if (!number) return
-    window.open(buildWhatsAppUrl(number, message), '_blank', 'noopener,noreferrer')
+    window.open(buildWhatsAppUrl(number, finalMessage), '_blank', 'noopener,noreferrer')
   }
 
   function handleShare() {
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`
+    const url = `https://wa.me/?text=${encodeURIComponent(finalMessage)}`
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
@@ -145,11 +158,11 @@ export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessag
       <p className="invite-mask-row">
         Link de convite:{' '}
         <a className="invite-mask" href={inviteUrl} target="_blank" rel="noopener noreferrer" title={inviteUrl}>
-          @Círcula.app
+          {INVITE_LINK_LABEL}
         </a>
       </p>
       <p className="challenge-field-hint">
-        A mensagem é toda sua: escolha uma sugestão ou escreva a sua e mantenha o link.
+        A mensagem é toda sua: escolha uma sugestão ou escreva a sua e mantenha a frase @circulaapp, que vira o link na hora de enviar.
       </p>
 
       <div className="invite-whatsapp-suggestions">
