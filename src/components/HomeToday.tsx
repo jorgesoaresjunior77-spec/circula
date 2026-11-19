@@ -19,8 +19,6 @@ import { HomeCirclesSection } from './HomeCirclesSection'
 import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { MagazineManager } from './MagazineManager'
 import { HomeMenuBanner } from './HomeMenuBanner'
-import { HomeExercisesBanner } from './HomeExercisesBanner'
-import { HomeSeriesBanner } from './HomeSeriesBanner'
 import { HomeGratitudeCard } from './HomeGratitudeCard'
 import { HomeEditorialCards } from './HomeEditorialCards'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
@@ -177,8 +175,6 @@ export function HomeToday({
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
   const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
   const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
-  const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
-  const { url: seriesCover } = useSignedImageUrl(cardImagePaths.banner_series ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
@@ -305,10 +301,6 @@ export function HomeToday({
         badges={badges}
         onNavigate={onNavigate}
       />
-
-      {/* Card Exercícios, logo abaixo dos cards finos. */}
-      <HomeExercisesBanner image={exerciciosCover} onOpen={() => onNavigate('exercicios')} />
-      <HomeSeriesBanner image={seriesCover} onOpen={() => onNavigate('series')} />
 
       {/* Agenda e relógio: logo abaixo do Menu. */}
       <hr className="home-section-divider" />

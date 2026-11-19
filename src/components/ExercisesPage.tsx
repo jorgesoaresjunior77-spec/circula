@@ -64,7 +64,7 @@ export function ExercisesPage({
   const price = PRODUCTS.find((p) => p.key === 'exercicios')?.monthlyCents ?? 590
   const open = openId ? articles.find((a) => a.id === openId) ?? null : null
 
-  if (view === 'library') return <ExerciseLibrary communityId={communityId} profileId={profileId} onBack={() => setView('home')} />
+  if (view === 'library') return <ExerciseLibrary communityId={communityId} profileId={profileId} isOwner={isOwner} onBack={() => setView('home')} />
   if (view === 'admin') {
     return (
       <section>

@@ -291,6 +291,11 @@ export function ExercisesAdmin({ communityId, profileId, isMaster, priceCents }:
         <button type="button" className="water-primary" onClick={() => void doImport()}>
           Carregar biblioteca base (rascunhos)
         </button>
+        {drafts > 0 && (
+          <button type="button" className="water-primary" onClick={() => window.confirm(`Aprovar e publicar os ${drafts} exercícios em rascunho? As participantes com o plano passam a vê-los.`) && void Promise.all(api.items.filter((i) => i.status === 'draft').map((i) => api.saveItem(i.id, { status: 'published' })))}>
+            Aprovar e publicar todos ({drafts})
+          </button>
+        )}
         {msg && <p className="home-muted">{msg}</p>}
         <ul className="pn-list">
           {api.items.map((it) => (

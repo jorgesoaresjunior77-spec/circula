@@ -46,9 +46,9 @@ describe('biblioteca base de exercícios', () => {
   })
 })
 
-import { existsSync } from 'fs'
+const IMAGES = Object.keys(import.meta.glob('/public/exercicios/*.webp'))
 describe('ilustrações dos exercícios', () => {
   it('cada exercício da biblioteca base tem a imagem em public/exercicios', () => {
-    for (const e of BASE_EXERCISES) expect(existsSync(`public/exercicios/${e.slug}.webp`)).toBe(true)
+    for (const e of BASE_EXERCISES) expect(IMAGES).toContain(`/public/exercicios/${e.slug}.webp`)
   })
 })

@@ -5610,7 +5610,7 @@ section.community-card.product-manager.product-manager--storefront {
   margin-top: 6px;
 }
 
-/* ---- Meu Chef (60%) ao lado do Diário da Gratidão (40%) ---- */
+/* ---- Meu Chef (60%) ao lado do Diário da Gratidão (40%): mesma altura e mesmo efeito ---- */
 .home-pair {
   display: flex;
   gap: 12px;
@@ -5618,126 +5618,107 @@ section.community-card.product-manager.product-manager--storefront {
 }
 
 .home-pair > .menu-banner-wrap {
-  flex: 0 0 calc(60% - 6px);
+  margin: 8px 0 34px;
   min-width: 0;
+}
+
+.home-pair > .menu-banner-wrap:first-child {
+  flex: 0 0 calc(60% - 6px);
+}
+
+.home-pair > .gratitude-card-wrap {
+  flex: 1 1 0;
 }
 
 .home-pair > .menu-banner-wrap .menu-banner {
   width: 100%;
   min-width: 0;
-  height: 100%;
 }
 
-.gratitude-card-wrap {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-}
-
-.gratitude-card {
-  position: relative;
-  width: 100%;
-  border: 0;
-  border-radius: 24px;
-  overflow: hidden;
-  padding: 14px 10px;
+.gratitude-photo {
+  flex: 1 1 auto;
+  aspect-ratio: auto;
+  min-height: 120px;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 8px;
-  text-align: center;
-  font: inherit;
-  color: #5a3b24;
-  background: radial-gradient(circle at 50% 0%, #fff3d6 0%, #f3dcc0 45%, #d9b48c 100%);
-  box-shadow: 0 14px 30px -14px rgba(53, 48, 44, 0.5);
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fff3d6, #f3dcc0 55%, #d9b48c);
 }
 
-.gratitude-card:active {
-  transform: scale(0.985);
+.gratitude-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.gratitude-card-bg {
+.gratitude-card .gratitude-title {
+  font-size: clamp(20px, 5.4vw, 28px);
+  line-height: 1.05;
+}
+
+.gratitude-card .menu-banner-text {
+  flex: 0 0 auto;
+  padding: 10px 12px 14px;
+}
+
+/* ---- Mãos em oração: a foto de referência, em duas metades que se juntam ---- */
+.praying-photo {
+  position: relative;
+  display: inline-block;
+  aspect-ratio: 1 / 1.98;
+  height: auto !important;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.praying-photo .praying-half {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.55;
+  pointer-events: none;
 }
 
-.gratitude-card > *:not(.gratitude-card-bg) {
-  position: relative;
+.praying-half--left {
+  clip-path: inset(0 50% 0 0);
+  animation: pray-left 3.8s ease-in-out infinite;
 }
 
-.gratitude-card-title {
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1.15;
+.praying-half--right {
+  clip-path: inset(0 0 0 50%);
+  animation: pray-right 3.8s ease-in-out infinite;
 }
 
-.gratitude-card-cta {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: var(--circula-mocha);
-}
-
-/* ---- Mãos em oração (animação) ---- */
-.praying-left {
-  transform-origin: -1px 80px;
-  animation: pray-left 3.6s ease-in-out infinite;
-}
-
-.praying-right {
-  transform-origin: 1px 80px;
-  animation: pray-right 3.6s ease-in-out infinite;
-}
-
-.praying-glow {
-  opacity: 0.25;
-  animation: pray-glow 3.6s ease-in-out infinite;
-}
-
-.praying-rays {
-  opacity: 0;
-  animation: pray-rays 3.6s ease-in-out infinite;
+.praying-glow-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 236, 190, 0.9), rgba(255, 236, 190, 0) 62%);
+  animation: pray-glow 3.8s ease-in-out infinite;
 }
 
 @keyframes pray-left {
-  0% { transform: translateX(-16px) rotate(-16deg); }
+  0% { transform: translateX(-9%) rotate(-3deg); }
   45%, 85% { transform: translateX(0) rotate(0deg); }
-  100% { transform: translateX(-16px) rotate(-16deg); }
+  100% { transform: translateX(-9%) rotate(-3deg); }
 }
 
 @keyframes pray-right {
-  0% { transform: translateX(16px) rotate(16deg); }
+  0% { transform: translateX(9%) rotate(3deg); }
   45%, 85% { transform: translateX(0) rotate(0deg); }
-  100% { transform: translateX(16px) rotate(16deg); }
+  100% { transform: translateX(9%) rotate(3deg); }
 }
 
 @keyframes pray-glow {
-  0%, 100% { opacity: 0.12; }
-  55%, 85% { opacity: 0.55; }
-}
-
-@keyframes pray-rays {
-  0%, 40% { opacity: 0; }
-  60%, 85% { opacity: 1; }
-  100% { opacity: 0; }
+  0%, 100% { opacity: 0.2; }
+  55%, 85% { opacity: 0.85; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .praying-left,
-  .praying-right,
-  .praying-glow,
-  .praying-rays {
+  .praying-half--left,
+  .praying-half--right,
+  .praying-glow-bg {
     animation: none;
-  }
-  .praying-rays {
-    opacity: 1;
   }
 }
 

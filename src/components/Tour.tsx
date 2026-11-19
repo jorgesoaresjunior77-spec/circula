@@ -45,20 +45,6 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'swipe',
   },
   {
-    targets: ['.menu-banner-wrap[aria-label="Exercícios"]'],
-    title: 'Exercícios',
-    text: 'Matérias e o botão SE EXERCITE EM CASA: uma biblioteca de exercícios com o peso do corpo, desenhos passo a passo, treinos de 5 a 30 minutos e a sua semana.',
-    optional: true,
-    gesture: 'tap',
-  },
-  {
-    targets: ['.menu-banner-wrap[aria-label="Dicas de Séries e Filmes"]'],
-    title: 'Dicas de Séries / Filmes',
-    text: 'Indicações da nutricionista para assistir com calma, com a plataforma e a classificação. O link abre onde você assiste.',
-    optional: true,
-    gesture: 'tap',
-  },
-  {
     targets: ['.home-time'],
     title: 'Agenda e relógio',
     text: 'Toque na agenda para anotar compromissos. Toque no relógio para ver a hora e o clima em qualquer lugar do mundo.',
@@ -72,6 +58,13 @@ export const TOUR_STEPS: TourStep[] = [
     targets: ['.mag2-viewport', '.mag2-stack'],
     title: 'Revista',
     text: 'Toque em uma capa para ler a edição inteira aqui mesmo, virando as páginas.',
+    gesture: 'tap',
+  },
+  {
+    targets: ['.home-wheel'],
+    title: 'Mais conteúdos',
+    text: 'No menu que rola, toque em Exercícios (matérias e SE EXERCITE EM CASA, com treinos de 5 a 30 minutos) ou em Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
+    optional: true,
     gesture: 'tap',
   },
   {

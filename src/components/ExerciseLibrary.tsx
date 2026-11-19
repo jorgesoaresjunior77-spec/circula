@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExerciseIllustration } from './ExerciseIllustration'
 import { ExercisePlayer } from './ExercisePlayer'
 import type { RunSummary } from './ExercisePlayer'
@@ -88,7 +88,7 @@ function Detail({ e, api, onBack }: { e: ExerciseItem; api: Api; onBack: () => v
   )
 }
 
-export function ExerciseLibrary({ communityId, profileId, onBack }: { communityId: string; profileId: string; onBack: () => void }) {
+export function ExerciseLibrary({ communityId, profileId, isOwner = false, onBack }: { communityId: string; profileId: string; isOwner?: boolean; onBack: () => void }) {
   const api = useExercises(communityId, profileId, true)
   const [tab, setTab] = useState<Tab>('biblioteca')
   const [openId, setOpenId] = useState<string | null>(null)
@@ -103,7 +103,17 @@ export function ExerciseLibrary({ communityId, profileId, onBack }: { communityI
   const [lowImpact, setLowImpact] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
-  const published = useMemo(() => api.items.filter((i) => i.status === 'published'), [api.items])
+  // A nutricionista (dona) vê também os rascunhos, para revisar; as participantes só veem o publicado.
+  const published = useMemo(() => (isOwner ? api.items : api.items.filter((i) => i.status === 'published')), [api.items, isOwner])
+  // Primeira vez da dona: carrega a biblioteca base como rascunho, para os exercícios aparecerem.
+  const seeded = useRef(false)
+  useEffect(() => {
+    if (isOwner && !api.loading && api.items.length === 0 && !seeded.current) {
+      seeded.current = true
+      void api.importBase()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwner, api.loading, api.items.length])
   const shown = useMemo(
     () => filterExercises(published, { query, category: category || null, goal: goal || null, level: level || null, favoritesOnly: favOnly }, api.favorites),
     [published, query, category, goal, level, favOnly, api.favorites],
@@ -208,7 +218,8 @@ export function ExerciseLibrary({ communityId, profileId, onBack }: { communityI
               <input type="checkbox" checked={favOnly} onChange={(e) => setFavOnly(e.target.checked)} /> Só favoritos
             </label>
           </div>
-          {!api.loading && published.length === 0 && <p className="home-muted">Os exercícios ainda estão sendo revisados pela nutricionista. Em breve, por aqui.</p>}
+          {!api.loading && published.length === 0 && <p className="home-muted">{isOwner ? 'Carregando a biblioteca base…' : 'Os exercícios ainda estão sendo revisados pela nutricionista. Em breve, por aqui.'}</p>}
+          {isOwner && published.some((i) => i.status === 'draft') && <p className="water-note">Os exercícios marcados como rascunho só aparecem para você. Para as participantes verem, aprove em “Administrar matérias e exercícios”.</p>}
           <div className="ex-grid">
             {shown.map((e) => (
               <button key={e.id} type="button" className="ex-tile" onClick={() => setOpenId(e.id)}>
@@ -217,6 +228,7 @@ export function ExerciseLibrary({ communityId, profileId, onBack }: { communityI
                   {api.favorites.has(e.id) ? '♥ ' : ''}
                   {e.name}
                   {doneToday.has(e.id) ? ' ✓' : ''}
+                  {e.status === 'draft' ? ' · rascunho' : ''}
                 </span>
                 <span className="home-muted">{e.level} · {e.categories.slice(0, 2).join(', ')}</span>
               </button>
