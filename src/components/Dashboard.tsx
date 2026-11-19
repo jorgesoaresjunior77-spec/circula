@@ -93,7 +93,7 @@ const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => (
 
 // Telas abertas só quando a pessoa chega nelas: saem do pacote inicial.
 const RecipesPage = lazy(() => import('./RecipesPage').then((m) => ({ default: m.RecipesPage })))
-const ExercisesPage = lazy(() => import('./ExercisesPage').then((m) => ({ default: m.ExercisesPage })))
+const HomeWorkoutPage = lazy(() => import('./HomeWorkoutPage').then((m) => ({ default: m.HomeWorkoutPage })))
 const SeriesPage = lazy(() => import('./SeriesPage').then((m) => ({ default: m.SeriesPage })))
 const DiarioPage = lazy(() => import('./DiarioPage').then((m) => ({ default: m.DiarioPage })))
 const MenuBuilderPage = lazy(() => import('./MenuBuilderPage').then((m) => ({ default: m.MenuBuilderPage })))
@@ -378,7 +378,7 @@ export function Dashboard({
     })
     navItems.push({
       key: 'exercicios',
-      label: 'Exercícios',
+      label: 'Se exercite em casa',
       Icon: HeartIcon,
       inBottomNav: false,
     })
@@ -1020,15 +1020,12 @@ export function Dashboard({
         return <p>Você ainda não faz parte de nenhuma comunidade.</p>
       }
       if (!resolvedCirclesCommunityId) {
-        return <>{renderCommunityPicker('Exercícios · escolha uma comunidade', circlesRelevantCommunities, setCirclesCommunityId)}</>
+        return <>{renderCommunityPicker('Se exercite em casa · escolha uma comunidade', circlesRelevantCommunities, setCirclesCommunityId)}</>
       }
       if (profile.role === 'member' && packagesLoading) return <p className="home-muted">Carregando…</p>
       return (
-        <ExercisesPage
-          communityId={resolvedCirclesCommunityId}
+        <HomeWorkoutPage
           profileId={profile.id}
-          isOwner={profile.role === 'professional'}
-          isMaster={false}
           canUse={profile.role === 'professional' || canUseExercises(myPackages)}
           onOpenPlans={() => handleNavigate('planos')}
         />

@@ -70,8 +70,8 @@ export const PRODUCTS: CatalogProduct[] = [
   },
   {
     key: 'exercicios',
-    name: 'Exercícios',
-    description: 'Matérias e uma biblioteca de exercícios para fazer em casa, só com o peso do corpo, com treinos e acompanhamento.',
+    name: 'Se exercite em casa',
+    description: 'Treinos montados na hora para fazer em casa, com desenhos passo a passo, só com o peso do corpo e coisas do dia a dia.',
     monthlyCents: 590,
   },
   {

@@ -6,6 +6,8 @@
 // de forma geral; não são tratamento de doenças e não substituem a orientação
 // de um profissional de educação física ou de saúde.
 
+import { EXTRA_EXERCISES } from './exerciseCatalogExtra'
+
 export const CATEGORIES = [
   'Corpo inteiro',
   'Pernas',
@@ -45,9 +47,8 @@ export interface ExerciseBase {
   target: number
   sets: number
   rest_sec: number
-  /** Chaves de pose (src/lib/exercisePoses.ts): posição inicial e execução. */
-  pose_start: string
-  pose_end: string
+  /** O que usar da casa: chaves de MATERIALS. Vazio = só o peso do corpo. */
+  props?: string[]
   description: string
   steps: string[]
   muscles: string[]
@@ -58,7 +59,7 @@ export interface ExerciseBase {
 export const GENERAL_SAFETY =
   'Respeite os seus limites. Pare se sentir dor, tontura, falta de ar fora do normal ou qualquer sintoma que preocupe, e procure orientação profissional. Estes exercícios não tratam doenças. Se você tem alguma condição de saúde, está grávida ou voltou há pouco de uma lesão ou cirurgia, converse com o seu médico antes de começar.'
 
-export const BASE_EXERCISES: ExerciseBase[] = [
+const CORE_EXERCISES: ExerciseBase[] = [
   {
     slug: 'agachamento-livre',
     name: 'Agachamento livre',
@@ -69,8 +70,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 3,
     rest_sec: 45,
-    pose_start: 'squat_start',
-    pose_end: 'squat_down',
     description: 'Movimento básico de sentar e levantar que fortalece pernas e glúteos e treina um gesto do dia a dia.',
     steps: [
       'Fique em pé com os pés na largura dos ombros e as pontas levemente para fora.',
@@ -92,8 +91,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 8,
     sets: 3,
     rest_sec: 45,
-    pose_start: 'lunge_start',
-    pose_end: 'lunge_down',
     description: 'Passo à frente com flexão das duas pernas: trabalha pernas e glúteos e pede equilíbrio.',
     steps: [
       'Fique em pé, com o corpo reto e os braços ao lado.',
@@ -115,8 +112,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 12,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'bridge_start',
-    pose_end: 'bridge_up',
     description: 'Deitada, você levanta o quadril. Fortalece glúteos e a parte de trás das coxas com pouco impacto.',
     steps: [
       'Deite de barriga para cima, com os joelhos dobrados e os pés no chão, na largura do quadril.',
@@ -138,8 +133,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 20,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'plank_start',
-    pose_end: 'plank_hold',
     description: 'Manter o corpo em linha reta apoiada nos antebraços. Começa com os joelhos no chão e evolui para as pernas estendidas.',
     steps: [
       'Apoie os antebraços no chão, com os cotovelos abaixo dos ombros. Comece com os joelhos apoiados.',
@@ -161,8 +154,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'crunch_start',
-    pose_end: 'crunch_up',
     description: 'Elevação curta do tronco, deitada, trabalhando o abdômen com amplitude pequena.',
     steps: [
       'Deite de barriga para cima, com os joelhos dobrados e os pés no chão.',
@@ -184,8 +175,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 8,
     sets: 3,
     rest_sec: 50,
-    pose_start: 'pushknee_start',
-    pose_end: 'pushknee_down',
     description: 'Versão mais leve da flexão: peito, ombros e braços trabalham com os joelhos no chão.',
     steps: [
       'Apoie as mãos no chão, um pouco mais abertas que os ombros, e os joelhos atrás.',
@@ -207,8 +196,7 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'wallpush_start',
-    pose_end: 'wallpush_in',
+    props: ['parede'],
     description: 'A forma mais suave da flexão: de pé, apoiada na parede.',
     steps: [
       'Fique de frente para a parede, a um passo dela, e apoie as mãos na altura dos ombros.',
@@ -230,8 +218,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 60,
     sets: 2,
     rest_sec: 30,
-    pose_start: 'march_start',
-    pose_end: 'march_up',
     description: 'Elevar os joelhos alternadamente, sem saltos. Aquece o corpo e trabalha o condicionamento com baixo impacto.',
     steps: [
       'Fique em pé, com o corpo alto e o abdômen levemente firme.',
@@ -253,8 +239,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'kick_start',
-    pose_end: 'kick_up',
     description: 'De quatro apoios, você leva uma perna para trás e para cima. Trabalha os glúteos.',
     steps: [
       'Apoie as mãos no chão, abaixo dos ombros, e os joelhos abaixo do quadril.',
@@ -276,8 +260,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'superman_start',
-    pose_end: 'superman_up',
     description: 'Deitada de bruços, você levanta braços e pernas por poucos centímetros para fortalecer as costas.',
     steps: [
       'Deite de bruços, com os braços esticados à frente e as pernas estendidas.',
@@ -299,8 +281,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 8,
     sets: 3,
     rest_sec: 40,
-    pose_start: 'birddog_start',
-    pose_end: 'birddog_ext',
     description: 'De quatro apoios, você estende um braço e a perna do lado oposto. Treina equilíbrio e estabilidade do tronco.',
     steps: [
       'Fique de quatro apoios, com as costas retas.',
@@ -322,8 +302,7 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 3,
     rest_sec: 45,
-    pose_start: 'chair_start',
-    pose_end: 'chair_up',
+    props: ['cadeira'],
     description: 'Um gesto do dia a dia vira exercício: você senta e levanta de uma cadeira firme, sem usar as mãos se possível.',
     steps: [
       'Sente na ponta de uma cadeira firme, com os pés no chão e na largura do quadril.',
@@ -345,8 +324,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 8,
     sets: 2,
     rest_sec: 20,
-    pose_start: 'cat',
-    pose_end: 'cow',
     description: 'Movimento suave da coluna em quatro apoios, alternando arredondar e alongar as costas.',
     steps: [
       'Fique de quatro apoios, com as mãos abaixo dos ombros.',
@@ -368,8 +345,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 25,
     sets: 2,
     rest_sec: 15,
-    pose_start: 'quad_start',
-    pose_end: 'quad_stretch',
     description: 'Em pé, você leva o calcanhar em direção ao glúteo para alongar a frente da coxa.',
     steps: [
       'Fique em pé, apoiando uma mão na parede se precisar.',
@@ -391,8 +366,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 25,
     sets: 2,
     rest_sec: 15,
-    pose_start: 'hamstring_start',
-    pose_end: 'hamstring_fold',
     description: 'Inclinando o tronco para a frente, você alonga a parte de trás das coxas.',
     steps: [
       'Fique em pé, com os pés na largura do quadril e os joelhos levemente dobrados.',
@@ -414,8 +387,7 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 20,
     sets: 3,
     rest_sec: 20,
-    pose_start: 'balance_start',
-    pose_end: 'balance_lift',
+    props: ['parede'],
     description: 'Ficar sobre uma perna só treina o equilíbrio e a estabilidade do quadril e do tornozelo.',
     steps: [
       'Fique em pé perto de uma parede ou de uma cadeira firme, para poder se apoiar.',
@@ -437,8 +409,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 12,
     sets: 3,
     rest_sec: 30,
-    pose_start: 'calf_start',
-    pose_end: 'calf_up',
     description: 'Subir na ponta dos pés fortalece as panturrilhas e ajuda no equilíbrio.',
     steps: [
       'Fique em pé, com os pés na largura do quadril, e apoie uma mão na parede se precisar.',
@@ -460,8 +430,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 10,
     sets: 2,
     rest_sec: 20,
-    pose_start: 'armraise_start',
-    pose_end: 'armraise_up',
     description: 'Levantar os braços até onde der, mantendo os ombros relaxados, para mobilidade dos ombros.',
     steps: [
       'Fique em pé, com o corpo alto e os braços ao lado.',
@@ -483,8 +451,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 30,
     sets: 2,
     rest_sec: 15,
-    pose_start: 'child_start',
-    pose_end: 'child_fold',
     description: 'Sentada sobre os calcanhares, você leva o tronco para a frente e alonga as costas e os quadris.',
     steps: [
       'Ajoelhe e sente sobre os calcanhares.',
@@ -506,8 +472,6 @@ export const BASE_EXERCISES: ExerciseBase[] = [
     target: 20,
     sets: 2,
     rest_sec: 15,
-    pose_start: 'chest_start',
-    pose_end: 'chest_open',
     description: 'Levar os braços para trás e abrir o peito ajuda a compensar as horas sentada ou curvada.',
     steps: [
       'Fique em pé, com o corpo alto e os pés na largura do quadril.',
@@ -521,7 +485,20 @@ export const BASE_EXERCISES: ExerciseBase[] = [
   },
 ]
 
-// ---------------- Funções de filtro e de montagem de treino ----------------
+export const BASE_EXERCISES: ExerciseBase[] = [...CORE_EXERCISES, ...EXTRA_EXERCISES]
+
+// ---------------- Materiais de casa ----------------
+
+export const MATERIALS = [
+  { key: 'parede', label: 'Uma parede' },
+  { key: 'cadeira', label: 'Uma cadeira firme' },
+  { key: 'degrau', label: 'Um degrau ou escada' },
+  { key: 'garrafas', label: 'Duas garrafas de água' },
+] as const
+
+export const MATERIAL_LABEL: Record<string, string> = Object.fromEntries(MATERIALS.map((m) => [m.key, m.label]))
+
+// ---------------- Filtros e montagem do treino ----------------
 
 export interface Filterable {
   name: string
@@ -530,71 +507,151 @@ export interface Filterable {
   level: string
 }
 
-export interface ExerciseFilters {
-  query?: string
-  category?: string | null
-  goal?: string | null
-  level?: string | null
-  favoritesOnly?: boolean
-}
-
-function plain(s: string): string {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-}
-
-export function filterExercises<T extends Filterable & { id?: string }>(items: T[], f: ExerciseFilters, favorites: ReadonlySet<string> = new Set()): T[] {
-  const q = plain(f.query ?? '').trim()
-  return items.filter(
-    (e) =>
-      (!q || plain(e.name).includes(q)) &&
-      (!f.category || e.categories.includes(f.category)) &&
-      (!f.goal || e.goals.includes(f.goal)) &&
-      (!f.level || e.level === f.level) &&
-      (!f.favoritesOnly || (e.id !== undefined && favorites.has(e.id))),
-  )
+export interface WorkoutTimed {
+  mode: 'reps' | 'time'
+  target: number
+  sets: number
+  rest_sec: number
 }
 
 /** Duração aproximada (segundos) de um exercício, contando séries, descansos e um tempo por repetição. */
-export function exerciseSeconds(e: { mode: 'reps' | 'time'; target: number; sets: number; rest_sec: number }): number {
+export function exerciseSeconds(e: WorkoutTimed): number {
   const work = e.mode === 'time' ? e.target : e.target * 4
   return e.sets * work + Math.max(0, e.sets - 1) * e.rest_sec
 }
 
-/**
- * Monta um treino rápido de aproximadamente `minutes` minutos, alternando as
- * regiões do corpo (quem tem baixo impacto entra primeiro) e fechando com um
- * alongamento. Devolve exercícios com o número de séries ajustado.
- */
-export function buildQuickWorkout<T extends Filterable & { mode: 'reps' | 'time'; target: number; sets: number; rest_sec: number }>(
-  pool: T[],
-  minutes: number,
-  opts: { lowImpactOnly?: boolean; beginner?: boolean } = {},
-): T[] {
-  const budget = minutes * 60
-  let list = pool.filter((e) => !opts.beginner || e.level === 'Iniciante')
-  if (opts.lowImpactOnly) list = list.filter((e) => e.categories.includes('Baixo impacto'))
-  const stretch = list.filter((e) => e.categories.includes('Alongamento'))
-  const active = list.filter((e) => !e.categories.includes('Alongamento'))
-  const picked: T[] = []
-  let used = 0
-  const cooldown = stretch[0]
-  const reserve = cooldown ? exerciseSeconds({ ...cooldown, sets: 1 }) : 0
-  for (const e of active) {
-    const one = { ...e, sets: Math.min(e.sets, minutes >= 20 ? e.sets : 2) }
-    const sec = exerciseSeconds(one)
-    if (used + sec + reserve > budget) continue
-    picked.push(one)
-    used += sec + 20 // transição entre exercícios
-  }
-  if (cooldown && used + reserve <= budget + 30) picked.push({ ...cooldown, sets: 1 })
-  return picked
+export const WORKOUT_MINUTES = [10, 15, 20, 30, 45, 60] as const
+
+export interface WorkoutRequest {
+  minutes: number
+  /** Categorias escolhidas (vazio = todas). */
+  categories: string[]
+  /** Objetivos escolhidos (vazio = todos). */
+  goals: string[]
+  level: 'Iniciante' | 'Intermediário'
+  lowImpactOnly: boolean
+  /** O que ela tem em casa (chaves de MATERIALS). */
+  materials: string[]
+  /** Muda a ordem sorteada: cada "montar de novo" usa um número diferente. */
+  seed: number
 }
 
-export const QUICK_MINUTES = [5, 10, 15, 20, 30] as const
+function rng(seed: number): () => number {
+  let t = (seed + 0x6d2b79f5) >>> 0
+  return () => {
+    t = (t + 0x6d2b79f5) >>> 0
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+type Pool = (Filterable & WorkoutTimed & { props?: string[] })[]
+
+/** Só entra o que ela consegue fazer: o material pedido pelo exercício tem que estar em casa. */
+export function usable<T extends Filterable & { props?: string[] }>(pool: T[], req: Pick<WorkoutRequest, 'level' | 'lowImpactOnly' | 'materials'>): T[] {
+  return pool.filter(
+    (e) =>
+      (e.props ?? []).every((p) => req.materials.includes(p)) &&
+      (req.level === 'Intermediário' || e.level === 'Iniciante') &&
+      (!req.lowImpactOnly || e.categories.includes('Baixo impacto')),
+  )
+}
+
+/**
+ * Monta o treino do momento: um aquecimento leve, os exercícios principais
+ * (alternando as regiões do corpo, sorteados) e alongamentos no fim, de modo que
+ * o tempo total fique perto do pedido. Devolve os exercícios já com as séries
+ * ajustadas ao tempo.
+ */
+export function buildWorkout<T extends Filterable & WorkoutTimed & { props?: string[] }>(pool: T[], req: WorkoutRequest): { items: T[]; seconds: number } {
+  const rand = rng(req.seed)
+  const budget = req.minutes * 60
+  const shuffle = <X,>(list: X[]): X[] => {
+    const a = [...list]
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1))
+      ;[a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
+  const base = usable(pool as Pool, req) as T[]
+  const wanted = (e: T) => (req.categories.length === 0 || e.categories.some((c) => req.categories.includes(c))) && (req.goals.length === 0 || e.goals.some((g) => req.goals.includes(g)))
+  const isStretch = (e: T) => e.categories.includes('Alongamento')
+  const isCalm = (e: T) => e.goals.includes('Mobilidade') && !isStretch(e) && e.mode === 'time'
+
+  const stretches = shuffle(base.filter((e) => isStretch(e) && (wanted(e) || req.categories.length > 0 ? true : true)))
+  const warm = shuffle(base.filter((e) => isCalm(e)))
+  const main = shuffle(base.filter((e) => !isStretch(e) && !isCalm(e) && wanted(e)))
+
+  // alterna as regiões do corpo: pega um de cada grupo em volta
+  const groups = new Map<string, T[]>()
+  for (const e of main) {
+    const key = e.categories.find((c) => c !== 'Baixo impacto' && c !== 'Iniciantes' && !c.startsWith('Mulheres')) ?? 'Outros'
+    groups.set(key, [...(groups.get(key) ?? []), e])
+  }
+  const interleaved: T[] = []
+  let more = true
+  while (more) {
+    more = false
+    for (const list of groups.values()) {
+      const next = list.shift()
+      if (next) {
+        interleaved.push(next)
+        more = true
+      }
+    }
+  }
+
+  const items: T[] = []
+  let used = 0
+  const fit = (e: T, sets: number): T => ({ ...e, sets })
+  const sec = (e: T) => exerciseSeconds(e) + 15 // transição
+
+  // aquecimento: 1 exercício calmo, só em treinos de 15 min ou mais
+  if (req.minutes >= 15 && warm[0]) {
+    const w = fit(warm[0], 1)
+    items.push(w)
+    used += sec(w)
+  }
+  // alongamentos finais: cerca de 15% do tempo (mínimo 1)
+  const stretchCount = req.minutes >= 30 ? 3 : req.minutes >= 15 ? 2 : 1
+  const cooldown = stretches.slice(0, stretchCount).map((e) => fit(e, 1))
+  const reserve = cooldown.reduce((t, e) => t + sec(e), 0)
+
+  const setsFor = (e: T) => (req.minutes <= 10 ? Math.min(e.sets, 2) : e.sets)
+  for (const e of interleaved) {
+    const cand = fit(e, setsFor(e))
+    if (used + sec(cand) + reserve > budget + 20) continue
+    items.push(cand)
+    used += sec(cand)
+  }
+  // sobrou tempo: mais uma série nos exercícios principais, do começo ao fim
+  let i = 0
+  let guard = 0
+  while (items.length > 0 && guard++ < 200) {
+    const idx = i % items.length
+    const e = items[idx]
+    i += 1
+    if (isStretch(e) || isCalm(e) || e.sets >= 4) continue
+    const extra = e.mode === 'time' ? e.target + e.rest_sec : e.target * 4 + e.rest_sec
+    if (used + extra + reserve > budget + 10) break
+    items[idx] = { ...e, sets: e.sets + 1 }
+    used += extra
+  }
+  items.push(...cooldown)
+  used += reserve
+  return { items, seconds: used }
+}
 
 export const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'] as const
 
 export function formatClock(totalSeconds: number): string {
   const s = Math.max(0, Math.round(totalSeconds))
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}
+
+export function formatMinutes(totalSeconds: number): string {
+  const m = Math.max(1, Math.round(totalSeconds / 60))
+  return `${m} min`
 }

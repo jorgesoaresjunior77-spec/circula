@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExerciseIllustration } from './ExerciseIllustration'
 import { formatClock } from '../lib/exerciseCatalog'
-import type { ExerciseItem } from '../hooks/useExercises'
+import type { WorkoutExercise } from '../hooks/useHomeWorkouts'
 
 // Treino guiado: exercício por exercício, série por série, com descanso entre
 // elas. Iniciar, pausar, continuar, pular e finalizar a qualquer momento; no
@@ -24,7 +24,7 @@ export function ExercisePlayer({
   onExit,
 }: {
   title: string
-  exercises: ExerciseItem[]
+  exercises: WorkoutExercise[]
   onFinish: (s: RunSummary) => void
   onExit: () => void
 }) {
@@ -149,7 +149,7 @@ export function ExercisePlayer({
       </div>
 
       <h3>{ex.name}</h3>
-      <ExerciseIllustration slug={ex.slug} name={ex.name} poseStart={ex.pose_start} poseEnd={ex.pose_end} />
+      <ExerciseIllustration slug={ex.slug} name={ex.name} />
 
       {phase === 'ready' && (
         <>

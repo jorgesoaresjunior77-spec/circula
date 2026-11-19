@@ -63,7 +63,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-wheel'],
     title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Exercícios (matérias e SE EXERCITE EM CASA, com treinos de 5 a 30 minutos) ou em Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
+    text: 'No menu que rola, toque em Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) ou em Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
     optional: true,
     gesture: 'tap',
   },

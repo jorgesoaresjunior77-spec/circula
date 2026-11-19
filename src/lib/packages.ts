@@ -51,7 +51,7 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   minha_lista: 'Minha Lista',
   meu_chef: 'Meu Chef',
   lista_inteligente: 'Lista de compras inteligente',
-  exercicios: 'Exercícios',
+  exercicios: 'Se exercite em casa',
   series_filmes: 'Dicas de Séries e Filmes',
 }
 
@@ -69,7 +69,7 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   minha_lista: 'Pode usar a Minha Lista (listas de compras).',
   meu_chef: 'Pode montar cardápios com o Meu Chef.',
   lista_inteligente: 'Pode salvar a lista de compras inteligente do Meu Chef.',
-  exercicios: 'Pode usar a biblioteca de exercícios e as matérias.',
+  exercicios: 'Pode montar treinos com a biblioteca de exercícios para fazer em casa.',
   series_filmes: 'Pode ver as dicas de séries e filmes.',
 }
 

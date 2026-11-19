@@ -50,7 +50,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   minha_lista: 'Minha Lista',
   meu_chef: 'Meu Chef',
   lista_inteligente: 'Lista de compras inteligente',
-  exercicios: 'Exercícios',
+  exercicios: 'Se exercite em casa',
   series_filmes: 'Dicas de Séries e Filmes',
   premium: 'Círcula Premium',
 }
