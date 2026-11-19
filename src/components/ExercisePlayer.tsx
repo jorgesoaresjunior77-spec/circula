@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ExerciseFigure } from './ExerciseFigure'
+import { ExerciseIllustration } from './ExerciseIllustration'
 import { formatClock } from '../lib/exerciseCatalog'
 import type { ExerciseItem } from '../hooks/useExercises'
 
@@ -149,12 +149,7 @@ export function ExercisePlayer({
       </div>
 
       <h3>{ex.name}</h3>
-      <div className="ex-pair">
-        <figure>
-          <ExerciseFigure pose={phase === 'work' ? (ex.pose_end ?? 'stand') : (ex.pose_start ?? 'stand')} label={`${ex.name}: ${phase === 'work' ? 'execução' : 'posição inicial'}`} />
-          <figcaption>{phase === 'work' ? 'Execução' : 'Posição inicial'}</figcaption>
-        </figure>
-      </div>
+      <ExerciseIllustration slug={ex.slug} name={ex.name} poseStart={ex.pose_start} poseEnd={ex.pose_end} />
 
       {phase === 'ready' && (
         <>

@@ -45,3 +45,10 @@ describe('biblioteca base de exercícios', () => {
     expect(formatClock(65)).toBe('1:05')
   })
 })
+
+import { existsSync } from 'fs'
+describe('ilustrações dos exercícios', () => {
+  it('cada exercício da biblioteca base tem a imagem em public/exercicios', () => {
+    for (const e of BASE_EXERCISES) expect(existsSync(`public/exercicios/${e.slug}.webp`)).toBe(true)
+  })
+})

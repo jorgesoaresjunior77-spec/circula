@@ -5,7 +5,7 @@ import { useManagedContent } from '../hooks/useManagedContent'
 import { useExercises } from '../hooks/useExercises'
 import type { ExerciseItem } from '../hooks/useExercises'
 import { CATEGORIES, GOALS, LEVELS } from '../lib/exerciseCatalog'
-import { ExerciseFigure } from './ExerciseFigure'
+import { ExerciseIllustration } from './ExerciseIllustration'
 import { CoverImageInput } from './CoverImageInput'
 import { formatBrl } from '../lib/plansCatalog'
 
@@ -297,8 +297,7 @@ export function ExercisesAdmin({ communityId, profileId, isMaster, priceCents }:
             <li key={it.id}>
               <div className="ex-admin-row">
                 <div className="ex-admin-fig">
-                  <ExerciseFigure pose={it.pose_start} label="Posição inicial" />
-                  <ExerciseFigure pose={it.pose_end} label="Execução" />
+                  <ExerciseIllustration slug={it.slug} name={it.name} poseStart={it.pose_start} poseEnd={it.pose_end} view="end" />
                 </div>
                 <div>
                   <strong>{it.name}</strong> <span className="home-muted">{it.status === 'published' ? 'Publicado' : 'Rascunho'} · {it.level}</span>

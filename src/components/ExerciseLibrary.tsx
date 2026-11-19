@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ExerciseFigure } from './ExerciseFigure'
+import { ExerciseIllustration } from './ExerciseIllustration'
 import { ExercisePlayer } from './ExercisePlayer'
 import type { RunSummary } from './ExercisePlayer'
 import { useExercises } from '../hooks/useExercises'
@@ -45,16 +45,7 @@ function Detail({ e, api, onBack }: { e: ExerciseItem; api: Api; onBack: () => v
       <p className="home-muted">
         {e.level} · {e.sets} séries de {e.mode === 'time' ? `${e.target} s` : `${e.target} repetições`} · descanso {e.rest_sec} s
       </p>
-      <div className="ex-pair">
-        <figure>
-          <ExerciseFigure pose={e.pose_start} label={`${e.name}: posição inicial`} />
-          <figcaption>1. Posição inicial</figcaption>
-        </figure>
-        <figure>
-          <ExerciseFigure pose={e.pose_end} label={`${e.name}: execução`} />
-          <figcaption>2. Execução</figcaption>
-        </figure>
-      </div>
+      <ExerciseIllustration slug={e.slug} name={e.name} poseStart={e.pose_start} poseEnd={e.pose_end} />
       {e.description && <p>{e.description}</p>}
       <h4>Passo a passo</h4>
       <ol className="ex-steps">
@@ -221,7 +212,7 @@ export function ExerciseLibrary({ communityId, profileId, onBack }: { communityI
           <div className="ex-grid">
             {shown.map((e) => (
               <button key={e.id} type="button" className="ex-tile" onClick={() => setOpenId(e.id)}>
-                <ExerciseFigure pose={e.pose_end} label={e.name} />
+                <ExerciseIllustration slug={e.slug} name={e.name} poseStart={e.pose_start} poseEnd={e.pose_end} view="end" />
                 <span className="ex-tile-name">
                   {api.favorites.has(e.id) ? '♥ ' : ''}
                   {e.name}
