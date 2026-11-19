@@ -3,6 +3,7 @@ import { useSavedPostIds } from '../hooks/useSavedPostIds'
 import { PostComposer } from './PostComposer'
 import { PostCard } from './PostCard'
 import { EmptyState } from './EmptyState'
+import { ContentActionsProvider } from '../hooks/useContentActions'
 
 /**
  * Mensagens principais abertas por vez no Feed de Conversa. Sempre aparecem
@@ -39,6 +40,13 @@ export function Feed({
   onOpenAuthor,
 }: FeedProps) {
   const {
+    isModerator,
+    editPost,
+    deletePost,
+    moderatePost,
+    editComment,
+    deleteComment,
+    moderateComment,
     posts,
     loading,
     error,
@@ -65,7 +73,10 @@ export function Feed({
     ? 'Ainda não há publicações neste círculo. Seja a primeira a compartilhar algo.'
     : 'Ainda não há publicações nesta comunidade. Seja a primeira a compartilhar algo.'
 
+  const contentActions = { viewerId: authorId, isModerator, editPost, deletePost, moderatePost, editComment, deleteComment, moderateComment }
+
   return (
+    <ContentActionsProvider value={contentActions}>
     <div className="feed">
       {canPost && (
         <PostComposer
@@ -129,5 +140,6 @@ export function Feed({
         </>
       )}
     </div>
+    </ContentActionsProvider>
   )
 }

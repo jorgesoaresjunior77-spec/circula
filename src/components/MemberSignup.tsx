@@ -16,6 +16,7 @@ import circulaIcon from '../assets/circula-icon.png'
 // onboarding → tour → app. O token fica guardado no navegador, então
 // também vale se o projeto exigir confirmação de e-mail ou se a pessoa
 // já tiver conta e preferir entrar.
+export const NUTRI_REQUEST_KEY = 'circula.nutri_patient_request'
 const APP_URL = `${window.location.origin}${import.meta.env.BASE_URL}`
 
 interface MemberSignupProps {
@@ -34,6 +35,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
   const [error, setError] = useState<string | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
   const [accepted, setAccepted] = useState(false)
+  const [nutriPatient, setNutriPatient] = useState(false)
 
   const rules = evaluatePassword(password)
 
@@ -60,6 +62,11 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
       return
     }
 
+    try {
+      if (nutriPatient) localStorage.setItem(NUTRI_REQUEST_KEY, '1')
+    } catch {
+      /* sem armazenamento: o pedido pode ser refeito depois */
+    }
     setLoading(true)
     // Sem `account_type`: o gatilho handle_new_user cria o perfil como
     // member (só a tela de Profissional pede 'professional').
@@ -182,6 +189,11 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
               </li>
             ))}
           </ul>
+
+          <label className="auth-check">
+            <input type="checkbox" checked={nutriPatient} onChange={(e) => setNutriPatient(e.target.checked)} />
+            <span>Sou paciente da Nutri (sua nutricionista confirma o vínculo)</span>
+          </label>
 
           <ConsentCheckbox id="member-signup-consent" checked={accepted} onChange={setAccepted} />
 

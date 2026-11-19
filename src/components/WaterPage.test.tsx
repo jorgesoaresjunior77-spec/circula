@@ -22,6 +22,7 @@ function mockWater(
 ) {
   vi.mocked(useWater).mockReturnValue({
     today: '2026-11-05',
+    dailyTotals: {},
     loading: false,
     error: null,
     weightKg: null,

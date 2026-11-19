@@ -16,7 +16,7 @@ export interface WaterDay {
   totalMl: number
 }
 
-const HISTORY_DAYS = 14
+const HISTORY_DAYS = 35
 
 function isoToday(): string {
   const t = todayParts()
@@ -131,7 +131,15 @@ export function useWater(profileId: string | null) {
     [reload],
   )
 
+  // Total de cada dia (inclui hoje), para o gráfico de evolução.
+  const dailyTotals = useMemo(() => {
+    const totals: Record<string, number> = {}
+    for (const l of current?.logs ?? []) totals[l.day] = (totals[l.day] ?? 0) + l.amount_ml
+    return totals
+  }, [current])
+
   return {
+    dailyTotals,
     today,
     loading: !!profileId && current === null,
     error: current?.error ?? null,

@@ -12,6 +12,10 @@ import { useCircles } from '../hooks/useCircles'
 import { CreateCommunityForm } from './CreateCommunityForm'
 import { CommunityView } from './CommunityView'
 import { MyProfile } from './MyProfile'
+import { PatientNutriPage } from './PatientNutriPage'
+import { NUTRI_REQUEST_KEY } from './MemberSignup'
+import { supabase } from '../lib/supabase'
+import { useIsNutriPatient } from '../hooks/useIsNutriPatient'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
 import { CircleList } from './CircleList'
@@ -308,6 +312,19 @@ export function Dashboard({
   // <ProfessionalPanel> que já existiam, sem novas regras de acesso.
   const canHostDestinations = profile?.role === 'professional' && hasSingleRelevantCommunity
 
+  const isNutriPatient = useIsNutriPatient(profile?.role === 'member')
+  // "Sou paciente da Nutri" marcado no cadastro: pede o vínculo (a nutricionista decide).
+  useEffect(() => {
+    if (profile?.role !== 'member') return
+    try {
+      if (localStorage.getItem(NUTRI_REQUEST_KEY) !== '1') return
+      void supabase.rpc('request_nutri_link').then(({ error }) => {
+        if (!error) localStorage.removeItem(NUTRI_REQUEST_KEY)
+      })
+    } catch {
+      /* sem armazenamento */
+    }
+  }, [profile?.role])
   const navItems: NavItem[] = [
     { key: 'inicio', label: 'Início', Icon: HomeIcon, inBottomNav: true },
   ]
@@ -460,6 +477,9 @@ export function Dashboard({
   }
   // Ajuda — no menu de baixo, entre o Feed e o Painel/Perfil.
   navItems.push({ key: 'ajuda', label: 'Ajuda', Icon: HelpIcon, inBottomNav: true })
+  if (isNutriPatient) {
+    navItems.push({ key: 'nutri', label: 'Nutri', Icon: ClipboardIcon, inBottomNav: true })
+  }
   if (canHostDestinations) {
     navItems.push({ key: 'painel', label: 'Painel', Icon: PanelIcon, inBottomNav: true })
     navItems.push({ key: 'nutri', label: 'Nutri', Icon: ClipboardIcon, inBottomNav: true })
@@ -976,6 +996,10 @@ export function Dashboard({
     }
 
     // Calculadora de água — dado pessoal, não depende de comunidade em foco.
+    if (effectiveNav === 'nutri' && isNutriPatient) {
+      return <PatientNutriPage />
+    }
+
     if (effectiveNav === 'agua') {
       return <WaterPage profileId={profile.id} />
     }

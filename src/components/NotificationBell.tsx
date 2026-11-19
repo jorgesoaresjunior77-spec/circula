@@ -45,6 +45,13 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   circle_request: 'circulos',
   // O Círculo pedido foi criado: a membro vai para a lista de Círculos.
   circle_request_approved: 'circulos',
+  // Nutri integrada: paciente e nutricionista têm o mesmo destino ('nutri').
+  nutri_plan: 'nutri',
+  nutri_appointment: 'nutri',
+  nutri_message: 'nutri',
+  nutri_request: 'nutri',
+  nutri_update: 'nutri',
+  nutri_link: 'nutri',
 }
 
 /** Depois de navegar, rola até o ponto exato da ação (quando ele existe na tela). */

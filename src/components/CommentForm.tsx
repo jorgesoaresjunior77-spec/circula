@@ -4,6 +4,7 @@ import type { CreateCommentResult } from '../types/post'
 import { EmojiPicker } from './EmojiPicker'
 import { CheckIcon, PhotoIcon } from './icons'
 import { FeedPhotoCropper } from './FeedPhotoCropper'
+import { MODERATION_MESSAGE } from '../lib/moderation'
 
 interface CommentFormProps {
   onSubmit: (content: string, imageFile?: File | null) => Promise<CreateCommentResult>
@@ -49,7 +50,9 @@ export function CommentForm({
 
     if (submitError) {
       setError(
-        variant === 'reply'
+        submitError === MODERATION_MESSAGE
+          ? MODERATION_MESSAGE
+          : variant === 'reply'
           ? 'Não foi possível responder agora. Tente novamente.'
           : 'Não foi possível comentar agora. Tente novamente.',
       )

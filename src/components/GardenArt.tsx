@@ -70,7 +70,7 @@ function Layer({ z, children }: { z: number; children: React.ReactNode }) {
 // ---------------------------------------------------------------------------
 export const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
-export function MonthFlower({ days, checked, month }: { days: number; checked: Set<number>; month?: number }) {
+export function MonthFlower({ days, checked }: { days: number; checked: Set<number>; month?: number }) {
   const ids = useIds()
   const done = checked.size
   const complete = done >= days && days > 0
@@ -144,17 +144,12 @@ export function MonthFlower({ days, checked, month }: { days: number; checked: S
           <g transform="translate(150 150)">
             <circle r="42" fill={`url(#${complete ? ids.core : ids.coreOff})`} stroke={OUTLINE} strokeWidth="2" />
             <ellipse cx="-13" cy="-17" rx="14" ry="8" fill="#fff" opacity="0.7" transform="rotate(-24 -13 -17)" />
-            {complete && !month && (
+            {complete && (
               <g fill="none" stroke="#7a4a1c" strokeWidth="3" strokeLinecap="round">
                 <path d="M-16 -3 q4.500 -6 9 0" />
                 <path d="M7 -3 q4.500 -6 9 0" />
                 <path d="M-12 10 q12 12 24 0" />
               </g>
-            )}
-            {month && month >= 1 && month <= 12 && (
-              <text textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="600" fill="#5a3b24" className="ga3d-month-name">
-                {MONTH_NAMES[month - 1]}
-              </text>
             )}
           </g>
           {/* o dia, pequeno, na ponta de cada pétala */}
@@ -294,6 +289,16 @@ export function YearSunflower({ monthsDone }: { monthsDone: boolean[] }) {
               <circle key={k} cx={seed.x} cy={seed.y} r={seed.s} fill={k % 2 ? '#e0b46a' : '#3a2010'} opacity="0.7" />
             ))}
             <ellipse cx="-17" cy="-22" rx="17" ry="9" fill="#fff" opacity="0.32" transform="rotate(-24 -17 -22)" />
+          </g>
+          {/* o nome do mês em cada pétala */}
+          <g transform="translate(150 150)" className="ga3d-months">
+            {monthsDone.map((_, i) => (
+              <g key={i} transform={`rotate(${i * 30}) translate(0 -98)`}>
+                <text transform={`rotate(${-i * 30})`} textAnchor="middle" dominantBaseline="central" fontSize="9" fontWeight="700" fill="#4a3428">
+                  {MONTH_NAMES[i].slice(0, 3)}
+                </text>
+              </g>
+            ))}
           </g>
         </Layer>
       </m.div>

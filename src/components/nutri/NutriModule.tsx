@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useNutriOverview } from '../../hooks/useNutri'
+import { LinkRequests } from './LinkRequests'
 import { ageFrom, brDate, isoToday, needsReturn, daysBetween } from '../../lib/nutri'
 import type { Patient } from '../../lib/nutri'
 import { useNutriLibrary } from '../../hooks/useNutriPlan'
@@ -150,6 +151,7 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
           ‹ Gestão Nutricional
         </button>
         <h2>Pacientes</h2>
+        <LinkRequests communityId={communityId} patients={ov.patients.map((p) => ({ id: p.id, full_name: p.full_name }))} onChanged={() => ov.reload?.()} />
         {view.intent && <p className="home-muted">Escolha a paciente para continuar.</p>}
         <input
           type="search"

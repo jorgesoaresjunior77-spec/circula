@@ -170,7 +170,7 @@ export function usePatientRecord(patientId: string, communityId: string) {
   const addConsultation = useCallback(
     async (input: Omit<Consultation, 'id' | 'patient_id'>): Promise<Result> => {
       const { error } = await supabase.from('nutri_consultations').insert({ ...input, patient_id: patientId, community_id: communityId })
-      if (error) return { error: FAIL }
+      if (error) return { error: error.code === '23505' ? 'Já existe uma consulta marcada nesse dia e horário.' : FAIL }
       void log(communityId, patientId, 'Consultas', 'criou', `${input.kind} ${input.status} em ${input.scheduled_on}`)
       reload()
       return { error: null }

@@ -5,6 +5,7 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import type { ModerationPost } from '../types/panel'
 import { HeartIcon, CommentIcon } from './icons'
 import { EmptyState } from './EmptyState'
+import { BlockedTermsManager } from './BlockedTermsManager'
 
 interface PostsModerationPanelProps {
   communityId: string
@@ -169,6 +170,8 @@ export function PostsModerationPanel({ communityId }: PostsModerationPanelProps)
           participantes; remover apaga em definitivo.
         </p>
       </header>
+
+      <BlockedTermsManager communityId={communityId} />
 
       <p className="panel-posts-count">
         {posts.length} publicaç{posts.length === 1 ? 'ão' : 'ões'}

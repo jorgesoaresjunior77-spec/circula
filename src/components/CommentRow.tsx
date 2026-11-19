@@ -1,6 +1,7 @@
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useCommentLikesContext } from '../hooks/useCommentLikes'
+import { OwnContentMenu } from './OwnContentMenu'
 
 export interface CommentRowData {
   id?: string
@@ -67,6 +68,7 @@ export function CommentRow({ comment, variant = 'root', onOpenAuthor }: CommentR
         {!(comment.image_url && comment.content.trim() === '📷') && (
           <p className="comment-content">{comment.content}</p>
         )}
+        {comment.id && <OwnContentMenu kind="comment" id={comment.id} authorId={comment.author?.id} content={comment.content} />}
         {imageUrl && (
           <img
             className="comment-image"

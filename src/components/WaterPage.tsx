@@ -14,6 +14,7 @@ import {
   waterProgress,
 } from '../lib/water'
 import { MONTH_LABELS, parseIso } from '../lib/weekCalendar'
+import { WaterChart } from './WaterChart'
 
 // Calculadora de água: peso -> meta estimada, registros do dia, garrafa
 // que se enche, histórico por dia. Tudo privado (RLS) e no fuso de São Paulo.
@@ -256,6 +257,8 @@ export function WaterPage({ profileId }: WaterPageProps) {
           )}
         </article>
       )}
+
+      {goal !== null && <WaterChart today={water.today} goalMl={goal} totals={water.dailyTotals} />}
 
       {goal !== null && history.length > 0 && (
         <article className="water-panel">

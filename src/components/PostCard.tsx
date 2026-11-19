@@ -1,3 +1,4 @@
+import { OwnContentMenu } from './OwnContentMenu'
 import { useEffect, useState } from 'react'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import type { Comment, CreateCommentResult, Post, ToggleReactionResult } from '../types/post'
@@ -252,6 +253,7 @@ export function PostCard({
       ) : (
         <p className="post-content">{post.content}</p>
       )}
+      {post.post_type === 'standard' && <OwnContentMenu kind="post" id={post.id} authorId={post.author_id} content={post.content} />}
 
       {post.post_type === 'standard' && <PostPoll postId={post.id} viewerId={viewerId} canVote={canInteract} />}
 

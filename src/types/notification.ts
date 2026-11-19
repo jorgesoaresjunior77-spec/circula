@@ -12,6 +12,13 @@ export type SocialNotificationType =
   | 'circle_request'
   /** O pedido de Círculo da membro foi aprovado (o Círculo foi criado). */
   | 'circle_request_approved'
+  /** Nutri integrada: plano, agenda, orientações, pedidos e vínculo. */
+  | 'nutri_plan'
+  | 'nutri_appointment'
+  | 'nutri_message'
+  | 'nutri_request'
+  | 'nutri_update'
+  | 'nutri_link'
 
 export interface NotificationActor {
   id: string

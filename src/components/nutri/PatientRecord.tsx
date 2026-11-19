@@ -8,6 +8,7 @@ import { ConsultationsTab } from './ConsultationsTab'
 import { PatientForm } from './PatientForm'
 import { PlanTab } from './PlanTab'
 import { PrivacyTab } from './PrivacyTab'
+import { FollowUpTab } from './FollowUpTab'
 import { PatientPhoto } from './PatientPhoto'
 import { DocumentsTab, ExamsTab } from './FilesTabs'
 import { assessmentHtml, evolutionHtml, printDocument } from '../../lib/nutriPrint'
@@ -18,7 +19,7 @@ import type { Food } from '../../lib/nutriPlan'
 // exames, receitas e documentos chegam nas próximas etapas e aparecem
 // marcadas como "em breve" para o caminho ficar visível.
 
-export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'privacidade' | 'consultas' | 'obs' | 'historico'
+export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'privacidade' | 'consultas' | 'acompanhamento' | 'obs' | 'historico'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
@@ -30,6 +31,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'documentos', label: 'Documentos' },
   { key: 'privacidade', label: 'Privacidade (LGPD)' },
   { key: 'consultas', label: 'Consultas e evolução' },
+  { key: 'acompanhamento', label: 'Acompanhamento da paciente' },
   { key: 'obs', label: 'Observações' },
   { key: 'historico', label: 'Histórico de alterações' },
 ]
@@ -224,6 +226,8 @@ export function PatientRecord({
           {tab === 'consultas' && (
             <ConsultationsTab consultations={rec.consultations} onAdd={rec.addConsultation} onSetStatus={rec.setConsultationStatus} />
           )}
+
+          {tab === 'acompanhamento' && <FollowUpTab patientId={patient.id} communityId={communityId} linkedProfileId={patient.linked_profile_id ?? null} />}
 
           {tab === 'obs' && (
             <>

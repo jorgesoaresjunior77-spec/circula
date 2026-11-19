@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { buildCommentTree } from '../lib/commentTree'
 import { uploadCommunityMedia } from '../lib/communityMedia'
+import { isBlockedText, MODERATION_MESSAGE } from '../lib/moderation'
 import type {
   Comment,
   CreateCommentResult,
@@ -85,6 +86,25 @@ export function usePosts(
   const inlineConversation = options?.inlineConversation ?? false
 
   const [posts, setPosts] = useState<Post[]>([])
+  // Termos extras bloqueados pela profissional + se quem vê é a dona (moderação).
+  const [extraTerms, setExtraTerms] = useState<string[]>([])
+  const [isModerator, setIsModerator] = useState(false)
+  useEffect(() => {
+    if (!communityId) return
+    let cancelled = false
+    void (async () => {
+      const [terms, owner] = await Promise.all([
+        supabase.from('blocked_terms').select('term').or(`community_id.is.null,community_id.eq.${communityId}`),
+        supabase.from('communities').select('owner_id').eq('id', communityId).maybeSingle(),
+      ])
+      if (cancelled) return
+      setExtraTerms(((terms.data ?? []) as { term: string }[]).map((t) => t.term))
+      setIsModerator(!!owner.data && (owner.data as { owner_id: string }).owner_id === viewerId)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [communityId, viewerId])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -321,6 +341,7 @@ export function usePosts(
     poll?: { options: string[]; allowMultiple: boolean } | null,
   ): Promise<CreatePostResult> {
     if (!communityId) return { error: 'Sem comunidade selecionada.' }
+    if (isBlockedText(content, extraTerms)) return { error: MODERATION_MESSAGE }
 
     const row = {
       community_id: communityId,
@@ -406,6 +427,7 @@ export function usePosts(
     parentCommentId: string | null = null,
     imageUrl: string | null = null,
   ): Promise<CreateCommentResult> {
+    if (isBlockedText(content, extraTerms)) return { error: MODERATION_MESSAGE }
     const { error: insertError } = await supabase.from('post_comments').insert({
       post_id: postId,
       author_id: authorId,
@@ -461,7 +483,51 @@ export function usePosts(
     return { error: null }
   }
 
+  const failMsg = (e: { message: string } | null) =>
+    e ? { error: e.message.includes('conteudo_bloqueado') ? MODERATION_MESSAGE : 'Não foi possível concluir. Tente de novo.' } : { error: null }
+
+  async function refetchOpenThreads() {
+    await Promise.all(Object.keys(commentsByPost).map((pid) => fetchComments(pid)))
+  }
+  async function editPost(postId: string, content: string) {
+    const { error: e } = await supabase.from('posts').update({ content }).eq('id', postId)
+    if (!e) setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, content } : p)))
+    return failMsg(e)
+  }
+  async function deletePost(postId: string) {
+    const { error: e } = await supabase.from('posts').delete().eq('id', postId)
+    if (!e) setPosts((prev) => prev.filter((p) => p.id !== postId))
+    return failMsg(e)
+  }
+  async function moderatePost(postId: string) {
+    const { error: e } = await supabase.rpc('moderate_post', { p_post_id: postId, p_action: 'remove' })
+    if (!e) setPosts((prev) => prev.filter((p) => p.id !== postId))
+    return failMsg(e)
+  }
+  async function editComment(commentId: string, content: string) {
+    const { error: e } = await supabase.from('post_comments').update({ content }).eq('id', commentId)
+    if (!e) await refetchOpenThreads()
+    return failMsg(e)
+  }
+  async function deleteComment(commentId: string) {
+    const { error: e } = await supabase.from('post_comments').delete().eq('id', commentId)
+    if (!e) await refetchOpenThreads()
+    return failMsg(e)
+  }
+  async function moderateComment(commentId: string) {
+    const { error: e } = await supabase.rpc('moderate_comment', { p_comment_id: commentId })
+    if (!e) await refetchOpenThreads()
+    return failMsg(e)
+  }
+
   return {
+    isModerator,
+    editPost,
+    deletePost,
+    moderatePost,
+    editComment,
+    deleteComment,
+    moderateComment,
     posts,
     loading,
     error,

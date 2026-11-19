@@ -1,3 +1,4 @@
+import { MODERATION_MESSAGE } from '../lib/moderation'
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { CreatePostResult } from '../types/post'
@@ -108,7 +109,7 @@ export function PostComposer({
     setLoading(false)
 
     if (publishError) {
-      setError('Não foi possível publicar agora. Tente novamente.')
+      setError(publishError === MODERATION_MESSAGE ? MODERATION_MESSAGE : 'Não foi possível publicar agora. Tente novamente.')
       return
     }
 
