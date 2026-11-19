@@ -18,6 +18,7 @@ import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
 import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { MagazineManager } from './MagazineManager'
+import { HomeMenuBanner } from './HomeMenuBanner'
 import { HomeEditorialCards } from './HomeEditorialCards'
 import { HomeWeekCalendar } from './HomeWeekCalendar'
 import { AnalogClock } from './AnalogClock'
@@ -170,6 +171,7 @@ export function HomeToday({
   const { url: helpNutriCover } = useSignedImageUrl(cardImagePaths.desafios ?? null)
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
   const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
+  const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
   const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
@@ -366,6 +368,8 @@ export function HomeToday({
         featuredProduct={featuredProduct ? { ...featuredProduct, cover_image_url: featuredProductCover } : null}
         onNavigate={onNavigate}
       />
+
+      <HomeMenuBanner image={cardapioCover} onOpen={() => onNavigate('cardapio')} />
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
 

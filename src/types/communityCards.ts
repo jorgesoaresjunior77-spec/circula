@@ -60,6 +60,7 @@ export type CommunityCardKey =
   | 'menu_wellness'
   | 'menu_lista'
   | 'loja_fundo'
+  | 'banner_cardapio'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -131,6 +132,11 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     key: 'loja_fundo',
     label: 'Fundo da Loja',
     hint: 'Imagem que fica atrás das prateleiras, dentro da Loja. Sem ela, a Loja usa o banner grande da Loja.',
+  },
+  {
+    key: 'banner_cardapio',
+    label: 'Crie seu Cardápio',
+    hint: 'Foto do banner "Crie seu Cardápio" na Home (mesa posta, pratos bem apresentados). Ocupa cerca de 42% do banner.',
   },
 ]
 

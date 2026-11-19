@@ -12,6 +12,7 @@ export type NavKey =
   | 'circulos'
   | 'eventos'
   | 'receitas'
+  | 'cardapio'
   | 'jardim'
   | 'agenda'
   | 'agua'

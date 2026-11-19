@@ -3687,3 +3687,435 @@ section.community-card.product-manager.product-manager--storefront {
   font-family: inherit;
   color: #4d6b2f;
 }
+
+/* ======================= Crie seu Cardápio ======================= */
+/* ---- Banner da Home: foto à esquerda (~42%), chamada à direita ---- */
+.menu-banner-wrap {
+  margin: 8px 0;
+}
+
+.menu-banner {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  width: 100%;
+  min-height: 210px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 26px;
+  background: linear-gradient(135deg, #fbf4ea, #f1e2d2);
+  box-shadow: 0 10px 26px -14px rgba(60, 44, 32, 0.45);
+  text-align: left;
+  cursor: pointer;
+  color: var(--circula-mocha);
+}
+
+.menu-banner-photo {
+  position: relative;
+  display: block;
+  min-height: 100%;
+}
+
+.menu-banner-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-banner-photo--empty {
+  background:
+    radial-gradient(circle at 50% 50%, #fffaf3 0 26%, transparent 27%),
+    radial-gradient(circle at 50% 50%, #e9d3bd 0 40%, transparent 41%),
+    linear-gradient(145deg, #d9b99c, #b88f72);
+}
+
+.menu-banner-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px 22px 22px 24px;
+}
+
+.menu-banner-eyebrow {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.menu-banner-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(28px, 6.2vw, 40px);
+  line-height: 1.05;
+}
+
+.menu-banner-copy {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--graphite-soft, #6b6560);
+}
+
+.menu-banner-cta {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--circula-mocha);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .menu-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-banner-photo {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+
+  .menu-banner-text {
+    padding: 18px 20px 22px;
+  }
+}
+
+/* ---- Página do cardápio ---- */
+.menu-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 24px;
+}
+
+.menu-head h2 {
+  margin: 4px 0 8px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 28px;
+  color: var(--circula-mocha);
+}
+
+.menu-head p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.menu-eyebrow {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+
+.menu-progress {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--circula-taupe);
+}
+
+.menu-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #eadfd4;
+  overflow: hidden;
+}
+
+.menu-progress-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--circula-mocha);
+  transition: width 0.25s ease;
+}
+
+.menu-step {
+  display: grid;
+  gap: 14px;
+}
+
+.menu-step label,
+.menu-sheet label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.menu-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.menu-chips,
+.menu-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.menu-chips legend,
+.menu-cards legend {
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.menu-chips > p,
+.menu-cards > p {
+  width: 100%;
+  margin: 0 0 4px;
+}
+
+.menu-chip {
+  padding: 9px 15px;
+  border: 1px solid rgba(120, 98, 78, 0.28);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--circula-mocha);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu-chip--on {
+  background: var(--circula-mocha);
+  border-color: var(--circula-mocha);
+  color: #fff;
+}
+
+.menu-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.menu-card {
+  display: grid;
+  gap: 3px;
+  padding: 14px 16px;
+  border: 1px solid rgba(120, 98, 78, 0.22);
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+  color: var(--circula-mocha);
+  cursor: pointer;
+}
+
+.menu-card span {
+  font-size: 13px;
+  color: var(--graphite-soft, #6b6560);
+}
+
+.menu-card--on {
+  border-color: var(--circula-mocha);
+  background: #f6ece1;
+  box-shadow: inset 0 0 0 1.5px var(--circula-mocha);
+}
+
+.menu-check {
+  display: flex !important;
+  grid-template-columns: none;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.menu-check--strong {
+  font-weight: 600;
+}
+
+.menu-warning {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fbf0dc;
+  border: 1px solid #ecd6a8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.menu-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-nav .btn {
+  margin-left: auto;
+}
+
+/* ---- Cardápio pronto ---- */
+.menu-summary {
+  display: grid;
+  gap: 2px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f6ece1;
+  font-size: 14px;
+}
+
+.menu-summary strong {
+  font-size: 17px;
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+.menu-block {
+  display: grid;
+  gap: 12px;
+}
+
+.menu-block > h3 {
+  margin: 8px 0 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e6d9cd;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+
+.menu-pick {
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 6px 18px -12px rgba(60, 44, 32, 0.45);
+}
+
+.menu-pick-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.menu-pick-body {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+
+.menu-pick-body h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+
+.menu-pick-meta {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--circula-taupe);
+}
+
+.menu-pick-summary,
+.menu-pick-note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.menu-pick-note {
+  color: #8a5a2b;
+  font-size: 12.5px;
+}
+
+.menu-pick-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.menu-pick-details ul,
+.menu-pick-details ol {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.menu-gap {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fbf3ee;
+  border: 1px solid #ecd9cc;
+}
+
+.menu-gap p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+}
+
+.menu-actions {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+}
+
+.menu-pdf {
+  width: 100%;
+  max-width: 420px;
+  padding: 15px 22px;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---- Ficha do cardápio (editor de receita) ---- */
+.menu-sheet {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(120, 98, 78, 0.25);
+  border-radius: 14px;
+}
+
+.menu-sheet-group {
+  display: grid;
+  gap: 6px;
+}
+
+.menu-sheet-group > span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.menu-sheet-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.menu-sheet-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.menu-banner-wrap {
+  margin: 8px 0 34px;
+}
+
+.menu-banner {
+  font-family: var(--font-body, inherit);
+}

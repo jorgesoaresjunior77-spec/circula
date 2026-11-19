@@ -6,6 +6,7 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
 import { RecipeMagazineView } from './RecipeMagazineView'
 import { RecipePagesEditor } from './RecipePagesEditor'
+import { RecipeMenuSheet } from './RecipeMenuSheet'
 import { AddRecipeToList } from './minhalista/AddRecipeToList'
 import { ChevronLeftIcon } from './icons'
 import { isList, recipeItems } from '../lib/recipeText'
@@ -302,7 +303,10 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
           onChange={(p) => setEditRec((prev) => ({ ...(prev ?? {}), cover_image_url: p }))}
         />
         {editRec.id ? (
-          <RecipePagesEditor contentId={editRec.id} communityId={communityId} profileId={profileId} />
+          <>
+            <RecipePagesEditor contentId={editRec.id} communityId={communityId} profileId={profileId} />
+            <RecipeMenuSheet contentId={editRec.id} communityId={communityId} />
+          </>
         ) : (
           <p className="home-muted">Salve a receita para adicionar as páginas em formato de revista.</p>
         )}

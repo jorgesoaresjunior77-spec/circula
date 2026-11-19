@@ -89,6 +89,7 @@ const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => (
 
 // Telas abertas só quando a pessoa chega nelas: saem do pacote inicial.
 const RecipesPage = lazy(() => import('./RecipesPage').then((m) => ({ default: m.RecipesPage })))
+const MenuBuilderPage = lazy(() => import('./MenuBuilderPage').then((m) => ({ default: m.MenuBuilderPage })))
 const GardenPage = lazy(() => import('./GardenPage').then((m) => ({ default: m.GardenPage })))
 const AgendaPage = lazy(() => import('./AgendaPage').then((m) => ({ default: m.AgendaPage })))
 const WaterPage = lazy(() => import('./WaterPage').then((m) => ({ default: m.WaterPage })))
@@ -164,7 +165,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio']
 
 export function Dashboard({
   profile,
@@ -349,6 +350,12 @@ export function Dashboard({
       Icon: BookIcon,
       inBottomNav: false,
     })
+    navItems.push({
+      key: 'cardapio',
+      label: 'Crie seu Cardápio',
+      Icon: BookIcon,
+      inBottomNav: false,
+    })
     // Meu Jardim — desafios de atividades diárias. Mesma resolução de
     // comunidade de círculos/eventos/receitas (community-picker quando
     // houver mais de uma relevante).
@@ -493,7 +500,8 @@ export function Dashboard({
   const circlesActive =
     effectiveNav === 'circulos' ||
     effectiveNav === 'eventos' ||
-    effectiveNav === 'receitas'
+    effectiveNav === 'receitas' ||
+    effectiveNav === 'cardapio'
   const {
     circles,
     loading: circlesLoading,
@@ -927,6 +935,26 @@ export function Dashboard({
           onOpenPlans={() => handleNavigate('planos')}
         />
       )
+    }
+
+    // CRIE SEU CARDÁPIO — usa as receitas publicadas da comunidade (mesma
+    // resolução de comunidade de Receitas).
+    if (effectiveNav === 'cardapio') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+      if (!resolvedCirclesCommunityId) {
+        return (
+          <>
+            {renderCommunityPicker(
+              'Crie seu Cardápio · escolha uma comunidade',
+              circlesRelevantCommunities,
+              setCirclesCommunityId,
+            )}
+          </>
+        )
+      }
+      return <MenuBuilderPage communityId={resolvedCirclesCommunityId} onBack={() => handleNavigate('inicio')} />
     }
 
     // ANTES DE TUDO — dado pessoal, não depende de comunidade em foco.
