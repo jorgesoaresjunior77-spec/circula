@@ -373,9 +373,12 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
+      <hr className="home-section-divider" />
       <HomeMenuBanner image={cardapioCover} onOpen={() => onNavigate('cardapio')} />
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
+
+      </div>
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 
@@ -383,7 +386,6 @@ export function HomeToday({
         O Círcula é um espaço de cuidado e amizade entre mulheres.
       </p>
       <HomeFooter />
-      </div>
     </div>
   )
 }

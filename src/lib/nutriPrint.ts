@@ -134,11 +134,14 @@ ${notes ? `<h2>Evolução nas consultas</h2>${notes}` : ''}`
 }
 
 /** Abre o diálogo de imprimir (Salvar como PDF) com o documento. */
+/** Barra só de tela (some na impressão) com Imprimir e Fechar/Voltar. */
+const TOOLBAR = `<style>.pdf-bar{position:sticky;top:0;z-index:9;display:flex;gap:10px;justify-content:space-between;padding:10px 12px;background:#fff;border-bottom:1px solid #e6d9cd;font-family:system-ui,sans-serif}.pdf-bar button{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #c79c86;background:#fff;color:#4a3428;font-size:15px}.pdf-bar .pri{background:#5a463a;color:#fff;border-color:#5a463a}@media print{.pdf-bar{display:none}}</style><div class="pdf-bar"><button type="button" onclick="if(!window.close()){history.back()}">← Fechar</button><button type="button" class="pri" onclick="window.print()">Imprimir / Salvar PDF</button></div>`
+
 export function printDocument(html: string): boolean {
   const w = window.open('', '_blank')
   if (!w) return false
   w.document.open()
-  w.document.write(html)
+  w.document.write(html.includes('<body>') ? html.replace('<body>', `<body>${TOOLBAR}`) : html)
   w.document.close()
   w.focus()
   window.setTimeout(() => w.print(), 350)

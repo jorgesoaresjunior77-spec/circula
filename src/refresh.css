@@ -4870,3 +4870,53 @@ section.community-card.product-manager.product-manager--storefront {
   gap: 6px;
   text-align: center;
 }
+
+/* ---- Meu Chef: à esquerda, 60%, com o mesmo efeito dos cards editoriais ---- */
+.menu-banner-wrap {
+  justify-content: flex-start;
+}
+
+.menu-banner {
+  width: 60%;
+  min-width: 200px;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  box-shadow: 0 14px 30px -14px rgba(53, 48, 44, 0.5);
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.menu-banner:active {
+  transform: scale(0.985);
+}
+
+.menu-banner-photo {
+  border-radius: 24px 24px 0 0;
+  outline: 1.5px solid rgba(21, 19, 17, 0.88);
+  outline-offset: -1.5px;
+}
+
+.menu-banner-photo img {
+  transition: transform 0.6s ease;
+}
+
+.menu-banner:hover .menu-banner-photo img {
+  transform: scale(1.04);
+}
+
+.menu-banner-text {
+  background: var(--surface);
+  border-radius: 0 0 24px 24px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.home-section-divider + .menu-banner-wrap {
+  margin-top: 10px;
+}
+
+/* ---- Flores de fundo: sem cor, como uma sombra bem leve ---- */
+.home-flower {
+  color: #5c4a3f;
+  opacity: 0.09;
+}
