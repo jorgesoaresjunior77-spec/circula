@@ -53,7 +53,7 @@ export function HomeFlowerGap({ seed = 1, count = 3, height = 44, sizes }: { see
         ...f,
         size: sizes[i],
         x: i % 2 === 0 ? 8 + (f.x % 34) : 56 + (f.x % 34),
-        y: 10 + (f.y % 40),
+        y: 4 + (f.y % 18),
       }))
     }
     return makeFlowers(salt, 1 + Math.floor(Math.random() * count))

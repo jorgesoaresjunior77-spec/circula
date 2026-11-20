@@ -230,6 +230,28 @@ export interface WeatherPhoto {
   credit: string
 }
 
+/** Fotos do próprio Círcula (public/clima), três por tempo; uma é escolhida por dia. */
+const LOCAL_PHOTOS: Partial<Record<WeatherScene, string>> = {
+  praia: 'sol',
+  'ceu-azul': 'sol',
+  frio: 'sol',
+  'sol-e-nuvens': 'sol-nuvens',
+  nublado: 'nublado',
+  neblina: 'nublado',
+  chuva: 'chuva',
+  tempestade: 'chuva',
+}
+
+/** Foto do cenário: as do Círcula quando existem (sem crédito), senão a de WEATHER_PHOTOS. */
+export function weatherPhotoFor(scene: WeatherScene, baseUrl: string, now: Date = new Date()): WeatherPhoto | undefined {
+  const slug = LOCAL_PHOTOS[scene]
+  if (slug) {
+    const day = Math.floor(now.getTime() / 86_400_000)
+    return { url: `${baseUrl}clima/${slug}-${(day % 3) + 1}.webp`, credit: '' }
+  }
+  return WEATHER_PHOTOS[scene]
+}
+
 /** Fotos reais por cenário (Wikimedia Commons, licenças livres; o crédito aparece na página). Sem foto = degradê do clima. */
 export const WEATHER_PHOTOS: Partial<Record<WeatherScene, WeatherPhoto>> = {
   praia: {

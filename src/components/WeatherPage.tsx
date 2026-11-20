@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useWeather } from '../hooks/useWeather'
-import { WEATHER_PHOTOS, cityLabel, describeWeather, searchCities, timeOnly, weatherScene, weekdayShort } from '../lib/weather'
+import { weatherPhotoFor, cityLabel, describeWeather, searchCities, timeOnly, weatherScene, weekdayShort } from '../lib/weather'
 import type { WeatherCity } from '../lib/weather'
 import { WeatherIcon } from './WeatherIcon'
 import { WeatherScene } from './WeatherScene'
@@ -96,7 +96,7 @@ export function WeatherPage() {
 
   const now = data ? describeWeather(data.current.code) : null
   const sceneInfo = data && now ? weatherScene(now.kind, data.current.isDay, data.current.temp) : null
-  const photo = sceneInfo ? WEATHER_PHOTOS[sceneInfo.scene] : undefined
+  const photo = sceneInfo ? weatherPhotoFor(sceneInfo.scene, import.meta.env.BASE_URL) : undefined
 
   return (
     <section className="weather-page">
@@ -141,7 +141,7 @@ export function WeatherPage() {
               </div>
             </div>
             {sceneInfo && <p className="weather-hero-phrase">{sceneInfo.phrase}</p>}
-            {photo && <p className="weather-hero-credit">{photo.credit}</p>}
+            {photo && photo.credit && <p className="weather-hero-credit">{photo.credit}</p>}
           </article>
 
           <ul className="weather-facts">

@@ -359,7 +359,7 @@ export function HomeToday({
           ) : undefined
         }
       />
-      <HomeFlowerGap seed={1} sizes={[46, 68]} height={88} />
+      <HomeFlowerGap seed={1} sizes={[46, 68]} height={66} />
 
       {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
           depois da faixa do Instagram (ver HomeEditorialCards.tsx).
@@ -385,10 +385,10 @@ export function HomeToday({
         featuredProduct={featuredProduct ? { ...featuredProduct, cover_image_url: featuredProductCover } : null}
         onNavigate={onNavigate}
       />
-      <HomeFlowerGap seed={2} sizes={[40, 62]} height={84} />
+      <HomeFlowerGap seed={2} sizes={[40, 62]} height={62} />
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
-      <HomeFlowerGap seed={3} />
+      <HomeFlowerGap seed={3} height={28} />
 
       <HomeGroupTitle>Para você</HomeGroupTitle>
       <div className="home-pair">
@@ -421,10 +421,10 @@ export function HomeToday({
       <HomeFlowerGap seed={5} />
 
       <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
-      <HomeFlowerGap seed={6} />
-      <HomeFlowerGap seed={7} sizes={[38, 56]} height={80} />
+      <HomeFlowerGap seed={6} height={22} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
+      <HomeFlowerGap seed={7} sizes={[38, 56]} height={60} />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.
