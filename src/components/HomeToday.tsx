@@ -31,6 +31,7 @@ import { HomeFlowerGap } from './HomeFlowerBackground'
 import { HomeFooter } from './HomeFooter'
 import { HomeGroupTitle } from './HomeGroupTitle'
 import { HomePlansNotice } from './HomePlansNotice'
+import { HomeTrialBanner } from './HomeTrialBanner'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
 import { useMyPackages } from '../hooks/usePackageAccess'
 import { HomeMenuWheel } from './HomeMenuWheel'
@@ -298,6 +299,7 @@ export function HomeToday({
 
       {!coverHero && weekCalendar}
 
+      {profile.role === 'member' && <HomeTrialBanner communityId={focusCommunity.id} onOpen={() => onNavigate('planos')} />}
       {showPlansNotice && <HomePlansNotice onOpen={() => onNavigate('planos')} />}
 
       <HomeGroupTitle>Hoje</HomeGroupTitle>

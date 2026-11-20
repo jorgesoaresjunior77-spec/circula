@@ -91,7 +91,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-plans-wrap'],
     title: 'Planos e assinaturas',
-    text: 'Veja os conteúdos que você pode assinar, com desconto nos planos de 6 e 12 meses, e o Círcula Premium com tudo junto.',
+    text: 'Veja os conteúdos que você pode assinar, com desconto nos planos de 6 e 12 meses, e o Círcula Premium com tudo junto. Os planos que você já tem ficam acesos, com selo de Assinado. Seu período grátis dura 21 dias e, perto do fim, avisamos aqui na página inicial.',
     optional: true,
     gesture: 'tap',
   },
@@ -136,7 +136,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['#tour-nav-mobile-perfil', '#tour-nav-desktop-perfil'],
     title: 'Meu perfil',
-    text: 'Sua capa, suas fotos, os depoimentos que você recebe, o Meu Jardim, o convite para amigas, a sua assinatura e a troca de senha. No Feed, toque na foto de outra participante para visitar o perfil dela.',
+    text: 'Sua capa, suas fotos, os depoimentos que você recebe, o Meu Jardim, o convite para amigas, a sua assinatura e, no fim, a Administração (trocar a senha, cancelar assinaturas e excluir a conta). No Feed, toque na foto de outra participante para visitar o perfil dela.',
   },
   {
     targets: ['#tour-notification-bell'],
