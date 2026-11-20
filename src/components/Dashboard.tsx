@@ -101,6 +101,7 @@ const GardenPage = lazy(() => import('./GardenPage').then((m) => ({ default: m.G
 const AgendaPage = lazy(() => import('./AgendaPage').then((m) => ({ default: m.AgendaPage })))
 const WaterPage = lazy(() => import('./WaterPage').then((m) => ({ default: m.WaterPage })))
 const ImcPage = lazy(() => import('./ImcPage').then((m) => ({ default: m.ImcPage })))
+import { InvitePage } from './InvitePage'
 const PlansPage = lazy(() => import('./PlansPage').then((m) => ({ default: m.PlansPage })))
 const PlaylistPage = lazy(() => import('./PlaylistPage').then((m) => ({ default: m.PlaylistPage })))
 const WorldClockPage = lazy(() => import('./WorldClockPage').then((m) => ({ default: m.WorldClockPage })))
@@ -172,7 +173,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'diario']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'diario']
 
 export function Dashboard({
   profile,
@@ -467,6 +468,7 @@ export function Dashboard({
     // página como a membro vê (sem assinar: é a responsável e é isenta).
     if (profile?.role === 'member' || profile?.role === 'professional') {
       navItems.push({ key: 'planos', label: 'Planos', Icon: StoreIcon, inBottomNav: false })
+      navItems.push({ key: 'convite', label: 'Convite', Icon: HeartIcon, inBottomNav: false })
     }
     // Playlist — aberta pelo menu vertical da Home (ainda sem conteúdo).
     navItems.push({ key: 'playlist', label: 'Playlist', Icon: HeartIcon, inBottomNav: false })
@@ -1116,6 +1118,10 @@ export function Dashboard({
           profileId={profile.id}
         />
       )
+    }
+
+    if (effectiveNav === 'convite') {
+      return <InvitePage communityId={myCommunities[0]?.id ?? null} />
     }
 
     if (effectiveNav === 'planos') {

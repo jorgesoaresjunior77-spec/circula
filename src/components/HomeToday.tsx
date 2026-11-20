@@ -272,7 +272,6 @@ export function HomeToday({
     <>
       {/* Antes de Tudo, Água e IMC: só ícones, de ponta a ponta, logo abaixo do banner. */}
       <HomeToolCards onNavigate={onNavigate} />
-      <hr className="home-section-divider" />
     </>
   )
 
@@ -360,7 +359,7 @@ export function HomeToday({
           ) : undefined
         }
       />
-      <HomeFlowerGap seed={1} />
+      <HomeFlowerGap seed={1} sizes={[46, 68]} height={88} />
 
       {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
           depois da faixa do Instagram (ver HomeEditorialCards.tsx).
@@ -386,7 +385,7 @@ export function HomeToday({
         featuredProduct={featuredProduct ? { ...featuredProduct, cover_image_url: featuredProductCover } : null}
         onNavigate={onNavigate}
       />
-      <HomeFlowerGap seed={2} />
+      <HomeFlowerGap seed={2} sizes={[40, 62]} height={84} />
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
       <HomeFlowerGap seed={3} />
@@ -401,7 +400,7 @@ export function HomeToday({
 
       <div className="home-pair home-pair--feature">
         <HomeFeatureBanner
-          title="Se exercite em casa"
+          title={<>Se exercite<br />em casa</>}
           eyebrow="Mexa-se"
           copy="Treino montado na hora, no seu tempo, com os materiais que você tem."
           image={exerciciosCover}
@@ -410,9 +409,10 @@ export function HomeToday({
         />
         <span className="home-pair-dot" aria-hidden="true" />
         <HomeFeatureBanner
-          title="Séries e Filmes"
+          title={<>Séries<br />e Filmes</>}
+          titleClass="menu-banner-title--small"
           eyebrow="Para relaxar"
-          copy="Dicas da nutri para a sua noite."
+          copy="Dicas de filmes e séries"
           image={seriesCover}
           label="Dicas de Séries e Filmes"
           onOpen={() => onNavigate('series')}
@@ -422,6 +422,7 @@ export function HomeToday({
 
       <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
       <HomeFlowerGap seed={6} />
+      <HomeFlowerGap seed={7} sizes={[38, 56]} height={80} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 

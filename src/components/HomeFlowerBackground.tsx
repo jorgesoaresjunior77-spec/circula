@@ -43,9 +43,22 @@ function FlowerShape({ petals }: { petals: number }) {
 }
 
 /** Uma faixa de espaço com algumas flores flutuando. Use entre os blocos da Home. */
-export function HomeFlowerGap({ seed = 1, count = 3, height = 44 }: { seed?: number; count?: number; height?: number }) {
+export function HomeFlowerGap({ seed = 1, count = 3, height = 44, sizes }: { seed?: number; count?: number; height?: number; sizes?: number[] }) {
   // Posições sorteadas a cada vez que a Home abre (poucas flores, em lugares diferentes).
-  const flowers = useMemo(() => makeFlowers(seed + Math.floor(Math.random() * 997), 1 + Math.floor(Math.random() * count)), [seed, count])
+  const flowers = useMemo(() => {
+    const salt = seed + Math.floor(Math.random() * 997)
+    if (sizes && sizes.length > 0) {
+      // Quantidade e tamanhos fixos (ex.: duas flores, uma maior), cada uma na sua metade.
+      return makeFlowers(salt, sizes.length).map((f, i) => ({
+        ...f,
+        size: sizes[i],
+        x: i % 2 === 0 ? 8 + (f.x % 34) : 56 + (f.x % 34),
+        y: 10 + (f.y % 40),
+      }))
+    }
+    return makeFlowers(salt, 1 + Math.floor(Math.random() * count))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seed, count, sizes?.join(',')])
   return (
     <div className="home-flower-gap" aria-hidden="true" style={{ height }}>
       {flowers.map((f, i) => (

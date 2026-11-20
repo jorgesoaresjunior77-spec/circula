@@ -1,7 +1,6 @@
 import { m, inViewOnce, riseVariants, tapPress } from '../lib/motionKit'
 import { useMemo } from 'react'
 import type { NavKey } from './PrimaryNav'
-import { formatEventDate } from '../lib/formatEventDate'
 import { useDragCarousel, LOOP_EXTRA_COPIES } from '../hooks/useDragCarousel'
 
 // C2 — Faixa editorial "Seu Círcula de hoje".
@@ -115,13 +114,18 @@ export function HomeExperienceStrip({
         ariaLabel: 'Meu Jardim',
       },
       {
-        key: 'agenda',
-        title: 'Agenda',
+        key: 'assine',
+        title: 'Assine o Círcula',
         image: null,
-        onActivate: () => onNavigate('agenda'),
-        ariaLabel: nextEvent
-          ? `Agenda — ${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`
-          : 'Agenda',
+        onActivate: () => onNavigate('planos'),
+        ariaLabel: 'Assine o Círcula — planos e assinaturas',
+      },
+      {
+        key: 'convite',
+        title: 'Convite',
+        image: null,
+        onActivate: () => onNavigate('convite'),
+        ariaLabel: 'Convite — chame uma amiga para o Círcula',
       },
     ],
     [

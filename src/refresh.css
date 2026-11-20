@@ -7138,3 +7138,44 @@ textarea.menu-big-field {
 .home-pair > .menu-banner-wrap:last-of-type {
   flex: 1 1 0;
 }
+
+/* ---- Ajustes 2026-12-02: Hoje mais perto, rótulos +10%, pares mais afastados, títulos em duas linhas ---- */
+.home-tools--icons .home-tool-title {
+  width: 58px;
+  font-size: 9.9px;
+}
+.home-tools--icons + .home-group-title,
+.home-plans-notice-wrap + .home-group-title {
+  margin-top: 2px;
+}
+.home-pair {
+  gap: 16px;
+}
+.home-pair > .menu-banner-wrap:first-child {
+  flex: 0 0 calc(60% - 12px);
+}
+.home-pair--feature > .menu-banner-wrap:first-child {
+  flex: 0 0 calc(64% - 12px);
+}
+.home-pair--feature .menu-banner-title {
+  font-size: clamp(26px, 7.4vw, 36px);
+  line-height: 1.05;
+}
+.home-pair--feature .menu-banner-title.menu-banner-title--small {
+  font-size: clamp(19px, 5.4vw, 26px);
+}
+.invite-page {
+  display: grid;
+  gap: 16px;
+  padding: 8px 0 24px;
+}
+.invite-page-hero h2 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--circula-mocha);
+}
+.invite-page-hero p {
+  margin: 0;
+  line-height: 1.5;
+}

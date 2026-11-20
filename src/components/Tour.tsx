@@ -41,7 +41,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.exp-strip', '.exp-viewport'],
     title: 'Menu',
-    text: 'Em "Hoje", deslize para o lado e toque em um cartão: Meu Perfil, Help Nutri, Meu Jardim e Agenda. Eventos, Loja e Receitas estão mais abaixo, em "Descobrir".',
+    text: 'Em "Hoje", deslize para o lado e toque em um cartão: Meu Perfil, Help Nutri, Meu Jardim, Assine o Círcula e Convite (para chamar uma amiga). Eventos, Loja e Receitas estão mais abaixo, em "Descobrir".',
     gesture: 'swipe',
   },
   {

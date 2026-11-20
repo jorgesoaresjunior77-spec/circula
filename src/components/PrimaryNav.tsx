@@ -21,6 +21,7 @@ export type NavKey =
   | 'agua'
   | 'imc'
   | 'planos'
+  | 'convite'
   | 'playlist'
   | 'tempo'
   | 'relogio'

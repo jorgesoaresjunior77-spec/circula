@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 
 // Card de destaque da Home (mesma estrutura e mesmo efeito do Meu Chef): foto
@@ -5,13 +6,15 @@ import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 
 export function HomeFeatureBanner({
   title,
+  titleClass,
   eyebrow,
   copy,
   image,
   label,
   onOpen,
 }: {
-  title: string
+  title: ReactNode
+  titleClass?: string
   eyebrow: string
   copy: string
   image: string | null
@@ -25,7 +28,7 @@ export function HomeFeatureBanner({
           {image && <img src={image} alt="" loading="lazy" decoding="async" />}
         </span>
         <span className="menu-banner-text">
-          <span className="menu-banner-title">{title}</span>
+          <span className={`menu-banner-title${titleClass ? ` ${titleClass}` : ''}`}>{title}</span>
           <span className="menu-banner-eyebrow">{eyebrow}</span>
           <span className="menu-banner-copy">{copy}</span>
         </span>
