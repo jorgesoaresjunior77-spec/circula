@@ -16,6 +16,18 @@ export interface Partner {
  */
 const BOOSTED_PARTNERS = ['speedbox']
 
+/** Logos que pedem um tamanho próprio (multiplicador sobre o padrão). */
+const SCALED_PARTNERS: Record<string, number> = { benleve: 1.1 }
+
+export function partnerLogoScale(name: string | null | undefined): number {
+  const key = (name ?? '')
+    .normalize('NFD')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase()
+  const hit = Object.keys(SCALED_PARTNERS).find((p) => key.includes(p))
+  return hit ? SCALED_PARTNERS[hit] : 1
+}
+
 export function partnerLogoBoost(name: string | null | undefined): boolean {
   const key = (name ?? '')
     .normalize('NFD')

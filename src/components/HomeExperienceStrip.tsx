@@ -54,6 +54,9 @@ interface HomeExperienceStripProps {
    *  Jardim", cadastrada pela Profissional em Painel → Imagens da
    *  comunidade (chave `jardim`, migration 20261030120000). */
   jardimCover?: string | null
+  /** Capas de "Assine o Círcula" e "Convite" (Painel → Imagens). */
+  assineCover?: string | null
+  conviteCover?: string | null
   /** Capa do card "Se exercite em casa" (mesma imagem do menu de baixo). */
   exerciciosCover?: string | null
   /** Bolinhas vermelhas por card (chave do card -> quantidade). */
@@ -87,6 +90,8 @@ export function HomeExperienceStrip({
   perfilCover,
   helpNutriCover,
   jardimCover,
+  assineCover,
+  conviteCover,
   badges = {},
   onNavigate,
 }: HomeExperienceStripProps) {
@@ -116,14 +121,14 @@ export function HomeExperienceStrip({
       {
         key: 'assine',
         title: 'Assine o Círcula',
-        image: null,
+        image: assineCover ?? null,
         onActivate: () => onNavigate('planos'),
         ariaLabel: 'Assine o Círcula — planos e assinaturas',
       },
       {
         key: 'convite',
         title: 'Convite',
-        image: null,
+        image: conviteCover ?? null,
         onActivate: () => onNavigate('convite'),
         ariaLabel: 'Convite — chame uma amiga para o Círcula',
       },
@@ -133,6 +138,8 @@ export function HomeExperienceStrip({
       perfilCover,
       helpNutriCover,
       jardimCover,
+      assineCover,
+      conviteCover,
       onNavigate,
     ],
   )

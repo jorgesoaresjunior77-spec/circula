@@ -2,7 +2,7 @@ import type React from 'react'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
-import { marqueeRepeats, partnerLogoBoost, safePartnerLink } from '../lib/partners'
+import { marqueeRepeats, partnerLogoBoost, partnerLogoScale, safePartnerLink } from '../lib/partners'
 import type { Partner } from '../lib/partners'
 import { recordView } from '../lib/itemViews'
 import { useLogoContent } from '../hooks/useLogoContent'
@@ -25,7 +25,9 @@ function Logo({ partner, copy }: { partner: Partner; copy: boolean }) {
   const cls = !content && partnerLogoBoost(partner.name) ? 'partner-logo partner-logo--boost' : 'partner-logo'
   if (!url) return <span className="partner-logo partner-logo--loading" aria-hidden="true" />
   // Cada logo é ajustado pelo tamanho do DESENHO (sem a margem em volta): todos ficam do mesmo tamanho visual.
-  const style = content ? ({ '--ca': content.aspect, '--ch': content.ch } as React.CSSProperties) : undefined
+  const scale = partnerLogoScale(partner.name)
+  const base = content ? ({ '--ca': content.aspect, '--ch': content.ch } as React.CSSProperties) : undefined
+  const style = scale !== 1 ? ({ ...base, scale: String(scale) } as React.CSSProperties) : base
   const img = <img className={content ? 'partner-img--fit' : undefined} style={style} src={url} alt={link || copy ? '' : partner.name} draggable={false} />
   return link ? (
     <a

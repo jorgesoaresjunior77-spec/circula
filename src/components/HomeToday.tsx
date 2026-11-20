@@ -193,6 +193,8 @@ export function HomeToday({
   // Etapa 3.2 (evolução/gamificação) — capa do card "Meu Jardim", chave
   // `jardim` (migration 20261030120000, preparada e não aplicada).
   const { url: jardimCover } = useSignedImageUrl(cardImagePaths.jardim ?? null)
+  const { url: assineCover } = useSignedImageUrl(cardImagePaths.menu_planos ?? null)
+  const { url: conviteCover } = useSignedImageUrl(cardImagePaths.ferramenta_calendario ?? null)
   const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
   const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
   // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
@@ -309,6 +311,8 @@ export function HomeToday({
         perfilCover={perfilCover}
         helpNutriCover={helpNutriCover}
         jardimCover={jardimCover}
+        assineCover={assineCover}
+        conviteCover={conviteCover}
         badges={badges}
         onNavigate={onNavigate}
       />

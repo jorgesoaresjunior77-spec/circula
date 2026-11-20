@@ -84,6 +84,10 @@ export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
    *  chave devolvem erro de constraint (mesma UX de qualquer outra
    *  falha, sem mensagem especial). */
   { key: 'jardim', label: 'Meu Jardim', hint: 'Atalho para o Meu Jardim — evolução e desafios.' },
+  // Chaves já existentes no banco, reaproveitadas (sem migração): 'menu_planos' guarda a
+  // capa de "Assine o Círcula" e 'ferramenta_calendario' a de "Convite".
+  { key: 'menu_planos', label: 'Assine o Círcula', hint: 'Atalho para Planos e assinaturas, no menu Hoje.' },
+  { key: 'ferramenta_calendario', label: 'Convite', hint: 'Atalho para convidar uma amiga, no menu Hoje.' },
 ]
 
 // Os atalhos Antes de Tudo, Água e IMC da Home usam ícones próprios: não têm
@@ -95,7 +99,6 @@ export const COMMUNITY_CARD_META: CommunityCardMeta[] = [
 export const MENU_CARD_META: CommunityCardMeta[] = [
   { key: 'menu_leitura', label: 'Dicas de leitura', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_respiracao', label: 'Respiração', hint: 'Card da roda de menu da Home.' },
-  { key: 'menu_planos', label: 'Assinaturas', hint: 'Card da roda de menu da Home (só a membro vê).' },
   { key: 'menu_playlist', label: 'Playlist', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_wellness', label: 'Wellness', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_lista', label: 'Lista de Compras', hint: 'Card da roda de menu da Home.' },
@@ -205,7 +208,6 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
       return SPEC_BACKGROUND
     case 'menu_leitura':
     case 'menu_respiracao':
-    case 'menu_planos':
     case 'menu_playlist':
     case 'menu_wellness':
     case 'menu_lista':
