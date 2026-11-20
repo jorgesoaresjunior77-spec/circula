@@ -713,6 +713,7 @@ export function Dashboard({
           communityId={railCommunity?.id ?? null}
           onRestartTour={() => setShowTour(true)}
           onShowInstallGuide={() => setShowInstallGuide(true)}
+          onOpenPlans={() => handleNavigate('planos')}
         />
       )
     }

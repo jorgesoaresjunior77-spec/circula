@@ -13,6 +13,7 @@ import { InviteFriends } from './InviteFriends'
 import { MyNutriPlan } from './MyNutriPlan'
 import { ProfileTestimonials } from './ProfileTestimonials'
 import { ChangePassword } from './ChangePassword'
+import { AccountAdmin } from './AccountAdmin'
 import { OnboardingAnswersView } from './OnboardingAnswersView'
 
 interface MyProfileProps {
@@ -33,6 +34,8 @@ interface MyProfileProps {
   onRestartTour: () => void
   /** Reabre o guia "colocar o Círcula na tela do celular". */
   onShowInstallGuide?: () => void
+  /** Abre Planos e assinaturas (card Administração). */
+  onOpenPlans?: () => void
 }
 
 export function MyProfile({
@@ -44,6 +47,7 @@ export function MyProfile({
   communityId,
   onRestartTour,
   onShowInstallGuide,
+  onOpenPlans,
 }: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
@@ -431,7 +435,7 @@ export function MyProfile({
         </div>
       )}
 
-      {!editing && <ChangePassword />}
+      {!editing && (profile.role === 'member' ? <AccountAdmin onOpenPlans={onOpenPlans} /> : <ChangePassword />)}
     </section>
   )
 }
