@@ -109,6 +109,7 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
         <PatientForm
           patient={null}
           members={members}
+          communityId={communityId}
           onCancel={() => setView({ name: 'home' })}
           onSave={async (input) => {
             const r = await ov.savePatient(null, input)

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CommunityInviteWhatsApp } from '../CommunityInviteWhatsApp'
 import type { FormEvent } from 'react'
 import { ageFrom } from '../../lib/nutri'
 import type { Patient, PatientInput } from '../../lib/nutri'
@@ -29,12 +30,15 @@ const AREA_FIELDS: { key: keyof PatientInput; label: string }[] = [
 export function PatientForm({
   patient,
   members = [],
+  communityId,
   onSave,
   onCancel,
 }: {
   patient: Patient | null
   /** Participantes da comunidade, para vincular à área da paciente. */
   members?: { id: string; full_name: string | null }[]
+  /** Comunidade da nutricionista: habilita o convite pelo WhatsApp para quem ainda não está no Círcula. */
+  communityId?: string
   onSave: (input: PatientInput) => Promise<{ error: string | null }>
   onCancel: () => void
 }) {
@@ -111,6 +115,17 @@ export function PatientForm({
           />
         </label>
       ))}
+      <aside className="patient-app-note">
+        <p>
+          <strong>Ela ainda não está no Círcula?</strong> Tudo bem: o cadastro e o acompanhamento funcionam mesmo sem o app (algumas mulheres não querem usar o aplicativo). Para pacientes o Círcula é gratuito: se ela aceitar, convide, depois vincule aqui e conceda o acesso total na aba Acompanhamento.
+        </p>
+        {communityId && (
+          <details>
+            <summary>Convidar pelo WhatsApp</summary>
+            <CommunityInviteWhatsApp communityId={communityId} communityName="Círcula" showTitle={false} />
+          </details>
+        )}
+      </aside>
       {members.length > 0 && (
         <label>
           Vincular à participante (área da paciente)

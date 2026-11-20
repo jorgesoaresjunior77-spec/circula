@@ -172,6 +172,7 @@ export function PatientRecord({
               <PatientForm
                 patient={patient}
                 members={members}
+                communityId={communityId}
                 onSave={async (input) => {
                   const r = await onSavePatient(input)
                   if (!r.error) {

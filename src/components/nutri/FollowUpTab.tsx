@@ -109,11 +109,11 @@ export function FollowUpTab({ patientId, communityId, linkedProfileId, patientNa
   async function toggleExemption() {
     setMessage(null)
     if (exempt) {
-      if (!window.confirm('Retirar a isenção? A assinatura do Círculo dela será encerrada e a cobrança normal volta a valer.')) return
+      if (!window.confirm('Retirar o acesso total? O Premium e a assinatura gratuita dela serão encerrados e a cobrança normal volta a valer.')) return
       const { error } = await supabase.rpc('revoke_nutri_exemption', { p_patient: patientId })
       if (error) return setMessage(FAIL)
     } else {
-      if (!window.confirm('Conceder 100% de isenção da assinatura do Círculo a esta paciente? Fica registrado que foi você.')) return
+      if (!window.confirm('Conceder acesso total e gratuito ao Círculo a esta paciente (Premium sem cobrança)? Fica registrado que foi você.')) return
       const { error } = await supabase.rpc('grant_nutri_exemption', { p_patient: patientId, p_note: null })
       if (error) return setMessage(error.message.includes('patient_not_linked') ? 'Vincule a paciente a uma participante antes (aba Dados pessoais).' : FAIL)
     }
@@ -129,17 +129,17 @@ export function FollowUpTab({ patientId, communityId, linkedProfileId, patientNa
       )}
 
       <article className="water-panel">
-        <h3>Assinatura do Círculo</h3>
+        <h3>Acesso total gratuito (paciente)</h3>
         <p className="home-muted">
           {linkedProfileId
             ? exempt
-              ? 'Esta paciente está com 100% de isenção da assinatura do Círculo.'
-              : 'Você pode isentar esta paciente da assinatura do Círculo (100%).'
-            : 'Para conceder a isenção, vincule a paciente a uma participante na aba Dados pessoais.'}
+              ? 'Esta paciente tem acesso total e gratuito ao Círculo: a comunidade, todos os conteúdos e a área Nutri, sem nenhuma cobrança.'
+              : 'Libere o acesso total e gratuito do Círculo para esta paciente: comunidade, todos os conteúdos (Premium) e a área Nutri, sem cobrança.'
+            : 'Para conceder o acesso, ela precisa estar no Círcula: convide pelo WhatsApp e vincule-a a uma participante na aba Dados pessoais.'}
         </p>
         {linkedProfileId && (
           <button type="button" className="water-primary" onClick={() => void toggleExemption()}>
-            {exempt ? 'Retirar isenção' : 'Conceder isenção de 100%'}
+            {exempt ? 'Retirar acesso total' : 'Conceder acesso total gratuito'}
           </button>
         )}
       </article>

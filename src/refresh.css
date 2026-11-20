@@ -7215,3 +7215,100 @@ textarea.menu-big-field {
   height: 68px;
   margin: -98px 0 0 -34px;
 }
+
+/* ---- Planos: cartões assinados acesos, com borda de cor e selo ---- */
+.plan-tile--owned {
+  background: linear-gradient(180deg, #f3fbf3, #d8ecd9);
+  box-shadow:
+    0 0 0 2.5px #4f9a5b,
+    0 3px 0 #3f7d49,
+    0 14px 16px -8px rgba(40, 32, 26, 0.5);
+}
+.plan-tile-owned {
+  margin-top: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #4f9a5b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.plans-wide--owned {
+  position: relative;
+  box-shadow: 0 0 0 2.5px #4f9a5b, var(--card-lift);
+}
+.plans-wide-owned {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #4f9a5b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ---- Assine o Círcula e Convite: 5% menores e pulsando para chamar o olhar ---- */
+.exp-card-item--pulse .exp-card {
+  transform: scale(0.95);
+  animation: exp-card-pulse 2.4s ease-in-out infinite;
+}
+@keyframes exp-card-pulse {
+  0%,
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(176, 124, 96, 0.55);
+  }
+  50% {
+    transform: scale(1);
+    box-shadow: 0 0 0 9px rgba(176, 124, 96, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exp-card-item--pulse .exp-card {
+    animation: none;
+  }
+}
+
+/* ---- Meu perfil: card de Administração ---- */
+.account-admin {
+  margin-top: 28px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--card-lift);
+  display: grid;
+  gap: 14px;
+}
+.account-admin-block {
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+.account-admin-confirm {
+  display: grid;
+  gap: 10px;
+}
+.account-admin .profile-password-section {
+  margin: 0;
+}
+
+.patient-app-note {
+  padding: 10px 12px;
+  border: 1px dashed var(--border-soft);
+  border-radius: 12px;
+  background: rgba(248, 240, 227, 0.6);
+  font-size: 0.85rem;
+}
+.patient-app-note p {
+  margin: 0 0 6px;
+}
+.patient-app-note summary {
+  cursor: pointer;
+  font-weight: 600;
+}
