@@ -17,6 +17,7 @@ import { PLAN_ICONS } from './PlanIcons'
 import { useMyPackages } from '../hooks/usePackageAccess'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { SubscriptionLevelCard } from './SubscriptionLevelCard'
+import { TrialNotice } from './TrialNotice'
 
 // Página de Planos da membro: o plano do Círcula, cada conteúdo avulso e o
 // Círcula Premium (tudo junto, com desconto), todos em cartões do mesmo
@@ -99,19 +100,22 @@ function PlanTile({
   name,
   monthly,
   badge,
+  state,
   onOpen,
 }: {
   planKey: PlanKey
   name: string
   monthly: number
   badge?: string
+  /** 'own' = assinado; 'premium' = já incluído no Premium da membro. */
+  state?: 'own' | 'premium' | null
   onOpen: () => void
 }) {
   const Icon = PLAN_ICONS[planKey]
   return (
     <button
       type="button"
-      className={`plan-tile${planKey === 'premium' ? ' plan-tile--premium' : ''}`}
+      className={`plan-tile${planKey === 'premium' ? ' plan-tile--premium' : ''}${state ? ' plan-tile--owned' : ''}`}
       onClick={onOpen}
       aria-label={`${name}, ${formatBrl(monthly)} por mês`}
     >
@@ -121,7 +125,8 @@ function PlanTile({
       <span className="plan-tile-name">{name}</span>
       <span className="plan-tile-price">{formatBrl(monthly)}</span>
       <span className="plan-tile-unit">por mês</span>
-      {badge && <span className="plan-tile-badge">{badge}</span>}
+      {badge && !state && <span className="plan-tile-badge">{badge}</span>}
+      {state && <span className="plan-tile-owned">{state === 'premium' ? 'No Premium' : 'Assinado'}</span>}
     </button>
   )
 }
@@ -181,12 +186,19 @@ export function PlansPage({
       <p className="plans-note">Escolha só o que você quer. Pagando por 6 ou 12 meses, o valor total é menor, e o plano anual é a melhor escolha.</p>
       <div className="plans-grid">
         {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
-          <PlanTile key={p.key} planKey={p.key} name={p.name} monthly={p.monthlyCents} onOpen={() => setOpen(p.key)} />
+          <PlanTile
+            key={p.key}
+            planKey={p.key}
+            name={p.name}
+            monthly={p.monthlyCents}
+            state={!viewOnly && packages.has(p.key as never) ? 'own' : !viewOnly && packages.has('premium') ? 'premium' : null}
+            onOpen={() => setOpen(p.key)}
+          />
         ))}
       </div>
 
       <h3 className="plans-heading">Círcula Premium</h3>
-      <button type="button" className="plans-wide plans-wide--premium" onClick={() => setOpen('premium')} aria-label={`Círcula Premium, ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês`}>
+      <button type="button" className={`plans-wide plans-wide--premium${!viewOnly && packages.has('premium') ? ' plans-wide--owned' : ''}`} onClick={() => setOpen('premium')} aria-label={`Círcula Premium, ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês`}>
         <span className="plans-wide-icon">
           <PLAN_ICONS.premium />
         </span>
@@ -198,6 +210,7 @@ export function PlansPage({
           {formatBrl(PREMIUM_MONTHLY_CENTS)}
           <small>por mês · {premiumOff}% off</small>
         </span>
+        {!viewOnly && packages.has('premium') && <span className="plans-wide-owned">Assinado</span>}
       </button>
 
       <article className="plans-included">
@@ -235,6 +248,7 @@ export function PlansPage({
               <>
                 <h3>Círcula</h3>
                 <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
+                {!viewOnly && <TrialNotice />}
                 <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
                 <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
                 {viewOnly ? (
@@ -294,6 +308,7 @@ export function PlansPage({
                     prices={pricesOf(product)}
                     owned={packages.has(product.key as never) || packages.has('premium')}
                     profileId={profileId}
+                    viaPremium={packages.has('premium')}
                   />
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>

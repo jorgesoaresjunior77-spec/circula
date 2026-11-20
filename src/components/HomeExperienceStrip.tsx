@@ -82,6 +82,8 @@ interface Experience {
   /** Só para o aria-label — não aparece como texto visível no card. */
   ariaLabel: string
   image: string | null
+  /** Cartão que pulsa para chamar a atenção (Assine o Círcula e Convite). */
+  pulse?: boolean
   onActivate: () => void
 }
 
@@ -120,6 +122,7 @@ export function HomeExperienceStrip({
       },
       {
         key: 'assine',
+        pulse: true,
         title: 'Assine o Círcula',
         image: assineCover ?? null,
         onActivate: () => onNavigate('planos'),
@@ -127,6 +130,7 @@ export function HomeExperienceStrip({
       },
       {
         key: 'convite',
+        pulse: true,
         title: 'Convite',
         image: conviteCover ?? null,
         onActivate: () => onNavigate('convite'),
@@ -147,7 +151,7 @@ export function HomeExperienceStrip({
   const { viewportRef, seqRef, loop, dragging } = useDragCarousel(experiences.length)
 
   const renderCard = (exp: Experience, clone: boolean) => (
-    <li key={clone ? `${exp.key}-clone` : exp.key} className="exp-card-item">
+    <li key={clone ? `${exp.key}-clone` : exp.key} className={`exp-card-item${exp.pulse ? " exp-card-item--pulse" : ""}`}>
       <m.button
         type="button"
         className={`exp-card${exp.image ? ' exp-card--photo' : ''}`}

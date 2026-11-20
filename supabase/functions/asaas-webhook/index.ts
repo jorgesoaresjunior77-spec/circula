@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
-import { addCycleMonths } from '../_shared/asaas.ts'
+import { addCycleMonths, asaasFetch } from '../_shared/asaas.ts'
 import { timingSafeEqualStrings } from '../_shared/security.ts'
 import { classifyWebhookPayload } from '../_shared/webhookPayload.ts'
 import { isNoSplitSubscription } from '../_shared/communitySplitMode.ts'
@@ -363,6 +363,37 @@ async function handleAddonSubscriptionEvent(
     }
     // O Premium inclui o Círcula: mantém a assinatura da comunidade em dia
     // enquanto o Premium estiver pago (não reativa assinatura cancelada).
+    if (addon.plan_key === 'premium') {
+      // O Premium já inclui todos os conteúdos: cancela as assinaturas avulsas da
+      // mesma pessoa para ela não pagar em dobro (o acesso delas segue até o fim
+      // do período já pago). Uma falha aqui nunca derruba o pagamento do Premium.
+      try {
+        const { data: overlap } = await admin
+          .from('addon_subscriptions')
+          .select('id, asaas_subscription_id')
+          .eq('profile_id', addon.profile_id)
+          .eq('community_id', addon.community_id)
+          .neq('plan_key', 'premium')
+          .in('status', ['active', 'past_due', 'pending'])
+        for (const other of overlap ?? []) {
+          const otherAsaas = other.asaas_subscription_id as string | null
+          if (otherAsaas && !otherAsaas.startsWith('__provisioning__')) {
+            try {
+              await asaasFetch(`/subscriptions/${otherAsaas}`, { method: 'DELETE' })
+            } catch (deleteError) {
+              console.error('asaas-webhook: falha ao cancelar avulso repetido no Asaas', other.id, deleteError)
+              continue
+            }
+          }
+          await admin
+            .from('addon_subscriptions')
+            .update({ status: 'canceled', updated_at: now.toISOString() })
+            .eq('id', other.id)
+        }
+      } catch (overlapError) {
+        console.error('asaas-webhook: falha ao tratar avulsos repetidos do Premium', overlapError)
+      }
+    }
     if (addon.plan_key === 'premium' && newEnd) {
       await admin
         .from('subscriptions')

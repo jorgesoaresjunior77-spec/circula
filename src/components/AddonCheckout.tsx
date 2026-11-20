@@ -24,6 +24,7 @@ export function AddonCheckout({
   prices,
   owned,
   profileId = null,
+  viaPremium = false,
 }: {
   planKey: string
   communityId: string | null
@@ -32,6 +33,8 @@ export function AddonCheckout({
   owned: boolean
   /** Quem está vendo (para achar a assinatura dela e permitir cancelar). */
   profileId?: string | null
+  /** A membro tem o Premium: este conteúdo já está incluído nele. */
+  viaPremium?: boolean
 }) {
   const { hasBillingCustomerData, saveBillingCustomerData } = useSubscription({
     subject: 'community',
@@ -49,11 +52,18 @@ export function AddonCheckout({
   if (owned) {
     const until = mine.sub?.current_period_end ? new Date(mine.sub.current_period_end).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : null
     const canceled = mine.sub?.status === 'canceled'
+    // Incluído no Premium e sem assinatura separada: nada a cancelar aqui.
+    if (viaPremium && planKey !== 'premium' && !mine.sub) {
+      return <p className="auth-success">Incluído no seu Círcula Premium. Não precisa assinar nem cancelar separado.</p>
+    }
     return (
       <div className="addon-checkout">
         <p className="auth-success">
           {canceled ? `Assinatura cancelada. Você mantém o acesso${until ? ` até ${until}` : ' até o fim do período pago'}.` : 'Você já tem este plano. Aproveite!'}
         </p>
+        {viaPremium && planKey !== 'premium' && mine.sub && !canceled && (
+          <p className="home-muted">Este conteúdo já está incluído no seu Premium. Esta assinatura separada pode ser cancelada para não pagar em dobro.</p>
+        )}
         {mine.sub && !canceled && !confirmingCancel && (
           <button type="button" className="water-link" onClick={() => setConfirmingCancel(true)}>
             Cancelar assinatura
