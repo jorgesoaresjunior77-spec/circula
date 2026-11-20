@@ -29,6 +29,10 @@ import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
 import { HomeFlowerGap } from './HomeFlowerBackground'
 import { HomeFooter } from './HomeFooter'
+import { HomeGroupTitle } from './HomeGroupTitle'
+import { HomePlansNotice } from './HomePlansNotice'
+import { HomeFeatureBanner } from './HomeFeatureBanner'
+import { useMyPackages } from '../hooks/usePackageAccess'
 import { HomeMenuWheel } from './HomeMenuWheel'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
@@ -134,6 +138,9 @@ export function HomeToday({
   const { blocked: accessBlocked } = useCommunityAccessBlocked(profile, communityId)
 
   const { circles } = useCircles(communityId)
+  // Aviso de Planos perto do topo: só para participante que ainda não tem o Premium.
+  const { packages: ownedPackages, loading: packagesLoading } = useMyPackages(communityId, profile.id, profile.role === 'member')
+  const showPlansNotice = profile.role === 'member' && !packagesLoading && !ownedPackages.has('premium')
 
   const { items: contentItems } = useContent(communityId)
   const { issues: magazineIssues } = useMagazines(communityId)
@@ -178,6 +185,7 @@ export function HomeToday({
   const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
   const { url: planosCover } = useSignedImageUrl(cardImagePaths.banner_planos ?? null)
   const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
+  const { url: seriesCover } = useSignedImageUrl(cardImagePaths.banner_series ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
@@ -289,6 +297,10 @@ export function HomeToday({
 
       {!coverHero && weekCalendar}
 
+      {showPlansNotice && <HomePlansNotice onOpen={() => onNavigate('planos')} />}
+
+      <HomeGroupTitle>Hoje</HomeGroupTitle>
+
       {/* Redesign da Home (item 3) — "Seu Círcula de hoje": destinos fixos
           de navegação (Meu Perfil, Help Nutri, Eventos, Loja, Receitas),
           sempre presentes. "Círculos" não entra aqui — tem a própria
@@ -297,11 +309,7 @@ export function HomeToday({
         nextEvent={railSummary?.nextEvent ?? null}
         perfilCover={perfilCover}
         helpNutriCover={helpNutriCover}
-        eventosCover={eventosCover}
-        lojaCover={lojaCover}
-        receitasCover={receitasCover}
         jardimCover={jardimCover}
-        exerciciosCover={exerciciosCover}
         badges={badges}
         onNavigate={onNavigate}
       />
@@ -342,7 +350,7 @@ export function HomeToday({
 
       {/* Da revista até o fim da página, flores de pétalas redondas ao fundo. */}
       <div className="home-flower-zone">
-      <hr className="home-section-divider" />
+      <HomeGroupTitle>Descobrir</HomeGroupTitle>
       <HomeMagazineStrip
         issues={magazineIssues}
         officeImage={magazineOffice}
@@ -380,19 +388,40 @@ export function HomeToday({
       />
       <HomeFlowerGap seed={2} />
 
-      <hr className="home-section-divider" />
+      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
+      <HomeFlowerGap seed={3} />
+
+      <HomeGroupTitle>Para você</HomeGroupTitle>
       <div className="home-pair">
         <HomeMenuBanner image={cardapioCover} onOpen={() => onNavigate('cardapio')} />
         <span className="home-pair-dot" aria-hidden="true" />
         <HomeGratitudeCard image={diarioCover} onOpen={() => onNavigate('diario')} />
       </div>
-      <HomeFlowerGap seed={3} />
-
-      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
       <HomeFlowerGap seed={4} />
 
-      <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
+      <div className="home-pair home-pair--feature">
+        <HomeFeatureBanner
+          title="Se exercite em casa"
+          eyebrow="Mexa-se"
+          copy="Treino montado na hora, no seu tempo, com os materiais que você tem."
+          image={exerciciosCover}
+          label="Se exercite em casa"
+          onOpen={() => onNavigate('exercicios')}
+        />
+        <span className="home-pair-dot" aria-hidden="true" />
+        <HomeFeatureBanner
+          title="Séries e Filmes"
+          eyebrow="Para relaxar"
+          copy="Dicas da nutri para a sua noite."
+          image={seriesCover}
+          label="Dicas de Séries e Filmes"
+          onOpen={() => onNavigate('series')}
+        />
+      </div>
       <HomeFlowerGap seed={5} />
+
+      <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
+      <HomeFlowerGap seed={6} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 

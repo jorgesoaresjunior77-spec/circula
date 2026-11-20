@@ -42,10 +42,10 @@ describe('HomeExperienceStrip — Item 2: acesso ao Meu Jardim pela Home', () =>
     expect(onNavigate).toHaveBeenCalledWith('jardim')
   })
 
-  it('não duplica o card "Meu Jardim" nem nenhum dos outros 5 destinos fixos', () => {
+  it('não duplica o card "Meu Jardim" nem nenhum dos outros 3 destinos fixos', () => {
     render(<HomeExperienceStrip nextEvent={null} onNavigate={vi.fn()} />)
 
-    for (const name of ['Meu Perfil', 'Help Nutri — fale com a nutricionista', 'Eventos', 'Loja', 'Receitas', 'Meu Jardim']) {
+    for (const name of ['Meu Perfil', 'Help Nutri — fale com a nutricionista', 'Meu Jardim', 'Agenda']) {
       expect(screen.getAllByRole('button', { name })).toHaveLength(1)
     }
   })

@@ -5,10 +5,10 @@ import { HomeMenuWheel } from './HomeMenuWheel'
 describe('HomeMenuWheel — menu vertical contínuo', () => {
   afterEach(() => cleanup())
 
-  it('mostra os 7 cards na ordem e cada um abre o seu destino', () => {
+  it('mostra os 5 cards na ordem e cada um abre o seu destino', () => {
     const onNavigate = vi.fn()
     render(<HomeMenuWheel onNavigate={onNavigate} />)
-    // A segunda volta da roda é cópia (aria-hidden): só as 7 reais são acessíveis.
+    // A segunda volta da roda é cópia (aria-hidden): só as 5 reais são acessíveis.
     const buttons = screen.getAllByRole('button')
     expect(buttons.map((b) => b.textContent)).toEqual([
       'Dicas de leitura',
@@ -16,11 +16,9 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
       'Playlist',
       'Wellness',
       'Lista de Compras',
-      'Se exercite em casa',
-      'Dicas de Séries / Filmes',
     ])
     buttons.forEach((b) => fireEvent.click(b))
-    expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'playlist', 'wellness', 'lista', 'exercicios', 'series'])
+    expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'playlist', 'wellness', 'lista'])
   })
 
   it('com foto cadastrada mostra a imagem; sem foto, o ícone de sempre', () => {
@@ -35,6 +33,6 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
     expect(imgs).toHaveLength(2)
     expect(imgs[0]).toHaveAttribute('src', 'https://exemplo.com/leitura.jpg')
     // Respiração, Playlist, Wellness e Lista de Compras seguem com o degradê e o ícone.
-    expect(container.querySelectorAll('.wheel-thumb:not(.wheel-thumb--photo) svg')).toHaveLength(12)
+    expect(container.querySelectorAll('.wheel-thumb:not(.wheel-thumb--photo) svg')).toHaveLength(8)
   })
 })

@@ -41,7 +41,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.exp-strip', '.exp-viewport'],
     title: 'Menu',
-    text: 'Deslize para o lado e toque em um cartão: Meu Perfil, Help Nutri, Eventos, Loja, Receitas, Se exercite em casa e Meu Jardim.',
+    text: 'Em "Hoje", deslize para o lado e toque em um cartão: Meu Perfil, Help Nutri, Meu Jardim e Agenda. Eventos, Loja e Receitas estão mais abaixo, em "Descobrir".',
     gesture: 'swipe',
   },
   {
@@ -61,6 +61,13 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'tap',
   },
   {
+    targets: ['.home-wheel'],
+    title: 'Mais conteúdos',
+    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness ou Lista de Compras.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
     targets: ['.home-pair .menu-banner-wrap'],
     title: 'Meu Chef',
     text: 'Escolha os pratos e receba bem: o Meu Chef monta o cardápio do seu encontro com as receitas da nutricionista.',
@@ -75,9 +82,9 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'tap',
   },
   {
-    targets: ['.home-wheel'],
-    title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) ou em Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
+    targets: ['.home-pair--feature .menu-banner-wrap'],
+    title: 'Para você',
+    text: 'Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) e Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
     optional: true,
     gesture: 'tap',
   },

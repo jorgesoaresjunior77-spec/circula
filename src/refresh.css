@@ -7080,3 +7080,61 @@ textarea.menu-big-field {
   object-fit: cover;
   border-radius: 14px;
 }
+
+/* ---- Home agrupada em Hoje / Descobrir / Para você (reversível: tag antes-home-agrupada) ---- */
+.home-group-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 26px 0 10px;
+  font-family: var(--font-display, inherit);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+.home-group-title::before,
+.home-group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-soft);
+}
+.home-plans-notice-wrap {
+  margin: 8px 0 0;
+}
+.home-plans-notice {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--card-lift);
+  color: var(--text);
+  cursor: pointer;
+}
+.home-plans-notice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+}
+.home-plans-notice-text strong {
+  font-size: 0.92rem;
+}
+.home-plans-notice-cta {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--accent, #8f6f58);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.home-pair > .menu-banner-wrap:last-of-type {
+  flex: 1 1 0;
+}

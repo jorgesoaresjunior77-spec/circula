@@ -57,18 +57,6 @@ const CartSvg = (
   </svg>
 )
 
-const DumbbellSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
-    <path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12" />
-  </svg>
-)
-const ScreenSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
-    <rect x="3" y="5" width="18" height="12" rx="2" />
-    <path d="m10.500 8.500 4 2.500-4 2.500Z" />
-    <path d="M8 20h8" />
-  </svg>
-)
 
 const ALL_ITEMS: Item[] = [
   { key: 'leitura', imageKey: 'menu_leitura', title: 'Dicas de leitura', tint: 'linear-gradient(135deg,#f3dccf,#e8c3b3)', icon: BookSvg },
@@ -76,8 +64,6 @@ const ALL_ITEMS: Item[] = [
   { key: 'playlist', imageKey: 'menu_playlist', title: 'Playlist', tint: 'linear-gradient(135deg,#dcd6ea,#c6bddb)', icon: MusicSvg },
   { key: 'wellness', imageKey: 'menu_wellness', title: 'Wellness', tint: 'linear-gradient(135deg,#d3e4d6,#b4d0bb)', icon: LeafSvg },
   { key: 'lista', imageKey: 'menu_lista', title: 'Lista de Compras', tint: 'linear-gradient(135deg,#f1dcc6,#e6c3a0)', icon: CartSvg },
-  { key: 'exercicios', imageKey: 'banner_exercicios', title: 'Se exercite em casa', tint: 'linear-gradient(135deg,#f6dfd2,#ebc2ae)', icon: DumbbellSvg },
-  { key: 'series', imageKey: 'banner_series', title: 'Dicas de Séries / Filmes', tint: 'linear-gradient(135deg,#e0dcee,#c9c2de)', icon: ScreenSvg },
 ]
 
 /** Miniatura do card: a foto da profissional ocupa ~60% da largura (com fade

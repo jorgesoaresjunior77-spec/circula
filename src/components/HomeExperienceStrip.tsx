@@ -87,11 +87,7 @@ export function HomeExperienceStrip({
   nextEvent,
   perfilCover,
   helpNutriCover,
-  eventosCover,
-  lojaCover,
-  receitasCover,
   jardimCover,
-  exerciciosCover,
   badges = {},
   onNavigate,
 }: HomeExperienceStripProps) {
@@ -112,52 +108,27 @@ export function HomeExperienceStrip({
         ariaLabel: 'Help Nutri — fale com a nutricionista',
       },
       {
-        key: 'eventos',
-        title: 'Eventos',
-        image: eventosCover ?? null,
-        onActivate: () => onNavigate('eventos'),
-        ariaLabel: nextEvent
-          ? `Eventos — ${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`
-          : 'Eventos',
-      },
-      {
-        key: 'loja',
-        title: 'Loja',
-        image: lojaCover ?? null,
-        onActivate: () => onNavigate('loja'),
-        ariaLabel: 'Loja',
-      },
-      {
-        key: 'receitas',
-        title: 'Receitas',
-        image: receitasCover ?? null,
-        onActivate: () => onNavigate('receitas'),
-        ariaLabel: 'Receitas',
-      },
-      {
-        key: 'exercicios',
-        title: 'Exercícios',
-        image: exerciciosCover ?? null,
-        onActivate: () => onNavigate('exercicios'),
-        ariaLabel: 'Exercícios — Se exercite em casa',
-      },
-      {
         key: 'jardim',
         title: 'Meu Jardim',
         image: jardimCover ?? null,
         onActivate: () => onNavigate('jardim'),
         ariaLabel: 'Meu Jardim',
       },
+      {
+        key: 'agenda',
+        title: 'Agenda',
+        image: null,
+        onActivate: () => onNavigate('agenda'),
+        ariaLabel: nextEvent
+          ? `Agenda — ${nextEvent.title} · ${formatEventDate(nextEvent.starts_at)}`
+          : 'Agenda',
+      },
     ],
     [
       nextEvent,
       perfilCover,
       helpNutriCover,
-      eventosCover,
-      lojaCover,
-      receitasCover,
       jardimCover,
-      exerciciosCover,
       onNavigate,
     ],
   )
