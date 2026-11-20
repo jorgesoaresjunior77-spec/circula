@@ -405,6 +405,7 @@ export function HomeToday({
       <div className="home-pair home-pair--feature">
         <HomeFeatureBanner
           title={<>Se exercite<br />em casa</>}
+          wrapClass="hfb--diary"
           eyebrow="Mexa-se"
           copy="Treino montado na hora, no seu tempo, com os materiais que você tem."
           image={exerciciosCover}
@@ -415,6 +416,7 @@ export function HomeToday({
         <HomeFeatureBanner
           title={<>Séries<br />e Filmes</>}
           titleClass="menu-banner-title--small"
+          wrapClass="hfb--series"
           eyebrow="Para relaxar"
           copy="Dicas de filmes e séries"
           image={seriesCover}

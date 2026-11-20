@@ -7,6 +7,7 @@ import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 export function HomeFeatureBanner({
   title,
   titleClass,
+  wrapClass,
   eyebrow,
   copy,
   image,
@@ -15,6 +16,8 @@ export function HomeFeatureBanner({
 }: {
   title: ReactNode
   titleClass?: string
+  /** Classe extra no cartão (cor ou ajuste próprio). */
+  wrapClass?: string
   eyebrow: string
   copy: string
   image: string | null
@@ -22,7 +25,7 @@ export function HomeFeatureBanner({
   onOpen: () => void
 }) {
   return (
-    <m.section className="menu-banner-wrap" {...inViewOnce} variants={riseVariants} aria-label={label}>
+    <m.section className={`menu-banner-wrap${wrapClass ? ` ${wrapClass}` : ""}`} {...inViewOnce} variants={riseVariants} aria-label={label}>
       <button type="button" className="menu-banner" onClick={onOpen}>
         <span className={`menu-banner-photo${image ? '' : ' menu-banner-photo--empty'}`} aria-hidden="true">
           {image && <img src={image} alt="" loading="lazy" decoding="async" />}

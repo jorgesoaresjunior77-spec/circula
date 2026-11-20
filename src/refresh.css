@@ -7179,3 +7179,39 @@ textarea.menu-big-field {
   margin: 0;
   line-height: 1.5;
 }
+
+/* ---- Ajustes 2026-12-03: Séries, Exercite (cor do Diário), Planos mais alto, sol do Jardim ---- */
+.home-pair--feature .menu-banner-wrap.hfb--diary .menu-banner-text {
+  background: #f8f0e3;
+}
+.home-pair--feature .menu-banner-wrap.hfb--diary .menu-banner-photo--empty,
+.home-pair--feature .menu-banner-wrap.hfb--diary .menu-banner-photo {
+  background: linear-gradient(160deg, #f8efe1, #efdfc8);
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-photo {
+  aspect-ratio: 16 / 10.8;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-text {
+  gap: 0;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-eyebrow {
+  margin-top: 10px;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-copy {
+  margin-top: 12px;
+}
+.home-plans-card {
+  height: 106px;
+}
+.home-plans-card .home-plans-title {
+  position: relative;
+  top: 10px;
+}
+.garden-art.ga3d--sunflower {
+  margin-top: 118px;
+}
+.ga3d-sun {
+  width: 68px;
+  height: 68px;
+  margin: -98px 0 0 -34px;
+}
