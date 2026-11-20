@@ -12,6 +12,7 @@ import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 import { InviteFriends } from './InviteFriends'
 import { MyNutriPlan } from './MyNutriPlan'
 import { ProfileTestimonials } from './ProfileTestimonials'
+import { ChangePassword } from './ChangePassword'
 import { OnboardingAnswersView } from './OnboardingAnswersView'
 
 interface MyProfileProps {
@@ -429,6 +430,8 @@ export function MyProfile({
           <CommunitySubscriptionCard communityId={communityId} />
         </div>
       )}
+
+      {!editing && <ChangePassword />}
     </section>
   )
 }

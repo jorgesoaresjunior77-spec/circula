@@ -89,9 +89,35 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'tap',
   },
   {
+    targets: ['.home-partners'],
+    title: 'Parceiros',
+    text: 'As marcas que caminham com a comunidade. Toque em um logo para conhecer o parceiro.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
+    targets: ['.home-footer'],
+    title: 'Rodapé',
+    text: 'Termos de Uso, Política de Privacidade e como falar com a sua nutricionista: tudo o que você precisa saber sobre o app, no fim da página.',
+    optional: true,
+  },
+  {
+    targets: ['.bottom-nav', '.topnav'],
+    title: 'Menu de baixo',
+    text: 'Seu atalho para o essencial: Início, Feed, Ajuda, Nutri (para quem é paciente) e Meu perfil. Ele fica sempre à mão enquanto você usa o app.',
+    optional: true,
+  },
+  {
     targets: ['#tour-nav-mobile-feed', '#tour-nav-desktop-feed'],
     title: 'Feed',
     text: 'Aqui ficam as conversas da comunidade. Publique, curta, comente, responda e vote nas enquetes.',
+  },
+  {
+    targets: ['#tour-nav-mobile-ajuda', '#tour-nav-desktop-ajuda'],
+    title: 'Ajuda',
+    text: 'Central de Ajuda com respostas para as dúvidas mais comuns, e o Help Nutri para falar direto com a nutricionista.',
+    optional: true,
+    gesture: 'tap',
   },
   {
     targets: ['#tour-nav-mobile-nutri', '#tour-nav-desktop-nutri'],
@@ -103,7 +129,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['#tour-nav-mobile-perfil', '#tour-nav-desktop-perfil'],
     title: 'Meu perfil',
-    text: 'Sua capa, suas fotos e os depoimentos que você recebe. No Feed, toque na foto de outra participante para visitar o perfil dela.',
+    text: 'Sua capa, suas fotos, os depoimentos que você recebe, o Meu Jardim, o convite para amigas, a sua assinatura e a troca de senha. No Feed, toque na foto de outra participante para visitar o perfil dela.',
   },
   {
     targets: ['#tour-notification-bell'],

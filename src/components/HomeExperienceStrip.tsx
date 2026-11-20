@@ -136,10 +136,10 @@ export function HomeExperienceStrip({
       },
       {
         key: 'exercicios',
-        title: 'Se exercite em casa',
+        title: 'Exercícios',
         image: exerciciosCover ?? null,
         onActivate: () => onNavigate('exercicios'),
-        ariaLabel: 'Se exercite em casa',
+        ariaLabel: 'Exercícios — Se exercite em casa',
       },
       {
         key: 'jardim',

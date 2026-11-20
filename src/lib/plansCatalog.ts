@@ -43,18 +43,18 @@ export interface CatalogProduct {
 
 export const PRODUCTS: CatalogProduct[] = [
   { key: 'magazine', name: 'Círcula Magazine', description: 'A revista mensal da comunidade.', monthlyCents: 990 },
-  { key: 'receitas', name: 'Receitas', description: 'Receitas em formato de revista.', monthlyCents: 990 },
+  { key: 'receitas', name: 'Receitas', description: 'Receitas em formato de revista.', monthlyCents: 790 },
   { key: 'ebooks', name: 'E-books', description: 'Os e-books da nutricionista.', monthlyCents: 990 },
   { key: 'help_nutri', name: 'Help Nutri', description: 'Chame a nutricionista direto pelo app.', monthlyCents: 990 },
-  { key: 'respiracao', name: 'Respiração', description: 'Práticas guiadas de respiração e meditação.', monthlyCents: 580 },
-  { key: 'playlist', name: 'Playlist', description: 'As playlists da nutricionista para cada momento.', monthlyCents: 580 },
-  { key: 'wellness', name: 'Wellness', description: 'Matérias da nutricionista sobre o mundo do bem-estar.', monthlyCents: 450 },
-  { key: 'leitura', name: 'Dicas de Leitura', description: 'As recomendações de livros da nutricionista, por tema.', monthlyCents: 450 },
+  { key: 'respiracao', name: 'Respiração', description: 'Práticas guiadas de respiração e meditação.', monthlyCents: 590 },
+  { key: 'playlist', name: 'Playlist', description: 'As playlists da nutricionista para cada momento.', monthlyCents: 590 },
+  { key: 'wellness', name: 'Wellness', description: 'Matérias da nutricionista sobre o mundo do bem-estar.', monthlyCents: 590 },
+  { key: 'leitura', name: 'Dicas de Leitura', description: 'As recomendações de livros da nutricionista, por tema.', monthlyCents: 590 },
   {
     key: 'minha_lista',
-    name: 'Minha Lista',
+    name: 'Lista de compras',
     description: 'Organize suas compras, planeje sua alimentação e tenha tudo o que precisa sempre à mão.',
-    monthlyCents: 490,
+    monthlyCents: 590,
   },
   {
     key: 'meu_chef',
@@ -66,19 +66,19 @@ export const PRODUCTS: CatalogProduct[] = [
     key: 'lista_inteligente',
     name: 'Lista de compras inteligente',
     description: 'A lista de compras do seu cardápio, somada e organizada por seção, pronta para salvar em PDF.',
-    monthlyCents: 380,
+    monthlyCents: 590,
   },
   {
     key: 'exercicios',
     name: 'Se exercite em casa',
     description: 'Treinos montados na hora para fazer em casa, com desenhos passo a passo, só com o peso do corpo e coisas do dia a dia.',
-    monthlyCents: 590,
+    monthlyCents: 790,
   },
   {
     key: 'series_filmes',
     name: 'Dicas de Séries e Filmes',
     description: 'Curadoria de séries e filmes para a comunidade, com onde assistir. Você assina as plataformas à parte.',
-    monthlyCents: 290,
+    monthlyCents: 590,
   },
 ]
 
@@ -126,11 +126,11 @@ export const PREMIUM_SEPARATE_MONTHLY_CENTS =
  *  Mensal R$ 59,80 (valor oficial definido pelo usuário em 2026-11-18, já com a
  *  Minha Lista; separado seria R$ 92,70 com Meu Chef e Lista inteligente); semestral 20% e anual 35% de economia
  *  sobre o mensal (regra que já existia, recalculada sobre o novo valor). */
-export const PREMIUM_MONTHLY_CENTS = 5980
+export const PREMIUM_MONTHLY_CENTS = 5990
 export const PREMIUM_PRICES_CENTS: Record<PlanCycle, number> = {
   monthly: PREMIUM_MONTHLY_CENTS,
-  semiannual: 28704, // 5980 × 6 × 0,80
-  annual: 46644, // 5980 × 12 × 0,65
+  semiannual: 28752, // 5990 × 6 × 0,80
+  annual: 46722, // 5990 × 12 × 0,65
 }
 
 export function formatBrl(cents: number): string {

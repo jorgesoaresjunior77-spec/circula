@@ -386,7 +386,7 @@ export function HomeToday({
         <span className="home-pair-dot" aria-hidden="true" />
         <HomeGratitudeCard image={diarioCover} onOpen={() => onNavigate('diario')} />
       </div>
-      <HomeFlowerGap seed={3} height={60} />
+      <HomeFlowerGap seed={3} />
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
       <HomeFlowerGap seed={4} />

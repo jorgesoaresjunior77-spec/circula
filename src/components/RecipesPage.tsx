@@ -156,6 +156,10 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
       setError('Escreva o título da receita para salvar.')
       return
     }
+    if (editRec.status !== 'draft' && !editRec.cover_image_url) {
+      setError('Para publicar, envie a foto real do prato pronto: ela é o card da receita.')
+      return
+    }
     const r = await api.saveRecipe({
       id: editRec.id,
       title: editRec.title,

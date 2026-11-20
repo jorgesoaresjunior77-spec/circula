@@ -61,11 +61,11 @@ describe('addonPeriodEnd', () => {
 describe('novos planos', () => {
   it('Meu Chef e Lista inteligente têm preço e pacote próprios', () => {
     expect(addonPriceCents('meu_chef', 'MONTHLY')).toBe(890)
-    expect(addonPriceCents('lista_inteligente', 'MONTHLY')).toBe(380)
+    expect(addonPriceCents('lista_inteligente', 'MONTHLY')).toBe(590)
     expect(packagesForPlan('meu_chef')).toEqual(['meu_chef'])
     expect(packagesForPlan('lista_inteligente')).toEqual(['lista_inteligente'])
-    expect(addonPriceCents('exercicios', 'MONTHLY')).toBe(590)
-    expect(addonPriceCents('series_filmes', 'MONTHLY')).toBe(290)
+    expect(addonPriceCents('exercicios', 'MONTHLY')).toBe(790)
+    expect(addonPriceCents('series_filmes', 'MONTHLY')).toBe(590)
     expect(addonPriceCents('exercicios', 'MONTHLY', 690)).toBe(690)
     expect(packagesForPlan('exercicios')).toEqual(['exercicios'])
     expect(packagesForPlan('series_filmes')).toEqual(['series_filmes'])

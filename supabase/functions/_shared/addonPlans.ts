@@ -47,7 +47,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   playlist: 'Playlist',
   wellness: 'Wellness',
   leitura: 'Dicas de Leitura',
-  minha_lista: 'Minha Lista',
+  minha_lista: 'Lista de compras',
   meu_chef: 'Meu Chef',
   lista_inteligente: 'Lista de compras inteligente',
   exercicios: 'Se exercite em casa',
@@ -57,24 +57,24 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
 
 const MONTHLY: Record<AddonPlanKey, number> = {
   magazine: 990,
-  receitas: 990,
+  receitas: 790,
   ebooks: 990,
   help_nutri: 990,
-  respiracao: 580,
-  playlist: 580,
-  wellness: 450,
-  leitura: 450,
-  minha_lista: 490,
+  respiracao: 590,
+  playlist: 590,
+  wellness: 590,
+  leitura: 590,
+  minha_lista: 590,
   meu_chef: 890,
-  lista_inteligente: 380,
-  exercicios: 590,
-  series_filmes: 290,
-  premium: 5980,
+  lista_inteligente: 590,
+  exercicios: 790,
+  series_filmes: 590,
+  premium: 5990,
 }
 
 // Preços fechados que já existiam no catálogo do app.
 const CLOSED: Partial<Record<AddonPlanKey, Record<AsaasCycle, number>>> = {
-  premium: { MONTHLY: 5980, SEMIANNUALLY: 28704, YEARLY: 46644 },
+  premium: { MONTHLY: 5990, SEMIANNUALLY: 28752, YEARLY: 46722 },
 }
 const NINETY_NINETY: Record<AsaasCycle, number> = { MONTHLY: 990, SEMIANNUALLY: 4980, YEARLY: 7970 }
 

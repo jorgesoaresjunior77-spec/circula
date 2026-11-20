@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { MyNutriPlan } from './MyNutriPlan'
 import { BodyMeasureGuide } from './BodyMeasureGuide'
+import { BodyPhotoGuide, PhotoCompare } from './BodyPhotoGuide'
 import { progressPhotoUrl, usePatientNutri } from '../hooks/usePatientNutri'
 import type { BodyEntry, NutriAppointment, ProgressPhoto } from '../hooks/usePatientNutri'
 import { brDate, isoToday } from '../lib/nutri'
@@ -322,6 +323,7 @@ export function PatientNutriPage() {
           <EntryTable entries={n.entries} onDelete={(id) => void run(() => n.deleteEntry(id))} />
 
           <h3>Fotos de evolução</h3>
+          <BodyPhotoGuide />
           <p className="home-muted">As fotos ficam guardadas em área privada: só você e a sua nutricionista veem. Prefira roupa justa, boa luz e o mesmo lugar a cada foto.</p>
           <div className="pn-photo-add">
             <select value={photoView} onChange={(e) => setPhotoView(e.target.value as 'frente' | 'lado' | 'costas')} aria-label="Posição da foto">
@@ -344,6 +346,7 @@ export function PatientNutriPage() {
               />
             </label>
           </div>
+          {n.photos.length > 1 && <PhotoCompare photos={n.photos} />}
           {n.photos.length === 0 ? (
             <p className="home-muted">Nenhuma foto enviada.</p>
           ) : (

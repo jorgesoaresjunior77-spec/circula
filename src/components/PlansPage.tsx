@@ -27,6 +27,9 @@ import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 const BUYABLE: PlanKey[] = [...PRODUCTS.map((p) => p.key), 'premium']
 
 const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
+
+/** Ordem dos conteúdos avulsos na página. */
+const ORDER = ['magazine', 'ebooks', 'receitas', 'meu_chef', 'minha_lista', 'help_nutri', 'respiracao', 'playlist', 'wellness', 'leitura', 'lista_inteligente', 'exercicios', 'series_filmes'] as const
 const API_CYCLE: Record<string, PlanCycle> = {
   MONTHLY: 'monthly',
   SEMIANNUALLY: 'semiannual',
@@ -55,7 +58,8 @@ function PriceRow({
           const b = cycleBreakdown(c, prices[c], reference)
           const discounted = b.savedCents > 0
           return (
-            <li key={c} className="plans-cycle">
+            <li key={c} className={`plans-cycle${c === 'annual' ? ' plans-cycle--best' : ''}`}>
+              {c === 'annual' && <span className="plans-best-tag">Melhor escolha agora</span>}
               <div className="plans-cycle-head">
                 <span>
                   {CYCLE_LABEL[c]}
@@ -155,42 +159,66 @@ export function PlansPage({
 
   return (
     <section className="plans-page">
-      <h2>Planos</h2>
+      <h2>Planos e assinaturas</h2>
 
       {!viewOnly && communityId && profileId && <SubscriptionLevelCard communityId={communityId} profileId={profileId} />}
 
-      <div className="plans-grid">
-        <PlanTile
-          planKey="circula"
-          name="Círcula"
-          monthly={circulaPrices.monthly}
-          onOpen={() => setOpen('circula')}
-        />
-      </div>
+      <button type="button" className="plans-wide plans-wide--circula" onClick={() => setOpen('circula')} aria-label={`Círcula, ${formatBrl(circulaPrices.monthly)} por mês`}>
+        <span className="plans-wide-icon">
+          <PLAN_ICONS.circula />
+        </span>
+        <span className="plans-wide-body">
+          <strong>Círcula</strong>
+          <span>A comunidade, os círculos, os eventos e o acompanhamento do dia a dia.</span>
+        </span>
+        <span className="plans-wide-price">
+          {formatBrl(circulaPrices.monthly)}
+          <small>por mês</small>
+        </span>
+      </button>
 
       <h3 className="plans-heading">Conteúdos avulsos</h3>
+      <p className="plans-note">Escolha só o que você quer. Pagando por 6 ou 12 meses, o valor total é menor, e o plano anual é a melhor escolha.</p>
       <div className="plans-grid">
-        {PRODUCTS.map((p) => (
-          <PlanTile
-            key={p.key}
-            planKey={p.key}
-            name={p.name}
-            monthly={p.monthlyCents}
-            onOpen={() => setOpen(p.key)}
-          />
+        {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
+          <PlanTile key={p.key} planKey={p.key} name={p.name} monthly={p.monthlyCents} onOpen={() => setOpen(p.key)} />
         ))}
       </div>
 
-      <h3 className="plans-heading">Superpacotes</h3>
-      <div className="plans-grid">
-        <PlanTile
-          planKey="premium"
-          name="Círcula Premium"
-          monthly={PREMIUM_MONTHLY_CENTS}
-          badge={`${premiumOff}% off`}
-          onOpen={() => setOpen('premium')}
-        />
-      </div>
+      <h3 className="plans-heading">Círcula Premium</h3>
+      <button type="button" className="plans-wide plans-wide--premium" onClick={() => setOpen('premium')} aria-label={`Círcula Premium, ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês`}>
+        <span className="plans-wide-icon">
+          <PLAN_ICONS.premium />
+        </span>
+        <span className="plans-wide-body">
+          <strong>Círcula Premium</strong>
+          <span>Tudo do Círcula e de todos os conteúdos, juntos e com desconto.</span>
+        </span>
+        <span className="plans-wide-price">
+          {formatBrl(PREMIUM_MONTHLY_CENTS)}
+          <small>por mês · {premiumOff}% off</small>
+        </span>
+      </button>
+
+      <article className="plans-included">
+        <h4>O que você leva no Premium</h4>
+        <ul>
+          <li>
+            <strong>Círcula</strong> <span>comunidade, círculos, eventos e acompanhamento do dia a dia</span> <em>{formatBrl(CIRCULA_MONTHLY_CENTS)}</em>
+          </li>
+          {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
+            <li key={p.key}>
+              <strong>{p.name}</strong> <span>{p.description}</span> <em>{formatBrl(p.monthlyCents)}</em>
+            </li>
+          ))}
+        </ul>
+        <p className="plans-included-total">
+          Tudo separado: <s>{formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}</s> por mês · <strong>Premium: {formatBrl(PREMIUM_MONTHLY_CENTS)}</strong> por mês
+        </p>
+        <p className="plans-included-best">
+          Melhor escolha agora: <strong>Premium anual por {formatBrl(PREMIUM_PRICES_CENTS.annual)}</strong>, pagando uma vez só. Separado, o mesmo ano custaria {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS * 12)}: você economiza {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS * 12 - PREMIUM_PRICES_CENTS.annual)}.
+        </p>
+      </article>
 
       <p className="plans-note">
         Valores em reais, cobrados pelo ciclo escolhido. O acesso libera quando o pagamento é confirmado.

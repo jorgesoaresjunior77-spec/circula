@@ -42,7 +42,7 @@ export function formatLoginPhone(phone: string): string {
 }
 
 export const LOGIN_PHONE_EXAMPLE = '51996509660'
-export const LOGIN_PHONE_HINT = 'DDD + 9 + número, só números. Ex.: 51996509660'
+export const LOGIN_PHONE_HINT = 'DDD + 9 + número, só números.'
 
 export function buildWhatsAppUrl(number: string, text: string): string {
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`

@@ -252,7 +252,7 @@ export function PatientRecord({
 
           {tab === 'assinatura' && <BillingTab patientId={patient.id} />}
 
-          {tab === 'acompanhamento' && <FollowUpTab patientId={patient.id} communityId={communityId} linkedProfileId={patient.linked_profile_id ?? null} />}
+          {tab === 'acompanhamento' && <FollowUpTab patientId={patient.id} communityId={communityId} linkedProfileId={patient.linked_profile_id ?? null} patientName={patient.full_name} whatsapp={patient.whatsapp ?? patient.phone ?? null} />}
 
           {tab === 'obs' && (
             <>

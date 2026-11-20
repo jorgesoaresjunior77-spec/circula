@@ -603,7 +603,8 @@ function EditorialOffice({
     )
   }
 
-  return (
+  // Também sai da faixa e vai para o corpo da página (senão cards de baixo ficam por cima).
+  return createPortal(
     <div
       className="mag-office"
       role="dialog"
@@ -656,7 +657,8 @@ function EditorialOffice({
           Voltar
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

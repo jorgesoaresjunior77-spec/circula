@@ -23,8 +23,8 @@ describe('PlansPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /^Círcula, / }))
     expect(screen.queryByTestId('subscription-panel')).not.toBeInTheDocument()
     expect(screen.getByText(/você não precisa assinar/i)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Planos' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Superpacotes' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Planos e assinaturas' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Círcula Premium', level: 3 })).toBeInTheDocument()
   })
 
   it('mostra todos os planos em cartões, incluindo os avulsos novos e o Premium', () => {

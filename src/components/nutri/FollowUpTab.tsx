@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { supabase } from '../../lib/supabase'
 import { brDate, isoToday } from '../../lib/nutri'
 import { progressPhotoUrl } from '../../hooks/usePatientNutri'
+import { BodyPhotoGuide, PhotoCompare, photoInviteMessage } from '../BodyPhotoGuide'
 import type { BodyEntry, ProgressPhoto } from '../../hooks/usePatientNutri'
 
 // Acompanhamento da paciente (painel da nutricionista): orientações e tarefas
@@ -46,7 +47,7 @@ function Thumb({ photo }: { photo: ProgressPhoto }) {
   )
 }
 
-export function FollowUpTab({ patientId, communityId, linkedProfileId }: { patientId: string; communityId: string; linkedProfileId: string | null }) {
+export function FollowUpTab({ patientId, communityId, linkedProfileId, patientName = '', whatsapp = null }: { patientId: string; communityId: string; linkedProfileId: string | null; patientName?: string; whatsapp?: string | null }) {
   const [updates, setUpdates] = useState<Update[]>([])
   const [entries, setEntries] = useState<BodyEntry[]>([])
   const [photos, setPhotos] = useState<ProgressPhoto[]>([])
@@ -236,6 +237,22 @@ export function FollowUpTab({ patientId, communityId, linkedProfileId }: { patie
       <article className="water-panel">
         <h3>Fotos de evolução</h3>
         <p className="home-muted">Acesso restrito: só você e a paciente. Hoje: {brDate(isoToday())}.</p>
+        <div className="pn-actions">
+          <button
+            type="button"
+            className="water-primary"
+            onClick={() => {
+              const text = photoInviteMessage(patientName, `${window.location.origin}${import.meta.env.BASE_URL}`)
+              const digits = (whatsapp ?? '').replace(/\D/g, '')
+              const to = digits ? (digits.startsWith('55') ? digits : `55${digits}`) : ''
+              window.open(`https://wa.me/${to}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
+            }}
+          >
+            Enviar link e passo a passo das fotos (WhatsApp)
+          </button>
+        </div>
+        <BodyPhotoGuide />
+        {photos.length > 1 && <PhotoCompare photos={photos} />}
         {photos.length === 0 ? <p className="home-muted">Nenhuma foto enviada.</p> : <div className="pn-photos">{photos.map((p) => <Thumb key={p.id} photo={p} />)}</div>}
       </article>
     </section>

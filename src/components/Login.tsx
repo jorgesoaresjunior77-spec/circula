@@ -204,7 +204,7 @@ export function Login() {
               value={forgotEmail}
               onChange={(event) => setForgotEmail(event.target.value)}
               autoComplete="username"
-              placeholder={LOGIN_PHONE_EXAMPLE}
+              placeholder=""
               required
             />
             <p className="auth-hint">O link vai para o e-mail do seu cadastro.</p>
@@ -272,7 +272,7 @@ export function Login() {
               value={signupPhone}
               onChange={(event) => setSignupPhone(event.target.value)}
               autoComplete="username"
-              placeholder={LOGIN_PHONE_EXAMPLE}
+              placeholder=""
               required
             />
             <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
@@ -342,7 +342,7 @@ export function Login() {
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               autoComplete="username"
-              placeholder={LOGIN_PHONE_EXAMPLE}
+              placeholder=""
               required
             />
             <p className="auth-hint">{LOGIN_PHONE_HINT}</p>

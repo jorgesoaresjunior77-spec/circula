@@ -154,7 +154,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             autoComplete="username"
-            placeholder={LOGIN_PHONE_EXAMPLE}
+            placeholder=""
             required
           />
           <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
