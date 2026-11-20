@@ -7342,3 +7342,41 @@ textarea.menu-big-field {
 .body-fat-result p {
   margin: 0;
 }
+
+/* ---- Avatar corporal ---- */
+.body-avatar {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  margin: 0 auto;
+}
+.pn-avatar {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.pn-avatar-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.pn-avatar-tabs button {
+  padding: 6px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--surface);
+  font: inherit;
+  cursor: pointer;
+}
+.pn-avatar-tabs button.is-on {
+  background: var(--circula-mocha);
+  color: #fff;
+  border-color: var(--circula-mocha);
+}
+.pn-avatar-pick {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}

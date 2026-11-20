@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MyNutriPlan } from './MyNutriPlan'
+import { BodyAvatar } from './BodyAvatar'
+import type { AvatarMeasures, AvatarView } from '../lib/bodyAvatar'
 import { BodyPhotoGuide, PhotoCompare } from './BodyPhotoGuide'
 import { progressPhotoUrl, usePatientNutri } from '../hooks/usePatientNutri'
 import type { NutriArea, NutriAppointment, ProgressPhoto } from '../hooks/usePatientNutri'
@@ -102,6 +104,74 @@ function PhotoThumb({ photo, onDelete }: { photo: ProgressPhoto; onDelete?: () =
 
 function fmt(n: number | null | undefined, digits = 1): string {
   return n == null ? '—' : n.toLocaleString('pt-BR', { maximumFractionDigits: digits })
+}
+
+type EvolutionRow = NutriArea['evolution'][number]
+
+function toMeasures(r: EvolutionRow, fallbackHeight: number | null): AvatarMeasures {
+  return {
+    heightCm: r.height_cm ?? fallbackHeight ?? 165,
+    weightKg: r.weight_kg,
+    waistCm: r.waist_cm,
+    hipCm: r.hip_cm,
+    armCm: r.arm_cm,
+    thighCm: r.thigh_cm,
+    calfCm: r.calf_cm,
+  }
+}
+
+/** Avatar calculado pelas medidas compartilhadas, com comparação entre duas avaliações. */
+function EvolutionAvatar({ rows }: { rows: EvolutionRow[] }) {
+  const sorted = [...rows].sort((a, b) => a.assessed_on.localeCompare(b.assessed_on))
+  const [view, setView] = useState<AvatarView>('front')
+  const [current, setCurrent] = useState<string | null>(null)
+  const [compare, setCompare] = useState<string>('')
+  if (sorted.length === 0) return null
+  const height = [...sorted].reverse().find((r) => r.height_cm)?.height_cm ?? null
+  const now = sorted.find((r) => r.assessed_on === current) ?? sorted[sorted.length - 1]
+  const before = compare ? (sorted.find((r) => r.assessed_on === compare) ?? null) : null
+  return (
+    <div className="pn-avatar">
+      <div className="pn-avatar-tabs" role="tablist" aria-label="Vista do avatar">
+        {(['front', 'side', 'back'] as AvatarView[]).map((v) => (
+          <button key={v} type="button" role="tab" aria-selected={view === v} className={view === v ? 'is-on' : ''} onClick={() => setView(v)}>
+            {v === 'front' ? 'Frente' : v === 'side' ? 'Lado' : 'Costas'}
+          </button>
+        ))}
+      </div>
+      <BodyAvatar measures={toMeasures(now, height)} view={view} previous={before ? toMeasures(before, height) : null} title={'Avatar em ' + brDate(now.assessed_on)} />
+      {sorted.length > 1 && (
+        <div className="pn-avatar-pick">
+          <label>
+            Avaliação
+            <select value={now.assessed_on} onChange={(e) => setCurrent(e.target.value)}>
+              {sorted.map((r) => (
+                <option key={r.assessed_on} value={r.assessed_on}>
+                  {brDate(r.assessed_on)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Comparar com
+            <select value={compare} onChange={(e) => setCompare(e.target.value)}>
+              <option value="">Nenhuma</option>
+              {sorted
+                .filter((r) => r.assessed_on !== now.assessed_on)
+                .map((r) => (
+                  <option key={r.assessed_on} value={r.assessed_on}>
+                    {brDate(r.assessed_on)}
+                  </option>
+                ))}
+            </select>
+          </label>
+        </div>
+      )}
+      <p className="home-muted">
+        O avatar é desenhado a partir das medidas que a sua nutricionista compartilhou. Onde não há medida, ele usa proporções médias. O contorno tracejado mostra a avaliação escolhida para comparar.
+      </p>
+    </div>
+  )
 }
 
 /** Histórico da composição corporal que a nutricionista compartilhou (só leitura). */
@@ -264,6 +334,7 @@ export function PatientNutriPage() {
             Aqui aparece o que a sua nutricionista avaliou e compartilhou com você: peso, percentual de gordura, massa de gordura, massa magra e medidas. Você não precisa
             medir nem anotar nada.
           </p>
+          <EvolutionAvatar rows={area.evolution} />
           <CompositionHistory rows={area.evolution} />
 
           <h3>Minhas fotos</h3>

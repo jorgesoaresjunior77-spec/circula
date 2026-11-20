@@ -38,6 +38,9 @@ export interface NutriArea {
     height_cm?: number | null
     waist_cm: number | null
     hip_cm?: number | null
+    arm_cm?: number | null
+    thigh_cm?: number | null
+    calf_cm?: number | null
     body_fat_pct: number | null
     fat_mass_kg?: number | null
     muscle_mass_kg: number | null
