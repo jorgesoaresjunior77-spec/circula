@@ -150,6 +150,34 @@ Deno.serve(async (req) => {
       addonsRevoked += 1
     }
 
+    // --- H2: assinatura avulsa CANCELADA pela membro: o acesso vai até o fim do
+    // período já pago e sai sem tolerância. Só retira o pacote se ela não tiver
+    // outra assinatura ativa do mesmo plano (ex.: assinou de novo depois).
+    const { data: canceledAddons } = await admin
+      .from('addon_subscriptions')
+      .select('id, profile_id, community_id, plan_key')
+      .eq('status', 'canceled')
+      .lte('current_period_end', nowIso)
+    for (const addon of canceledAddons ?? []) {
+      const { data: stillActive } = await admin
+        .from('addon_subscriptions')
+        .select('id')
+        .eq('community_id', addon.community_id as string)
+        .eq('profile_id', addon.profile_id as string)
+        .eq('plan_key', addon.plan_key as string)
+        .in('status', ['active', 'past_due'])
+        .limit(1)
+      if ((stillActive ?? []).length > 0) continue
+      for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey)) {
+        await admin
+          .from('member_package_access')
+          .delete()
+          .eq('community_id', addon.community_id as string)
+          .eq('profile_id', addon.profile_id as string)
+          .eq('package', pkg)
+      }
+    }
+
     const justBlocked = [
       ...(blockedTrial ?? []),
       ...(blockedGrace ?? []),

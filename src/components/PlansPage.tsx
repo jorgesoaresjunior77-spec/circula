@@ -272,6 +272,7 @@ export function PlansPage({
                     communityId={communityId}
                     prices={PREMIUM_PRICES_CENTS}
                     owned={packages.has('premium')}
+                    profileId={profileId}
                   />
                 )}
               </>
@@ -292,6 +293,7 @@ export function PlansPage({
                     communityId={communityId}
                     prices={pricesOf(product)}
                     owned={packages.has(product.key as never) || packages.has('premium')}
+                    profileId={profileId}
                   />
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
