@@ -95,9 +95,12 @@ export function useShopping(communityId: string | null, profileId: string | null
   const createList = useCallback(
     async (input: ListInput, drafts: DraftItem[] = [], recipes: { id: string; portions: number }[] = []): Promise<Result & { id?: string }> => {
       if (!communityId) return { error: 'Sem comunidade selecionada.' }
-      const { data, error: e } = await supabase
+      // O id nasce aqui: sem pedir a linha de volta (RETURNING), que a regra de leitura recusava (erro 42501).
+      const newId = crypto.randomUUID()
+      const { error: e } = await supabase
         .from('shopping_lists')
         .insert({
+          id: newId,
           community_id: communityId,
           name: input.name.trim(),
           description: input.description?.trim() || null,
@@ -105,10 +108,8 @@ export function useShopping(communityId: string | null, profileId: string | null
           notes: input.notes?.trim() || null,
           source: input.source ?? 'manual',
         })
-        .select('id')
-        .single()
-      if (e || !data) return { error: e ? `${FAIL} (${e.code ?? e.message})` : FAIL }
-      const id = (data as { id: string }).id
+      if (e) return { error: `${FAIL} (${e.code ?? e.message})` }
+      const id = newId
       if (drafts.length > 0) {
         const ins = await supabase.from('shopping_list_items').insert(drafts.map((d, i) => toRow(id, d, i)))
         if (ins.error) return { error: FAIL, id }
@@ -317,13 +318,11 @@ export async function createListFromPlan(input: {
   lines: { name: string; grams: number | null }[]
   shareWith: string | null
 }): Promise<{ error: string | null; id?: string }> {
-  const { data, error } = await supabase
+  const id = crypto.randomUUID()
+  const { error } = await supabase
     .from('shopping_lists')
-    .insert({ community_id: input.communityId, name: input.name.slice(0, 120), notes: input.notes, source: 'nutricionista' })
-    .select('id')
-    .single()
-  if (error || !data) return { error: FAIL }
-  const id = (data as { id: string }).id
+    .insert({ id, community_id: input.communityId, name: input.name.slice(0, 120), notes: input.notes, source: 'nutricionista' })
+  if (error) return { error: FAIL }
   if (input.lines.length > 0) {
     const rows = input.lines.map((l, i) => ({
       list_id: id,

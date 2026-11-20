@@ -25,6 +25,7 @@ interface FormState {
   keyLearnings: string
   why: string
   cover: string
+  buyUrl: string
   status: PublishStatus
 }
 
@@ -37,6 +38,7 @@ const EMPTY: FormState = {
   keyLearnings: '',
   why: '',
   cover: '',
+  buyUrl: '',
   status: 'draft',
 }
 
@@ -89,6 +91,11 @@ function ReadingDetail({
             <p className="reading-text">{tip.why_recommended}</p>
           </>
         )}
+        {tip.buy_url && /^https:\/\//i.test(tip.buy_url) && (
+          <a className="water-primary reading-buy" href={tip.buy_url} target="_blank" rel="noopener noreferrer">
+            Comprar o livro
+          </a>
+        )}
         {onEdit && (
           <button type="button" className="water-link" onClick={onEdit}>
             Editar
@@ -119,6 +126,7 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
       keyLearnings: tip.key_learnings ?? '',
       why: tip.why_recommended ?? '',
       cover: tip.cover_image_url ?? '',
+      buyUrl: tip.buy_url ?? '',
       status: tip.status,
     })
     setFormError(null)
@@ -138,6 +146,10 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
       setFormError('Preencha o título e o autor do livro.')
       return
     }
+    if (form.buyUrl.trim() && !/^https:\/\//i.test(form.buyUrl.trim())) {
+      setFormError('O link da loja precisa começar com https://.')
+      return
+    }
     setSaving(true)
     const result = await save(form.id, {
       theme: form.theme,
@@ -147,6 +159,7 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
       key_learnings: form.keyLearnings.trim() || null,
       why_recommended: form.why.trim() || null,
       cover_image_url: form.cover || null,
+      buy_url: form.buyUrl.trim() || null,
       status: form.status,
     })
     setSaving(false)
@@ -257,6 +270,10 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
             aspectRatio="2 / 3"
             recommendedSize="800 × 1200 px"
           />
+          <label>
+            Link da loja onde o livro é vendido (https://)
+            <input type="url" inputMode="url" maxLength={500} placeholder="https://" value={form.buyUrl} onChange={(e) => setForm({ ...form, buyUrl: e.target.value })} />
+          </label>
           <label>
             Situação
             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as PublishStatus })}>

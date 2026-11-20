@@ -2,24 +2,47 @@
 // O Círcula indica o conteúdo; a pessoa assiste na plataforma (que ela assina à parte).
 
 export const SERIES_GENRES = [
-  'Drama',
+  'Ação',
+  'Animação',
+  'Anime',
+  'Aventura',
+  'Autoconhecimento',
+  'Biografia',
   'Comédia',
+  'Comédia romântica',
+  'Crime',
+  'Culinária',
+  'Desenvolvimento pessoal',
+  'Documentário',
+  'Drama',
+  'Drama de época',
+  'Espiritualidade',
+  'Esporte',
+  'Família',
+  'Fantasia',
+  'Ficção científica',
+  'Guerra',
+  'História',
+  'Infantil',
+  'Inspiradores',
+  'Juvenil',
+  'Medicina e saúde',
+  'Mistério',
+  'Música',
+  'Musical',
+  'Natureza',
+  'Novela',
+  'Policial',
+  'Reality show',
+  'Religioso',
   'Romance',
+  'Saúde e bem-estar',
+  'Stand-up',
+  'Superação',
   'Suspense',
   'Terror',
-  'Documentário',
-  'Aventura',
-  'Ficção científica',
-  'Inspiradores',
-  'Família',
-  'Biografia',
-  'Desenvolvimento pessoal',
-  'Mistério',
-  'História',
-  'Saúde e bem-estar',
-  'Espiritualidade',
-  'Superação',
-  'Autoconhecimento',
+  'Thriller psicológico',
+  'Viagem',
 ] as const
 
 export const AGE_RATINGS = ['L', '10', '12', '14', '16', '18'] as const
@@ -59,6 +82,20 @@ export function ageLabel(r: string | null): string | null {
   return r === 'L' ? 'Livre' : `${r} anos`
 }
 
-export function filterPicks(items: SeriesPick[], opts: { kind: PickKind; genre?: string | null }): SeriesPick[] {
-  return items.filter((p) => p.kind === opts.kind && (!opts.genre || p.genres.includes(opts.genre)))
+export interface PickFilters {
+  /** Vazio/ausente = séries e filmes. */
+  kind?: PickKind | '' | null
+  genre?: string | null
+  age?: string | null
+  platform?: string | null
+}
+
+export function filterPicks(items: SeriesPick[], opts: PickFilters): SeriesPick[] {
+  return items.filter(
+    (p) =>
+      (!opts.kind || p.kind === opts.kind) &&
+      (!opts.genre || p.genres.includes(opts.genre)) &&
+      (!opts.age || p.age_rating === opts.age) &&
+      (!opts.platform || p.platform === opts.platform),
+  )
 }

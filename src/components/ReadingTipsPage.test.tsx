@@ -77,6 +77,20 @@ describe('ReadingTipsPage — Dicas de Leitura', () => {
     expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument()
   })
 
+  it('com link da loja, a membro vê o botão de comprar o livro; sem link, não', () => {
+    mockContent([{ ...LIVRO, buy_url: 'https://loja.exemplo.com/livro' }])
+    const { unmount } = render(<ReadingTipsPage communityId="c1" profileId="p1" isOwner={false} />)
+    fireEvent.click(screen.getByRole('button', { name: /Livro de teste/ }))
+    const link = screen.getByRole('link', { name: 'Comprar o livro' })
+    expect(link).toHaveAttribute('href', 'https://loja.exemplo.com/livro')
+    unmount()
+
+    mockContent([LIVRO])
+    render(<ReadingTipsPage communityId="c1" profileId="p1" isOwner={false} />)
+    fireEvent.click(screen.getByRole('button', { name: /Livro de teste/ }))
+    expect(screen.queryByRole('link', { name: 'Comprar o livro' })).not.toBeInTheDocument()
+  })
+
   it('a profissional cadastra um livro', async () => {
     save.mockResolvedValue({ error: null })
     mockContent([])
@@ -98,6 +112,7 @@ describe('ReadingTipsPage — Dicas de Leitura', () => {
       key_learnings: null,
       why_recommended: null,
       cover_image_url: null,
+      buy_url: null,
       status: 'published',
     })
   })

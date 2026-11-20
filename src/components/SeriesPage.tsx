@@ -5,7 +5,7 @@ import { useManagedContent } from '../hooks/useManagedContent'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CoverImageInput } from './CoverImageInput'
 import { PriceEditor } from './PriceEditor'
-import { AGE_RATINGS, KIND_LABEL, PLATFORMS, SERIES_GENRES, ageLabel, filterPicks, safeWatchLink } from '../lib/seriesCatalog'
+import { AGE_RATINGS, PLATFORMS, SERIES_GENRES, ageLabel, filterPicks, safeWatchLink } from '../lib/seriesCatalog'
 import type { PickKind, SeriesPick } from '../lib/seriesCatalog'
 import { PRODUCTS, formatBrl } from '../lib/plansCatalog'
 
@@ -81,8 +81,10 @@ export function SeriesPage({
   const price = PRODUCTS.find((p) => p.key === 'series_filmes')?.monthlyCents ?? 290
   const preview = usePreview(unlocked ? null : communityId)
   const { items, loading, error, save, remove } = useManagedContent<SeriesPick>('series_picks', unlocked ? communityId : null, 'created_at')
-  const [kind, setKind] = useState<PickKind>('serie')
+  const [kind, setKind] = useState<PickKind | ''>('')
   const [genre, setGenre] = useState('')
+  const [age, setAge] = useState('')
+  const [platform, setPlatform] = useState('')
   const [form, setForm] = useState<typeof EMPTY | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
 
@@ -107,7 +109,9 @@ export function SeriesPage({
     setMsg(null)
   }
 
-  const shown = filterPicks(items, { kind, genre: genre || null })
+  const shown = filterPicks(items, { kind, genre: genre || null, age: age || null, platform: platform || null })
+  const platformsInUse = Array.from(new Set(items.map((p) => p.platform).filter((x): x is string => !!x))).sort()
+  const hasFilter = !!(kind || genre || age || platform)
 
   return (
     <section className="sf-page">
@@ -137,22 +141,64 @@ export function SeriesPage({
 
       {unlocked && (
         <>
-          <div className="pn-tabs" role="tablist" aria-label="Tipo">
-            {(['serie', 'filme'] as PickKind[]).map((k) => (
-              <button key={k} type="button" role="tab" aria-selected={kind === k} className={kind === k ? 'is-on' : ''} onClick={() => setKind(k)}>
-                {KIND_LABEL[k]}
+          <div className="sf-filters" role="search" aria-label="Filtrar dicas">
+            <label>
+              Tipo
+              <select value={kind} onChange={(e) => setKind(e.target.value as PickKind | '')}>
+                <option value="">Séries e filmes</option>
+                <option value="serie">Séries</option>
+                <option value="filme">Filmes</option>
+              </select>
+            </label>
+            <label>
+              Classificação (gênero)
+              <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+                <option value="">Todas</option>
+                {SERIES_GENRES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Faixa etária
+              <select value={age} onChange={(e) => setAge(e.target.value)}>
+                <option value="">Todas</option>
+                {AGE_RATINGS.map((a) => (
+                  <option key={a} value={a}>
+                    {ageLabel(a)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {platformsInUse.length > 0 && (
+              <label>
+                Plataforma
+                <select value={platform} onChange={(e) => setPlatform(e.target.value)}>
+                  <option value="">Todas</option>
+                  {platformsInUse.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {hasFilter && (
+              <button
+                type="button"
+                className="water-link"
+                onClick={() => {
+                  setKind('')
+                  setGenre('')
+                  setAge('')
+                  setPlatform('')
+                }}
+              >
+                Limpar filtros
               </button>
-            ))}
-          </div>
-          <div className="pn-tabs" aria-label="Gênero">
-            <button type="button" className={genre === '' ? 'is-on' : ''} onClick={() => setGenre('')}>
-              Todos
-            </button>
-            {SERIES_GENRES.map((g) => (
-              <button key={g} type="button" className={genre === g ? 'is-on' : ''} onClick={() => setGenre(g)}>
-                {g}
-              </button>
-            ))}
+            )}
           </div>
           {loading && <p className="home-muted">Carregando…</p>}
           {error && <p className="auth-error">{error}</p>}
@@ -179,79 +225,103 @@ export function SeriesPage({
           </div>
 
           {isOwner && !form && (
-            <button type="button" className="water-primary" onClick={() => setForm({ ...EMPTY, kind })}>
+            <button type="button" className="water-primary" onClick={() => setForm({ ...EMPTY, kind: kind || 'serie' })}>
               Nova dica
             </button>
           )}
           {isOwner && form && (
-            <form className="pn-form" onSubmit={(e) => void submit(e)}>
+            <form className="sf-form" onSubmit={(e) => void submit(e)}>
+              <h3>{form.id ? 'Editar dica' : 'Nova dica'}</h3>
               {msg && <p className="auth-error">{msg}</p>}
-              <label>
-                Tipo
-                <select value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value as PickKind })}>
-                  <option value="serie">Série</option>
-                  <option value="filme">Filme</option>
-                </select>
-              </label>
-              <label>
-                Título
-                <input value={form.title} maxLength={160} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              </label>
-              <label>
-                Descrição
-                <textarea rows={3} value={form.description} maxLength={1200} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              </label>
-              <label>
-                Plataforma
-                <input list="sf-platforms" value={form.platform} maxLength={60} onChange={(e) => setForm({ ...form, platform: e.target.value })} />
-                <datalist id="sf-platforms">
-                  {PLATFORMS.map((p) => (
-                    <option key={p} value={p} />
-                  ))}
-                </datalist>
-              </label>
-              <label>
-                Link para assistir (https://)
-                <input value={form.url} maxLength={500} onChange={(e) => setForm({ ...form, url: e.target.value })} />
-              </label>
-              <label>
-                Classificação indicativa
-                <select value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })}>
-                  <option value="">Não informada</option>
-                  {AGE_RATINGS.map((a) => (
-                    <option key={a} value={a}>
-                      {ageLabel(a)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <fieldset className="ex-fieldset">
-                <legend>Gêneros (até 6)</legend>
-                {SERIES_GENRES.map((g) => (
-                  <label key={g} className="ex-check">
-                    <input
-                      type="checkbox"
-                      checked={form.genres.includes(g)}
-                      onChange={() => setForm({ ...form, genres: form.genres.includes(g) ? form.genres.filter((x) => x !== g) : form.genres.length < 6 ? [...form.genres, g] : form.genres })}
-                    />{' '}
-                    {g}
+
+              <section className="sf-form-section">
+                <h4>Sobre o título</h4>
+                <div className="sf-form-grid">
+                  <label className="sf-field">
+                    Tipo
+                    <select value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value as PickKind })}>
+                      <option value="serie">Série</option>
+                      <option value="filme">Filme</option>
+                    </select>
                   </label>
-                ))}
-              </fieldset>
-              <CoverImageInput value={form.cover} onChange={(p) => setForm({ ...form, cover: p })} communityId={communityId} uid={profileId} label="Capa" aspectRatio="2 / 3" />
-              <label>
-                Situação
-                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'draft' | 'published' })}>
-                  <option value="draft">Rascunho</option>
-                  <option value="published">Publicada</option>
-                </select>
-              </label>
-              <button type="submit" className="water-primary">
-                Salvar dica
-              </button>
-              <button type="button" onClick={() => setForm(null)}>
-                Cancelar
-              </button>
+                  <label className="sf-field">
+                    Classificação indicativa
+                    <select value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })}>
+                      <option value="">Não informada</option>
+                      {AGE_RATINGS.map((a) => (
+                        <option key={a} value={a}>
+                          {ageLabel(a)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="sf-field sf-field--full">
+                    Título
+                    <input value={form.title} maxLength={160} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+                  </label>
+                  <label className="sf-field sf-field--full">
+                    Descrição (o que é, por que indico, para quem serve)
+                    <textarea rows={8} value={form.description} maxLength={1200} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                    <small>{form.description.length}/1200 caracteres</small>
+                  </label>
+                </div>
+              </section>
+
+              <section className="sf-form-section">
+                <h4>Onde assistir</h4>
+                <div className="sf-form-grid">
+                  <label className="sf-field">
+                    Plataforma
+                    <input list="sf-platforms" value={form.platform} maxLength={60} onChange={(e) => setForm({ ...form, platform: e.target.value })} />
+                    <datalist id="sf-platforms">
+                      {PLATFORMS.map((p) => (
+                        <option key={p} value={p} />
+                      ))}
+                    </datalist>
+                  </label>
+                  <label className="sf-field">
+                    Link para assistir (https://)
+                    <input value={form.url} maxLength={500} onChange={(e) => setForm({ ...form, url: e.target.value })} />
+                  </label>
+                </div>
+              </section>
+
+              <section className="sf-form-section">
+                <h4>Classificação por gênero (até 6)</h4>
+                <div className="sf-genres">
+                  {SERIES_GENRES.map((g) => (
+                    <label key={g} className={`sf-genre${form.genres.includes(g) ? ' is-on' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={form.genres.includes(g)}
+                        onChange={() => setForm({ ...form, genres: form.genres.includes(g) ? form.genres.filter((x) => x !== g) : form.genres.length < 6 ? [...form.genres, g] : form.genres })}
+                      />
+                      {g}
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section className="sf-form-section">
+                <h4>Capa e publicação</h4>
+                <CoverImageInput value={form.cover} onChange={(p) => setForm({ ...form, cover: p })} communityId={communityId} uid={profileId} label="Capa" aspectRatio="2 / 3" />
+                <label className="sf-field">
+                  Situação
+                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'draft' | 'published' })}>
+                    <option value="draft">Rascunho</option>
+                    <option value="published">Publicada</option>
+                  </select>
+                </label>
+              </section>
+
+              <div className="sf-form-actions">
+                <button type="submit" className="water-primary">
+                  Salvar dica
+                </button>
+                <button type="button" className="auth-link" onClick={() => setForm(null)}>
+                  Cancelar
+                </button>
+              </div>
             </form>
           )}
           {isMaster && <PriceEditor planKey="series_filmes" label="Dicas de Séries / Filmes" current={price} />}

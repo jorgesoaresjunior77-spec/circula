@@ -7380,3 +7380,179 @@ textarea.menu-big-field {
   flex-wrap: wrap;
   justify-content: center;
 }
+
+/* ---- Ajustes 2026-12-04: capas inteiras, prato pronto, pulso sem contorno, séries ---- */
+/* E-books: o cartão e o detalhe mostram a capa inteira, sem cortar. */
+.product-card-media,
+.product-manager--storefront .product-card-media,
+.product-detail-panel .product-card-media {
+  aspect-ratio: auto;
+}
+.product-card-media-open {
+  height: auto;
+}
+.product-card-image,
+.product-manager--storefront .product-card-image {
+  height: auto;
+  object-fit: contain;
+}
+.product-manager--storefront .product-card:hover .product-card-image {
+  transform: none;
+}
+
+/* Leitor (e-book, revista, receita): a página cabe inteira na tela, de cima a baixo. */
+.mag2-sheet .mag2-page-img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 150px);
+  object-fit: contain;
+}
+
+/* Receita aberta: a foto do prato pronto aparece inteira. */
+.rec-hero.rec-hero--dish {
+  aspect-ratio: auto;
+  max-height: none;
+  overflow: visible;
+  background: none;
+  box-shadow: none;
+}
+.rec-hero.rec-hero--dish img {
+  width: 100%;
+  height: auto;
+  max-height: 80dvh;
+  object-fit: contain;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--elev-3);
+}
+
+/* Assine o Círcula e Convite: pulso só no tamanho, sem contorno quadrado. */
+@keyframes exp-card-pulse {
+  0%,
+  100% {
+    transform: scale(0.95);
+    box-shadow: none;
+  }
+  50% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+.exp-card-item--pulse .exp-card {
+  box-shadow: none;
+}
+
+/* Dicas de leitura: botão para comprar o livro. */
+.reading-buy {
+  display: inline-flex;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+/* Séries e filmes: filtros em lista e formulário amplo, um bloco por assunto. */
+.sf-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin: 10px 0 14px;
+}
+.sf-filters label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.8rem;
+  min-width: 140px;
+  flex: 1 1 140px;
+}
+.sf-filters select {
+  min-height: 44px;
+  padding: 8px 10px;
+}
+.sf-form {
+  display: grid;
+  gap: 22px;
+  padding: 18px;
+  margin-top: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: var(--surface);
+  box-shadow: var(--card-lift);
+}
+.sf-form h3 {
+  margin: 0;
+}
+.sf-form-section {
+  display: grid;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+.sf-form-section:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+.sf-form-section h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--circula-mocha);
+}
+.sf-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.sf-field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.85rem;
+  min-width: 0;
+}
+.sf-field--full {
+  grid-column: 1 / -1;
+}
+.sf-field input,
+.sf-field select,
+.sf-field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  font: inherit;
+  box-sizing: border-box;
+}
+.sf-field textarea {
+  min-height: 170px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.sf-field small {
+  color: var(--text-muted, #8a6a58);
+}
+.sf-genres {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.sf-genre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.sf-genre.is-on {
+  border-color: var(--circula-mocha);
+  background: rgba(176, 124, 96, 0.12);
+}
+.sf-form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+@media (max-width: 560px) {
+  .sf-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

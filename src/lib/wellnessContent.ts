@@ -42,6 +42,8 @@ export interface ReadingTip {
   key_learnings: string | null
   why_recommended: string | null
   cover_image_url: string | null
+  /** Link (https) da loja onde o livro é vendido. */
+  buy_url?: string | null
   status: PublishStatus
 }
 

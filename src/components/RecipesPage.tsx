@@ -6,6 +6,7 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { CoverImageInput } from './CoverImageInput'
 import { RecipeMagazineView } from './RecipeMagazineView'
+import { useRecipePages } from '../hooks/useRecipePages'
 import { RecipePagesEditor } from './RecipePagesEditor'
 import { RecipeMenuSheet } from './RecipeMenuSheet'
 import { AddRecipeToList } from './minhalista/AddRecipeToList'
@@ -24,6 +25,19 @@ interface RecipesPageProps {
 function Photo({ path }: { path: string | null }) {
   const { url } = useSignedImageUrl(path)
   return url ? <img src={url} alt="" loading="lazy" decoding="async" /> : null
+}
+
+/** Foto do prato pronto: a ÚLTIMA página da receita, inteira (sem corte). Sem páginas, usa a capa. */
+function RecipeHero({ recipeId, communityId, coverPath }: { recipeId: string; communityId: string; coverPath: string | null }) {
+  const { pages } = useRecipePages(recipeId, communityId)
+  const last = pages.length > 0 ? pages[pages.length - 1].image_path : null
+  const { url } = useSignedImageUrl(last ?? coverPath)
+  if (!url) return null
+  return (
+    <div className="rec-hero rec-hero--dish">
+      <img src={url} alt="Foto da receita pronta" decoding="async" />
+    </div>
+  )
 }
 
 function CategoryCard({
@@ -349,9 +363,7 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
     return (
       <section className="rec-page rec-detail">
         <BackButton onClick={() => setOpen(null)}>Voltar</BackButton>
-        <div className="rec-hero">
-          <Photo path={fresh.cover_image_url} />
-        </div>
+        <RecipeHero recipeId={fresh.id} communityId={communityId} coverPath={fresh.cover_image_url} />
         <header className="rec-head">
           {categoryName && <p className="rec-eyebrow">{categoryName}</p>}
           <h2>{fresh.title}</h2>
