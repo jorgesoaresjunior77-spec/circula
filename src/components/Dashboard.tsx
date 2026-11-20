@@ -29,6 +29,8 @@ import { NotificationBell } from './NotificationBell'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { HelpNutri } from './HelpNutri'
+import { NutriComingSoon } from './NutriComingSoon'
+import { canSeePatientNutri } from '../lib/nutriPreview'
 import { FeedNotices } from './FeedNotices'
 import { EventManager } from './EventManager'
 import { CircleManager } from './CircleManager'
@@ -1074,7 +1076,7 @@ export function Dashboard({
 
     // Calculadora de água — dado pessoal, não depende de comunidade em foco.
     if (effectiveNav === 'nutri' && isNutriPatient) {
-      return <PatientNutriPage />
+      return canSeePatientNutri(profile.id) ? <PatientNutriPage /> : <NutriComingSoon />
     }
 
     if (effectiveNav === 'agua') {

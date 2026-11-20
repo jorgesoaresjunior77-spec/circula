@@ -7312,3 +7312,33 @@ textarea.menu-big-field {
   cursor: pointer;
   font-weight: 600;
 }
+
+/* ---- Nutri da paciente: tela "Em breve" e calculadora de gordura corporal ---- */
+.nutri-coming-soon {
+  min-height: 52vh;
+  display: grid;
+  place-items: center;
+}
+.nutri-coming-soon-label {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 9vw, 48px);
+  letter-spacing: 0.18em;
+  color: var(--circula-mocha);
+}
+.body-fat-calc {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+.body-fat-result {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(248, 240, 227, 0.7);
+}
+.body-fat-result p {
+  margin: 0;
+}

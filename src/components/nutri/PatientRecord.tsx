@@ -220,6 +220,7 @@ export function PatientRecord({
             <AssessmentsTab
               assessments={rec.assessments}
               sex={patient.sex}
+              age={ageFrom(patient.birth_date)}
               onAdd={rec.addAssessment}
               onRemove={rec.removeAssessment}
               onPdf={(a) => printDocument(assessmentHtml(a, rec.assessments, patient.full_name, nutriName))}

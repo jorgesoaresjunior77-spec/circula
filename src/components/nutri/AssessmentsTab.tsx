@@ -17,6 +17,7 @@ import {
   waistHipRatio,
 } from '../../lib/nutri'
 import type { Assessment, AssessmentInput, MeasureDef } from '../../lib/nutri'
+import { BodyFatCalculator } from './BodyFatCalculator'
 
 // Avaliação antropométrica: formulário, linha do tempo, gráficos de evolução e
 // comparação entre duas avaliações. Composição corporal só entra se a
@@ -76,6 +77,7 @@ function MeasureInputs({ defs, values, onChange }: { defs: MeasureDef[]; values:
 export function AssessmentsTab({
   assessments,
   sex,
+  age = null,
   onAdd,
   onRemove,
   onPdf,
@@ -83,6 +85,8 @@ export function AssessmentsTab({
 }: {
   assessments: Assessment[]
   sex: 'F' | 'M' | null
+  /** Idade da paciente (anos), para os protocolos de dobras. */
+  age?: number | null
   onAdd: (input: AssessmentInput) => Promise<{ error: string | null }>
   onRemove: (id: string, on: string) => Promise<{ error: string | null }>
   onPdf: (a: Assessment) => void
@@ -95,6 +99,7 @@ export function AssessmentsTab({
   const [source, setSource] = useState('')
   const [notes, setNotes] = useState('')
   const [share, setShare] = useState(false)
+  const [skinfolds, setSkinfolds] = useState<Record<string, number>>({})
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [chartKey, setChartKey] = useState<keyof Assessment>('weight_kg')
@@ -107,6 +112,7 @@ export function AssessmentsTab({
   async function submit(e: FormEvent) {
     e.preventDefault()
     const input: AssessmentInput = { assessed_on: date, source: source.trim() || null, notes: notes.trim() || null, shared_with_patient: share }
+    if (Object.keys(skinfolds).length > 0) input.skinfolds = skinfolds
     let any = false
     for (const m of ALL_MEASURES) {
       const v = num(vals[m.key] ?? '')
@@ -132,6 +138,7 @@ export function AssessmentsTab({
     setNotes('')
     setSource('')
     setShare(false)
+    setSkinfolds({})
   }
 
   const chartDefs = ALL_MEASURES.filter((m) => sorted.filter((a) => a[m.key] != null).length > 0)
@@ -167,8 +174,23 @@ export function AssessmentsTab({
           </p>
           <h4>Composição corporal</h4>
           <p className="home-muted">
-            Preencha só com valores medidos (bioimpedância ou protocolo). O app não calcula esses indicadores a partir de peso e altura.
+            Preencha com valores medidos (bioimpedância ou protocolo) ou use a calculadora abaixo, que aplica uma equação publicada às dobras ou circunferências que você mediu. O app nunca estima isso por foto, nem só por peso e altura.
           </p>
+          <BodyFatCalculator
+            sex={sex}
+            age={age}
+            weightKg={num(vals.weight_kg ?? '')}
+            heightCm={liveHeight}
+            onApply={({ result, protocolLabel, skinfolds: used }) => {
+              setVals((s) => ({
+                ...s,
+                body_fat_pct: String(result.bodyFatPct),
+                ...(result.fatMassKg != null ? { fat_mass_kg: String(result.fatMassKg) } : {}),
+              }))
+              setSource(protocolLabel)
+              setSkinfolds(used)
+            }}
+          />
           <MeasureInputs defs={COMPOSITION_MEASURES} values={vals} onChange={(k, v) => setVals((s) => ({ ...s, [k]: v }))} />
           <label>
             Equipamento ou protocolo usado

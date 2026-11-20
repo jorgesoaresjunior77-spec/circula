@@ -32,7 +32,16 @@ export interface NutriArea {
   exempt: boolean
   plan: Pick<Plan, 'name' | 'objective' | 'start_date' | 'review_date' | 'kcal_target' | 'protein_g_target' | 'carb_g_target' | 'fat_g_target' | 'fiber_g_target' | 'water_ml_target' | 'goals' | 'guidance' | 'meals'> | null
   next_consultation: string | null
-  evolution: { assessed_on: string; weight_kg: number | null; waist_cm: number | null; body_fat_pct: number | null; muscle_mass_kg: number | null }[]
+  evolution: {
+    assessed_on: string
+    weight_kg: number | null
+    height_cm?: number | null
+    waist_cm: number | null
+    hip_cm?: number | null
+    body_fat_pct: number | null
+    fat_mass_kg?: number | null
+    muscle_mass_kg: number | null
+  }[]
   appointments: NutriAppointment[]
   updates: NutriUpdate[]
 }
