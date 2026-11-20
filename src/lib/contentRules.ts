@@ -10,6 +10,7 @@
 //   Playlist ...... a cada 45 dias (contando de 01/12/2026)
 //   Dicas de leitura  a cada 15 dias, em segundas (de 14 em 14 dias, 1ª em 07/12/2026)
 //   Wellness ...... 1 vez por mês, dia 25
+//   Séries e filmes  1 vez por semana, às sextas
 //
 // Aviso no sino: 1 dia antes de cada publicação.
 
@@ -40,6 +41,7 @@ export const CONTENT_RULES: ContentRule[] = [
   { type: 'playlist', title: 'Publicar Playlist', summary: 'A cada 45 dias', cadence: { kind: 'everyNDays', n: 45, anchor: RULES_START } },
   { type: 'leitura', title: 'Publicar Dicas de leitura', summary: 'A cada 15 dias, às segundas', cadence: { kind: 'everyNDays', n: 14, anchor: '2026-12-07' } },
   { type: 'wellness', title: 'Publicar Wellness', summary: 'Uma vez por mês, dia 25', cadence: { kind: 'monthlyDay', day: 25 } },
+  { type: 'series', title: 'Publicar dicas de séries e filmes', summary: 'Uma vez por semana, às sextas', cadence: { kind: 'weekly', weekday: 5 } },
 ]
 
 // ---- datas em yyyy-mm-dd, sem fuso (contas em UTC) --------------------------------------

@@ -6,7 +6,7 @@ const REQ = { minutes: 20, categories: [] as string[], goals: [] as string[], le
 
 describe('biblioteca de exercícios para fazer em casa', () => {
   it('tem muitos exercícios, cada um com texto completo, categorias conhecidas e imagem', () => {
-    expect(BASE_EXERCISES.length).toBeGreaterThanOrEqual(50)
+    expect(BASE_EXERCISES.length).toBeGreaterThanOrEqual(70)
     const slugs = new Set<string>()
     for (const e of BASE_EXERCISES) {
       expect(slugs.has(e.slug)).toBe(false)

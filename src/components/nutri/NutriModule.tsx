@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useNutriOverview } from '../../hooks/useNutri'
 import { LinkRequests } from './LinkRequests'
+import { erasePatient } from '../../hooks/useNutriLgpd'
 import { ageFrom, brDate, isoToday, needsReturn, daysBetween } from '../../lib/nutri'
 import type { Patient } from '../../lib/nutri'
 import { useNutriLibrary } from '../../hooks/useNutriPlan'
@@ -22,7 +23,7 @@ type View =
   | { name: 'new' }
   | { name: 'foods' }
   | { name: 'recipes' }
-  | { name: 'record'; id: string; tab: Tab }
+  | { name: 'record'; id: string; tab: Tab; edit?: boolean }
 
 const NEW_DAYS = 30
 
@@ -129,6 +130,7 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
           patient={patient}
           communityId={communityId}
           initialTab={view.tab}
+          initialEditing={view.edit}
           foods={lib.foods}
           recipes={lib.recipes}
           nutriName={nutriName}
@@ -167,7 +169,18 @@ export function NutriModule({ communityId, nutriName }: { communityId: string; n
         {list.length === 0 && <p className="home-muted">Nenhuma paciente encontrada.</p>}
         <ul className="nutri-list">
           {list.map((p) => (
-            <PatientRow key={p.id} p={p} onOpen={() => setView({ name: 'record', id: p.id, tab: view.intent ?? 'resumo' })} />
+            <PatientRow
+              key={p.id}
+              p={p}
+              onOpen={() => setView({ name: 'record', id: p.id, tab: view.intent ?? 'resumo' })}
+              onEdit={() => setView({ name: 'record', id: p.id, tab: 'dados', edit: true })}
+              onDelete={async () => {
+                if (!window.confirm(`Excluir ${p.full_name}? Todos os dados e arquivos dela serão apagados e não dá para desfazer.`)) return
+                const r = await erasePatient(p.id)
+                if (r.error) window.alert(r.error)
+                else ov.reload()
+              }}
+            />
           ))}
         </ul>
       </section>
@@ -280,7 +293,7 @@ function ReminderButton({ patient, text }: { patient: Patient; text: string }) {
   )
 }
 
-function PatientRow({ p, onOpen }: { p: Patient; onOpen: () => void }) {
+function PatientRow({ p, onOpen, onEdit, onDelete }: { p: Patient; onOpen: () => void; onEdit?: () => void; onDelete?: () => void }) {
   const age = ageFrom(p.birth_date)
   return (
     <li>
@@ -291,6 +304,16 @@ function PatientRow({ p, onOpen }: { p: Patient; onOpen: () => void }) {
           {p.main_goal ? ` · ${p.main_goal}` : ''}
         </span>
       </button>
+      {onEdit && onDelete && (
+        <span className="nutri-row-actions">
+          <button type="button" className="own-menu-btn" onClick={onEdit}>
+            Editar
+          </button>
+          <button type="button" className="own-menu-btn" onClick={onDelete}>
+            Excluir
+          </button>
+        </span>
+      )}
     </li>
   )
 }

@@ -388,14 +388,14 @@ export function MyProfile({
         />
       </div>
 
+      <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
+
       {communityId && (
         <div className="profile-garden-section">
           <p className="profile-section-label profile-section-label--garden">Meu Jardim</p>
           <GardenProfileSummary communityId={communityId} profileId={profile.id} />
         </div>
       )}
-
-      <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
 
       {!editing && (
         <div className="profile-actions-row profile-actions-row--inline">

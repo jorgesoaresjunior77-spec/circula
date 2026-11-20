@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { BIBLE_PASSAGES } from './biblePassages'
 import { BUILTIN_PRAYERS, amenMessage, prayerOfTheDay, streak, topGratitudes } from './gratitude'
 
 const p = (id: string, position: number, status = 'published') => ({ id, position, status })
@@ -14,6 +15,8 @@ describe('Diário da Gratidão', () => {
   it('as orações tradicionais têm texto e terminam em amém', () => {
     expect(BUILTIN_PRAYERS.length).toBeGreaterThanOrEqual(10)
     for (const b of BUILTIN_PRAYERS) expect(b.body.trim().endsWith('Amém.')).toBe(true)
+    expect(BIBLE_PASSAGES.length).toBeGreaterThanOrEqual(20)
+    expect(new Set(BIBLE_PASSAGES.map((x) => x.title)).size).toBe(BIBLE_PASSAGES.length)
   })
   it('ignora rascunhos e devolve nulo sem orações publicadas', () => {
     expect(prayerOfTheDay([p('a', 1, 'draft')], '2026-11-19')).toBeNull()

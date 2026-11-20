@@ -9,6 +9,8 @@ import { PatientForm } from './PatientForm'
 import { PlanTab } from './PlanTab'
 import { PrivacyTab } from './PrivacyTab'
 import { FollowUpTab } from './FollowUpTab'
+import { BillingTab } from './BillingTab'
+import { erasePatient } from '../../hooks/useNutriLgpd'
 import { PatientPhoto } from './PatientPhoto'
 import { DocumentsTab, ExamsTab } from './FilesTabs'
 import { assessmentHtml, evolutionHtml, printDocument } from '../../lib/nutriPrint'
@@ -19,7 +21,7 @@ import type { Food } from '../../lib/nutriPlan'
 // exames, receitas e documentos chegam nas próximas etapas e aparecem
 // marcadas como "em breve" para o caminho ficar visível.
 
-export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'privacidade' | 'consultas' | 'acompanhamento' | 'obs' | 'historico'
+export type Tab = 'resumo' | 'dados' | 'anamnese' | 'avaliacao' | 'plano' | 'exames' | 'documentos' | 'privacidade' | 'consultas' | 'acompanhamento' | 'assinatura' | 'obs' | 'historico'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
@@ -32,6 +34,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'privacidade', label: 'Privacidade (LGPD)' },
   { key: 'consultas', label: 'Consultas e evolução' },
   { key: 'acompanhamento', label: 'Acompanhamento da paciente' },
+  { key: 'assinatura', label: 'Assinatura e pagamentos' },
   { key: 'obs', label: 'Observações' },
   { key: 'historico', label: 'Histórico de alterações' },
 ]
@@ -53,6 +56,7 @@ export function PatientRecord({
   onBack,
   onChanged,
   initialTab = 'resumo',
+  initialEditing = false,
   foods,
   recipes,
   nutriName,
@@ -65,6 +69,7 @@ export function PatientRecord({
   onBack: () => void
   onChanged: () => void
   initialTab?: Tab
+  initialEditing?: boolean
   foods: Food[]
   recipes: Recipe[]
   nutriName: string
@@ -73,7 +78,7 @@ export function PatientRecord({
 }) {
   const rec = usePatientRecord(patient.id, communityId)
   const [tab, setTab] = useState<Tab>(initialTab)
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(initialEditing)
 
   const sorted = useMemo(() => sortAssessments(rec.assessments), [rec.assessments])
   const last = sorted.at(-1) ?? null
@@ -91,6 +96,24 @@ export function PatientRecord({
       <header className="nutri-record-head">
         <PatientPhoto patient={patient} communityId={communityId} onChanged={onChanged} />
         <h2>{patient.full_name}</h2>
+        <div className="nutri-head-actions">
+          <button type="button" className="hw-ghost" onClick={() => { setTab('dados'); setEditing(true) }}>
+            Editar paciente
+          </button>
+          <button
+            type="button"
+            className="hw-ghost nutri-danger"
+            onClick={async () => {
+              if (!window.confirm(`Excluir ${patient.full_name}? Todos os dados e arquivos dela serão apagados e não dá para desfazer.`)) return
+              const r = await erasePatient(patient.id)
+              if (r.error) return window.alert(r.error)
+              onChanged()
+              onBack()
+            }}
+          >
+            Excluir paciente
+          </button>
+        </div>
         <p className="home-muted">
           {age !== null ? `${age} anos` : 'Idade não informada'} · {patient.status === 'ativo' ? 'Ativa' : 'Inativa'}
           {returnDue ? ' · precisa de retorno' : ''}
@@ -226,6 +249,8 @@ export function PatientRecord({
           {tab === 'consultas' && (
             <ConsultationsTab consultations={rec.consultations} onAdd={rec.addConsultation} onSetStatus={rec.setConsultationStatus} />
           )}
+
+          {tab === 'assinatura' && <BillingTab patientId={patient.id} />}
 
           {tab === 'acompanhamento' && <FollowUpTab patientId={patient.id} communityId={communityId} linkedProfileId={patient.linked_profile_id ?? null} />}
 

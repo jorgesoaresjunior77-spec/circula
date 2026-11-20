@@ -6042,19 +6042,6 @@ section.community-card.product-manager.product-manager--storefront {
 }
 
 /* ---- Flores até o fim: o que é transparente ganha fundo próprio, para elas não passarem atrás ---- */
-.home-wheel .wheel-card {
-  background: #fbf4ea;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-.home-partners,
-.home-institutional-note,
-.home-footer {
-  position: relative;
-  background: var(--page-bg);
-}
-
 /* ---- Card único Planos e assinaturas (duas coroas) ---- */
 .home-plans-wrap {
   margin: 26px 0 30px;
@@ -6402,4 +6389,234 @@ section.community-card.product-manager.product-manager--storefront {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+
+/* ======================= Rodada 2026-11-21 ======================= */
+/* ---- Flores só nos espaços entre os blocos ---- */
+.home-flower-gap {
+  position: relative;
+  width: 100%;
+  margin: 2px 0;
+  pointer-events: none;
+}
+
+/* ---- Parceiros: logos 30% maiores e 10% mais afastados, sem fundo ---- */
+.home-partners {
+  background: none;
+}
+
+.partner-item {
+  width: calc((100cqw - 14cqw) / 3 * 1.1);
+}
+
+.home-partners .partner-logo,
+.home-partners .partner-logo.partner-logo--boost {
+  height: 120px;
+}
+
+.home-partners .partner-logo img,
+.home-partners .partner-logo--boost img {
+  max-height: 120px;
+}
+
+.home-partners .partner-logo img.partner-img--fit {
+  height: calc(min(73px, 22cqw / var(--ca)) / var(--ch));
+}
+
+.home-institutional-note {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.home-footer {
+  margin: 14px 0 6px;
+  padding: 18px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--card-lift);
+}
+
+/* ---- Card fino Planos e assinaturas: só a escrita sobre a imagem da nutri ---- */
+.home-plans-wrap {
+  margin: 10px 0 12px;
+}
+
+.home-plans-card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 76px;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--card-radius-lg);
+  background: linear-gradient(135deg, #fbf1e1, #f1dfc4);
+  box-shadow: var(--card-lift);
+  font: inherit;
+}
+
+.home-plans-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-plans-card--photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(40, 28, 20, 0.45), rgba(40, 28, 20, 0.2));
+}
+
+.home-plans-title {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--circula-mocha);
+}
+
+.home-plans-card--photo .home-plans-title {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* ---- Roda de cards: 4 inteiros por vez, subindo de forma contínua e suave ---- */
+.home-wheel .wheel-viewport {
+  height: calc((var(--wheel-card-h) + var(--wheel-gap)) * 4 - var(--wheel-gap) + 6px);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent);
+}
+
+.home-wheel .wheel-track {
+  animation-timing-function: linear;
+}
+
+/* ---- Diário: respiro entre o "voltar" e o título, e entre os botões da oração ---- */
+.diary > .water-link {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.diary-prayer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.diary-kind {
+  margin: 0 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a5a3c;
+}
+
+/* ---- Meu Chef: campos grandes, fáceis de ler e de escrever ---- */
+.menu-big-field {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 56px;
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.45;
+  border: 1px solid rgba(120, 96, 78, 0.35);
+  border-radius: 16px;
+  background: #fff;
+}
+
+textarea.menu-big-field {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* ---- Ajuda: campo de escrever maior ---- */
+.message-composer-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.message-composer-input {
+  min-height: 120px;
+  max-height: 240px;
+  font-size: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+}
+
+.message-composer-send {
+  min-height: 48px;
+}
+
+/* ---- Nutri: ações da paciente ---- */
+.nutri-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.nutri-danger {
+  color: #b3392c;
+  border-color: rgba(179, 57, 44, 0.45);
+}
+
+.nutri-row-actions {
+  display: flex;
+  gap: 14px;
+  padding: 2px 6px 8px;
+}
+
+.home-flower-gap .home-flower {
+  opacity: 0.18;
+}
+
+/* ---- Movimento e desempenho ---- */
+/* O bloco de parceiros (longe da tela) só é desenhado quando se aproxima. Cartões com sombra ficam de fora: o recorte cortaria o "degrau". */
+.home-partners {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
+}
+
+/* Cartões sobem um pouco ao passar o dedo/mouse e "afundam" ao tocar, com a mesma curva em todo o app. */
+@media (hover: hover) {
+  .card-lift,
+  .home-pair .menu-banner,
+  .home-plans-card {
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card-lift:hover,
+  .home-pair .menu-banner:hover,
+  .home-plans-card:hover {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lift,
+  .home-pair .menu-banner,
+  .home-plans-card,
+  .hw-chip,
+  .tour-guide-wrap {
+    transition: none;
+  }
+  .card-lift:hover,
+  .home-pair .menu-banner:hover,
+  .home-plans-card:hover {
+    transform: none;
+  }
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { PrayingHands } from './PrayingHands'
 import { useGratitude } from '../hooks/useGratitude'
+import { BIBLE_PASSAGES, isBiblePassage } from '../lib/biblePassages'
 import { BUILTIN_PRAYERS, amenMessage, prayerOfTheDay, streak, topGratitudes } from '../lib/gratitude'
 import { brDate, isoToday } from '../lib/nutri'
 
@@ -12,7 +13,7 @@ import { brDate, isoToday } from '../lib/nutri'
 type Area = 'inicio' | 'oracao' | 'gratidao' | 'pedidos' | 'jornada' | 'orar-admin'
 
 const TILES: { key: Exclude<Area, 'inicio' | 'orar-admin'>; title: string; text: string; icon: string }[] = [
-  { key: 'oracao', title: 'Oração do Dia', text: 'Uma oração para hoje', icon: '🙏' },
+  { key: 'oracao', title: 'Oração do Dia', text: 'Uma oração ou passagem da Bíblia', icon: '🙏' },
   { key: 'gratidao', title: 'Gratidão de Hoje', text: 'O que merece ser agradecido', icon: '📖' },
   { key: 'pedidos', title: 'Meus Pedidos', text: 'O que você leva em oração', icon: '🕊️' },
   { key: 'jornada', title: 'Minha Jornada', text: 'Seus dias de gratidão', icon: '🌅' },
@@ -30,7 +31,7 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
 
   const [prayerOffset, setPrayerOffset] = useState(0)
   // sorteio entre as orações tradicionais do app e as cadastradas pela nutricionista
-  const prayer = prayerOfTheDay([...BUILTIN_PRAYERS, ...g.prayers], today, prayerOffset)
+  const prayer = prayerOfTheDay([...BUILTIN_PRAYERS, ...BIBLE_PASSAGES, ...g.prayers], today, prayerOffset)
   const todayEntry = g.entries.find((e) => e.day === today)
   const draft = Array.from({ length: 5 }, (_, i) => (items ?? todayEntry?.items ?? [])[i] ?? '')
   const allFilled = draft.every((x) => x.trim().length > 0)
@@ -110,20 +111,22 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
       {area === 'oracao' && (
         <>
           {back}
-          <h2>Oração do Dia</h2>
+          <h2>Oração e Palavra do Dia</h2>
           <p className="home-muted">{new Date(today + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           {g.loading && <p className="home-muted">Carregando…</p>}
           {!g.loading && !prayer && <p className="home-muted">A oração de hoje ainda não foi cadastrada. Volte em breve.</p>}
           {prayer && (
             <article className="diary-prayer">
+              {isBiblePassage(prayer.id) && <p className="diary-kind">Passagem da Bíblia</p>}
               {prayer.title && <h3>{prayer.title}</h3>}
               {prayer.body.split(/\n{1,}/).map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
             </article>
           )}
-          <button type="button" className="water-link" onClick={() => { setPrayerOffset((n) => n + 1); setAmen(false) }}>
-            Ler outra oração
+          <div className="diary-prayer-actions">
+          <button type="button" className="hw-ghost" onClick={() => { setPrayerOffset((n) => n + 1); setAmen(false) }}>
+            Ler outra
           </button>
           {prayer && !amenToday && (
             <button
@@ -137,6 +140,7 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
               Amém 🙏
             </button>
           )}
+          </div>
           {prayer && amenToday && (
             <div className="diary-amen" role="status">
               <PrayingHands size={80} label="Amém" />

@@ -94,7 +94,7 @@ function PlaceCard({ place, now, featured = false }: { place: WorldPlace; now: D
     <article className={`wclock-card${featured ? ' wclock-card--featured' : ''} weather-hero--${scene?.scene ?? 'ceu-azul'}`}>
       {photo && (
         <figure className="wclock-card-photo">
-          <img src={photo.url} alt={`Foto de ${place.name}`} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+          <img src={photo.url} alt={`Foto de ${place.name}`} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={(e) => { const img = e.currentTarget; if (!img.dataset.retry) { img.dataset.retry = '1'; img.src = photo.url.replace(/\/960px-/, '/500px-') } }} />
           <figcaption>Foto: Wikipédia</figcaption>
         </figure>
       )}

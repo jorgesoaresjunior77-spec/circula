@@ -10,6 +10,7 @@ export type ContentType =
   | 'playlist'
   | 'leitura'
   | 'wellness'
+  | 'series'
   | 'outro'
 
 export const CONTENT_TYPES: { key: ContentType; label: string }[] = [
@@ -21,6 +22,7 @@ export const CONTENT_TYPES: { key: ContentType; label: string }[] = [
   { key: 'playlist', label: 'Playlist' },
   { key: 'leitura', label: 'Dicas de leitura' },
   { key: 'wellness', label: 'Wellness' },
+  { key: 'series', label: 'Dicas de séries e filmes' },
   { key: 'outro', label: 'Outro' },
 ]
 
@@ -49,6 +51,7 @@ export const TYPE_COLORS: Record<ContentType, string> = {
   playlist: '#e07a9f',
   leitura: '#8c6a4f',
   wellness: '#2a9d8f',
+  series: '#b5651d',
   outro: '#8d8a86',
 }
 

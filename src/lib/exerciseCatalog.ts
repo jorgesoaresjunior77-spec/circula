@@ -7,6 +7,7 @@
 // de um profissional de educação física ou de saúde.
 
 import { EXTRA_EXERCISES } from './exerciseCatalogExtra'
+import { ACESSORIOS_EXERCISES } from './exerciseCatalogAcessorios'
 
 export const CATEGORIES = [
   'Corpo inteiro',
@@ -485,7 +486,7 @@ const CORE_EXERCISES: ExerciseBase[] = [
   },
 ]
 
-export const BASE_EXERCISES: ExerciseBase[] = [...CORE_EXERCISES, ...EXTRA_EXERCISES]
+export const BASE_EXERCISES: ExerciseBase[] = [...CORE_EXERCISES, ...EXTRA_EXERCISES, ...ACESSORIOS_EXERCISES]
 
 // ---------------- Materiais de casa ----------------
 
@@ -494,6 +495,10 @@ export const MATERIALS = [
   { key: 'cadeira', label: 'Uma cadeira firme' },
   { key: 'degrau', label: 'Um degrau ou escada' },
   { key: 'garrafas', label: 'Duas garrafas de água' },
+  { key: 'bola', label: 'Bola de ginástica ou bolinha macia' },
+  { key: 'elastico', label: 'Faixa elástica' },
+  { key: 'toalha', label: 'Uma toalha' },
+  { key: 'cabo', label: 'Cabo de vassoura' },
 ] as const
 
 export const MATERIAL_LABEL: Record<string, string> = Object.fromEntries(MATERIALS.map((m) => [m.key, m.label]))

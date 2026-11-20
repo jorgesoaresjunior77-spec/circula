@@ -36,12 +36,12 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-tools'],
     title: 'Atalhos do dia',
-    text: 'Antes de Tudo (seus hábitos da manhã), Água (quanto você já bebeu) e IMC. Toque em um deles para abrir.',
+    text: 'Antes de Tudo (seus hábitos da manhã), Água (meta do dia, registros e gráfico da semana e do mês) e IMC. Toque em um deles para abrir.',
   },
   {
     targets: ['.exp-strip', '.exp-viewport'],
     title: 'Menu',
-    text: 'Deslize para o lado e toque em um cartão: Eventos, Loja, Receitas, Meu Jardim e Help Nutri.',
+    text: 'Deslize para o lado e toque em um cartão: Meu Perfil, Help Nutri, Eventos, Loja, Receitas, Se exercite em casa e Meu Jardim.',
     gesture: 'swipe',
   },
   {
@@ -61,13 +61,6 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'tap',
   },
   {
-    targets: ['.home-wheel'],
-    title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) ou em Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
-    optional: true,
-    gesture: 'tap',
-  },
-  {
     targets: ['.home-pair .menu-banner-wrap'],
     title: 'Meu Chef',
     text: 'Escolha os pratos e receba bem: o Meu Chef monta o cardápio do seu encontro com as receitas da nutricionista.',
@@ -77,7 +70,21 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.gratitude-card-wrap'],
     title: 'Diário da Gratidão',
-    text: 'Oração do Dia, Gratidão de Hoje, Meus Pedidos e Minha Jornada. É um momento só seu, e tudo o que você escreve fica privado.',
+    text: 'Uma oração ou passagem da Bíblia por dia, as 5 gratidões de hoje, seus pedidos e a sua jornada. É um momento só seu, e tudo o que você escreve fica privado.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
+    targets: ['.home-wheel'],
+    title: 'Mais conteúdos',
+    text: 'No menu que rola, toque em Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) ou em Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
+    targets: ['.home-plans-wrap'],
+    title: 'Planos e assinaturas',
+    text: 'Veja os conteúdos que você pode assinar, com desconto nos planos de 6 e 12 meses, e o Círcula Premium com tudo junto.',
     optional: true,
     gesture: 'tap',
   },
@@ -101,7 +108,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['#tour-notification-bell'],
     title: 'Notificações',
-    text: 'O sino avisa sobre respostas e novidades. Toque em um aviso e ele leva você direto ao lugar.',
+    text: 'O sino avisa sobre respostas, consultas, plano alimentar e novidades. Toque em um aviso e ele leva você direto ao lugar.',
   },
 ]
 

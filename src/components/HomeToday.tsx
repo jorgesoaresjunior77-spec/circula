@@ -27,7 +27,7 @@ import { AnalogClock } from './AnalogClock'
 import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
-import { HomeFlowerBackground } from './HomeFlowerBackground'
+import { HomeFlowerGap } from './HomeFlowerBackground'
 import { HomeFooter } from './HomeFooter'
 import { HomeMenuWheel } from './HomeMenuWheel'
 
@@ -176,6 +176,7 @@ export function HomeToday({
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
   const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
   const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
+  const { url: planosCover } = useSignedImageUrl(cardImagePaths.banner_planos ?? null)
   const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
@@ -341,7 +342,6 @@ export function HomeToday({
 
       {/* Da revista até o fim da página, flores de pétalas redondas ao fundo. */}
       <div className="home-flower-zone">
-      <HomeFlowerBackground />
       <hr className="home-section-divider" />
       <HomeMagazineStrip
         issues={magazineIssues}
@@ -352,6 +352,7 @@ export function HomeToday({
           ) : undefined
         }
       />
+      <HomeFlowerGap seed={1} />
 
       {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
           depois da faixa do Instagram (ver HomeEditorialCards.tsx).
@@ -377,6 +378,7 @@ export function HomeToday({
         featuredProduct={featuredProduct ? { ...featuredProduct, cover_image_url: featuredProductCover } : null}
         onNavigate={onNavigate}
       />
+      <HomeFlowerGap seed={2} />
 
       <hr className="home-section-divider" />
       <div className="home-pair">
@@ -384,12 +386,14 @@ export function HomeToday({
         <span className="home-pair-dot" aria-hidden="true" />
         <HomeGratitudeCard image={diarioCover} onOpen={() => onNavigate('diario')} />
       </div>
+      <HomeFlowerGap seed={3} height={60} />
 
       <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
+      <HomeFlowerGap seed={4} />
 
-      <HomePlansCard onOpen={() => onNavigate('planos')} />
+      <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
+      <HomeFlowerGap seed={5} />
 
-      {/* Até o fim do app: parceiros e rodapé têm fundo próprio, então as flores não passam atrás deles. */}
       <HomePartnersStrip communityId={focusCommunity.id} />
 
       <p className="home-institutional-note">

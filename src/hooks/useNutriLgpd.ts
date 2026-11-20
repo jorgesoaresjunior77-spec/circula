@@ -55,12 +55,18 @@ export async function erasePatient(patientId: string): Promise<Result> {
   for (const r of (docs.data as { file_path: string | null }[] | null) ?? []) if (r.file_path) paths.push(r.file_path)
   const ph = (photo.data as { photo_path: string | null } | null)?.photo_path
   if (ph) paths.push(ph)
+  // fotos de evolução (bucket próprio)
+  const prog = await supabase.from('nutri_progress_photos').select('file_path').eq('patient_id', patientId).limit(5000)
+  const progPaths = ((prog.data as { file_path: string }[] | null) ?? []).map((r) => r.file_path)
 
   // Os registros primeiro: se falhar, os arquivos continuam acessíveis.
   const del = await supabase.from('nutri_patients').delete().eq('id', patientId)
   if (del.error) return { error: FAIL }
   for (let i = 0; i < paths.length; i += 100) {
     await supabase.storage.from('nutri-files').remove(paths.slice(i, i + 100))
+  }
+  for (let i = 0; i < progPaths.length; i += 100) {
+    await supabase.storage.from('nutri-progress').remove(progPaths.slice(i, i + 100))
   }
   return { error: null }
 }

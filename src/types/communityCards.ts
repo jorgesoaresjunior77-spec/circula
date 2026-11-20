@@ -64,6 +64,7 @@ export type CommunityCardKey =
   | 'banner_exercicios'
   | 'banner_series'
   | 'banner_diario'
+  | 'banner_planos'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -152,6 +153,11 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     hint: 'Foto do card "Dicas de Séries / Filmes" na Home (sofá, tela, clima aconchegante). Aparece no card, em 16:9.',
   },
   {
+    key: 'banner_planos',
+    label: 'Planos e assinaturas',
+    hint: 'Imagem do card fino "Planos e assinaturas" na Home (só a escrita fica por cima dela). Aparece em formato bem largo e baixo.',
+  },
+  {
     key: 'banner_diario',
     label: 'Diário da Gratidão',
     hint: 'Imagem do card "Diário da Gratidão" na Home (luz de amanhecer, mãos em oração, diário aberto). Aparece no card.',
@@ -192,6 +198,8 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'banner_series':
     case 'banner_diario':
       return SPEC_BANNER
+    case 'banner_planos':
+      return { aspect: '16 / 3', size: '1600 × 300 px', format: 'faixa larga 16:3' }
     case 'loja_fundo':
     case 'revista_escritorio':
       return SPEC_BACKGROUND

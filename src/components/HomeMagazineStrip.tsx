@@ -2,6 +2,7 @@ import { recordView } from '../lib/itemViews'
 import { morphOpen } from '../lib/viewTransition'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import type { MagazineIssue } from '../types/magazine'
 import { MAGAZINE_BLANK_PAGES } from '../types/magazine'
@@ -471,7 +472,8 @@ export function MagazineReader({
   const baseIdx = turn ? (turn.dir === 'next' ? turn.to : turn.from) : index
   const flapIdx = turn ? (turn.dir === 'next' ? turn.from : turn.to) : null
 
-  return (
+  // O leitor sai da faixa e vai para o corpo da página: dentro dela, os cards de baixo ficavam por cima.
+  return createPortal(
     <div className="mag2-reader" role="dialog" aria-modal="true" aria-label={`Revista ${title}`}>
       <button type="button" className="mag2-close" onClick={onClose} aria-label="Fechar revista" data-autofocus>
         <CloseIcon />
@@ -523,7 +525,8 @@ export function MagazineReader({
           ›
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

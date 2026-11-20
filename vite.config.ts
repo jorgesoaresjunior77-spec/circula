@@ -34,6 +34,7 @@ export default defineConfig({
           groups: [
             { name: 'vendor-react', test: /node_modules[\/](react|react-dom|scheduler)[\/]/ },
             { name: 'vendor-supabase', test: /node_modules[\/]@supabase[\/]/ },
+            { name: 'vendor-motion', test: /node_modules[\/](motion|motion-dom|motion-utils|framer-motion)[\/]/ },
           ],
         },
       },

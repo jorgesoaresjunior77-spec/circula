@@ -29,7 +29,7 @@ async function summary(lang: 'pt' | 'en', title: string, fetchImpl: FetchLike): 
   }
   if (body.type === 'disambiguation') return null
   const url = body.thumbnail?.source ?? body.originalimage?.source
-  return url ? { url: url.replace(/\/\d+px-/, '/800px-'), title: body.title ?? title } : null
+  return url ? { url: url.replace(/\/\d+px-/, '/960px-'), title: body.title ?? title } : null
 }
 
 export async function fetchPlacePhoto(

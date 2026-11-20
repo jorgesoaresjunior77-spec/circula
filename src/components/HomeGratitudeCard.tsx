@@ -14,7 +14,7 @@ export function HomeGratitudeCard({ image, onOpen }: { image: string | null; onO
         </span>
         <span className="menu-banner-text gratitude-text">
           <span className="menu-banner-title gratitude-title">Diário da Gratidão</span>
-          <span className="menu-banner-eyebrow">Começar agora</span>
+          <span className="menu-banner-eyebrow">Um minuto de gratidão</span>
         </span>
       </button>
     </m.section>

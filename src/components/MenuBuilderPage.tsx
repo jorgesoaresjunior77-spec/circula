@@ -363,11 +363,11 @@ export function MenuBuilderPage({
             </fieldset>
             <label>
               Existe algum ingrediente que você prefere não utilizar?
-              <input type="text" value={answers.avoid} placeholder="Ex.: cebola, alho, pimentão" onChange={(e) => patch({ avoid: e.target.value })} />
+              <textarea className="menu-big-field" rows={4} value={answers.avoid} placeholder="Ex.: cebola, alho, pimentão" onChange={(e) => patch({ avoid: e.target.value })} />
             </label>
             <label>
               Alergias alimentares
-              <input type="text" value={answers.allergies} placeholder="Ex.: amendoim, camarão" onChange={(e) => patch({ allergies: e.target.value })} />
+              <textarea className="menu-big-field" rows={4} value={answers.allergies} placeholder="Ex.: amendoim, camarão" onChange={(e) => patch({ allergies: e.target.value })} />
             </label>
             <p className="menu-warning" role="note">
               Alergias são tratadas como restrição obrigatória: só entram receitas com ficha verificada pela nutricionista.
@@ -398,14 +398,14 @@ export function MenuBuilderPage({
             </fieldset>
             <label>
               Orçamento aproximado (R$)
-              <input
-                type="number"
-                min={0}
-                inputMode="decimal"
-                disabled={answers.noBudgetLimit}
-                value={answers.budgetReais ?? ''}
-                onChange={(e) => patch({ budgetReais: e.target.value === '' ? null : Number(e.target.value) })}
-              />
+              <select className="menu-big-field" disabled={answers.noBudgetLimit} value={answers.budgetReais ?? ''} onChange={(e) => patch({ budgetReais: e.target.value === '' ? null : Number(e.target.value) })}>
+                <option value="">Escolha um valor</option>
+                {Array.from({ length: 20 }, (_, i) => (i + 1) * 50).map((v) => (
+                  <option key={v} value={v}>
+                    até R$ {v.toLocaleString('pt-BR')},00
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="menu-check">
               <input type="checkbox" checked={answers.noBudgetLimit} onChange={(e) => patch({ noBudgetLimit: e.target.checked })} />

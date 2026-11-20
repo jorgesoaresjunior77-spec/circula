@@ -43,7 +43,7 @@ export function MessageComposer({ onSend, disabled }: MessageComposerProps) {
           onChange={(event) => setText(event.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Escreva uma mensagem..."
-          rows={1}
+          rows={4}
           disabled={disabled || busy}
         />
         <button

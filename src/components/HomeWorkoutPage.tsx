@@ -154,7 +154,7 @@ export function HomeWorkoutPage({ profileId, canUse, onOpenPlans }: { profileId:
             <li>{EXERCISES.length} exercícios com desenho da posição inicial e da execução</li>
             <li>Você escolhe o tempo (de 10 a 60 minutos), as regiões do corpo, o objetivo e o nível</li>
             <li>O treino é montado na hora, e você pode salvar os que mais gostar</li>
-            <li>Usa só o peso do corpo, uma parede, uma cadeira, um degrau e duas garrafas de água</li>
+            <li>Usa só o peso do corpo e coisas simples: parede, cadeira, degrau, garrafas de água, bola, faixa elástica, toalha e cabo de vassoura</li>
           </ul>
           <div className="hw-samples">
             {EXERCISES.slice(0, 3).map((e) => (
