@@ -1,12 +1,12 @@
 // Modo de rateio da assinatura de comunidade.
-//   native (padrão): split nativo do Asaas para a carteira da dona da comunidade.
-//   off: sem split. Todo o valor cai na conta da plataforma e o acerto com a
-//        profissional é feito fora do sistema.
-// Qualquer valor diferente de 'off' mantém o comportamento atual (native).
+//   off (PADRÃO desde 2026-12): sem split. Todo o valor cai na conta da plataforma,
+//        que é da própria nutricionista; não há repasse 90/10.
+//   native: split nativo do Asaas para a carteira da dona da comunidade. Só liga
+//        com COMMUNITY_SPLIT_MODE=native explícito (ex.: uma segunda profissional).
 export type CommunitySplitMode = 'native' | 'off'
 
 export function resolveCommunitySplitMode(raw: string | undefined | null): CommunitySplitMode {
-  return (raw ?? '').trim().toLowerCase() === 'off' ? 'off' : 'native'
+  return (raw ?? '').trim().toLowerCase() === 'native' ? 'native' : 'off'
 }
 
 // A assinatura foi criada com o split desligado (ver offSplitSnapshot)? Vale

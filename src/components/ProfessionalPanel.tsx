@@ -2,7 +2,6 @@ import { PackageAccessManager } from './PackageAccessManager'
 import { useState } from 'react'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
 import { SubscriptionPanel } from './SubscriptionPanel'
-import { AsaasAccountConnect } from './AsaasAccountConnect'
 import { CommunityPriceSettings } from './CommunityPriceSettings'
 import { RevenuePanel } from './RevenuePanel'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
@@ -256,9 +255,8 @@ export function ProfessionalPanel({
             <>
               <PackageAccessManager community={community} profileId={profileId} />
               <SubscriptionPanel subject="platform" />
-              {/* FASE 16.1 — onboarding financeiro: conectar a conta Asaas
-                  recebedora do split 90/10. Só a anfitriã chega ao painel. */}
-              <AsaasAccountConnect enabled />
+              {/* Sem repasse: todo o valor é da plataforma (2026-12), então não há
+                  conta Asaas da profissional para conectar. */}
               {/* FASE 16.1-P — preço da assinatura da própria comunidade
                   (piso R$ 14,90, validado no servidor). */}
               <CommunityPriceSettings communityId={communityId} />

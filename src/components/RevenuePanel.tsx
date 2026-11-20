@@ -1,4 +1,3 @@
-import { useProfessionalBillingAccount } from '../hooks/useProfessionalBillingAccount'
 import { useProfessionalRevenue } from '../hooks/useProfessionalRevenue'
 import type { BillingCycle, PayoutKind, PayoutStatus, RevenuePeriod, RevenueRow } from '../types/billing'
 
@@ -48,19 +47,10 @@ interface RevenuePanelProps {
 
 export function RevenuePanel({ communityId, communityName }: RevenuePanelProps) {
   const { rows, summary, loading, error, period, setPeriod } = useProfessionalRevenue(communityId)
-  const { connected, loading: accountLoading } = useProfessionalBillingAccount(true)
 
   return (
     <section className="revenue-panel">
       <p className="section-label">Recebimentos da comunidade</p>
-
-      {/* Conta Asaas — informativo, NUNCA bloqueia a visualização do histórico. */}
-      {!accountLoading && !connected && (
-        <p className="revenue-account-note">
-          Conecte sua conta Asaas para receber pagamentos da comunidade. Os recebimentos já
-          registrados continuam visíveis abaixo.
-        </p>
-      )}
 
       <div className="metrics-period">
         {PERIOD_OPTIONS.map((option) => (

@@ -76,24 +76,6 @@ export function MasterPlatformPanel({ overview, loading, error }: MasterPlatform
       </section>
 
       <section className="master-section">
-        <p className="master-section-title">Split de receita</p>
-        <div className="master-metrics-grid">
-          <div className="master-metric-tile">
-            <p className="master-metric-tile-value">
-              {o.split_professional_percent != null ? `${o.split_professional_percent}%` : '—'}
-            </p>
-            <p className="master-metric-tile-label">Profissional</p>
-          </div>
-          <div className="master-metric-tile">
-            <p className="master-metric-tile-value">
-              {o.split_circula_percent != null ? `${o.split_circula_percent}%` : '—'}
-            </p>
-            <p className="master-metric-tile-label">Círcula</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="master-section">
         <p className="master-section-title">Planos</p>
         {o.plans.length === 0 ? (
           <p className="master-hint">Nenhum plano cadastrado.</p>

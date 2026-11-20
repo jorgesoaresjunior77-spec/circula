@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { isNoSplitSubscription, offSplitSnapshot, resolveCommunitySplitMode } from './communitySplitMode.ts'
 
 describe('resolveCommunitySplitMode', () => {
-  it('só desliga com "off" explícito', () => {
-    expect(resolveCommunitySplitMode('off')).toBe('off')
-    expect(resolveCommunitySplitMode(' OFF ')).toBe('off')
+  it('só liga com "native" explícito', () => {
+    expect(resolveCommunitySplitMode('native')).toBe('native')
+    expect(resolveCommunitySplitMode(' NATIVE ')).toBe('native')
   })
 
-  it('mantém native quando ausente, vazio ou desconhecido', () => {
-    expect(resolveCommunitySplitMode(undefined)).toBe('native')
-    expect(resolveCommunitySplitMode(null)).toBe('native')
-    expect(resolveCommunitySplitMode('')).toBe('native')
-    expect(resolveCommunitySplitMode('false')).toBe('native')
-    expect(resolveCommunitySplitMode('native')).toBe('native')
+  it('fica off (sem repasse) quando ausente, vazio ou desconhecido', () => {
+    expect(resolveCommunitySplitMode(undefined)).toBe('off')
+    expect(resolveCommunitySplitMode(null)).toBe('off')
+    expect(resolveCommunitySplitMode('')).toBe('off')
+    expect(resolveCommunitySplitMode('false')).toBe('off')
+    expect(resolveCommunitySplitMode('off')).toBe('off')
   })
 })
 
