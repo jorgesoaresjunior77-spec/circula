@@ -44,7 +44,7 @@ export interface CatalogProduct {
 export const PRODUCTS: CatalogProduct[] = [
   { key: 'magazine', name: 'Círcula Magazine', description: 'A revista mensal da comunidade.', monthlyCents: 990 },
   { key: 'receitas', name: 'Receitas', description: 'Receitas em formato de revista.', monthlyCents: 790 },
-  { key: 'ebooks', name: 'E-books', description: 'Os e-books da nutricionista.', monthlyCents: 990 },
+  { key: 'ebooks', name: 'Loja', description: 'Tudo o que estiver na Loja: e-books e demais produtos digitais, sem pagar um a um.', monthlyCents: 990 },
   { key: 'help_nutri', name: 'Help Nutri', description: 'Chame a nutricionista direto pelo app.', monthlyCents: 990 },
   { key: 'respiracao', name: 'Respiração', description: 'Práticas guiadas de respiração e meditação.', monthlyCents: 590 },
   { key: 'playlist', name: 'Playlist', description: 'As playlists da nutricionista para cada momento.', monthlyCents: 590 },

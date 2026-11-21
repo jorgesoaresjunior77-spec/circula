@@ -268,7 +268,7 @@ export function PlansPage({
               <>
                 <h3>Círcula Premium</h3>
                 <p className="plans-text">
-                  O Círcula mais a revista, as receitas, os e-books, o Help Nutri, a respiração, as
+                  O Círcula mais a revista, as receitas, a Loja, o Help Nutri, a respiração, as
                   playlists, o wellness, as dicas de leitura e a Minha Lista, tudo junto e com desconto. Separado, o mensal sairia{' '}
                   {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
                 </p>

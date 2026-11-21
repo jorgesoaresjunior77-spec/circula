@@ -43,7 +43,7 @@ export function ProductPagesEditor({ productId, communityId, profileId }: Props)
       <legend>Páginas do e-book ({pages.length}) — leitura dentro do Círcula</legend>
       <p className="home-muted">
         Suba as páginas prontas, na ordem de leitura. A capa do produto continua sendo a imagem de capa
-        acima. Não há limite de páginas. Lê quem tem o pacote de E-books, o plano completo ou comprou este
+        acima. Não há limite de páginas. Lê quem tem o plano Loja, o Premium ou comprou este
         e-book.
       </p>
       <ol className="rec-pages-list">

@@ -166,7 +166,7 @@ function ProductFields({ idPrefix, values, onChange, communityId, profileId, cat
         placeholder="Ex.: 14,90"
       />
       <p className="challenge-field-hint">
-        Todos os produtos são digitais e lidos aqui no app. Quem tem o pacote de E-books ou o plano completo lê
+        Todos os produtos são digitais e lidos aqui no app. Quem tem o plano Loja ou o Premium lê
         sem pagar à parte; este preço vale para quem quiser comprar só este.
       </p>
 

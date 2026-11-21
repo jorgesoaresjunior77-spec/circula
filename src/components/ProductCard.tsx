@@ -33,7 +33,7 @@ interface ProductCardProps {
   onSelect?: (product: Product) => void
   /** Leva à página de Planos (produto digital com cadeado). */
   onOpenPlans?: () => void
-  /** A membro tem o pacote de E-books ou o plano completo. */
+  /** A membro tem o plano Loja, o plano completo ou o Premium. */
   canRead?: boolean
   /** Abre o e-book no leitor, dentro do Círcula. */
   onRead?: (product: Product) => void
@@ -252,7 +252,7 @@ export function ProductCard({
           <div className="product-card-cta product-card-lock">
             <p className="product-card-lock-text">
               <LockIcon />
-              <span>Com o pacote de E-books ou o plano completo, você lê este e os outros sem pagar à parte.</span>
+              <span>Com o plano Loja ou o Premium, você lê este e os outros sem pagar à parte.</span>
             </p>
             {onOpenPlans && (
               <button type="button" className="auth-link" onClick={onOpenPlans}>

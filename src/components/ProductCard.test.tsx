@@ -41,7 +41,7 @@ describe('ProductCard — produtos digitais pelo plano', () => {
 
     expect(screen.getByText(/29,90/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Comprar' })).toBeInTheDocument()
-    expect(screen.getByText(/pacote de E-books ou o plano completo/)).toBeInTheDocument()
+    expect(screen.getByText(/plano Loja ou o Premium/)).toBeInTheDocument()
     expect(screen.queryByText(/Hotmart/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Ler agora' })).not.toBeInTheDocument()
 

@@ -39,7 +39,7 @@ export const PACKAGE_KEYS: PackageKey[] = [
 
 export const PACKAGE_LABEL: Record<PackageKey, string> = {
   help_nutri: 'Help Nutri',
-  ebooks: 'E-books',
+  ebooks: 'Loja',
   total: 'Plano completo',
   respiracao: 'Respiração',
   playlist: 'Playlist',
@@ -57,8 +57,8 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
   help_nutri: 'Pode enviar mensagem à nutri.',
-  ebooks: 'Pode ler os e-books da Loja.',
-  total: 'Vale pelo Help Nutri e pelos E-books.',
+  ebooks: 'Pode ler tudo o que é digital na Loja, sem pagar um a um.',
+  total: 'Vale pelo Help Nutri e pela Loja.',
   respiracao: 'Pode usar as práticas de Respiração e Meditação.',
   playlist: 'Pode ouvir as playlists.',
   wellness: 'Pode ler as matérias do Wellness.',
@@ -84,9 +84,14 @@ export function canUseHelpNutri(owned: Owned): boolean {
   return has(owned, 'help_nutri') || has(owned, 'total') || has(owned, 'premium')
 }
 
-/** Pode ler os e-books: pacote E-books ou plano completo. */
+/** Pode ler os produtos digitais da Loja: plano Loja, plano completo ou Premium. */
 export function canReadEbooks(owned: Owned): boolean {
   return has(owned, 'ebooks') || has(owned, 'total') || has(owned, 'premium')
+}
+
+/** Pode ver as Receitas: plano Receitas ou Círcula Premium. */
+export function canReadRecipes(owned: Owned): boolean {
+  return has(owned, 'receitas') || has(owned, 'premium')
 }
 
 /** Pode usar a Respiração e Meditação: pacote Respiração ou Círcula Premium. */

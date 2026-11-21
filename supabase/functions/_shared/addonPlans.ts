@@ -41,7 +41,7 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
 export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   magazine: 'Círcula Magazine',
   receitas: 'Receitas',
-  ebooks: 'E-books',
+  ebooks: 'Loja',
   help_nutri: 'Help Nutri',
   respiracao: 'Respiração',
   playlist: 'Playlist',

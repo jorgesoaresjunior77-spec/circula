@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canReadEbooks, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from './packages'
+import { canReadEbooks, canReadReadingTips, canReadRecipes, canReadWellness, canUseBreathing, canUseHelpNutri } from './packages'
 
 describe('packages', () => {
   it('sem pacote, tudo bloqueado', () => {
@@ -12,6 +12,13 @@ describe('packages', () => {
     expect(canReadEbooks(['help_nutri'])).toBe(false)
     expect(canReadEbooks(new Set(['ebooks']))).toBe(true)
     expect(canUseHelpNutri(new Set(['ebooks']))).toBe(false)
+  })
+
+  it('Receitas: só o plano Receitas ou o Premium', () => {
+    expect(canReadRecipes([])).toBe(false)
+    expect(canReadRecipes(['ebooks'])).toBe(false)
+    expect(canReadRecipes(['receitas'])).toBe(true)
+    expect(canReadRecipes(['premium'])).toBe(true)
   })
 
   it('o plano completo vale pelos dois', () => {

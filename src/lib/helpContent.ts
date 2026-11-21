@@ -148,7 +148,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ap-1',
         q: 'Quais são os planos disponíveis?',
-        a: 'Na página Planos (card Assinaturas, no menu da página inicial) você vê o plano do Círcula nos ciclos mensal, semestral e anual, os conteúdos avulsos (Círcula Magazine, Receitas, E-books e Help Nutri, cada um por R$ 9,90 ao mês, com desconto no semestral e no anual) e o superpacote Círcula completo, que reúne tudo. Os valores aparecem na própria página.',
+        a: 'Na página Planos (card Assinaturas, no menu da página inicial) você vê o plano do Círcula nos ciclos mensal, semestral e anual, os conteúdos avulsos (Círcula Magazine, Receitas, Loja e Help Nutri, cada um por um valor mensal, com desconto no semestral e no anual) e o superpacote Círcula completo, que reúne tudo. Os valores aparecem na própria página.',
         k: 'planos preços valores mensal semestral anual pacote help nutri 9,90',
       },
       {
@@ -355,7 +355,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'lo-4',
         q: 'Como realizar uma compra?',
-        a: 'Abra o produto e toque em Comprar. A finalização do pagamento acontece em uma página segura que abre para você. Quem tem o pacote de E-books ou o plano completo não precisa comprar: o botão já aparece como Ler.',
+        a: 'Abra o produto e toque em Comprar. A finalização do pagamento acontece em uma página segura que abre para você. Quem tem o plano Loja ou o Premium não precisa comprar: o botão já aparece como Ler.',
         k: 'comprar compra pagar pedido',
       },
       {
@@ -367,7 +367,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'lo-6',
         q: 'Como acessar um produto adquirido?',
-        a: 'Depois do pagamento confirmado (ou se você tem o pacote de E-books ou o plano completo), abra o produto na Loja e toque em Ler. Ele abre no leitor do app, página por página, como a revista. Se não aparecer após a confirmação, aguarde alguns minutos e atualize a página.',
+        a: 'Depois do pagamento confirmado (ou se você tem o plano Loja ou o Premium), abra o produto na Loja e toque em Ler. Ele abre no leitor do app, página por página, como a revista. Se não aparecer após a confirmação, aguarde alguns minutos e atualize a página.',
         k: 'acessar produto comprado adquirido meus materiais ler leitor',
       },
       {

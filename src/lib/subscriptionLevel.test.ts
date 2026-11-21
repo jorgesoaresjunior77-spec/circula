@@ -12,6 +12,6 @@ describe('subscriptionLevel', () => {
   })
   it('lista só os produtos contratados e o plano completo vale por dois', () => {
     expect(ownedProductNames(new Set(['wellness']))).toEqual(['Wellness'])
-    expect(ownedProductNames(new Set(['total']))).toEqual(['E-books', 'Help Nutri'])
+    expect(ownedProductNames(new Set(['total']))).toEqual(['Loja', 'Help Nutri'])
   })
 })

@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canUseSeriesFilmes, canUseExercises, canUseChef, canUseSmartList, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri } from '../lib/packages'
+import { canUseSeriesFilmes, canUseExercises, canUseChef, canUseSmartList, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -973,6 +973,13 @@ export function Dashboard({
             )}
           </>
         )
+      }
+
+      if (profile.role === 'member') {
+        if (packagesLoading) return <p className="home-muted">Carregando…</p>
+        if (!canReadRecipes(myPackages)) {
+          return <PackagePaywall title="Receitas" planName="Receitas" onOpenPlans={() => handleNavigate('planos')} />
+        }
       }
 
       return (
