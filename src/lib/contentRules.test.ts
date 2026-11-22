@@ -13,6 +13,13 @@ describe('regras fixas da agenda de conteúdos', () => {
     expect(types('2026-12-01')).toEqual(['playlist', 'revista', 'viagens'])
   })
 
+  it('desafio do mês: último dia de cada mês', () => {
+    expect(types('2026-12-31')).toContain('desafio')
+    expect(types('2027-02-28')).toContain('desafio')
+    expect(types('2027-02-27')).not.toContain('desafio')
+    expect(types('2027-04-30')).toContain('desafio')
+  })
+
   it('Dicas de Viagem: a cada 30 dias (01/12, 31/12, 30/01)', () => {
     const days = ruleItems('2026-12-01', '2027-02-15')
       .filter((i) => i.content_type === 'viagens')

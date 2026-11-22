@@ -35,6 +35,7 @@ export function useRecipePages(contentId: string | null, communityId: string | n
 
   const reload = useCallback(() => setToken((n) => n + 1), [])
   const pages = loaded && loaded.contentId === contentId ? loaded.pages : []
+  const ready = !!loaded && loaded.contentId === contentId
 
   const addPage = useCallback(
     async (imagePath: string): Promise<Result> => {
@@ -82,5 +83,5 @@ export function useRecipePages(contentId: string | null, communityId: string | n
     [reload],
   )
 
-  return { pages, addPage, addPages, removePage }
+  return { pages, ready, addPage, addPages, removePage }
 }

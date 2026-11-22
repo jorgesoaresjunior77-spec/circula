@@ -29,6 +29,7 @@ import './minhalista.css'
 import './refresh.css'
 import './rodada21.css'
 import './redesign.css'
+import './rodada22.css'
 
 function App() {
   const {

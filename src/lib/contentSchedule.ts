@@ -12,6 +12,7 @@ export type ContentType =
   | 'wellness'
   | 'series'
   | 'viagens'
+  | 'desafio'
   | 'outro'
 
 export const CONTENT_TYPES: { key: ContentType; label: string }[] = [
@@ -25,6 +26,7 @@ export const CONTENT_TYPES: { key: ContentType; label: string }[] = [
   { key: 'wellness', label: 'Wellness' },
   { key: 'series', label: 'Dicas de séries e filmes' },
   { key: 'viagens', label: 'Dicas de Viagem' },
+  { key: 'desafio', label: 'Desafio do mês (Meu Jardim)' },
   { key: 'outro', label: 'Outro' },
 ]
 
@@ -55,6 +57,7 @@ export const TYPE_COLORS: Record<ContentType, string> = {
   wellness: '#2a9d8f',
   series: '#b5651d',
   viagens: '#1d7fb5',
+  desafio: '#c2487a',
   outro: '#8d8a86',
 }
 

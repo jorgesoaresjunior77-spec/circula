@@ -31,10 +31,11 @@ function Photo({ path }: { path: string | null }) {
 
 /** Foto do prato pronto: a ÚLTIMA página da receita, inteira (sem corte). Sem páginas, usa a capa. */
 function RecipeHero({ recipeId, communityId, coverPath }: { recipeId: string; communityId: string; coverPath: string | null }) {
-  const { pages } = useRecipePages(recipeId, communityId)
+  const { pages, ready } = useRecipePages(recipeId, communityId)
   const last = pages.length > 0 ? pages[pages.length - 1].image_path : null
-  const { url } = useSignedImageUrl(last ?? coverPath)
-  if (!url) return null
+  // Espera as páginas chegarem: antes mostrava a capa do card e só depois trocava pela receita pronta.
+  const { url } = useSignedImageUrl(ready ? (last ?? coverPath) : null)
+  if (!ready || !url) return null
   return (
     <div className="rec-hero rec-hero--dish">
       <img src={url} alt="Foto da receita pronta" decoding="async" />

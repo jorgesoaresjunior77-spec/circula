@@ -52,7 +52,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.circ-strip'],
     title: 'Círculos',
-    text: 'Grupos por tema. Toque em um Círculo, entre nele e deixe a sua primeira mensagem. Você também pode sugerir um novo.',
+    text: 'Grupos por tema. Toque em um Círculo, entre nele e deixe a sua primeira mensagem. Dentro dele, o botão Convidar chama uma amiga para aquele círculo. Você também pode sugerir um novo: é só dizer o nome e o assunto.',
   },
   {
     targets: ['.mag2-viewport', '.mag2-stack'],
@@ -63,28 +63,28 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-wheel'],
     title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness ou Lista de Compras.',
+    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes ou Dicas de Viagem.',
     optional: true,
     gesture: 'tap',
   },
   {
     targets: ['.home-pair .menu-banner-wrap'],
     title: 'Meu Chef',
-    text: 'Escolha os pratos e receba bem: o Meu Chef monta o cardápio do seu encontro com as receitas da nutricionista.',
+    text: 'Escolha os pratos e receba bem: o Meu Chef monta o cardápio do seu encontro com as receitas da nutricionista e leva todos os ingredientes para a sua Lista de Compras. Ao lado fica a Lista de Compras, onde você acompanha o que já comprou.',
     optional: true,
     gesture: 'tap',
   },
   {
     targets: ['.gratitude-card-wrap'],
-    title: 'Diário da Gratidão',
-    text: 'Uma oração ou passagem da Bíblia por dia, as 5 gratidões de hoje, seus pedidos e a sua jornada. É um momento só seu, e tudo o que você escreve fica privado.',
+    title: 'Lista de Compras',
+    text: 'Crie listas, marque o que comprou e use o modo supermercado. Para montar uma lista rápido, abra uma receita e toque em Adicionar ingredientes à minha lista. Para apagar uma lista, toque em Excluir lista no cartão dela.',
     optional: true,
     gesture: 'tap',
   },
   {
     targets: ['.home-pair--feature .menu-banner-wrap'],
     title: 'Para você',
-    text: 'Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) e Dicas de Séries / Filmes, com a plataforma e a classificação de cada indicação.',
+    text: 'Se exercite em casa (escolha o tempo e o que quer trabalhar, e o treino é montado na hora) e o Diário da Gratidão: uma oração por dia, as 5 gratidões de hoje, seus pedidos e a sua jornada. O que você escreve fica privado, e a oração do dia pode ser compartilhada no Feed.',
     optional: true,
     gesture: 'tap',
   },
@@ -117,7 +117,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['#tour-nav-mobile-feed', '#tour-nav-desktop-feed'],
     title: 'Feed',
-    text: 'Aqui ficam as conversas da comunidade. Publique, curta, comente, responda e vote nas enquetes.',
+    text: 'Aqui ficam as conversas da comunidade, com o bom dia da nutricionista todo dia cedo. Publique, curta, comente, responda e vote nas enquetes.',
   },
   {
     targets: ['#tour-nav-mobile-ajuda', '#tour-nav-desktop-ajuda'],

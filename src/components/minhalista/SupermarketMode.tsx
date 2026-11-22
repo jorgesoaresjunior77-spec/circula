@@ -113,21 +113,21 @@ export function SupermarketMode({ list, items, canEdit, api, onClose }: { list: 
           </section>
         ))}
         {shown.length === 0 && <p className="home-muted sm-empty">{items.length === 0 ? 'A lista está vazia.' : 'Tudo comprado! 🎉'}</p>}
+        {canEdit && (
+          <form
+            className="sm-add"
+            onSubmit={(e) => {
+              e.preventDefault()
+              void add()
+            }}
+          >
+            <input value={newName} placeholder="Adicionar produto" aria-label="Adicionar produto" onChange={(e) => setNewName(e.target.value)} />
+            <button type="submit" disabled={!newName.trim()}>
+              Adicionar
+            </button>
+          </form>
+        )}
       </div>
-      {canEdit && (
-        <form
-          className="sm-add"
-          onSubmit={(e) => {
-            e.preventDefault()
-            void add()
-          }}
-        >
-          <input value={newName} placeholder="Adicionar produto" aria-label="Adicionar produto" onChange={(e) => setNewName(e.target.value)} />
-          <button type="submit" disabled={!newName.trim()}>
-            +
-          </button>
-        </form>
-      )}
     </div>
   )
 }

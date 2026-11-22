@@ -12,6 +12,7 @@
 //   Wellness ...... 1 vez por mês, dia 25
 //   Séries e filmes  1 vez por semana, às sextas
 //   Dicas de Viagem  a cada 30 dias (contando de 01/12/2026)
+//   Desafio do mês   último dia de cada mês (interage com as flores do Meu Jardim)
 //
 // Aviso no sino: 1 dia antes de cada publicação.
 
@@ -24,6 +25,7 @@ type Cadence =
   | { kind: 'firstWeekdayOfMonth'; weekday: number } // 0 = domingo
   | { kind: 'weekly'; weekday: number }
   | { kind: 'everyNDays'; n: number; anchor: string }
+  | { kind: 'lastDayOfMonth' }
 
 export interface ContentRule {
   type: ContentType
@@ -44,6 +46,7 @@ export const CONTENT_RULES: ContentRule[] = [
   { type: 'wellness', title: 'Publicar Wellness', summary: 'Uma vez por mês, dia 25', cadence: { kind: 'monthlyDay', day: 25 } },
   { type: 'series', title: 'Publicar dicas de séries e filmes', summary: 'Uma vez por semana, às sextas', cadence: { kind: 'weekly', weekday: 5 } },
   { type: 'viagens', title: 'Publicar Dicas de Viagem', summary: 'A cada 30 dias', cadence: { kind: 'everyNDays', n: 30, anchor: RULES_START } },
+  { type: 'desafio', title: 'Lançar o desafio do mês (Meu Jardim)', summary: 'Último dia de cada mês', cadence: { kind: 'lastDayOfMonth' } },
 ]
 
 // ---- datas em yyyy-mm-dd, sem fuso (contas em UTC) --------------------------------------
@@ -79,6 +82,8 @@ function occursOn(rule: ContentRule, iso: string): boolean {
       return weekdayOf(iso) === c.weekday
     case 'firstWeekdayOfMonth':
       return weekdayOf(iso) === c.weekday && day <= 7
+    case 'lastDayOfMonth':
+      return addDays(iso, 1).slice(8, 10) === '01'
     case 'everyNDays': {
       const diff = Math.round((toUtc(iso) - toUtc(c.anchor)) / DAY)
       return diff >= 0 && diff % c.n === 0

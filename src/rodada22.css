@@ -1,0 +1,278 @@
+/* Rodada 22/11/2026 — ajustes pós-teste no celular. Carregado depois do redesign. */
+
+/* ---- Sino e "Sair" 10% menores ---- */
+.dashboard-header .notification-bell-button,
+.dashboard-header .dashboard-user > button {
+  scale: 0.81;
+}
+
+/* ---- Sino: a janela abre POR CIMA de tudo ----
+   A animação de entrada do redesign deixava o cabeçalho num "plano" próprio,
+   e a janela ficava atrás do resto. Agora a entrada não prende o plano e o
+   cabeçalho fica acima do conteúdo. */
+.dashboard > * {
+  animation-fill-mode: backwards;
+}
+.dashboard > .dashboard-header,
+.dashboard-header {
+  animation: none;
+  position: relative;
+  z-index: 300;
+}
+.notification-panel {
+  z-index: 1000;
+}
+
+/* ---- Previsão do tempo: 6 horários visíveis de uma vez ---- */
+.weather-hours {
+  gap: 5px;
+}
+.weather-hour {
+  flex: 0 0 calc((100% - 25px) / 6);
+  min-width: 0;
+  padding: 10px 2px;
+  gap: 4px;
+  border-radius: 16px;
+}
+.weather-hour-label {
+  font-size: 12px;
+}
+.weather-hour-temp {
+  font-size: 16px;
+}
+.weather-hour-rain {
+  font-size: 11px;
+}
+.weather-hour svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* ---- Fundo: sem salto de cor no meio da página (antes o degradê terminava em 2400px) ---- */
+html {
+  background-image: linear-gradient(180deg, #f1ebe0 0%, var(--rd-creme) 40%, var(--rd-creme) 100%);
+  background-size: 100% min(100%, 1600px);
+}
+
+/* ---- Janelas (modais): vidro bege, cantos arredondados, X sempre visível, rolagem livre ---- */
+.reading-detail-backdrop,
+.product-detail-backdrop {
+  z-index: 1100;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: rgba(56, 42, 35, 0.4);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.reading-detail,
+.product-detail-panel {
+  position: relative;
+  display: block;
+  width: min(560px, 100%);
+  max-height: 88dvh;
+  margin: 0;
+  padding: 22px 18px 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  border: 1px solid rgba(213, 190, 164, 0.75);
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(251, 248, 242, 0.9), rgba(235, 224, 208, 0.82));
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: 0 18px 44px -20px rgba(56, 42, 35, 0.35);
+}
+.product-detail-panel {
+  width: min(680px, 100%);
+}
+.reading-detail > *:not(.reading-detail-close) {
+  margin-bottom: 10px;
+}
+.reading-detail > * {
+  flex-shrink: 0;
+}
+/* o X fica preso no topo da janela, por cima da capa */
+.reading-detail-close,
+.product-detail-close {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin: -6px -2px 4px auto;
+  padding: 0;
+  border: 1px solid rgba(213, 190, 164, 0.9);
+  border-radius: 50%;
+  background: rgba(251, 248, 242, 0.95);
+  color: var(--rd-espresso);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  float: none;
+  right: auto;
+}
+.product-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  margin: 0;
+}
+.product-detail-panel .product-card.product-card--detail {
+  margin-top: 30px;
+}
+.reading-detail-cover {
+  width: min(260px, 70%);
+  aspect-ratio: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 16px;
+  margin-inline: auto;
+  display: block;
+}
+.wellness-reader {
+  align-items: stretch;
+}
+.wellness-reader .wellness-reader-cover,
+.wellness-reader .wellness-reader-img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+/* ---- Loja: cards menores, estilo receitas (capa inteira em cima, texto embaixo) ---- */
+.cat-products {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (min-width: 700px) {
+  .cat-products {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.cat-product {
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 8px 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--rd-card);
+  box-shadow: var(--elev-1);
+}
+.cat-product-cover {
+  flex: none;
+  width: 100%;
+  aspect-ratio: auto;
+  overflow: hidden;
+  border-radius: 12px;
+  background: none;
+}
+.cat-product-cover-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+}
+.cat-product-title {
+  font-size: 15px;
+}
+.cat-product-desc {
+  -webkit-line-clamp: 2;
+  font-size: 12.5px;
+}
+.cat-product-foot {
+  margin-top: 4px;
+}
+
+/* ---- Cards da Home: a área do texto é toda bege (como a Lista de Compras) ---- */
+.home-pair .menu-banner,
+.home-pair .menu-banner-text,
+.home-pair--feature .menu-banner-text,
+.home-pair--feature .menu-banner-wrap .menu-banner-text {
+  background: #f8f0e3;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-title,
+.home-pair .gratitude-title {
+  font-size: clamp(17px, 4.8vw, 22px);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-text {
+  gap: 4px;
+  padding: 10px 12px 14px;
+  align-items: flex-start;
+  text-align: left;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-eyebrow {
+  margin-top: 4px;
+  font-size: 11px;
+}
+.home-pair--feature .menu-banner-wrap.hfb--series .menu-banner-copy {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* ---- Perfil: sem as linhas laterais; só os cartões de Administração e Assinaturas ---- */
+.community-card.community-card--profile,
+.profile-page {
+  border: 0;
+  box-shadow: none;
+  background: none;
+}
+.profile-page .profile-hero {
+  box-shadow: none;
+  border: 0;
+}
+.profile-page .profile-banner-wrap,
+.profile-page .profile-hero-wrap {
+  margin-inline: 0;
+}
+.profile-page .profile-gallery-section,
+.profile-page .profile-garden-section,
+.profile-page .profile-invite-section,
+.profile-page .testimonials,
+.profile-page .my-nutri {
+  border: 0;
+  box-shadow: none;
+}
+/* os cartões que continuam com borda */
+.profile-page .account-admin,
+.profile-page .profile-subscription-section .community-card,
+.profile-page .profile-subscription-section .sub-level {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--rd-card);
+  box-shadow: none;
+  padding: 16px;
+}
+/* o botão Convidar amigas não ocupa a largura toda */
+.invite-friends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.invite-friends > .water-primary {
+  width: auto;
+  min-width: 0;
+  max-width: 280px;
+  padding: 0 22px;
+}
+/* Meu Jardim: faixa de cor que nasce entre as duas flores e some devagar (sem corte) */
+.garden-profile-summary {
+  background: linear-gradient(
+    180deg,
+    rgba(230, 217, 200, 0) 0%,
+    rgba(230, 217, 200, 0) 46%,
+    rgba(230, 217, 200, 0.45) 74%,
+    rgba(230, 217, 200, 0) 100%
+  );
+  border-radius: 24px;
+}

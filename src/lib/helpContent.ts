@@ -622,6 +622,18 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         k: 'chef cardápio encontro jantar receber lista compras',
       },
       {
+        id: 'nv-11',
+        q: 'Como funciona a Loja e a leitura dos e-books?',
+        a: 'Na Loja, escolha a categoria e toque na capa do e-book: ela abre inteira, com o preço e o botão. Quem tem o plano Loja (ou o Premium) toca em Ler agora e o e-book abre direto na capa, para virar as páginas; quem não tem pode comprar o e-book avulso. A mesma leitura em formato de revista vale para as edições da revista.',
+        k: 'loja ebook e-book capa ler agora comprar avulso revista leitura',
+      },
+      {
+        id: 'nv-12',
+        q: 'Como vejo o tempo de hora em hora?',
+        a: 'Na previsão do tempo, a linha Hoje, hora a hora mostra pelo menos seis horários na tela de uma vez; deslize para o lado para ver o resto do dia.',
+        k: 'tempo hora hora previsão horário',
+      },
+      {
         id: 'nv-3',
         q: 'O que são as Dicas de Viagem?',
         a: 'São roteiros de destinos escolhidos pela nutricionista. Você escolhe o estado, a cidade e para quem é a viagem (crianças, família, casal, sozinha, evento esportivo, a trabalho e outros) e chega à página do destino, com a descrição do lugar, o que fazer, os pontos a visitar e três fotos. É um plano avulso (Dicas de Viagem) ou incluso no Círcula Premium.',
@@ -648,7 +660,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'nv-7',
         q: 'Como peço um novo Círculo?',
-        a: 'Na página inicial, no card Novo Círculo, responda duas perguntas: o nome que você sugere e o assunto. Toque em Enviar solicitação. A nutricionista lê e decide. Ao criar um círculo, esperamos que você convide pessoas para a comunidade.',
+        a: 'Na página inicial, no card Novo Círculo, responda duas perguntas: o nome que você sugere e o assunto. Toque em Enviar solicitação. A nutricionista lê e decide. Na página dos círculos há o botão Voltar para voltar ao início. Ao criar um círculo, esperamos que você convide pessoas para a comunidade.',
         k: 'novo círculo sugerir pedir criar grupo solicitação',
       },
       {

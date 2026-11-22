@@ -35,13 +35,16 @@ export function ProductReader({ product, onClose }: Props) {
     )
   }
 
+  // A capa do e-book é a PRIMEIRA página cadastrada, inteira. Antes entrava também a imagem
+  // do card (cortada) como capa, e a capa de verdade vinha depois: eram duas capas.
+  const [first, ...rest] = pages
   const issue: MagazineIssue = {
     id: product.id,
     community_id: product.community_id,
     title: product.title,
-    cover_path: product.cover_image_url,
+    cover_path: first.image_path,
     release_date: '',
-    pages: pages.map((p) => ({
+    pages: rest.map((p) => ({
       id: p.id,
       issue_id: product.id,
       position: p.position,
