@@ -59,6 +59,9 @@ export function HomeFlowerGap({ seed = 1, count = 3, height = 44, sizes }: { see
     return makeFlowers(salt, 1 + Math.floor(Math.random() * count))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed, count, sizes?.join(',')])
+  // Redesign editorial: flores só pontuais (em poucas faixas); as demais viram só respiro.
+  const showFlowers = seed === 2 || seed === 6
+  if (!showFlowers) return <div className="home-flower-gap" aria-hidden="true" style={{ height: Math.min(height, 14) }} />
   return (
     <div className="home-flower-gap" aria-hidden="true" style={{ height }}>
       {flowers.map((f, i) => (

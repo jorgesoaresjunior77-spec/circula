@@ -14,13 +14,13 @@ import type { Transition, Variants } from 'motion/react'
 
 export { m, AnimatePresence, useAnimationFrame, useMotionValue } from 'motion/react'
 
-export const SPRING_SOFT: Transition = { type: 'spring', stiffness: 220, damping: 26, mass: 0.9 }
+export const SPRING_SOFT: Transition = { type: 'spring', stiffness: 200, damping: 34, mass: 1 }
 export const SPRING_TAP: Transition = { type: 'spring', stiffness: 420, damping: 28 }
 
 /** Entra subindo de leve, com fade. */
 export const riseVariants: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: SPRING_SOFT },
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 0.61, 0.36, 1] } },
 }
 
 /** Só fade (para blocos que contêm telas cheias / position: fixed). */
@@ -46,7 +46,7 @@ export const inViewOnce = {
 
 /** Toque: o elemento cede um pouco e volta com mola. */
 export const tapPress = {
-  whileTap: { scale: 0.96 },
+  whileTap: { scale: 0.98 },
   transition: SPRING_TAP,
 } as const
 
