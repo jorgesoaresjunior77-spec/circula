@@ -160,7 +160,7 @@ export function CommunityInsights({ communityId }: { communityId: string }) {
       </div>
 
       <div className="panel-metrics-block">
-        <h3 className="panel-metrics-eyebrow">Engajamento</h3>
+        <h3 className="panel-metrics-eyebrow">Participação</h3>
         <div className="panel-metrics-grid">
           <div className="panel-metrics-item">
             <span className="panel-metrics-value">{activeRate}%</span>

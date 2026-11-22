@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { recordView } from '../lib/itemViews'
+import { ViewCount } from './ViewCount'
 import type { FormEvent } from 'react'
 import { CoverImageInput } from './CoverImageInput'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
@@ -60,13 +62,20 @@ function ReadingTile({ tip, onOpen }: { tip: ReadingTip; onOpen: () => void }) {
 
 function ReadingDetail({
   tip,
+  communityId,
+  isOwner,
   onClose,
   onEdit,
 }: {
   tip: ReadingTip
+  communityId: string
+  isOwner: boolean
   onClose: () => void
   onEdit?: () => void
 }) {
+  useEffect(() => {
+    if (!isOwner) recordView(communityId, 'reading', tip.id)
+  }, [communityId, isOwner, tip.id])
   const { url } = useSignedImageUrl(tip.cover_image_url)
   return (
     <div className="reading-detail-backdrop" role="dialog" aria-modal="true" aria-label={tip.title} onClick={onClose}>
@@ -78,6 +87,7 @@ function ReadingDetail({
         <h4 className="reading-title">{tip.title}</h4>
         <p className="reading-author">{tip.author}</p>
         {tip.status === 'draft' && <p className="reading-draft">Rascunho — só você vê</p>}
+        {isOwner && <ViewCount communityId={communityId} kind="reading" itemId={tip.id} />}
         {tip.summary && <p className="reading-summary">{tip.summary}</p>}
         {tip.key_learnings && (
           <>
@@ -216,6 +226,8 @@ export function ReadingTipsPage({ communityId, profileId, isOwner }: ReadingTips
       {openTip && (
         <ReadingDetail
           tip={openTip}
+          communityId={communityId}
+          isOwner={isOwner}
           onClose={() => setOpenId(null)}
           onEdit={isOwner ? () => openEdit(openTip) : undefined}
         />

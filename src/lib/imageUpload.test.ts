@@ -25,8 +25,8 @@ describe('fitWithin', () => {
   })
 
   it('reduz mantendo a proporção', () => {
-    expect(fitWithin(3200, 1600)).toEqual({ width: 1600, height: 800 })
-    expect(fitWithin(1200, 4800)).toEqual({ width: 400, height: 1600 })
+    expect(fitWithin(3200, 1600)).toEqual({ width: 1280, height: 640 })
+    expect(fitWithin(1200, 4800)).toEqual({ width: 320, height: 1280 })
   })
 })
 

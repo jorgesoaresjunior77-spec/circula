@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ADDON_PLAN_KEYS, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan } from './addonPlans.ts'
+import { ADDON_PLAN_KEYS, applyReferralDiscount, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan } from './addonPlans.ts'
 import { PREMIUM_PRICES_CENTS, PRODUCTS, pricesOf } from '../../../src/lib/plansCatalog.ts'
 
 // O servidor e o app têm cada um o seu catálogo; este teste garante que os
@@ -58,6 +58,13 @@ describe('addonPeriodEnd', () => {
   })
 })
 
+describe('indicação Premium', () => {
+  it('tira 10% do Premium, arredondando em R$ 0,10', () => {
+    expect(applyReferralDiscount(5990)).toBe(5390)
+    expect(applyReferralDiscount(28752)).toBe(25880)
+  })
+})
+
 describe('novos planos', () => {
   it('Meu Chef e Lista inteligente têm preço e pacote próprios', () => {
     expect(addonPriceCents('meu_chef', 'MONTHLY')).toBe(890)
@@ -69,5 +76,7 @@ describe('novos planos', () => {
     expect(addonPriceCents('exercicios', 'MONTHLY', 690)).toBe(690)
     expect(packagesForPlan('exercicios')).toEqual(['exercicios'])
     expect(packagesForPlan('series_filmes')).toEqual(['series_filmes'])
+    expect(addonPriceCents('viagens', 'MONTHLY')).toBe(590)
+    expect(packagesForPlan('viagens')).toEqual(['viagens'])
   })
 })

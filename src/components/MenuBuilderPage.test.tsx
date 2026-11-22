@@ -1,10 +1,10 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
-import { render, screen, cleanup, fireEvent } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react'
 import { MenuBuilderPage } from './MenuBuilderPage'
 import type { MenuRecipe } from '../lib/menuBuilder'
 
-const printDocument = vi.fn((_html: string) => true)
-vi.mock('../lib/nutriPrint', async (importOriginal) => ({ ...(await importOriginal<typeof import('../lib/nutriPrint')>()), printDocument: (h: string) => printDocument(h) }))
+const createList = vi.fn(async (..._args: unknown[]) => ({ error: null as string | null, id: 'l1' }))
+vi.mock('../hooks/useShopping', () => ({ useShopping: () => ({ loading: false, lists: [], createList }) }))
 vi.mock('../hooks/useSignedImageUrl', () => ({ useSignedImageUrl: () => ({ url: null }) }))
 
 const RECIPES: MenuRecipe[] = [
@@ -40,18 +40,18 @@ const next = () => fireEvent.click(screen.getByRole('button', { name: /^continua
 describe('MenuBuilderPage', () => {
   afterEach(() => {
     cleanup()
-    printDocument.mockClear()
+    createList.mockClear()
     library = RECIPES
   })
 
   it('mostra o texto de abertura e o progresso em 5 etapas', () => {
-    render(<MenuBuilderPage communityId="c1" />)
+    render(<MenuBuilderPage communityId="c1" profileId="p1" />)
     expect(screen.getByText('Vamos preparar algo especial?')).toBeInTheDocument()
     expect(screen.getByText(/Etapa 1 de 5/)).toBeInTheDocument()
   })
 
   it('exige a quantidade de pessoas e ao menos uma etapa do cardápio', () => {
-    render(<MenuBuilderPage communityId="c1" />)
+    render(<MenuBuilderPage communityId="c1" profileId="p1" />)
     fireEvent.change(screen.getByLabelText(/quantidade de pessoas/i), { target: { value: '' } })
     next()
     expect(screen.getByRole('alert')).toHaveTextContent(/quantas pessoas/i)
@@ -63,8 +63,8 @@ describe('MenuBuilderPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/pelo menos uma etapa/i)
   })
 
-  it('monta o cardápio, ajusta as quantidades e gera o PDF da lista', () => {
-    render(<MenuBuilderPage communityId="c1" />)
+  it('monta o cardápio, ajusta as quantidades e leva a lista para as Listas de Compras', async () => {
+    render(<MenuBuilderPage communityId="c1" profileId="p1" />)
     fireEvent.change(screen.getByLabelText(/nome do encontro/i), { target: { value: 'Jantar de sábado' } })
     fireEvent.change(screen.getByLabelText(/quantidade de pessoas/i), { target: { value: '8' } })
     next() // -> o que servir
@@ -79,17 +79,19 @@ describe('MenuBuilderPage', () => {
     // 8 pessoas / rende 4 = dobro
     expect(screen.getByText(/600 g · arroz/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /salve sua lista de compras/i }))
-    expect(printDocument).toHaveBeenCalledTimes(1)
-    const html = (printDocument.mock.calls[0] as unknown as [string])[0]
-    expect(html).toContain('Lista de compras')
-    expect(html).toContain('Jantar de sábado')
-    expect(html).toContain('arroz')
+    fireEvent.click(screen.getByRole('button', { name: /^lista de compras$/i }))
+    expect(screen.getByText('Levar o cardápio para a lista de compras')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /^criar lista$/i }))
+    await waitFor(() => expect(createList).toHaveBeenCalledTimes(1))
+    const drafts = createList.mock.calls[0][1] as { name: string }[]
+    expect(drafts.map((d) => d.name).join(' ')).toContain('arroz')
+    expect(await screen.findByText('Lista salva!')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /vá para lista de compras já/i })).toBeInTheDocument()
   })
 
   it('sem receitas com ficha, informa a falta em vez de inventar', () => {
     library = []
-    render(<MenuBuilderPage communityId="c1" />)
+    render(<MenuBuilderPage communityId="c1" profileId="p1" />)
     next()
     next()
     next()
@@ -97,11 +99,11 @@ describe('MenuBuilderPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /montar meu cardápio/i }))
     expect(screen.getByText('Ainda não deu para montar')).toBeInTheDocument()
     expect(screen.getAllByText(/ainda não tem receitas/i).length).toBeGreaterThan(0)
-    expect(screen.queryByRole('button', { name: /salve sua lista/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^lista de compras$/i })).not.toBeInTheDocument()
   })
 
   it('voltar não perde o que foi preenchido', () => {
-    render(<MenuBuilderPage communityId="c1" />)
+    render(<MenuBuilderPage communityId="c1" profileId="p1" />)
     fireEvent.change(screen.getByLabelText(/nome do encontro/i), { target: { value: 'Almoço' } })
     next()
     fireEvent.click(screen.getByRole('button', { name: /^voltar$/i }))

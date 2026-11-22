@@ -27,6 +27,7 @@ import './imc.css'
 import './nutri.css'
 import './minhalista.css'
 import './refresh.css'
+import './rodada21.css'
 
 function App() {
   const {

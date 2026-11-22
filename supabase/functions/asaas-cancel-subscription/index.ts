@@ -97,6 +97,38 @@ Deno.serve(async (req) => {
       .eq('id', subscriptionId)
       .neq('status', 'canceled')
 
+    // Cancelar a mensalidade do Círcula cancela TUDO: todas as assinaturas
+    // avulsas e o Premium da mesma pessoa (cobrança recorrente no Asaas e
+    // status). Segue a mesma regra de acesso: vale até o fim do período já
+    // pago de cada uma. Falha em uma não impede as outras nem o cancelamento
+    // principal (já feito acima).
+    let cancelledAddons = 0
+    try {
+      const { data: addons } = await admin
+        .from('addon_subscriptions')
+        .select('id, asaas_subscription_id')
+        .eq('profile_id', subscription.profile_id)
+        .neq('status', 'canceled')
+      for (const addon of addons ?? []) {
+        try {
+          const id = addon.asaas_subscription_id as string | null
+          if (id && !id.startsWith('__provisioning__')) {
+            await asaasFetch(`/subscriptions/${id}`, { method: 'DELETE' })
+          }
+          await admin
+            .from('addon_subscriptions')
+            .update({ status: 'canceled', updated_at: new Date().toISOString() })
+            .eq('id', addon.id)
+            .neq('status', 'canceled')
+          cancelledAddons += 1
+        } catch (addonError) {
+          console.error('asaas-cancel-subscription: falha ao cancelar avulsa', addon.id, addonError)
+        }
+      }
+    } catch (addonsError) {
+      console.error('asaas-cancel-subscription: falha ao listar avulsas', addonsError)
+    }
+
     // FASE 16.2.4-C — aviso de cancelamento (à prova de exceção: uma falha
     // aqui nunca desfaz nem bloqueia o cancelamento).
     try {
@@ -104,14 +136,16 @@ Deno.serve(async (req) => {
         profile_id: subscription.profile_id,
         type: 'billing',
         title: 'Assinatura cancelada',
-        body: 'Sua assinatura foi cancelada. O acesso continua até o fim do período já concedido; depois disso ele é encerrado. Nenhum dado foi apagado.',
+        body: cancelledAddons > 0
+          ? 'Sua assinatura do Círcula foi cancelada e, junto com ela, todos os planos avulsos e o Premium. O acesso continua até o fim do período já concedido; depois disso ele é encerrado. Nenhum dado foi apagado.'
+          : 'Sua assinatura foi cancelada. O acesso continua até o fim do período já concedido; depois disso ele é encerrado. Nenhum dado foi apagado.',
         related_subscription_id: subscriptionId,
       })
     } catch (notifyError) {
       console.error('asaas-cancel-subscription: falha ao notificar cancelamento', notifyError)
     }
 
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify({ ok: true, cancelledAddons }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

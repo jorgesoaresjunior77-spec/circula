@@ -1,10 +1,10 @@
 // Preparo de imagens antes do upload: recusa formatos que não são de web
 // (ex.: .dng/RAW de câmera, que já chegou a 25 MB no bucket) e reduz o resto
-// para WebP de até 1600 px, o que corta o tráfego de saída do Supabase.
+// para WebP de até 1280 px, o que corta o tráfego de saída do Supabase.
 
 const MAX_INPUT_BYTES = 15 * 1024 * 1024
-const MAX_SIDE = 1600
-const WEBP_QUALITY = 0.82
+const MAX_SIDE = 1280
+const WEBP_QUALITY = 0.8
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
 
 export function validateImageFile(file: { type: string; size: number }): string | null {

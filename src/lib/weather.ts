@@ -36,8 +36,22 @@ export interface WeatherDay {
   rainChance: number | null
 }
 
+/** Uma hora da previsão (horário local da cidade). */
+export interface WeatherHour {
+  /** "2026-11-10T14:00" */
+  time: string
+  temp: number
+  code: number
+  rainChance: number | null
+  isDay: boolean
+}
+
 export interface WeatherData {
   current: WeatherCurrent
+  /** As 24 horas do dia de hoje, uma a uma (vazio se o provedor não enviar). */
+  hourly: WeatherHour[]
+  /** Horário atual na cidade, "2026-11-10T14:35". */
+  nowTime: string | null
   daily: WeatherDay[]
   sunrise: string | null
   sunset: string | null
@@ -127,6 +141,7 @@ export async function fetchWeather(city: WeatherCity, fetchImpl: FetchLike = fet
     longitude: String(city.longitude),
     current: 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset',
+    hourly: 'temperature_2m,weather_code,precipitation_probability,is_day',
     timezone: 'auto',
     forecast_days: '7',
   })
@@ -140,6 +155,14 @@ export async function fetchWeather(city: WeatherCity, fetchImpl: FetchLike = fet
       weather_code: number
       wind_speed_10m: number
       is_day: number
+      time?: string
+    }
+    hourly?: {
+      time: string[]
+      temperature_2m: number[]
+      weather_code: number[]
+      precipitation_probability?: (number | null)[]
+      is_day?: number[]
     }
     daily: {
       time: string[]
@@ -158,7 +181,19 @@ export async function fetchWeather(city: WeatherCity, fetchImpl: FetchLike = fet
     min: b.daily.temperature_2m_min[i],
     rainChance: b.daily.precipitation_probability_max?.[i] ?? null,
   }))
+  const today = daily[0]?.date ?? ''
+  const hourly: WeatherHour[] = (b.hourly?.time ?? [])
+    .map((time, i) => ({
+      time,
+      temp: b.hourly!.temperature_2m[i],
+      code: b.hourly!.weather_code[i],
+      rainChance: b.hourly!.precipitation_probability?.[i] ?? null,
+      isDay: (b.hourly!.is_day?.[i] ?? 1) === 1,
+    }))
+    .filter((h) => today && h.time.startsWith(today) && Number.isFinite(h.temp))
   return {
+    hourly,
+    nowTime: b.current.time ?? null,
     current: {
       temp: b.current.temperature_2m,
       feels: b.current.apparent_temperature,
@@ -178,6 +213,11 @@ export function weekdayShort(isoDate: string, index: number): string {
   if (index === 0) return 'Hoje'
   const d = new Date(`${isoDate}T12:00:00`)
   return d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')
+}
+
+/** "2026-11-10T14:00" -> "14h". */
+export function hourLabel(iso: string): string {
+  return `${Number(iso.slice(11, 13))}h`
 }
 
 /** "2026-11-10T06:12" -> "06:12". */

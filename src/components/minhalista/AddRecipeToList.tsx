@@ -7,10 +7,10 @@ import { RecipeToList } from './RecipeToList'
 // Botão dentro da receita: ADICIONAR INGREDIENTES À MINHA LISTA. Quem não tem
 // o serviço vê a página comercial em vez da lista de ingredientes.
 
-function Opened({ recipe, communityId, profileId, onClose }: { recipe: Recipe; communityId: string; profileId: string; onClose: (added: boolean) => void }) {
+function Opened({ recipe, communityId, profileId, onClose, onGoToLists }: { recipe: Recipe; communityId: string; profileId: string; onClose: (added: boolean) => void; onGoToLists?: () => void }) {
   const api = useShopping(communityId, profileId)
   if (api.loading) return null
-  return <RecipeToList recipes={[recipe]} fixed={recipe} api={api} onClose={() => onClose(false)} onDone={() => onClose(true)} />
+  return <RecipeToList recipes={[recipe]} fixed={recipe} api={api} onClose={() => onClose(false)} onDone={() => onClose(true)} onGoToLists={onGoToLists} />
 }
 
 export function AddRecipeToList({
@@ -19,12 +19,14 @@ export function AddRecipeToList({
   profileId,
   canUse,
   onOpenPlans,
+  onGoToLists,
 }: {
   recipe: Recipe
   communityId: string
   profileId: string
   canUse: boolean
   onOpenPlans: () => void
+  onGoToLists?: () => void
 }) {
   const [open, setOpen] = useState(false)
   const [done, setDone] = useState(false)
@@ -54,6 +56,7 @@ export function AddRecipeToList({
           recipe={recipe}
           communityId={communityId}
           profileId={profileId}
+          onGoToLists={onGoToLists}
           onClose={(added) => {
             setOpen(false)
             if (added) setDone(true)

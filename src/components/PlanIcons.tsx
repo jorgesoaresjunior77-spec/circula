@@ -148,6 +148,15 @@ export function SeriesPlanIcon(p: Props) {
   )
 }
 
+export function TravelPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M16 4.500a8 8 0 0 0-8 8c0 6 8 15 8 15s8-9 8-15a8 8 0 0 0-8-8z" />
+      <circle cx="16" cy="12.500" r="3" />
+    </Svg>
+  )
+}
+
 export function PremiumPlanIcon(p: Props) {
   return (
     <Svg {...p}>
@@ -175,4 +184,5 @@ export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) =
   lista_inteligente: ListPlanIcon,
   exercicios: ExercisePlanIcon,
   series_filmes: SeriesPlanIcon,
+  viagens: TravelPlanIcon,
 }

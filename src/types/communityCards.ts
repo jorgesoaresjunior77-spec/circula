@@ -65,6 +65,9 @@ export type CommunityCardKey =
   | 'banner_series'
   | 'banner_diario'
   | 'banner_planos'
+  | 'menu_series'
+  | 'menu_viagens'
+  | 'banner_lista'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -101,7 +104,8 @@ export const MENU_CARD_META: CommunityCardMeta[] = [
   { key: 'menu_respiracao', label: 'Respiração', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_playlist', label: 'Playlist', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_wellness', label: 'Wellness', hint: 'Card da roda de menu da Home.' },
-  { key: 'menu_lista', label: 'Lista de Compras', hint: 'Card da roda de menu da Home.' },
+  { key: 'menu_series', label: 'Dicas de Séries / Filmes', hint: 'Card da roda de menu da Home.' },
+  { key: 'menu_viagens', label: 'Dicas de Viagem', hint: 'Card da roda de menu da Home.' },
 ]
 
 export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)
@@ -151,14 +155,14 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     hint: 'Foto do card "Se exercite em casa" (movimento em casa, tapete, luz natural). Aparece no menu fino da Home e no menu de baixo.',
   },
   {
-    key: 'banner_series',
-    label: 'Dicas de Séries / Filmes',
-    hint: 'Foto do card "Dicas de Séries / Filmes" na Home (sofá, tela, clima aconchegante). Aparece no card, em 16:9.',
-  },
-  {
     key: 'banner_planos',
     label: 'Planos e assinaturas',
     hint: 'Imagem do card fino "Planos e assinaturas" na Home (só a escrita fica por cima dela). Aparece em formato bem largo e baixo.',
+  },
+  {
+    key: 'banner_lista',
+    label: 'Lista de Compras',
+    hint: 'Foto do card "Lista de Compras" na Home (mercado, cesta, frutas frescas). Aparece no card, em 16:9.',
   },
   {
     key: 'banner_diario',
@@ -200,6 +204,7 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'banner_exercicios':
     case 'banner_series':
     case 'banner_diario':
+    case 'banner_lista':
       return SPEC_BANNER
     case 'banner_planos':
       return { aspect: '16 / 3', size: '1600 × 300 px', format: 'faixa larga 16:3' }
@@ -211,6 +216,8 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'menu_playlist':
     case 'menu_wellness':
     case 'menu_lista':
+    case 'menu_series':
+    case 'menu_viagens':
       return SPEC_WHEEL
     default:
       return SPEC_PORTRAIT

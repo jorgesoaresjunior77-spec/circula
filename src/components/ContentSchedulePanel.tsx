@@ -12,7 +12,7 @@ import {
   phaseLabel,
   shortDate,
 } from '../lib/contentSchedule'
-import { CONTENT_RULES, RULES_START, ruleItems } from '../lib/contentRules'
+import { CONTENT_RULES, RULES_START, addDays, ruleItems } from '../lib/contentRules'
 
 const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 
@@ -43,6 +43,12 @@ export function ContentSchedulePanel({ communityId }: { communityId: string }) {
   )
   const summary = monthSummary(monthItems, key)
   const dayItems = byDay[date] ?? []
+
+  // Próximos 30 dias, em lista, para nada passar batido.
+  const today = todayIso()
+  const upcoming = ruleItems(today, addDays(today, 30), communityId)
+  const upcomingByDay = itemsByDay(upcoming)
+  const upcomingDays = Object.keys(upcomingByDay).sort()
 
   function shiftMonth(delta: number) {
     const d = new Date(cursor.year, cursor.month + delta, 1)
@@ -144,6 +150,32 @@ export function ContentSchedulePanel({ communityId }: { communityId: string }) {
             </ul>
           )}
         </div>
+      </section>
+
+      <section className="schedule-upcoming" aria-label="Próximas publicações">
+        <h5 className="schedule-rules-title">Próximos 30 dias</h5>
+        {upcomingDays.length === 0 ? (
+          <p className="home-muted">Nada previsto nos próximos 30 dias.</p>
+        ) : (
+          <ul className="schedule-upcoming-list">
+            {upcomingDays.map((d) => (
+              <li key={d} className="schedule-upcoming-day">
+                <span className="schedule-upcoming-date">{shortDate(d)}</span>
+                <ul>
+                  {upcomingByDay[d].map((it) => (
+                    <li key={it.id}>
+                      <i style={{ background: TYPE_COLORS[it.content_type] }} aria-hidden="true" />
+                      <span>
+                        <strong>{contentTypeLabel(it.content_type)}</strong>
+                        <small>{it.title}</small>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="schedule-rules-wrap" aria-label="Regras de conteúdo">

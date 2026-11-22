@@ -3,7 +3,7 @@ import { SERIES_GENRES, ageLabel, filterPicks, safeWatchLink } from './seriesCat
 import type { SeriesPick } from './seriesCatalog'
 
 const pick = (over: Partial<SeriesPick>): SeriesPick => ({
-  id: '1', kind: 'serie', title: 'A', description: null, genres: ['Drama'], platform: null, platform_url: null, age_rating: null, cover_path: null, status: 'published', ...over,
+  id: '1', kind: 'serie', title: 'A', description: null, genres: ['Drama'], platform: null, platform_url: null, trailer_url: null, age_rating: null, cover_path: null, status: 'published', ...over,
 })
 
 describe('dicas de séries e filmes', () => {

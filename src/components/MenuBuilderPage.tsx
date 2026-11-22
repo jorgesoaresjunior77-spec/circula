@@ -16,8 +16,7 @@ import {
   totalMinutes,
 } from '../lib/menuBuilder'
 import type { Course, CuisineKey, DietKey, MenuAnswers, MenuPick } from '../lib/menuBuilder'
-import { shoppingPdfHtml } from '../lib/menuPrint'
-import { printDocument } from '../lib/nutriPrint'
+import { MenuToList } from './minhalista/MenuToList'
 import { formatQty } from '../lib/shopping'
 import type { DraftItem } from '../lib/shopping'
 import { isList, recipeItems } from '../lib/recipeText'
@@ -94,15 +93,20 @@ function PickCard({ pick, guests }: { pick: MenuPick; guests: number }) {
 
 export function MenuBuilderPage({
   communityId,
+  profileId,
   onBack,
-  canSaveList = true,
+  canUseLista = true,
   onOpenPlans,
+  onGoToLists,
 }: {
   communityId: string | null
+  profileId: string
   onBack?: () => void
-  /** Tem a assinatura Lista de compras inteligente (ou o Premium)? */
-  canSaveList?: boolean
+  /** Tem a assinatura Lista de compras (ou o Premium)? */
+  canUseLista?: boolean
   onOpenPlans?: () => void
+  /** Abre a página de listas de compras. */
+  onGoToLists?: () => void
 }) {
   const { recipes, loading, error } = useMenuLibrary(communityId)
   const [answers, setAnswers] = useState<MenuAnswers>(EMPTY_ANSWERS)
@@ -110,7 +114,7 @@ export function MenuBuilderPage({
   const [done, setDone] = useState(false)
   const [variant, setVariant] = useState(0)
   const [formError, setFormError] = useState<string | null>(null)
-  const [printError, setPrintError] = useState<string | null>(null)
+  const [listOpen, setListOpen] = useState(false)
 
   const patch = (p: Partial<MenuAnswers>) => setAnswers((a) => ({ ...a, ...p }))
 
@@ -138,13 +142,6 @@ export function MenuBuilderPage({
     if (done) setDone(false)
     else if (step > 0) setStep(step - 1)
     else onBack?.()
-  }
-
-  function savePdf() {
-    if (!result) return
-    setPrintError(null)
-    const ok = printDocument(shoppingPdfHtml(answers, result, shoppingForMenu(result)))
-    if (!ok) setPrintError('O navegador bloqueou a janela do PDF. Permita pop-ups e tente de novo.')
   }
 
   const intro = (
@@ -233,35 +230,31 @@ export function MenuBuilderPage({
         <div className="menu-actions">
           {result.sections.length > 0 && (
             <>
-              {canSaveList ? (
-                <>
-                  <button type="button" className="btn btn-primary menu-pdf" onClick={savePdf}>
-                    Salve sua lista de compras
-                  </button>
-                  <p className="home-muted">
-                    Abre a lista em PDF. Escolha "Salvar como PDF" para baixar no celular e depois compartilhe pelo WhatsApp.
-                  </p>
-                  {printError && <p className="auth-error">{printError}</p>}
-                </>
-              ) : (
-                <div className="menu-upsell">
-                  <strong>Lista de compras inteligente</strong>
-                  <p>
-                    Leve este cardápio para o mercado: todos os ingredientes somados, na quantidade certa para {answers.guests}{' '}
-                    {answers.guests === 1 ? 'pessoa' : 'pessoas'} e organizados por seção, prontos para salvar em PDF.
-                  </p>
-                  <span className="menu-upsell-price">R$ 3,80 por mês</span>
-                  <button type="button" className="btn btn-primary menu-pdf" onClick={() => onOpenPlans?.()}>
-                    Assinar a lista de compras
-                  </button>
-                </div>
-              )}
+              <button type="button" className="ml-big-btn ml-big-btn--pulse" onClick={() => setListOpen(true)}>
+                Lista de compras
+              </button>
+              <p className="home-muted menu-actions-hint">
+                Leve todos os ingredientes deste cardápio, na quantidade certa para {answers.guests}{' '}
+                {answers.guests === 1 ? 'pessoa' : 'pessoas'}, para as suas Listas de Compras.
+              </p>
               <button type="button" className="auth-link" onClick={() => setVariant((v) => v + 1)}>
                 Ver outra sugestão
               </button>
             </>
           )}
         </div>
+        {listOpen && communityId && (
+          <MenuToList
+            communityId={communityId}
+            profileId={profileId}
+            defaultName={answers.name.trim() || answers.occasion || 'Meu cardápio'}
+            drafts={shoppingForMenu(result)}
+            canUse={canUseLista}
+            onOpenPlans={() => onOpenPlans?.()}
+            onGoToLists={onGoToLists}
+            onClose={() => setListOpen(false)}
+          />
+        )}
       </section>
     )
   }

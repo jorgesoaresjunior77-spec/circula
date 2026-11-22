@@ -21,15 +21,18 @@ interface Props {
   onDone: (listId: string) => void
   /** Lista já escolhida (ex.: vindo de dentro de uma lista). */
   defaultTarget?: string
+  /** Leva à página de listas de compras (mostrado depois de salvar, só vindo de uma receita). */
+  onGoToLists?: () => void
 }
 
-export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defaultTarget = 'nova' }: Props) {
+export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defaultTarget = 'nova', onGoToLists }: Props) {
   const [picked, setPicked] = useState<Record<string, number>>(fixed ? { [fixed.id]: 1 } : {})
   const [off, setOff] = useState<Set<string>>(new Set())
   const [target, setTarget] = useState<string>(defaultTarget)
   const [name, setName] = useState(fixed ? `Compras: ${fixed.title}` : 'Compras da semana')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState<{ id: string; name: string } | null>(null)
 
   const candidates = fixed ? [fixed] : recipes.filter((r) => r.status === 'published')
   const open = api.lists.filter((l) => l.status === 'em_andamento')
@@ -64,6 +67,10 @@ export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defa
         setError(r.error ?? 'Não foi possível criar a lista.')
         return
       }
+      if (fixed) {
+        setSaved({ id: r.id, name: name.trim() || 'Minha lista' })
+        return
+      }
       onDone(r.id)
       return
     }
@@ -73,12 +80,45 @@ export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defa
       setError(r.error)
       return
     }
+    if (fixed) {
+      setSaved({ id: target, name: open.find((l) => l.id === target)?.name ?? 'sua lista' })
+      return
+    }
     onDone(target)
+  }
+
+  if (saved) {
+    return (
+      <div className="ml-sheet-backdrop" role="dialog" aria-modal="true" aria-label="Lista salva">
+        <div className="ml-sheet ml-sheet--saved">
+          <div className="ml-saved-check" aria-hidden="true">
+            ✓
+          </div>
+          <h3>Lista salva!</h3>
+          <p className="ml-saved-text">
+            Sua lista “{saved.name}” está salva em <strong>Listas de Compras</strong>.
+          </p>
+          <button
+            type="button"
+            className="ml-big-btn ml-big-btn--pulse"
+            onClick={() => {
+              onDone(saved.id)
+              onGoToLists?.()
+            }}
+          >
+            Vá para lista de compras já
+          </button>
+          <button type="button" className="auth-link ml-saved-close" onClick={() => onDone(saved.id)}>
+            Continuar na receita
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="ml-sheet-backdrop" role="dialog" aria-modal="true" aria-label="Ingredientes das receitas">
-      <div className="ml-sheet">
+      <div className="ml-sheet ml-sheet--pretty">
         <button type="button" className="plans-sheet-close" onClick={onClose} aria-label="Fechar">
           ×
         </button>
@@ -195,12 +235,17 @@ export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defa
             {error}
           </p>
         )}
-        <div className="ml-actions">
+        <div className="ml-actions ml-actions--final">
+          <button
+            type="button"
+            className="ml-big-btn ml-big-btn--pulse"
+            onClick={() => void confirm()}
+            disabled={busy || drafts.length === 0}
+          >
+            {busy ? 'Salvando…' : target === 'nova' ? 'Criar lista' : 'Adicionar à lista'}
+          </button>
           <button type="button" className="auth-link" onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button type="button" className="water-primary" onClick={() => void confirm()} disabled={busy || drafts.length === 0}>
-            {busy ? 'Adicionando…' : target === 'nova' ? 'Criar lista' : 'Adicionar à lista'}
           </button>
         </div>
       </div>

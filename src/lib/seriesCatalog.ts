@@ -61,6 +61,7 @@ export interface SeriesPick {
   genres: string[]
   platform: string | null
   platform_url: string | null
+  trailer_url: string | null
   age_rating: AgeRating | null
   cover_path: string | null
   status: 'draft' | 'published'

@@ -169,6 +169,8 @@ export function PostCard({
   const isDailyQuestion = post.post_type === 'daily_question'
   const isCheckinShare = post.post_type === 'checkin_share'
   const isEngagementCommand = post.post_type === 'engagement_command'
+  // Bom dia diário da Marluce (publicado todo dia às 5h pelo banco).
+  const isBomDia = post.post_type === 'standard' && post.title === 'Bom dia'
   // Meu Jardim — card editorial próprio (seção abaixo), não o
   // post-content padrão. Cai de volta no padrão (texto simples) se o
   // post não tiver a linha companheira (garden_daily_post/garden_share)
@@ -184,7 +186,9 @@ export function PostCard({
         ? ' post-card--command'
         : isGardenDaily || isGardenShare
           ? ' post-card--garden'
-          : ''
+          : isBomDia
+            ? ' post-card--bomdia'
+            : ''
   // Composição editorial do Feed de Conversa (redesign). A Home e demais
   // usos clássicos (HomeHighlights) não passam inlineConversation e
   // continuam com a apresentação de card de sempre — nada muda para eles.
@@ -238,6 +242,7 @@ export function PostCard({
         </div>
       </div>
 
+      {isBomDia && <span className="post-badge post-badge--bomdia">Bom dia da Marluce</span>}
       {isDailyQuestion && <span className="post-badge">Pergunta do dia</span>}
       {isCheckinShare && <span className="post-badge post-badge--checkin">Check-in</span>}
       {isEngagementCommand && (

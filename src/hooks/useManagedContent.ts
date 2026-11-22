@@ -15,6 +15,7 @@ export type ManagedTable =
   | 'wellness_articles'
   | 'exercise_articles'
   | 'series_picks'
+  | 'travel_places'
 
 export function useManagedContent<T extends { id: string }>(
   table: ManagedTable,

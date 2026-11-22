@@ -94,14 +94,18 @@ ${inviteUrl}`
 interface InviteMessageComposerProps {
   communityName: string
   inviteUrl: string
+  /** Convite feito de dentro de um Círculo. */
+  circleName?: string
+  /** Quem convida tem o Premium: o convite cita o desconto extra. */
+  premiumBonus?: boolean
 }
 
-export function InviteMessageComposer({ communityName, inviteUrl }: InviteMessageComposerProps) {
+export function InviteMessageComposer({ communityName, inviteUrl, circleName, premiumBonus }: InviteMessageComposerProps) {
   // Na tela o link aparece como a frase @circulaapp; o endereço de verdade entra na
   // mensagem só na hora de enviar, copiar ou compartilhar.
   const suggestions = useMemo(
-    () => buildInviteMessageSuggestions(communityName, INVITE_LINK_LABEL),
-    [communityName],
+    () => buildInviteMessageSuggestions(communityName, INVITE_LINK_LABEL, { circleName, premiumBonus }),
+    [communityName, circleName, premiumBonus],
   )
   const [message, setMessage] = useState(suggestions[0])
   const finalMessage = withRealLink(message, inviteUrl)

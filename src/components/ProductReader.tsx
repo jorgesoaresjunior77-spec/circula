@@ -27,7 +27,7 @@ export function ProductReader({ product, onClose }: Props) {
   if (pages.length === 0) {
     return (
       <div className="product-reader-note" role="status">
-        <p>As páginas deste e-book ainda não foram cadastradas.</p>
+        <p>Não encontramos as páginas deste e-book. Se você já assinou, feche e abra o app de novo; se continuar, fale com a nutri.</p>
         <button type="button" className="auth-link" onClick={onClose}>
           Fechar
         </button>

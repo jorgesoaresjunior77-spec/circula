@@ -2,21 +2,12 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useCircleRequests } from '../hooks/useCircleRequests'
 import { CIRCLE_REQUEST_STATUS_LABEL } from '../types/circleRequest'
-import { CoverImageInput } from './CoverImageInput'
 import { ChevronLeftIcon } from './icons'
 
-// Etapa 5.1/5.2 (evolução/experiência/gamificação) — formulário de
-// solicitação de um novo Círculo, aberto pelo card "Novo Círculo" da
-// faixa editorial de Círculos (<HomeCirclesSection>). A decisão final é
-// sempre da Profissional (ver Etapa 5.3 / CircleRequestReview.tsx) —
-// isto aqui NUNCA cria um Círculo publicado.
-//
-// Só o nome sugerido é obrigatório — pedido explícito do usuário ("Não
-// exigir que todos os campos sejam obrigatoriamente preenchidos.
-// Tornar obrigatórios apenas os dados essenciais"). Imagem de
-// referência via CoverImageInput (mesmo componente/bucket de qualquer
-// outra capa do app — community-media, pasta `covers`, já liberado para
-// qualquer membro ativa por policy existente).
+// Solicitação de um novo Círculo, aberta pelo card "Novo Círculo" da faixa de
+// Círculos. Formulário bem simples (pedido da Profissional): só o nome e o
+// assunto. A decisão final é sempre da Profissional (CircleRequestReview.tsx);
+// isto aqui NUNCA cria um Círculo publicado. Só o nome é obrigatório.
 
 interface CircleRequestFormProps {
   communityId: string
@@ -29,11 +20,6 @@ export function CircleRequestForm({ communityId, profileId, onBack }: CircleRequ
 
   const [suggestedName, setSuggestedName] = useState('')
   const [topic, setTopic] = useState('')
-  const [reason, setReason] = useState('')
-  const [activities, setActivities] = useState('')
-  const [visualIdea, setVisualIdea] = useState('')
-  const [notes, setNotes] = useState('')
-  const [referenceImage, setReferenceImage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [justSubmitted, setJustSubmitted] = useState(false)
@@ -48,11 +34,11 @@ export function CircleRequestForm({ communityId, profileId, onBack }: CircleRequ
     const result = await createRequest(profileId, {
       suggested_name: suggestedName,
       topic: topic || null,
-      reason: reason || null,
-      activities: activities || null,
-      visual_idea: visualIdea || null,
-      notes: notes || null,
-      reference_image_path: referenceImage || null,
+      reason: null,
+      activities: null,
+      visual_idea: null,
+      notes: null,
+      reference_image_path: null,
     })
 
     setSubmitting(false)
@@ -76,11 +62,6 @@ export function CircleRequestForm({ communityId, profileId, onBack }: CircleRequ
 
       <div className="community-card circle-request-card">
         <h2 className="circle-request-title">Novo Círculo</h2>
-        <p className="circle-request-intro">
-          Conte pra gente qual Círculo você gostaria de ver por aqui. A
-          Profissional lê todas as sugestões e decide quais entram no ar —
-          enviar uma solicitação não cria o Círculo automaticamente.
-        </p>
 
         {(justSubmitted || pending) && (
           <div className="circle-request-confirmation" role="status">
@@ -100,7 +81,7 @@ export function CircleRequestForm({ communityId, profileId, onBack }: CircleRequ
 
         {!justSubmitted && !pending && (
           <form className="circle-request-form" onSubmit={handleSubmit}>
-            <label htmlFor="cr-name">Qual nome você sugere para o novo círculo? *</label>
+            <label htmlFor="cr-name">Que nome sugere para o novo Círculo?</label>
             <input
               id="cr-name"
               type="text"
@@ -110,58 +91,18 @@ export function CircleRequestForm({ communityId, profileId, onBack }: CircleRequ
               required
             />
 
-            <label htmlFor="cr-topic">Sobre qual assunto seria esse círculo?</label>
-            <textarea
+            <label htmlFor="cr-topic">Qual assunto seria?</label>
+            <input
               id="cr-topic"
+              type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              rows={2}
+              maxLength={160}
             />
 
-            <label htmlFor="cr-reason">Por que você gostaria de participar dele?</label>
-            <textarea
-              id="cr-reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              rows={2}
-            />
-
-            <label htmlFor="cr-activities">
-              Que tipo de conversas ou atividades gostaria de encontrar?
-            </label>
-            <textarea
-              id="cr-activities"
-              value={activities}
-              onChange={(e) => setActivities(e.target.value)}
-              rows={2}
-            />
-
-            <label htmlFor="cr-visual">
-              Como imagina a imagem ou identidade visual desse círculo?
-            </label>
-            <textarea
-              id="cr-visual"
-              value={visualIdea}
-              onChange={(e) => setVisualIdea(e.target.value)}
-              rows={2}
-            />
-
-            <label htmlFor="cr-notes">Deseja deixar alguma observação adicional?</label>
-            <textarea
-              id="cr-notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-            />
-
-            <CoverImageInput
-              value={referenceImage}
-              communityId={communityId}
-              uid={profileId}
-              label="Imagem de referência (opcional)"
-              onChange={setReferenceImage}
-              aspectRatio="4 / 5"
-            />
+            <p className="circle-request-note">
+              Criando um novo círculo, esperamos que você convide pessoas para nossa comunidade.
+            </p>
 
             {error && (
               <p className="auth-error" role="alert">

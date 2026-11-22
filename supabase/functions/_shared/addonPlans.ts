@@ -17,6 +17,7 @@ export type AddonPlanKey =
   | 'lista_inteligente'
   | 'exercicios'
   | 'series_filmes'
+  | 'viagens'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -35,6 +36,7 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'lista_inteligente',
   'exercicios',
   'series_filmes',
+  'viagens',
   'premium',
 ]
 
@@ -52,6 +54,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   lista_inteligente: 'Lista de compras inteligente',
   exercicios: 'Se exercite em casa',
   series_filmes: 'Dicas de Séries e Filmes',
+  viagens: 'Dicas de Viagem',
   premium: 'Círcula Premium',
 }
 
@@ -69,6 +72,7 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   lista_inteligente: 590,
   exercicios: 790,
   series_filmes: 590,
+  viagens: 590,
   premium: 5990,
 }
 
@@ -77,6 +81,13 @@ const CLOSED: Partial<Record<AddonPlanKey, Record<AsaasCycle, number>>> = {
   premium: { MONTHLY: 5990, SEMIANNUALLY: 28752, YEARLY: 46722 },
 }
 const NINETY_NINETY: Record<AsaasCycle, number> = { MONTHLY: 990, SEMIANNUALLY: 4980, YEARLY: 7970 }
+
+/** Desconto extra da indicação Premium (convidada por quem tem o Premium), só no plano Premium. */
+export const REFERRAL_DISCOUNT_PERCENT = 10
+
+export function applyReferralDiscount(cents: number): number {
+  return roundDime(cents * (1 - REFERRAL_DISCOUNT_PERCENT / 100))
+}
 
 function roundDime(cents: number): number {
   return Math.round(cents / 10) * 10
@@ -131,6 +142,8 @@ export function packagesForPlan(key: AddonPlanKey): string[] {
       return ['exercicios']
     case 'series_filmes':
       return ['series_filmes']
+    case 'viagens':
+      return ['viagens']
     case 'premium':
       return ['premium']
     default:

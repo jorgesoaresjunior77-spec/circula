@@ -99,6 +99,9 @@ const GROUPS: { kind: ItemViewKind; title: string; unit: [string, string] }[] = 
   { kind: 'magazine', title: 'Revista', unit: ['visualização', 'visualizações'] },
   { kind: 'ebook', title: 'E-books e produtos da Loja', unit: ['leitura', 'leituras'] },
   { kind: 'partner_click', title: 'Logos de parceiros', unit: ['clique', 'cliques'] },
+  { kind: 'travel', title: 'Dicas de Viagem (destinos)', unit: ['visualização', 'visualizações'] },
+  { kind: 'series', title: 'Séries e Filmes', unit: ['visualização', 'visualizações'] },
+  { kind: 'reading', title: 'Dicas de leitura (livros)', unit: ['visualização', 'visualizações'] },
 ]
 
 export function ViewsOverview({ communityId }: { communityId: string }) {
@@ -109,18 +112,24 @@ export function ViewsOverview({ communityId }: { communityId: string }) {
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const [mags, prods, parts, recs, recViews] = await Promise.all([
+      const [mags, prods, parts, recs, recViews, trav, sers, reads] = await Promise.all([
         supabase.from('magazine_issues').select('id,title').eq('community_id', communityId).limit(200),
         supabase.from('products').select('id,title').eq('community_id', communityId).limit(300),
         supabase.from('community_partners').select('id,name').eq('community_id', communityId).limit(100),
         supabase.from('community_content').select('id,title').eq('community_id', communityId).eq('type', 'recipe').limit(500),
         supabase.from('content_views').select('content_id').eq('community_id', communityId).limit(5000),
+        supabase.from('travel_places').select('id,title').eq('community_id', communityId).limit(500),
+        supabase.from('series_picks').select('id,title').eq('community_id', communityId).limit(500),
+        supabase.from('reading_tips').select('id,title').eq('community_id', communityId).limit(500),
       ])
       if (cancelled) return
       const map: Record<string, string> = {}
       for (const r of (mags.data as { id: string; title: string }[] | null) ?? []) map[r.id] = r.title
       for (const r of (prods.data as { id: string; title: string }[] | null) ?? []) map[r.id] = r.title
       for (const r of (parts.data as { id: string; name: string }[] | null) ?? []) map[r.id] = r.name
+      for (const list of [trav.data, sers.data, reads.data]) {
+        for (const r of (list as { id: string; title: string }[] | null) ?? []) map[r.id] = r.title
+      }
       setNames(map)
 
       const counts: Record<string, number> = {}

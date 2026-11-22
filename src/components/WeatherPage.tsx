@@ -1,13 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useWeather } from '../hooks/useWeather'
-import { weatherPhotoFor, cityLabel, describeWeather, searchCities, timeOnly, weatherScene, weekdayShort } from '../lib/weather'
-import type { WeatherCity } from '../lib/weather'
+import { weatherPhotoFor, cityLabel, describeWeather, hourLabel, searchCities, timeOnly, weatherScene, weekdayShort } from '../lib/weather'
+import type { WeatherCity, WeatherHour } from '../lib/weather'
 import { WeatherIcon } from './WeatherIcon'
 import { WeatherScene } from './WeatherScene'
 
 // Página da previsão do tempo: agora, detalhes e próximos 7 dias. A cidade é
 // escolhida aqui e fica só neste aparelho; a previsão acompanha a cidade.
+
+/** Linha do tempo de hoje: de hora em hora, com a hora atual em destaque. */
+function HourlyTimeline({ hours, nowTime }: { hours: WeatherHour[]; nowTime: string | null }) {
+  const nowHour = nowTime ? nowTime.slice(0, 13) : null
+  const listRef = useRef<HTMLUListElement>(null)
+
+  useEffect(() => {
+    const list = listRef.current
+    const current = list?.querySelector<HTMLElement>('[data-now="true"]')
+    if (list && current) list.scrollLeft = Math.max(0, current.offsetLeft - list.clientWidth / 2 + current.clientWidth / 2)
+  }, [hours, nowHour])
+
+  return (
+    <section className="weather-hourly" aria-label="Previsão hora a hora de hoje">
+      <h3 className="weather-heading">Hoje, hora a hora</h3>
+      <ul className="weather-hours" ref={listRef}>
+        {hours.map((h) => {
+          const desc = describeWeather(h.code)
+          const isNow = nowHour !== null && h.time.slice(0, 13) === nowHour
+          return (
+            <li key={h.time} className={'weather-hour' + (isNow ? ' weather-hour--now' : '')} data-now={isNow ? 'true' : undefined}>
+              <span className="weather-hour-label">{isNow ? 'Agora' : hourLabel(h.time)}</span>
+              <WeatherIcon kind={desc.kind} isDay={h.isDay} size={34} />
+              <strong className="weather-hour-temp">{Math.round(h.temp)}°</strong>
+              <span className="weather-hour-rain">{h.rainChance !== null && h.rainChance > 0 ? h.rainChance + '%' : ' '}</span>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
 
 function CityPicker({ onPick, onCancel }: { onPick: (city: WeatherCity) => void; onCancel?: () => void }) {
   const [query, setQuery] = useState('')
@@ -166,6 +198,8 @@ export function WeatherPage() {
               <strong>{timeOnly(data.sunset)}</strong>
             </li>
           </ul>
+
+          {data.hourly.length > 0 && <HourlyTimeline hours={data.hourly} nowTime={data.nowTime} />}
 
           <h3 className="weather-heading">Próximos dias</h3>
           <ul className="weather-days">

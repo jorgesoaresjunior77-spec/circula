@@ -186,8 +186,8 @@ export function HomeToday({
   const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
   const { url: planosCover } = useSignedImageUrl(cardImagePaths.banner_planos ?? null)
   const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
-  const { url: seriesCover } = useSignedImageUrl(cardImagePaths.banner_series ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
+  const { url: listaCover } = useSignedImageUrl(cardImagePaths.banner_lista ?? null)
   // Ajustes de navegação — capa do card "Receitas", guardada sob a chave
   // legada 'jornada' (ver types/communityCards.ts).
   const { url: receitasCover } = useSignedImageUrl(cardImagePaths.jornada ?? null)
@@ -400,7 +400,7 @@ export function HomeToday({
       <div className="home-pair">
         <HomeMenuBanner image={cardapioCover} onOpen={() => onNavigate('cardapio')} />
         <span className="home-pair-dot" aria-hidden="true" />
-        <HomeGratitudeCard image={diarioCover} onOpen={() => onNavigate('diario')} />
+        <HomeGratitudeCard image={listaCover} onOpen={() => onNavigate('lista')} title="Lista de Compras" eyebrow="Tudo à mão no mercado" />
       </div>
       <HomeFlowerGap seed={4} />
 
@@ -416,14 +416,14 @@ export function HomeToday({
         />
         <span className="home-pair-dot" aria-hidden="true" />
         <HomeFeatureBanner
-          title={<>Séries<br />e Filmes</>}
+          title={<>Diário da<br />Gratidão</>}
           titleClass="menu-banner-title--small"
           wrapClass="hfb--series"
-          eyebrow="Para relaxar"
-          copy="Dicas de filmes e séries"
-          image={seriesCover}
-          label="Dicas de Séries e Filmes"
-          onOpen={() => onNavigate('series')}
+          eyebrow="Um minuto de gratidão"
+          copy="Orações e seus registros do dia"
+          image={diarioCover}
+          label="Diário da Gratidão"
+          onOpen={() => onNavigate('diario')}
         />
       </div>
       <HomeFlowerGap seed={5} />

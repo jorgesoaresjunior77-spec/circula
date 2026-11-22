@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canUseSeriesFilmes, canUseExercises, canUseChef, canUseSmartList, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes } from '../lib/packages'
+import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -15,6 +15,8 @@ import { MyProfile } from './MyProfile'
 import { PatientNutriPage } from './PatientNutriPage'
 import { NUTRI_REQUEST_KEY } from './MemberSignup'
 import { supabase } from '../lib/supabase'
+import { recordView } from '../lib/itemViews'
+import { screenId } from '../lib/screens'
 import { useIsNutriPatient } from '../hooks/useIsNutriPatient'
 import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
@@ -96,6 +98,7 @@ const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => (
 // Telas abertas só quando a pessoa chega nelas: saem do pacote inicial.
 const RecipesPage = lazy(() => import('./RecipesPage').then((m) => ({ default: m.RecipesPage })))
 const HomeWorkoutPage = lazy(() => import('./HomeWorkoutPage').then((m) => ({ default: m.HomeWorkoutPage })))
+const TravelPage = lazy(() => import('./TravelPage').then((m) => ({ default: m.TravelPage })))
 const SeriesPage = lazy(() => import('./SeriesPage').then((m) => ({ default: m.SeriesPage })))
 const DiarioPage = lazy(() => import('./DiarioPage').then((m) => ({ default: m.DiarioPage })))
 const MenuBuilderPage = lazy(() => import('./MenuBuilderPage').then((m) => ({ default: m.MenuBuilderPage })))
@@ -175,7 +178,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'diario']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario']
 
 export function Dashboard({
   profile,
@@ -392,6 +395,12 @@ export function Dashboard({
       inBottomNav: false,
     })
     navItems.push({
+      key: 'viagens',
+      label: 'Dicas de Viagem',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
       key: 'diario',
       label: 'Diário da Gratidão',
       Icon: HeartIcon,
@@ -549,6 +558,7 @@ export function Dashboard({
     effectiveNav === 'cardapio' ||
     effectiveNav === 'exercicios' ||
     effectiveNav === 'series' ||
+    effectiveNav === 'viagens' ||
     effectiveNav === 'diario'
   const {
     circles,
@@ -557,6 +567,14 @@ export function Dashboard({
     joinCircle,
     leaveCircle,
   } = useCircles(circlesActive ? resolvedCirclesCommunityId : null)
+
+  // Métricas: conta a abertura de cada área do app (só participantes; a dona não entra na conta).
+  const trackedCommunityId = resolvedCirclesCommunityId ?? myCommunities[0]?.id ?? null
+  const isMemberRole = profile?.role === 'member'
+  useEffect(() => {
+    if (!isMemberRole || !trackedCommunityId) return
+    recordView(trackedCommunityId, 'screen', screenId(effectiveNav))
+  }, [isMemberRole, trackedCommunityId, effectiveNav])
 
   const {
     events,
@@ -989,6 +1007,7 @@ export function Dashboard({
           isOwner={profile.role === 'professional'}
           canUseLista={profile.role === 'professional' || canUseMinhaLista(myPackages)}
           onOpenPlans={() => handleNavigate('planos')}
+          onGoToLists={() => handleNavigate('lista')}
         />
       )
     }
@@ -1020,8 +1039,10 @@ export function Dashboard({
         <MenuBuilderPage
           communityId={resolvedCirclesCommunityId}
           onBack={() => handleNavigate('inicio')}
-          canSaveList={profile.role === 'professional' || canUseSmartList(myPackages)}
+          profileId={profile.id}
+          canUseLista={profile.role === 'professional' || canUseMinhaLista(myPackages)}
           onOpenPlans={() => handleNavigate('planos')}
+          onGoToLists={() => handleNavigate('lista')}
         />
       )
     }
@@ -1060,6 +1081,27 @@ export function Dashboard({
           isOwner={profile.role === 'professional'}
           isMaster={false}
           canUse={profile.role === 'professional' || canUseSeriesFilmes(myPackages)}
+          onOpenPlans={() => handleNavigate('planos')}
+        />
+      )
+    }
+
+    // DICAS DE VIAGEM — destinos da nutricionista; o acesso é travado no banco pelo pacote.
+    if (effectiveNav === 'viagens') {
+      if (circlesRelevantCommunities.length === 0) {
+        return <p>Você ainda não faz parte de nenhuma comunidade.</p>
+      }
+      if (!resolvedCirclesCommunityId) {
+        return <>{renderCommunityPicker('Dicas de Viagem · escolha uma comunidade', circlesRelevantCommunities, setCirclesCommunityId)}</>
+      }
+      if (profile.role === 'member' && packagesLoading) return <p className="home-muted">Carregando…</p>
+      return (
+        <TravelPage
+          communityId={resolvedCirclesCommunityId}
+          profileId={profile.id}
+          isOwner={profile.role === 'professional'}
+          isMaster={false}
+          canUse={profile.role === 'professional' || canUseViagens(myPackages)}
           onOpenPlans={() => handleNavigate('planos')}
         />
       )

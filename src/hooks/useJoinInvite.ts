@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { clearInviteToken } from '../lib/inviteToken'
+import { clearInviteToken, readInviteRef } from '../lib/inviteToken'
 
 // Entrada na comunidade pelo link de convite: assim que existe sessão e
 // um token guardado, chama `join_community_by_invite`. O App espera este
@@ -31,7 +31,7 @@ export function useJoinInvite(userId: string | null, token: string | null, onFin
     let cancelled = false
     setState({ status: 'joining' })
 
-    void supabase.rpc('join_community_by_invite', { p_token: token }).then(({ error }) => {
+    void supabase.rpc('join_community_by_invite', { p_token: token, p_ref: readInviteRef() }).then(({ error }) => {
       if (cancelled) return
       if (!error) {
         clearInviteToken()

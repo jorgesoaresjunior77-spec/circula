@@ -1,48 +1,70 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { buildInviteUrl } from '../lib/inviteToken'
+import { useIsPremiumMember } from '../hooks/useIsPremiumMember'
 import { InviteMessageComposer } from './CommunityInviteWhatsApp'
 
-// Meu perfil (membro): convidar amigas para o Círcula pelo WhatsApp, com o
-// mesmo link de convite da comunidade. O app nunca envia nada sozinho: abre o
-// WhatsApp com a mensagem pronta e o envio é da própria membro.
-export function InviteFriends({ communityId }: { communityId: string }) {
-  const [open, setOpen] = useState(false)
-  const [url, setUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+// Convidar amigas para o Círcula pelo WhatsApp, com o mesmo link de convite
+// da comunidade. O app nunca envia nada sozinho: abre o WhatsApp com a
+// mensagem pronta e o envio é da própria membro.
 
-  async function toggle() {
-    if (open) {
-      setOpen(false)
-      return
+/** Carrega o link e mostra o compositor de mensagem. `circleName` faz o convite falar daquele Círculo. */
+export function MemberInvitePanel({ communityId, circleName }: { communityId: string; circleName?: string }) {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { premium, uid } = useIsPremiumMember(communityId)
+  const [token, setToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void supabase.rpc('get_member_invite_link', { p_community_id: communityId }).then(({ data, error: rpcError }) => {
+      if (cancelled) return
+      setLoading(false)
+      if (rpcError) {
+        setError('Não foi possível carregar o convite agora. Tente de novo.')
+        return
+      }
+      if (typeof data === 'string' && data) setToken(data)
+      else setError('O convite está desativado no momento. Fale com a nutri.')
+    })
+    return () => {
+      cancelled = true
     }
-    setOpen(true)
-    if (url) return
-    setLoading(true)
-    setError(null)
-    const { data, error: rpcError } = await supabase.rpc('get_member_invite_link', { p_community_id: communityId })
-    setLoading(false)
-    if (rpcError) {
-      setError('Não foi possível carregar o convite agora. Tente de novo.')
-      return
-    }
-    if (typeof data === 'string' && data) setUrl(buildInviteUrl(data))
-    else setError('O convite está desativado no momento. Fale com a nutri.')
-  }
+  }, [communityId])
+
+  // Só quem tem o Premium leva o próprio id no link (é o que dá o desconto à convidada).
+  const url = token ? buildInviteUrl(token, premium ? uid : null) : null
 
   return (
-    <section className="invite-friends" aria-label="Convidar amigas">
-      <button type="button" className="water-primary" onClick={() => void toggle()} aria-expanded={open}>
-        {open ? 'Fechar convite' : 'Convidar amigas para o Círcula'}
-      </button>
-      {open && loading && <p className="home-muted">Preparando o convite…</p>}
-      {open && error && (
+    <div className="invite-panel">
+      {loading && <p className="home-muted">Preparando o convite…</p>}
+      {error && (
         <p className="auth-error" role="alert">
           {error}
         </p>
       )}
-      {open && url && <InviteMessageComposer communityName="Círcula" inviteUrl={url} />}
+      {url && (
+        <InviteMessageComposer
+          key={`${premium}:${url}`}
+          communityName="Círcula"
+          inviteUrl={url}
+          circleName={circleName}
+          premiumBonus={premium}
+        />
+      )}
+    </div>
+  )
+}
+
+export function InviteFriends({ communityId }: { communityId: string }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <section className="invite-friends" aria-label="Convidar amigas">
+      <button type="button" className="water-primary" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        {open ? 'Fechar convite' : 'Convidar amigas para o Círcula'}
+      </button>
+      {open && <MemberInvitePanel communityId={communityId} />}
     </section>
   )
 }

@@ -20,21 +20,47 @@ const brDate = (iso: string | null): string => (iso ? iso.slice(0, 10).split('-'
 
 function ListCard({ list, api, mine, onOpen }: { list: ShoppingList; api: ReturnType<typeof useShopping>; mine: boolean; onOpen: () => void }) {
   const t = totalsOf(api.items[list.id] ?? [])
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy] = useState(false)
+  async function remove() {
+    setBusy(true)
+    await api.deleteList(list.id)
+    setBusy(false)
+    setConfirming(false)
+  }
   return (
-    <button type="button" className="ml-card" onClick={onOpen}>
-      <span className="ml-card-top">
-        <strong>{list.name}</strong>
-        {!mine && <em className="ml-chip">compartilhada</em>}
-      </span>
-      <span className="ml-card-meta">
-        {t.bought}/{t.total} comprados · {t.pending} faltam
-        {list.planned_for ? ` · compras em ${brDate(list.planned_for)}` : ''}
-      </span>
-      <span className="ml-bar" aria-hidden="true">
-        <span style={{ width: `${Math.round(t.progress * 100)}%` }} />
-      </span>
-      <span className="ml-card-meta">Estimado {formatBrl(t.estimatedCents)}</span>
-    </button>
+    <div className="ml-card-wrap">
+      <button type="button" className="ml-card" onClick={onOpen}>
+        <span className="ml-card-top">
+          <strong>{list.name}</strong>
+          {!mine && <em className="ml-chip">compartilhada</em>}
+        </span>
+        <span className="ml-card-meta">
+          {t.bought}/{t.total} comprados · {t.pending} faltam
+          {list.planned_for ? ` · compras em ${brDate(list.planned_for)}` : ''}
+        </span>
+        <span className="ml-bar" aria-hidden="true">
+          <span style={{ width: `${Math.round(t.progress * 100)}%` }} />
+        </span>
+        <span className="ml-card-meta">Estimado {formatBrl(t.estimatedCents)}</span>
+      </button>
+      {mine &&
+        (confirming ? (
+          <div className="ml-card-confirm" role="alert">
+            <span>Excluir esta lista?</span>
+            <button type="button" className="ml-card-del ml-card-del--yes" disabled={busy} onClick={() => void remove()}>
+              {busy ? 'Excluindo…' : 'Sim, excluir'}
+            </button>
+            <button type="button" className="ml-card-del" disabled={busy} onClick={() => setConfirming(false)}>
+              Não
+            </button>
+          </div>
+        ) : (
+          <button type="button" className="ml-card-del" onClick={() => setConfirming(true)} aria-label={`Excluir a lista ${list.name}`}>
+            Excluir lista
+          </button>
+        ))}
+    </div>
   )
 }
 

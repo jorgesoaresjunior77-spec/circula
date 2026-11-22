@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CircleWithMembers, JoinCircleResult } from '../types/circle'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { Feed } from './Feed'
+import { MemberInvitePanel } from './InviteFriends'
 import { ChevronLeftIcon } from './icons'
 
 const AVATAR_LIMIT = 6
@@ -31,6 +32,7 @@ export function CircleDetail({
   onLeave,
 }: CircleDetailProps) {
   const [working, setWorking] = useState(false)
+  const [inviteOpen, setInviteOpen] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
   // Boas-vindas: aparece para quem participa até ela fechar ou escrever a
@@ -150,10 +152,25 @@ export function CircleDetail({
             >
               {working ? 'Aguarde...' : isParticipating ? 'Sair do círculo' : 'Entrar no círculo'}
             </button>
+            <button
+              type="button"
+              className="btn circle-detail-invite"
+              onClick={() => setInviteOpen((v) => !v)}
+              aria-expanded={inviteOpen}
+            >
+              {inviteOpen ? 'Fechar convite' : 'Convidar'}
+            </button>
             {actionError && <p className="auth-error">{actionError}</p>}
           </div>
         </div>
       </div>
+
+      {inviteOpen && (
+        <div className="community-card circle-invite-card">
+          <h3 className="circle-invite-title">Convide alguém para o círculo {circle.name}</h3>
+          <MemberInvitePanel communityId={communityId} circleName={circle.name} />
+        </div>
+      )}
 
       {!isParticipating && !isOwner && (
         <div className="circle-detail-locked">

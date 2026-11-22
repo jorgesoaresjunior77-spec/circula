@@ -4,6 +4,7 @@ import { asaasFetch } from '../_shared/asaas.ts'
 import {
   ADDON_NAMES,
   addonPriceCents,
+  applyReferralDiscount,
   isAddonPlanKey,
   isAsaasCycle,
 } from '../_shared/addonPlans.ts'
@@ -92,7 +93,33 @@ Deno.serve(async (req) => {
 
     // preço editado pelo Master (se houver) vale no lugar do catálogo; nunca vem do navegador
     const { data: override } = await admin.from('product_price_overrides').select('monthly_cents').eq('plan_key', planKey).maybeSingle()
-    const priceCents = addonPriceCents(planKey, cycle, (override?.monthly_cents as number | undefined) ?? null)
+    let priceCents = addonPriceCents(planKey, cycle, (override?.monthly_cents as number | undefined) ?? null)
+
+    // Indicação Premium: quem chegou por convite de quem TEM o Premium paga 10% a menos
+    // no Premium dela (uma vez). Confere no servidor: indicação existe, não foi usada
+    // e quem indicou ainda tem o Premium agora.
+    let referralInvitee: string | null = null
+    if (planKey === 'premium') {
+      const { data: ref } = await admin
+        .from('referrals')
+        .select('inviter_id, discount_used_at')
+        .eq('invitee_id', user.id)
+        .eq('community_id', communityId)
+        .maybeSingle()
+      if (ref && !ref.discount_used_at) {
+        const { data: inviterPremium } = await admin
+          .from('member_package_access')
+          .select('package')
+          .eq('community_id', communityId)
+          .eq('profile_id', ref.inviter_id)
+          .eq('package', 'premium')
+          .maybeSingle()
+        if (inviterPremium) {
+          priceCents = applyReferralDiscount(priceCents)
+          referralInvitee = user.id
+        }
+      }
+    }
 
     const { data: profile } = await admin.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
 
@@ -156,6 +183,9 @@ Deno.serve(async (req) => {
         .from('addon_subscriptions')
         .update({ asaas_subscription_id: sub.id, updated_at: new Date().toISOString() })
         .eq('id', row.id)
+      if (referralInvitee) {
+        await admin.from('referrals').update({ discount_used_at: new Date().toISOString() }).eq('invitee_id', referralInvitee)
+      }
       const pay = await asaasFetch(`/payments?subscription=${sub.id}&limit=1`).catch(() => null)
       return json(200, {
         asaasSubscriptionId: sub.id,

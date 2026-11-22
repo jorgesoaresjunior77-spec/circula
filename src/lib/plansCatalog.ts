@@ -33,6 +33,7 @@ export type ProductKey =
   | 'lista_inteligente'
   | 'exercicios'
   | 'series_filmes'
+  | 'viagens'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -78,6 +79,12 @@ export const PRODUCTS: CatalogProduct[] = [
     key: 'series_filmes',
     name: 'Dicas de Séries e Filmes',
     description: 'Curadoria de séries e filmes para a comunidade, com onde assistir. Você assina as plataformas à parte.',
+    monthlyCents: 590,
+  },
+  {
+    key: 'viagens',
+    name: 'Dicas de Viagem',
+    description: 'Roteiros e dicas de destinos, por estado, cidade e para quem viaja: com o que fazer e o que visitar.',
     monthlyCents: 590,
   },
 ]
@@ -131,6 +138,12 @@ export const PREMIUM_PRICES_CENTS: Record<PlanCycle, number> = {
   monthly: PREMIUM_MONTHLY_CENTS,
   semiannual: 28752, // 5990 × 6 × 0,80
   annual: 46722, // 5990 × 12 × 0,65
+}
+
+/** Desconto extra de quem chega por convite de quem tem o Premium (só no plano Premium). Espelha o servidor. */
+export const REFERRAL_DISCOUNT_PERCENT = 10
+export function applyReferralDiscount(cents: number): number {
+  return roundDime(cents * (1 - REFERRAL_DISCOUNT_PERCENT / 100))
 }
 
 export function formatBrl(cents: number): string {

@@ -20,6 +20,8 @@ interface RecipesPageProps {
   /** Tem a Minha Lista (ou o Premium). */
   canUseLista?: boolean
   onOpenPlans?: () => void
+  /** Abre a página de listas de compras. */
+  onGoToLists?: () => void
 }
 
 function Photo({ path }: { path: string | null }) {
@@ -126,7 +128,7 @@ function BackButton({ onClick, children }: { onClick: () => void; children: stri
   )
 }
 
-export function RecipesPage({ communityId, profileId, isOwner, canUseLista = false, onOpenPlans }: RecipesPageProps) {
+export function RecipesPage({ communityId, profileId, isOwner, canUseLista = false, onOpenPlans, onGoToLists }: RecipesPageProps) {
   const api = useRecipes(communityId, profileId, isOwner)
   const { images: cardImages } = useCommunityCardImages(communityId)
   const { url: bannerUrl } = useSignedImageUrl(cardImages.jornada_grande ?? cardImages.jornada ?? null)
@@ -369,7 +371,7 @@ export function RecipesPage({ communityId, profileId, isOwner, canUseLista = fal
           <h2>{fresh.title}</h2>
           {fresh.summary && <p className="rec-lead">{fresh.summary}</p>}
         </header>
-        <AddRecipeToList recipe={fresh} communityId={communityId} profileId={profileId} canUse={canUseLista} onOpenPlans={onOpenPlans ?? (() => {})} />
+        <AddRecipeToList recipe={fresh} communityId={communityId} profileId={profileId} canUse={canUseLista} onOpenPlans={onOpenPlans ?? (() => {})} onGoToLists={onGoToLists} />
         <RecipeMagazineView
           recipeId={fresh.id}
           communityId={communityId}

@@ -5,6 +5,7 @@ import { useGratitude } from '../hooks/useGratitude'
 import { BIBLE_PASSAGES, isBiblePassage } from '../lib/biblePassages'
 import { BUILTIN_PRAYERS, amenMessage, prayerOfTheDay, streak, topGratitudes } from '../lib/gratitude'
 import { brDate, isoToday } from '../lib/nutri'
+import { supabase } from '../lib/supabase'
 
 // Diário da Gratidão: Oração do Dia, Gratidão de Hoje, Meus Pedidos e Minha
 // Jornada. Tudo o que a pessoa escreve é privado. As orações são cadastradas
@@ -27,6 +28,7 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
   const [items, setItems] = useState<string[] | null>(null)
   const [req, setReq] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
+  const [shareState, setShareState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [prayerForm, setPrayerForm] = useState<{ id: string | null; title: string; body: string; status: 'draft' | 'published' } | null>(null)
 
   const [prayerOffset, setPrayerOffset] = useState(0)
@@ -50,6 +52,18 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
     const r = await g.saveToday(today, clean)
     setMsg(r.error ?? 'Gratidão guardada. 💛')
     if (!r.error) setItems(null)
+  }
+
+  async function shareToFeed() {
+    if (!prayer || shareState === 'sending') return
+    setShareState('sending')
+    const heading = prayer.title ? '🙏 Oração do dia: ' + prayer.title : '🙏 Oração do dia'
+    const { error } = await supabase.from('posts').insert({
+      community_id: communityId,
+      author_id: profileId,
+      content: heading + '\n\n' + prayer.body,
+    })
+    setShareState(error ? 'error' : 'done')
   }
 
   async function addRequest(e: FormEvent) {
@@ -125,7 +139,7 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
             </article>
           )}
           <div className="diary-prayer-actions">
-          <button type="button" className="hw-ghost" onClick={() => { setPrayerOffset((n) => n + 1); setAmen(false) }}>
+          <button type="button" className="hw-ghost" onClick={() => { setPrayerOffset((n) => n + 1); setAmen(false); setShareState('idle') }}>
             Ler outra
           </button>
           {prayer && !amenToday && (
@@ -141,6 +155,15 @@ export function DiarioPage({ communityId, profileId, isOwner }: { communityId: s
             </button>
           )}
           </div>
+          {prayer && (
+            <div className="diary-share">
+              <button type="button" className="water-primary diary-share-btn" onClick={() => void shareToFeed()} disabled={shareState === 'sending' || shareState === 'done'}>
+                {shareState === 'sending' ? 'Compartilhando…' : shareState === 'done' ? 'Compartilhada no Feed ✓' : 'Compartilhar no Feed'}
+              </button>
+              {shareState === 'done' && <p className="home-muted" role="status">Sua oração já está no Feed da comunidade.</p>}
+              {shareState === 'error' && <p className="auth-error" role="alert">Não foi possível compartilhar agora. Tente de novo.</p>}
+            </div>
+          )}
           {prayer && amenToday && (
             <div className="diary-amen" role="status">
               <PrayingHands size={80} label="Amém" />

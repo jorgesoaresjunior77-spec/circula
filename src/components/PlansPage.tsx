@@ -7,12 +7,15 @@ import {
   PREMIUM_PRICES_CENTS,
   PREMIUM_SEPARATE_MONTHLY_CENTS,
   PRODUCTS,
+  REFERRAL_DISCOUNT_PERCENT,
+  applyReferralDiscount,
   cycleBreakdown,
   formatBrl,
   pricesOf,
 } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
 import { AddonCheckout } from './AddonCheckout'
+import { useReferralDiscount } from '../hooks/useReferralDiscount'
 import { PLAN_ICONS } from './PlanIcons'
 import { useMyPackages } from '../hooks/usePackageAccess'
 import { SubscriptionPanel } from './SubscriptionPanel'
@@ -30,7 +33,7 @@ const BUYABLE: PlanKey[] = [...PRODUCTS.map((p) => p.key), 'premium']
 const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
 
 /** Ordem dos conteúdos avulsos na página. */
-const ORDER = ['magazine', 'ebooks', 'receitas', 'meu_chef', 'minha_lista', 'help_nutri', 'respiracao', 'playlist', 'wellness', 'leitura', 'lista_inteligente', 'exercicios', 'series_filmes'] as const
+const ORDER = ['magazine', 'ebooks', 'receitas', 'meu_chef', 'minha_lista', 'help_nutri', 'respiracao', 'playlist', 'wellness', 'leitura', 'lista_inteligente', 'exercicios', 'series_filmes', 'viagens'] as const
 const API_CYCLE: Record<string, PlanCycle> = {
   MONTHLY: 'monthly',
   SEMIANNUALLY: 'semiannual',
@@ -146,6 +149,14 @@ export function PlansPage({
   const { packages } = useMyPackages(communityId, profileId, !viewOnly)
   const { plans } = useBillingPlans('community')
   const [open, setOpen] = useState<PlanKey | null>(null)
+  const referralDiscount = useReferralDiscount(communityId, !viewOnly)
+  const premiumPrices: Record<PlanCycle, number> = referralDiscount
+    ? {
+        monthly: applyReferralDiscount(PREMIUM_PRICES_CENTS.monthly),
+        semiannual: applyReferralDiscount(PREMIUM_PRICES_CENTS.semiannual),
+        annual: applyReferralDiscount(PREMIUM_PRICES_CENTS.annual),
+      }
+    : PREMIUM_PRICES_CENTS
 
   const circulaPrices: Record<PlanCycle, number> = {
     monthly: CIRCULA_MONTHLY_CENTS,
@@ -272,8 +283,13 @@ export function PlansPage({
                   playlists, o wellness, as dicas de leitura e a Minha Lista, tudo junto e com desconto. Separado, o mensal sairia{' '}
                   {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
                 </p>
+                {referralDiscount && (
+                  <p className="plans-text">
+                    <strong>Você chegou por convite de quem tem o Premium:</strong> ganhou mais {REFERRAL_DISCOUNT_PERCENT}% de desconto no Premium, já aplicado nos valores abaixo.
+                  </p>
+                )}
                 <PriceRow
-                  prices={PREMIUM_PRICES_CENTS}
+                  prices={premiumPrices}
                   reference={PREMIUM_SEPARATE_MONTHLY_CENTS}
                   referenceLabel="Tudo separado, por mês"
                   discountNote={`Descontos: o pacote completo custa ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês em vez de ${formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)} (${premiumOff}% a menos), e pagar por 6 ou 12 meses de uma vez dá mais 20% ou 35% sobre o mensal do Premium.`}
@@ -284,7 +300,7 @@ export function PlansPage({
                   <AddonCheckout
                     planKey="premium"
                     communityId={communityId}
-                    prices={PREMIUM_PRICES_CENTS}
+                    prices={premiumPrices}
                     owned={packages.has('premium')}
                     profileId={profileId}
                   />

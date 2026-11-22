@@ -5,7 +5,7 @@ import { supabase } from './supabase'
 // então os números do painel não incluem a própria profissional.
 // "Dispara e esquece": nunca atrasa nem quebra a tela se falhar.
 
-export type ItemViewKind = 'magazine' | 'ebook' | 'recipe' | 'partner_click'
+export type ItemViewKind = 'magazine' | 'ebook' | 'recipe' | 'partner_click' | 'screen' | 'travel' | 'series' | 'reading'
 
 const seen = new Set<string>()
 

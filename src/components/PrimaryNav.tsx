@@ -15,6 +15,7 @@ export type NavKey =
   | 'cardapio'
   | 'exercicios'
   | 'series'
+  | 'viagens'
   | 'diario'
   | 'jardim'
   | 'agenda'

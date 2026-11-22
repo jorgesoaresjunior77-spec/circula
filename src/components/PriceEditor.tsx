@@ -5,7 +5,7 @@ import { formatBrl } from '../lib/plansCatalog'
 // Preço mensal de um produto avulso, editável pelo Master (tabela
 // product_price_overrides). O servidor lê este valor antes do catálogo.
 
-export function PriceEditor({ planKey, label, current }: { planKey: 'exercicios' | 'series_filmes'; label: string; current: number }) {
+export function PriceEditor({ planKey, label, current }: { planKey: 'exercicios' | 'series_filmes' | 'viagens'; label: string; current: number }) {
   const [value, setValue] = useState((current / 100).toFixed(2).replace('.', ','))
   const [msg, setMsg] = useState<string | null>(null)
   async function save() {
