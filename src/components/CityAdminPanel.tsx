@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { CITY_GROUPS, LISTING_TYPE_LABEL, groupLabel } from '../lib/city'
+import { CITY_GROUPS, LISTING_TYPE_LABEL, claimWhatsAppUrl, groupLabel } from '../lib/city'
 import type { CityCategory, CityListingType } from '../lib/city'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { setGroupImage, uploadCityPhoto, useCityCatalog, useGroupImages } from '../hooks/useCity'
@@ -120,8 +120,45 @@ interface Claim {
   destaque: 'pending' | 'active' | 'past_due' | null
 }
 
+function ClaimItem({ k, busy, onResolve }: { k: Claim; busy: boolean; onResolve: (id: string, action: 'aprovar' | 'recusar' | 'revogar') => void }) {
+  const wa = claimWhatsAppUrl(k.whatsapp)
+  return (
+    <article className="cty-admin-item">
+      <p>
+        <strong>{k.titulo}</strong> · {LISTING_TYPE_LABEL[k.tipo]} · {k.cidade}/{k.estado}
+      </p>
+      <p className="home-muted">
+        Pedido de {k.nome} {formatRelativeTime(k.criado_em)} · {k.status === 'pendente' ? 'aguardando aprovação' : 'aprovado'}
+        {k.destaque ? ' · destaque ' + (k.destaque === 'active' ? 'ativo' : k.destaque === 'pending' ? 'aguardando pagamento' : 'com pagamento em aberto') : ''}
+      </p>
+      {k.mensagem && <p>Recado: {k.mensagem}</p>}
+      <div className="cty-actions">
+        {wa && (
+          <a className="cty-btn cty-btn--small" href={wa} target="_blank" rel="noopener noreferrer">
+            Falar no WhatsApp
+          </a>
+        )}
+        {k.status === 'pendente' ? (
+          <>
+            <button type="button" className="cty-btn cty-btn--small cty-btn--primary" disabled={busy} onClick={() => onResolve(k.id, 'aprovar')}>
+              Aprovar
+            </button>
+            <button type="button" className="cty-btn cty-btn--small" disabled={busy} onClick={() => onResolve(k.id, 'recusar')}>
+              Recusar
+            </button>
+          </>
+        ) : (
+          <button type="button" className="cty-btn cty-btn--small" disabled={busy} onClick={() => onResolve(k.id, 'revogar')}>
+            Tirar a dona
+          </button>
+        )}
+      </div>
+    </article>
+  )
+}
+
 /** Pedidos de reivindicação: a nutricionista fala com a pessoa pelo WhatsApp e aprova ou recusa. */
-function ClaimsList() {
+export function ClaimsList() {
   const [claims, setClaims] = useState<Claim[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -156,6 +193,9 @@ function ClaimsList() {
     else await load()
   }
 
+  const pending = (claims ?? []).filter((k) => k.status === 'pendente')
+  const approved = (claims ?? []).filter((k) => k.status === 'aprovada')
+
   return (
     <div className="cty-admin">
       <p className="home-muted">A pessoa deixou o WhatsApp no pedido: toque em “Falar no WhatsApp”, confirme que o negócio é dela e aprove. Depois de aprovado, ela pode contratar o destaque (R$ 4,90 por mês).</p>
@@ -165,38 +205,18 @@ function ClaimsList() {
         </p>
       )}
       {!claims && !error && <p className="home-muted">Carregando…</p>}
-      {claims && claims.length === 0 && <p className="home-muted">Nenhum pedido por enquanto.</p>}
-      {claims?.map((k) => (
-        <article key={k.id} className="cty-admin-item">
-          <p>
-            <strong>{k.titulo}</strong> · {LISTING_TYPE_LABEL[k.tipo]} · {k.cidade}/{k.estado}
-          </p>
-          <p className="home-muted">
-            Pedido de {k.nome} {formatRelativeTime(k.criado_em)} · {k.status === 'pendente' ? 'aguardando aprovação' : 'aprovado'}
-            {k.destaque ? ' · destaque ' + (k.destaque === 'active' ? 'ativo' : k.destaque === 'pending' ? 'aguardando pagamento' : 'com pagamento em aberto') : ''}
-          </p>
-          {k.mensagem && <p>Recado: {k.mensagem}</p>}
-          <div className="cty-actions">
-            <a className="cty-btn cty-btn--small" href={`https://wa.me/55${k.whatsapp.replace(/^55/, '')}`} target="_blank" rel="noopener noreferrer">
-              Falar no WhatsApp
-            </a>
-            {k.status === 'pendente' ? (
-              <>
-                <button type="button" className="cty-btn cty-btn--small cty-btn--primary" disabled={busyId === k.id} onClick={() => void resolve(k.id, 'aprovar')}>
-                  Aprovar
-                </button>
-                <button type="button" className="cty-btn cty-btn--small" disabled={busyId === k.id} onClick={() => void resolve(k.id, 'recusar')}>
-                  Recusar
-                </button>
-              </>
-            ) : (
-              <button type="button" className="cty-btn cty-btn--small" disabled={busyId === k.id} onClick={() => void resolve(k.id, 'revogar')}>
-                Tirar a dona
-              </button>
-            )}
-          </div>
-        </article>
+      {claims && pending.length === 0 && <p className="home-muted">Nenhum pedido pendente.</p>}
+      {pending.map((k) => (
+        <ClaimItem key={k.id} k={k} busy={busyId === k.id} onResolve={resolve} />
       ))}
+      {approved.length > 0 && (
+        <>
+          <h4 className="cty-admin-sub">Negócios com dona</h4>
+          {approved.map((k) => (
+            <ClaimItem key={k.id} k={k} busy={busyId === k.id} onResolve={resolve} />
+          ))}
+        </>
+      )}
     </div>
   )
 }

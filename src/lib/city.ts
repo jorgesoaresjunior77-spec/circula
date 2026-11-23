@@ -1,3 +1,4 @@
+import { normalizeWhatsAppNumber } from './phone'
 // "Na minha cidade": tipos, grupos, tags e regras de texto. As categorias e
 // as tags moram no banco (globais, valem para o Brasil todo); aqui ficam só
 // os rótulos/ícones dos grupos e as ajudas de busca e validação.
@@ -255,6 +256,12 @@ export function formatPhoneBR(raw: string): string {
   const rest = d.slice(2)
   const cut = rest.length > 8 ? 5 : 4
   return rest.length <= cut ? `(${ddd}) ${rest}` : `(${ddd}) ${rest.slice(0, cut)}-${rest.slice(cut)}`
+}
+
+/** Link do WhatsApp para falar com quem reivindicou (aceita (51) 99999-8888, 5551999998888, com espaços e traços). Sem número válido: null. */
+export function claimWhatsAppUrl(raw: string): string | null {
+  const number = normalizeWhatsAppNumber(raw)
+  return number ? `https://wa.me/${number}` : null
 }
 
 export function phoneDigits(v: string): number {

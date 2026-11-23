@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cityNormalize, findSimilarCategory, findSimilarListing, healthTextProblem, instagramHandle } from './city'
+import { cityNormalize, claimWhatsAppUrl, findSimilarCategory, findSimilarListing, healthTextProblem, instagramHandle } from './city'
 import type { CityCategory, CityListing } from './city'
 import { countByGroup, filterGuide, splitUpcoming } from './cityFilter'
 
@@ -167,5 +167,17 @@ describe('telefone e horários', () => {
       'Seg a Qua 08:00 às 18:00 · Sáb 24 horas · Dom fechado',
     )
     expect(hoursSummary(null)).toBe('')
+  })
+})
+
+describe('claimWhatsAppUrl', () => {
+  const ok = 'https://wa.me/5551999998888'
+  it.each(['(51) 99999-8888', '51999998888', '5551999998888', '+55 51 99999-8888', '51 99999 8888', '(51)99999-8888'])('normaliza %s', (raw) => {
+    expect(claimWhatsAppUrl(raw)).toBe(ok)
+  })
+  it('número curto ou vazio não gera link', () => {
+    expect(claimWhatsAppUrl('')).toBeNull()
+    expect(claimWhatsAppUrl('( ) ')).toBeNull()
+    expect(claimWhatsAppUrl('99999')).toBeNull()
   })
 })
