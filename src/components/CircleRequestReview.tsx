@@ -18,7 +18,9 @@ import { EmptyState } from './EmptyState'
 // de sempre, logo abaixo nesta mesma aba, usando a sugestão como
 // inspiração.
 
-const REVIEW_ORDER: CircleRequestStatus[] = ['pending', 'reviewing', 'approved', 'rejected']
+// A lista mostra só o que ainda espera decisão. Aprovada ou recusada sai daqui
+// (a autora continua vendo o status da própria solicitação).
+const OPEN_STATUSES: CircleRequestStatus[] = ['pending', 'reviewing']
 
 function RequestImage({ path }: { path: string | null }) {
   const { url } = useSignedImageUrl(path)
@@ -30,21 +32,24 @@ function RequestRow({
   request,
   reviewerId,
   onUpdateStatus,
+  onError,
 }: {
   request: CircleRequest
   reviewerId: string
   onUpdateStatus: ReturnType<typeof useCircleRequests>['updateStatus']
+  onError: (message: string | null) => void
 }) {
   const [note, setNote] = useState(request.professional_note ?? '')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   async function handleStatus(status: CircleRequestStatus) {
+    if (busy) return
     setBusy(true)
-    setError(null)
+    onError(null)
     const result = await onUpdateStatus(request.id, status, reviewerId, note)
     setBusy(false)
-    if (result.error) setError('Não foi possível salvar agora. Tente novamente.')
+    // Em erro a solicitação volta para a lista; o aviso fica na lista (esta linha pode ter sido remontada).
+    if (result.error) onError('Não foi possível salvar agora. Tente novamente. A solicitação continua na lista.')
   }
 
   const fields: [string, string | null][] = [
@@ -90,12 +95,6 @@ function RequestRow({
         rows={2}
       />
 
-      {error && (
-        <p className="auth-error" role="alert">
-          {error}
-        </p>
-      )}
-
       <div className="circle-request-review-actions">
         {request.status === 'pending' && (
           <button type="button" onClick={() => handleStatus('reviewing')} disabled={busy}>
@@ -134,6 +133,7 @@ interface CircleRequestReviewProps {
 
 export function CircleRequestReview({ communityId, profileId }: CircleRequestReviewProps) {
   const { requests, loading, error, updateStatus } = useCircleRequests(communityId, profileId)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   if (loading) return <p className="home-muted">Carregando solicitações…</p>
   if (error) {
@@ -143,19 +143,23 @@ export function CircleRequestReview({ communityId, profileId }: CircleRequestRev
     // Postgres (ex.: "Could not find the table...").
     return <p className="auth-error">Solicitações de Círculo indisponíveis no momento.</p>
   }
-  if (requests.length === 0) {
+  const open = requests.filter((r) => OPEN_STATUSES.includes(r.status))
+  if (open.length === 0) {
     return (
-      <EmptyState message="Nenhuma solicitação de Círculo ainda — quando uma participante sugerir um novo Círculo pela Home, a solicitação aparece aqui." />
+      <EmptyState message={requests.length === 0 ? 'Nenhuma solicitação de Círculo ainda — quando uma participante sugerir um novo Círculo pela Home, a solicitação aparece aqui.' : 'Nenhuma solicitação pendente.'} />
     )
   }
 
-  const sorted = [...requests].sort(
-    (a, b) => REVIEW_ORDER.indexOf(a.status) - REVIEW_ORDER.indexOf(b.status),
-  )
+  const sorted = [...open].sort((a, b) => OPEN_STATUSES.indexOf(a.status) - OPEN_STATUSES.indexOf(b.status))
 
   return (
     <div className="circle-request-review">
       <h4 className="card-images-title">Solicitações de novo Círculo</h4>
+      {actionError && (
+        <p className="auth-error" role="alert">
+          {actionError}
+        </p>
+      )}
       <ul className="circle-request-review-list">
         {sorted.map((request) => (
           <RequestRow
@@ -163,6 +167,7 @@ export function CircleRequestReview({ communityId, profileId }: CircleRequestRev
             request={request}
             reviewerId={profileId}
             onUpdateStatus={updateStatus}
+            onError={setActionError}
           />
         ))}
       </ul>

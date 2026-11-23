@@ -109,12 +109,22 @@ export function useCircleRequests(communityId: string | null, profileId: string 
     }
     if (professionalNote !== undefined) patch.professional_note = professionalNote?.trim() || null
 
+    // Atualização otimista: a tela já mostra o novo status (e a solicitação
+    // resolvida sai da lista de pendentes). Se o servidor falhar, volta ao
+    // que era e devolve o erro.
+    const previous = requests
+    setRequests((current) => current.map((r) => (r.id === requestId ? { ...r, ...patch } : r)))
+
+    // Só mexe em circle_requests: aprovar ou recusar nunca toca nos Círculos.
     const { error: updateError } = await supabase
       .from('circle_requests')
       .update(patch)
       .eq('id', requestId)
 
-    if (updateError) return { error: updateError.message }
+    if (updateError) {
+      setRequests(previous)
+      return { error: updateError.message }
+    }
 
     await fetchRequests()
     return { error: null }
