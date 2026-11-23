@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { NavKey } from './PrimaryNav'
-import { TourGuide } from './TourGuide'
-import type { GuideMood } from './TourGuide'
+import { RoboGuia, precarregarRobo } from './RoboGuia'
+import type { RoboCena } from './RoboGuia'
+import { RoboMudo } from './RoboMudo'
+import { falar } from '../hooks/useRobo'
+import type { RoboSom } from '../lib/roboSom'
 
 // Tour guiado: acontece todo na PÁGINA INICIAL e aponta, um por vez, os
 // lugares de verdade onde a pessoa toca para entrar e interagir (atalhos,
@@ -29,7 +32,14 @@ interface TourStep {
   isNew?: boolean
   /** Texto do botão de avançar neste passo (padrão: "Avançar"). */
   nextLabel?: string
+  /** Cena do robô. 'apontar' = aponta para o destaque (cima, baixo, direita ou esquerda, conforme a posição). */
+  cena?: RoboCena | 'apontar'
+  /** Som do robô neste passo. */
+  som?: RoboSom
 }
+
+/** Texto muito longo: o robô fica pensando em vez de apontar. */
+const TEXTO_LONGO = 300
 
 export const CITY_TOUR_TEXT =
   'Descubra lugares, serviços e eventos da sua cidade por categoria, de restaurantes a eletricistas. Indique o que você ama, dê estrelas e comente os lugares, veja os horários, salve seus favoritos e combine caminhadas e cafés com outras mulheres. Tem um negócio local? Reivindique o cadastro e peça destaque na capa.'
@@ -56,6 +66,8 @@ export const TOUR_STEPS: TourStep[] = [
     targets: ['.home-greeting', '#tour-nav-desktop-inicio', '#tour-nav-mobile-inicio'],
     title: 'Página inicial',
     text: 'Tudo começa aqui. Toque no sol para ver a previsão do tempo da sua cidade.',
+    cena: 'boas-vindas',
+    som: 'boasvindas',
   },
   {
     targets: ['.home-tools'],
@@ -86,6 +98,8 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'tap',
     isNew: true,
     nextLabel: 'Próximo',
+    cena: 'surpresa',
+    som: 'surpresa',
   },
   {
     targets: ['.mag2-viewport', '.mag2-stack'],
@@ -182,6 +196,8 @@ export const TOUR_STEPS: TourStep[] = [
     targets: ['#tour-notification-bell'],
     title: 'Notificações',
     text: 'O sino avisa sobre respostas, consultas, plano alimentar e novidades. Toque em um aviso e ele leva você direto ao lugar.',
+    cena: 'comemora',
+    som: 'assinatura',
   },
 ]
 
@@ -223,6 +239,7 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
   const [rect, setRect] = useState<SpotlightRect | null>(null)
   const [cardHeight, setCardHeight] = useState(190)
   const cardRef = useRef<HTMLDivElement>(null)
+  const ultimaCena = useRef<RoboCena>('boas-vindas')
   // Passos opcionais só entram se o elemento existe na tela (ex.: Nutri só para paciente).
   const [steps] = useState(() =>
     noveltyOnly ? TOUR_STEPS.filter((st) => st.isNew) : TOUR_STEPS.filter((st) => !st.optional || findTarget(st)),
@@ -287,6 +304,24 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
     if (h && Math.abs(h - cardHeight) > 2) setCardHeight(h)
   }, [stepIndex, rect, cardHeight])
 
+  // Cena e som do robô neste passo: boas-vindas no primeiro, surpresa na novidade, comemoração no
+  // último; nos demais aponta para o destaque (ou pensa, quando não há destaque ou o texto é longo).
+  useEffect(() => {
+    precarregarRobo(['neutro', 'boas-vindas', 'aponta-cima', 'aponta-baixo', 'aponta-direita', 'pensando', 'surpresa', 'comemora', 'oops'])
+  }, [])
+  useEffect(() => {
+    const st = steps[stepIndex]
+    const comemora = stepIndex === steps.length - 1 && steps.length > 1
+    const som = comemora ? 'assinatura' : (st.som ?? (st.text.length > TEXTO_LONGO ? 'pensando' : 'apontando'))
+    falar(undefined, som)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepIndex])
+
+  function pular() {
+    falar('oops', 'oops')
+    onDone()
+  }
+
   function goNext() {
     if (isLast) onDone()
     else setStepIndex((i) => i + 1)
@@ -316,13 +351,27 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
     cardLeft = Math.min(Math.max(EDGE, centered), viewW - cardWidth - EDGE)
   }
 
-  // A bonequinha fica na quina do balão (em cima; embaixo quando o balão está no topo da tela)
-  // e aponta o braço para o centro do destaque.
-  const guideAbove = cardTop >= 96
-  const guideX = cardLeft + 36
-  const guideY = guideAbove ? cardTop - 40 : cardTop + cardHeight + 40
-  const pointAngle = rect ? (Math.atan2(rect.top + rect.height / 2 - guideY, rect.left + rect.width / 2 - guideX) * 180) / Math.PI : 20
-  const mood: GuideMood = (['smile', 'happy', 'wink'] as GuideMood[])[stepIndex % 3]
+  // O robô fica na quina do balão (em cima; embaixo quando o balão está no topo da tela)
+  // e aponta para o centro do destaque.
+  const ROBO_W = 78
+  const roboH = (ROBO_W * 16) / 9
+  const roboAbove = cardTop >= roboH - 24 + EDGE
+  const roboX = cardLeft + 4
+  const roboY = roboAbove ? cardTop - roboH + 26 : cardTop + cardHeight - 8
+  const centroX = roboX + ROBO_W / 2
+  const centroY = roboY + roboH / 3
+  let cena: RoboCena
+  if (stepIndex === 0 && step.cena) cena = step.cena as RoboCena
+  else if (step.cena && step.cena !== 'apontar') cena = step.cena
+  else if (!rect && findTarget(step)) cena = ultimaCena.current // ainda medindo o destaque: mantém a cena
+  else if (!rect || step.text.length > TEXTO_LONGO) cena = 'pensando'
+  else {
+    const dx = rect.left + rect.width / 2 - centroX
+    const dy = rect.top + rect.height / 2 - centroY
+    cena = Math.abs(dy) > Math.abs(dx) ? (dy < 0 ? 'aponta-cima' : 'aponta-baixo') : dx > 0 ? 'aponta-direita' : 'aponta-esquerda'
+  }
+
+  ultimaCena.current = cena
 
   return (
     <div className="tour-overlay" role="dialog" aria-modal="true" aria-label="Tour guiado do Círcula">
@@ -340,11 +389,12 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
         </div>
       )}
 
-      <div className={`tour-guide-wrap${guideAbove ? '' : ' tour-guide-wrap--below'}`} style={{ top: guideAbove ? cardTop - 84 : cardTop + cardHeight - 6, left: cardLeft + 4 }}>
-        <TourGuide mood={mood} pointAngle={pointAngle} />
+      <div className="tour-robo-wrap" style={{ top: roboY, left: roboX }}>
+        <RoboGuia cena={cena} tamanho={ROBO_W} />
       </div>
 
       <div ref={cardRef} className="tour-card" style={{ top: cardTop, left: cardLeft, width: cardWidth }}>
+        <RoboMudo className="tour-robo-mudo" />
         <p className="tour-card-step">
           {step.isNew && <span className="tour-card-new">{noveltyOnly ? 'Novidade · Novo' : 'Novo'}</span>}
           {steps.length > 1 && `${stepIndex + 1} / ${steps.length}`}
@@ -352,7 +402,7 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
         <h3 className="tour-card-title">{step.title}</h3>
         <p className="tour-card-text">{step.text}</p>
         <div className="tour-card-actions">
-          <button type="button" className="auth-link" onClick={onDone}>
+          <button type="button" className="auth-link" onClick={pular}>
             Pular tour
           </button>
           <div className="tour-card-nav">

@@ -3,6 +3,9 @@ import { HELP_CATEGORIES } from '../lib/helpContent'
 import type { HelpCategory, HelpItem } from '../lib/helpContent'
 import { searchHelp } from '../lib/helpSearch'
 import { ChevronLeftIcon, ChevronRightIcon } from './icons'
+import { RoboGuia } from './RoboGuia'
+import { RoboMudo } from './RoboMudo'
+import { falar } from '../hooks/useRobo'
 
 // Central de Ajuda: busca que filtra enquanto a pessoa digita, categorias e
 // perguntas expansíveis (accordion). A pesquisa fica guardada ao abrir uma
@@ -11,6 +14,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from './icons'
 interface HelpPageProps {
   /** Abre a conversa com a nutricionista (só para a membro). */
   onTalkToNutri?: () => void
+  /** Abre o tour guiado (que acontece na página inicial). */
+  onStartTour?: () => void
 }
 
 function SearchIcon() {
@@ -51,7 +56,8 @@ function Accordion({ items, openIds, onToggle }: { items: HelpItem[]; openIds: S
   )
 }
 
-export function HelpPage({ onTalkToNutri }: HelpPageProps) {
+export function HelpPage({ onTalkToNutri, onStartTour }: HelpPageProps) {
+  const [cena, setCena] = useState<'boas-vindas' | 'piscadinha'>('boas-vindas')
   const [query, setQuery] = useState('')
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [openIds, setOpenIds] = useState<Set<string>>(new Set())
@@ -72,6 +78,29 @@ export function HelpPage({ onTalkToNutri }: HelpPageProps) {
   return (
     <section className="help-page">
       <header className="help-hero">
+        <div className="help-robo">
+          <button
+            type="button"
+            className="help-robo-tocar"
+            aria-label="Cumprimentar o robô"
+            onClick={() => {
+              setCena('piscadinha')
+              falar('piscadinha', 'piscadinha')
+              window.setTimeout(() => setCena('boas-vindas'), 900)
+            }}
+          >
+            <RoboGuia cena={cena} tamanho={92} />
+          </button>
+          <div className="help-robo-balao">
+            <p>Oi! Eu sou o robô do Círcula. Posso te mostrar o app por dentro, passo a passo.</p>
+            {onStartTour && (
+              <button type="button" className="onboarding-next" onClick={onStartTour}>
+                Explicar tour
+              </button>
+            )}
+            <RoboMudo />
+          </div>
+        </div>
         <h2>Como podemos ajudar você?</h2>
         <p>Digite uma palavra ou uma dúvida para encontrar a resposta.</p>
         <label className="help-search">
