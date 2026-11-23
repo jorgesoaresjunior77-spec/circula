@@ -1,0 +1,313 @@
+/* Robô mascote: imagens trocadas com crossfade, flutuação suave, halo e ondas ao falar. */
+.robo-guia {
+  position: relative;
+  display: block;
+  aspect-ratio: 9 / 16;
+  pointer-events: none;
+}
+.robo-guia-flutua {
+  position: absolute;
+  inset: 0;
+  animation: robo-flutua 0.91s ease-in-out infinite;
+  filter: drop-shadow(0 6px 8px rgba(40, 32, 26, 0.28));
+}
+.robo-guia-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 120ms linear;
+  user-select: none;
+}
+.robo-guia-img[data-on='true'] {
+  opacity: 1;
+}
+.robo-guia-img--espelho {
+  transform: scaleX(-1);
+}
+@keyframes robo-flutua {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-7px);
+  }
+  75% {
+    transform: translateY(7px);
+  }
+}
+/* halo rosé atrás da cabeça */
+.robo-guia-halo {
+  position: absolute;
+  left: 10%;
+  top: 0;
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 170, 150, 0.6), rgba(240, 170, 150, 0) 68%);
+  opacity: 0;
+  animation: robo-halo 0.5s ease-out;
+}
+@keyframes robo-halo {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+/* 3 arcos de "onda de som" ao lado da cabeça */
+.robo-guia-ondas {
+  position: absolute;
+  top: 12%;
+  right: -14%;
+  width: 22%;
+  aspect-ratio: 1;
+}
+.robo-guia-ondas span {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #d98f7a;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.4);
+  animation: robo-onda 0.55s ease-out forwards;
+}
+.robo-guia-ondas span:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.robo-guia-ondas span:nth-child(3) {
+  animation-delay: 0.16s;
+}
+@keyframes robo-onda {
+  0% {
+    opacity: 0.9;
+    transform: rotate(-45deg) scale(0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-45deg) scale(1.5);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .robo-guia-flutua {
+    animation: none;
+  }
+  .robo-guia-img {
+    transition: none;
+  }
+  .robo-guia-halo,
+  .robo-guia-ondas span {
+    animation-duration: 0.01s;
+  }
+}
+
+/* botão de mudo */
+.robo-mudo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border, #e2dbcf);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--circula-mocha, #8b6a50);
+  cursor: pointer;
+}
+.robo-mudo[aria-pressed='true'] {
+  opacity: 0.7;
+}
+
+/* Tour */
+.tour-robo-wrap {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+  transition:
+    top 0.25s ease,
+    left 0.25s ease;
+}
+.tour-robo-mudo {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-robo-wrap {
+    transition: none;
+  }
+}
+
+/* Ajuda */
+.help-robo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+.help-robo-balao {
+  position: relative;
+  max-width: 220px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft, #e8e0d3);
+  border-radius: 16px 16px 16px 4px;
+  background: var(--c-white, #fff);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.help-robo-balao .onboarding-next {
+  margin-top: 10px;
+}
+.help-robo-tocar {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.help-robo-tocar .robo-guia {
+  pointer-events: auto;
+}
+
+/* Planos: consultor e balão do mensal */
+.robo-consultor,
+.robo-mensal {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin: 8px 0 14px;
+}
+.robo-consultor-balao,
+.robo-mensal-balao {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft, #e8e0d3);
+  border-radius: 16px 16px 16px 4px;
+  background: var(--c-white, #fff);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.robo-consultor-balao p,
+.robo-mensal-balao p {
+  margin: 0 0 8px;
+}
+.robo-consultor-balao .robo-mudo {
+  position: absolute;
+  top: -14px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+}
+.robo-mensal-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Versão compacta nos cards (sem sons automáticos) */
+.robo-compacto-pos {
+  position: absolute;
+  right: 12px;
+  bottom: 4px;
+  pointer-events: none;
+}
+.home-plans-card,
+.home-plans-notice {
+  position: relative;
+}
+
+/* Comemoração: pétalas rosé e balão */
+.robo-celebracao {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(56, 42, 35, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.robo-celebracao-corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 340px;
+}
+.robo-celebracao-balao {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--c-white, #fff);
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.robo-celebracao-balao p {
+  margin: 0 0 10px;
+}
+.robo-petalas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.robo-petalas span {
+  position: absolute;
+  top: -24px;
+  border-radius: 80% 0 80% 0;
+  background: #f1b7a6;
+  opacity: 0.9;
+  animation-name: robo-petala;
+  animation-timing-function: ease-in;
+  animation-iteration-count: 2;
+  animation-fill-mode: both;
+}
+.robo-petalas span:nth-child(3n) {
+  background: #e8cfc7;
+}
+.robo-petalas span:nth-child(4n) {
+  background: #f8dfd2;
+}
+@keyframes robo-petala {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  100% {
+    transform: translateY(110vh) rotate(var(--giro, 180deg));
+    opacity: 0.6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .robo-petalas {
+    display: none;
+  }
+}
+
+.robo-compacto-inline {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+.addon-cycle-best {
+  font-size: 0.78em;
+  opacity: 0.85;
+}

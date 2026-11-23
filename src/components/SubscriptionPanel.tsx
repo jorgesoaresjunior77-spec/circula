@@ -66,9 +66,11 @@ const STATE_LABELS: Record<string, string> = {
 interface SubscriptionPanelProps {
   subject?: SubscriptionSubject
   communityId?: string
+  /** Chamado quando a fatura foi aberta (a página passa a esperar a confirmação do pagamento). */
+  onCheckoutStarted?: () => void
 }
 
-export function SubscriptionPanel({ subject = 'platform', communityId }: SubscriptionPanelProps) {
+export function SubscriptionPanel({ subject = 'platform', communityId, onCheckoutStarted }: SubscriptionPanelProps) {
   const { plans } = useBillingPlans(subject)
   // FASE 16.2.4-B — no ramo de comunidade o preço vem da comunidade, não
   // dos planos globais. useCommunityBillingSettings(null) não faz fetch.
@@ -127,10 +129,12 @@ export function SubscriptionPanel({ subject = 'platform', communityId }: Subscri
     if (invoiceUrl) {
       window.open(invoiceUrl, '_blank')
       setMessage({ type: 'success', text: 'Conclua o pagamento na página que abriu em outra aba.' })
+      onCheckoutStarted?.()
       return
     }
 
     setMessage({ type: 'success', text: 'Assinatura registrada. Aguarde a confirmação do pagamento.' })
+    onCheckoutStarted?.()
   }
 
   async function handleCancel() {

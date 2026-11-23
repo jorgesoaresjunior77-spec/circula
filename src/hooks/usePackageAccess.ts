@@ -15,6 +15,7 @@ interface Row {
 /** Pacotes da própria membro nesta comunidade. */
 export function useMyPackages(communityId: string | null, profileId: string | null, enabled = true) {
   const [state, setState] = useState<{ key: string; packages: Set<PackageKey> } | null>(null)
+  const [refreshToken, setRefreshToken] = useState(0)
   const key = enabled && communityId && profileId ? `${communityId}:${profileId}` : null
 
   useEffect(() => {
@@ -33,10 +34,15 @@ export function useMyPackages(communityId: string | null, profileId: string | nu
     return () => {
       cancelled = true
     }
-  }, [key, communityId, profileId])
+  }, [key, communityId, profileId, refreshToken])
 
   const ready = !key || state?.key === key
-  return { packages: key && state?.key === key ? state.packages : new Set<PackageKey>(), loading: !ready }
+  return {
+    packages: key && state?.key === key ? state.packages : new Set<PackageKey>(),
+    loading: !ready,
+    /** Busca de novo (depois que uma assinatura é confirmada). */
+    refresh: () => setRefreshToken((n) => n + 1),
+  }
 }
 
 /** Visão da dona: todos os pacotes da comunidade, com liberar e retirar. */

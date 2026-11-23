@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useBillingPlans } from '../hooks/useBillingPlans'
 import {
@@ -22,6 +22,9 @@ import { useMyPackages } from '../hooks/usePackageAccess'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 import { TrialNotice } from './TrialNotice'
+import { RoboCelebracao, RoboConsultor, jaCelebrou, marcarCelebrou } from './RoboPlanos'
+import { useConfirmacaoAssinatura } from '../hooks/useConfirmacaoAssinatura'
+import type { Confirmacao } from '../hooks/useConfirmacaoAssinatura'
 
 // Página de Planos da membro: o plano do Círcula, cada conteúdo avulso e o
 // Círcula Premium (tudo junto, com desconto), todos em cartões do mesmo
@@ -173,9 +176,30 @@ export function PlansPage({
   /** Quem está vendo (para saber quais pacotes já tem). */
   profileId?: string | null
 }) {
-  const { packages } = useMyPackages(communityId, profileId, !viewOnly)
+  const { packages, refresh: refreshPackages } = useMyPackages(communityId, profileId, !viewOnly)
   const { plans } = useBillingPlans('community')
   const [open, setOpen] = useState<PlanKey | null>(null)
+  // Robô: espera a confirmação do pagamento depois que uma fatura é aberta, e comemora UMA vez por assinatura.
+  const [aguardando, setAguardando] = useState(false)
+  const [ciclo, setCiclo] = useState<PlanCycle | null>(null)
+  const [celebrando, setCelebrando] = useState<Confirmacao | null>(null)
+  const [mensalAvisado, setMensalAvisado] = useState(false)
+  const aoConfirmar = useCallback(
+    (c: Confirmacao) => {
+      if (jaCelebrou(c.chave)) return
+      marcarCelebrou(c.chave)
+      setAguardando(false)
+      refreshPackages()
+      setCelebrando(c)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+  useConfirmacaoAssinatura({ communityId, profileId, aguardando: aguardando && !viewOnly, onConfirmada: aoConfirmar })
+  const comecouPagamento = (c: PlanCycle | null) => {
+    setCiclo(c)
+    setAguardando(true)
+  }
   const referralDiscount = useReferralDiscount(communityId, !viewOnly)
   const premiumPrices: Record<PlanCycle, number> = referralDiscount
     ? {
@@ -215,6 +239,14 @@ export function PlansPage({
   return (
     <section className="plans-page">
       <h2>Planos e assinaturas</h2>
+
+      {!viewOnly && !packages.has('premium') && (
+        <RoboConsultor
+          nome="Círcula Premium"
+          economiaAnualCents={PREMIUM_SEPARATE_MONTHLY_CENTS * 12 - PREMIUM_PRICES_CENTS.annual}
+          economiaSemestralCents={PREMIUM_SEPARATE_MONTHLY_CENTS * 6 - PREMIUM_PRICES_CENTS.semiannual}
+        />
+      )}
 
       {!viewOnly && communityId && profileId && <SubscriptionLevelCard communityId={communityId} profileId={profileId} />}
 
@@ -310,7 +342,7 @@ export function PlansPage({
                     assinar.
                   </p>
                 ) : communityId ? (
-                  <SubscriptionPanel subject="community" communityId={communityId} />
+                  <SubscriptionPanel subject="community" communityId={communityId} onCheckoutStarted={() => comecouPagamento(null)} />
                 ) : (
                   <p className="home-muted">Entre em uma comunidade para assinar.</p>
                 )}
@@ -344,6 +376,8 @@ export function PlansPage({
                     prices={premiumPrices}
                     owned={packages.has('premium')}
                     profileId={profileId}
+                    onCheckoutStarted={comecouPagamento}
+                    monthlyNudge={{ seen: mensalAvisado, markSeen: () => setMensalAvisado(true) }}
                   />
                 )}
               </>
@@ -366,6 +400,8 @@ export function PlansPage({
                     owned={packages.has(product.key as never) || packages.has('premium')}
                     profileId={profileId}
                     viaPremium={packages.has('premium')}
+                    onCheckoutStarted={comecouPagamento}
+                    monthlyNudge={{ seen: mensalAvisado, markSeen: () => setMensalAvisado(true) }}
                   />
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
@@ -377,6 +413,7 @@ export function PlansPage({
         </div>,
         document.body,
       )}
+      {celebrando && <RoboCelebracao ciclo={ciclo} onFechar={() => setCelebrando(null)} />}
     </section>
   )
 }

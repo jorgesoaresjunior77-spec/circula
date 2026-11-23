@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { render, screen, cleanup, fireEvent } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react'
 import { Tour, TOUR_STEPS } from './Tour'
 
 // Cria alguns dos elementos reais que o Tour procura (atalhos, sino, botões
@@ -98,6 +98,9 @@ describe('Tour', () => {
 })
 
 describe('Tour — passos opcionais e guia', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
   afterEach(() => {
     cleanup()
     document.body.innerHTML = ''
@@ -115,9 +118,36 @@ describe('Tour — passos opcionais e guia', () => {
     expect(screen.getByText(`1 / ${base + 1}`)).toBeInTheDocument()
   })
 
-  it('a Marluce acompanha o tour', () => {
+  it('o robô acompanha o tour', () => {
     document.body.innerHTML = '<header class="home-greeting">Bom dia</header>'
     render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
-    expect(document.querySelector('.tour-guide')).not.toBeNull()
+    expect(document.querySelector('.robo-guia')).not.toBeNull()
+    expect(document.querySelector('.tour-guide')).toBeNull() // a bonequinha antiga saiu de cena
+  })
+
+  it('cada passo tem a cena certa: boas-vindas no primeiro, aponta nos demais e comemora no último', async () => {
+    mountFakeHome()
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
+    const cena = () => document.querySelector('.robo-guia')?.getAttribute('data-cena')
+    expect(cena()).toBe('boas-vindas')
+    fireEvent.click(screen.getByText('Avançar'))
+    await waitFor(() => expect(cena()).toMatch(/^aponta-(cima|baixo|direita|esquerda)$/))
+    for (let i = 0; i < TOUR_STEPS.filter((st) => !st.optional).length - 2; i++) fireEvent.click(screen.getByText('Avançar'))
+    expect(document.querySelector('.tour-card-title')).toHaveTextContent('Notificações')
+    expect(cena()).toBe('comemora')
+  })
+
+  it('"Pular tour" encerra e o robô fica com a cena "oops"', () => {
+    mountFakeHome()
+    const onDone = vi.fn()
+    render(<Tour onNavigate={vi.fn()} onDone={onDone} />)
+    fireEvent.click(screen.getByText('Pular tour'))
+    expect(onDone).toHaveBeenCalledTimes(1)
+  })
+
+  it('tem o botão de mudo do robô', () => {
+    mountFakeHome()
+    render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
+    expect(screen.getByRole('button', { name: /som do robô/ })).toBeInTheDocument()
   })
 })

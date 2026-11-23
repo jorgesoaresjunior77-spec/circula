@@ -30,6 +30,7 @@ import './refresh.css'
 import './rodada21.css'
 import './rodada22.css'
 import './city.css'
+import './robo.css'
 import './palette.css'
 
 function App() {

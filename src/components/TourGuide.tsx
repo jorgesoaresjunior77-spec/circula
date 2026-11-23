@@ -1,7 +1,9 @@
-// Marluce em desenho: bonequinha elegante e acolhedora, de cabelos loiros, que
-// acompanha o tour. O braço aponta para o elemento destacado na tela (o ângulo
-// vem do Tour) e o rosto muda de expressão a cada passo. Só ilustração: sem
-// foto e sem nada gerado por inteligência artificial.
+// SUBSTITUÍDO pelo RoboGuia (robô mascote): este arquivo não é mais usado pelo Tour.
+// Fica aqui só para facilitar voltar à bonequinha antiga, se for preciso.
+//
+// Marluce em desenho: bonequinha de cabelos loiros que acompanhava o tour. O braço
+// apontava para o elemento destacado (o ângulo vinha do Tour) e o rosto mudava de
+// expressão a cada passo.
 
 export type GuideMood = 'smile' | 'happy' | 'wink'
 

@@ -1175,7 +1175,10 @@ export function Dashboard({
     // nutricionista a partir dela.
     if (effectiveNav === 'ajuda') {
       return (
-        <HelpPage onTalkToNutri={profile.role === 'member' ? () => handleNavigate('mensagens') : undefined} />
+        <HelpPage
+          onTalkToNutri={profile.role === 'member' ? () => handleNavigate('mensagens') : undefined}
+          onStartTour={() => setShowTour(true)}
+        />
       )
     }
 
