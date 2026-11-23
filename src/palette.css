@@ -1,50 +1,11 @@
 /* ==========================================================================
-   Nova identidade visual (referências em identidadevisual/referencias imagens)
-   1) paleta: bege pêssego, verde-sálvia, rosa-chá e taupe
-   2) fotos dos cards nos tons da paleta
-   3) login: foto cobrindo a tela e card de vidro
-   4) Eventos / Loja / Receitas em 3 círculos que se cruzam
-   5) cards com painel de vidro sobreposto à imagem
-   6) mais espaço entre os cards finos e "Para você"
-   Carregado por último: só sobrescreve, nada é removido dos outros arquivos.
+   Mantidos da atualização visual de dezembro (o resto foi revertido):
+   - Login: foto cobrindo a tela e card de vidro
+   - Eventos / Loja / Receitas em 3 círculos que se cruzam
+   Carregado por último: só acrescenta, nada é removido dos outros arquivos.
    ========================================================================== */
 
-/* ---- 1) Paleta ---------------------------------------------------------- */
-:root {
-  --rd-creme: #f3e8db;
-  --rd-espresso: #46342a;
-  --rd-chocolate: #7d644f;
-  --rd-taupe: #a38b76;
-  --rd-champagne: #dcc4ae;
-  --rd-areia: #e8d5c2;
-  --rd-card: #faf2e8;
-  --text-soft: #7f6a59;
-  --rd-sage: #8c9b83;
-  --rd-sage-soft: #c9d2bf;
-  --rd-rose: #e2c1b5;
-  --rd-rose-deep: #c98f7a;
-
-  --n-050: #f8efe4;
-  --n-300: #dfcab5;
-  --n-700: #6c5748;
-
-  --circula-champagne-tint: rgba(220, 196, 174, 0.24);
-  --circula-champagne-line: rgba(220, 196, 174, 0.72);
-  --border: rgba(220, 196, 174, 0.62);
-  --border-soft: rgba(220, 196, 174, 0.4);
-  --hairline: rgba(220, 196, 174, 0.52);
-  --accent-leaf: var(--rd-sage);
-  --glass-bg: linear-gradient(145deg, rgba(250, 242, 232, 0.78), rgba(250, 242, 232, 0.5));
-  --glass-bg-strong: linear-gradient(145deg, rgba(250, 242, 232, 0.9), rgba(250, 242, 232, 0.62));
-  --glass-border-color: rgba(255, 255, 255, 0.6);
-}
-
-/* ---- 2) Fotos nos tons da paleta (leve: não apaga a foto, só aquece) ---- */
-#center img:not([class*='avatar']):not([class*='logo']):not([class*='icon']):not(.brand-icon):not(.brand-logo) {
-  filter: sepia(0.18) saturate(0.88) hue-rotate(-6deg) brightness(1.02) contrast(0.98);
-}
-
-/* ---- 3) Login: foto no fundo inteiro + card de vidro ---------------------- */
+/* ---- Login: foto no fundo inteiro + card de vidro ---------------------- */
 .auth-stage {
   box-sizing: border-box;
   position: fixed;
@@ -153,15 +114,16 @@
   padding: 8px 12px;
 }
 
-/* ---- 4) Eventos, Loja e Receitas: 3 círculos que se cruzam --------------- */
+/* ---- Eventos, Loja e Receitas: 3 círculos que se cruzam --------------- */
 .home-trio {
   position: relative;
   width: min(100%, 420px);
-  aspect-ratio: 1 / 1.12;
-  margin: 14px auto 10px;
+  aspect-ratio: 1 / 1.05;
+  margin: 22px auto 10px;
 }
 .home-trio-circle {
   position: absolute;
+  container-type: inline-size;
   width: 63%;
   aspect-ratio: 1;
   padding: 0;
@@ -170,19 +132,20 @@
   overflow: hidden;
   isolation: isolate;
   cursor: pointer;
-  background: var(--rd-areia);
+  background: #e8d5c2;
   /* fio fino afastado, como as linhas do diagrama de referência */
   box-shadow:
-    0 0 0 5px rgba(243, 232, 219, 0.7),
-    0 0 0 6px rgba(125, 100, 79, 0.55),
+    0 0 0 3px rgba(243, 232, 219, 0.7),
+    0 0 0 4px rgba(125, 100, 79, 0.4),
     0 18px 34px -18px rgba(70, 52, 42, 0.55);
   transition: transform 0.25s ease;
 }
-.home-trio-circle--a { left: 0; top: 0; z-index: 1; }
-.home-trio-circle--b { right: 0; top: 0; z-index: 2; }
-.home-trio-circle--c { left: 18.5%; top: 44%; z-index: 3; }
+/* Eventos 10% maior (63% -> 69,3%), Loja 10% menor (56,7%) e Receitas 10% menor que a Loja (51%). */
+.home-trio-circle--a { width: 69.3%; left: 0; top: 0; z-index: 1; }
+.home-trio-circle--b { width: 56.7%; right: 0; top: 6%; z-index: 2; }
+.home-trio-circle--c { width: 51%; left: 24.5%; top: 49.5%; z-index: 3; }
 .home-trio-circle:focus-visible {
-  outline: 2px solid var(--rd-espresso);
+  outline: 2px solid #46342a;
   outline-offset: 8px;
 }
 .home-trio-media,
@@ -197,9 +160,9 @@
 .home-trio-fallback {
   display: block;
 }
-.home-trio-circle--a .home-trio-fallback { background: linear-gradient(150deg, var(--rd-rose), #d2a597); }
-.home-trio-circle--b .home-trio-fallback { background: linear-gradient(150deg, var(--rd-sage-soft), var(--rd-sage)); }
-.home-trio-circle--c .home-trio-fallback { background: linear-gradient(150deg, var(--rd-champagne), var(--rd-taupe)); }
+.home-trio-circle--a .home-trio-fallback { background: linear-gradient(150deg, #e2c1b5, #d2a597); }
+.home-trio-circle--b .home-trio-fallback { background: linear-gradient(150deg, #c9d2bf, #8c9b83); }
+.home-trio-circle--c .home-trio-fallback { background: linear-gradient(150deg, #dcc4ae, #a38b76); }
 .home-trio-text {
   position: absolute;
   inset: 0;
@@ -209,7 +172,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 16%;
+  padding: 14%;
   text-align: center;
   color: #fff;
   text-shadow: 0 1px 8px rgba(40, 26, 18, 0.65);
@@ -217,14 +180,14 @@
 }
 .home-trio-eyebrow {
   font-family: var(--font-display);
-  font-size: clamp(22px, 7vw, 30px);
+  font-size: max(15px, 13cqw);
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   line-height: 1.05;
 }
 .home-trio-title {
-  font-size: 13px;
+  font-size: max(10.5px, 7.4cqw);
   font-weight: 700;
   line-height: 1.2;
   display: -webkit-box;
@@ -233,7 +196,7 @@
   overflow: hidden;
 }
 .home-trio-subtitle {
-  font-size: 11.5px;
+  font-size: max(9.5px, 6.6cqw);
   line-height: 1.25;
   opacity: 0.95;
   display: -webkit-box;
@@ -246,7 +209,7 @@
   padding: 1px 9px;
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 999px;
-  font-size: 10.5px;
+  font-size: max(8.5px, 5.4cqw);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -262,33 +225,25 @@
   .home-trio-circle:hover { transform: scale(1.015); }
 }
 
-/* ---- 5) Painel de vidro sobreposto à imagem (referência 2) ---------------- */
-.home-editorial-card.home-city-card .home-editorial-card-body,
-.menu-banner-text,
-.gratitude-text {
-  position: relative;
-  z-index: 2;
-  margin: -38px 10px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background: linear-gradient(145deg, rgba(252, 246, 238, 0.74), rgba(243, 232, 219, 0.5));
-  -webkit-backdrop-filter: blur(14px) saturate(1.1);
-  backdrop-filter: blur(14px) saturate(1.1);
-  box-shadow: 0 12px 26px -16px rgba(70, 52, 42, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-.home-editorial-card.home-city-card .home-editorial-card-body {
-  margin: -56px 14px 14px;
-  padding: 16px 18px;
-}
+/* ---- Espaços da Home (ajustes pontuais) ------------------------------------ */
+/* linha do relógio -> "Círculos": +6px */
+.home-section-divider + .circ-strip { margin-top: 6px; }
+/* "Descobrir" -> "Revista Círcula": +6px */
+.home-group-title + .mag-strip { margin-top: 6px; }
+/* linha da revista -> 3 círculos: 14px -> 22px (+8px; ver .home-trio) */
+/* cards finos -> "Para você": 42px -> 34px (-8px) */
+.home-wheel + .home-flower-gap + .home-group-title { margin-top: 18px; }
+/* "Para você" -> cards: +6px */
+.home-group-title + .home-pair { margin-top: 6px; }
 
-/* ---- 6) "Para você" mais abaixo dos cards finos --------------------------- */
-.home-wheel {
-  margin-bottom: 8px;
+/* ---- Círculo "Novo": mesma pulsação dos cards "Assine" e "Convide" ------------ */
+.circ-card-item--pulse .circ-card {
+  transform: scale(0.95);
+  animation: exp-card-pulse 2.4s ease-in-out infinite;
 }
-.home-wheel + .home-flower-gap {
-  height: 8px !important;
-  margin: 0;
-}
-.home-wheel + .home-flower-gap + .home-group-title {
-  margin-top: 26px;
+@media (prefers-reduced-motion: reduce) {
+  .circ-card-item--pulse .circ-card {
+    animation: none;
+    transform: none;
+  }
 }

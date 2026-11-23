@@ -50,7 +50,7 @@
 
 /* ---- Fundo: sem salto de cor no meio da página (antes o degradê terminava em 2400px) ---- */
 html {
-  background-image: linear-gradient(180deg, #f1ebe0 0%, var(--rd-creme) 40%, var(--rd-creme) 100%);
+  background-image: linear-gradient(180deg, #f1ebe0 0%, #f3e8db 40%, #f3e8db 100%);
   background-size: 100% min(100%, 1600px);
 }
 
@@ -109,7 +109,7 @@ html {
   border: 1px solid rgba(213, 190, 164, 0.9);
   border-radius: 50%;
   background: rgba(251, 248, 242, 0.95);
-  color: var(--rd-espresso);
+  color: #46342a;
   font-size: 26px;
   line-height: 1;
   cursor: pointer;
@@ -163,8 +163,8 @@ html {
   padding: 8px 8px 12px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--rd-card);
-  box-shadow: var(--elev-1);
+  background: #faf2e8;
+  box-shadow: rgba(56, 42, 35, 0.04) 0 1px 2px, rgba(56, 42, 35, 0.04) 0 3px 8px -5px;
 }
 .cat-product-cover {
   flex: none;
@@ -249,7 +249,7 @@ html {
 .profile-page .profile-subscription-section .sub-level {
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--rd-card);
+  background: #faf2e8;
   box-shadow: none;
   padding: 16px;
 }
