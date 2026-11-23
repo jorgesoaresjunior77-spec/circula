@@ -1,0 +1,121 @@
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { RoboGuia } from './RoboGuia'
+import type { RoboCena } from './RoboGuia'
+import { RoboMudo } from './RoboMudo'
+import { falar } from '../hooks/useRobo'
+import { CYCLE_LABEL, formatBrl } from '../lib/plansCatalog'
+import type { PlanCycle } from '../lib/plansCatalog'
+
+// O robô nos Planos: consultor (recomenda o plano maior, com a economia real em reais) e
+// comemoração quando a assinatura é CONFIRMADA (o acesso foi liberado pelo servidor).
+
+const CHAVE_CELEBRADAS = 'circula:robo-celebrou'
+
+export function jaCelebrou(chave: string): boolean {
+  try {
+    return (JSON.parse(localStorage.getItem(CHAVE_CELEBRADAS) ?? '[]') as string[]).includes(chave)
+  } catch {
+    return false
+  }
+}
+export function marcarCelebrou(chave: string) {
+  try {
+    const lista = JSON.parse(localStorage.getItem(CHAVE_CELEBRADAS) ?? '[]') as string[]
+    if (!lista.includes(chave)) localStorage.setItem(CHAVE_CELEBRADAS, JSON.stringify([...lista, chave].slice(-50)))
+  } catch {
+    /* sem storage: só não lembra */
+  }
+}
+
+/** Economia real (em centavos) do plano anual em relação a pagar 12 meses no mensal. */
+export function economiaAnual(prices: Record<PlanCycle, number>): number {
+  return Math.max(0, prices.monthly * 12 - prices.annual)
+}
+
+/** Balão do topo da página de Planos: recomenda o anual (ou o semestral, se o anual não compensa). */
+export function RoboConsultor({ economiaAnualCents, economiaSemestralCents, nome }: { economiaAnualCents: number; economiaSemestralCents: number; nome: string }) {
+  useEffect(() => {
+    falar('apresenta', 'assinatura')
+  }, [])
+  const usaAnual = economiaAnualCents > 0
+  const economia = usaAnual ? economiaAnualCents : economiaSemestralCents
+  if (economia <= 0) return null
+  return (
+    <aside className="robo-consultor" aria-label="Recomendação do robô">
+      <RoboGuia cena="apresenta" tamanho={72} />
+      <div className="robo-consultor-balao">
+        <p>
+          <strong>Minha dica:</strong> no plano {usaAnual ? 'anual' : 'semestral'} do {nome} você economiza <strong>{formatBrl(economia)}</strong> em relação a pagar mês a mês. Você escolhe o que for melhor para você.
+        </p>
+        <RoboMudo />
+      </div>
+    </aside>
+  )
+}
+
+/** Balão que aparece UMA vez por abertura, quando a pessoa escolhe o mensal. Pode ser dispensado; o mensal segue disponível. */
+export function RoboMensal({ economiaCents, onTrocar, onDispensar }: { economiaCents: number; onTrocar: () => void; onDispensar: () => void }) {
+  useEffect(() => {
+    falar('pedindo', 'pedindo')
+  }, [])
+  return (
+    <div className="robo-mensal" role="note">
+      <RoboGuia cena="pedindo" tamanho={56} />
+      <div className="robo-mensal-balao">
+        <p>No anual você economiza {formatBrl(economiaCents)}.</p>
+        <div className="robo-mensal-acoes">
+          <button type="button" className="water-primary" onClick={onTrocar}>
+            Trocar para o anual
+          </button>
+          <button type="button" className="water-link" onClick={onDispensar}>
+            Agora não
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PETALAS = Array.from({ length: 22 }, (_, i) => ({
+  esq: (i * 37) % 100,
+  atraso: ((i * 53) % 18) / 10,
+  dur: 2.6 + ((i * 29) % 14) / 10,
+  tam: 8 + ((i * 17) % 9),
+  giro: (i % 2 ? 1 : -1) * (120 + ((i * 13) % 200)),
+}))
+
+/** Comemoração da assinatura confirmada: comemora, depois coração, balão de obrigada e chuva de pétalas. */
+export function RoboCelebracao({ ciclo, onFechar }: { ciclo?: PlanCycle | null; onFechar: () => void }) {
+  const [cena, setCena] = useState<RoboCena>('comemora')
+  useEffect(() => {
+    falar('comemora', 'comemoracao')
+    const t = window.setTimeout(() => {
+      setCena('coracao')
+      falar('coracao', 'obrigado')
+    }, 2200)
+    return () => window.clearTimeout(t)
+  }, [])
+  return createPortal(
+    <div className="robo-celebracao" role="dialog" aria-modal="true" aria-label="Assinatura ativa">
+      <div className="robo-petalas" aria-hidden="true">
+        {PETALAS.map((p, i) => (
+          <span key={i} style={{ left: `${p.esq}%`, animationDelay: `${p.atraso}s`, animationDuration: `${p.dur}s`, width: p.tam, height: p.tam, ['--giro' as string]: `${p.giro}deg` }} />
+        ))}
+      </div>
+      <div className="robo-celebracao-corpo">
+        <RoboGuia cena={cena} tamanho={150} />
+        <div className="robo-celebracao-balao">
+          <p>
+            <strong>Obrigada! Sua assinatura está ativa</strong>
+            {ciclo ? ` (${CYCLE_LABEL[ciclo].toLowerCase()})` : ''}. Aproveite o Círcula.
+          </p>
+          <button type="button" className="onboarding-next" onClick={onFechar}>
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}

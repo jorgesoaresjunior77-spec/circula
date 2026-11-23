@@ -6,12 +6,14 @@ import { useMyAddonSubscription } from '../hooks/useMyAddonSubscription'
 import { CYCLE_LABEL, formatBrl } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
 import type { DocumentType } from '../types/billing'
+import { RoboMensal } from './RoboPlanos'
 
 // Assinar um conteúdo avulso (Respiração, Wellness): pede o CPF/CNPJ uma vez,
 // a membro escolhe o ciclo e o Asaas abre a fatura em outra aba. O acesso é
 // liberado sozinho quando o pagamento é confirmado.
 
-const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
+// O anual vem primeiro (já escolhido) e o semestral é a segunda opção; o mensal continua disponível.
+const CYCLES: PlanCycle[] = ['annual', 'semiannual', 'monthly']
 
 const CODE_MESSAGES: Record<string, string> = {
   MISSING_BILLING_DATA: 'Cadastre seu CPF/CNPJ antes de assinar.',
@@ -25,6 +27,8 @@ export function AddonCheckout({
   owned,
   profileId = null,
   viaPremium = false,
+  onCheckoutStarted,
+  monthlyNudge,
 }: {
   planKey: string
   communityId: string | null
@@ -35,6 +39,10 @@ export function AddonCheckout({
   profileId?: string | null
   /** A membro tem o Premium: este conteúdo já está incluído nele. */
   viaPremium?: boolean
+  /** Chamado quando a fatura foi aberta (a página passa a esperar a confirmação do pagamento). */
+  onCheckoutStarted?: (cycle: PlanCycle) => void
+  /** O robô avisa UMA vez por abertura da página, quando a pessoa escolhe o mensal. */
+  monthlyNudge?: { seen: boolean; markSeen: () => void }
 }) {
   const { hasBillingCustomerData, saveBillingCustomerData } = useSubscription({
     subject: 'community',
@@ -43,7 +51,8 @@ export function AddonCheckout({
   const { subscribe, busy } = useAddonCheckout(communityId)
   const mine = useMyAddonSubscription(communityId, profileId, planKey)
   const [confirmingCancel, setConfirmingCancel] = useState(false)
-  const [cycle, setCycle] = useState<PlanCycle>('monthly')
+  const [cycle, setCycle] = useState<PlanCycle>('annual')
+  const [nudgeOpen, setNudgeOpen] = useState(false)
   const [documentType, setDocumentType] = useState<DocumentType>('CPF')
   const [documentNumber, setDocumentNumber] = useState('')
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
@@ -91,6 +100,7 @@ export function AddonCheckout({
     )
   }
   if (!communityId) return <p className="home-muted">Entre em uma comunidade para assinar.</p>
+  const economiaAnualCents = Math.max(0, prices.monthly * 12 - prices.annual)
 
   async function handleSaveDocument(e: FormEvent) {
     e.preventDefault()
@@ -111,9 +121,11 @@ export function AddonCheckout({
     if (invoiceUrl) {
       window.open(invoiceUrl, '_blank')
       setMessage({ ok: true, text: 'Conclua o pagamento na página que abriu em outra aba. O acesso libera quando o pagamento é confirmado.' })
+      onCheckoutStarted?.(cycle)
       return
     }
     setMessage({ ok: true, text: 'Assinatura registrada. Aguarde a confirmação do pagamento.' })
+    onCheckoutStarted?.(cycle)
   }
 
   return (
@@ -150,12 +162,29 @@ export function AddonCheckout({
                 role="radio"
                 aria-checked={cycle === c}
                 className={`schedule-type${cycle === c ? ' schedule-type--on' : ''}`}
-                onClick={() => setCycle(c)}
+                onClick={() => {
+                  setCycle(c)
+                  if (c === 'monthly' && monthlyNudge && !monthlyNudge.seen && economiaAnualCents > 0) {
+                    monthlyNudge.markSeen()
+                    setNudgeOpen(true)
+                  }
+                }}
               >
                 {CYCLE_LABEL[c]} · {formatBrl(prices[c])}
+                {c === 'annual' && <small className="addon-cycle-best"> · Melhor escolha agora</small>}
               </button>
             ))}
           </div>
+          {nudgeOpen && cycle === 'monthly' && (
+            <RoboMensal
+              economiaCents={economiaAnualCents}
+              onTrocar={() => {
+                setCycle('annual')
+                setNudgeOpen(false)
+              }}
+              onDispensar={() => setNudgeOpen(false)}
+            />
+          )}
           <button type="button" className="water-primary" onClick={() => void handleSubscribe()} disabled={busy}>
             {busy ? 'Abrindo…' : `Assinar ${CYCLE_LABEL[cycle].toLowerCase()}`}
           </button>
