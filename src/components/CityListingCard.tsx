@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { LISTING_TYPE_LABEL, formatMeetupDate, instagramHandle, shareListingUrl } from '../lib/city'
+import { LISTING_TYPE_LABEL, formatMeetupDate, hoursSummary, instagramHandle, shareListingUrl } from '../lib/city'
 import type { CityCategory, CityListing, CityTag } from '../lib/city'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { fetchAttendees } from '../hooks/useCity'
 import type { Result } from '../hooks/useCity'
+import { CityReviews, Stars } from './CityReviews'
+import { CityClaim } from './CityClaim'
 
 // Um cadastro da cidade. Mostra só foto e primeiro nome de quem criou. Quem
 // criou vê "Editar" e "Excluir"; as demais veem "Denunciar"; a administração
@@ -24,6 +26,8 @@ interface CityListingCardProps {
   onDelete: (l: CityListing) => Promise<Result>
   onHide: (l: CityListing, hidden: boolean) => Promise<Result>
   onReport: (l: CityListing, motivo: string) => Promise<Result>
+  /** Recarrega a lista (depois de reivindicar ou mexer no destaque). */
+  onReload?: () => void
 }
 
 export function CityListingCard({
@@ -40,6 +44,7 @@ export function CityListingCard({
   onDelete,
   onHide,
   onReport,
+  onReload,
 }: CityListingCardProps) {
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -47,9 +52,13 @@ export function CityListingCard({
   const [reporting, setReporting] = useState(false)
   const [reason, setReason] = useState('')
   const [reported, setReported] = useState(false)
+  const [showReviews, setShowReviews] = useState(false)
+  const [summary, setSummary] = useState({ media: l.media, total: l.avaliacoes })
   const [attendees, setAttendees] = useState<{ nome: string; avatar: string | null }[] | null>(null)
 
   const mine = l.criado_por === uid
+  // a dona (reivindicação aprovada) também edita o cadastro
+  const canEdit = mine || l.sou_dona
   const isMeetup = l.tipo === 'convite'
   const canVote = l.tipo === 'lugar' || l.tipo === 'profissional'
   const insta = instagramHandle(l.instagram)
@@ -88,12 +97,36 @@ export function CityListingCard({
           <span className="cty-tag cty-tag--type">{LISTING_TYPE_LABEL[l.tipo]}</span>
           {isMeetup && l.atividade && <span className="cty-tag cty-tag--cat">{l.atividade}</span>}
           {category && <span className="cty-tag cty-tag--cat">{category.nome}</span>}
+          {l.destaque && <span className="cty-tag cty-tag--highlight">★ Destaque</span>}
+          {l.reivindicado && !l.e_proprio_negocio && <span className="cty-tag cty-tag--self">Negócio reivindicado</span>}
           {l.e_proprio_negocio && <span className="cty-tag cty-tag--self">Divulgação da própria membro</span>}
           {l.faixa_preco && <span className="cty-tag">{l.faixa_preco}</span>}
           {l.status === 'oculto' && <span className="cty-tag cty-tag--warn">Oculto</span>}
         </div>
 
         <h3 className="cty-card-title">{l.titulo}</h3>
+
+        {canVote && (
+          <button type="button" className="cty-rating" aria-expanded={showReviews} onClick={() => setShowReviews((v) => !v)}>
+            {summary.media !== null && summary.total > 0 ? (
+              <>
+                <strong>{summary.media.toFixed(1).replace('.', ',')}</strong> <Stars value={summary.media} size={17} /> <span>({summary.total} {summary.total === 1 ? 'avaliação' : 'avaliações'})</span>
+              </>
+            ) : (
+              <span>☆☆☆☆☆ Seja a primeira a avaliar</span>
+            )}
+            <span className="cty-rating-more">{showReviews ? 'Fechar' : 'Avaliar e ver comentários'}</span>
+          </button>
+        )}
+        {showReviews && canVote && (
+          <CityReviews
+            listingId={l.id}
+            isAuthor={mine}
+            isAdmin={isAdmin}
+            readOnly={readOnly}
+            onSummary={(media, total) => setSummary({ media, total })}
+          />
+        )}
 
         {(l.tipo === 'evento' || isMeetup) && l.starts_at && <p className="cty-card-when">{formatMeetupDate(l.starts_at)}</p>}
         {l.local_nome && <p className="cty-card-line">{isMeetup ? 'Ponto de encontro' : 'Local'}: {l.local_nome}</p>}
@@ -105,7 +138,11 @@ export function CityListingCard({
         )}
         {(l.bairro || l.atende_toda_cidade) && <p className="cty-card-line">{l.atende_toda_cidade ? 'Atende em toda a cidade' : l.bairro}</p>}
         {l.endereco && <p className="cty-card-line">{l.endereco}</p>}
-        {l.horario && <p className="cty-card-line">{l.horario}</p>}
+        {(hoursSummary(l.horarios) || l.horario) && (
+          <p className="cty-card-line">
+            <strong>Horário:</strong> {[hoursSummary(l.horarios), l.horario].filter(Boolean).join(' · ')}
+          </p>
+        )}
         {l.descricao && <p className="cty-card-desc">{l.descricao}</p>}
 
         {tagNames.length > 0 && (
@@ -120,7 +157,7 @@ export function CityListingCard({
 
         {(l.contato || insta || l.link) && (
           <p className="cty-card-contact">
-            {l.contato && <span>{l.contato}</span>}
+            {l.contato && (l.contato.replace(/\D/g, '').length >= 8 ? <a href={`tel:+55${l.contato.replace(/\D/g, '')}`}>{l.contato}</a> : <span>{l.contato}</span>)}
             {insta && (
               <a href={`https://instagram.com/${insta}`} target="_blank" rel="noopener noreferrer">
                 @{insta}
@@ -184,12 +221,12 @@ export function CityListingCard({
         )}
 
         <div className="cty-card-manage">
-          {mine && !readOnly && (
+          {canEdit && !readOnly && (
             <>
               <button type="button" className="cty-link" onClick={() => onEdit(l)}>
                 Editar
               </button>
-              {!confirmDelete ? (
+              {!mine ? null : !confirmDelete ? (
                 <button type="button" className="cty-link cty-link--danger" onClick={() => setConfirmDelete(true)}>
                   Excluir
                 </button>
@@ -224,6 +261,8 @@ export function CityListingCard({
             </>
           )}
         </div>
+
+        <CityClaim listing={l} readOnly={readOnly} onChanged={() => onReload?.()} />
 
         {reporting && (
           <div className="cty-report">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { recordView } from '../lib/itemViews'
 import { ViewCount } from './ViewCount'
 import type { FormEvent, ReactNode } from 'react'
@@ -56,8 +57,9 @@ function PickDetail({ p, communityId, isOwner, onClose, children }: { p: SeriesP
   const link = safeWatchLink(p.platform_url)
   const trailer = safeWatchLink(p.trailer_url)
   const age = ageLabel(p.age_rating)
-  return (
-    <div className="reading-detail-backdrop" role="dialog" aria-modal="true" aria-label={p.title} onClick={onClose}>
+  // Portal no body: a janela fica sobre a tela inteira (acima do cabeçalho) e mais para baixo.
+  return createPortal(
+    <div className="reading-detail-backdrop sf-detail-backdrop" role="dialog" aria-modal="true" aria-label={p.title} onClick={onClose}>
       <article className="reading-detail sf-detail" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="reading-detail-close" onClick={onClose} aria-label="Fechar">
           ×
@@ -85,7 +87,8 @@ function PickDetail({ p, communityId, isOwner, onClose, children }: { p: SeriesP
         {isOwner && <ViewCount communityId={communityId} kind="series" itemId={p.id} />}
         {children}
       </article>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

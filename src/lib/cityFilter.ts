@@ -28,10 +28,12 @@ export function filterGuide(list: CityListing[], categories: CityCategory[], f: 
     }
     return true
   })
+  // Negócios com destaque pago aparecem primeiro, em qualquer ordenação.
   return out.sort((a, b) =>
-    f.sort === 'indicados'
+    Number(b.destaque) - Number(a.destaque) ||
+    (f.sort === 'indicados'
       ? b.votos - a.votos || Date.parse(b.criado_em) - Date.parse(a.criado_em)
-      : Date.parse(b.criado_em) - Date.parse(a.criado_em),
+      : Date.parse(b.criado_em) - Date.parse(a.criado_em)),
   )
 }
 

@@ -12,7 +12,7 @@ import type { CityInfo, CityListing, CityListingType } from '../lib/city'
 import { countByCategory, countByGroup, filterGuide, splitUpcoming } from '../lib/cityFilter'
 import type { GuideSort } from '../lib/cityFilter'
 import { BR_STATES } from '../lib/travel'
-import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityListings, useMyCity } from '../hooks/useCity'
+import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityListings, useGroupImages, useMyCity } from '../hooks/useCity'
 import type { ListingInput } from '../hooks/useCity'
 import { CityPicker } from './CityPicker'
 import { CityListingForm } from './CityListingForm'
@@ -46,6 +46,7 @@ export function CityPage({ profile }: { profile: Profile }) {
   const isAdmin = profile.role === 'master' || profile.role === 'professional'
 
   const { categories, tags, createCategory } = useCityCatalog()
+  const { images: groupImages } = useGroupImages()
   const listingsApi = useCityListings(city?.id ?? null)
   const { listings, loading, error } = listingsApi
 
@@ -63,6 +64,7 @@ export function CityPage({ profile }: { profile: Profile }) {
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const guideAll = useMemo(() => listings.filter((l) => l.tipo === 'lugar' || l.tipo === 'profissional'), [listings])
+  const featured = useMemo(() => guideAll.filter((l) => l.destaque), [guideAll])
   const events = useMemo(() => listings.filter((l) => l.tipo === 'evento'), [listings])
   const meetups = useMemo(() => listings.filter((l) => l.tipo === 'convite'), [listings])
   const groupCounts = useMemo(() => countByGroup(guideAll, categories), [guideAll, categories])
@@ -170,6 +172,7 @@ export function CityPage({ profile }: { profile: Profile }) {
     },
     onHide: (l: CityListing, hidden: boolean) => listingsApi.setHidden(l.id, hidden),
     onReport: (l: CityListing, motivo: string) => listingsApi.report(l, profile.id, motivo),
+    onReload: () => void listingsApi.reload(),
   }
 
   const addButtons = (tipos: { tipo: CityListingType; label: string }[]) =>
@@ -266,6 +269,25 @@ export function CityPage({ profile }: { profile: Profile }) {
                 { tipo: 'profissional', label: 'Indicar ou divulgar uma profissional' },
               ])}
 
+              {featured.length > 0 && (
+                <div className="cty-featured" aria-label="Em destaque">
+                  <p className="cty-eyebrow">★ Em destaque</p>
+                  <div className="cty-featured-row">
+                    {featured.map((l) => (
+                      <button
+                        key={l.id}
+                        type="button"
+                        className="cty-featured-tile"
+                        onClick={() => { setGroup(null); setCategoryId(null); setQuery(l.titulo) }}
+                      >
+                        {l.foto ? <img src={l.foto} alt="" loading="lazy" decoding="async" /> : <span className="cty-featured-ph" aria-hidden="true" />}
+                        <span className="cty-featured-name">{l.titulo}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <input
                 type="search"
                 className="cty-search"
@@ -279,7 +301,8 @@ export function CityPage({ profile }: { profile: Profile }) {
                 <>
                   <div className="cty-group-grid">
                     {CITY_GROUPS.filter((g) => showAllGroups || (groupCounts.get(g.key) ?? 0) > 0).map((g) => (
-                      <button key={g.key} type="button" className="cty-group" onClick={() => { setGroup(g.key); setCategoryId(null) }}>
+                      <button key={g.key} type="button" className={`cty-group${groupImages[g.key] ? ' cty-group--photo' : ''}`} onClick={() => { setGroup(g.key); setCategoryId(null) }}>
+                        {groupImages[g.key] && <img className="cty-group-photo" src={groupImages[g.key]} alt="" loading="lazy" decoding="async" />}
                         <span className="cty-group-icon" aria-hidden="true">{g.icon}</span>
                         <span className="cty-group-name">{g.label}</span>
                         <span className="cty-group-count">{groupCounts.get(g.key) ?? 0}</span>

@@ -208,7 +208,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ap-11',
         q: 'Como cancelar minha assinatura?',
-        a: 'Em Planos, abaixo da situação da assinatura, toque em Cancelar assinatura. O acesso segue até o fim do período já pago. Atenção: ao cancelar a mensalidade do Círcula, todos os planos avulsos e o Círcula Premium da sua conta são cancelados junto, e nenhuma nova cobrança é feita. Cada plano segue valendo até o fim do período que você já pagou. Se tiver dificuldade, fale com a nutricionista pelo Help Nutri.',
+        a: 'Em Planos, abaixo da situação da assinatura, toque em Cancelar assinatura. Atenção: o acesso é encerrado na hora, mesmo que o período já esteja pago. ao cancelar a mensalidade do Círcula, todos os planos avulsos e o Círcula Premium da sua conta são cancelados junto, e nenhuma nova cobrança é feita. O acesso a todos eles também termina na hora. Para voltar, é só assinar de novo. Se tiver dificuldade, fale com a nutricionista pelo Help Nutri.',
         k: 'cancelar encerrar assinatura parar de pagar premium avulso todos planos',
       },
       {
@@ -216,6 +216,18 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         q: 'Perdi acesso a uma funcionalidade. O que aconteceu?',
         a: 'O motivo mais comum é um pagamento pendente ou uma assinatura vencida. Abra Planos e veja a situação; regularizando, o acesso volta. Se estiver tudo em dia e mesmo assim faltar algo, fale com a nutricionista pelo Help Nutri.',
         k: 'perdi acesso sumiu bloqueado funcionalidade não aparece',
+      },
+      {
+        id: 'ap-13',
+        q: 'Posso assinar só o Círcula, só alguns conteúdos ou o Premium? E o que acontece se eu cancelar?',
+        a: 'Pode escolher: só o Círcula, o Círcula com os conteúdos avulsos que quiser, ou o Círcula Premium, que reúne todos os conteúdos (inclusive Dicas de Viagem, Séries e Filmes, Meu Chef e Se exercite em casa). Escolhendo 6 meses ou 1 ano, o valor total é menor. Ao cancelar, a cobrança para e o acesso termina na hora, mesmo que o período já esteja pago. Cancelar a assinatura do Círcula cancela também os avulsos e o Premium.',
+        k: 'assinar avulso premium cancelar cancelamento acesso período semestral anual',
+      },
+      {
+        id: 'ap-14',
+        q: 'Ganho desconto por convidar amigas?',
+        a: 'Sim. A participante que convida amigas para o Círcula ganha 10% de desconto no próximo ciclo da assinatura, para cada amiga que entra pelo seu convite. Quem chega pelo convite de quem tem o Premium também ganha 10% de desconto na primeira assinatura do Premium. Você vê isso no seu perfil.',
+        k: 'desconto convite convidar amiga indicação 10%',
       },
     ],
   },
@@ -319,6 +331,30 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         q: 'Posso mudar de cidade?',
         a: 'Sim. Dentro da tela "Na minha cidade", toque em "Mudar cidade". Você também pode tocar em "Ver outra cidade" para ver os cadastros de outra cidade, só para leitura.',
         k: 'mudar trocar cidade outra cidade mudança',
+      },
+      {
+        id: 'nc-17',
+        q: 'Como avalio um lugar ou profissional?',
+        a: 'Abra o cadastro e toque em "Avaliar e ver comentários". Dê de 1 a 5 estrelas, escreva um comentário se quiser e publique. Você pode mudar ou apagar a sua avaliação depois. Cada participante avalia uma vez, e não dá para avaliar o próprio cadastro.',
+        k: 'avaliar estrelas nota comentário avaliação opinião',
+      },
+      {
+        id: 'nc-19',
+        q: 'O negócio é meu e já está cadastrado por outra pessoa. Como reivindico?',
+        a: 'No cadastro do negócio, toque em "Este negócio é meu: reivindicar e pedir destaque" e deixe o seu WhatsApp. A nutricionista fala com você pelo WhatsApp para confirmar e aprova o pedido. Depois de aprovado, você passa a ser a dona do cadastro (pode editar) e pode contratar o destaque da capa.',
+        k: 'reivindicar negócio meu dona proprietária destaque whatsapp aprovar',
+      },
+      {
+        id: 'nc-20',
+        q: 'Quanto custa o destaque da capa e como funciona?',
+        a: 'O destaque custa R$ 4,90 por mês, com desconto nos planos de 6 e 12 meses. Com ele, a capa do seu negócio aparece na faixa "Em destaque" no topo da cidade e antes de todas as outras nas listas. Para contratar, o pedido de reivindicação precisa estar aprovado. Se cancelar, o destaque sai do ar na hora.',
+        k: 'destaque capa preço 4,90 pagar anunciar divulgar negócio cancelar',
+      },
+      {
+        id: 'nc-18',
+        q: 'Como informo o horário de funcionamento?',
+        a: 'No cadastro, escolha para cada dia, de segunda a domingo, se está aberto (com o horário), aberto 24 horas ou fechado. Se for um serviço autônomo, escreva no campo abaixo como combinar, por exemplo, atendo com hora marcada. O telefone sempre começa com o DDD entre parênteses.',
+        k: 'horário funcionamento dias semana autônomo telefone ddd contato',
       },
     ],
   },

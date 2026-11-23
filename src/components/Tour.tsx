@@ -32,7 +32,7 @@ interface TourStep {
 }
 
 export const CITY_TOUR_TEXT =
-  'Descubra lugares, serviços e eventos da sua cidade por categoria, de restaurantes a eletricistas. Indique o que você ama, salve seus favoritos e combine caminhadas e cafés com outras mulheres.'
+  'Descubra lugares, serviços e eventos da sua cidade por categoria, de restaurantes a eletricistas. Indique o que você ama, dê estrelas e comente os lugares, veja os horários, salve seus favoritos e combine caminhadas e cafés com outras mulheres. Tem um negócio local? Reivindique o cadastro e peça destaque na capa.'
 
 /** Marca no aparelho que o passo "Na minha cidade" já foi mostrado (some a novidade). */
 const CITY_TOUR_SEEN_KEY = 'circula:tour-na-minha-cidade'
@@ -94,9 +94,16 @@ export const TOUR_STEPS: TourStep[] = [
     gesture: 'tap',
   },
   {
+    targets: ['.home-editorial-cards'],
+    title: 'Eventos, Loja e Receitas',
+    text: 'Em "Descobrir": o próximo evento da comunidade, a Loja (e-books e produtos digitais, que você lê aqui mesmo) e as receitas em formato de revista. Toque em um cartão para abrir.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
     targets: ['.home-wheel'],
     title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes ou Dicas de Viagem.',
+    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes (filtre por tipo, gênero, faixa etária e plataforma) ou Dicas de Viagem (destinos por estado, cidade e para quem viaja).',
     optional: true,
     gesture: 'tap',
   },
@@ -124,7 +131,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-plans-wrap'],
     title: 'Planos e assinaturas',
-    text: 'Veja os conteúdos que você pode assinar, com desconto nos planos de 6 e 12 meses, e o Círcula Premium com tudo junto. Os planos que você já tem ficam acesos, com selo de Assinado. Seu período grátis dura 21 dias e, perto do fim, avisamos aqui na página inicial.',
+    text: 'Veja os conteúdos que você pode assinar (você pode assinar só o Círcula, só alguns conteúdos ou o Círcula Premium com tudo junto, inclusive Dicas de Viagem, Séries e Meu Chef). Nos planos de 6 e 12 meses o valor total é menor. Os planos que você já tem ficam acesos, com selo de Assinado. Atenção: cancelar corta o acesso na hora, mesmo que o período já esteja pago. Seu período grátis dura 21 dias e, perto do fim, avisamos aqui na página inicial.',
     optional: true,
     gesture: 'tap',
   },
@@ -169,7 +176,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['#tour-nav-mobile-perfil', '#tour-nav-desktop-perfil'],
     title: 'Meu perfil',
-    text: 'Sua capa, suas fotos, os depoimentos que você recebe, o Meu Jardim, o convite para amigas, a sua assinatura e, no fim, a Administração (trocar a senha, cancelar assinaturas e excluir a conta). No Feed, toque na foto de outra participante para visitar o perfil dela.',
+    text: 'Sua capa, suas fotos, os depoimentos que você recebe, a sua cidade e os lugares que você salvou (Meus salvos), o Meu Jardim, o convite para amigas (quem convida ganha 10% de desconto no próximo ciclo da assinatura), a sua assinatura e, no fim, a Administração (trocar a senha, cancelar assinaturas e excluir a conta). No Feed, toque na foto de outra participante para visitar o perfil dela.',
   },
   {
     targets: ['#tour-notification-bell'],

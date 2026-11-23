@@ -31,7 +31,7 @@ function billingDetail(state: string | null, sub: Subscription): string | null {
     case 'blocked':
       return 'Acesso bloqueado por falta de pagamento confirmado. Regularize para retomar — nenhum dado foi apagado.'
     case 'canceled':
-      return 'Assinatura cancelada. O acesso segue até o fim do período já pago.'
+      return 'Assinatura cancelada. O acesso foi encerrado na hora.'
     default:
       return null
   }
@@ -134,6 +134,8 @@ export function SubscriptionPanel({ subject = 'platform', communityId }: Subscri
   }
 
   async function handleCancel() {
+    const sure = window.confirm('Atenção: ao cancelar, o seu acesso é cortado agora, na hora, mesmo que o período já esteja pago. Isso vale também para os planos avulsos e o Premium. Deseja cancelar?')
+    if (!sure) return
     setSubmitting(true)
     setMessage(null)
 
@@ -146,7 +148,7 @@ export function SubscriptionPanel({ subject = 'platform', communityId }: Subscri
       return
     }
 
-    setMessage({ type: 'success', text: 'Assinatura cancelada.' })
+    setMessage({ type: 'success', text: 'Assinatura cancelada. O acesso foi encerrado na hora.' })
   }
 
   if (loading) {

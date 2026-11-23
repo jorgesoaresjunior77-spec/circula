@@ -439,6 +439,121 @@ async function handleAddonSubscriptionEvent(
 // Processa eventos Asaas cujo externalReference e product_order:<order_id>.
 // Nunca toca em subscriptions / payment_charges / billing_plans. Usa somente
 // os snapshots ja congelados em product_orders (item 11).
+// Desconto de quem convida amigas: cada amiga que entrou pelo convite vale 10% no
+// PRÓXIMO ciclo da assinatura de quem convidou (Círcula ou avulso/Premium). Quando
+// o Asaas cria a cobrança do ciclo (PAYMENT_CREATED, ainda pendente), baixa o valor
+// dela em 10% e marca a indicação como usada (uma amiga = um ciclo com desconto).
+// À prova de falha: qualquer erro aqui só é registrado e a cobrança segue normal.
+const INVITER_DISCOUNT_PERCENT = 10
+
+async function applyInviterReward(
+  admin: ReturnType<typeof createClient>,
+  payment: AsaasPayment,
+): Promise<void> {
+  try {
+    if (!payment.subscription || payment.status !== 'PENDING' || !(payment.value > 0)) return
+
+    let profileId: string | null = null
+    const { data: community } = await admin
+      .from('subscriptions')
+      .select('profile_id, subject')
+      .eq('asaas_subscription_id', payment.subscription)
+      .maybeSingle()
+    if (community) {
+      if (community.subject !== 'community') return
+      profileId = community.profile_id as string
+    } else {
+      const { data: addon } = await admin
+        .from('addon_subscriptions')
+        .select('profile_id')
+        .eq('asaas_subscription_id', payment.subscription)
+        .maybeSingle()
+      profileId = (addon?.profile_id as string | undefined) ?? null
+    }
+    if (!profileId) return
+
+    // este pagamento já recebeu o desconto (reentrega do webhook)
+    const { data: used } = await admin.from('referrals').select('invitee_id').eq('inviter_reward_payment', payment.id).limit(1)
+    if (used && used.length > 0) return
+
+    const { data: pending } = await admin
+      .from('referrals')
+      .select('invitee_id')
+      .eq('inviter_id', profileId)
+      .is('inviter_reward_applied_at', null)
+      .order('created_at', { ascending: true })
+      .limit(1)
+    const inviteeId = pending?.[0]?.invitee_id as string | undefined
+    if (!inviteeId) return
+
+    // reserva a indicação antes de mexer na cobrança (duas entregas ao mesmo tempo não usam duas)
+    const { data: claimed } = await admin
+      .from('referrals')
+      .update({ inviter_reward_applied_at: new Date().toISOString(), inviter_reward_payment: payment.id })
+      .eq('invitee_id', inviteeId)
+      .is('inviter_reward_applied_at', null)
+      .select('invitee_id')
+    if (!claimed || claimed.length === 0) return
+
+    const discounted = Math.round(payment.value * (100 - INVITER_DISCOUNT_PERCENT)) / 100
+    try {
+      await asaasFetch(`/payments/${payment.id}`, { method: 'PUT', body: JSON.stringify({ value: discounted }) })
+      await admin.from('notifications').insert({
+        profile_id: profileId,
+        type: 'billing',
+        title: 'Desconto de 10% aplicado',
+        body: 'Como você convidou uma amiga para o Círcula, a sua próxima cobrança veio com 10% de desconto.',
+      })
+    } catch (putError) {
+      // não conseguiu baixar o valor: devolve a indicação para tentar no próximo ciclo
+      await admin
+        .from('referrals')
+        .update({ inviter_reward_applied_at: null, inviter_reward_payment: null })
+        .eq('invitee_id', inviteeId)
+      console.error('asaas-webhook: falha ao aplicar desconto de indicação', (putError as Error).message)
+    }
+  } catch (error) {
+    console.error('asaas-webhook: erro no desconto de indicação', (error as Error).message)
+  }
+}
+
+// Destaque da capa de um negócio (city_highlights): pagamento confirmado ativa o destaque
+// até o fim do ciclo pago; atraso marca past_due (some depois de 3 dias); estorno ou
+// chargeback cancelam. Devolve true se o pagamento era de um destaque. Idempotente.
+async function handleHighlightEvent(
+  admin: ReturnType<typeof createClient>,
+  event: string,
+  payment: AsaasPayment,
+): Promise<boolean> {
+  const { data: h } = await admin
+    .from('city_highlights')
+    .select('id, status, billing_cycle, current_period_end')
+    .eq('asaas_subscription_id', payment.subscription as string)
+    .maybeSingle()
+  if (!h) return false
+  const nowIso = new Date().toISOString()
+
+  if (CONFIRMED_EVENTS.has(event)) {
+    if (h.status === 'canceled') return true // nunca reabre por evento reentregue
+    const end = addonPeriodEnd(payment.dueDate, h.billing_cycle as 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY', (h.current_period_end as string | null) ?? null)
+    await admin
+      .from('city_highlights')
+      .update({ status: 'active', ...(end ? { current_period_end: end.toISOString() } : {}), atualizado_em: nowIso })
+      .eq('id', h.id)
+    return true
+  }
+  if (OVERDUE_EVENTS.has(event)) {
+    if (h.status === 'active' || h.status === 'pending') {
+      await admin.from('city_highlights').update({ status: 'past_due', atualizado_em: nowIso }).eq('id', h.id)
+    }
+    return true
+  }
+  if (REFUND_EVENTS.has(event) || CHARGEBACK_EVENTS.has(event)) {
+    await admin.from('city_highlights').update({ status: 'canceled', current_period_end: nowIso, atualizado_em: nowIso }).eq('id', h.id)
+  }
+  return true
+}
+
 async function handleProductOrderEvent(
   admin: Admin,
   event: string,
@@ -750,7 +865,9 @@ Deno.serve(async (req) => {
 
       if (!subscription) {
         // Assinatura avulsa de conteúdo / Círcula Premium (addon_subscriptions).
-        await handleAddonSubscriptionEvent(admin, event, payment)
+        if (!(await handleHighlightEvent(admin, event, payment))) {
+          await handleAddonSubscriptionEvent(admin, event, payment)
+        }
       } else if (subscription.subject === 'community') {
         // FASE 16.2.4-B — fluxo financeiro próprio da assinatura de comunidade.
         await handleCommunitySubscriptionEvent(admin, event, payment, subscription)
@@ -783,6 +900,9 @@ Deno.serve(async (req) => {
         }
       }
     }
+
+    // Desconto de quem convida: baixa a cobrança do próximo ciclo em 10%.
+    if (event === 'PAYMENT_CREATED') await applyInviterReward(admin, payment)
 
     // --- Etapa 4.3: ramo de produto (pagamento avulso). Nao afeta assinaturas. ---
     const externalReference = payment.externalReference ?? ''

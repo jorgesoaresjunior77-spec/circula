@@ -50,7 +50,6 @@ export function AddonCheckout({
   const [saving, setSaving] = useState(false)
 
   if (owned) {
-    const until = mine.sub?.current_period_end ? new Date(mine.sub.current_period_end).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : null
     const canceled = mine.sub?.status === 'canceled'
     // Incluído no Premium e sem assinatura separada: nada a cancelar aqui.
     if (viaPremium && planKey !== 'premium' && !mine.sub) {
@@ -59,7 +58,7 @@ export function AddonCheckout({
     return (
       <div className="addon-checkout">
         <p className="auth-success">
-          {canceled ? `Assinatura cancelada. Você mantém o acesso${until ? ` até ${until}` : ' até o fim do período pago'}.` : 'Você já tem este plano. Aproveite!'}
+          {canceled ? 'Assinatura cancelada. O acesso foi encerrado na hora.' : 'Você já tem este plano. Aproveite!'}
         </p>
         {viaPremium && planKey !== 'premium' && mine.sub && !canceled && (
           <p className="home-muted">Este conteúdo já está incluído no seu Premium. Esta assinatura separada pode ser cancelada para não pagar em dobro.</p>
@@ -72,7 +71,7 @@ export function AddonCheckout({
         {mine.sub && !canceled && confirmingCancel && (
           <div className="question-item-actions">
             <p className="home-muted">
-              Cancelar para de cobrar nos próximos ciclos. Você mantém o acesso{until ? ` até ${until}` : ' até o fim do período pago'}.
+              Atenção: ao cancelar, a cobrança para e o seu acesso a este plano é cortado agora, na hora, mesmo que o período já esteja pago.
             </p>
             <button
               type="button"

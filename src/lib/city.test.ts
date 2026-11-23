@@ -27,6 +27,7 @@ const listing = (over: Partial<CityListing>): CityListing => ({
   instagram: null,
   faixa_preco: null,
   horario: null,
+  horarios: null,
   foto: null,
   criado_por: 'u',
   autora_nome: 'Ana',
@@ -47,6 +48,17 @@ const listing = (over: Partial<CityListing>): CityListing => ({
   salvei: false,
   confirmadas: 0,
   vou: false,
+  media: null,
+  avaliacoes: 0,
+  minha_nota: null,
+  reivindicado: false,
+  sou_dona: false,
+  minha_reivindicacao: null,
+  pedido_em_aberto: false,
+  destaque: false,
+  destaque_meu: null,
+  destaque_meu_id: null,
+  destaque_ate: null,
   tags: [],
   ...over,
 })
@@ -136,5 +148,24 @@ describe('splitUpcoming', () => {
     )
     expect(r.upcoming.map((l) => l.id)).toEqual(['g', 'f'])
     expect(r.past.map((l) => l.id)).toEqual(['p'])
+  })
+})
+
+import { formatPhoneBR, hoursSummary } from './city'
+
+describe('telefone e horários', () => {
+  it('o telefone começa em "( )" e vai formatando com DDD', () => {
+    expect(formatPhoneBR('')).toBe('( ) ')
+    expect(formatPhoneBR('5')).toBe('(5')
+    expect(formatPhoneBR('51')).toBe('(51')
+    expect(formatPhoneBR('519')).toBe('(51) 9')
+    expect(formatPhoneBR('51999998888')).toBe('(51) 99999-8888')
+    expect(formatPhoneBR('5133334444')).toBe('(51) 3333-4444')
+  })
+  it('junta dias seguidos iguais', () => {
+    expect(hoursSummary({ seg: '08:00-18:00', ter: '08:00-18:00', qua: '08:00-18:00', sab: '24h', dom: 'fechado' })).toBe(
+      'Seg a Qua 08:00 às 18:00 · Sáb 24 horas · Dom fechado',
+    )
+    expect(hoursSummary(null)).toBe('')
   })
 })

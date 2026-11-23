@@ -649,3 +649,457 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ---- Card "Na minha cidade": borda e PROFUNDIDADE (afundado, em vez de saltar para frente) ---- */
+.home-editorial-card.home-city-card {
+  border: 3px solid #d8c8b2;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 2px 5px rgba(40, 28, 20, 0.35);
+}
+.home-editorial-card.home-city-card::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  z-index: 0;
+  border-radius: 17px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 5px 14px rgba(25, 17, 11, 0.6),
+    inset 0 -2px 6px rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+.home-editorial-card.home-city-card .home-editorial-card-body {
+  padding: 22px 26px;
+}
+@media (hover: hover) {
+  .home-editorial-card.home-city-card:hover .home-editorial-card-photo {
+    transform: scale(1.02);
+  }
+}
+
+/* ---- Telefone ---- */
+.cty-page input[type='tel'] {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 17px;
+  box-sizing: border-box;
+}
+
+/* ---- Horário por dia ---- */
+.cty-hours {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-sunken);
+}
+.cty-hours-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+}
+.cty-hours-day {
+  font-size: 16px;
+  font-weight: 600;
+}
+.cty-hours-times {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cty-hours-times input {
+  flex: 1 1 0;
+}
+
+/* ---- Estrelas e avaliações ---- */
+.cty-stars {
+  display: inline-flex;
+  letter-spacing: 1px;
+  line-height: 1;
+  vertical-align: middle;
+}
+.cty-star {
+  color: #d9d0c4;
+}
+.cty-star--on {
+  color: #e0a526;
+}
+.cty-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+.cty-rating-more {
+  color: var(--olive-text);
+  text-decoration: underline;
+}
+.cty-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--surface-sunken);
+}
+.cty-review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cty-star-picker {
+  display: flex;
+  gap: 4px;
+}
+.cty-star-btn {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #d9d0c4;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cty-star-btn--on {
+  color: #e0a526;
+}
+.cty-review {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+.cty-review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+.cty-review-head .cty-stars {
+  margin-left: auto;
+}
+
+/* ---- Cards dos grupos com foto (cadastrada pela administração) ---- */
+.cty-group {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.cty-group--photo {
+  min-height: 120px;
+  justify-content: flex-end;
+  color: #fff;
+}
+.cty-group--photo .cty-group-count {
+  color: rgba(255, 255, 255, 0.85);
+}
+.cty-group--photo .cty-group-name,
+.cty-group--photo .cty-group-count,
+.cty-group--photo .cty-group-icon {
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+.cty-group-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cty-group--photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(25, 20, 17, 0.05) 20%, rgba(25, 20, 17, 0.7) 100%);
+}
+.cty-group-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.cty-group-admin-img {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* ---- Planos: a janela de explicação abre por cima de tudo, no começo da tela ---- */
+.plans-sheet-backdrop {
+  z-index: 1200;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+.plans-sheet {
+  max-height: 90vh;
+  border-radius: 22px !important;
+}
+.plans-pitch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--accent-sand-tint);
+  border: 1px solid var(--accent-sand-line);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.plans-pitch p {
+  margin: 0;
+}
+.plans-pitch-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--circula-mocha);
+}
+
+/* ---- Loja: cards de e-book menores (3 por fila no celular) e detalhe com capa contida ---- */
+.cat-products {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (min-width: 700px) {
+  .cat-products {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.cat-product {
+  gap: 6px;
+  padding: 6px 6px 10px;
+  border-radius: 14px;
+}
+.cat-product-cover,
+.cat-product-cover-img {
+  border-radius: 9px;
+}
+.cat-product-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.cat-product-desc {
+  display: none;
+}
+.cat-product-foot {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 12px;
+}
+.cat-product-price {
+  font-size: 13px;
+}
+.product-detail-panel .product-card.product-card--detail .product-card-media {
+  width: min(240px, 70%);
+  margin-inline: auto;
+}
+
+/* ---- Séries e filmes: filtros que cabem na tela e janela de detalhe mais baixa ---- */
+.sf-filters {
+  gap: 10px;
+}
+.sf-filters label {
+  min-width: 0;
+  flex: 1 1 calc(50% - 5px);
+  font-size: 0.85rem;
+}
+.sf-filters select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+}
+.sf-detail-backdrop {
+  align-items: flex-start;
+  padding-top: max(72px, env(safe-area-inset-top, 0px) + 56px);
+  padding-bottom: 16px;
+  overflow-y: auto;
+}
+.sf-detail-backdrop .reading-detail {
+  max-height: calc(100dvh - 96px);
+}
+
+/* ---- Home: menos espaço entre os cards finos (menu que rola) e "Para você" ---- */
+.home-wheel + .home-flower-gap {
+  height: 0 !important;
+  margin: 0;
+}
+.home-wheel + .home-flower-gap + .home-group-title {
+  margin-top: 0;
+}
+
+/* ---- Home: sem as bordas finas nos cards Meu Chef, Lista de Compras, Se exercite e Diário ---- */
+.home-pair .menu-banner,
+.home-pair .menu-banner-wrap,
+.home-pair .menu-banner-photo,
+.home-pair .menu-banner-photo img,
+.home-pair .menu-banner-text,
+.home-pair .gratitude-card,
+.home-pair .gratitude-photo,
+.home-pair .gratitude-text {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+/* ---- Home: mais espaço entre os Círculos e o card "Na minha cidade" ---- */
+.home-city-wrap {
+  margin-top: 36px;
+}
+
+/* ---- Card "Na minha cidade": moldura com profundidade bem visível (bisel afundado) ---- */
+.home-editorial-card.home-city-card {
+  border: 6px solid #cdb99d !important;
+  border-radius: 26px;
+  background: #cdb99d;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    inset 0 3px 8px rgba(60, 40, 24, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.95),
+    0 0 0 1px rgba(120, 96, 70, 0.45);
+}
+.home-editorial-card.home-city-card::before {
+  inset: 0;
+  border-radius: 20px;
+  border: 0;
+  box-shadow:
+    inset 0 8px 18px rgba(20, 12, 6, 0.7),
+    inset 8px 0 14px rgba(20, 12, 6, 0.28),
+    inset -8px 0 14px rgba(20, 12, 6, 0.28),
+    inset 0 -3px 8px rgba(255, 255, 255, 0.25);
+}
+.home-editorial-card.home-city-card .home-editorial-card-media {
+  border-radius: 20px;
+}
+
+/* ---- Home: cards finos mais perto de "Para você" ---- */
+.home-wheel {
+  margin-bottom: -18px;
+}
+.home-wheel + .home-flower-gap {
+  margin: -14px 0 -6px;
+}
+
+/* ---- Destaque da capa e reivindicação do negócio ---- */
+.cty-tag--highlight {
+  background: #fff4d6;
+  border-color: #e0a526;
+  color: #8a5a00;
+  font-weight: 700;
+}
+.cty-featured {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cty-featured-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.cty-featured-row::-webkit-scrollbar {
+  display: none;
+}
+.cty-featured-tile {
+  position: relative;
+  flex: 0 0 150px;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 2px solid #e0a526;
+  border-radius: 18px;
+  background: var(--surface-sunken);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  scroll-snap-align: start;
+  cursor: pointer;
+  isolation: isolate;
+}
+.cty-featured-tile img,
+.cty-featured-ph {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #ead9c8, #d9b8a6);
+}
+.cty-featured-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(25, 20, 17, 0) 45%, rgba(25, 20, 17, 0.78) 100%);
+}
+.cty-featured-name {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+.cty-claim {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--hairline);
+}
+.cty-claim-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink-action);
+}
+.cty-claim-box,
+.cty-claim-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-sunken);
+}
+.cty-claim-box p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}

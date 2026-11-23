@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { asaasFetch } from '../_shared/asaas.ts'
-import { ADDON_NAMES, isAddonPlanKey } from '../_shared/addonPlans.ts'
+import { ADDON_NAMES, isAddonPlanKey, packagesForPlan } from '../_shared/addonPlans.ts'
 
 // Cancela uma assinatura AVULSA (conteúdos, Meu Chef, Premium) da própria
 // membro. Segue a mesma regra da assinatura da comunidade: cancela a cobrança
@@ -59,12 +59,36 @@ Deno.serve(async (req) => {
 
     const { error: updateError } = await admin
       .from('addon_subscriptions')
-      .update({ status: 'canceled', updated_at: new Date().toISOString() })
+      .update({ status: 'canceled', current_period_end: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', addonId)
       .neq('status', 'canceled')
     if (updateError) {
       console.error('asaas-cancel-addon-subscription: falha ao marcar cancelada', updateError)
       return json({ error: 'Não foi possível cancelar agora. Tente novamente.' }, 500)
+    }
+
+    // DECISÃO DE PRODUTO (2026-11-23): cancelar corta o acesso na hora. Só mantém o pacote
+    // se a membro tiver OUTRA assinatura viva do mesmo plano.
+    if (isAddonPlanKey(addon.plan_key)) {
+      const { data: stillActive } = await admin
+        .from('addon_subscriptions')
+        .select('id')
+        .eq('community_id', addon.community_id as string)
+        .eq('profile_id', addon.profile_id as string)
+        .eq('plan_key', addon.plan_key as string)
+        .in('status', ['active', 'past_due', 'pending'])
+        .neq('id', addonId)
+        .limit(1)
+      if ((stillActive ?? []).length === 0) {
+        for (const pkg of packagesForPlan(addon.plan_key)) {
+          await admin
+            .from('member_package_access')
+            .delete()
+            .eq('community_id', addon.community_id as string)
+            .eq('profile_id', addon.profile_id as string)
+            .eq('package', pkg)
+        }
+      }
     }
 
     try {
@@ -73,7 +97,7 @@ Deno.serve(async (req) => {
         profile_id: addon.profile_id,
         type: 'billing',
         title: `${name} cancelado`,
-        body: 'Sua assinatura foi cancelada e não será cobrada de novo. O acesso continua até o fim do período já pago.',
+        body: 'Sua assinatura foi cancelada e não será cobrada de novo. O acesso foi encerrado agora, na hora. Que tal levar todos os conteúdos com o Círcula Premium? Escolhendo 6 meses ou 1 ano, ele sai ainda mais em conta. Veja em Planos.',
       })
     } catch (notifyError) {
       console.error('asaas-cancel-addon-subscription: falha ao notificar', notifyError)

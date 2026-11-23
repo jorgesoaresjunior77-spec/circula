@@ -5,9 +5,12 @@ import {
   MEETUP_ACTIVITIES,
   MEETUP_SAFETY_NOTE,
   PRICE_RANGES,
+  WEEK_DAYS,
   findSimilarListing,
+  formatPhoneBR,
   healthTextProblem,
   instagramHandle,
+  phoneDigits,
 } from '../lib/city'
 import type { CityCategory, CityListing, CityListingType, CityTag } from '../lib/city'
 import { findBlockedTerm, MODERATION_MESSAGE } from '../lib/moderation'
@@ -71,7 +74,8 @@ export function CityListingForm({
   const [bairro, setBairro] = useState(editing?.bairro ?? '')
   const [endereco, setEndereco] = useState(editing?.endereco ?? '')
   const [horario, setHorario] = useState(editing?.horario ?? '')
-  const [contato, setContato] = useState(editing?.contato ?? '')
+  const [dias, setDias] = useState<Record<string, string>>(editing?.horarios ?? {})
+  const [contato, setContato] = useState(editing?.contato && /\d/.test(editing.contato) ? formatPhoneBR(editing.contato) : (editing?.contato ?? '( ) '))
   const [instagram, setInstagram] = useState(editing?.instagram ?? '')
   const [faixa, setFaixa] = useState<CityListing['faixa_preco']>(editing?.faixa_preco ?? null)
   const [foto, setFoto] = useState<string | null>(editing?.foto ?? null)
@@ -106,6 +110,13 @@ export function CityListingForm({
     [editing, isPlaceOrPro, titulo, tipo, listings],
   )
 
+  function setDay(key: string, value: string) {
+    setDias((d) => ({ ...d, [key]: value }))
+  }
+  function setDayTimes(key: string, from: string, to: string) {
+    setDias((d) => ({ ...d, [key]: `${from}-${to}` }))
+  }
+
   function toggleTag(id: string) {
     setTagIds((list) => (list.includes(id) ? list.filter((t) => t !== id) : [...list, id]))
   }
@@ -136,6 +147,17 @@ export function CityListingForm({
       const n = Number(vagas)
       if (!Number.isInteger(n) || n < 1 || n > 500) return setError('Informe o número de vagas (de 1 a 500).')
     }
+    if (tipo === 'lugar' || tipo === 'profissional') {
+      // Cadastro novo de lugar/profissional: tudo preenchido, como numa ficha completa.
+      if (tipo === 'lugar' && !bairro.trim()) return setError('Informe o bairro.')
+      if (tipo === 'lugar' && !endereco.trim()) return setError('Informe o endereço do estabelecimento.')
+      if (tipo === 'profissional' && !todaCidade && !bairro.trim()) return setError('Informe o bairro ou marque "Atende em toda a cidade".')
+      if (phoneDigits(contato) < 10) return setError('Informe o contato com DDD, por exemplo (51) 99999-9999.')
+      const comDias = Object.values(dias).some((v) => v && v !== '')
+      if (tipo === 'lugar' && !comDias && !horario.trim()) return setError('Informe o horário de funcionamento (por dia) ou escreva como combinar.')
+      if (descricao.trim().length < 10) return setError(proprio ? 'Conte o que você faz.' : 'Conte por que você indica.')
+      if (!foto) return setError('Escolha uma foto.')
+    }
     const text = [titulo, descricao, bairro, localNome, valor, horario].join(' ')
     if (findBlockedTerm(text)) return setError(MODERATION_MESSAGE)
     if (isHealth) {
@@ -153,10 +175,11 @@ export function CityListingForm({
       descricao: nullable(descricao),
       bairro: tipo === 'profissional' && todaCidade ? null : nullable(bairro),
       endereco: tipo === 'lugar' ? nullable(endereco) : null,
-      contato: tipo === 'evento' || tipo === 'convite' ? null : nullable(contato),
+      contato: tipo === 'evento' || tipo === 'convite' ? null : phoneDigits(contato) > 0 ? contato.trim() : null,
       instagram: isPlaceOrPro ? nullable(instagramHandle(instagram) ?? '') : null,
       faixa_preco: isPlaceOrPro ? faixa : null,
-      horario: tipo === 'lugar' ? nullable(horario) : null,
+      horario: isPlaceOrPro ? nullable(horario) : null,
+      horarios: isPlaceOrPro ? (Object.fromEntries(Object.entries(dias).filter(([, v]) => v)) as Record<string, string>) : null,
       foto: tipo === 'convite' ? null : foto,
       e_proprio_negocio: isPlaceOrPro ? proprio : false,
       atende_toda_cidade: tipo === 'profissional' ? todaCidade : false,
@@ -297,15 +320,49 @@ export function CityListingForm({
                 <span className="cty-label">Endereço (só de estabelecimento comercial, nunca de residência)</span>
                 <input type="text" maxLength={200} value={endereco} onChange={(e) => setEndereco(e.target.value)} />
               </label>
-              <label className="cty-field">
-                <span className="cty-label">Horário de funcionamento</span>
-                <input type="text" maxLength={120} value={horario} onChange={(e) => setHorario(e.target.value)} placeholder="Ex.: seg a sex, 8h às 18h" />
-              </label>
             </>
           )}
+          <fieldset className="cty-hours">
+            <legend className="cty-label">Horário de funcionamento{tipo === 'lugar' ? '' : ' (opcional)'}</legend>
+            {WEEK_DAYS.map((d) => {
+              const v = dias[d.key] ?? ''
+              const kind = v === '' ? '' : v === 'fechado' || v === '24h' ? v : 'aberto'
+              const [from, to] = kind === 'aberto' ? v.split('-') : ['08:00', '18:00']
+              return (
+                <div key={d.key} className="cty-hours-row">
+                  <span className="cty-hours-day">{d.label}</span>
+                  <select
+                    aria-label={`Horário de ${d.label}`}
+                    value={kind}
+                    onChange={(e) => {
+                      const k = e.target.value
+                      if (k === 'aberto') setDayTimes(d.key, '08:00', '18:00')
+                      else setDay(d.key, k)
+                    }}
+                  >
+                    <option value="">Escolha</option>
+                    <option value="aberto">Aberto</option>
+                    <option value="24h">24 horas</option>
+                    <option value="fechado">Fechado</option>
+                  </select>
+                  {kind === 'aberto' && (
+                    <span className="cty-hours-times">
+                      <input type="time" aria-label={`Abre ${d.label}`} value={from} onChange={(e) => setDayTimes(d.key, e.target.value, to)} />
+                      <span>às</span>
+                      <input type="time" aria-label={`Fecha ${d.label}`} value={to} onChange={(e) => setDayTimes(d.key, from, e.target.value)} />
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+            <label className="cty-field">
+              <span className="cty-label">Outros horários, ou como combinar (serviço autônomo)</span>
+              <input type="text" maxLength={300} value={horario} onChange={(e) => setHorario(e.target.value)} placeholder="Ex.: atendo com hora marcada, por mensagem" />
+            </label>
+          </fieldset>
           <label className="cty-field">
-            <span className="cty-label">Contato (opcional — só aparece se você preencher)</span>
-            <input type="text" maxLength={120} value={contato} onChange={(e) => setContato(e.target.value)} />
+            <span className="cty-label">Contato com DDD (aparece no cadastro)</span>
+            <input type="tel" inputMode="tel" maxLength={16} value={contato} onChange={(e) => setContato(formatPhoneBR(e.target.value))} onFocus={(e) => { if (!e.target.value) setContato('( ) ') }} />
           </label>
           <label className="cty-field">
             <span className="cty-label">Instagram (opcional)</span>
@@ -350,7 +407,7 @@ export function CityListingForm({
 
       {tipo !== 'convite' && (
         <div className="cty-field">
-          <span className="cty-label">Foto (opcional)</span>
+          <span className="cty-label">{isPlaceOrPro ? 'Foto' : 'Foto (opcional)'}</span>
           {foto && <img className="cty-form-photo" src={foto} alt="" />}
           <div className="cty-actions">
             <label className="cty-btn">

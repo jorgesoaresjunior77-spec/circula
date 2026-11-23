@@ -37,8 +37,8 @@ export function AccountAdmin({ onOpenPlans }: { onOpenPlans?: () => void }) {
       <div className="account-admin-block">
         <p className="profile-section-label profile-section-label--spaced">Cancelar assinaturas</p>
         <p className="home-muted">
-          Para cancelar o Círcula, o Premium ou um conteúdo avulso, abra o plano em Planos e assinaturas e toque em Cancelar. Você
-          mantém o acesso até o fim do período já pago.
+          Para cancelar o Círcula, o Premium ou um conteúdo avulso, abra o plano em Planos e assinaturas e toque em Cancelar. Atenção:
+          o acesso é cortado na hora, mesmo que o período já esteja pago.
         </p>
         {onOpenPlans && (
           <button type="button" className="profile-secondary-action" onClick={onOpenPlans}>

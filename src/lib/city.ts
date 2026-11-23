@@ -43,6 +43,8 @@ export interface CityListing {
   instagram: string | null
   faixa_preco: '$' | '$$' | '$$$' | null
   horario: string | null
+  /** Horário por dia: { seg: '08:00-18:00' | 'fechado' | '24h', ... }. */
+  horarios: Record<string, string> | null
   foto: string | null
   criado_por: string
   autora_nome: string | null
@@ -63,7 +65,30 @@ export interface CityListing {
   salvei: boolean
   confirmadas: number
   vou: boolean
+  /** Média das estrelas (1 a 5), nº de avaliações e a nota da própria participante. */
+  media: number | null
+  avaliacoes: number
+  minha_nota: number | null
+  /** Reivindicação do negócio e destaque pago da capa. */
+  reivindicado: boolean
+  sou_dona: boolean
+  minha_reivindicacao: 'pendente' | 'aprovada' | 'recusada' | null
+  pedido_em_aberto: boolean
+  destaque: boolean
+  destaque_meu: 'pending' | 'active' | 'past_due' | null
+  destaque_meu_id: string | null
+  destaque_ate: string | null
   tags: string[]
+}
+
+export interface CityReview {
+  user_id: string
+  nome: string
+  avatar: string | null
+  nota: number
+  comentario: string | null
+  criado_em: string
+  minha: boolean
 }
 
 export const CITY_GROUPS: { key: string; label: string; icon: string }[] = [
@@ -176,6 +201,66 @@ export function healthTextProblem(text: string): string | null {
     : null
 }
 
+/** Destaque da capa de um negócio: R$ 4,90 por mês; 6 meses com 16% e 12 meses com 33% de desconto (espelha o servidor). */
+export const HIGHLIGHT_MONTHLY_CENTS = 490
+export type HighlightCycle = 'monthly' | 'semiannual' | 'annual'
+export const HIGHLIGHT_CYCLE_LABEL: Record<HighlightCycle, string> = { monthly: 'Mensal', semiannual: 'Semestral', annual: 'Anual' }
+export const HIGHLIGHT_CYCLE_MONTHS: Record<HighlightCycle, number> = { monthly: 1, semiannual: 6, annual: 12 }
+export function highlightPriceCents(cycle: HighlightCycle): number {
+  const dime = (c: number) => Math.round(c / 10) * 10
+  if (cycle === 'monthly') return HIGHLIGHT_MONTHLY_CENTS
+  return cycle === 'semiannual' ? dime(HIGHLIGHT_MONTHLY_CENTS * 6 * 0.84) : dime(HIGHLIGHT_MONTHLY_CENTS * 12 * 0.67)
+}
+
+export const WEEK_DAYS: { key: string; label: string; short: string }[] = [
+  { key: 'seg', label: 'Segunda-feira', short: 'Seg' },
+  { key: 'ter', label: 'Terça-feira', short: 'Ter' },
+  { key: 'qua', label: 'Quarta-feira', short: 'Qua' },
+  { key: 'qui', label: 'Quinta-feira', short: 'Qui' },
+  { key: 'sex', label: 'Sexta-feira', short: 'Sex' },
+  { key: 'sab', label: 'Sábado', short: 'Sáb' },
+  { key: 'dom', label: 'Domingo', short: 'Dom' },
+]
+
+function dayText(v: string): string {
+  return v === 'fechado' ? 'fechado' : v === '24h' ? '24 horas' : v.replace('-', ' às ')
+}
+
+/** "Seg a Sex 08:00 às 18:00 · Sáb 08:00 às 12:00 · Dom fechado" (dias seguidos iguais viram um trecho). */
+export function hoursSummary(horarios: Record<string, string> | null | undefined): string {
+  if (!horarios) return ''
+  const parts: string[] = []
+  let i = 0
+  while (i < WEEK_DAYS.length) {
+    const v = horarios[WEEK_DAYS[i].key]
+    if (!v) {
+      i++
+      continue
+    }
+    let j = i
+    while (j + 1 < WEEK_DAYS.length && horarios[WEEK_DAYS[j + 1].key] === v) j++
+    const span = j > i ? `${WEEK_DAYS[i].short} a ${WEEK_DAYS[j].short}` : WEEK_DAYS[i].short
+    parts.push(`${span} ${dayText(v)}`)
+    i = j + 1
+  }
+  return parts.join(' · ')
+}
+
+/** Telefone com DDD: sempre começa em "( )" e vai formatando (11) 91234-5678. */
+export function formatPhoneBR(raw: string): string {
+  const d = raw.replace(/\D/g, '').slice(0, 11)
+  if (d.length === 0) return '( ) '
+  if (d.length <= 2) return `(${d}`
+  const ddd = d.slice(0, 2)
+  const rest = d.slice(2)
+  const cut = rest.length > 8 ? 5 : 4
+  return rest.length <= cut ? `(${ddd}) ${rest}` : `(${ddd}) ${rest.slice(0, cut)}-${rest.slice(cut)}`
+}
+
+export function phoneDigits(v: string): number {
+  return v.replace(/\D/g, '').length
+}
+
 export function firstName(full: string | null | undefined): string {
   return (full ?? '').trim().split(/\s+/)[0] || 'Participante'
 }
@@ -227,6 +312,9 @@ export function cityErrorMessage(message: string | undefined): string {
   if (m.includes('conteudo_bloqueado')) return 'Este texto tem palavras que não combinam com o nosso espaço de cuidado. Pode reescrever com carinho?'
   if (m.includes('saude_texto_proibido')) return 'Em Saúde não pode ter promessa de cura, "antes e depois" nem preço de procedimento. Pode reescrever?'
   if (m.includes('sem_vagas')) return 'Este convite já está com todas as vagas preenchidas.'
+  if (m.includes('ja_reivindicado')) return 'Este negócio já tem um pedido de reivindicação em andamento.'
+  if (m.includes('whatsapp_invalido')) return 'Informe o WhatsApp com DDD, por exemplo (51) 99999-9999.'
+  if (m.includes('avaliacao_propria')) return 'Você não pode avaliar o seu próprio cadastro.'
   if (m.includes('convite_proprio')) return 'Este convite é seu: as confirmadas aparecem na sua lista.'
   return 'Não foi possível concluir agora. Tente de novo.'
 }

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useBillingPlans } from '../hooks/useBillingPlans'
 import {
   CIRCULA_MONTHLY_CENTS,
@@ -98,6 +99,32 @@ function PriceRow({
   )
 }
 
+/** Convite ao Premium: sempre que a membro tem só parte dos conteúdos (ou nenhum), mostra quanto
+ *  ela leva a mais no Premium, com o destaque para os planos de 6 meses e de 1 ano. */
+function PremiumPitch({ ownedKeys, onOpenPremium }: { ownedKeys: string[]; onOpenPremium?: () => void }) {
+  const owned = PRODUCTS.filter((p) => ownedKeys.includes(p.key))
+  const ownedMonthly = owned.reduce((sum, p) => sum + p.monthlyCents, 0)
+  const total = PRODUCTS.length
+  const missing = total - owned.length
+  const savedYear = PREMIUM_SEPARATE_MONTHLY_CENTS * 12 - PREMIUM_PRICES_CENTS.annual
+  return (
+    <aside className="plans-pitch" aria-label="Círcula Premium">
+      <strong className="plans-pitch-title">Leve tudo com o Círcula Premium</strong>
+      <p>
+        {owned.length === 0
+          ? `Com o Premium você leva o Círcula e os ${total} conteúdos por ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês, em vez de ${formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)} separado.`
+          : `Você assina ${owned.length} ${owned.length === 1 ? 'conteúdo' : 'conteúdos'} (${formatBrl(ownedMonthly)} por mês). Com o Premium você leva também os outros ${missing}, ${total} conteúdos ao todo, por ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês.`}{' '}
+        Escolhendo <strong>6 meses</strong> ou <strong>1 ano</strong> sai ainda mais em conta: o anual custa {formatBrl(PREMIUM_PRICES_CENTS.annual)} e você economiza {formatBrl(savedYear)} no ano.
+      </p>
+      {onOpenPremium && (
+        <button type="button" className="water-primary" onClick={onOpenPremium}>
+          Ver o Premium
+        </button>
+      )}
+    </aside>
+  )
+}
+
 function PlanTile({
   planKey,
   name,
@@ -168,6 +195,18 @@ export function PlansPage({
     if (cycle) circulaPrices[cycle] = p.price_cents
   }
 
+  // A janela de explicação fica sobre a tela inteira (portal no body), sempre à vista e com a página parada.
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
+
+  const ownedKeys = PRODUCTS.filter((p) => packages.has(p.key as never)).map((p) => p.key as string)
+  const showPitch = !viewOnly && !packages.has('premium')
   const product = PRODUCTS.find((p) => p.key === open) ?? null
   const premiumOff = Math.round(
     (1 - PREMIUM_MONTHLY_CENTS / PREMIUM_SEPARATE_MONTHLY_CENTS) * 100,
@@ -178,6 +217,8 @@ export function PlansPage({
       <h2>Planos e assinaturas</h2>
 
       {!viewOnly && communityId && profileId && <SubscriptionLevelCard communityId={communityId} profileId={profileId} />}
+
+      {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
 
       <button type="button" className="plans-wide plans-wide--circula" onClick={() => setOpen('circula')} aria-label={`Círcula, ${formatBrl(circulaPrices.monthly)} por mês`}>
         <span className="plans-wide-icon">
@@ -248,7 +289,7 @@ export function PlansPage({
         Valores em reais, cobrados pelo ciclo escolhido. O acesso libera quando o pagamento é confirmado.
       </p>
 
-      {open && (
+      {open && createPortal(
         <div className="plans-sheet-backdrop" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
           <article className="plans-card plans-sheet" onClick={(e) => e.stopPropagation()}>
             <button type="button" className="plans-sheet-close" onClick={() => setOpen(null)} aria-label="Fechar">
@@ -261,6 +302,7 @@ export function PlansPage({
                 <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
                 {!viewOnly && <TrialNotice />}
                 <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
+                {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
                 <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
                 {viewOnly ? (
                   <p className="home-muted">
@@ -279,8 +321,7 @@ export function PlansPage({
               <>
                 <h3>Círcula Premium</h3>
                 <p className="plans-text">
-                  O Círcula mais a revista, as receitas, a Loja, o Help Nutri, a respiração, as
-                  playlists, o wellness, as dicas de leitura e a Minha Lista, tudo junto e com desconto. Separado, o mensal sairia{' '}
+                  O Círcula mais todos os conteúdos, tudo junto e com desconto: {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)?.name).filter(Boolean).join(', ')}. Separado, o mensal sairia{' '}
                   {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
                 </p>
                 {referralDiscount && (
@@ -329,10 +370,12 @@ export function PlansPage({
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
                 ) : null}
+                {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
               </>
             )}
           </article>
-        </div>
+        </div>,
+        document.body,
       )}
     </section>
   )

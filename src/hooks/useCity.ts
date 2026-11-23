@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { checkPreparedImage, compressImage, UPLOAD_CACHE_CONTROL, validateImageFile } from '../lib/imageUpload'
 import { cityErrorMessage } from '../lib/city'
-import type { CityCategory, CityInfo, CityListing, CityTag } from '../lib/city'
+import type { CityCategory, CityInfo, CityListing, CityReview, CityTag } from '../lib/city'
 
 // "Na minha cidade": a cidade da participante, o catálogo global (categorias e
 // tags) e os cadastros da cidade. Tudo passa pelas funções/regras do banco —
@@ -120,6 +120,7 @@ export interface ListingInput {
   instagram: string | null
   faixa_preco: CityListing['faixa_preco']
   horario: string | null
+  horarios: Record<string, string> | null
   foto: string | null
   e_proprio_negocio: boolean
   atende_toda_cidade: boolean
@@ -300,4 +301,118 @@ export async function uploadCityPhoto(uid: string, originalFile: File): Promise<
 export async function fetchAttendees(listingId: string): Promise<{ nome: string; avatar: string | null }[]> {
   const { data, error } = await supabase.rpc('city_meetup_attendees', { p_listing: listingId })
   return error ? [] : ((data ?? []) as { nome: string; avatar: string | null }[])
+}
+
+// ---- Avaliações (estrelas e comentários) ------------------------------------------
+export async function fetchReviews(listingId: string): Promise<CityReview[]> {
+  const { data, error } = await supabase.rpc('city_reviews_list', { p_listing: listingId })
+  return error ? [] : ((data ?? []) as CityReview[])
+}
+
+export async function saveReview(listingId: string, nota: number, comentario: string): Promise<Result> {
+  const { error } = await supabase.rpc('city_review_set', { p_listing: listingId, p_nota: nota, p_comentario: comentario.trim() || null })
+  return { error: error ? cityErrorMessage(error.message) : null }
+}
+
+export async function deleteReview(listingId: string): Promise<Result> {
+  const { error } = await supabase.rpc('city_review_delete', { p_listing: listingId })
+  return { error: error ? 'Não foi possível apagar agora.' : null }
+}
+
+export async function adminDeleteReview(listingId: string, userId: string): Promise<Result> {
+  const { error } = await supabase.rpc('city_review_admin_delete', { p_listing: listingId, p_user: userId })
+  return { error: error ? 'Não foi possível apagar agora.' : null }
+}
+
+// ---- Imagens dos grupos de categorias (cadastradas pela administração) ---------------
+export function useGroupImages() {
+  const [images, setImages] = useState<Record<string, string>>({})
+  const reload = useCallback(async () => {
+    const { data } = await supabase.from('city_group_images').select('grupo, image_url')
+    const map: Record<string, string> = {}
+    for (const r of (data ?? []) as { grupo: string; image_url: string }[]) map[r.grupo] = r.image_url
+    setImages(map)
+  }, [])
+  useEffect(() => {
+    let cancelled = false
+    void supabase
+      .from('city_group_images')
+      .select('grupo, image_url')
+      .then(({ data }) => {
+        if (cancelled) return
+        const map: Record<string, string> = {}
+        for (const r of (data ?? []) as { grupo: string; image_url: string }[]) map[r.grupo] = r.image_url
+        setImages(map)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return { images, reload }
+}
+
+export async function setGroupImage(grupo: string, url: string | null): Promise<Result> {
+  const { error } = url
+    ? await supabase.from('city_group_images').upsert({ grupo, image_url: url, atualizado_em: new Date().toISOString() })
+    : await supabase.from('city_group_images').delete().eq('grupo', grupo)
+  return { error: error ? 'Não foi possível salvar a imagem agora.' : null }
+}
+
+// ---- Reivindicar o negócio e destaque pago da capa -------------------------------------
+export async function createClaim(listingId: string, whatsapp: string, mensagem: string): Promise<Result> {
+  const { error } = await supabase.rpc('city_claim_create', { p_listing: listingId, p_whatsapp: whatsapp, p_mensagem: mensagem.trim() || null })
+  return { error: error ? cityErrorMessage(error.message) : null }
+}
+
+async function functionError(error: unknown, fallback: string): Promise<{ message: string; code?: string }> {
+  let message = fallback
+  let code: string | undefined
+  const ctx = (error as { context?: Response }).context
+  if (ctx && typeof ctx.json === 'function') {
+    try {
+      const parsed = (await ctx.json()) as { error?: string; code?: string }
+      if (typeof parsed?.error === 'string') message = parsed.error
+      if (typeof parsed?.code === 'string') code = parsed.code
+    } catch {
+      /* mantém a mensagem genérica */
+    }
+  }
+  return { message, code }
+}
+
+const API_CYCLE = { monthly: 'MONTHLY', semiannual: 'SEMIANNUALLY', annual: 'YEARLY' } as const
+
+/** Contrata o destaque da capa (só a dona aprovada). Devolve o link da fatura do Asaas. */
+export async function subscribeHighlight(listingId: string, cycle: keyof typeof API_CYCLE): Promise<{ error: string | null; code?: string; invoiceUrl: string | null }> {
+  const { data, error } = await supabase.functions.invoke('asaas-create-highlight-subscription', {
+    body: { listing_id: listingId, billing_cycle: API_CYCLE[cycle] },
+  })
+  if (error) {
+    const f = await functionError(error, 'Não foi possível assinar agora. Tente novamente em instantes.')
+    return { error: f.message, code: f.code, invoiceUrl: null }
+  }
+  return { error: null, invoiceUrl: (data?.invoiceUrl as string | undefined) ?? null }
+}
+
+export async function cancelHighlight(highlightId: string): Promise<Result> {
+  const { error } = await supabase.functions.invoke('asaas-cancel-highlight', { body: { highlight_id: highlightId } })
+  if (error) return { error: (await functionError(error, 'Não foi possível cancelar agora. Tente novamente.')).message }
+  return { error: null }
+}
+
+/** O CPF/CNPJ de cobrança já está cadastrado? (necessário para assinar) */
+export async function hasBillingData(): Promise<boolean> {
+  const { data } = await supabase.from('billing_customer_data').select('id').maybeSingle()
+  return !!data
+}
+
+export async function saveBillingData(documentType: 'CPF' | 'CNPJ', documentNumber: string): Promise<Result> {
+  const digits = documentNumber.replace(/\D/g, '')
+  if (digits.length !== (documentType === 'CPF' ? 11 : 14)) return { error: `${documentType} deve ter ${documentType === 'CPF' ? 11 : 14} dígitos.` }
+  const { data: u } = await supabase.auth.getUser()
+  if (!u.user) return { error: 'Sem sessão ativa.' }
+  const { error } = await supabase
+    .from('billing_customer_data')
+    .upsert({ profile_id: u.user.id, document_type: documentType, document_number: digits }, { onConflict: 'profile_id' })
+  return { error: error ? 'Não foi possível salvar os dados agora.' : null }
 }
