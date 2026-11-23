@@ -60,7 +60,7 @@ function NewCircleCard({
   badge?: number
 }) {
   return (
-    <li className="circ-card-item">
+    <li className="circ-card-item circ-card-item--pulse">
       <article className={`circ-card circ-card--new${cover ? ' circ-card--photo' : ''}`}>
         <div className="circ-card-frame">
           {cover && <img loading="lazy" decoding="async" src={cover} alt="" className="circ-card-photo" />}
