@@ -1,36 +1,17 @@
 import { m, inViewOnce, riseVariants, SPRING_TAP } from '../lib/motionKit'
-import { Fragment } from 'react'
 import { formatEventDate } from '../lib/formatEventDate'
 import { PRODUCT_TYPE_LABELS, formatPriceBRL } from '../types/product'
 import type { Product } from '../types/product'
 import type { CommunityContent } from '../types/content'
 import type { NavKey } from './PrimaryNav'
 
-// Pedido do usuário — cards editoriais de Receitas/Eventos/Loja, depois
-// da faixa "No Instagram" na Home. NÃO são versões maiores dos cards
-// compactos dos carrosséis (sem texto sobreposto à foto): cada card tem
-// duas regiões separadas — imagem de destaque no topo, informações
-// textuais numa área própria embaixo, com hierarquia e espaço de
-// leitura.
+// Eventos, Loja e Receitas em 3 círculos que se cruzam (dois em cima, um
+// embaixo), como no Venn da referência de identidade visual. Cada círculo é
+// a foto escolhida pela profissional (Painel → Imagens da comunidade): a
+// mesma cascata de antes, sem nenhuma mudança no cadastro de imagens.
 //
-// Finalização (pedido do usuário) — "vitrines de conteúdo em destaque":
-// cada card mostra UM item real (o próprio evento/receita/produto, com
-// seus próprios dados), nunca mais só um rótulo genérico de categoria +
-// contagem. É essa diferença de conteúdo (específico, editorial) — não
-// só de tamanho — que os distingue dos atalhos compactos da faixa "Seu
-// Círcula de hoje", que continuam existindo e levando aos mesmos 3
-// destinos. A imagem prioriza a foto do PRÓPRIO item (evento/receita)
-// quando existe, caindo para a capa genérica da categoria (configurada
-// pela Profissional em Painel → Imagens da comunidade) só na ausência
-// dela — nunca o contrário. Produto não tem capa "genérica de
-// categoria" própria (reaproveita a de "Loja"), então a prioridade é a
-// mesma: foto do produto, senão a capa de "Loja".
-//
-// Dados 100% reaproveitados (sem consulta nova, sem tabela nova):
-// evento = o próximo (useRailSummary, já existente); receita/produto =
-// o mais recente PUBLICADO de `useContent`/`useProducts` (já carregados
-// em HomeToday para outros fins), escolhido por já virem ordenados
-// created_at DESC — o primeiro que casa o filtro já é o mais recente.
+// Cada círculo mostra UM item real (o próximo evento, o produto e a receita
+// mais recentes), nunca um texto inventado. Dados 100% reaproveitados.
 
 interface NextEvent {
   id: string
@@ -39,7 +20,7 @@ interface NextEvent {
   is_online: boolean | null
 }
 
-interface EditorialCardSpec {
+interface CircleSpec {
   eyebrow: string
   tag: string | null
   image: string | null
@@ -56,32 +37,30 @@ function pluralNote(count: number, singular: string, plural: string): string | n
   return `+${rest} ${rest === 1 ? singular : plural}`
 }
 
-function EditorialCard({ eyebrow, tag, image, title, subtitle, footer, cta, onActivate }: EditorialCardSpec) {
+function TrioCircle({ position, eyebrow, tag, image, title, subtitle, footer, cta, onActivate }: CircleSpec & { position: 'a' | 'b' | 'c' }) {
   return (
     <m.button
       type="button"
-      className="home-editorial-card"
+      className={`home-trio-circle home-trio-circle--${position}`}
       onClick={onActivate}
+      aria-label={cta}
       {...inViewOnce}
       variants={riseVariants}
-      whileTap={{ y: 4, transition: SPRING_TAP }}
+      whileTap={{ scale: 0.98, transition: SPRING_TAP }}
     >
-      <span className="home-editorial-card-media">
+      <span className="home-trio-media">
         {image ? (
-          <img loading="lazy" decoding="async" src={image} alt="" className="home-editorial-card-photo" />
+          <img loading="lazy" decoding="async" src={image} alt="" className="home-trio-photo" />
         ) : (
-          <span className="home-editorial-card-media-fallback" aria-hidden="true" />
+          <span className="home-trio-fallback" aria-hidden="true" />
         )}
       </span>
-      <span className="home-editorial-card-body">
-        <span className="home-editorial-card-eyebrow">{eyebrow}</span>
-        {tag && <span className="home-editorial-card-tag">{tag}</span>}
-        <span className="home-editorial-card-title">{title}</span>
-        {subtitle && <span className="home-editorial-card-subtitle">{subtitle}</span>}
-        {footer && <span className="home-editorial-card-footer">{footer}</span>}
-        <span className="home-editorial-card-cta">
-          {cta} <span aria-hidden="true">→</span>
-        </span>
+      <span className="home-trio-text">
+        <span className="home-trio-eyebrow">{eyebrow}</span>
+        <span className="home-trio-title">{title}</span>
+        {subtitle && <span className="home-trio-subtitle">{subtitle}</span>}
+        {tag && <span className="home-trio-tag">{tag}</span>}
+        {footer && <span className="home-trio-sr">{footer}</span>}
       </span>
     </m.button>
   )
@@ -91,24 +70,16 @@ interface HomeEditorialCardsProps {
   receitasCover?: string | null
   eventosCover?: string | null
   lojaCover?: string | null
-  /** Correções visuais (item 4) — banner editorial grande, independente
-   *  da capa do card compacto (`eventosCover`/`receitasCover`/
-   *  `lojaCover` acima) e da foto do item em destaque. Prioridade
-   *  máxima quando cadastrado (Painel → Imagens da comunidade → Banners
-   *  editoriais grandes); ausente, a cascata de fallback atual segue
-   *  intocada. */
+  /** Banner grande de cada um (Painel → Imagens): prioridade máxima quando cadastrado. */
   eventosCoverGrande?: string | null
   receitasCoverGrande?: string | null
   lojaCoverGrande?: string | null
   nextEvent: NextEvent | null
-  /** Foto do PRÓPRIO evento (já assinada, se o path exigir) — prioridade sobre `eventosCover`. */
+  /** Foto do PRÓPRIO evento (já assinada, se o path exigir). */
   nextEventCover?: string | null
-  /** Quantidade de receitas publicadas na comunidade — de `useContent`, já carregado em HomeToday; sem consulta nova. */
   recipesCount: number
   featuredRecipe: CommunityContent | null
-  /** Foto da PRÓPRIA receita (já assinada, se o path exigir) — prioridade sobre `receitasCover`. */
   featuredRecipeCover?: string | null
-  /** Quantidade de produtos publicados na comunidade (RLS já restringe Member a `status='published'`). */
   productsCount: number
   featuredProduct: Product | null
   onNavigate: (key: NavKey) => void
@@ -130,15 +101,12 @@ export function HomeEditorialCards({
   featuredProduct,
   onNavigate,
 }: HomeEditorialCardsProps) {
-  const cards: (EditorialCardSpec & { key: string })[] = [
+  const cards: (CircleSpec & { key: string; position: 'a' | 'b' | 'c' })[] = [
     {
       key: 'eventos',
+      position: 'a',
       eyebrow: 'Eventos',
-      tag: nextEvent?.is_online === null || nextEvent?.is_online === undefined
-        ? null
-        : nextEvent.is_online
-          ? 'Online'
-          : 'Presencial',
+      tag: nextEvent?.is_online === null || nextEvent?.is_online === undefined ? null : nextEvent.is_online ? 'Online' : 'Presencial',
       image: eventosCoverGrande ?? nextEventCover ?? eventosCover ?? null,
       title: nextEvent ? nextEvent.title : 'Nenhum evento agendado',
       subtitle: nextEvent ? formatEventDate(nextEvent.starts_at) : 'Fique de olho — novos eventos aparecem aqui',
@@ -148,26 +116,24 @@ export function HomeEditorialCards({
     },
     {
       key: 'loja',
+      position: 'b',
       eyebrow: 'Loja',
       tag: featuredProduct ? PRODUCT_TYPE_LABELS[featuredProduct.type] : null,
       image: lojaCoverGrande ?? featuredProduct?.cover_image_url ?? lojaCover ?? null,
       title: featuredProduct ? featuredProduct.title : 'Loja da comunidade',
-      subtitle: featuredProduct
-        ? formatPriceBRL(featuredProduct.price_cents)
-        : 'Em breve, novos produtos por aqui',
+      subtitle: featuredProduct ? formatPriceBRL(featuredProduct.price_cents) : 'Em breve, novos produtos por aqui',
       footer: pluralNote(productsCount, 'outro produto', 'outros produtos'),
       cta: 'Ver loja',
       onActivate: () => onNavigate('loja'),
     },
     {
       key: 'receitas',
+      position: 'c',
       eyebrow: 'Receitas',
       tag: featuredRecipe?.category ?? null,
       image: receitasCoverGrande ?? featuredRecipeCover ?? receitasCover ?? null,
       title: featuredRecipe ? featuredRecipe.title : 'Receitas da comunidade',
-      subtitle: featuredRecipe
-        ? (featuredRecipe.summary ?? null)
-        : 'Em breve, novas receitas por aqui',
+      subtitle: featuredRecipe ? (featuredRecipe.summary ?? null) : 'Em breve, novas receitas por aqui',
       footer: pluralNote(recipesCount, 'outra receita', 'outras receitas'),
       cta: 'Ver receitas',
       onActivate: () => onNavigate('receitas'),
@@ -175,13 +141,9 @@ export function HomeEditorialCards({
   ]
 
   return (
-    <section className="home-editorial-cards" aria-label="Receitas, eventos e loja da comunidade">
-      {cards.map(({ key, ...card }, i) => (
-        <Fragment key={key}>
-          {/* Pequeno ponto separador entre um banner e o seguinte. */}
-          {i > 0 && <span className="home-editorial-dot" aria-hidden="true" />}
-          <EditorialCard {...card} />
-        </Fragment>
+    <section className="home-trio" aria-label="Receitas, eventos e loja da comunidade">
+      {cards.map(({ key, ...card }) => (
+        <TrioCircle key={key} {...card} />
       ))}
     </section>
   )

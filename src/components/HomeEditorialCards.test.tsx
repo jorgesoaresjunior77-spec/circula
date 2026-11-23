@@ -296,7 +296,7 @@ describe('HomeEditorialCards — produto em destaque (o mais recente publicado)'
   })
 })
 
-describe('HomeEditorialCards — acessibilidade e estrutura (sem texto sobreposto à foto)', () => {
+describe('HomeEditorialCards — acessibilidade e estrutura', () => {
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()
@@ -387,7 +387,7 @@ describe('HomeEditorialCards — banners editoriais grandes (item 4, independent
     expect(img).toHaveAttribute('src', 'https://example.com/evento-proprio.jpg')
   })
 
-  it('tem um ponto separador entre um banner e o seguinte (2 pontos para 3 banners)', () => {
+  it('são 3 círculos que se cruzam: eventos e loja em cima, receitas embaixo', () => {
     const { container } = render(
       <HomeEditorialCards
         nextEvent={null}
@@ -398,16 +398,11 @@ describe('HomeEditorialCards — banners editoriais grandes (item 4, independent
         onNavigate={vi.fn()}
       />,
     )
-    expect(container.querySelectorAll('.home-editorial-card')).toHaveLength(3)
-    expect(container.querySelectorAll('.home-editorial-dot')).toHaveLength(2)
-    // Os pontos ficam só entre os banners, nunca antes do primeiro nem depois do último.
-    const kids = Array.from(container.querySelector('.home-editorial-cards')?.children ?? [])
-    expect(kids.map((k) => (k.classList.contains('home-editorial-dot') ? 'dot' : 'card'))).toEqual([
-      'card',
-      'dot',
-      'card',
-      'dot',
-      'card',
-    ])
+    const circles = Array.from(container.querySelectorAll('.home-trio-circle'))
+    expect(circles).toHaveLength(3)
+    expect(circles.map((c) => c.className.match(/--(a|b|c)/)?.[1])).toEqual(['a', 'b', 'c'])
+    expect(circles[0].textContent).toContain('Eventos')
+    expect(circles[1].textContent).toContain('Loja')
+    expect(circles[2].textContent).toContain('Receitas')
   })
 })

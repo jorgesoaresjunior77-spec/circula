@@ -31,6 +31,7 @@ import './rodada21.css'
 import './redesign.css'
 import './rodada22.css'
 import './city.css'
+import './palette.css'
 
 function App() {
   const {

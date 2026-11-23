@@ -1,0 +1,294 @@
+/* ==========================================================================
+   Nova identidade visual (referências em identidadevisual/referencias imagens)
+   1) paleta: bege pêssego, verde-sálvia, rosa-chá e taupe
+   2) fotos dos cards nos tons da paleta
+   3) login: foto cobrindo a tela e card de vidro
+   4) Eventos / Loja / Receitas em 3 círculos que se cruzam
+   5) cards com painel de vidro sobreposto à imagem
+   6) mais espaço entre os cards finos e "Para você"
+   Carregado por último: só sobrescreve, nada é removido dos outros arquivos.
+   ========================================================================== */
+
+/* ---- 1) Paleta ---------------------------------------------------------- */
+:root {
+  --rd-creme: #f3e8db;
+  --rd-espresso: #46342a;
+  --rd-chocolate: #7d644f;
+  --rd-taupe: #a38b76;
+  --rd-champagne: #dcc4ae;
+  --rd-areia: #e8d5c2;
+  --rd-card: #faf2e8;
+  --text-soft: #7f6a59;
+  --rd-sage: #8c9b83;
+  --rd-sage-soft: #c9d2bf;
+  --rd-rose: #e2c1b5;
+  --rd-rose-deep: #c98f7a;
+
+  --n-050: #f8efe4;
+  --n-300: #dfcab5;
+  --n-700: #6c5748;
+
+  --circula-champagne-tint: rgba(220, 196, 174, 0.24);
+  --circula-champagne-line: rgba(220, 196, 174, 0.72);
+  --border: rgba(220, 196, 174, 0.62);
+  --border-soft: rgba(220, 196, 174, 0.4);
+  --hairline: rgba(220, 196, 174, 0.52);
+  --accent-leaf: var(--rd-sage);
+  --glass-bg: linear-gradient(145deg, rgba(250, 242, 232, 0.78), rgba(250, 242, 232, 0.5));
+  --glass-bg-strong: linear-gradient(145deg, rgba(250, 242, 232, 0.9), rgba(250, 242, 232, 0.62));
+  --glass-border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---- 2) Fotos nos tons da paleta (leve: não apaga a foto, só aquece) ---- */
+#center img:not([class*='avatar']):not([class*='logo']):not([class*='icon']):not(.brand-icon):not(.brand-logo) {
+  filter: sepia(0.18) saturate(0.88) hue-rotate(-6deg) brightness(1.02) contrast(0.98);
+}
+
+/* ---- 3) Login: foto no fundo inteiro + card de vidro ---------------------- */
+.auth-stage {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 20px 24px;
+  background-color: #d9c2ad;
+  background-image:
+    radial-gradient(60% 40% at 12% 8%, rgba(140, 155, 131, 0.75), transparent 70%),
+    radial-gradient(55% 38% at 92% 18%, rgba(201, 143, 122, 0.55), transparent 70%),
+    radial-gradient(70% 45% at 20% 92%, rgba(125, 100, 79, 0.6), transparent 72%),
+    radial-gradient(60% 40% at 88% 86%, rgba(226, 193, 181, 0.9), transparent 70%),
+    linear-gradient(160deg, #ecd9c6 0%, #dcc0a8 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.auth-stage > .auth-card {
+  box-sizing: border-box;
+  position: relative;
+  width: min(100%, 392px);
+  max-width: 392px;
+  margin: auto;
+  padding: 38px 28px 34px;
+  gap: 6px;
+  border-radius: 46px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(160deg, rgba(120, 96, 78, 0.34), rgba(90, 70, 56, 0.4));
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  backdrop-filter: blur(20px) saturate(1.15);
+  box-shadow: 0 30px 60px -30px rgba(40, 26, 18, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.auth-stage > .auth-card h1,
+.auth-stage > .auth-card p,
+.auth-stage > .auth-card label,
+.auth-stage > .auth-card .auth-subtitle {
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(40, 26, 18, 0.35);
+}
+.auth-stage > .auth-card .brand-logo {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 6px rgba(40, 26, 18, 0.35));
+  align-self: center;
+  max-width: 190px;
+  margin-top: 0;
+}
+.auth-stage > .auth-card label {
+  font-size: 12px;
+  margin-top: 14px;
+}
+.auth-stage > .auth-card input {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-size: 16px;
+  box-shadow: none;
+}
+.auth-stage > .auth-card input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+.auth-stage > .auth-card input:focus,
+.auth-stage > .auth-card input:focus-visible {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+.auth-stage > .auth-card input:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  transition: background-color 9999s ease-out 0s;
+}
+.auth-stage > .auth-card .password-field-toggle {
+  color: #fff;
+}
+.auth-stage > .auth-card button:not(.auth-link):not(.password-field-toggle) {
+  width: 78%;
+  margin: 22px auto 0;
+  padding: 14px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #efc2ae 0%, #cf9680 100%);
+  color: #fff;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 18px -10px rgba(40, 26, 18, 0.6);
+}
+.auth-stage > .auth-card button:not(.auth-link):not(.password-field-toggle):hover:not(:disabled) {
+  background: linear-gradient(180deg, #f3cab8 0%, #d79c86 100%);
+  color: #fff;
+  border: 0;
+}
+.auth-stage > .auth-card .auth-link {
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(40, 26, 18, 0.4);
+  align-self: center;
+}
+.auth-stage > .auth-card .auth-error {
+  color: #fff;
+  background: rgba(150, 60, 50, 0.55);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+/* ---- 4) Eventos, Loja e Receitas: 3 círculos que se cruzam --------------- */
+.home-trio {
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 1 / 1.12;
+  margin: 14px auto 10px;
+}
+.home-trio-circle {
+  position: absolute;
+  width: 63%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  cursor: pointer;
+  background: var(--rd-areia);
+  /* fio fino afastado, como as linhas do diagrama de referência */
+  box-shadow:
+    0 0 0 5px rgba(243, 232, 219, 0.7),
+    0 0 0 6px rgba(125, 100, 79, 0.55),
+    0 18px 34px -18px rgba(70, 52, 42, 0.55);
+  transition: transform 0.25s ease;
+}
+.home-trio-circle--a { left: 0; top: 0; z-index: 1; }
+.home-trio-circle--b { right: 0; top: 0; z-index: 2; }
+.home-trio-circle--c { left: 18.5%; top: 44%; z-index: 3; }
+.home-trio-circle:focus-visible {
+  outline: 2px solid var(--rd-espresso);
+  outline-offset: 8px;
+}
+.home-trio-media,
+.home-trio-photo,
+.home-trio-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.home-trio-fallback {
+  display: block;
+}
+.home-trio-circle--a .home-trio-fallback { background: linear-gradient(150deg, var(--rd-rose), #d2a597); }
+.home-trio-circle--b .home-trio-fallback { background: linear-gradient(150deg, var(--rd-sage-soft), var(--rd-sage)); }
+.home-trio-circle--c .home-trio-fallback { background: linear-gradient(150deg, var(--rd-champagne), var(--rd-taupe)); }
+.home-trio-text {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16%;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(40, 26, 18, 0.65);
+  background: radial-gradient(circle at 50% 50%, rgba(60, 42, 32, 0.42) 0%, rgba(60, 42, 32, 0.12) 80%);
+}
+.home-trio-eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 7vw, 30px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+.home-trio-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.home-trio-subtitle {
+  font-size: 11.5px;
+  line-height: 1.25;
+  opacity: 0.95;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.home-trio-tag {
+  margin-top: 2px;
+  padding: 1px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.home-trio-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (hover: hover) {
+  .home-trio-circle:hover { transform: scale(1.015); }
+}
+
+/* ---- 5) Painel de vidro sobreposto à imagem (referência 2) ---------------- */
+.home-editorial-card.home-city-card .home-editorial-card-body,
+.menu-banner-text,
+.gratitude-text {
+  position: relative;
+  z-index: 2;
+  margin: -38px 10px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(145deg, rgba(252, 246, 238, 0.74), rgba(243, 232, 219, 0.5));
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 12px 26px -16px rgba(70, 52, 42, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.home-editorial-card.home-city-card .home-editorial-card-body {
+  margin: -56px 14px 14px;
+  padding: 16px 18px;
+}
+
+/* ---- 6) "Para você" mais abaixo dos cards finos --------------------------- */
+.home-wheel {
+  margin-bottom: 8px;
+}
+.home-wheel + .home-flower-gap {
+  height: 8px !important;
+  margin: 0;
+}
+.home-wheel + .home-flower-gap + .home-group-title {
+  margin-top: 26px;
+}

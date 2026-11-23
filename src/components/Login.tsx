@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { EMAIL_NOT_CONFIRMED_MESSAGE, signInErrorMessage } from '../lib/authErrors'
@@ -8,6 +9,21 @@ import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
+
+// Foto de fundo da entrada: coloque QUALQUER imagem em src/assets com o nome
+// login-fundo.jpg (ou .jpeg/.png/.webp) e ela cobre a tela inteira. Sem
+// arquivo, entra um fundo em degradê nos tons da paleta.
+const FUNDO = Object.values(import.meta.glob('../assets/login-fundo.{jpg,jpeg,png,webp}', { eager: true, import: 'default' }))[0] as string | undefined
+
+function AuthStage({ children }: { children: React.ReactNode }) {
+  // No <body>: nenhum ancestral com transform prende o fundo fixo.
+  return createPortal(
+  <div className="auth-stage" style={FUNDO ? { backgroundImage: `url(${FUNDO})` } : undefined}>
+    {children}
+  </div>,
+    document.body,
+  )
+}
 
 // Fase 14.1 — deriva a URL do próprio ambiente/base da app: em dev
 // resolve para http://localhost:5173/circula/ e em produção para
@@ -181,212 +197,218 @@ export function Login() {
 
   if (mode === 'forgot-password') {
     return (
-      <section className="auth-card">
-        <div className="brand">
-          <img src={circulaIcon} alt="" className="brand-icon" />
-          <h1>Círcula</h1>
-        </div>
-        <p className="auth-subtitle">Recuperar senha</p>
-
-        {forgotSuccess ? (
-          <>
-            <p>{FORGOT_PASSWORD_GENERIC_MESSAGE}</p>
-            <button type="button" onClick={handleBackToLogin}>
-              Voltar para o login
-            </button>
-          </>
-        ) : (
-          <form onSubmit={handleForgotPasswordSubmit}>
-            <label htmlFor="forgot-email">Celular</label>
-            <input
-              id="forgot-email"
-              type="text"
-              value={forgotEmail}
-              onChange={(event) => setForgotEmail(event.target.value)}
-              autoComplete="username"
-              placeholder=""
-              required
-            />
-            <p className="auth-hint">O link vai para o e-mail do seu cadastro.</p>
-
-            {forgotError && <p className="auth-error">{forgotError}</p>}
-
-            <button type="submit" disabled={forgotLoading}>
-              {forgotLoading ? 'Enviando...' : 'Enviar link de recuperação'}
-            </button>
-
-            <button
-              type="button"
-              className="auth-link"
-              onClick={handleBackToLogin}
-            >
-              Voltar para o login
-            </button>
-          </form>
-        )}
-      </section>
+      <AuthStage>
+        <section className="auth-card">
+          <div className="brand">
+            <img src={circulaIcon} alt="" className="brand-icon" />
+            <h1>Círcula</h1>
+          </div>
+          <p className="auth-subtitle">Recuperar senha</p>
+  
+          {forgotSuccess ? (
+            <>
+              <p>{FORGOT_PASSWORD_GENERIC_MESSAGE}</p>
+              <button type="button" onClick={handleBackToLogin}>
+                Voltar para o login
+              </button>
+            </>
+          ) : (
+            <form onSubmit={handleForgotPasswordSubmit}>
+              <label htmlFor="forgot-email">Celular</label>
+              <input
+                id="forgot-email"
+                type="text"
+                value={forgotEmail}
+                onChange={(event) => setForgotEmail(event.target.value)}
+                autoComplete="username"
+                placeholder=""
+                required
+              />
+              <p className="auth-hint">O link vai para o e-mail do seu cadastro.</p>
+  
+              {forgotError && <p className="auth-error">{forgotError}</p>}
+  
+              <button type="submit" disabled={forgotLoading}>
+                {forgotLoading ? 'Enviando...' : 'Enviar link de recuperação'}
+              </button>
+  
+              <button
+                type="button"
+                className="auth-link"
+                onClick={handleBackToLogin}
+              >
+                Voltar para o login
+              </button>
+            </form>
+          )}
+        </section>
+      </AuthStage>
     )
   }
 
   if (mode === 'signup') {
     return (
-      <section className="auth-card">
-        <div className="brand">
-          <img src={circulaIcon} alt="" className="brand-icon" />
-          <h1>Círcula</h1>
-        </div>
-        <p className="auth-subtitle">Criar conta de profissional</p>
-
-        {signupNeedsConfirmation ? (
-          <>
-            <p>
-              Conta criada. Enviamos um e-mail para você confirmar o endereço —
-              depois disso é só entrar.
-            </p>
-            <button type="button" onClick={handleBackToLogin}>
-              Voltar para o login
-            </button>
-          </>
-        ) : (
-          <form onSubmit={handleSignUpSubmit}>
-            <p>
-              Crie sua conta para montar a comunidade que você acompanha. Você
-              começa com 21 dias de teste.
-            </p>
-
-            <label htmlFor="signup-name">Nome</label>
-            <input
-              id="signup-name"
-              type="text"
-              value={signupName}
-              onChange={(event) => setSignupName(event.target.value)}
-              autoComplete="name"
-              required
-            />
-
-            <label htmlFor="signup-phone">Celular (será o seu login)</label>
-            <input
-              id="signup-phone"
-              type="tel"
-              inputMode="numeric"
-              value={signupPhone}
-              onChange={(event) => setSignupPhone(event.target.value)}
-              autoComplete="username"
-              placeholder=""
-              required
-            />
-            <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
-
-            <label htmlFor="signup-email">E-mail (para o seu cadastro)</label>
-            <input
-              id="signup-email"
-              type="email"
-              value={signupEmail}
-              onChange={(event) => setSignupEmail(event.target.value)}
-              autoComplete="email"
-              required
-            />
-
-            <label htmlFor="signup-password">Senha</label>
-            <PasswordInput
-              id="signup-password"
-              value={signupPassword}
-              onChange={(event) => setSignupPassword(event.target.value)}
-              autoComplete="new-password"
-              required
-            />
-
-            <ConsentCheckbox id="signup-consent" checked={signupAccepted} onChange={setSignupAccepted} />
-
-            {signupError && <p className="auth-error">{signupError}</p>}
-
-            <button type="submit" disabled={signupLoading}>
-              {signupLoading ? 'Criando...' : 'Criar conta'}
-            </button>
-
-            <button type="button" className="auth-link" onClick={handleBackToLogin}>
-              Já tenho conta
-            </button>
-          </form>
-        )}
-      </section>
+      <AuthStage>
+        <section className="auth-card">
+          <div className="brand">
+            <img src={circulaIcon} alt="" className="brand-icon" />
+            <h1>Círcula</h1>
+          </div>
+          <p className="auth-subtitle">Criar conta de profissional</p>
+  
+          {signupNeedsConfirmation ? (
+            <>
+              <p>
+                Conta criada. Enviamos um e-mail para você confirmar o endereço —
+                depois disso é só entrar.
+              </p>
+              <button type="button" onClick={handleBackToLogin}>
+                Voltar para o login
+              </button>
+            </>
+          ) : (
+            <form onSubmit={handleSignUpSubmit}>
+              <p>
+                Crie sua conta para montar a comunidade que você acompanha. Você
+                começa com 21 dias de teste.
+              </p>
+  
+              <label htmlFor="signup-name">Nome</label>
+              <input
+                id="signup-name"
+                type="text"
+                value={signupName}
+                onChange={(event) => setSignupName(event.target.value)}
+                autoComplete="name"
+                required
+              />
+  
+              <label htmlFor="signup-phone">Celular (será o seu login)</label>
+              <input
+                id="signup-phone"
+                type="tel"
+                inputMode="numeric"
+                value={signupPhone}
+                onChange={(event) => setSignupPhone(event.target.value)}
+                autoComplete="username"
+                placeholder=""
+                required
+              />
+              <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
+  
+              <label htmlFor="signup-email">E-mail (para o seu cadastro)</label>
+              <input
+                id="signup-email"
+                type="email"
+                value={signupEmail}
+                onChange={(event) => setSignupEmail(event.target.value)}
+                autoComplete="email"
+                required
+              />
+  
+              <label htmlFor="signup-password">Senha</label>
+              <PasswordInput
+                id="signup-password"
+                value={signupPassword}
+                onChange={(event) => setSignupPassword(event.target.value)}
+                autoComplete="new-password"
+                required
+              />
+  
+              <ConsentCheckbox id="signup-consent" checked={signupAccepted} onChange={setSignupAccepted} />
+  
+              {signupError && <p className="auth-error">{signupError}</p>}
+  
+              <button type="submit" disabled={signupLoading}>
+                {signupLoading ? 'Criando...' : 'Criar conta'}
+              </button>
+  
+              <button type="button" className="auth-link" onClick={handleBackToLogin}>
+                Já tenho conta
+              </button>
+            </form>
+          )}
+        </section>
+      </AuthStage>
     )
   }
 
   return (
-    <section className="auth-card">
-      <img src={circulaLogo} alt="Círcula" className="brand-logo" />
-      <p className="auth-subtitle">Entre com sua conta</p>
-
-      <form onSubmit={handleSubmit}>
-        {useEmail ? (
-          <>
-            <label htmlFor="email">E-mail</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="username"
-              required
-            />
-          </>
-        ) : (
-          <>
-            <label htmlFor="phone">Celular</label>
-            <input
-              id="phone"
-              name="username"
-              type="tel"
-              inputMode="numeric"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              autoComplete="username"
-              placeholder=""
-              required
-            />
-            <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
-          </>
-        )}
-
-        <label htmlFor="password">Senha</label>
-        <PasswordInput
-          id="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          autoComplete="current-password"
-          required
-        />
-
-        <button
-          type="button"
-          className="auth-link"
-          onClick={handleShowForgotPassword}
-        >
-          Esqueci minha senha
-        </button>
-
-        {error && <p className="auth-error">{error}</p>}
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-
-        <button type="button" className="auth-link" onClick={handleShowSignUp}>
-          Criar conta de profissional
-        </button>
-
-        <button
-          type="button"
-          className="auth-link"
-          onClick={() => {
-            setUseEmail((v) => !v)
-            setError(null)
-          }}
-        >
-          {useEmail ? 'Entrar com o celular' : 'Entrar com e-mail'}
-        </button>
-      </form>
-    </section>
+    <AuthStage>
+      <section className="auth-card">
+        <img src={circulaLogo} alt="Círcula" className="brand-logo" />
+        <p className="auth-subtitle">Entre com sua conta</p>
+  
+        <form onSubmit={handleSubmit}>
+          {useEmail ? (
+            <>
+              <label htmlFor="email">E-mail</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="username"
+                required
+              />
+            </>
+          ) : (
+            <>
+              <label htmlFor="phone">Celular</label>
+              <input
+                id="phone"
+                name="username"
+                type="tel"
+                inputMode="numeric"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                autoComplete="username"
+                placeholder=""
+                required
+              />
+              <p className="auth-hint">{LOGIN_PHONE_HINT}</p>
+            </>
+          )}
+  
+          <label htmlFor="password">Senha</label>
+          <PasswordInput
+            id="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            required
+          />
+  
+          <button
+            type="button"
+            className="auth-link"
+            onClick={handleShowForgotPassword}
+          >
+            Esqueci minha senha
+          </button>
+  
+          {error && <p className="auth-error">{error}</p>}
+  
+          <button type="submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+  
+          <button type="button" className="auth-link" onClick={handleShowSignUp}>
+            Criar conta de profissional
+          </button>
+  
+          <button
+            type="button"
+            className="auth-link"
+            onClick={() => {
+              setUseEmail((v) => !v)
+              setError(null)
+            }}
+          >
+            {useEmail ? 'Entrar com o celular' : 'Entrar com e-mail'}
+          </button>
+        </form>
+      </section>
+    </AuthStage>
   )
 }
