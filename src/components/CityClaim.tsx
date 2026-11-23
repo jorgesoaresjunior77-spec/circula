@@ -173,7 +173,7 @@ export function CityClaim({ listing, readOnly, onChanged }: { listing: CityListi
   if (listing.sou_dona) {
     return (
       <div className="cty-claim">
-        <p className="cty-claim-title">Você é a dona deste negócio</p>
+        <p className="cty-claim-title">Pedido aprovado: você é a dona deste negócio</p>
         <Highlight listing={listing} onChanged={onChanged} />
       </div>
     )
@@ -181,10 +181,12 @@ export function CityClaim({ listing, readOnly, onChanged }: { listing: CityListi
 
   if (listing.reivindicado) return null
 
+  const recusada = listing.minha_reivindicacao === 'recusada' && !sent
+
   if (listing.minha_reivindicacao === 'pendente' || sent) {
     return (
       <p className="cty-note">
-        Pedido enviado. A nutricionista vai falar com você pelo WhatsApp que você deixou e, aprovando, você poderá contratar o destaque da capa.
+        Pedido enviado: aguardando aprovação. A profissional vai falar com você pelo WhatsApp que você deixou e, aprovando, você poderá contratar o destaque da capa.
       </p>
     )
   }
@@ -205,6 +207,7 @@ export function CityClaim({ listing, readOnly, onChanged }: { listing: CityListi
 
   return (
     <div className="cty-claim">
+      {recusada && <p className="cty-note">Seu pedido anterior foi recusado. Você pode fazer um novo pedido.</p>}
       {!open ? (
         <button type="button" className="cty-link" onClick={() => setOpen(true)}>
           Este negócio é meu: reivindicar e pedir destaque
@@ -212,7 +215,7 @@ export function CityClaim({ listing, readOnly, onChanged }: { listing: CityListi
       ) : (
         <form className="cty-claim-form" onSubmit={(e) => void submit(e)}>
           <p className="cty-note">
-            Deixe o seu WhatsApp: a nutricionista vai falar com você para confirmar que o negócio é seu. Depois de aprovado, você pode contratar o destaque da capa por{' '}
+            Deixe o seu WhatsApp: seu nome e seu WhatsApp serão compartilhados com a profissional responsável, só para verificar que o negócio é seu. Depois de aprovado, você pode contratar o destaque da capa por{' '}
             {formatBrl(HIGHLIGHT_MONTHLY_CENTS)} por mês (6 e 12 meses com desconto).
           </p>
           <label className="cty-field">
