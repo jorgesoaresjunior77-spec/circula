@@ -10,6 +10,7 @@ import { ProfileBanner } from './ProfileBanner'
 import { ProfileVisitStats } from './ProfileVisitStats'
 import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 import { InviteFriends } from './InviteFriends'
+import { CitySaved, InviteDiscountNote, ProfileCityLine } from './ProfileCityExtras'
 import { MyNutriPlan } from './MyNutriPlan'
 import { ProfileTestimonials } from './ProfileTestimonials'
 import { ChangePassword } from './ChangePassword'
@@ -36,6 +37,8 @@ interface MyProfileProps {
   onShowInstallGuide?: () => void
   /** Abre Planos e assinaturas (card Administração). */
   onOpenPlans?: () => void
+  /** Abre a tela "Na minha cidade". */
+  onOpenCity?: () => void
 }
 
 export function MyProfile({
@@ -48,6 +51,7 @@ export function MyProfile({
   onRestartTour,
   onShowInstallGuide,
   onOpenPlans,
+  onOpenCity,
 }: MyProfileProps) {
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile.full_name ?? '')
@@ -395,6 +399,14 @@ export function MyProfile({
 
       <ProfileTestimonials profileId={profile.id} communityId={communityId ?? null} viewerId={profile.id} />
 
+      {onOpenCity && (
+        <div className="profile-city-section">
+          <p className="profile-section-label profile-section-label--spaced">Na minha cidade</p>
+          <ProfileCityLine onOpen={onOpenCity} />
+          <CitySaved uid={profile.id} />
+        </div>
+      )}
+
       {communityId && (
         <div className="profile-garden-section">
           <p className="profile-section-label profile-section-label--garden">Meu Jardim</p>
@@ -423,6 +435,7 @@ export function MyProfile({
       {profile.role === 'member' && communityId && (
         <div className="profile-invite-section">
           <p className="profile-section-label profile-section-label--spaced">Convidar amigas</p>
+          <InviteDiscountNote />
           <InviteFriends communityId={communityId} />
         </div>
       )}

@@ -1,0 +1,651 @@
+/* "Na minha cidade" — card da Home, tela da cidade, formulários e painel da administração.
+   Campos e botões grandes (letras a partir de 16–17px, toques de 44px). */
+
+/* ---- Card na Home (mesmo visual dos cards de "Descobrir") ---- */
+.home-city-wrap {
+  margin-block: var(--space-4);
+}
+.home-city-card .home-editorial-card-title {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.home-city-card .home-editorial-card-eyebrow {
+  letter-spacing: 0.12em;
+}
+
+/* ---- Selo "Novo" no tour ---- */
+.tour-card-new {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--ink-action);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---- Tela ---- */
+.cty-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+  padding-bottom: 96px; /* a barra de baixo nunca cobre o fim da lista */
+}
+.cty-eyebrow {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--circula-taupe);
+}
+.cty-title {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--circula-mocha);
+}
+.cty-title-uf {
+  font-size: 18px;
+  color: var(--circula-taupe);
+}
+.cty-stats {
+  margin: 4px 0 0;
+  font-size: 16px;
+  color: var(--n-700);
+}
+.cty-lead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--graphite-soft);
+}
+.cty-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--accent-sand-tint);
+  border: 1px solid var(--accent-sand-line);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--n-800);
+}
+.cty-safety {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(109, 60, 66, 0.07);
+  border: 1px solid var(--ink-action-line);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-action);
+}
+.cty-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+/* ---- Botões e links ---- */
+.cty-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--circula-mocha);
+  font: inherit;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cty-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.cty-btn--primary {
+  background: var(--circula-mocha);
+  border-color: var(--circula-mocha);
+  color: #fff;
+}
+.cty-btn--on {
+  background: var(--ink-action-soft);
+  border-color: var(--ink-action-line);
+  color: var(--ink-action);
+}
+.cty-btn--small {
+  min-height: 44px;
+  padding: 6px 14px;
+  font-size: 15px;
+}
+.cty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cty-link {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--olive-text);
+  font: inherit;
+  font-size: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.cty-link:disabled {
+  opacity: 0.55;
+  text-decoration: none;
+}
+.cty-link--danger {
+  color: var(--danger);
+}
+
+/* ---- Campos ---- */
+.cty-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.cty-field--inline {
+  min-width: 160px;
+}
+.cty-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--n-800);
+}
+.cty-page input[type='text'],
+.cty-page input[type='search'],
+.cty-page input[type='date'],
+.cty-page input[type='time'],
+.cty-page input[type='number'],
+.cty-page select,
+.cty-page textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 17px;
+  box-sizing: border-box;
+}
+.cty-page textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+.cty-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.cty-row > .cty-field {
+  flex: 1 1 140px;
+}
+.cty-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+.cty-check input {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+.cty-select-btn {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 17px;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ---- Seletor de cidade ---- */
+.cty-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+.cty-city-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  -webkit-overflow-scrolling: touch;
+}
+.cty-city-option {
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 17px;
+  text-align: left;
+  cursor: pointer;
+}
+.cty-city-option--on {
+  background: var(--ink-action-soft);
+  color: var(--ink-action);
+  font-weight: 700;
+}
+.cty-city-empty {
+  padding: 12px;
+  color: var(--n-700);
+}
+
+/* ---- Abas, grupos, chips ---- */
+.cty-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.cty-tabs::-webkit-scrollbar {
+  display: none;
+}
+.cty-tab {
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--circula-mocha);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.cty-tab--on {
+  background: var(--circula-mocha);
+  border-color: var(--circula-mocha);
+  color: #fff;
+}
+.cty-group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.cty-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 92px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--circula-mocha);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cty-group-icon {
+  font-size: 26px;
+}
+.cty-group-name {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.cty-group-count {
+  font-size: 14px;
+  color: var(--n-700);
+}
+.cty-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+}
+.cty-chip-bar,
+.cty-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.cty-chip-bar {
+  /* faixa horizontal que rola de lado no celular */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.cty-chip-bar::-webkit-scrollbar {
+  display: none;
+}
+.cty-chip-bar > * {
+  flex: 0 0 auto;
+}
+.cty-chip {
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--graphite-soft);
+  font: inherit;
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cty-chip--soft {
+  background: var(--surface-sunken);
+}
+.cty-chip--on {
+  background: var(--ink-action);
+  border-color: var(--ink-action);
+  color: #fff;
+}
+.cty-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---- Painel de categoria (formulário) ---- */
+.cty-cat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-sunken);
+}
+.cty-cat-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.cty-cat-group-title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--circula-mocha);
+}
+.cty-newcat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+.cty-didyoumean {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--accent-rose-tint);
+  border: 1px solid var(--accent-rose-line);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ---- Formulário ---- */
+.cty-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.cty-form-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--circula-mocha);
+}
+.cty-form-city {
+  font-size: 16px;
+  color: var(--circula-taupe);
+}
+.cty-form-photo {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+/* ---- Cadastros ---- */
+.cty-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+.cty-card {
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.cty-card--hidden {
+  opacity: 0.7;
+}
+.cty-card-photo {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
+.cty-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+.cty-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cty-tag {
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  font-size: 13px;
+  color: var(--n-800);
+}
+.cty-tag--type {
+  background: var(--accent-sand-tint);
+  border-color: var(--accent-sand-line);
+}
+.cty-tag--cat {
+  background: var(--accent-rose-tint);
+  border-color: var(--accent-rose-line);
+}
+.cty-tag--self {
+  background: rgba(109, 60, 66, 0.08);
+  border-color: var(--ink-action-line);
+  color: var(--ink-action);
+  font-weight: 700;
+}
+.cty-tag--warn {
+  background: rgba(162, 86, 75, 0.12);
+  color: var(--danger);
+}
+.cty-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.25;
+  color: var(--circula-mocha);
+}
+.cty-card-when {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink-action);
+}
+.cty-card-line,
+.cty-card-desc,
+.cty-card-contact {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--graphite-soft);
+}
+.cty-card-desc {
+  white-space: pre-line;
+}
+.cty-card-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.cty-card-contact a {
+  color: var(--olive-text);
+}
+.cty-card-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--n-700);
+}
+.cty-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.cty-avatar--ph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-sand-tint);
+  color: var(--circula-mocha);
+  font-weight: 700;
+}
+.cty-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.cty-card-manage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 4px;
+}
+.cty-confirm {
+  font-size: 16px;
+}
+.cty-attendees,
+.cty-report {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-sunken);
+}
+.cty-msg {
+  margin: 0;
+  font-size: 15px;
+  color: var(--n-800);
+}
+
+/* ---- Cidade vazia ---- */
+.cty-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 18px;
+  border: 1px dashed var(--accent-sand-line);
+  border-radius: 20px;
+  background: var(--accent-sand-tint);
+  text-align: center;
+  align-items: center;
+}
+.cty-empty-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 21px;
+  color: var(--circula-mocha);
+}
+
+/* ---- Administração ---- */
+.cty-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+.cty-admin-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.cty-admin-item p {
+  margin: 0;
+}
+
+/* ---- Perfil: desconto por convite e salvos ---- */
+.cty-profile-discount {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--accent-sand-tint);
+  border: 1px solid var(--accent-sand-line);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--n-800);
+}
+
+@media (min-width: 720px) {
+  .cty-group-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

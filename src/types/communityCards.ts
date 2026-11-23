@@ -68,6 +68,7 @@ export type CommunityCardKey =
   | 'menu_series'
   | 'menu_viagens'
   | 'banner_lista'
+  | 'banner_cidade'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -160,6 +161,11 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
     hint: 'Imagem do card fino "Planos e assinaturas" na Home (só a escrita fica por cima dela). Aparece em formato bem largo e baixo.',
   },
   {
+    key: 'banner_cidade',
+    label: 'Na minha cidade',
+    hint: 'Foto do card "Na minha cidade" na Home (rua de cidade, praça, mulheres se encontrando). Aparece no card, em 16:9.',
+  },
+  {
     key: 'banner_lista',
     label: 'Lista de Compras',
     hint: 'Foto do card "Lista de Compras" na Home (mercado, cesta, frutas frescas). Aparece no card, em 16:9.',
@@ -205,6 +211,7 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'banner_series':
     case 'banner_diario':
     case 'banner_lista':
+    case 'banner_cidade':
       return SPEC_BANNER
     case 'banner_planos':
       return { aspect: '16 / 3', size: '1600 × 300 px', format: 'faixa larga 16:3' }

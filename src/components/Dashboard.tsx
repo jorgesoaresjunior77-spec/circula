@@ -22,7 +22,7 @@ import { ProfileCard } from './ProfileCard'
 import { Feed } from './Feed'
 import { CircleList } from './CircleList'
 import { Onboarding } from './Onboarding'
-import { Tour } from './Tour'
+import { Tour, cityTourSeen, markCityTourSeen } from './Tour'
 import { InstallAppGuide } from './InstallAppGuide'
 import { isPastOnboarding, shouldAutoShowInstallGuide } from '../lib/installGuide'
 import { useEvents } from '../hooks/useEvents'
@@ -92,6 +92,7 @@ import {
 const Messages = lazy(() => import('./Messages').then((m) => ({ default: m.Messages })))
 const EventList = lazy(() => import('./EventList').then((m) => ({ default: m.EventList })))
 const SavedItems = lazy(() => import('./SavedItems').then((m) => ({ default: m.SavedItems })))
+const CityPage = lazy(() => import('./CityPage').then((m) => ({ default: m.CityPage })))
 const CircleDetail = lazy(() => import('./CircleDetail').then((m) => ({ default: m.CircleDetail })))
 const CircleRequestForm = lazy(() => import('./CircleRequestForm').then((m) => ({ default: m.CircleRequestForm })))
 
@@ -178,7 +179,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade']
 
 export function Dashboard({
   profile,
@@ -221,6 +222,8 @@ export function Dashboard({
   // Etapa 9 (evolução/gamificação) — tour guiado: disparado pelo fim do
   // onboarding (Etapa 8) ou manualmente ("Rever o tour" no Perfil).
   const [showTour, setShowTour] = useState(false)
+  // Quem já fez o tour vê só o passo novo ("Na minha cidade"), uma única vez.
+  const [tourNovelty, setTourNovelty] = useState(false)
   const [inspirationSettled, setInspirationSettled] = useState(false)
   // Guia "colocar o Círcula na tela do celular" (Android/iPhone): aparece
   // sozinho, uma vez por aparelho, ao fim do tour (ou ao pular o
@@ -239,6 +242,14 @@ export function Dashboard({
     // offerInstallGuide só lê storage/navegador; roda uma vez por carregamento
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
+  // Novidade "Na minha cidade": quem já concluiu o tour antes vê só esse passo,
+  // uma única vez, depois da frase do dia e fora do onboarding/guia de instalação.
+  useEffect(() => {
+    if (!profile || profile.role !== 'member' || !profile.tour_completed_at) return
+    if (!inspirationSettled || showTour || showInstallGuide || cityTourSeen()) return
+    setTourNovelty(true)
+    setShowTour(true)
+  }, [profile, inspirationSettled, showTour, showInstallGuide])
   // Com a tela em repouso, já baixa as telas mais abertas: o toque nos cartões
   // da Home fica instantâneo sem pesar na abertura do app.
   useEffect(() => {
@@ -397,6 +408,12 @@ export function Dashboard({
     navItems.push({
       key: 'viagens',
       label: 'Dicas de Viagem',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
+      key: 'cidade',
+      label: 'Na minha cidade',
       Icon: HeartIcon,
       inBottomNav: false,
     })
@@ -734,6 +751,7 @@ export function Dashboard({
           onRestartTour={() => setShowTour(true)}
           onShowInstallGuide={() => setShowInstallGuide(true)}
           onOpenPlans={() => handleNavigate('planos')}
+          onOpenCity={() => handleNavigate('cidade')}
         />
       )
     }
@@ -1105,6 +1123,11 @@ export function Dashboard({
           onOpenPlans={() => handleNavigate('planos')}
         />
       )
+    }
+
+    // NA MINHA CIDADE — cadastros locais por cidade (a cidade é da participante, não da comunidade).
+    if (effectiveNav === 'cidade') {
+      return <CityPage profile={profile} />
     }
 
     // DIÁRIO DA GRATIDÃO — orações da nutricionista; os registros são privados.
@@ -1624,8 +1647,12 @@ export function Dashboard({
       {showTour && (
         <Tour
           onNavigate={handleNavigate}
+          noveltyOnly={tourNovelty}
           onDone={() => {
             setShowTour(false)
+            setTourNovelty(false)
+            markCityTourSeen()
+            if (tourNovelty) return
             offerInstallGuide()
             if (profile?.tour_completed_at === undefined) return // migration ainda não aplicada
             void onUpdateProfile({ tour_completed_at: new Date().toISOString() })

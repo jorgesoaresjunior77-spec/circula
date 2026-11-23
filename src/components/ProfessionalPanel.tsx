@@ -7,6 +7,7 @@ import { RevenuePanel } from './RevenuePanel'
 import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
+import { CityAdminPanel } from './CityAdminPanel'
 import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
 import { CircleImagesManager } from './CircleImagesManager'
@@ -32,6 +33,7 @@ type PanelTab =
   | 'agenda'
   | 'participantes'
   | 'publicacoes'
+  | 'cidade'
   | 'eventos'
   | 'jardim'
   | 'circulos'
@@ -46,6 +48,7 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'visao', label: 'Visão geral' },
   { key: 'agenda', label: 'Agenda de conteúdos' },
   { key: 'publicacoes', label: 'Publicações' },
+  { key: 'cidade', label: 'Na minha cidade' },
   { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'metricas', label: 'Métricas' },
   { key: 'assinaturas', label: 'Assinaturas' },
@@ -207,6 +210,12 @@ export function ProfessionalPanel({
       {activeTab === 'publicacoes' && (
         <div className="panel-tab-content">
           <PostsModerationPanel communityId={communityId} />
+        </div>
+      )}
+
+      {activeTab === 'cidade' && (
+        <div className="panel-tab-content">
+          <CityAdminPanel />
         </div>
       )}
 

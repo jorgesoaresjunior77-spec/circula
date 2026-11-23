@@ -33,6 +33,7 @@ export const TRACKED_SCREENS: { key: string; label: string }[] = [
   { key: 'nutri', label: 'Nutri' },
   { key: 'inspiracoes', label: 'Inspirações' },
   { key: 'antes-de-tudo', label: 'Antes de tudo' },
+  { key: 'cidade', label: 'Na minha cidade' },
 ]
 
 function uuidFor(index: number): string {

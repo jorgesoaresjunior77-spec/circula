@@ -3,8 +3,8 @@ import { HELP_CATEGORIES } from './helpContent'
 import { normalize, searchHelp } from './helpSearch'
 
 describe('conteúdo da ajuda', () => {
-  it('tem as 12 categorias e toda pergunta tem resposta de verdade', () => {
-    expect(HELP_CATEGORIES).toHaveLength(12)
+  it('tem as 13 categorias (inclui Na minha cidade) e toda pergunta tem resposta de verdade', () => {
+    expect(HELP_CATEGORIES).toHaveLength(13)
     const ids = new Set<string>()
     for (const c of HELP_CATEGORIES) {
       expect(c.items.length).toBeGreaterThan(0)

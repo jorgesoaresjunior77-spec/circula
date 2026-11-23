@@ -25,6 +25,30 @@ interface TourStep {
   optional?: boolean
   /** Animação explicativa sobre o destaque: tocar ou deslizar. */
   gesture?: 'tap' | 'swipe'
+  /** Passo de novidade: ganha o selo "Novo" (e é o único mostrado a quem já fez o tour). */
+  isNew?: boolean
+  /** Texto do botão de avançar neste passo (padrão: "Avançar"). */
+  nextLabel?: string
+}
+
+export const CITY_TOUR_TEXT =
+  'Descubra lugares, serviços e eventos da sua cidade por categoria, de restaurantes a eletricistas. Indique o que você ama, salve seus favoritos e combine caminhadas e cafés com outras mulheres.'
+
+/** Marca no aparelho que o passo "Na minha cidade" já foi mostrado (some a novidade). */
+const CITY_TOUR_SEEN_KEY = 'circula:tour-na-minha-cidade'
+export function cityTourSeen(): boolean {
+  try {
+    return localStorage.getItem(CITY_TOUR_SEEN_KEY) === '1'
+  } catch {
+    return true
+  }
+}
+export function markCityTourSeen() {
+  try {
+    localStorage.setItem(CITY_TOUR_SEEN_KEY, '1')
+  } catch {
+    /* sem storage: só não lembra */
+  }
 }
 
 export const TOUR_STEPS: TourStep[] = [
@@ -53,6 +77,15 @@ export const TOUR_STEPS: TourStep[] = [
     targets: ['.circ-strip'],
     title: 'Círculos',
     text: 'Grupos por tema. Toque em um Círculo, entre nele e deixe a sua primeira mensagem. Dentro dele, o botão Convidar chama uma amiga para aquele círculo. Você também pode sugerir um novo: é só dizer o nome e o assunto.',
+  },
+  {
+    targets: ['.home-city-card'],
+    title: 'Na minha cidade',
+    text: CITY_TOUR_TEXT,
+    optional: true,
+    gesture: 'tap',
+    isNew: true,
+    nextLabel: 'Próximo',
   },
   {
     targets: ['.mag2-viewport', '.mag2-stack'],
@@ -148,6 +181,8 @@ export const TOUR_STEPS: TourStep[] = [
 interface TourProps {
   onNavigate: (key: NavKey) => void
   onDone: () => void
+  /** Quem já fez o tour vê só o passo de novidade ("Na minha cidade"), uma única vez. */
+  noveltyOnly?: boolean
 }
 
 interface SpotlightRect {
@@ -176,13 +211,15 @@ function findTarget(step: TourStep): HTMLElement | null {
   return fallback
 }
 
-export function Tour({ onNavigate, onDone }: TourProps) {
+export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
   const [stepIndex, setStepIndex] = useState(0)
   const [rect, setRect] = useState<SpotlightRect | null>(null)
   const [cardHeight, setCardHeight] = useState(190)
   const cardRef = useRef<HTMLDivElement>(null)
   // Passos opcionais só entram se o elemento existe na tela (ex.: Nutri só para paciente).
-  const [steps] = useState(() => TOUR_STEPS.filter((st) => !st.optional || findTarget(st)))
+  const [steps] = useState(() =>
+    noveltyOnly ? TOUR_STEPS.filter((st) => st.isNew) : TOUR_STEPS.filter((st) => !st.optional || findTarget(st)),
+  )
   const step = steps[stepIndex]
   const isLast = stepIndex === steps.length - 1
 
@@ -302,7 +339,8 @@ export function Tour({ onNavigate, onDone }: TourProps) {
 
       <div ref={cardRef} className="tour-card" style={{ top: cardTop, left: cardLeft, width: cardWidth }}>
         <p className="tour-card-step">
-          {stepIndex + 1} / {steps.length}
+          {step.isNew && <span className="tour-card-new">{noveltyOnly ? 'Novidade · Novo' : 'Novo'}</span>}
+          {steps.length > 1 && `${stepIndex + 1} / ${steps.length}`}
         </p>
         <h3 className="tour-card-title">{step.title}</h3>
         <p className="tour-card-text">{step.text}</p>
@@ -317,7 +355,7 @@ export function Tour({ onNavigate, onDone }: TourProps) {
               </button>
             )}
             <button type="button" className="onboarding-next" onClick={goNext}>
-              {isLast ? 'Encerrar' : 'Avançar'}
+              {isLast ? (noveltyOnly ? 'Entendi' : 'Encerrar') : (step.nextLabel ?? 'Avançar')}
             </button>
           </div>
         </div>

@@ -4,14 +4,16 @@ import { MasterDashboard } from './MasterDashboard'
 import { MasterCommunitiesPanel } from './MasterCommunitiesPanel'
 import { MasterProfessionalsPanel } from './MasterProfessionalsPanel'
 import { MasterPlatformPanel } from './MasterPlatformPanel'
+import { CityAdminPanel } from './CityAdminPanel'
 
-type MasterTab = 'visao' | 'comunidades' | 'profissionais' | 'plataforma'
+type MasterTab = 'visao' | 'comunidades' | 'profissionais' | 'plataforma' | 'cidade'
 
 const TABS: { key: MasterTab; label: string }[] = [
   { key: 'visao', label: 'Visão Geral' },
   { key: 'comunidades', label: 'Comunidades' },
   { key: 'profissionais', label: 'Profissionais' },
   { key: 'plataforma', label: 'Plataforma' },
+  { key: 'cidade', label: 'Na minha cidade' },
 ]
 
 /**
@@ -73,6 +75,11 @@ export function MasterPanel() {
       {activeTab === 'plataforma' && (
         <div className="panel-tab-content">
           <MasterPlatformPanel overview={overview} loading={loading} error={error} />
+        </div>
+      )}
+      {activeTab === 'cidade' && (
+        <div className="panel-tab-content">
+          <CityAdminPanel />
         </div>
       )}
     </section>

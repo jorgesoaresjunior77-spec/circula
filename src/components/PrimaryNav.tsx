@@ -16,6 +16,7 @@ export type NavKey =
   | 'exercicios'
   | 'series'
   | 'viagens'
+  | 'cidade'
   | 'diario'
   | 'jardim'
   | 'agenda'
