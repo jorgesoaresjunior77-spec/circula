@@ -5,17 +5,18 @@ import { supabase } from '../lib/supabase'
 import { EMAIL_NOT_CONFIRMED_MESSAGE, signInErrorMessage } from '../lib/authErrors'
 import { LOGIN_PHONE_EXAMPLE, LOGIN_PHONE_HINT, normalizeLoginPhone } from '../lib/phone'
 import { requestPasswordResetByPhone, rememberCredentials, signInWithPhone } from '../lib/phoneLogin'
+import { useLoginBackground } from '../hooks/useLoginBackground'
 import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 import circulaLogo from '../assets/circula-logo.png'
 
-// Foto de fundo da entrada: coloque QUALQUER imagem em src/assets com o nome
-// login-fundo.jpg (ou .jpeg/.png/.webp) e ela cobre a tela inteira. Sem
-// arquivo, entra um fundo em degradê nos tons da paleta.
-const FUNDO = Object.values(import.meta.glob('../assets/login-fundo.{jpg,jpeg,png,webp}', { eager: true, import: 'default' }))[0] as string | undefined
+// Foto de fundo da entrada: a profissional cadastra no Painel → Imagens. (Reserva: um arquivo em src/assets com o nome
+// login-fundo.jpg.) Sem foto, entra um fundo em degradê nos tons da paleta.
+const FUNDO_LOCAL = Object.values(import.meta.glob('../assets/login-fundo.{jpg,jpeg,png,webp}', { eager: true, import: 'default' }))[0] as string | undefined
 
 function AuthStage({ children }: { children: React.ReactNode }) {
+  const FUNDO = useLoginBackground() ?? FUNDO_LOCAL
   // No <body>: nenhum ancestral com transform prende o fundo fixo.
   return createPortal(
   <div className="auth-stage" style={FUNDO ? { backgroundImage: `url(${FUNDO})` } : undefined}>

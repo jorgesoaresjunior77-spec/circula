@@ -10,6 +10,7 @@ import { PostsModerationPanel } from './PostsModerationPanel'
 import { CityAdminPanel } from './CityAdminPanel'
 import { CommunityCardImagesManager } from './CommunityCardImagesManager'
 import { EditorialCardImagesManager } from './EditorialCardImagesManager'
+import { LoginBackgroundManager } from './LoginBackgroundManager'
 import { CircleImagesManager } from './CircleImagesManager'
 import { PartnersManager } from './PartnersManager'
 import { ContentSchedulePanel } from './ContentSchedulePanel'
@@ -230,6 +231,7 @@ export function ProfessionalPanel({
               (*_grande), independentes das capas de A. */}
           <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
           <EditorialCardImagesManager communityId={communityId} profileId={profileId} />
+          <LoginBackgroundManager profileId={profileId} />
           <CircleImagesManager communityId={communityId} profileId={profileId} />
           <PartnersManager communityId={communityId} profileId={profileId} />
         </div>
