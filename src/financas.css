@@ -124,16 +124,21 @@
   background: var(--fin-sand);
   scrollbar-width: none;
 }
+/* O último botão (Histórico) não cola na lateral: sobra um respiro depois dele, mesmo rolando. */
+.fin-abas::after {
+  content: '';
+  flex: 0 0 12px;
+}
 .fin-aba-btn {
   flex: 1 0 auto;
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 10px;
   border: 0;
   border-radius: 999px;
   background: none;
   color: var(--fin-ink-2);
   font: inherit;
-  font-size: 13px;
+  font-size: 12.5px;
   cursor: pointer;
 }
 .fin-aba-btn--on {
@@ -473,20 +478,4 @@
     max-width: 560px;
     margin: 0 auto;
   }
-}
-/* tema escuro */
-:root[data-theme='dark'] .fin-page {
-  --fin-bg: #2e1f1b;
-  --fin-sand: #3b2a24;
-  --fin-ink: #f1e4d2;
-  --fin-ink-2: #cdb89f;
-  --fin-accent: #d6b286;
-}
-:root[data-theme='dark'] .fin-sheet {
-  background: #2e1f1b;
-  color: #f1e4d2;
-}
-:root[data-theme='dark'] .fin-campo input {
-  background: #1c120e;
-  color: #f1e4d2;
 }

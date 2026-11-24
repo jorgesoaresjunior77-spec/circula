@@ -4,7 +4,6 @@ import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { cardImageSpec } from '../types/communityCards'
 import type { CommunityCardKey } from '../types/communityCards'
 import { CoverImageInput } from './CoverImageInput'
-import { LoginBackgroundManager } from './LoginBackgroundManager'
 import { CircleImagesManager } from './CircleImagesManager'
 import { PartnersManager } from './PartnersManager'
 import { CityImagesAdmin } from './CityImagesAdmin'
@@ -30,12 +29,6 @@ interface Section {
 }
 
 const SECTIONS: Section[] = [
-  {
-    id: 'login',
-    title: 'Tela de entrada (login)',
-    summary: 'A foto que cobre a tela de login e senha.',
-    extra: ({ profileId }) => <LoginBackgroundManager profileId={profileId} />,
-  },
   {
     id: 'hoje',
     title: 'Início · Menu “Hoje” (cards pequenos que deslizam)',

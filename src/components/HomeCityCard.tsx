@@ -3,7 +3,7 @@ import type { CityInfo } from '../lib/city'
 
 // Card largo "Na minha cidade", logo depois dos Círculos e antes de "Descobrir".
 // Mesmo visual dos cards da seção Descobrir (foto de fundo, título serifado).
-// Depois que a participante escolhe a cidade, mostra o nome dela e os números.
+// Só o título "Minha cidade" e a frase "Ache locais e profissionais" (sem nome da cidade nem chamada).
 
 interface HomeCityCardProps {
   city: CityInfo | null
@@ -13,11 +13,9 @@ interface HomeCityCardProps {
   badge?: number
 }
 
-export function HomeCityCard({ city, image, onOpen, badge = 0 }: HomeCityCardProps) {
-  const mulheres = city ? `${city.mulheres} ${city.mulheres === 1 ? 'mulher' : 'mulheres'}` : null
-  const cadastros = city ? `${city.cadastros} ${city.cadastros === 1 ? 'cadastro' : 'cadastros'}` : null
+export function HomeCityCard({ image, onOpen, badge = 0 }: HomeCityCardProps) {
   return (
-    <section className="home-city-wrap" aria-label="Na minha cidade">
+    <section className="home-city-wrap" aria-label="Minha cidade">
       <m.button
         type="button"
         className="home-editorial-card home-city-card"
@@ -35,16 +33,8 @@ export function HomeCityCard({ city, image, onOpen, badge = 0 }: HomeCityCardPro
           )}
         </span>
         <span className="home-editorial-card-body">
-          <span className="home-editorial-card-eyebrow">CONEXÃO · PROXIMIDADE</span>
-          <span className="home-editorial-card-title">{city ? `Na minha cidade · ${city.nome}` : 'Na minha cidade'}</span>
-          {city && (
-            <span className="home-editorial-card-subtitle">
-              {mulheres} · {cadastros}
-            </span>
-          )}
-          <span className="home-editorial-card-cta">
-            {city ? 'Abrir a minha cidade' : 'Encontre mulheres da sua cidade'} <span aria-hidden="true">→</span>
-          </span>
+          <span className="home-editorial-card-eyebrow">Ache locais e profissionais</span>
+          <span className="home-editorial-card-title">Minha cidade</span>
         </span>
       </m.button>
     </section>

@@ -50,19 +50,20 @@ describe('HomeCityCard', () => {
   afterEach(cleanup)
   const city = { id: 'c', estado: 'RS', nome: 'Lajeado', ibge_id: 4311403, mulheres: 12, cadastros: 1 }
 
-  it('sem cidade: rótulo, título e chamada', () => {
+  it('só o título e a frase, sem chamada', () => {
     const onOpen = vi.fn()
     render(<HomeCityCard city={null} onOpen={onOpen} />)
-    expect(screen.getByText('CONEXÃO · PROXIMIDADE')).toBeTruthy()
-    expect(screen.getByText('Na minha cidade')).toBeTruthy()
-    expect(screen.getByText(/Encontre mulheres da sua cidade/)).toBeTruthy()
+    expect(screen.getByText('Ache locais e profissionais')).toBeTruthy()
+    expect(screen.getByText('Minha cidade')).toBeTruthy()
+    expect(screen.queryByText(/Encontre mulheres/)).toBeNull()
     fireEvent.click(screen.getByRole('button'))
     expect(onOpen).toHaveBeenCalled()
   })
 
-  it('com cidade: mostra o nome e os números', () => {
+  it('com cidade escolhida o card continua igual: sem nome da cidade nem números', () => {
     render(<HomeCityCard city={city} onOpen={vi.fn()} />)
-    expect(screen.getByText('Na minha cidade · Lajeado')).toBeTruthy()
-    expect(screen.getByText('12 mulheres · 1 cadastro')).toBeTruthy()
+    expect(screen.getByText('Minha cidade')).toBeTruthy()
+    expect(screen.queryByText(/Lajeado/)).toBeNull()
+    expect(screen.queryByText(/Abrir a minha cidade/)).toBeNull()
   })
 })

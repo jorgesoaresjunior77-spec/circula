@@ -1,15 +1,15 @@
+import { useState } from 'react'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import type { ReactNode } from 'react'
 import type { NavKey } from './PrimaryNav'
 import type { CommunityCardKey } from '../types/communityCards'
-import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { CarIcon } from './CarIcon'
 import type { CarroSettings } from '../lib/carro'
 
-// Menu vertical contínuo: Dicas de leitura, Respiração, Playlist, Wellness,
-// Dicas de Séries / Filmes e Dicas de Viagem. Cards finos, todos do mesmo tamanho, com a imagem encostada à
-// esquerda e o título ao lado, em vidro transparente. A lista sobe sem parar,
-// como uma roda: o card que sai por cima volta por baixo, sem pausa nem salto.
+// Menu vertical contínuo: Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes e
+// Dicas de Viagem. Só frases: um ícone único à esquerda e a frase em letras altas e robustas, dentro
+// de uma borda fina cor de ouro chocolate (sem pintura). A lista sobe sem parar, como uma roda,
+// entrando e saindo com um esmaecer suave, e para enquanto há um dedo (ou o mouse) em cima.
 // Com "reduzir movimento", vira uma lista parada.
 
 interface Item {
@@ -69,24 +69,15 @@ const ALL_ITEMS: Item[] = [
   { key: 'respiracao', imageKey: 'menu_respiracao', title: 'Respiração', tint: 'linear-gradient(135deg,#d8e6dc,#bcd3c4)', icon: BreathSvg },
   { key: 'playlist', imageKey: 'menu_playlist', title: 'Playlist', tint: 'linear-gradient(135deg,#dcd6ea,#c6bddb)', icon: MusicSvg },
   { key: 'wellness', imageKey: 'menu_wellness', title: 'Wellness', tint: 'linear-gradient(135deg,#d3e4d6,#b4d0bb)', icon: LeafSvg },
-  { key: 'series', imageKey: 'menu_series', title: 'Dicas de Séries / Filmes', tint: 'linear-gradient(135deg,#e3d6e8,#cdbad6)', icon: FilmSvg },
+  { key: 'series', imageKey: 'menu_series', title: 'Séries e Filmes', tint: 'linear-gradient(135deg,#e3d6e8,#cdbad6)', icon: FilmSvg },
   { key: 'viagens', imageKey: 'menu_viagens', title: 'Dicas de Viagem', tint: 'linear-gradient(135deg,#d6e4ea,#b9d0da)', icon: PinSvg },
 ]
 
-/** Miniatura do card: a foto da profissional ocupa ~60% da largura (com fade
- *  para o vidro); sem foto, o degradê com ícone de sempre. */
-function WheelThumb({ item, path }: { item: Item; path: string | null }) {
-  const { url } = useSignedImageUrl(path)
-  if (!url) {
-    return (
-      <span className="wheel-thumb" style={{ background: item.tint }} aria-hidden="true">
-        {item.icon}
-      </span>
-    )
-  }
+/** Ícone único do card (a cor vem da borda, via currentColor). */
+function WheelThumb({ item }: { item: Item }) {
   return (
-    <span className="wheel-thumb wheel-thumb--photo" aria-hidden="true">
-      <img src={url} alt="" loading="lazy" decoding="async" draggable={false} />
+    <span className="wheel-thumb" aria-hidden="true">
+      {item.icon}
     </span>
   )
 }
@@ -101,8 +92,10 @@ interface Props {
   carro?: CarroSettings | null
 }
 
-export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true, carro = null }: Props) {
+export function HomeMenuWheel({ onNavigate, showSubscriptions = true, carro = null }: Props) {
   void showSubscriptions
+  // Dedo em cima: a roda para (e volta ao soltar ou se o gesto virar rolagem da página).
+  const [paused, setPaused] = useState(false)
   const items = [...ALL_ITEMS]
   if (carro?.ativo) {
     items.splice(Math.min(Math.max(carro.ordem, 0), items.length), 0, {
@@ -125,7 +118,7 @@ export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true
           onClick={() => onNavigate(item.key)}
           tabIndex={copy ? -1 : undefined}
         >
-          <WheelThumb item={item} path={imagePaths?.[item.imageKey] ?? null} />
+          <WheelThumb item={item} />
           <span className="wheel-title">{item.title}</span>
         </button>
       </li>
@@ -133,7 +126,13 @@ export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true
 
   return (
     <m.section className="home-wheel" aria-label="Menu de conteúdos" {...inViewOnce} variants={riseVariants}>
-      <div className="wheel-viewport">
+      <div
+        className={`wheel-viewport${paused ? ' wheel-viewport--paused' : ''}`}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
+        onPointerLeave={() => setPaused(false)}
+      >
         <ul className="wheel-track" style={{ animationDuration: `${duration}s` }}>
           {render(false)}
           {render(true)}

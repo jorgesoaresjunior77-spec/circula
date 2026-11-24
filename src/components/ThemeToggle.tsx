@@ -1,25 +1,30 @@
 import { useTheme } from '../hooks/useTheme'
 
-// Botão de tema (claro/escuro): trilho afundado e botão em relevo que desliza,
+// Botão de tema (claro / bege rosé): trilho afundado e botão em relevo que desliza,
 // como na referência "BUTTON.D". Chave de verdade (role="switch") para leitor de tela.
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme()
-  const dark = theme === 'dark'
+  const rose = theme === 'rose'
   return (
     <button
       type="button"
       role="switch"
-      aria-checked={dark}
-      aria-label={dark ? 'Tema escuro ligado. Tocar para o tema claro' : 'Tema claro ligado. Tocar para o tema escuro'}
-      className={`theme-toggle${dark ? ' theme-toggle--dark' : ''}`}
+      aria-checked={rose}
+      aria-label={rose ? 'Tema bege rosé ligado. Tocar para o tema claro' : 'Tema claro ligado. Tocar para o tema bege rosé'}
+      className={`theme-toggle${rose ? ' theme-toggle--rose' : ''}`}
       onClick={toggle}
     >
       <span className="theme-toggle-track" aria-hidden="true">
         <span className="theme-toggle-knob">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            {dark ? (
-              <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            {rose ? (
+              <>
+                {[0, 72, 144, 216, 288].map((a) => (
+                  <circle key={a} cx="12" cy="6.5" r="3.2" transform={`rotate(${a} 12 12)`} />
+                ))}
+                <circle cx="12" cy="12" r="1.6" />
+              </>
             ) : (
               <>
                 <circle cx="12" cy="12" r="4" />

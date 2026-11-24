@@ -1,7 +1,6 @@
 /* ==========================================================================
-   Visual "soft": relevo suave, cards Walnut Noir, 3 círculos de papel,
-   login em tela cheia e tema escuro (chocolate, preto e dourado).
-   Carregado por último: só acrescenta por cima dos outros arquivos.
+   Visual "soft": relevo suave, cards finos só com frases, login igual à referência
+   e tema bege rosé. Carregado por último: só acrescenta por cima dos outros arquivos.
    ========================================================================== */
 
 :root {
@@ -39,11 +38,11 @@
   justify-self: end;
 }
 
-/* ===== Botão de tema (relevo, como a referência BUTTON.D) ===== */
+/* ===== Botão de tema (relevo, como a referência BUTTON.D), 10% menor ===== */
 .theme-toggle {
   flex: none;
-  width: 62px;
-  height: 36px;
+  width: 56px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -63,37 +62,38 @@
   border-radius: 999px;
   background: linear-gradient(135deg, #e3ddd3, #f5f1ea);
   box-shadow:
-    inset 3px 4px 8px rgba(110, 90, 76, 0.38),
+    inset 3px 4px 7px rgba(110, 90, 76, 0.38),
     inset -2px -2px 5px rgba(255, 255, 255, 0.9),
     0 0 0 1.5px rgba(255, 255, 255, 0.7),
     0 1px 3px rgba(80, 60, 48, 0.2);
 }
 .theme-toggle-knob {
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 2.5px;
+  left: 2.5px;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 27px;
+  height: 27px;
   border-radius: 50%;
   color: var(--soft-ink-2);
   background: linear-gradient(145deg, #fbf8f3, #e4ded5);
-  box-shadow: 0 3px 7px rgba(80, 60, 48, 0.38), inset 0 1px 0 #fff;
+  box-shadow: 0 3px 6px rgba(80, 60, 48, 0.38), inset 0 1px 0 #fff;
   transition: transform 0.28s cubic-bezier(0.3, 0.9, 0.3, 1.1), background 0.25s ease, color 0.25s ease;
 }
-.theme-toggle--dark .theme-toggle-track {
-  background: linear-gradient(135deg, #120b09, #2a1b16);
+.theme-toggle--rose .theme-toggle-track {
+  background: linear-gradient(135deg, #e2b9aa, #f2d6cb);
   box-shadow:
-    inset 3px 4px 9px rgba(0, 0, 0, 0.75),
-    inset -1px -1px 3px rgba(214, 178, 134, 0.14),
-    0 0 0 1.5px rgba(201, 162, 75, 0.45);
+    inset 3px 4px 7px rgba(140, 84, 68, 0.42),
+    inset -2px -2px 5px rgba(255, 238, 230, 0.8),
+    0 0 0 1.5px rgba(214, 160, 140, 0.7),
+    0 1px 3px rgba(120, 70, 56, 0.25);
 }
-.theme-toggle--dark .theme-toggle-knob {
-  transform: translateX(26px);
-  color: #1a100c;
-  background: linear-gradient(145deg, #e3c179, #b8893f);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 244, 214, 0.7);
+.theme-toggle--rose .theme-toggle-knob {
+  transform: translateX(24px);
+  color: #fff7f1;
+  background: linear-gradient(145deg, #d99a86, #b9715f);
+  box-shadow: 0 3px 7px rgba(120, 60, 48, 0.45), inset 0 1px 0 rgba(255, 232, 222, 0.7);
 }
 @media (prefers-reduced-motion: reduce) {
   .theme-toggle-knob {
@@ -101,379 +101,354 @@
   }
 }
 
-/* ===== Cards finos: Walnut Noir (pílula marrom, fio claro, só texto) ===== */
+/* ===== Cards finos: só a frase, em letras altas e robustas, com um ícone à esquerda ===== */
+/* borda fina cor de ouro chocolate, sem pintura; o tempo todo na mesma cor do ícone */
+.home-wheel {
+  --wheel-gold: #a2753f;
+  --wheel-card-h: 56px;
+  --wheel-gap: 12px;
+  margin-top: 0;
+}
 .home-wheel .wheel-card {
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  border-radius: 999px;
-  border: 1px solid rgba(240, 222, 204, 0.42);
-  background:
-    radial-gradient(120% 140% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
-    linear-gradient(100deg, var(--walnut-a) 0%, #46352f 52%, var(--walnut-b) 100%);
+  gap: 14px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1.5px solid var(--wheel-gold);
+  background: transparent;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  box-shadow:
-    0 14px 22px -12px rgba(30, 18, 14, 0.7),
-    0 2px 0 rgba(255, 255, 255, 0.05) inset;
-  color: #f3e7d8;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.home-wheel .wheel-item:nth-child(even) .wheel-card {
-  background:
-    radial-gradient(120% 140% at 92% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
-    linear-gradient(100deg, var(--walnut-b) 0%, #46352f 48%, var(--walnut-a) 100%);
+  box-shadow: none;
+  color: var(--wheel-gold);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 .home-wheel .wheel-card:active {
   transform: scale(0.985);
+  background-color: rgba(162, 117, 63, 0.08);
 }
-/* sem imagem e sem ícone: só o texto, espaçado e leve */
-.home-wheel .wheel-thumb,
-.home-wheel .wheel-thumb--photo {
-  display: none;
+.home-wheel .wheel-thumb {
+  flex: 0 0 auto;
+  width: auto;
+  background: none !important;
+  color: var(--wheel-gold);
+}
+.home-wheel .wheel-thumb svg {
+  width: 26px;
+  height: 26px;
 }
 .home-wheel .wheel-title {
-  font-family: var(--font-label, var(--font-display));
-  font-weight: 300;
-  font-size: 14px;
-  letter-spacing: 0.3em;
+  font-family: 'Bebas Neue', 'Oswald', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #f3e7d8;
-  padding: 0 18px !important;
-  text-align: center;
+  color: var(--wheel-gold);
+  padding: 2px 0 0 !important;
+  text-align: left;
+}
+/* entra e sai da roda esmaecendo devagar (antes cortava de uma vez) */
+.home-wheel .wheel-viewport {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 12%, #000 30%, #000 70%, rgba(0, 0, 0, 0.35) 88%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 12%, #000 30%, #000 70%, rgba(0, 0, 0, 0.35) 88%, transparent 100%);
+}
+/* dedo (ou mouse) em cima: a roda para */
+.home-wheel .wheel-viewport--paused .wheel-track {
+  animation-play-state: paused;
+}
+@media (hover: hover) {
+  .home-wheel .wheel-viewport:hover .wheel-track {
+    animation-play-state: paused;
+  }
+}
+/* sem flores: a roda fica mais perto dos 3 círculos e de "Para você" */
+.home-wheel {
+  margin-bottom: -4px;
 }
 
-/* ===== 3 círculos de papel (Eventos, Loja, Receitas), só escrito ===== */
+/* ===== 3 círculos (Eventos, Loja, Receitas): com as fotos, escrita simples e fácil de ler ===== */
 .home-trio {
-  width: min(100%, 400px);
-  aspect-ratio: 1 / 1.08;
-  margin: 26px auto 14px;
+  margin-bottom: 0;
 }
-.home-trio-circle {
-  background: radial-gradient(circle at 30% 24%, #fbf9f6 0%, var(--soft-paper) 58%, #e9e3db 100%);
-  box-shadow:
-    0 22px 30px -16px var(--soft-lo),
-    0 6px 10px -4px rgba(120, 98, 84, 0.18),
-    inset 0 2px 3px var(--soft-hi),
-    inset 0 -6px 10px rgba(150, 128, 112, 0.14);
+.home-trio .home-trio-text {
+  gap: 6px;
+  padding: 12%;
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(40, 26, 18, 0.62) 0%, rgba(40, 26, 18, 0.32) 85%);
 }
-.home-trio-circle--a { width: 70%; left: 2%; top: 0; z-index: 2; }
-.home-trio-circle--b { width: 52%; right: 0; top: 4%; z-index: 1; }
-.home-trio-circle--c { width: 46%; left: 30%; top: 53%; z-index: 3; }
-.home-trio-media {
+.home-trio .home-trio-circle .home-trio-eyebrow {
+  font-size: max(15px, 13cqw);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+.home-trio .home-trio-circle .home-trio-title {
+  font-size: max(11.5px, 7.6cqw);
+  font-weight: 600;
+  line-height: 1.25;
+}
+/* só o nome e o título: o resto era miúdo demais para ler */
+.home-trio .home-trio-subtitle,
+.home-trio .home-trio-tag {
   display: none;
 }
-.home-trio-text {
-  color: var(--soft-ink);
-  text-shadow: none;
-  background: none;
-  gap: 5px;
-}
-.home-trio-eyebrow {
-  font-weight: 300;
-  letter-spacing: 0.22em;
-}
-.home-trio-title {
-  color: var(--soft-ink);
-}
-.home-trio-subtitle {
-  color: var(--soft-ink-2);
-  opacity: 1;
-}
-.home-trio-tag {
-  border-color: rgba(168, 112, 76, 0.55);
-  color: #a8704c;
-}
-.home-trio-circle:focus-visible {
-  outline: 2px solid #a8704c;
-}
-/* círculos pequenos de enfeite, só detalhe */
-.home-trio-dec {
-  position: absolute;
-  z-index: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(circle at 30% 26%, #fbf9f6, #e9e3db);
-  box-shadow: 0 8px 12px -6px var(--soft-lo), inset 0 1px 2px var(--soft-hi), inset 0 -3px 5px rgba(150, 128, 112, 0.12);
-}
-.home-trio-dec--1 { width: 6%; left: 74%; top: -2%; }
-.home-trio-dec--2 { width: 9%; left: -1%; top: 52%; }
-.home-trio-dec--3 { width: 5%; left: 78%; top: 58%; }
-.home-trio-dec--4 { width: 7%; left: 18%; top: 90%; }
-.home-trio-dec--5 { width: 4%; left: 66%; top: 80%; }
-.home-trio-dec--6 { width: 5%; left: 90%; top: 36%; }
 
-/* ===== Login: tela cheia, logo brilhando e campos arredondados ===== */
-.auth-stage {
-  background-color: #6b4a35;
-  background-image:
-    radial-gradient(70% 38% at 50% 38%, rgba(255, 190, 120, 0.5), transparent 70%),
-    linear-gradient(180deg, #c9a88c 0%, #8b6246 45%, #4a301f 100%);
-  align-items: end;
+/* ===== Login: a foto da referência, fixa, com os campos desenhados por cima ===== */
+.login-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
-/* a foto fica desfocada e escurece embaixo, para o texto e os campos ficarem legíveis */
-.auth-stage::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  background: linear-gradient(180deg, rgba(60, 38, 26, 0.1) 0%, rgba(40, 24, 16, 0.55) 100%);
+.auth-stage {
+  --login-col: min(100vw, 56.25dvh);
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: 0;
+  background-color: #cdb19c;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+/* telas mais largas que a foto (computador, tablet): a foto inteira, centralizada */
+@media (min-aspect-ratio: 3 / 5) {
+  .auth-stage {
+    background-size: auto 100%;
+  }
 }
 .auth-stage > .auth-card {
   z-index: 1;
-  width: min(100%, 360px);
-  padding: 8px 4px 22px;
+  box-sizing: border-box;
+  width: calc(var(--login-col) * 0.764);
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 0 5.3dvh;
+  gap: 0;
   border: 0;
   border-radius: 0;
   background: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow: none;
-  gap: 2px;
+  color: #fbeedd;
+  text-align: left;
 }
-.auth-stage > .auth-card .brand-logo {
-  max-width: 200px;
-  margin: 0 auto 18px;
-  filter: brightness(0) invert(1) drop-shadow(0 0 14px rgba(255, 178, 96, 0.9)) drop-shadow(0 0 34px rgba(255, 150, 70, 0.55));
-}
-.auth-stage > .auth-card .brand-logo,
-.auth-stage > .auth-card .brand {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-.auth-stage > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle) {
-  background: linear-gradient(180deg, #a8704c 0%, #6a4026 60%, #4d2c19 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 226, 196, 0.5),
-    0 0 18px rgba(255, 170, 90, 0.35),
-    0 12px 22px -10px rgba(30, 16, 8, 0.7);
-}
-.auth-stage > .auth-card .auth-subtitle {
-  display: none;
+.auth-stage > .auth-card form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0;
 }
 .auth-stage > .auth-card label {
   align-self: flex-start;
-  margin: 14px 0 6px 6px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  margin: 0 0 0.7dvh 6px;
+  font-family: var(--font-label, inherit);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: #f8e9d8;
+  text-shadow: 0 1px 4px rgba(60, 34, 18, 0.45);
+}
+.auth-stage > .auth-card form > label:not(:first-child) {
+  margin-top: 1.6dvh;
 }
 .auth-stage > .auth-card input {
   width: 100%;
   box-sizing: border-box;
-  padding: 14px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  height: clamp(46px, 5.2dvh, 62px);
+  padding: 0 22px;
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #5a463a;
+  background: rgba(70, 40, 20, 0.22);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  color: #fff;
+  font-size: 16px;
   text-shadow: none;
 }
+.auth-stage > .auth-card input:focus,
+.auth-stage > .auth-card input:focus-visible {
+  outline: none;
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 210, 160, 0.35);
+}
 .auth-stage > .auth-card input::placeholder {
-  color: #9c8678;
+  color: rgba(255, 244, 230, 0.6);
 }
 .auth-stage > .auth-card input:-webkit-autofill {
-  -webkit-text-fill-color: #5a463a;
+  -webkit-text-fill-color: #fff;
+  transition: background-color 99999s ease-in-out 0s;
+  caret-color: #fff;
 }
 .auth-stage > .auth-card .password-field-toggle {
-  color: #85695d;
+  color: #fbeedd;
 }
 .auth-stage > .auth-card .auth-hint {
   align-self: flex-start;
-  margin: 4px 0 0 8px;
-  font-size: 11px;
-  opacity: 0.9;
+  margin: 0.7dvh 0 0 14px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: rgba(255, 244, 230, 0.88);
+  text-shadow: 0 1px 3px rgba(60, 34, 18, 0.4);
 }
-.auth-stage > .auth-card button:not(.auth-link):not(.password-field-toggle) {
-  width: 100%;
-  margin-top: 24px;
-  padding: 15px;
-  border: 1px solid rgba(255, 214, 170, 0.55);
+.auth-stage > .auth-card .auth-error {
+  margin: 1.2dvh 0 0;
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+}
+/* botão Entrar: marrom cobre, em pílula, com brilho de cima */
+.auth-stage > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle) {
+  align-self: center;
+  width: 71%;
+  height: clamp(48px, 5.5dvh, 66px);
+  margin: 3dvh 0 0;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: linear-gradient(180deg, #a8704c 0%, #6a4026 60%, #4d2c19 100%);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  background: linear-gradient(180deg, #b97642 0%, #9b5b2e 48%, #7b441f 100%);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   box-shadow:
-    inset 0 1px 0 rgba(255, 226, 196, 0.5),
-    0 0 18px rgba(255, 170, 90, 0.35),
-    0 12px 22px -10px rgba(30, 16, 8, 0.7);
+    inset 0 1px 0 rgba(255, 224, 190, 0.45),
+    0 10px 16px -6px rgba(54, 28, 10, 0.6);
 }
-.auth-stage > .auth-card button:not(.auth-link):not(.password-field-toggle):hover:not(:disabled) {
-  background: linear-gradient(180deg, #b87c56 0%, #744629 60%, #55321d 100%);
-  border: 1px solid rgba(255, 214, 170, 0.7);
+.auth-stage > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle):hover:not(:disabled) {
+  background: linear-gradient(180deg, #c3804a 0%, #a5643a 48%, #84492a 100%);
+  border: 0;
 }
+/* links sublinhados, centralizados */
 .auth-stage > .auth-card .auth-link {
+  align-self: center;
+  width: auto;
+  min-height: 0;
+  margin: 1.6dvh 0 0;
+  padding: 4px 8px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: #fbeedd;
+  font-size: 12.5px;
+  font-weight: 400;
   text-decoration: underline;
   text-underline-offset: 3px;
-  font-size: 13px;
+  text-shadow: 0 1px 3px rgba(60, 34, 18, 0.4);
+}
+.auth-stage > .auth-card form > .auth-link:last-child {
+  margin-top: 1.1dvh;
 }
 
-/* ===== Tema escuro: chocolate, preto e dourado ===== */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --gold: #d6b286;
-  --gold-strong: #c9a24b;
-  --choc-0: #120b09;
-  --choc-1: #1c120e;
-  --choc-2: #2e1f1b;
-  --choc-3: #3b2a24;
-  --choc-4: #5e4b43;
-  --text-warm: #f1e4d2;
-  --text-warm-2: #cdb89f;
-
-  --c-white: var(--choc-2);
-  --c-sand: var(--choc-1);
-  --c-beige: var(--choc-3);
-  --c-dry-leaf: var(--choc-3);
-  --c-rose-mist: var(--choc-1);
-  --n-000: var(--choc-2);
-  --n-050: var(--choc-1);
-  --n-100: var(--choc-1);
-  --n-200: var(--choc-3);
-  --n-300: #4a3830;
-  --n-400: #7a6458;
-  --n-600: #b79f8a;
-  --n-700: var(--text-warm-2);
-  --n-800: var(--text-warm);
-  --n-900: var(--text-warm);
-  --white: var(--choc-2);
-  --surface: var(--choc-2);
-  --surface-sunken: var(--choc-1);
-  --page-bg: var(--choc-0);
-  --circula-page-beige: var(--choc-0);
-  --page-gradient: linear-gradient(180deg, #0e0806 0%, #160d0a 45%, #1c120e 100%);
-  --zone-wash: linear-gradient(180deg, var(--choc-2) 0%, var(--choc-1) 100%);
-  --graphite: var(--text-warm);
-  --graphite-soft: var(--text-warm-2);
-  --circula-mocha: var(--text-warm);
-  --circula-taupe: var(--text-warm-2);
-  --circula-black: var(--text-warm);
-  --border: rgba(214, 178, 134, 0.18);
-  --border-soft: rgba(214, 178, 134, 0.1);
-  --hairline: rgba(214, 178, 134, 0.14);
-  --ink-action: var(--gold);
-  --ink-action-hover: #e6c79b;
-  --ink-action-soft: rgba(214, 178, 134, 0.1);
-  --ink-action-line: rgba(214, 178, 134, 0.4);
-  --on-action: #1a100c;
-  --olive-text: var(--gold);
-  --accent-sand: var(--gold);
-  --accent-leaf: var(--gold);
-  --accent-rose: #d2a28a;
-  --shadow-sm: rgba(0, 0, 0, 0.45) 0 1px 3px, rgba(0, 0, 0, 0.5) 0 8px 18px -6px;
-  --shadow-md: rgba(0, 0, 0, 0.5) 0 2px 6px -1px, rgba(0, 0, 0, 0.55) 0 14px 30px -8px;
-  --shadow-lg: rgba(0, 0, 0, 0.55) 0 6px 16px -4px, rgba(0, 0, 0, 0.6) 0 28px 54px -14px;
-
-  --soft-ink: var(--text-warm);
-  --soft-ink-2: var(--text-warm-2);
-  --soft-paper: #2b1d18;
-  --soft-hi: rgba(214, 178, 134, 0.22);
-  --soft-lo: rgba(0, 0, 0, 0.7);
+/* Recuperar senha e criar conta: formulário em vidro escuro sobre a mesma foto */
+.auth-stage--form {
+  align-items: center;
+  overflow-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 20px 24px;
 }
-:root[data-theme='dark'] body {
-  background: var(--page-gradient);
-  background-color: var(--choc-0);
-  color: var(--text-warm);
+.auth-stage--form::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(54, 32, 18, 0.55);
 }
-:root[data-theme='dark'] .home-trio-circle,
-:root[data-theme='dark'] .home-trio-dec {
-  background: radial-gradient(circle at 30% 24%, #3b2a24 0%, #2b1d18 58%, #1c120e 100%);
-  box-shadow:
-    0 22px 30px -16px rgba(0, 0, 0, 0.85),
-    inset 0 2px 3px rgba(214, 178, 134, 0.2),
-    inset 0 -6px 10px rgba(0, 0, 0, 0.5);
-}
-:root[data-theme='dark'] .home-trio-tag {
-  border-color: rgba(214, 178, 134, 0.6);
-  color: var(--gold);
-}
-:root[data-theme='dark'] .home-wheel .wheel-card {
-  border-color: rgba(214, 178, 134, 0.5);
-  box-shadow: 0 14px 22px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.4);
-}
-:root[data-theme='dark'] .home-wheel .wheel-title {
-  color: var(--gold);
-}
-:root[data-theme='dark'] .home-greeting-title {
-  color: var(--text-warm);
-}
-
-/* ===== Cards maiores: placa em relevo (Meu Chef, Lista, Exercícios, Diário, banners) ===== */
-.home-pair .menu-banner,
-.menu-banner {
-  position: relative;
-  border: 0;
+.auth-stage--form > .auth-card {
+  width: min(100%, 392px);
+  padding: 30px 24px 28px;
   border-radius: 32px;
-  padding: 10px 10px 16px;
-  background:
-    radial-gradient(120% 90% at 12% 0%, rgba(255, 255, 255, 0.9), transparent 55%),
-    linear-gradient(160deg, #f8f5f0 0%, #ece6dd 100%);
-  box-shadow:
-    0 26px 34px -22px rgba(120, 98, 84, 0.55),
-    0 10px 18px -10px rgba(168, 112, 76, 0.28),
-    inset 0 2px 2px rgba(255, 255, 255, 0.95),
-    inset 0 -5px 10px rgba(150, 128, 112, 0.16);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  background: rgba(64, 38, 22, 0.55);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 50px -26px rgba(20, 10, 4, 0.8), inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+  margin: auto;
 }
-.menu-banner:active {
-  transform: scale(0.985);
+.auth-stage--form > .auth-card .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
 }
-.menu-banner-photo {
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: inset 0 3px 8px rgba(110, 90, 76, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+.auth-stage--form > .auth-card .brand h1 {
+  margin: 0;
+  font-size: 26px;
+  color: #fff;
 }
-.menu-banner-photo--empty {
-  background: linear-gradient(160deg, #e9e3da, #f6f2ec);
+.auth-stage--form > .auth-card .auth-subtitle {
+  margin: 0 0 12px;
+  color: #fbeedd;
 }
-.menu-banner-title {
-  color: var(--soft-ink);
+.auth-stage--form > .auth-card form > p {
+  margin: 0 0 8px;
+  color: #fbeedd;
+  font-size: 14px;
 }
-.menu-banner-eyebrow,
-.menu-banner-copy {
-  color: var(--soft-ink-2);
+.auth-stage--form > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle) {
+  width: 100%;
 }
-/* botão em pílula, no mesmo relevo da referência ("Discover More") */
-.menu-banner-text::after {
-  content: 'Descobrir';
-  margin-top: 8px;
-  padding: 9px 26px;
-  border-radius: 999px;
-  font-family: var(--font-label, inherit);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--soft-ink);
-  background: linear-gradient(160deg, #fbf8f4, #e6dfd5);
-  box-shadow: 0 6px 10px -5px rgba(110, 90, 76, 0.5), inset 0 1px 1px #fff, inset 0 -2px 4px rgba(150, 128, 112, 0.18);
+
+/* ===== Tema bege rosé: o mesmo app em tons de bege e rosé (escolha da participante) ===== */
+:root[data-theme='rose'] {
+  --rose-0: #f1ddd4;
+  --rose-1: #f7e8e1;
+  --rose-2: #fbf1ec;
+  --rose-3: #e8cdc1;
+  --rose-ink: #5c3d36;
+  --rose-ink-2: #85625a;
+
+  --c-white: var(--rose-2);
+  --c-sand: var(--rose-1);
+  --c-beige: var(--rose-3);
+  --c-dry-leaf: var(--rose-3);
+  --c-rose-mist: var(--rose-1);
+  --n-000: var(--rose-2);
+  --n-050: var(--rose-1);
+  --n-100: var(--rose-1);
+  --n-200: var(--rose-3);
+  --n-300: #dcbcae;
+  --white: var(--rose-2);
+  --surface: var(--rose-2);
+  --surface-sunken: var(--rose-1);
+  --page-bg: var(--rose-0);
+  --circula-page-beige: var(--rose-0);
+  --page-gradient: linear-gradient(180deg, #f4e2d9 0%, #efd9cf 55%, #ead0c4 100%);
+  --zone-wash: linear-gradient(180deg, var(--rose-2) 0%, var(--rose-1) 100%);
+  --border: rgba(172, 112, 96, 0.28);
+  --border-soft: rgba(172, 112, 96, 0.18);
+  --hairline: rgba(172, 112, 96, 0.22);
+  --ink-action: #8f5446;
+  --ink-action-hover: #794538;
+  --ink-action-soft: rgba(172, 112, 96, 0.1);
+  --ink-action-line: rgba(172, 112, 96, 0.4);
+  --accent-sand: #c08a72;
+  --accent-rose: #c47f70;
+
+  --soft-ink: var(--rose-ink);
+  --soft-ink-2: var(--rose-ink-2);
+  --soft-paper: var(--rose-2);
+  --soft-lo: rgba(140, 84, 68, 0.3);
 }
-:root[data-theme='dark'] .menu-banner {
-  background:
-    radial-gradient(120% 90% at 12% 0%, rgba(214, 178, 134, 0.12), transparent 55%),
-    linear-gradient(160deg, #33231d 0%, #1f1410 100%);
-  box-shadow:
-    0 26px 34px -22px rgba(0, 0, 0, 0.9),
-    0 0 0 1px rgba(214, 178, 134, 0.22),
-    inset 0 2px 2px rgba(214, 178, 134, 0.18),
-    inset 0 -5px 10px rgba(0, 0, 0, 0.5);
+:root[data-theme='rose'] body {
+  background: var(--page-gradient);
+  background-color: var(--rose-0);
 }
-:root[data-theme='dark'] .menu-banner-photo--empty {
-  background: linear-gradient(160deg, #2b1d18, #1c120e);
+:root[data-theme='rose'] .home-wheel {
+  --wheel-gold: #9c6a3c;
 }
-:root[data-theme='dark'] .menu-banner-text::after {
-  color: #1a100c;
-  background: linear-gradient(160deg, #e3c179, #b8893f);
-  box-shadow: 0 6px 12px -5px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 244, 214, 0.6);
+:root[data-theme='rose'] .bottom-nav {
+  background: rgba(251, 241, 236, 0.94);
+  border-color: var(--border);
 }
-@media (prefers-reduced-motion: reduce) {
-  .menu-banner {
-    transition: none;
-  }
+:root[data-theme='rose'] .home-footer a {
+  color: var(--rose-ink);
 }
 
 /* ===== Capa da comunidade (banner inicial): moldura em relevo ===== */
@@ -502,38 +477,150 @@
   border-radius: 0 0 26px 26px;
   background: linear-gradient(0deg, rgba(40, 26, 18, 0.55), rgba(40, 26, 18, 0));
 }
-:root[data-theme='dark'] .home-community-header--glass,
-:root[data-theme='dark'] .home-community-header {
+
+:root[data-theme='rose'] .home-community-header--glass,
+:root[data-theme='rose'] .home-community-header {
   background:
-    radial-gradient(120% 90% at 12% 0%, rgba(214, 178, 134, 0.12), transparent 55%),
-    linear-gradient(160deg, #33231d 0%, #1f1410 100%);
-  box-shadow: 0 26px 34px -22px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(214, 178, 134, 0.22), inset 0 2px 2px rgba(214, 178, 134, 0.18);
+    radial-gradient(120% 90% at 12% 0%, rgba(255, 244, 238, 0.9), transparent 55%),
+    linear-gradient(160deg, #fbeee8 0%, #efd6cb 100%);
+  box-shadow:
+    0 26px 34px -22px rgba(140, 84, 68, 0.5),
+    inset 0 2px 2px rgba(255, 248, 244, 0.95),
+    inset 0 -5px 10px rgba(172, 112, 96, 0.16);
 }
 
-/* ===== Tema escuro: superfícies que tinham branco fixo ===== */
-:root[data-theme='dark'] :is(.feed-notice, .garden-manager, .garden-panel, .profile-secondary-action, .cat-back, .cat-product, .diary-prayer, .diary-tile, .event-card.event-card--grid, .ex-article-tile, .ex-tile, .ex-pair figure, .hw-chip, .hw-ghost, .menu-big-field, .menu-card, .menu-chip, .menu-pick, .ml-modal, .plans-included, .plan-tile-icon, .post-poll-option, .rank-item, .rec-cat-card, .sf-card, .tour-card, .package-chip, .weather-picker-input, .cty-tag--highlight, .agenda-popup-list li, .photo-social, .photo-social-like, .pn-actions button, .pn-list select, .product-reader-note, .emoji-picker-pop, .plans-sheet, .plan-tile) {
-  background: var(--choc-2);
-  color: var(--text-warm);
-  border-color: var(--border);
+/* ===== 4 cards (Meu Chef, Lista, Exercícios, Diário): como antes; a parte escrita sem bordas ===== */
+.home-pair .menu-banner,
+.home-pair .menu-banner-text,
+.home-pair .gratitude-card,
+.home-pair .gratitude-text {
+  border: 0 !important;
+  outline: 0 !important;
 }
-:root[data-theme='dark'] .plans-wide {
-  background: linear-gradient(135deg, #33231d, #1f1410);
-  color: var(--text-warm);
+
+/* ===== Card "Minha cidade": borda grossa embaixo igual a dos cards de Círculos, 10% menos alto ===== */
+.home-editorial-card.home-city-card {
+  aspect-ratio: 16 / 7.2;
+  border: 0 !important;
+  border-radius: 24px;
+  background: #e9dccb;
+  box-shadow:
+    0 2px 0 #cdbcab,
+    0 4px 0 #b29d89,
+    0 5px 0 #8f7a67,
+    0 14px 16px -8px rgba(40, 32, 26, 0.5),
+    0 30px 30px -22px rgba(40, 32, 26, 0.45);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
-:root[data-theme='dark'] .bottom-nav {
-  background: rgba(24, 15, 12, 0.94);
-  border-color: var(--border);
+.home-editorial-card.home-city-card::before {
+  display: none;
 }
-:root[data-theme='dark'] :is(input, textarea, select):not([type='checkbox']):not([type='radio']):not([type='range']) {
-  background-color: var(--choc-1);
-  color: var(--text-warm);
-  border-color: var(--border);
+.home-editorial-card.home-city-card:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 #8f7a67,
+    0 8px 12px -6px rgba(40, 32, 26, 0.5);
 }
-:root[data-theme='dark'] ::placeholder {
-  color: var(--text-warm-2);
-  opacity: 0.7;
+.home-editorial-card.home-city-card .home-editorial-card-media {
+  border-radius: 24px;
 }
-:root[data-theme='dark'] .car-card,
-:root[data-theme='dark'] .car-teaser li {
-  background: var(--choc-2);
+.home-editorial-card.home-city-card .home-editorial-card-body {
+  gap: 2px;
+  padding: 16px 22px;
+}
+.home-city-card .home-editorial-card-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.home-city-card .home-editorial-card-title {
+  font-size: 26px;
+}
+
+/* ===== Home sem flores: linhas e blocos mais juntos ===== */
+/* depois das capas da revista, a linha sobe */
+.mag-strip + .home-section-divider {
+  margin-top: -10px;
+}
+/* depois dos cards finos, o título "Para você" encosta mais */
+.home-wheel + .home-group-title {
+  margin-top: -4px;
+}
+
+/* ===== Planos e Assinaturas: o círculo girando (dourado e bege rosé), sem caixa, com o nome embaixo ===== */
+.home-plans-wrap {
+  margin: 4px 0 0;
+}
+.home-plans-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.home-plans-card:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+.home-plans-orb {
+  display: block;
+  width: min(62%, 200px);
+  height: auto;
+  pointer-events: none;
+}
+.home-plans-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--circula-mocha, var(--soft-ink));
+}
+
+/* ===== Parceiros e a frase logo abaixo: mais juntos ===== */
+.home-partners + .home-institutional-note {
+  margin-top: -6px;
+}
+
+/* ===== Termos de Uso e Política: só o escrito, sem caixa ===== */
+.home-footer {
+  margin: 0;
+  padding: 4px 8px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* ===== "Encontrou algum problema?": sem banner, só a frase em letras vazadas (é um link) ===== */
+.home-feedback-btn {
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px #8a5a3a;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  cursor: pointer;
+}
+.home-feedback-btn:focus-visible {
+  outline: 2px solid #8a5a3a;
+  outline-offset: 4px;
+}
+:root[data-theme='rose'] .home-feedback-btn {
+  -webkit-text-stroke-color: #8f5446;
 }

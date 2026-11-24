@@ -29,7 +29,6 @@ import { AnalogClock } from './AnalogClock'
 import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
-import { HomeFlowerGap } from './HomeFlowerBackground'
 import { HomeFooter } from './HomeFooter'
 import { HomeGroupTitle } from './HomeGroupTitle'
 import { HomePlansNotice } from './HomePlansNotice'
@@ -363,7 +362,6 @@ export function HomeToday({
       {/* "Na minha cidade": depois dos Círculos e antes de "Descobrir". */}
       <HomeCityCard city={myCity} image={cidadeCover} badge={cityBadge.total} onOpen={() => onNavigate('cidade')} />
 
-      {/* Da revista até o fim da página, flores de pétalas redondas ao fundo. */}
       <div className="home-flower-zone">
       <HomeGroupTitle>Descobrir</HomeGroupTitle>
       <HomeMagazineStrip
@@ -375,7 +373,6 @@ export function HomeToday({
           ) : undefined
         }
       />
-      <HomeFlowerGap seed={1} sizes={[46, 68]} height={66} />
 
       {/* Pedido do usuário — cards editoriais de Receitas/Eventos/Loja,
           depois da faixa do Instagram (ver HomeEditorialCards.tsx).
@@ -401,10 +398,8 @@ export function HomeToday({
         featuredProduct={featuredProduct ? { ...featuredProduct, cover_image_url: featuredProductCover } : null}
         onNavigate={onNavigate}
       />
-      <HomeFlowerGap seed={2} sizes={[40, 62]} height={62} />
 
-      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} carro={carroHome?.settings ?? null} />
-      <HomeFlowerGap seed={3} height={28} />
+      <HomeMenuWheel onNavigate={onNavigate} carro={carroHome?.settings ?? null} />
 
       <HomeGroupTitle>Para você</HomeGroupTitle>
       <div className="home-pair">
@@ -412,7 +407,6 @@ export function HomeToday({
         <span className="home-pair-dot" aria-hidden="true" />
         <HomeGratitudeCard image={listaCover} onOpen={() => onNavigate('lista')} title="Lista de Compras" eyebrow="Tudo à mão no mercado" />
       </div>
-      <HomeFlowerGap seed={4} />
 
       <div className="home-pair home-pair--feature">
         <HomeFeatureBanner
@@ -436,13 +430,10 @@ export function HomeToday({
           onOpen={() => onNavigate('diario')}
         />
       </div>
-      <HomeFlowerGap seed={5} />
 
       <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
-      <HomeFlowerGap seed={6} height={22} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
-      <HomeFlowerGap seed={7} sizes={[38, 56]} height={60} />
 
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.

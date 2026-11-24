@@ -9,14 +9,14 @@ describe('ThemeToggle', () => {
     delete document.documentElement.dataset.theme
   })
 
-  it('começa claro, liga o escuro ao tocar e guarda a escolha', () => {
+  it('começa claro, liga o bege rosé ao tocar e guarda a escolha', () => {
     render(<ThemeToggle />)
     const chave = screen.getByRole('switch')
     expect(chave).toHaveAttribute('aria-checked', 'false')
     fireEvent.click(chave)
     expect(chave).toHaveAttribute('aria-checked', 'true')
-    expect(document.documentElement.dataset.theme).toBe('dark')
-    expect(localStorage.getItem('circula:tema')).toBe('dark')
+    expect(document.documentElement.dataset.theme).toBe('rose')
+    expect(localStorage.getItem('circula:tema')).toBe('rose')
     fireEvent.click(chave)
     expect(document.documentElement.dataset.theme).toBe('light')
   })

@@ -5,23 +5,19 @@ import { supabase } from '../lib/supabase'
 import { EMAIL_NOT_CONFIRMED_MESSAGE, signInErrorMessage } from '../lib/authErrors'
 import { LOGIN_PHONE_EXAMPLE, LOGIN_PHONE_HINT, normalizeLoginPhone } from '../lib/phone'
 import { requestPasswordResetByPhone, rememberCredentials, signInWithPhone } from '../lib/phoneLogin'
-import { useLoginBackground } from '../hooks/useLoginBackground'
 import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
-import circulaLogo from '../assets/circula-logo.png'
+import loginFundo from '../assets/login-fundo.webp'
 
-// Foto de fundo da entrada: a profissional cadastra no Painel → Imagens. (Reserva: um arquivo em src/assets com o nome
-// login-fundo.jpg.) Sem foto, entra um fundo em degradê nos tons da paleta.
-const FUNDO_LOCAL = Object.values(import.meta.glob('../assets/login-fundo.{jpg,jpeg,png,webp}', { eager: true, import: 'default' }))[0] as string | undefined
-
-function AuthStage({ children }: { children: React.ReactNode }) {
-  const FUNDO = useLoginBackground() ?? FUNDO_LOCAL
+// Foto da entrada: a mesma da referência (a moça tocando o círculo brilhante, com o logo). Fica fixa no app:
+// não há onde trocar. Os campos e botões são desenhados por cima, nas mesmas posições da referência.
+function AuthStage({ children, form = false }: { children: React.ReactNode; form?: boolean }) {
   // No <body>: nenhum ancestral com transform prende o fundo fixo.
   return createPortal(
-  <div className="auth-stage" style={FUNDO ? { backgroundImage: `url(${FUNDO})` } : undefined}>
-    {children}
-  </div>,
+    <div className={`auth-stage${form ? ' auth-stage--form' : ''}`} style={{ backgroundImage: `url(${loginFundo})` }}>
+      {children}
+    </div>,
     document.body,
   )
 }
@@ -198,7 +194,7 @@ export function Login() {
 
   if (mode === 'forgot-password') {
     return (
-      <AuthStage>
+      <AuthStage form>
         <section className="auth-card">
           <div className="brand">
             <img src={circulaIcon} alt="" className="brand-icon" />
@@ -249,7 +245,7 @@ export function Login() {
 
   if (mode === 'signup') {
     return (
-      <AuthStage>
+      <AuthStage form>
         <section className="auth-card">
           <div className="brand">
             <img src={circulaIcon} alt="" className="brand-icon" />
@@ -337,8 +333,7 @@ export function Login() {
   return (
     <AuthStage>
       <section className="auth-card">
-        <img src={circulaLogo} alt="Círcula" className="brand-logo" />
-        <p className="auth-subtitle">Entre com sua conta</p>
+        <h1 className="login-sr">Círcula</h1>
   
         <form onSubmit={handleSubmit}>
           {useEmail ? (
