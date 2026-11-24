@@ -33,6 +33,7 @@ import './city.css'
 import './robo.css'
 import './ajustes.css'
 import './palette.css'
+import './soft.css'
 
 function App() {
   const {

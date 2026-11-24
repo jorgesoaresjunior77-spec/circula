@@ -142,6 +142,9 @@ export function HomeEditorialCards({
 
   return (
     <section className="home-trio" aria-label="Receitas, eventos e loja da comunidade">
+      {[1, 2, 3, 4, 5, 6].map((n) => (
+        <span key={`dec-${n}`} className={`home-trio-dec home-trio-dec--${n}`} aria-hidden="true" />
+      ))}
       {cards.map(({ key, ...card }) => (
         <TrioCircle key={key} {...card} />
       ))}

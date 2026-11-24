@@ -3,6 +3,7 @@
 // ACIMA do banner; sem banner, a HomeToday a desenha no topo da Home.
 
 import { WeatherButton } from './WeatherButton'
+import { ThemeToggle } from './ThemeToggle'
 
 export function timeGreeting(now = new Date()): string {
   const hour = now.getHours()
@@ -35,7 +36,8 @@ export function HomeGreeting({
           </h2>
           <p className="home-greeting-sub">Seu Círcula de hoje</p>
         </div>
-        {onOpenWeather && <WeatherButton onOpen={onOpenWeather} />}
+        {onOpenWeather ? <WeatherButton onOpen={onOpenWeather} /> : <span />}
+        <ThemeToggle />
       </div>
     </header>
   )

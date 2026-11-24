@@ -1,0 +1,404 @@
+/* ==========================================================================
+   Visual "soft": relevo suave, cards Walnut Noir, 3 círculos de papel,
+   login em tela cheia e tema escuro (chocolate, preto e dourado).
+   Carregado por último: só acrescenta por cima dos outros arquivos.
+   ========================================================================== */
+
+:root {
+  --soft-ink: #5a463a;
+  --soft-ink-2: #85695d;
+  --soft-paper: #f4f0ea;
+  --soft-hi: rgba(255, 255, 255, 0.95);
+  --soft-lo: rgba(120, 98, 84, 0.28);
+  --walnut-a: #2e1f1b;
+  --walnut-b: #5e4b43;
+}
+
+/* ===== Saudação: título menor, tempo no meio e botão de tema no canto ===== */
+.home-greeting .home-greeting-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.home-greeting .home-greeting-text {
+  min-width: 0;
+}
+.home-greeting .home-greeting-title {
+  font-size: clamp(16px, 4.4vw, 19px);
+  line-height: 1.2;
+}
+.home-greeting .home-greeting-sub {
+  font-size: 9.5px;
+}
+.home-greeting .weather-button {
+  justify-self: center;
+  transform: none;
+}
+.home-greeting .theme-toggle {
+  justify-self: end;
+}
+
+/* ===== Botão de tema (relevo, como a referência BUTTON.D) ===== */
+.theme-toggle {
+  flex: none;
+  width: 62px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--soft-ink);
+  outline-offset: 3px;
+}
+.theme-toggle-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e3ddd3, #f5f1ea);
+  box-shadow:
+    inset 3px 4px 8px rgba(110, 90, 76, 0.38),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.9),
+    0 0 0 1.5px rgba(255, 255, 255, 0.7),
+    0 1px 3px rgba(80, 60, 48, 0.2);
+}
+.theme-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--soft-ink-2);
+  background: linear-gradient(145deg, #fbf8f3, #e4ded5);
+  box-shadow: 0 3px 7px rgba(80, 60, 48, 0.38), inset 0 1px 0 #fff;
+  transition: transform 0.28s cubic-bezier(0.3, 0.9, 0.3, 1.1), background 0.25s ease, color 0.25s ease;
+}
+.theme-toggle--dark .theme-toggle-track {
+  background: linear-gradient(135deg, #120b09, #2a1b16);
+  box-shadow:
+    inset 3px 4px 9px rgba(0, 0, 0, 0.75),
+    inset -1px -1px 3px rgba(214, 178, 134, 0.14),
+    0 0 0 1.5px rgba(201, 162, 75, 0.45);
+}
+.theme-toggle--dark .theme-toggle-knob {
+  transform: translateX(26px);
+  color: #1a100c;
+  background: linear-gradient(145deg, #e3c179, #b8893f);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 244, 214, 0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle-knob {
+    transition: none;
+  }
+}
+
+/* ===== Cards finos: Walnut Noir (pílula marrom, fio claro, só texto) ===== */
+.home-wheel .wheel-card {
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 222, 204, 0.42);
+  background:
+    radial-gradient(120% 140% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
+    linear-gradient(100deg, var(--walnut-a) 0%, #46352f 52%, var(--walnut-b) 100%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow:
+    0 14px 22px -12px rgba(30, 18, 14, 0.7),
+    0 2px 0 rgba(255, 255, 255, 0.05) inset;
+  color: #f3e7d8;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.home-wheel .wheel-item:nth-child(even) .wheel-card {
+  background:
+    radial-gradient(120% 140% at 92% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
+    linear-gradient(100deg, var(--walnut-b) 0%, #46352f 48%, var(--walnut-a) 100%);
+}
+.home-wheel .wheel-card:active {
+  transform: scale(0.985);
+}
+/* sem imagem e sem ícone: só o texto, espaçado e leve */
+.home-wheel .wheel-thumb,
+.home-wheel .wheel-thumb--photo {
+  display: none;
+}
+.home-wheel .wheel-title {
+  font-family: var(--font-label, var(--font-display));
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #f3e7d8;
+  padding: 0 18px !important;
+  text-align: center;
+}
+
+/* ===== 3 círculos de papel (Eventos, Loja, Receitas), só escrito ===== */
+.home-trio {
+  width: min(100%, 400px);
+  aspect-ratio: 1 / 1.08;
+  margin: 26px auto 14px;
+}
+.home-trio-circle {
+  background: radial-gradient(circle at 30% 24%, #fbf9f6 0%, var(--soft-paper) 58%, #e9e3db 100%);
+  box-shadow:
+    0 22px 30px -16px var(--soft-lo),
+    0 6px 10px -4px rgba(120, 98, 84, 0.18),
+    inset 0 2px 3px var(--soft-hi),
+    inset 0 -6px 10px rgba(150, 128, 112, 0.14);
+}
+.home-trio-circle--a { width: 70%; left: 2%; top: 0; z-index: 2; }
+.home-trio-circle--b { width: 52%; right: 0; top: 4%; z-index: 1; }
+.home-trio-circle--c { width: 46%; left: 30%; top: 53%; z-index: 3; }
+.home-trio-media {
+  display: none;
+}
+.home-trio-text {
+  color: var(--soft-ink);
+  text-shadow: none;
+  background: none;
+  gap: 5px;
+}
+.home-trio-eyebrow {
+  font-weight: 300;
+  letter-spacing: 0.22em;
+}
+.home-trio-title {
+  color: var(--soft-ink);
+}
+.home-trio-subtitle {
+  color: var(--soft-ink-2);
+  opacity: 1;
+}
+.home-trio-tag {
+  border-color: rgba(168, 112, 76, 0.55);
+  color: #a8704c;
+}
+.home-trio-circle:focus-visible {
+  outline: 2px solid #a8704c;
+}
+/* círculos pequenos de enfeite, só detalhe */
+.home-trio-dec {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 26%, #fbf9f6, #e9e3db);
+  box-shadow: 0 8px 12px -6px var(--soft-lo), inset 0 1px 2px var(--soft-hi), inset 0 -3px 5px rgba(150, 128, 112, 0.12);
+}
+.home-trio-dec--1 { width: 6%; left: 74%; top: -2%; }
+.home-trio-dec--2 { width: 9%; left: -1%; top: 52%; }
+.home-trio-dec--3 { width: 5%; left: 78%; top: 58%; }
+.home-trio-dec--4 { width: 7%; left: 18%; top: 90%; }
+.home-trio-dec--5 { width: 4%; left: 66%; top: 80%; }
+.home-trio-dec--6 { width: 5%; left: 90%; top: 36%; }
+
+/* ===== Login: tela cheia, logo brilhando e campos arredondados ===== */
+.auth-stage {
+  background-color: #6b4a35;
+  background-image:
+    radial-gradient(70% 38% at 50% 38%, rgba(255, 190, 120, 0.5), transparent 70%),
+    linear-gradient(180deg, #c9a88c 0%, #8b6246 45%, #4a301f 100%);
+  align-items: end;
+}
+/* a foto fica desfocada e escurece embaixo, para o texto e os campos ficarem legíveis */
+.auth-stage::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, rgba(60, 38, 26, 0.1) 0%, rgba(40, 24, 16, 0.55) 100%);
+}
+.auth-stage > .auth-card {
+  z-index: 1;
+  width: min(100%, 360px);
+  padding: 8px 4px 22px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  gap: 2px;
+}
+.auth-stage > .auth-card .brand-logo {
+  max-width: 200px;
+  margin: 0 auto 18px;
+  filter: brightness(0) invert(1) drop-shadow(0 0 14px rgba(255, 178, 96, 0.9)) drop-shadow(0 0 34px rgba(255, 150, 70, 0.55));
+}
+.auth-stage > .auth-card .brand-logo,
+.auth-stage > .auth-card .brand {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.auth-stage > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle) {
+  background: linear-gradient(180deg, #a8704c 0%, #6a4026 60%, #4d2c19 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 226, 196, 0.5),
+    0 0 18px rgba(255, 170, 90, 0.35),
+    0 12px 22px -10px rgba(30, 16, 8, 0.7);
+}
+.auth-stage > .auth-card .auth-subtitle {
+  display: none;
+}
+.auth-stage > .auth-card label {
+  align-self: flex-start;
+  margin: 14px 0 6px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.auth-stage > .auth-card input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #5a463a;
+  text-shadow: none;
+}
+.auth-stage > .auth-card input::placeholder {
+  color: #9c8678;
+}
+.auth-stage > .auth-card input:-webkit-autofill {
+  -webkit-text-fill-color: #5a463a;
+}
+.auth-stage > .auth-card .password-field-toggle {
+  color: #85695d;
+}
+.auth-stage > .auth-card .auth-hint {
+  align-self: flex-start;
+  margin: 4px 0 0 8px;
+  font-size: 11px;
+  opacity: 0.9;
+}
+.auth-stage > .auth-card button:not(.auth-link):not(.password-field-toggle) {
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px;
+  border: 1px solid rgba(255, 214, 170, 0.55);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #a8704c 0%, #6a4026 60%, #4d2c19 100%);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 226, 196, 0.5),
+    0 0 18px rgba(255, 170, 90, 0.35),
+    0 12px 22px -10px rgba(30, 16, 8, 0.7);
+}
+.auth-stage > .auth-card button:not(.auth-link):not(.password-field-toggle):hover:not(:disabled) {
+  background: linear-gradient(180deg, #b87c56 0%, #744629 60%, #55321d 100%);
+  border: 1px solid rgba(255, 214, 170, 0.7);
+}
+.auth-stage > .auth-card .auth-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 13px;
+}
+
+/* ===== Tema escuro: chocolate, preto e dourado ===== */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --gold: #d6b286;
+  --gold-strong: #c9a24b;
+  --choc-0: #120b09;
+  --choc-1: #1c120e;
+  --choc-2: #2e1f1b;
+  --choc-3: #3b2a24;
+  --choc-4: #5e4b43;
+  --text-warm: #f1e4d2;
+  --text-warm-2: #cdb89f;
+
+  --c-white: var(--choc-2);
+  --c-sand: var(--choc-1);
+  --c-beige: var(--choc-3);
+  --c-dry-leaf: var(--choc-3);
+  --c-rose-mist: var(--choc-1);
+  --n-000: var(--choc-2);
+  --n-050: var(--choc-1);
+  --n-100: var(--choc-1);
+  --n-200: var(--choc-3);
+  --n-300: #4a3830;
+  --n-400: #7a6458;
+  --n-600: #b79f8a;
+  --n-700: var(--text-warm-2);
+  --n-800: var(--text-warm);
+  --n-900: var(--text-warm);
+  --white: var(--choc-2);
+  --surface: var(--choc-2);
+  --surface-sunken: var(--choc-1);
+  --page-bg: var(--choc-0);
+  --circula-page-beige: var(--choc-0);
+  --page-gradient: linear-gradient(180deg, #0e0806 0%, #160d0a 45%, #1c120e 100%);
+  --zone-wash: linear-gradient(180deg, var(--choc-2) 0%, var(--choc-1) 100%);
+  --graphite: var(--text-warm);
+  --graphite-soft: var(--text-warm-2);
+  --circula-mocha: var(--text-warm);
+  --circula-taupe: var(--text-warm-2);
+  --circula-black: var(--text-warm);
+  --border: rgba(214, 178, 134, 0.18);
+  --border-soft: rgba(214, 178, 134, 0.1);
+  --hairline: rgba(214, 178, 134, 0.14);
+  --ink-action: var(--gold);
+  --ink-action-hover: #e6c79b;
+  --ink-action-soft: rgba(214, 178, 134, 0.1);
+  --ink-action-line: rgba(214, 178, 134, 0.4);
+  --on-action: #1a100c;
+  --olive-text: var(--gold);
+  --accent-sand: var(--gold);
+  --accent-leaf: var(--gold);
+  --accent-rose: #d2a28a;
+  --shadow-sm: rgba(0, 0, 0, 0.45) 0 1px 3px, rgba(0, 0, 0, 0.5) 0 8px 18px -6px;
+  --shadow-md: rgba(0, 0, 0, 0.5) 0 2px 6px -1px, rgba(0, 0, 0, 0.55) 0 14px 30px -8px;
+  --shadow-lg: rgba(0, 0, 0, 0.55) 0 6px 16px -4px, rgba(0, 0, 0, 0.6) 0 28px 54px -14px;
+
+  --soft-ink: var(--text-warm);
+  --soft-ink-2: var(--text-warm-2);
+  --soft-paper: #2b1d18;
+  --soft-hi: rgba(214, 178, 134, 0.22);
+  --soft-lo: rgba(0, 0, 0, 0.7);
+}
+:root[data-theme='dark'] body {
+  background: var(--page-gradient);
+  background-color: var(--choc-0);
+  color: var(--text-warm);
+}
+:root[data-theme='dark'] .home-trio-circle,
+:root[data-theme='dark'] .home-trio-dec {
+  background: radial-gradient(circle at 30% 24%, #3b2a24 0%, #2b1d18 58%, #1c120e 100%);
+  box-shadow:
+    0 22px 30px -16px rgba(0, 0, 0, 0.85),
+    inset 0 2px 3px rgba(214, 178, 134, 0.2),
+    inset 0 -6px 10px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='dark'] .home-trio-tag {
+  border-color: rgba(214, 178, 134, 0.6);
+  color: var(--gold);
+}
+:root[data-theme='dark'] .home-wheel .wheel-card {
+  border-color: rgba(214, 178, 134, 0.5);
+  box-shadow: 0 14px 22px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme='dark'] .home-wheel .wheel-title {
+  color: var(--gold);
+}
+:root[data-theme='dark'] .home-greeting-title {
+  color: var(--text-warm);
+}

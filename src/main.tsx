@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import { MotionRoot } from './lib/motionKit'
 import { startUpdateWatcher } from './lib/appUpdate'
+import { initTheme } from './hooks/useTheme'
 
 // Sem zoom por pinça (pedido do produto). O iPhone ignora user-scalable=no,
 // então o gesto é barrado aqui também. O toque duplo já não dá zoom por causa
@@ -19,6 +20,7 @@ document.addEventListener(
   },
   { passive: false },
 )
+initTheme()
 // Só no app publicado: confere se há versão nova e recarrega sozinho.
 if (import.meta.env.PROD) startUpdateWatcher()
 
