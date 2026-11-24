@@ -331,7 +331,7 @@ async function handleAddonSubscriptionEvent(
     .maybeSingle()
   if (!addon) return
 
-  const packages = packagesForPlan(addon.plan_key as AddonPlanKey)
+  const packages = packagesForPlan(addon.plan_key as AddonPlanKey, addon.bundle_keys as string[] | null)
   const now = new Date()
 
   if (CONFIRMED_EVENTS.has(event)) {

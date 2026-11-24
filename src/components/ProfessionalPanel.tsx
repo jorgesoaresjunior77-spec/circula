@@ -10,6 +10,7 @@ import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
 import { CityAdminPanel } from './CityAdminPanel'
 import { PanelImagesTab } from './PanelImagesTab'
+import { FeedbackInbox } from './FeedbackInbox'
 import { ContentSchedulePanel } from './ContentSchedulePanel'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
@@ -32,6 +33,7 @@ type PanelTab =
   | 'participantes'
   | 'publicacoes'
   | 'cidade'
+  | 'feedback'
   | 'eventos'
   | 'jardim'
   | 'circulos'
@@ -47,6 +49,7 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'agenda', label: 'Agenda de conteúdos' },
   { key: 'publicacoes', label: 'Publicações' },
   { key: 'cidade', label: 'Na minha cidade' },
+  { key: 'feedback', label: 'Problemas e sugestões' },
   { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'metricas', label: 'Métricas' },
   { key: 'assinaturas', label: 'Assinaturas' },
@@ -161,7 +164,7 @@ export function ProfessionalPanel({
             }}
           >
             {tab.label}
-            {tab.key === 'cidade' && cityBadge.total > 0 && <span className="notif-dot notif-dot--mini panel-tab-dot" aria-label="Novidades" />}
+            {((tab.key === 'cidade' && cityBadge.total > 0) || (tab.key === 'feedback' && (cityBadge.admin.feedback ?? 0) > 0)) && <span className="notif-dot notif-dot--mini panel-tab-dot" aria-label="Novidades" />}
           </button>
         ))}
       </div>
@@ -217,6 +220,12 @@ export function ProfessionalPanel({
       {activeTab === 'cidade' && (
         <div className="panel-tab-content">
           <CityAdminPanel uid={profileId} />
+        </div>
+      )}
+
+      {activeTab === 'feedback' && (
+        <div className="panel-tab-content">
+          <FeedbackInbox onChanged={() => void cityBadge.reload()} />
         </div>
       )}
 

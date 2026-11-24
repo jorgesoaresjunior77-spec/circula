@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ADDON_PLAN_KEYS, applyReferralDiscount, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan } from './addonPlans.ts'
+import { ADDON_PLAN_KEYS, applyReferralDiscount, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan, bundlePriceCents, sanitizeBundle } from './addonPlans.ts'
 import { PREMIUM_PRICES_CENTS, PRODUCTS, pricesOf } from '../../../src/lib/plansCatalog.ts'
 
 // O servidor e o app têm cada um o seu catálogo; este teste garante que os
@@ -78,5 +78,18 @@ describe('novos planos', () => {
     expect(packagesForPlan('series_filmes')).toEqual(['series_filmes'])
     expect(addonPriceCents('viagens', 'MONTHLY')).toBe(590)
     expect(packagesForPlan('viagens')).toEqual(['viagens'])
+  })
+})
+
+describe('cesta de assinaturas', () => {
+  it('só conteúdos avulsos válidos, sem repetir e sem o Premium', () => {
+    expect(sanitizeBundle(['respiracao', 'respiracao', 'premium', 'xyz', 'playlist'])).toEqual(['respiracao', 'playlist'])
+    expect(sanitizeBundle('nada')).toEqual([])
+  })
+
+  it('o preço é a soma dos conteúdos no ciclo e libera todos os pacotes', () => {
+    expect(bundlePriceCents(['respiracao', 'playlist'], 'MONTHLY')).toBe(590 + 590)
+    expect(packagesForPlan('cesta', ['respiracao', 'playlist'])).toEqual(['respiracao', 'playlist'])
+    expect(packagesForPlan('cesta', null)).toEqual([])
   })
 })

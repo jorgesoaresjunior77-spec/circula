@@ -7,6 +7,7 @@ import { CoverImageInput } from './CoverImageInput'
 import { LoginBackgroundManager } from './LoginBackgroundManager'
 import { CircleImagesManager } from './CircleImagesManager'
 import { PartnersManager } from './PartnersManager'
+import { CityImagesAdmin } from './CityImagesAdmin'
 
 // Painel → Imagens, organizado por SETOR e por LUGAR no app: o que a profissional procura é
 // "onde isso aparece", então cada bloco diz a tela e a parte (ex.: Início · Para você).
@@ -102,6 +103,12 @@ const SECTIONS: Section[] = [
     extra: ({ communityId, profileId }) => <PartnersManager communityId={communityId} profileId={profileId} />,
   },
   {
+    id: 'cidade',
+    title: 'Na minha cidade',
+    summary: 'Imagens de grupos, categorias, estados, cidades, lugares e autônomos.',
+    extra: () => <CityImagesAdmin />,
+  },
+  {
     id: 'loja',
     title: 'Loja',
     summary: 'A imagem de fundo das prateleiras.',
@@ -157,7 +164,7 @@ function SlotRow({
   )
 }
 
-export function PanelImagesTab({ communityId, profileId, onOpenCity }: { communityId: string; profileId: string; onOpenCity?: () => void }) {
+export function PanelImagesTab({ communityId, profileId }: { communityId: string; profileId: string; onOpenCity?: () => void }) {
   const { images, loading, setImage, clearImage } = useCommunityCardImages(communityId)
   const [errorKey, setErrorKey] = useState<CommunityCardKey | null>(null)
   const [openId, setOpenId] = useState<string | null>('hoje')
@@ -219,19 +226,6 @@ export function PanelImagesTab({ communityId, profileId, onOpenCity }: { communi
         )
       })}
 
-      <section className="panel-img-section">
-        <div className="panel-img-head panel-img-head--static">
-          <span className="panel-img-title">
-            <strong>Na minha cidade (grupos e categorias)</strong>
-            <small>Cada grupo e cada categoria tem imagem e descrição. Cadastre em Painel → Na minha cidade → Grupos e categorias.</small>
-          </span>
-          {onOpenCity && (
-            <button type="button" className="cty-btn cty-btn--small" onClick={onOpenCity}>
-              Abrir
-            </button>
-          )}
-        </div>
-      </section>
     </div>
   )
 }

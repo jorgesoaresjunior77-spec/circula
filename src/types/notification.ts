@@ -23,6 +23,8 @@ export type SocialNotificationType =
   | 'city_claim'
   | 'city_claim_result'
   | 'city_category_request'
+  /** Problema ou sugestão enviado por uma participante (para a profissional). */
+  | 'feedback'
 
 export interface NotificationActor {
   id: string

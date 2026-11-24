@@ -112,9 +112,29 @@ export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle, overrideMo
   return cycle === 'SEMIANNUALLY' ? roundDime(monthly * 6 * 0.84) : roundDime(monthly * 12 * 0.67)
 }
 
+/** Chave da "cesta": vários conteúdos avulsos assinados juntos, numa cobrança só.
+ *  Os conteúdos da cesta ficam em addon_subscriptions.bundle_keys. */
+export const BUNDLE_PLAN_KEY = 'cesta'
+
+/** Limpa a lista de conteúdos da cesta: só avulsos válidos (nunca o Premium), sem repetir. */
+export function sanitizeBundle(keys: unknown): AddonPlanKey[] {
+  if (!Array.isArray(keys)) return []
+  const out: AddonPlanKey[] = []
+  for (const k of keys) {
+    if (isAddonPlanKey(k) && k !== 'premium' && !out.includes(k)) out.push(k)
+  }
+  return out
+}
+
+/** Preço da cesta no ciclo: a soma do preço de cada conteúdo naquele ciclo. */
+export function bundlePriceCents(keys: AddonPlanKey[], cycle: AsaasCycle, overrides: Partial<Record<AddonPlanKey, number>> = {}): number {
+  return keys.reduce((sum, k) => sum + addonPriceCents(k, cycle, overrides[k] ?? null), 0)
+}
+
 /** Pacotes que a membro passa a ter quando o plano está ativo
- *  (tabela member_package_access). O Premium libera todos. */
-export function packagesForPlan(key: AddonPlanKey): string[] {
+ *  (tabela member_package_access). O Premium libera todos; a cesta libera os conteúdos dela. */
+export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bundleKeys?: string[] | null): string[] {
+  if (key === BUNDLE_PLAN_KEY) return sanitizeBundle(bundleKeys ?? [])
   switch (key) {
     case 'magazine':
       return ['magazine']

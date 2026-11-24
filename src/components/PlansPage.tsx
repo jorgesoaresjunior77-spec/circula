@@ -22,6 +22,7 @@ import { useMyPackages } from '../hooks/usePackageAccess'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 import { TrialNotice } from './TrialNotice'
+import { CartCheckout } from './CartCheckout'
 import { RoboCelebracao, RoboConsultor, jaCelebrou, marcarCelebrou } from './RoboPlanos'
 import { useConfirmacaoAssinatura } from '../hooks/useConfirmacaoAssinatura'
 import type { Confirmacao } from '../hooks/useConfirmacaoAssinatura'
@@ -178,12 +179,11 @@ export function PlansPage({
 }) {
   const { packages, refresh: refreshPackages } = useMyPackages(communityId, profileId, !viewOnly)
   const { plans } = useBillingPlans('community')
-  const [open, setOpen] = useState<PlanKey | null>(null)
+  const [open, setOpen] = useState<PlanKey | 'cesta' | null>(null)
   // Robô: espera a confirmação do pagamento depois que uma fatura é aberta, e comemora UMA vez por assinatura.
   const [aguardando, setAguardando] = useState(false)
   const [ciclo, setCiclo] = useState<PlanCycle | null>(null)
   const [celebrando, setCelebrando] = useState<Confirmacao | null>(null)
-  const [mensalAvisado, setMensalAvisado] = useState(false)
   const aoConfirmar = useCallback(
     (c: Confirmacao) => {
       if (jaCelebrou(c.chave)) return
@@ -281,6 +281,18 @@ export function PlansPage({
         ))}
       </div>
 
+      {!viewOnly && !packages.has('premium') && (
+        <button type="button" className="plans-wide plans-wide--cart" onClick={() => setOpen('cesta')}>
+          <span className="plans-wide-body">
+            <strong>Montar minha cesta</strong>
+            <span>Escolha vários conteúdos e assine todos juntos, numa cobrança só.</span>
+          </span>
+          <span className="plans-wide-price">
+            <small>assinar junto</small>
+          </span>
+        </button>
+      )}
+
       <h3 className="plans-heading">Círcula Premium</h3>
       <button type="button" className={`plans-wide plans-wide--premium${!viewOnly && packages.has('premium') ? ' plans-wide--owned' : ''}`} onClick={() => setOpen('premium')} aria-label={`Círcula Premium, ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês`}>
         <span className="plans-wide-icon">
@@ -349,6 +361,18 @@ export function PlansPage({
               </>
             )}
 
+            {open === 'cesta' && (
+              <>
+                <h3>Minha cesta</h3>
+                <CartCheckout
+                  communityId={communityId}
+                  ownedKeys={ownedKeys}
+                  onCheckoutStarted={comecouPagamento}
+                  onOpenPremium={() => setOpen('premium')}
+                />
+              </>
+            )}
+
             {open === 'premium' && (
               <>
                 <h3>Círcula Premium</h3>
@@ -377,7 +401,6 @@ export function PlansPage({
                     owned={packages.has('premium')}
                     profileId={profileId}
                     onCheckoutStarted={comecouPagamento}
-                    monthlyNudge={{ seen: mensalAvisado, markSeen: () => setMensalAvisado(true) }}
                   />
                 )}
               </>
@@ -401,7 +424,6 @@ export function PlansPage({
                     profileId={profileId}
                     viaPremium={packages.has('premium')}
                     onCheckoutStarted={comecouPagamento}
-                    monthlyNudge={{ seen: mensalAvisado, markSeen: () => setMensalAvisado(true) }}
                   />
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>

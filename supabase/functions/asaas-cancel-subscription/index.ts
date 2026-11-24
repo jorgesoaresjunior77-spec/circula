@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     try {
       const { data: addons } = await admin
         .from('addon_subscriptions')
-        .select('id, asaas_subscription_id, community_id, plan_key')
+        .select('id, asaas_subscription_id, community_id, plan_key, bundle_keys')
         .eq('profile_id', subscription.profile_id)
         .neq('status', 'canceled')
       for (const addon of addons ?? []) {
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
             .eq('id', addon.id)
             .neq('status', 'canceled')
           // acesso cortado na hora: tira os pacotes que esse plano liberava
-          for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey)) {
+          for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey, addon.bundle_keys as string[] | null)) {
             await admin
               .from('member_package_access')
               .delete()

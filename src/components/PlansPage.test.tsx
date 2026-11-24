@@ -16,7 +16,11 @@ vi.mock('../hooks/useSubscription', () => ({
   useSubscription: () => ({ hasBillingCustomerData: true, saveBillingCustomerData: vi.fn() }),
 }))
 vi.mock('../hooks/useAddonCheckout', () => ({
-  useAddonCheckout: () => ({ subscribe: vi.fn(async () => ({ error: null, invoiceUrl: null })), busy: false }),
+  useAddonCheckout: () => ({
+    subscribe: vi.fn(async () => ({ error: null, invoiceUrl: null })),
+    subscribeCart: vi.fn(async () => ({ error: null, invoiceUrl: null })),
+    busy: false,
+  }),
 }))
 vi.mock('../hooks/useMyAddonSubscription', () => ({
   useMyAddonSubscription: () => ({ sub: null, busy: false, error: null, cancel: vi.fn() }),
@@ -74,25 +78,23 @@ describe('PlansPage', () => {
     expect(screen.getByRole('button', { name: /^Assinar anual/ })).toBeInTheDocument()
   })
 
-  it('ao escolher o mensal o robô comenta UMA vez, dá para dispensar e o mensal segue assinável', () => {
+  it('o robô fica dentro da assinatura e insiste no anual: no mensal mostra a economia e o mensal segue assinável', () => {
     render(<PlansPage communityId="c1" profileId="p1" />)
     fireEvent.click(screen.getByRole('button', { name: /^Respiração, / }))
+    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Ótima escolha/)
     fireEvent.click(screen.getByRole('radio', { name: /Mensal/ }))
-    expect(screen.getByText(/No anual você economiza/)).toBeInTheDocument()
+    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Pagando mês a mês você gasta mais/)
     expect(screen.getByRole('button', { name: /^Assinar mensal/ })).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Agora não' }))
-    expect(screen.queryByText(/No anual você economiza/)).not.toBeInTheDocument()
-    // voltar e escolher o mensal de novo: não repete na mesma abertura
-    fireEvent.click(screen.getByRole('radio', { name: /Anual/ }))
-    fireEvent.click(screen.getByRole('radio', { name: /Mensal/ }))
-    expect(screen.queryByText(/No anual você economiza/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Prefiro o semestral' }))
+    expect(screen.getByRole('radio', { name: /Semestral/ })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Que tal o anual/)
   })
 
-  it('"Trocar para o anual" volta ao anual', () => {
+  it('"Quero o anual" volta ao anual', () => {
     render(<PlansPage communityId="c1" profileId="p1" />)
     fireEvent.click(screen.getByRole('button', { name: /^Respiração, / }))
     fireEvent.click(screen.getByRole('radio', { name: /Mensal/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Trocar para o anual' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Quero o anual' }))
     expect(screen.getByRole('radio', { name: /Anual/ })).toHaveAttribute('aria-checked', 'true')
   })
 
@@ -112,6 +114,34 @@ describe('PlansPage', () => {
     expect(screen.queryByText(/Sua assinatura está ativa/)).not.toBeInTheDocument()
     act(() => confirmar?.(c)) // a mesma assinatura não comemora de novo
     expect(screen.queryByText(/Sua assinatura está ativa/)).not.toBeInTheDocument()
+  })
+})
+
+describe('PlansPage · cesta de assinaturas', () => {
+  afterEach(() => {
+    cleanup()
+    localStorage.clear()
+  })
+
+  it('a cesta soma os conteúdos marcados e só libera o botão com 2 ou mais', () => {
+    render(<PlansPage communityId="c1" profileId="p1" />)
+    fireEvent.click(screen.getByRole('button', { name: /Montar minha cesta/ }))
+    const assinar = () => screen.getByRole('button', { name: /Escolha pelo menos 2|Assinar tudo junto/ })
+    expect(assinar()).toBeDisabled()
+    fireEvent.click(screen.getByRole('checkbox', { name: /Respiração/ }))
+    expect(assinar()).toBeDisabled()
+    fireEvent.click(screen.getByRole('checkbox', { name: /Playlist/ }))
+    expect(assinar()).not.toBeDisabled()
+    expect(screen.getByText(/2 conteúdos/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Círcula Premium/).length).toBeGreaterThan(0)
+  })
+
+  it('o anual já vem escolhido na cesta e o robô comenta a economia', () => {
+    render(<PlansPage communityId="c1" profileId="p1" />)
+    fireEvent.click(screen.getByRole('button', { name: /Montar minha cesta/ }))
+    fireEvent.click(screen.getByRole('checkbox', { name: /Respiração/ }))
+    expect(screen.getByRole('radio', { name: /Anual/ })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Ótima escolha/)
   })
 })
 

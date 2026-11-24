@@ -131,12 +131,12 @@ Deno.serve(async (req) => {
     const addonCutoff = new Date(Date.now() - ADDON_GRACE_DAYS * 86_400_000).toISOString()
     const { data: lapsedAddons } = await admin
       .from('addon_subscriptions')
-      .select('id, profile_id, community_id, plan_key, status')
+      .select('id, profile_id, community_id, plan_key, bundle_keys, status')
       .in('status', ['active', 'past_due'])
       .lte('current_period_end', addonCutoff)
     let addonsRevoked = 0
     for (const addon of lapsedAddons ?? []) {
-      for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey)) {
+      for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey, addon.bundle_keys as string[] | null)) {
         await admin
           .from('member_package_access')
           .delete()
@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
     // outra assinatura ativa do mesmo plano (ex.: assinou de novo depois).
     const { data: canceledAddons } = await admin
       .from('addon_subscriptions')
-      .select('id, profile_id, community_id, plan_key')
+      .select('id, profile_id, community_id, plan_key, bundle_keys')
       .eq('status', 'canceled')
       .lte('current_period_end', nowIso)
     for (const addon of canceledAddons ?? []) {
@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
         .in('status', ['active', 'past_due'])
         .limit(1)
       if ((stillActive ?? []).length > 0) continue
-      for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey)) {
+      for (const pkg of packagesForPlan(addon.plan_key as AddonPlanKey, addon.bundle_keys as string[] | null)) {
         await admin
           .from('member_package_access')
           .delete()

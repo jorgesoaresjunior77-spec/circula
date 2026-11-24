@@ -49,20 +49,48 @@ export function RoboConsultor({ economiaAnualCents, economiaSemestralCents, nome
   )
 }
 
-/** Balão que aparece UMA vez por abertura, quando a pessoa escolhe o mensal. Pode ser dispensado; o mensal segue disponível. */
-export function RoboMensal({ economiaCents, onTrocar, onDispensar }: { economiaCents: number; onTrocar: () => void; onDispensar: () => void }) {
+/** O robô dentro da assinatura: insiste, com carinho e com a economia real em reais, nos planos maiores. Sem som. */
+export function RoboInsiste({ cycle, prices, onPick }: { cycle: PlanCycle; prices: Record<PlanCycle, number>; onPick: (c: PlanCycle) => void }) {
+  const anual = Math.max(0, prices.monthly * 12 - prices.annual)
+  const semestral = Math.max(0, prices.monthly * 6 - prices.semiannual)
+  if (anual <= 0 && semestral <= 0) return null
+  const cena: RoboCena = cycle === 'annual' ? 'feliz' : 'pedindo'
   return (
-    <div className="robo-mensal" role="note">
-      <div className="robo-mensal-balao">
-        <p>No anual você economiza {formatBrl(economiaCents)}.</p>
-        <div className="robo-mensal-acoes">
-          <button type="button" className="water-primary" onClick={onTrocar}>
-            Trocar para o anual
-          </button>
-          <button type="button" className="water-link" onClick={onDispensar}>
-            Agora não
-          </button>
-        </div>
+    <div className="robo-insiste" role="note" aria-label="Dica do robô">
+      <RoboGuia cena={cena} tamanho={64} mudo />
+      <div className="robo-insiste-balao">
+        {cycle === 'annual' && (
+          <p>
+            <strong>Ótima escolha!</strong> No anual você economiza {formatBrl(anual)} em relação a pagar mês a mês.
+          </p>
+        )}
+        {cycle === 'semiannual' && (
+          <>
+            <p>
+              O semestral já economiza {formatBrl(semestral)}. Mas no <strong>anual</strong> a economia é de <strong>{formatBrl(anual)}</strong>. Que tal o anual?
+            </p>
+            <div className="robo-insiste-acoes">
+              <button type="button" className="water-primary" onClick={() => onPick('annual')}>
+                Quero o anual
+              </button>
+            </div>
+          </>
+        )}
+        {cycle === 'monthly' && (
+          <>
+            <p>
+              Pagando mês a mês você gasta mais. No <strong>semestral</strong> você economiza {formatBrl(semestral)} e no <strong>anual</strong>, {formatBrl(anual)}.
+            </p>
+            <div className="robo-insiste-acoes">
+              <button type="button" className="water-primary" onClick={() => onPick('annual')}>
+                Quero o anual
+              </button>
+              <button type="button" className="water-link" onClick={() => onPick('semiannual')}>
+                Prefiro o semestral
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

@@ -116,6 +116,7 @@ const ReadingTipsPage = lazy(() => import('./ReadingTipsPage').then((m) => ({ de
 const BreathingPage = lazy(() => import('./BreathingPage').then((m) => ({ default: m.BreathingPage })))
 const WellnessPage = lazy(() => import('./WellnessPage').then((m) => ({ default: m.WellnessPage })))
 const WeatherPage = lazy(() => import('./WeatherPage').then((m) => ({ default: m.WeatherPage })))
+const FeedbackPage = lazy(() => import('./FeedbackPage').then((m) => ({ default: m.FeedbackPage })))
 const HelpPage = lazy(() => import('./HelpPage').then((m) => ({ default: m.HelpPage })))
 const InspirationManagerPage = lazy(() => import('./InspirationManagerPage').then((m) => ({ default: m.InspirationManagerPage })))
 const MinhaListaPage = lazy(() => import('./minhalista/MinhaListaPage').then((m) => ({ default: m.MinhaListaPage })))
@@ -179,7 +180,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback']
 
 export function Dashboard({
   profile,
@@ -1173,6 +1174,10 @@ export function Dashboard({
 
     // Central de Ajuda — perguntas e respostas; a membro pode falar com a
     // nutricionista a partir dela.
+    if (effectiveNav === 'feedback') {
+      return <FeedbackPage onDone={() => handleNavigate('inicio')} />
+    }
+
     if (effectiveNav === 'ajuda') {
       return (
         <HelpPage

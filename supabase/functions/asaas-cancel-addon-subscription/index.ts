@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { asaasFetch } from '../_shared/asaas.ts'
-import { ADDON_NAMES, isAddonPlanKey, packagesForPlan } from '../_shared/addonPlans.ts'
+import { ADDON_NAMES, BUNDLE_PLAN_KEY, isAddonPlanKey, packagesForPlan } from '../_shared/addonPlans.ts'
 
 // Cancela uma assinatura AVULSA (conteúdos, Meu Chef, Premium) da própria
 // membro. Segue a mesma regra da assinatura da comunidade: cancela a cobrança
@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
 
     const { data: addon } = await admin
       .from('addon_subscriptions')
-      .select('id, profile_id, community_id, plan_key, status, asaas_subscription_id, current_period_end')
+      .select('id, profile_id, community_id, plan_key, bundle_keys, status, asaas_subscription_id, current_period_end')
       .eq('id', addonId)
       .maybeSingle()
     if (!addon) return json({ error: 'Assinatura não encontrada.' }, 404)
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
 
     // DECISÃO DE PRODUTO (2026-11-23): cancelar corta o acesso na hora. Só mantém o pacote
     // se a membro tiver OUTRA assinatura viva do mesmo plano.
-    if (isAddonPlanKey(addon.plan_key)) {
+    if (isAddonPlanKey(addon.plan_key) || addon.plan_key === BUNDLE_PLAN_KEY) {
       const { data: stillActive } = await admin
         .from('addon_subscriptions')
         .select('id')
@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
         .neq('id', addonId)
         .limit(1)
       if ((stillActive ?? []).length === 0) {
-        for (const pkg of packagesForPlan(addon.plan_key)) {
+        for (const pkg of packagesForPlan(addon.plan_key, addon.bundle_keys)) {
           await admin
             .from('member_package_access')
             .delete()
@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-      const name = isAddonPlanKey(addon.plan_key) ? ADDON_NAMES[addon.plan_key] : 'Plano'
+      const name = isAddonPlanKey(addon.plan_key) ? ADDON_NAMES[addon.plan_key] : addon.plan_key === BUNDLE_PLAN_KEY ? 'Cesta de conteúdos' : 'Plano'
       await admin.from('notifications').insert({
         profile_id: addon.profile_id,
         type: 'billing',

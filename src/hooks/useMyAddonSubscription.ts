@@ -26,7 +26,8 @@ export function useMyAddonSubscription(communityId: string | null, profileId: st
         .select('id,plan_key,status,current_period_end')
         .eq('community_id', communityId)
         .eq('profile_id', profileId)
-        .eq('plan_key', planKey)
+        // a assinatura própria do plano ou uma cesta que inclui o plano
+        .or(`plan_key.eq.${planKey},bundle_keys.cs.{${planKey}}`)
         .in('status', ['active', 'past_due', 'canceled'])
         .order('created_at', { ascending: false })
         .limit(1)

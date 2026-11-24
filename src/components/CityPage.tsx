@@ -11,6 +11,7 @@ import type { CityInfo, CityListing, CityListingType } from '../lib/city'
 import { countByCategory, countByGroup, filterGuide, splitUpcoming } from '../lib/cityFilter'
 import type { GuideSort } from '../lib/cityFilter'
 import { BR_STATES } from '../lib/travel'
+import { supabase } from '../lib/supabase'
 import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityGroups, useCityListings, useMyCity } from '../hooks/useCity'
 import type { ListingInput } from '../hooks/useCity'
 import { CityPicker } from './CityPicker'
@@ -46,6 +47,22 @@ export function CityPage({ profile }: { profile: Profile }) {
 
   const { categories, tags, createCategory } = useCityCatalog()
   const { groups } = useCityGroups()
+  const [bannerImg, setBannerImg] = useState<string | null>(null)
+
+  // Imagem do topo: a da cidade; se não tiver, a do estado.
+  useEffect(() => {
+    const id = (other ?? myCity)?.id
+    const uf = (other ?? myCity)?.estado
+    if (!id || !uf) return
+    let cancelled = false
+    void Promise.all([supabase.from('cidades').select('imagem').eq('id', id).maybeSingle(), supabase.from('city_state_images').select('imagem').eq('uf', uf).maybeSingle()]).then(([c, st]) => {
+      if (cancelled) return
+      setBannerImg(((c.data as { imagem?: string | null } | null)?.imagem ?? (st.data as { imagem?: string | null } | null)?.imagem) ?? null)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [other, myCity])
 
   // Abrir a página limpa a bolinha de "cadastros novos" do card da Home.
   useEffect(() => {
@@ -205,6 +222,7 @@ export function CityPage({ profile }: { profile: Profile }) {
   return (
     <section className="cty-page">
       <header className="cty-head">
+        {bannerImg && <img className="cty-banner" src={bannerImg} alt="" loading="lazy" decoding="async" />}
         <p className="cty-eyebrow">Conexão · Proximidade</p>
         <h2 className="cty-title">
           Na minha cidade · {city.nome}

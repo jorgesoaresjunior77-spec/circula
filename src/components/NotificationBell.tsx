@@ -56,6 +56,7 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   city_claim: 'painel',
   city_category_request: 'painel',
   city_claim_result: 'cidade',
+  feedback: 'painel',
 }
 
 /** Depois de navegar, rola até o ponto exato da ação (quando ele existe na tela). */

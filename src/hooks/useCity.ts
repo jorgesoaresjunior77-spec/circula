@@ -483,6 +483,7 @@ export interface CityPendingCounts {
   claims: number
   categorias: number
   denuncias: number
+  feedback?: number
 }
 
 /** Profissional: pedidos de reivindicação, de categoria e denúncias aguardando. Membro: cadastros novos na cidade desde a última visita. */

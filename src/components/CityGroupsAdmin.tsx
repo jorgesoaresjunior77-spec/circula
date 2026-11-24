@@ -17,7 +17,7 @@ async function enviarImagem(file: File): Promise<{ url: string | null; error: st
   return uploadCityPhoto(uid, file)
 }
 
-function ImageField({ value, spec, onChange }: { value: string | null; spec: string; onChange: (url: string | null) => void }) {
+export function ImageField({ value, spec, onChange }: { value: string | null; spec: string; onChange: (url: string | null) => void }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   async function pick(file: File | undefined) {

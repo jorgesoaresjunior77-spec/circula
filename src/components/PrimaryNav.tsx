@@ -42,6 +42,7 @@ export type NavKey =
   | 'nutri'
   | 'loja'
   | 'perfil'
+  | 'feedback'
 
 export interface NavItem {
   key: NavKey

@@ -49,5 +49,34 @@ export function useAddonCheckout(communityId: string | null) {
     [communityId],
   )
 
-  return { subscribe, busy }
+  /** Cesta: vários conteúdos avulsos numa cobrança só (preço decidido no servidor). */
+  const subscribeCart = useCallback(
+    async (planKeys: string[], cycle: PlanCycle): Promise<AddonCheckoutResult> => {
+      if (!communityId) return { error: 'Entre em uma comunidade para assinar.', invoiceUrl: null }
+      setBusy(true)
+      const { data, error } = await supabase.functions.invoke('asaas-create-cart-subscription', {
+        body: { plan_keys: planKeys, billing_cycle: API_CYCLE[cycle], community_id: communityId },
+      })
+      setBusy(false)
+      if (error) {
+        let message = 'Não foi possível assinar agora. Tente novamente em instantes.'
+        let code: string | undefined
+        const ctx = (error as { context?: Response }).context
+        if (ctx && typeof ctx.json === 'function') {
+          try {
+            const parsed = (await ctx.json()) as { error?: string; code?: string }
+            if (typeof parsed?.error === 'string') message = parsed.error
+            if (typeof parsed?.code === 'string') code = parsed.code
+          } catch {
+            /* mantém a mensagem genérica */
+          }
+        }
+        return { error: message, code, invoiceUrl: null }
+      }
+      return { error: null, invoiceUrl: (data?.invoiceUrl as string | undefined) ?? null }
+    },
+    [communityId],
+  )
+
+  return { subscribe, subscribeCart, busy }
 }
