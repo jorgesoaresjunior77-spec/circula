@@ -169,8 +169,11 @@ export function PlansPage({
   communityId,
   viewOnly = false,
   profileId = null,
+  onOpenCarro,
 }: {
   communityId: string | null
+  /** Abre o Carro em Dia (avulso à parte, de R$ 5,10; o Premium não o inclui). */
+  onOpenCarro?: () => void
   /** A profissional vê a página como a membro vê, mas não assina (ela é a
    *  responsável pela comunidade e hoje é isenta de pagamento). */
   viewOnly?: boolean
@@ -280,6 +283,19 @@ export function PlansPage({
           />
         ))}
       </div>
+
+      {!viewOnly && onOpenCarro && (
+        <button type="button" className="plans-wide plans-wide--cart" onClick={onOpenCarro} aria-label="Carro em Dia, R$ 5,10 por mês">
+          <span className="plans-wide-body">
+            <strong>Carro em Dia</strong>
+            <span>Perguntas e respostas para cuidar do seu carro. Avulso à parte, não faz parte do Premium.</span>
+          </span>
+          <span className="plans-wide-price">
+            R$ 5,10
+            <small>por mês</small>
+          </span>
+        </button>
+      )}
 
       {!viewOnly && !packages.has('premium') && (
         <button type="button" className="plans-wide plans-wide--cart" onClick={() => setOpen('cesta')}>

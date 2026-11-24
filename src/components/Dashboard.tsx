@@ -1223,7 +1223,7 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'planos') {
-      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} />
+      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} onOpenCarro={() => handleNavigate('carro')} />
     }
 
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela

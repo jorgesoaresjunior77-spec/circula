@@ -18,6 +18,9 @@ export type RoboSom =
   | 'pedindo'
   | 'comemoracao'
   | 'obrigado'
+  | 'moedas'
+  | 'conta'
+  | 'alarme'
 
 interface Nota {
   f0: number
@@ -74,6 +77,10 @@ export const RECEITAS: Record<RoboSom, Passo[]> = {
     n(2400, 2000, 0.1, 0.6),
   ],
   obrigado: [n(880, 1100, 0.14, 0.4, { vib: 0.015, vibHz: 7 }), sil(0.04), n(1100, 1320, 0.22, 0.4, { vib: 0.02, vibHz: 7 })],
+  // Finanças: moedinhas (arpejo alegre), conta (notas descendo, suaves) e alarme gentil (3 bipes e um tom grave)
+  moedas: [n(880, 900, 0.07, 0.3), sil(0.02), n(1108, 1130, 0.07, 0.3), sil(0.02), n(1318, 1340, 0.07, 0.3), sil(0.02), n(1760, 1800, 0.16, 0.3, { vib: 0.01, vibHz: 6 })],
+  conta: [n(740, 700, 0.12, 0.3, { vol: 0.6 }), sil(0.03), n(622, 590, 0.12, 0.3, { vol: 0.6 }), sil(0.03), n(523, 500, 0.12, 0.3, { vol: 0.55 }), sil(0.03), n(392, 370, 0.22, 0.3, { vol: 0.5 })],
+  alarme: [n(1000, 1000, 0.07, 0.2, { vol: 0.5 }), sil(0.07), n(1000, 1000, 0.07, 0.2, { vol: 0.5 }), sil(0.07), n(1000, 1000, 0.07, 0.2, { vol: 0.5 }), sil(0.08), n(180, 160, 0.3, 0.3, { vol: 0.55 })],
 }
 
 /** Ganho mestre (volume baixo, fácil de ajustar). */

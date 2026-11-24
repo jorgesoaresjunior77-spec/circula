@@ -475,3 +475,65 @@
     transition: none;
   }
 }
+
+/* ===== Capa da comunidade (banner inicial): moldura em relevo ===== */
+.home-community-header--glass,
+.home-community-header {
+  padding: 9px;
+  border-radius: 34px;
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(255, 255, 255, 0.9), transparent 55%),
+    linear-gradient(160deg, #f8f5f0 0%, #ece6dd 100%);
+  box-shadow:
+    0 26px 34px -22px rgba(120, 98, 84, 0.55),
+    inset 0 2px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -5px 10px rgba(150, 128, 112, 0.16);
+}
+.home-community-cover,
+.home-community-cover--glass {
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: inset 0 3px 8px rgba(110, 90, 76, 0.3);
+}
+.home-community-glass {
+  left: 9px;
+  right: 9px;
+  bottom: 9px;
+  border-radius: 0 0 26px 26px;
+  background: linear-gradient(0deg, rgba(40, 26, 18, 0.55), rgba(40, 26, 18, 0));
+}
+:root[data-theme='dark'] .home-community-header--glass,
+:root[data-theme='dark'] .home-community-header {
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(214, 178, 134, 0.12), transparent 55%),
+    linear-gradient(160deg, #33231d 0%, #1f1410 100%);
+  box-shadow: 0 26px 34px -22px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(214, 178, 134, 0.22), inset 0 2px 2px rgba(214, 178, 134, 0.18);
+}
+
+/* ===== Tema escuro: superfícies que tinham branco fixo ===== */
+:root[data-theme='dark'] :is(.feed-notice, .garden-manager, .garden-panel, .profile-secondary-action, .cat-back, .cat-product, .diary-prayer, .diary-tile, .event-card.event-card--grid, .ex-article-tile, .ex-tile, .ex-pair figure, .hw-chip, .hw-ghost, .menu-big-field, .menu-card, .menu-chip, .menu-pick, .ml-modal, .plans-included, .plan-tile-icon, .post-poll-option, .rank-item, .rec-cat-card, .sf-card, .tour-card, .package-chip, .weather-picker-input, .cty-tag--highlight, .agenda-popup-list li, .photo-social, .photo-social-like, .pn-actions button, .pn-list select, .product-reader-note, .emoji-picker-pop, .plans-sheet, .plan-tile) {
+  background: var(--choc-2);
+  color: var(--text-warm);
+  border-color: var(--border);
+}
+:root[data-theme='dark'] .plans-wide {
+  background: linear-gradient(135deg, #33231d, #1f1410);
+  color: var(--text-warm);
+}
+:root[data-theme='dark'] .bottom-nav {
+  background: rgba(24, 15, 12, 0.94);
+  border-color: var(--border);
+}
+:root[data-theme='dark'] :is(input, textarea, select):not([type='checkbox']):not([type='radio']):not([type='range']) {
+  background-color: var(--choc-1);
+  color: var(--text-warm);
+  border-color: var(--border);
+}
+:root[data-theme='dark'] ::placeholder {
+  color: var(--text-warm-2);
+  opacity: 0.7;
+}
+:root[data-theme='dark'] .car-card,
+:root[data-theme='dark'] .car-teaser li {
+  background: var(--choc-2);
+}
