@@ -65,14 +65,14 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-greeting', '#tour-nav-desktop-inicio', '#tour-nav-mobile-inicio'],
     title: 'Página inicial',
-    text: 'Tudo começa aqui. Toque no sol para ver a previsão do tempo da sua cidade.',
+    text: 'Tudo começa aqui. Esta é a sua página inicial: ela reúne os atalhos do dia, os Círculos, a revista, as receitas e tudo o que há de novo na comunidade. Toque no sol para ver a previsão do tempo da sua cidade e role a página para baixo para conhecer cada parte.',
     cena: 'boas-vindas',
     som: 'boasvindas',
   },
   {
     targets: ['.home-tools'],
     title: 'Atalhos do dia',
-    text: 'Antes de Tudo (seus hábitos da manhã), Água (meta do dia, registros e gráfico da semana e do mês) e IMC. Toque em um deles para abrir.',
+    text: 'Três atalhos para o seu dia. Antes de Tudo guarda os seus hábitos da manhã e marca o que você já fez. Água mostra a meta do dia, deixa você registrar cada copo e tem o gráfico da semana e do mês. IMC calcula o seu índice a partir do peso e da altura. Toque em um deles para abrir.',
   },
   {
     targets: ['.exp-strip', '.exp-viewport'],
@@ -83,7 +83,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-time'],
     title: 'Agenda e relógio',
-    text: 'Toque na agenda para anotar compromissos. Toque no relógio para ver a hora e o clima em qualquer lugar do mundo.',
+    text: 'Toque na agenda para anotar compromissos, consultas e lembretes, e ver o desafio do mês. Toque no relógio para ver a hora e o clima em qualquer lugar do mundo, ótimo para falar com quem mora longe.',
   },
   {
     targets: ['.circ-strip'],
@@ -104,13 +104,13 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.mag2-viewport', '.mag2-stack'],
     title: 'Revista',
-    text: 'Toque em uma capa para ler a edição inteira aqui mesmo, virando as páginas.',
+    text: 'A Revista Círcula traz uma edição nova com conteúdo pensado para você. Toque em uma capa para ler a edição inteira aqui mesmo, virando as páginas com o dedo. Dá para dar zoom nas páginas e voltar quando quiser.',
     gesture: 'tap',
   },
   {
-    targets: ['.home-editorial-cards'],
+    targets: ['.home-trio', '.home-editorial-cards'],
     title: 'Eventos, Loja e Receitas',
-    text: 'Em "Descobrir": o próximo evento da comunidade, a Loja (e-books e produtos digitais, que você lê aqui mesmo) e as receitas em formato de revista. Toque em um cartão para abrir.',
+    text: 'Abaixo da revista ficam três círculos que se cruzam. Eventos mostra o próximo encontro da comunidade, com data e horário. Loja traz e-books e produtos digitais, que você lê aqui mesmo no app. Receitas são as receitas da nutricionista, em formato de revista, com ingredientes e modo de preparo. Toque em um círculo para abrir a página completa.',
     optional: true,
     gesture: 'tap',
   },
@@ -333,7 +333,7 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
 
   const viewW = window.innerWidth
   const viewH = window.innerHeight
-  const cardWidth = Math.min(340, viewW - EDGE * 2)
+  const cardWidth = Math.min(380, viewW - EDGE * 2)
 
   let cardTop: number
   let cardLeft: number
@@ -353,7 +353,7 @@ export function Tour({ onNavigate, onDone, noveltyOnly = false }: TourProps) {
 
   // O robô fica na quina do balão (em cima; embaixo quando o balão está no topo da tela)
   // e aponta para o centro do destaque.
-  const ROBO_W = 78
+  const ROBO_W = 92
   const roboH = (ROBO_W * 16) / 9
   const roboAbove = cardTop >= roboH - 24 + EDGE
   const roboX = cardLeft + 4

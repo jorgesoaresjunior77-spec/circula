@@ -19,6 +19,10 @@ export type SocialNotificationType =
   | 'nutri_request'
   | 'nutri_update'
   | 'nutri_link'
+  /** Na minha cidade: pedido de reivindicação (para a profissional), resultado do pedido (para quem pediu) e pedido de categoria. */
+  | 'city_claim'
+  | 'city_claim_result'
+  | 'city_category_request'
 
 export interface NotificationActor {
   id: string

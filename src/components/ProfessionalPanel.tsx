@@ -1,5 +1,6 @@
 import { PackageAccessManager } from './PackageAccessManager'
 import { useState } from 'react'
+import { useCityBadge } from '../hooks/useCity'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
 import { SubscriptionPanel } from './SubscriptionPanel'
 import { CommunityPriceSettings } from './CommunityPriceSettings'
@@ -8,11 +9,7 @@ import { ProfessionalDashboard } from './ProfessionalDashboard'
 import { CommunityMembersPanel } from './CommunityMembersPanel'
 import { PostsModerationPanel } from './PostsModerationPanel'
 import { CityAdminPanel } from './CityAdminPanel'
-import { CommunityCardImagesManager } from './CommunityCardImagesManager'
-import { EditorialCardImagesManager } from './EditorialCardImagesManager'
-import { LoginBackgroundManager } from './LoginBackgroundManager'
-import { CircleImagesManager } from './CircleImagesManager'
-import { PartnersManager } from './PartnersManager'
+import { PanelImagesTab } from './PanelImagesTab'
 import { ContentSchedulePanel } from './ContentSchedulePanel'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
@@ -134,6 +131,8 @@ export function ProfessionalPanel({
     setActiveTab(tab as PanelTab)
   }
 
+  const cityBadge = useCityBadge(profileId, true, true)
+
   return (
     <section className="community-card community-card--quiet professional-panel">
       <header className="panel-head">
@@ -162,6 +161,7 @@ export function ProfessionalPanel({
             }}
           >
             {tab.label}
+            {tab.key === 'cidade' && cityBadge.total > 0 && <span className="notif-dot notif-dot--mini panel-tab-dot" aria-label="Novidades" />}
           </button>
         ))}
       </div>
@@ -216,24 +216,13 @@ export function ProfessionalPanel({
 
       {activeTab === 'cidade' && (
         <div className="panel-tab-content">
-          <CityAdminPanel />
+          <CityAdminPanel uid={profileId} />
         </div>
       )}
 
       {activeTab === 'imagens' && (
         <div className="panel-tab-content panel-images-sections">
-          {/* Ajustes de navegação (item 5) — seções bem separadas: A.
-              Hoje no Círcula, B. Círculos, C. Publicações do Instagram.
-              Cada uma reaproveita sua própria estrutura de dados já
-              existente; nenhuma mistura de campos entre elas.
-              Correções visuais (item 4) — D. Banners editoriais grandes:
-              mesma linha de `community_card_images`, 3 chaves novas
-              (*_grande), independentes das capas de A. */}
-          <CommunityCardImagesManager communityId={communityId} profileId={profileId} />
-          <EditorialCardImagesManager communityId={communityId} profileId={profileId} />
-          <LoginBackgroundManager profileId={profileId} />
-          <CircleImagesManager communityId={communityId} profileId={profileId} />
-          <PartnersManager communityId={communityId} profileId={profileId} />
+          <PanelImagesTab communityId={communityId} profileId={profileId} onOpenCity={() => setActiveTab('cidade')} />
         </div>
       )}
 

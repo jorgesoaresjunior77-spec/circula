@@ -1,0 +1,541 @@
+/* ==========================================================================
+   Ajustes de dezembro (perfil de membro e de profissional). Carregado por último.
+   ========================================================================== */
+
+/* ---- Bolinha vermelha pequena (novidade nos cards) --------------------------------------- */
+.notif-dot--mini {
+  min-width: 12px;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  box-shadow: 0 0 0 2px #fff;
+}
+.panel-tab {
+  position: relative;
+}
+.panel-tab-dot,
+.cty-tab-dot {
+  top: 4px;
+  right: 4px;
+}
+.cty-tab {
+  position: relative;
+}
+
+/* ---- Fundo do app: começa quase branco e vai ficando bege bem clarinho --------------------- */
+html {
+  background-color: #fffdfa;
+  background-image: linear-gradient(180deg, #fffefc 0%, #fdfaf5 30%, #faf4ea 65%, #f7efe2 100%);
+  background-size: 100% min(100%, 1800px);
+  background-repeat: no-repeat;
+}
+body {
+  background-color: transparent;
+  background-image: none;
+}
+
+/* ---- Card "Na minha cidade": borda fina, com profundidade (sombra nas bordas) ------------------ */
+.home-editorial-card.home-city-card {
+  border: 0 !important;
+  border-radius: 22px;
+  background: #e9dccb;
+  box-shadow:
+    0 14px 26px -16px rgba(60, 42, 30, 0.55),
+    0 2px 5px rgba(60, 42, 30, 0.14);
+}
+.home-editorial-card.home-city-card::before {
+  inset: 0;
+  border-radius: 22px;
+  border: 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 5px 14px rgba(40, 26, 18, 0.38),
+    inset 0 -4px 10px rgba(40, 26, 18, 0.22),
+    inset 5px 0 12px rgba(40, 26, 18, 0.2),
+    inset -5px 0 12px rgba(40, 26, 18, 0.2);
+}
+.home-editorial-card.home-city-card .home-editorial-card-media {
+  border-radius: 22px;
+}
+
+/* ---- 3 círculos: o do meio e o maior menores; textos menores e mais à esquerda ------------------- */
+.home-trio {
+  aspect-ratio: 1 / 1.05;
+}
+.home-trio-circle--a {
+  width: 60%;
+}
+.home-trio-circle--b {
+  width: 56.7%;
+  top: 5%;
+}
+.home-trio-circle--c {
+  width: 44%;
+  left: 28%;
+  top: 53%;
+}
+.home-trio-circle--a .home-trio-text {
+  align-items: flex-start;
+  text-align: left;
+  padding: 12% 30% 12% 9%;
+}
+.home-trio-eyebrow {
+  font-size: max(12px, 10.5cqw);
+}
+.home-trio-title {
+  font-size: max(9px, 5.8cqw);
+}
+.home-trio-subtitle {
+  font-size: max(8px, 5.2cqw);
+}
+.home-trio-tag {
+  font-size: max(7.5px, 4.6cqw);
+  padding: 0 7px;
+}
+
+/* ---- Espaços: flores e cards finos ---------------------------------------------------------------- */
+.home-trio + .home-flower-gap {
+  margin-bottom: 16px;
+}
+.home-wheel {
+  margin-top: 16px;
+  margin-bottom: 14px;
+}
+.home-wheel + .home-flower-gap {
+  height: 28px !important;
+  margin: 0;
+}
+.home-wheel + .home-flower-gap + .home-group-title {
+  margin-top: 10px;
+}
+
+/* ---- Parceiros: logos sem sombra; título mais baixo ------------------------------------------------ */
+.home-partners .partner-logo,
+.home-partners .partner-logo img,
+.home-partners .partner-logo--boost img {
+  filter: none !important;
+  box-shadow: none !important;
+}
+.home-partners .home-partners-title {
+  margin-top: 14px;
+  margin-bottom: 4px;
+}
+
+/* ---- Diário da Gratidão: letras menores, sem o "O" sozinho embaixo ------------------------------------- */
+.hfb--series .menu-banner-title,
+.hfb--series .menu-banner-title--small {
+  font-size: clamp(20px, 5.6vw, 27px) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05;
+}
+.hfb--series .menu-banner-title br + * {
+  white-space: nowrap;
+}
+
+/* ---- Login: a imagem cobre a tela inteira; vidro; botão chocolate ------------------------------------------- */
+html:has(.auth-stage),
+html:has(.auth-stage) body {
+  background: #d9c2ad;
+}
+.auth-stage {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
+  background-size: cover;
+  background-position: center;
+  background-attachment: scroll;
+}
+.auth-stage > .auth-card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  backdrop-filter: blur(22px) saturate(1.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 24px 50px -26px rgba(40, 26, 18, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.auth-stage > .auth-card .brand-logo,
+.auth-stage > .auth-card .brand {
+  padding: 10px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+.auth-stage > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle) {
+  background: linear-gradient(180deg, #7b5844 0%, #5e4032 100%);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 18px -10px rgba(30, 18, 12, 0.7);
+}
+.auth-stage > .auth-card button[type='submit']:not(.auth-link):not(.password-field-toggle):hover:not(:disabled) {
+  background: linear-gradient(180deg, #876350 0%, #664536 100%);
+  color: #fff;
+}
+
+/* ---- Na minha cidade: cards de categoria, cards de lugar e formulário ------------------------------------------ */
+.cty-cats {
+  margin: 8px 0 12px;
+}
+.cty-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.cty-cat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 96px;
+  padding: 10px 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-soft, #e8e0d3);
+  border-radius: 16px;
+  background: #fbf7f0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.cty-cat-card--photo {
+  min-height: 130px;
+  color: #fff;
+  border-color: transparent;
+}
+.cty-cat-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cty-cat-card--photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(30, 20, 14, 0) 25%, rgba(30, 20, 14, 0.68) 100%);
+}
+.cty-cat-card > span {
+  position: relative;
+  z-index: 1;
+}
+.cty-cat-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+.cty-cat-desc {
+  font-size: 12px;
+  line-height: 1.3;
+  opacity: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cty-cat-count {
+  align-self: flex-start;
+  font-size: 11.5px;
+  opacity: 0.8;
+}
+.cty-cat-card--on {
+  outline: 2px solid var(--circula-mocha, #7b5844);
+  outline-offset: 1px;
+}
+
+.cty-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cty-photo-slot {
+  min-width: 0;
+}
+.cty-form-logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--border-soft, #e8e0d3);
+}
+.cty-photo-empty {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--border, #d8cfc0);
+  border-radius: 14px;
+  color: var(--text-soft, #8a7d70);
+  font-size: 13px;
+}
+.cty-photo-empty--logo {
+  width: 96px;
+  height: 96px;
+  aspect-ratio: auto;
+}
+
+/* ---- Painel: grupos e categorias ------------------------------------------------------------------------------------- */
+.cty-admin-group-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.cty-admin-group-head img,
+.cty-admin-cat img,
+.cty-admin-group-ph {
+  width: 56px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: none;
+}
+.cty-admin-group-ph {
+  display: grid;
+  place-items: center;
+  background: #efe7da;
+}
+.cty-admin-group-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.cty-admin-group-name small {
+  color: var(--text-soft, #8a7d70);
+}
+.cty-admin-cat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-soft, #e8e0d3);
+}
+.cty-admin-edit {
+  margin: 8px 0;
+}
+
+/* ---- Painel → Imagens: blocos por setor ---------------------------------------------------------------------------------- */
+.panel-images {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.panel-img-section {
+  border: 1px solid var(--border-soft, #e8e0d3);
+  border-radius: 16px;
+  background: var(--c-white, #fff);
+  overflow: hidden;
+}
+.panel-img-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.panel-img-head--static {
+  cursor: default;
+}
+.panel-img-title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+.panel-img-title small {
+  color: var(--text-soft, #8a7d70);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.panel-img-count {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #f1e9dc;
+  font-size: 12px;
+}
+.panel-img-body {
+  padding: 4px 16px 16px;
+  border-top: 1px solid var(--border-soft, #e8e0d3);
+}
+.panel-img-section--open {
+  border-color: var(--border, #d8cfc0);
+}
+
+/* ---- Cards de lugares e profissionais: organizados em blocos --------------------------------------------------------- */
+.cty-card {
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fffdf9;
+  border: 1px solid var(--border-soft, #e8e0d3);
+  box-shadow: 0 10px 24px -18px rgba(60, 42, 30, 0.5);
+}
+.cty-card-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 190px;
+  object-fit: cover;
+}
+.cty-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+.cty-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cty-card-head--logo {
+  margin-top: -34px;
+}
+.cty-card-logo {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 6px 14px -8px rgba(60, 42, 30, 0.6);
+}
+.cty-card-head--logo .cty-card-headtext {
+  padding-top: 34px;
+}
+.cty-card-headtext {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.cty-card-title {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.2;
+}
+.cty-info {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: #f8f2e9;
+}
+.cty-info-row {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.cty-info-row + .cty-info-row {
+  border-top: 1px solid rgba(139, 106, 80, 0.16);
+}
+.cty-info-row dt {
+  color: var(--text-soft, #8a7d70);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.cty-info-row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.cty-info .cty-card-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.cty-card-actions {
+  padding-top: 4px;
+  border-top: 1px solid var(--border-soft, #e8e0d3);
+}
+
+/* ---- Perfil: card grande com moldura bonita, botões e fotos melhores ------------------------------------------------- */
+.profile-hero {
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 3px #fffaf2,
+    0 0 0 5px #c9a98a,
+    0 0 0 8px #fffaf2,
+    0 0 0 9px rgba(139, 106, 80, 0.35),
+    0 28px 34px -16px rgba(40, 32, 26, 0.55);
+}
+.profile-hero-wrap {
+  padding: 10px 10px 4px;
+}
+
+.community-card--profile .profile-actions-row--inline {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: var(--space-6, 28px);
+}
+.community-card--profile .profile-actions-row--inline > button {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.community-card--profile .profile-actions-row--inline > .profile-edit-action {
+  border: 0;
+  background: linear-gradient(180deg, #7b5844 0%, #5e4032 100%);
+  color: #fff;
+  box-shadow: 0 10px 18px -12px rgba(40, 24, 16, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.community-card--profile .profile-actions-row--inline > .profile-secondary-action {
+  border: 1.5px solid #cdb29c;
+  background: #fffaf2;
+  color: #5e4032;
+  box-shadow: 0 8px 14px -12px rgba(40, 24, 16, 0.45);
+}
+.community-card--profile .profile-actions-row--inline > button:active {
+  transform: translateY(1px);
+}
+
+.profile-gallery-grid {
+  gap: 10px;
+}
+.profile-gallery-slot {
+  border-radius: 18px;
+  border: 3px solid #fffaf2;
+  box-shadow: 0 10px 18px -12px rgba(40, 24, 16, 0.6), 0 0 0 1px rgba(139, 106, 80, 0.25);
+}
+
+/* ---- Tour: balão maior e texto mais fácil de ler ----------------------------------------------------------------------------- */
+.tour-card {
+  padding: 18px 18px 16px;
+}
+.tour-card-title {
+  font-size: 21px;
+}
+.tour-card-text {
+  font-size: 16px;
+  line-height: 1.55;
+}

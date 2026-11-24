@@ -93,19 +93,25 @@ export function CityListingCard({
     <article className={`cty-card${l.status === 'oculto' ? ' cty-card--hidden' : ''}`}>
       {l.foto && <img className="cty-card-photo" src={l.foto} alt="" loading="lazy" decoding="async" />}
       <div className="cty-card-body">
-        <div className="cty-card-chips">
-          <span className="cty-tag cty-tag--type">{LISTING_TYPE_LABEL[l.tipo]}</span>
-          {isMeetup && l.atividade && <span className="cty-tag cty-tag--cat">{l.atividade}</span>}
-          {category && <span className="cty-tag cty-tag--cat">{category.nome}</span>}
-          {l.destaque && <span className="cty-tag cty-tag--highlight">★ Destaque</span>}
-          {l.reivindicado && !l.e_proprio_negocio && <span className="cty-tag cty-tag--self">Negócio reivindicado</span>}
-          {l.e_proprio_negocio && <span className="cty-tag cty-tag--self">Divulgação da própria membro</span>}
-          {l.faixa_preco && <span className="cty-tag">{l.faixa_preco}</span>}
-          {l.status === 'oculto' && <span className="cty-tag cty-tag--warn">Oculto</span>}
-        </div>
+        {/* 1. Quem é: logo, nome e categoria */}
+        <header className={`cty-card-head${l.logo ? ' cty-card-head--logo' : ''}`}>
+          {l.logo && <img className="cty-card-logo" src={l.logo} alt="" loading="lazy" decoding="async" />}
+          <div className="cty-card-headtext">
+            <h3 className="cty-card-title">{l.titulo}</h3>
+            <div className="cty-card-chips">
+              <span className="cty-tag cty-tag--type">{LISTING_TYPE_LABEL[l.tipo]}</span>
+              {isMeetup && l.atividade && <span className="cty-tag cty-tag--cat">{l.atividade}</span>}
+              {category && <span className="cty-tag cty-tag--cat">{category.nome}</span>}
+              {l.faixa_preco && <span className="cty-tag">{l.faixa_preco}</span>}
+              {l.destaque && <span className="cty-tag cty-tag--highlight">★ Destaque</span>}
+              {l.reivindicado && !l.e_proprio_negocio && <span className="cty-tag cty-tag--self">Negócio reivindicado</span>}
+              {l.e_proprio_negocio && <span className="cty-tag cty-tag--self">Divulgação da própria membro</span>}
+              {l.status === 'oculto' && <span className="cty-tag cty-tag--warn">Oculto</span>}
+            </div>
+          </div>
+        </header>
 
-        <h3 className="cty-card-title">{l.titulo}</h3>
-
+        {/* 2. Avaliação */}
         {canVote && (
           <button type="button" className="cty-rating" aria-expanded={showReviews} onClick={() => setShowReviews((v) => !v)}>
             {summary.media !== null && summary.total > 0 ? (
@@ -128,23 +134,8 @@ export function CityListingCard({
           />
         )}
 
-        {(l.tipo === 'evento' || isMeetup) && l.starts_at && <p className="cty-card-when">{formatMeetupDate(l.starts_at)}</p>}
-        {l.local_nome && <p className="cty-card-line">{isMeetup ? 'Ponto de encontro' : 'Local'}: {l.local_nome}</p>}
-        {l.tipo === 'evento' && l.valor && <p className="cty-card-line">Valor: {l.valor}</p>}
-        {isMeetup && (
-          <p className="cty-card-line">
-            {l.confirmadas} de {l.vagas ?? '?'} vagas preenchidas{l.nivel === 'iniciante' ? ' · para iniciantes' : ' · todas são bem-vindas'}
-          </p>
-        )}
-        {(l.bairro || l.atende_toda_cidade) && <p className="cty-card-line">{l.atende_toda_cidade ? 'Atende em toda a cidade' : l.bairro}</p>}
-        {l.endereco && <p className="cty-card-line">{l.endereco}</p>}
-        {(hoursSummary(l.horarios) || l.horario) && (
-          <p className="cty-card-line">
-            <strong>Horário:</strong> {[hoursSummary(l.horarios), l.horario].filter(Boolean).join(' · ')}
-          </p>
-        )}
+        {/* 3. Sobre */}
         {l.descricao && <p className="cty-card-desc">{l.descricao}</p>}
-
         {tagNames.length > 0 && (
           <div className="cty-card-chips">
             {tagNames.map((t) => (
@@ -155,22 +146,68 @@ export function CityListingCard({
           </div>
         )}
 
-        {(l.contato || insta || l.link) && (
-          <p className="cty-card-contact">
-            {l.contato && (l.contato.replace(/\D/g, '').length >= 8 ? <a href={`tel:+55${l.contato.replace(/\D/g, '')}`}>{l.contato}</a> : <span>{l.contato}</span>)}
-            {insta && (
-              <a href={`https://instagram.com/${insta}`} target="_blank" rel="noopener noreferrer">
-                @{insta}
-              </a>
+        {/* 4. Informações em linhas organizadas */}
+        {(((l.tipo === 'evento' || isMeetup) && l.starts_at) || l.local_nome || (l.tipo === 'evento' && l.valor) || isMeetup || l.bairro || l.atende_toda_cidade || l.endereco || hoursSummary(l.horarios) || l.horario || l.contato || insta || l.link) && (
+          <dl className="cty-info">
+            {(l.tipo === 'evento' || isMeetup) && l.starts_at && (
+              <div className="cty-info-row">
+                <dt>Quando</dt>
+                <dd>{formatMeetupDate(l.starts_at)}</dd>
+              </div>
             )}
-            {l.link && (/^https?:\/\//i.test(l.link) ? (
-              <a href={l.link} target="_blank" rel="noopener noreferrer">
-                Saiba mais
-              </a>
-            ) : (
-              <span>{l.link}</span>
-            ))}
-          </p>
+            {l.local_nome && (
+              <div className="cty-info-row">
+                <dt>{isMeetup ? 'Encontro' : 'Local'}</dt>
+                <dd>{l.local_nome}</dd>
+              </div>
+            )}
+            {l.tipo === 'evento' && l.valor && (
+              <div className="cty-info-row">
+                <dt>Valor</dt>
+                <dd>{l.valor}</dd>
+              </div>
+            )}
+            {isMeetup && (
+              <div className="cty-info-row">
+                <dt>Vagas</dt>
+                <dd>
+                  {l.confirmadas} de {l.vagas ?? '?'} vagas preenchidas{l.nivel === 'iniciante' ? ' · para iniciantes' : ' · todas são bem-vindas'}
+                </dd>
+              </div>
+            )}
+            {(l.bairro || l.atende_toda_cidade || l.endereco) && (
+              <div className="cty-info-row">
+                <dt>Onde</dt>
+                <dd>{[l.atende_toda_cidade ? 'Atende em toda a cidade' : l.bairro, l.endereco].filter(Boolean).join(' · ')}</dd>
+              </div>
+            )}
+            {(hoursSummary(l.horarios) || l.horario) && (
+              <div className="cty-info-row">
+                <dt>Horário</dt>
+                <dd>{[hoursSummary(l.horarios), l.horario].filter(Boolean).join(' · ')}</dd>
+              </div>
+            )}
+            {(l.contato || insta || l.link) && (
+              <div className="cty-info-row">
+                <dt>Contato</dt>
+                <dd className="cty-card-contact">
+                  {l.contato && (l.contato.replace(/\D/g, '').length >= 8 ? <a href={`tel:+55${l.contato.replace(/\D/g, '')}`}>{l.contato}</a> : <span>{l.contato}</span>)}
+                  {insta && (
+                    <a href={`https://instagram.com/${insta}`} target="_blank" rel="noopener noreferrer">
+                      @{insta}
+                    </a>
+                  )}
+                  {l.link && (/^https?:\/\//i.test(l.link) ? (
+                    <a href={l.link} target="_blank" rel="noopener noreferrer">
+                      Saiba mais
+                    </a>
+                  ) : (
+                    <span>{l.link}</span>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
         )}
 
         <div className="cty-card-author">

@@ -57,9 +57,9 @@ describe('PlansPage', () => {
     }
   })
 
-  it('o robô consultor recomenda o plano anual com a economia real em reais', () => {
+  it('a dica do topo recomenda o plano anual com a economia real em reais', () => {
     render(<PlansPage communityId="c1" profileId="p1" />)
-    const dica = screen.getByRole('complementary', { name: 'Recomendação do robô' })
+    const dica = screen.getByRole('complementary', { name: 'Dica de plano' })
     expect(dica).toHaveTextContent(/plano anual/)
     expect(dica).toHaveTextContent(/R\$\s*[\d.]+,\d{2}/)
   })

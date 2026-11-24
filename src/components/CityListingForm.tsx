@@ -17,6 +17,7 @@ import { findBlockedTerm, MODERATION_MESSAGE } from '../lib/moderation'
 import { uploadCityPhoto } from '../hooks/useCity'
 import type { ListingInput, Result } from '../hooks/useCity'
 import { CityCategoryField } from './CityCategoryField'
+import type { CityGroup } from '../lib/city'
 
 // Um único formulário para os 4 tipos de cadastro (lugar, profissional,
 // evento, convite). Só o que faz sentido para cada tipo aparece na tela.
@@ -29,7 +30,8 @@ interface CityListingFormProps {
   listings: CityListing[]
   categories: CityCategory[]
   tags: CityTag[]
-  onCreateCategory: (nome: string, grupo: string) => Promise<{ error: string | null; id: string | null; existing: boolean }>
+  onCreateCategory: (nome: string, grupo: string, grupoSugerido?: string) => Promise<{ error: string | null; id: string | null; existing: boolean }>
+  groups?: CityGroup[]
   onSave: (input: ListingInput) => Promise<Result>
   onAlsoRecommend: (listing: CityListing) => void
   onClose: () => void
@@ -64,6 +66,7 @@ export function CityListingForm({
   categories,
   tags,
   onCreateCategory,
+  groups,
   onSave,
   onAlsoRecommend,
   onClose,
@@ -79,6 +82,8 @@ export function CityListingForm({
   const [instagram, setInstagram] = useState(editing?.instagram ?? '')
   const [faixa, setFaixa] = useState<CityListing['faixa_preco']>(editing?.faixa_preco ?? null)
   const [foto, setFoto] = useState<string | null>(editing?.foto ?? null)
+  const [logo, setLogo] = useState<string | null>(editing?.logo ?? null)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
   const [proprio, setProprio] = useState(editing?.e_proprio_negocio ?? false)
   const [todaCidade, setTodaCidade] = useState(editing?.atende_toda_cidade ?? false)
   const [data, setData] = useState(toDateInput(editing?.starts_at ?? null))
@@ -131,6 +136,16 @@ export function CityListingForm({
     else setFoto(r.url)
   }
 
+  async function onLogo(file: File | undefined) {
+    if (!file) return
+    setError(null)
+    setUploadingLogo(true)
+    const r = await uploadCityPhoto(uid, file)
+    setUploadingLogo(false)
+    if (r.error) setError(r.error)
+    else setLogo(r.url)
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault()
     setError(null)
@@ -156,7 +171,7 @@ export function CityListingForm({
       const comDias = Object.values(dias).some((v) => v && v !== '')
       if (tipo === 'lugar' && !comDias && !horario.trim()) return setError('Informe o horário de funcionamento (por dia) ou escreva como combinar.')
       if (descricao.trim().length < 10) return setError(proprio ? 'Conte o que você faz.' : 'Conte por que você indica.')
-      if (!foto) return setError('Escolha uma foto.')
+      if (!foto) return setError('Escolha a foto da fachada (ou outra foto do lugar).')
     }
     const text = [titulo, descricao, bairro, localNome, valor, horario].join(' ')
     if (findBlockedTerm(text)) return setError(MODERATION_MESSAGE)
@@ -181,6 +196,7 @@ export function CityListingForm({
       horario: isPlaceOrPro ? nullable(horario) : null,
       horarios: isPlaceOrPro ? (Object.fromEntries(Object.entries(dias).filter(([, v]) => v)) as Record<string, string>) : null,
       foto: tipo === 'convite' ? null : foto,
+      logo: isPlaceOrPro ? logo : null,
       e_proprio_negocio: isPlaceOrPro ? proprio : false,
       atende_toda_cidade: tipo === 'profissional' ? todaCidade : false,
       starts_at: startsAt,
@@ -235,7 +251,7 @@ export function CityListingForm({
         </p>
       )}
 
-      {needsCategory && <CityCategoryField categories={categories} value={categoriaId} onChange={setCategoriaId} onCreate={onCreateCategory} />}
+      {needsCategory && <CityCategoryField groups={groups} categories={categories} value={categoriaId} onChange={setCategoriaId} onCreate={onCreateCategory} />}
       {showHealthNote && <p className="cty-note">{HEALTH_NOTE}</p>}
       {isHealth && <p className="cty-note">Em Saúde, não escreva promessa de cura, “antes e depois” nem preço de procedimento.</p>}
 
@@ -406,19 +422,38 @@ export function CityListingForm({
       </label>
 
       {tipo !== 'convite' && (
-        <div className="cty-field">
-          <span className="cty-label">{isPlaceOrPro ? 'Foto' : 'Foto (opcional)'}</span>
-          {foto && <img className="cty-form-photo" src={foto} alt="" />}
-          <div className="cty-actions">
-            <label className="cty-btn">
-              {uploading ? 'Enviando…' : foto ? 'Trocar foto' : 'Escolher foto'}
-              <input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={uploading} onChange={(e) => void onPhoto(e.target.files?.[0])} />
-            </label>
-            {foto && (
-              <button type="button" className="cty-btn" onClick={() => setFoto(null)}>
-                Tirar foto
-              </button>
-            )}
+        <div className="cty-photos">
+          {isPlaceOrPro && (
+            <div className="cty-field cty-photo-slot">
+              <span className="cty-label">Logo (opcional)</span>
+              {logo ? <img className="cty-form-logo" src={logo} alt="" /> : <span className="cty-photo-empty cty-photo-empty--logo">Sem logo</span>}
+              <div className="cty-actions">
+                <label className="cty-btn">
+                  {uploadingLogo ? 'Enviando…' : logo ? 'Trocar logo' : 'Escolher logo'}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={uploadingLogo} onChange={(e) => void onLogo(e.target.files?.[0])} />
+                </label>
+                {logo && (
+                  <button type="button" className="cty-btn" onClick={() => setLogo(null)}>
+                    Tirar
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="cty-field cty-photo-slot">
+            <span className="cty-label">{isPlaceOrPro ? 'Fachada ou outra foto' : 'Foto (opcional)'}</span>
+            {foto ? <img className="cty-form-photo" src={foto} alt="" /> : <span className="cty-photo-empty">Sem foto</span>}
+            <div className="cty-actions">
+              <label className="cty-btn">
+                {uploading ? 'Enviando…' : foto ? 'Trocar foto' : 'Escolher foto'}
+                <input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={uploading} onChange={(e) => void onPhoto(e.target.files?.[0])} />
+              </label>
+              {foto && (
+                <button type="button" className="cty-btn" onClick={() => setFoto(null)}>
+                  Tirar foto
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -17,7 +17,7 @@ import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { HomeExperienceStrip } from './HomeExperienceStrip'
 import { HomeCirclesSection } from './HomeCirclesSection'
 import { HomeCityCard } from './HomeCityCard'
-import { useMyCity } from '../hooks/useCity'
+import { useCityBadge, useMyCity } from '../hooks/useCity'
 import { HomeMagazineStrip } from './HomeMagazineStrip'
 import { MagazineManager } from './MagazineManager'
 import { HomeMenuBanner } from './HomeMenuBanner'
@@ -201,6 +201,7 @@ export function HomeToday({
   const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
   const { url: cidadeCover } = useSignedImageUrl(cardImagePaths.banner_cidade ?? null)
   const { city: myCity } = useMyCity()
+  const cityBadge = useCityBadge(profile.id, profile.role === 'master' || profile.role === 'professional', !!myCity)
   const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
   // Cards editoriais — a foto do PRÓPRIO item em destaque (evento/receita),
   // quando existe, prevalece sobre a capa genérica da categoria acima
@@ -358,7 +359,7 @@ export function HomeToday({
       />
 
       {/* "Na minha cidade": depois dos Círculos e antes de "Descobrir". */}
-      <HomeCityCard city={myCity} image={cidadeCover} onOpen={() => onNavigate('cidade')} />
+      <HomeCityCard city={myCity} image={cidadeCover} badge={cityBadge.total} onOpen={() => onNavigate('cidade')} />
 
       {/* Da revista até o fim da página, flores de pétalas redondas ao fundo. */}
       <div className="home-flower-zone">

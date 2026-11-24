@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { CITY_GROUPS, LISTING_TYPE_LABEL, claimWhatsAppUrl, groupLabel } from '../lib/city'
-import type { CityCategory, CityListingType } from '../lib/city'
+import { LISTING_TYPE_LABEL, claimWhatsAppUrl, groupLabel } from '../lib/city'
+import type { CityCategory, CityGroup, CityListingType } from '../lib/city'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
-import { setGroupImage, uploadCityPhoto, useCityCatalog, useGroupImages } from '../hooks/useCity'
+import { saveCategory, saveGroup, useCityCatalog, useCityGroups, useCityBadge } from '../hooks/useCity'
+import { CityGroupsAdmin } from './CityGroupsAdmin'
 
 // Moderação de "Na minha cidade" (administração): denúncias dos cadastros e
 // categorias criadas pelas participantes (aprovar, renomear, unir a outra —
@@ -28,6 +29,7 @@ interface PendingCategory {
   id: string
   nome: string
   grupo: string
+  grupo_sugerido?: string | null
   criada_em: string
   criada_por_nome: string | null
   usos: number
@@ -221,13 +223,29 @@ export function ClaimsList() {
   )
 }
 
-function CategoryItem({ cat, others, onDone }: { cat: PendingCategory; others: CityCategory[]; onDone: () => void }) {
+function CategoryItem({ cat, others, groups, onDone }: { cat: PendingCategory; others: CityCategory[]; groups: CityGroup[]; onDone: () => void }) {
   const [renaming, setRenaming] = useState(false)
   const [name, setName] = useState(cat.nome)
   const [merging, setMerging] = useState(false)
   const [into, setInto] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  async function criarGrupoSugerido() {
+    if (!cat.grupo_sugerido) return
+    setBusy(true)
+    setError(null)
+    const g = await saveGroup({ nome: cat.grupo_sugerido })
+    if (g.error || !g.slug) {
+      setBusy(false)
+      setError(g.error ?? 'Não foi possível criar o grupo.')
+      return
+    }
+    const r = await saveCategory({ id: cat.id, nome: cat.nome, grupo: g.slug })
+    setBusy(false)
+    if (r.error) setError(r.error)
+    else onDone()
+  }
 
   async function run(action: string, value?: string, target?: string) {
     setBusy(true)
@@ -246,8 +264,21 @@ function CategoryItem({ cat, others, onDone }: { cat: PendingCategory; others: C
   return (
     <article className="cty-admin-item">
       <p>
-        <strong>{cat.nome}</strong> · {groupLabel(cat.grupo)}
+        <strong>{cat.nome}</strong> · {groupLabel(cat.grupo, groups)}
       </p>
+      {cat.grupo_sugerido && (
+        <p className="cty-note">
+          Ela pediu também um <strong>grupo novo</strong>: “{cat.grupo_sugerido}”.{' '}
+          <button
+            type="button"
+            className="cty-link"
+            disabled={busy}
+            onClick={() => void criarGrupoSugerido()}
+          >
+            Criar o grupo e mover a categoria
+          </button>
+        </p>
+      )}
       <p className="home-muted">
         Criada por {cat.criada_por_nome ?? 'Participante'} {formatRelativeTime(cat.criada_em)} · {cat.usos} {cat.usos === 1 ? 'cadastro' : 'cadastros'}
       </p>
@@ -268,9 +299,9 @@ function CategoryItem({ cat, others, onDone }: { cat: PendingCategory; others: C
             <span className="cty-label">Unir a qual categoria? (os cadastros migram)</span>
             <select value={into} onChange={(e) => setInto(e.target.value)}>
               <option value="">Escolha</option>
-              {CITY_GROUPS.map((g) => (
-                <optgroup key={g.key} label={g.label}>
-                  {others.filter((c) => c.grupo === g.key).map((c) => (
+              {groups.map((g) => (
+                <optgroup key={g.slug} label={g.nome}>
+                  {others.filter((c) => c.grupo === g.slug).map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.nome}
                     </option>
@@ -318,6 +349,7 @@ function CategoriesList() {
   const [items, setItems] = useState<PendingCategory[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { categories, reload: reloadCatalog } = useCityCatalog()
+  const { groups } = useCityGroups()
 
   const load = useCallback(async () => {
     const { data, error: rpcError } = await supabase.rpc('city_admin_categories')
@@ -354,6 +386,7 @@ function CategoriesList() {
           key={c.id}
           cat={c}
           others={categories.filter((k) => k.id !== c.id && k.status !== 'unida')}
+          groups={groups}
           onDone={() => {
             void load()
             void reloadCatalog()
@@ -364,94 +397,31 @@ function CategoriesList() {
   )
 }
 
-/** Uma imagem para cada grupo de categorias (aparece no card do grupo na tela da cidade). */
-function GroupImages() {
-  const { images, reload } = useGroupImages()
-  const [busy, setBusy] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  async function upload(grupo: string, file: File | undefined) {
-    if (!file) return
-    setError(null)
-    setBusy(grupo)
-    const { data } = await supabase.auth.getSession()
-    const uid = data.session?.user.id
-    if (!uid) {
-      setBusy(null)
-      return setError('Sem sessão ativa.')
-    }
-    const up = await uploadCityPhoto(uid, file)
-    if (up.error || !up.url) {
-      setBusy(null)
-      return setError(up.error ?? 'Não foi possível enviar.')
-    }
-    const r = await setGroupImage(grupo, up.url)
-    setBusy(null)
-    if (r.error) setError(r.error)
-    else await reload()
-  }
-
-  async function remove(grupo: string) {
-    setBusy(grupo)
-    const r = await setGroupImage(grupo, null)
-    setBusy(null)
-    if (r.error) setError(r.error)
-    else await reload()
-  }
-
-  return (
-    <div className="cty-admin">
-      <p className="home-muted">Uma foto para cada grupo de categorias, em formato horizontal (4:3 ou 16:9). Aparece no card do grupo, na tela “Na minha cidade”.</p>
-      {error && (
-        <p className="auth-error" role="alert">
-          {error}
-        </p>
-      )}
-      <div className="cty-group-admin">
-        {CITY_GROUPS.map((g) => (
-          <div key={g.key} className="cty-admin-item">
-            <p>
-              <span aria-hidden="true">{g.icon}</span> <strong>{g.label}</strong>
-            </p>
-            {images[g.key] ? <img className="cty-group-admin-img" src={images[g.key]} alt="" loading="lazy" /> : <p className="home-muted">Sem imagem ainda.</p>}
-            <div className="cty-actions">
-              <label className="cty-btn cty-btn--small">
-                {busy === g.key ? 'Enviando…' : images[g.key] ? 'Trocar imagem' : 'Cadastrar imagem'}
-                <input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={busy === g.key} onChange={(e) => void upload(g.key, e.target.files?.[0])} />
-              </label>
-              {images[g.key] && (
-                <button type="button" className="cty-btn cty-btn--small" disabled={busy === g.key} onClick={() => void remove(g.key)}>
-                  Tirar
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+function TabDot({ n }: { n: number }) {
+  return n > 0 ? <span className="notif-dot notif-dot--mini cty-tab-dot" aria-label={`${n} novo(s)`} /> : null
 }
 
-export function CityAdminPanel() {
-  const [tab, setTab] = useState<'denuncias' | 'reivindicacoes' | 'categorias' | 'imagens'>('denuncias')
+export function CityAdminPanel({ uid = null }: { uid?: string | null }) {
+  const [tab, setTab] = useState<'denuncias' | 'reivindicacoes' | 'categorias' | 'grupos'>('reivindicacoes')
+  const { admin } = useCityBadge(uid ?? 'admin', true, true)
+  const tabs: { key: typeof tab; label: string; n: number }[] = [
+    { key: 'reivindicacoes', label: 'Reivindicações', n: admin.claims },
+    { key: 'categorias', label: 'Pedidos de categoria', n: admin.categorias },
+    { key: 'grupos', label: 'Grupos e categorias', n: 0 },
+    { key: 'denuncias', label: 'Denúncias', n: admin.denuncias },
+  ]
   return (
     <section className="cty-admin" aria-label="Moderação de Na minha cidade">
-      <h3 className="cty-form-title">Na minha cidade · moderação</h3>
+      <h3 className="cty-form-title">Na minha cidade</h3>
       <div className="cty-tabs" role="tablist">
-        <button type="button" role="tab" aria-selected={tab === 'denuncias'} className={`cty-tab${tab === 'denuncias' ? ' cty-tab--on' : ''}`} onClick={() => setTab('denuncias')}>
-          Denúncias
-        </button>
-        <button type="button" role="tab" aria-selected={tab === 'categorias'} className={`cty-tab${tab === 'categorias' ? ' cty-tab--on' : ''}`} onClick={() => setTab('categorias')}>
-          Categorias criadas por membros
-        </button>
-        <button type="button" role="tab" aria-selected={tab === 'reivindicacoes'} className={`cty-tab${tab === 'reivindicacoes' ? ' cty-tab--on' : ''}`} onClick={() => setTab('reivindicacoes')}>
-          Reivindicações
-        </button>
-        <button type="button" role="tab" aria-selected={tab === 'imagens'} className={`cty-tab${tab === 'imagens' ? ' cty-tab--on' : ''}`} onClick={() => setTab('imagens')}>
-          Imagens dos grupos
-        </button>
+        {tabs.map((t) => (
+          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={`cty-tab${tab === t.key ? ' cty-tab--on' : ''}`} onClick={() => setTab(t.key)}>
+            {t.label}
+            <TabDot n={t.n} />
+          </button>
+        ))}
       </div>
-      {tab === 'denuncias' ? <ReportsList /> : tab === 'reivindicacoes' ? <ClaimsList /> : tab === 'categorias' ? <CategoriesList /> : <GroupImages />}
+      {tab === 'denuncias' ? <ReportsList /> : tab === 'reivindicacoes' ? <ClaimsList /> : tab === 'categorias' ? <CategoriesList /> : <CityGroupsAdmin />}
     </section>
   )
 }

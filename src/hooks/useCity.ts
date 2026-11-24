@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { checkPreparedImage, compressImage, UPLOAD_CACHE_CONTROL, validateImageFile } from '../lib/imageUpload'
 import { cityErrorMessage } from '../lib/city'
-import type { CityCategory, CityInfo, CityListing, CityReview, CityTag } from '../lib/city'
+import { FALLBACK_GROUPS } from '../lib/city'
+import type { CityCategory, CityGroup, CityInfo, CityListing, CityReview, CityTag } from '../lib/city'
 
 // "Na minha cidade": a cidade da participante, o catálogo global (categorias e
 // tags) e os cadastros da cidade. Tudo passa pelas funções/regras do banco —
@@ -69,7 +70,7 @@ export function useCityCatalog() {
 
   const reload = useCallback(async () => {
     const [cats, tgs] = await Promise.all([
-      supabase.from('city_categories').select('id, nome, nome_normalizado, grupo, status, unida_a').order('nome'),
+      supabase.from('city_categories').select('id, nome, nome_normalizado, grupo, status, unida_a, descricao, imagem, grupo_sugerido').order('nome'),
       supabase.from('city_tags').select('id, nome, tipo').order('nome'),
     ])
     if (!cats.error) setCategories((cats.data ?? []) as CityCategory[])
@@ -80,7 +81,7 @@ export function useCityCatalog() {
   useEffect(() => {
     let cancelled = false
     void Promise.all([
-      supabase.from('city_categories').select('id, nome, nome_normalizado, grupo, status, unida_a').order('nome'),
+      supabase.from('city_categories').select('id, nome, nome_normalizado, grupo, status, unida_a, descricao, imagem, grupo_sugerido').order('nome'),
       supabase.from('city_tags').select('id, nome, tipo').order('nome'),
     ]).then(([cats, tgs]) => {
       if (cancelled) return
@@ -95,8 +96,8 @@ export function useCityCatalog() {
 
   /** Cria a categoria (fica disponível na hora). Devolve o id e se já existia uma igual. */
   const createCategory = useCallback(
-    async (nome: string, grupo: string): Promise<{ error: string | null; id: string | null; existing: boolean }> => {
-      const { data, error } = await supabase.rpc('create_city_category', { p_nome: nome, p_grupo: grupo })
+    async (nome: string, grupo: string, grupoSugerido?: string): Promise<{ error: string | null; id: string | null; existing: boolean }> => {
+      const { data, error } = await supabase.rpc('create_city_category', { p_nome: nome, p_grupo: grupo, p_grupo_sugerido: grupoSugerido?.trim() || null })
       if (error) return { error: cityErrorMessage(error.message), id: null, existing: false }
       await reload()
       const r = data as { id: string; existing: boolean }
@@ -122,6 +123,7 @@ export interface ListingInput {
   horario: string | null
   horarios: Record<string, string> | null
   foto: string | null
+  logo: string | null
   e_proprio_negocio: boolean
   atende_toda_cidade: boolean
   starts_at: string | null
@@ -415,4 +417,118 @@ export async function saveBillingData(documentType: 'CPF' | 'CNPJ', documentNumb
     .from('billing_customer_data')
     .upsert({ profile_id: u.user.id, document_type: documentType, document_number: digits }, { onConflict: 'profile_id' })
   return { error: error ? 'Não foi possível salvar os dados agora.' : null }
+}
+
+// ---- Grupos de categorias (a profissional cria e edita) ---------------------------
+export function useCityGroups() {
+  const [groups, setGroups] = useState<CityGroup[]>(FALLBACK_GROUPS)
+
+  const reload = useCallback(async () => {
+    const { data, error } = await supabase.from('city_groups').select('slug, nome, icone, descricao, imagem, ordem').order('ordem').order('nome')
+    if (!error && data && data.length > 0) setGroups(data as CityGroup[])
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void supabase
+      .from('city_groups')
+      .select('slug, nome, icone, descricao, imagem, ordem')
+      .order('ordem')
+      .order('nome')
+      .then(({ data, error }) => {
+        if (cancelled) return
+        if (!error && data && data.length > 0) setGroups(data as CityGroup[])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return { groups, reload }
+}
+
+export async function saveGroup(g: { slug?: string | null; nome: string; icone?: string | null; descricao?: string | null; imagem?: string | null }): Promise<Result & { slug: string | null }> {
+  const { data, error } = await supabase.rpc('city_group_save', {
+    p_slug: g.slug ?? null,
+    p_nome: g.nome,
+    p_icone: g.icone ?? null,
+    p_descricao: g.descricao ?? null,
+    p_imagem: g.imagem ?? null,
+  })
+  return { error: error ? cityErrorMessage(error.message) : null, slug: typeof data === 'string' ? data : null }
+}
+
+export async function deleteGroup(slug: string): Promise<Result> {
+  const { error } = await supabase.rpc('city_group_delete', { p_slug: slug })
+  if (error?.message?.includes('grupo_com_categorias')) return { error: 'Este grupo ainda tem categorias. Mova ou remova as categorias primeiro.' }
+  return { error: error ? cityErrorMessage(error.message) : null }
+}
+
+export async function saveCategory(c: { id?: string | null; nome: string; grupo: string; descricao?: string | null; imagem?: string | null }): Promise<Result> {
+  const { error } = await supabase.rpc('city_category_save', {
+    p_id: c.id ?? null,
+    p_nome: c.nome,
+    p_grupo: c.grupo,
+    p_descricao: c.descricao ?? null,
+    p_imagem: c.imagem ?? null,
+  })
+  if (error?.message?.includes('categoria_ja_existe')) return { error: 'Já existe uma categoria com esse nome neste grupo.' }
+  return { error: error ? cityErrorMessage(error.message) : null }
+}
+
+// ---- Bolinhas vermelhas do card "Na minha cidade" ----------------------------------------
+const citySeenKey = (uid: string) => `circula:city-seen:${uid}`
+
+export interface CityPendingCounts {
+  claims: number
+  categorias: number
+  denuncias: number
+}
+
+/** Profissional: pedidos de reivindicação, de categoria e denúncias aguardando. Membro: cadastros novos na cidade desde a última visita. */
+export function useCityBadge(uid: string | null, isAdmin: boolean, hasCity: boolean) {
+  const [admin, setAdmin] = useState<CityPendingCounts>({ claims: 0, categorias: 0, denuncias: 0 })
+  const [novos, setNovos] = useState(0)
+
+  const reload = useCallback(async () => {
+    if (!uid) return
+    if (isAdmin) {
+      const { data } = await supabase.rpc('city_pending_counts')
+      if (data) setAdmin(data as CityPendingCounts)
+      return
+    }
+    if (!hasCity) return
+    let since = '1970-01-01T00:00:00.000Z'
+    try {
+      since = localStorage.getItem(citySeenKey(uid)) ?? since
+    } catch {
+      /* sem storage */
+    }
+    // primeira visita ao app: não enche de bolinhas por cadastros antigos
+    if (since === '1970-01-01T00:00:00.000Z') since = new Date().toISOString()
+    try {
+      if (!localStorage.getItem(citySeenKey(uid))) localStorage.setItem(citySeenKey(uid), since)
+    } catch {
+      /* ignore */
+    }
+    const { data } = await supabase.rpc('city_new_count', { p_since: since })
+    setNovos(typeof data === 'number' ? data : 0)
+  }, [uid, isAdmin, hasCity])
+
+  useEffect(() => {
+    void reload()
+  }, [reload])
+
+  const markSeen = useCallback(() => {
+    if (!uid) return
+    try {
+      localStorage.setItem(citySeenKey(uid), new Date().toISOString())
+    } catch {
+      /* ignore */
+    }
+    setNovos(0)
+  }, [uid])
+
+  const total = isAdmin ? admin.claims + admin.categorias + admin.denuncias : novos
+  return { total, admin, novos, markSeen, reload }
 }

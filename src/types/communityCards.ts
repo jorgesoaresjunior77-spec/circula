@@ -201,20 +201,36 @@ const SPEC_BANNER: CardImageSpec = { aspect: '16 / 9', size: '1600 × 900 px', f
 const SPEC_WHEEL: CardImageSpec = { aspect: '10 / 3', size: '1200 × 360 px', format: 'faixa 10:3' }
 const SPEC_BACKGROUND: CardImageSpec = { aspect: '9 / 16', size: '1080 × 1920 px', format: 'vertical 9:16' }
 
+// Proporções reais de cada espaço no app (conferidas no CSS):
+//  - 3 círculos (Eventos, Loja, Receitas): quadrada, o app recorta em círculo;
+//  - card "Na minha cidade": 16:9 limitado a 180px de altura = cerca de 2:1;
+//  - Lista de Compras: foto ao lado do Meu Chef, cerca de 4:3;
+//  - Diário da Gratidão: 16:10,8;
+//  - Planos e assinaturas: card de 76px de altura por toda a largura, cerca de 4,7:1.
+const SPEC_CIRCLE: CardImageSpec = { aspect: '1 / 1', size: '1080 × 1080 px', format: 'quadrada 1:1 (o app recorta em círculo)' }
+const SPEC_CITY: CardImageSpec = { aspect: '2 / 1', size: '1600 × 800 px', format: 'paisagem 2:1' }
+const SPEC_LIST: CardImageSpec = { aspect: '4 / 3', size: '1200 × 900 px', format: 'paisagem 4:3' }
+const SPEC_DIARY: CardImageSpec = { aspect: '16 / 10.8', size: '1200 × 810 px', format: 'paisagem 16:10,8' }
+const SPEC_PLANS: CardImageSpec = { aspect: '47 / 10', size: '1410 × 300 px', format: 'faixa larga 4,7:1' }
+
 export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
   switch (key) {
     case 'eventos_grande':
     case 'jornada_grande':
     case 'comunidade_grande':
+      return SPEC_CIRCLE
+    case 'banner_cidade':
+      return SPEC_CITY
+    case 'banner_lista':
+      return SPEC_LIST
+    case 'banner_diario':
+      return SPEC_DIARY
+    case 'banner_planos':
+      return SPEC_PLANS
     case 'banner_cardapio':
     case 'banner_exercicios':
     case 'banner_series':
-    case 'banner_diario':
-    case 'banner_lista':
-    case 'banner_cidade':
       return SPEC_BANNER
-    case 'banner_planos':
-      return { aspect: '16 / 3', size: '1600 × 300 px', format: 'faixa larga 16:3' }
     case 'loja_fundo':
     case 'revista_escritorio':
       return SPEC_BACKGROUND

@@ -33,22 +33,17 @@ export function economiaAnual(prices: Record<PlanCycle, number>): number {
   return Math.max(0, prices.monthly * 12 - prices.annual)
 }
 
-/** Balão do topo da página de Planos: recomenda o anual (ou o semestral, se o anual não compensa). */
+/** Dica do topo da página de Planos: recomenda o anual (ou o semestral, se o anual não compensa). Sem robô e sem som: o robô só aparece quando a pessoa assina. */
 export function RoboConsultor({ economiaAnualCents, economiaSemestralCents, nome }: { economiaAnualCents: number; economiaSemestralCents: number; nome: string }) {
-  useEffect(() => {
-    falar('apresenta', 'assinatura')
-  }, [])
   const usaAnual = economiaAnualCents > 0
   const economia = usaAnual ? economiaAnualCents : economiaSemestralCents
   if (economia <= 0) return null
   return (
-    <aside className="robo-consultor" aria-label="Recomendação do robô">
-      <RoboGuia cena="apresenta" tamanho={72} />
+    <aside className="robo-consultor" aria-label="Dica de plano">
       <div className="robo-consultor-balao">
         <p>
           <strong>Minha dica:</strong> no plano {usaAnual ? 'anual' : 'semestral'} do {nome} você economiza <strong>{formatBrl(economia)}</strong> em relação a pagar mês a mês. Você escolhe o que for melhor para você.
         </p>
-        <RoboMudo />
       </div>
     </aside>
   )
@@ -56,12 +51,8 @@ export function RoboConsultor({ economiaAnualCents, economiaSemestralCents, nome
 
 /** Balão que aparece UMA vez por abertura, quando a pessoa escolhe o mensal. Pode ser dispensado; o mensal segue disponível. */
 export function RoboMensal({ economiaCents, onTrocar, onDispensar }: { economiaCents: number; onTrocar: () => void; onDispensar: () => void }) {
-  useEffect(() => {
-    falar('pedindo', 'pedindo')
-  }, [])
   return (
     <div className="robo-mensal" role="note">
-      <RoboGuia cena="pedindo" tamanho={56} />
       <div className="robo-mensal-balao">
         <p>No anual você economiza {formatBrl(economiaCents)}.</p>
         <div className="robo-mensal-acoes">
@@ -105,6 +96,7 @@ export function RoboCelebracao({ ciclo, onFechar }: { ciclo?: PlanCycle | null; 
       </div>
       <div className="robo-celebracao-corpo">
         <RoboGuia cena={cena} tamanho={150} />
+        <RoboMudo />
         <div className="robo-celebracao-balao">
           <p>
             <strong>Obrigada! Sua assinatura está ativa</strong>

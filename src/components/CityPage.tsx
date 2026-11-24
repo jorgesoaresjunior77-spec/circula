@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Profile } from '../types/profile'
 import {
-  CITY_GROUPS,
   HEALTH_NOTE,
   MEETUP_SAFETY_NOTE,
   PRICE_RANGES,
@@ -12,7 +11,7 @@ import type { CityInfo, CityListing, CityListingType } from '../lib/city'
 import { countByCategory, countByGroup, filterGuide, splitUpcoming } from '../lib/cityFilter'
 import type { GuideSort } from '../lib/cityFilter'
 import { BR_STATES } from '../lib/travel'
-import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityListings, useGroupImages, useMyCity } from '../hooks/useCity'
+import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityGroups, useCityListings, useMyCity } from '../hooks/useCity'
 import type { ListingInput } from '../hooks/useCity'
 import { CityPicker } from './CityPicker'
 import { CityListingForm } from './CityListingForm'
@@ -46,7 +45,16 @@ export function CityPage({ profile }: { profile: Profile }) {
   const isAdmin = profile.role === 'master' || profile.role === 'professional'
 
   const { categories, tags, createCategory } = useCityCatalog()
-  const { images: groupImages } = useGroupImages()
+  const { groups } = useCityGroups()
+
+  // Abrir a página limpa a bolinha de "cadastros novos" do card da Home.
+  useEffect(() => {
+    try {
+      localStorage.setItem(`circula:city-seen:${profile.id}`, new Date().toISOString())
+    } catch {
+      /* sem storage */
+    }
+  }, [profile.id])
   const listingsApi = useCityListings(city?.id ?? null)
   const { listings, loading, error } = listingsApi
 
@@ -246,6 +254,7 @@ export function CityPage({ profile }: { profile: Profile }) {
           editing={form.editing}
           listings={guideAll}
           categories={categories}
+          groups={groups}
           tags={tags}
           onCreateCategory={createCategory}
           onSave={saveListing}
@@ -300,12 +309,12 @@ export function CityPage({ profile }: { profile: Profile }) {
               {!group && !query.trim() && (
                 <>
                   <div className="cty-group-grid">
-                    {CITY_GROUPS.filter((g) => showAllGroups || (groupCounts.get(g.key) ?? 0) > 0).map((g) => (
-                      <button key={g.key} type="button" className={`cty-group${groupImages[g.key] ? ' cty-group--photo' : ''}`} onClick={() => { setGroup(g.key); setCategoryId(null) }}>
-                        {groupImages[g.key] && <img className="cty-group-photo" src={groupImages[g.key]} alt="" loading="lazy" decoding="async" />}
-                        <span className="cty-group-icon" aria-hidden="true">{g.icon}</span>
-                        <span className="cty-group-name">{g.label}</span>
-                        <span className="cty-group-count">{groupCounts.get(g.key) ?? 0}</span>
+                    {groups.filter((g) => showAllGroups || (groupCounts.get(g.slug) ?? 0) > 0).map((g) => (
+                      <button key={g.slug} type="button" className={`cty-group${g.imagem ? ' cty-group--photo' : ''}`} onClick={() => { setGroup(g.slug); setCategoryId(null) }}>
+                        {g.imagem && <img className="cty-group-photo" src={g.imagem} alt="" loading="lazy" decoding="async" />}
+                        <span className="cty-group-icon" aria-hidden="true">{g.icone}</span>
+                        <span className="cty-group-name">{g.nome}</span>
+                        <span className="cty-group-count">{groupCounts.get(g.slug) ?? 0}</span>
                       </button>
                     ))}
                   </div>
@@ -323,23 +332,30 @@ export function CityPage({ profile }: { profile: Profile }) {
                       <button type="button" className="cty-link" onClick={() => { setGroup(null); setCategoryId(null); setTagIds([]); setPrice(null) }}>
                         ← Todos os grupos
                       </button>
-                      <strong>{groupLabel(group)}</strong>
+                      <strong>{groupLabel(group, groups)}</strong>
                     </div>
                   )}
+                  {group && groups.find((g) => g.slug === group)?.descricao && <p className="cty-lead">{groups.find((g) => g.slug === group)?.descricao}</p>}
                   {(group === 'saude' || group === 'beleza') && <p className="cty-note">{HEALTH_NOTE}</p>}
 
                   {group && (
-                    <div className="cty-chip-bar" role="group" aria-label="Categorias">
-                      <button type="button" className={`cty-chip${!categoryId ? ' cty-chip--on' : ''}`} onClick={() => setCategoryId(null)}>
-                        Todas · {guideScope.length}
-                      </button>
-                      {categories
-                        .filter((c) => c.grupo === group && c.status !== 'unida' && (showAllCategories || (categoryCounts.get(c.id) ?? 0) > 0))
-                        .map((c) => (
-                          <button key={c.id} type="button" className={`cty-chip${categoryId === c.id ? ' cty-chip--on' : ''}`} onClick={() => setCategoryId(categoryId === c.id ? null : c.id)}>
-                            {c.nome} · {categoryCounts.get(c.id) ?? 0}
-                          </button>
-                        ))}
+                    <div className="cty-cats" role="group" aria-label="Categorias">
+                      <div className="cty-cat-grid">
+                        <button type="button" className={`cty-cat-card cty-cat-card--all${!categoryId ? ' cty-cat-card--on' : ''}`} onClick={() => setCategoryId(null)}>
+                          <span className="cty-cat-name">Todas</span>
+                          <span className="cty-cat-count">{guideScope.length}</span>
+                        </button>
+                        {categories
+                          .filter((c) => c.grupo === group && c.status !== 'unida' && (showAllCategories || (categoryCounts.get(c.id) ?? 0) > 0))
+                          .map((c) => (
+                            <button key={c.id} type="button" className={`cty-cat-card${c.imagem ? ' cty-cat-card--photo' : ''}${categoryId === c.id ? ' cty-cat-card--on' : ''}`} onClick={() => setCategoryId(categoryId === c.id ? null : c.id)}>
+                              {c.imagem && <img className="cty-cat-photo" src={c.imagem} alt="" loading="lazy" decoding="async" />}
+                              <span className="cty-cat-name">{c.nome}</span>
+                              {c.descricao && <span className="cty-cat-desc">{c.descricao}</span>}
+                              <span className="cty-cat-count">{categoryCounts.get(c.id) ?? 0}</span>
+                            </button>
+                          ))}
+                      </div>
                       <button type="button" className="cty-link" onClick={() => setShowAllCategories((v) => !v)}>
                         {showAllCategories ? 'Só as com cadastros' : 'Ver todas as categorias'}
                       </button>

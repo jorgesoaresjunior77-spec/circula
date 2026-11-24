@@ -9,9 +9,11 @@ interface HomeCityCardProps {
   city: CityInfo | null
   image?: string | null
   onOpen: () => void
+  /** Bolinha vermelha: novidades na cidade (cadastros novos, pedidos para a profissional). */
+  badge?: number
 }
 
-export function HomeCityCard({ city, image, onOpen }: HomeCityCardProps) {
+export function HomeCityCard({ city, image, onOpen, badge = 0 }: HomeCityCardProps) {
   const mulheres = city ? `${city.mulheres} ${city.mulheres === 1 ? 'mulher' : 'mulheres'}` : null
   const cadastros = city ? `${city.cadastros} ${city.cadastros === 1 ? 'cadastro' : 'cadastros'}` : null
   return (
@@ -24,6 +26,7 @@ export function HomeCityCard({ city, image, onOpen }: HomeCityCardProps) {
         variants={riseVariants}
         whileTap={{ y: 4, transition: SPRING_TAP }}
       >
+        {badge > 0 && <span className="notif-dot notif-dot--mini" aria-label="Novidade" />}
         <span className="home-editorial-card-media">
           {image ? (
             <img loading="lazy" decoding="async" src={image} alt="" className="home-editorial-card-photo" />

@@ -21,6 +21,20 @@ export interface CityCategory {
   grupo: string
   status: 'ativa' | 'pendente' | 'unida'
   unida_a: string | null
+  descricao?: string | null
+  imagem?: string | null
+  /** Nome de um grupo novo que a membro sugeriu junto com o pedido da categoria. */
+  grupo_sugerido?: string | null
+}
+
+/** Grupo de categorias (a profissional cria e edita no Painel). */
+export interface CityGroup {
+  slug: string
+  nome: string
+  icone: string | null
+  descricao: string | null
+  imagem: string | null
+  ordem: number
 }
 
 export interface CityTag {
@@ -47,6 +61,8 @@ export interface CityListing {
   /** Horário por dia: { seg: '08:00-18:00' | 'fechado' | '24h', ... }. */
   horarios: Record<string, string> | null
   foto: string | null
+  /** Logo do negócio (a "foto" acima é a fachada ou outra imagem). */
+  logo?: string | null
   criado_por: string
   autora_nome: string | null
   autora_avatar: string | null
@@ -109,9 +125,14 @@ export const CITY_GROUPS: { key: string; label: string; icon: string }[] = [
   { key: 'outros', label: 'Outros', icon: '✨' },
 ]
 
-export function groupLabel(key: string): string {
+export function groupLabel(key: string, groups?: CityGroup[]): string {
+  const dyn = groups?.find((g) => g.slug === key)
+  if (dyn) return dyn.nome
   return CITY_GROUPS.find((g) => g.key === key)?.label ?? key
 }
+
+/** Os grupos de reserva (os 14 de sempre), usados enquanto o banco não responde. */
+export const FALLBACK_GROUPS: CityGroup[] = CITY_GROUPS.map((g, i) => ({ slug: g.key, nome: g.label, icone: g.icon, descricao: null, imagem: null, ordem: i + 1 }))
 
 export const LISTING_TYPE_LABEL: Record<CityListingType, string> = {
   lugar: 'Lugar',

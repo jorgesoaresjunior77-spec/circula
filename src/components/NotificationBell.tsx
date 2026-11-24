@@ -52,6 +52,10 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   nutri_request: 'nutri',
   nutri_update: 'nutri',
   nutri_link: 'nutri',
+  // Na minha cidade: a profissional vai ao Painel (aba Na minha cidade); quem pediu volta à cidade.
+  city_claim: 'painel',
+  city_category_request: 'painel',
+  city_claim_result: 'cidade',
 }
 
 /** Depois de navegar, rola até o ponto exato da ação (quando ele existe na tela). */
