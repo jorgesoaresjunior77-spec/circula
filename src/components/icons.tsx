@@ -160,6 +160,15 @@ export function FeedIcon({ size = 20, className }: IconProps) {
   )
 }
 
+export function WalletIcon({ size = 20, className }: IconProps) {
+  return (
+    <Icon size={size} className={className}>
+      <path d="M4 8.5A2.500 2.500 0 0 1 6.500 6H18a2 2 0 0 1 2 2v9.500A2.500 2.500 0 0 1 17.500 20h-11A2.500 2.500 0 0 1 4 17.500v-9Z" />
+      <path d="M4 9.500h13M15.500 14h4.500v3h-4.500a1.500 1.500 0 0 1 0-3Z" />
+    </Icon>
+  )
+}
+
 export function MessageIcon({ size = 20, className }: IconProps) {
   return (
     <Icon size={size} className={className}>

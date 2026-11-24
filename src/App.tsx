@@ -35,6 +35,7 @@ import './ajustes.css'
 import './palette.css'
 import './soft.css'
 import './carro.css'
+import './financas.css'
 
 function App() {
   const {

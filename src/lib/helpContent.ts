@@ -803,6 +803,18 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         k: 'carro oficina lavagem cidade encontrar na minha cidade categoria',
       },
       {
+        id: 'nv-fin-1',
+        q: 'Como funciona o Finanças?',
+        a: 'No menu de baixo, toque em Finanças. Você anota receitas, gastos e investimentos (com o dia de cada um), vê o resumo do mês, gráficos e o histórico. O Círculo Robô reage ao que você lança, sem julgamento. É só um registro: o Círcula não recomenda onde investir nem calcula rendimento.',
+        k: 'finanças dinheiro gastos receitas investir orçamento robô',
+      },
+      {
+        id: 'nv-fin-2',
+        q: 'Meus dados de Finanças são privados? Como lanço uma compra parcelada?',
+        a: 'Só você vê e altera os seus lançamentos. Nem a comunidade nem a administração têm acesso. Para parcelar, abra uma categoria em Gastos, marque Compra parcelada, informe o valor total, o número de parcelas e se a primeira cai neste mês ou no seguinte. O app cria uma parcela em cada mês. Em cada item da lista há o lápis (editar) e a lixeira (apagar).',
+        k: 'finanças privacidade parcelada parcelas editar apagar lançamento',
+      },
+      {
         id: 'nv-3',
         q: 'O que são as Dicas de Viagem?',
         a: 'São roteiros de destinos escolhidos pela nutricionista. Você escolhe o estado, a cidade e para quem é a viagem (crianças, família, casal, sozinha, evento esportivo, a trabalho e outros) e chega à página do destino, com a descrição do lugar, o que fazer, os pontos a visitar e três fotos. É um plano avulso (Dicas de Viagem) ou incluso no Círcula Premium.',

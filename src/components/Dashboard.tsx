@@ -77,6 +77,7 @@ import {
   DropIcon,
   HeartIcon,
   HelpIcon,
+  WalletIcon,
   ChevronLeftIcon,
   SparkleIcon,
   FeedIcon,
@@ -117,6 +118,7 @@ const ReadingTipsPage = lazy(() => import('./ReadingTipsPage').then((m) => ({ de
 const BreathingPage = lazy(() => import('./BreathingPage').then((m) => ({ default: m.BreathingPage })))
 const WellnessPage = lazy(() => import('./WellnessPage').then((m) => ({ default: m.WellnessPage })))
 const WeatherPage = lazy(() => import('./WeatherPage').then((m) => ({ default: m.WeatherPage })))
+const FinancasPage = lazy(() => import('./FinancasPage').then((m) => ({ default: m.FinancasPage })))
 const CarroPage = lazy(() => import('./CarroPage').then((m) => ({ default: m.CarroPage })))
 const FeedbackPage = lazy(() => import('./FeedbackPage').then((m) => ({ default: m.FeedbackPage })))
 const HelpPage = lazy(() => import('./HelpPage').then((m) => ({ default: m.HelpPage })))
@@ -182,7 +184,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas']
 
 export function Dashboard({
   profile,
@@ -529,6 +531,8 @@ export function Dashboard({
     // Módulo 7 (Salvos) despriorizado na Fase 1: fora da navegação
     // primária. Componente e hook mantidos no código, dormentes.
   }
+  // Finanças — registro pessoal (privado), no menu de baixo.
+  if (profile) navItems.push({ key: 'financas', label: 'Finanças', Icon: WalletIcon, inBottomNav: true })
   // Ajuda — no menu de baixo, entre o Feed e o Painel/Perfil.
   navItems.push({ key: 'ajuda', label: 'Ajuda', Icon: HelpIcon, inBottomNav: true })
   if (isNutriPatient) {
@@ -1184,6 +1188,11 @@ export function Dashboard({
 
     // Central de Ajuda — perguntas e respostas; a membro pode falar com a
     // nutricionista a partir dela.
+    // FINANÇAS — receitas, gastos e investimentos da própria pessoa (RLS: só ela vê).
+    if (effectiveNav === 'financas') {
+      return <FinancasPage />
+    }
+
     // CARRO EM DIA — perguntas e respostas para cuidar do carro (avulso de R$ 5,10; o teaser é aberto a todas).
     if (effectiveNav === 'carro') {
       return <CarroPage communityId={resolvedCirclesCommunityId ?? myCommunities[0]?.id ?? null} profileId={profile.id} onOpenCity={() => handleNavigate('cidade')} />
