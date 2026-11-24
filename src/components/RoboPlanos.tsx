@@ -96,7 +96,47 @@ export function RoboInsiste({ cycle, prices, onPick }: { cycle: PlanCycle; price
   )
 }
 
-const PETALAS = Array.from({ length: 22 }, (_, i) => ({
+/** O robô na hora de cancelar o Premium: lembra do que ela perde e oferece ficar só no plano básico. Sem som. */
+export function RoboRetencao({
+  busy,
+  podeCancelarTudo,
+  onManter,
+  onBasico,
+  onTudo,
+}: {
+  busy: boolean
+  podeCancelarTudo: boolean
+  onManter: () => void
+  onBasico: () => void
+  onTudo: () => void
+}) {
+  return (
+    <div className="robo-insiste robo-retencao" role="note" aria-label="Antes de cancelar o Premium">
+      <RoboGuia cena="pedindo" tamanho={64} mudo />
+      <div className="robo-insiste-balao">
+        <p>
+          <strong>Antes de ir…</strong> O Premium leva todos os conteúdos do Círcula. Se cancelar, o acesso a eles termina agora, na hora. Que tal ficar só com o <strong>plano básico, R$ 14,90 por mês</strong>? Você mantém o Círcula e pode assinar os conteúdos que quiser, um por um.
+        </p>
+        <div className="robo-insiste-acoes">
+          <button type="button" className="water-primary" onClick={onManter} disabled={busy}>
+            Manter meu Premium
+          </button>
+          <button type="button" className="water-link" onClick={onBasico} disabled={busy}>
+            {busy ? 'Cancelando…' : 'Cancelar o Premium e ficar no básico'}
+          </button>
+          {podeCancelarTudo && (
+            <button type="button" className="question-delete-button" onClick={onTudo} disabled={busy}>
+              Cancelar tudo
+            </button>
+          )}
+        </div>
+        {podeCancelarTudo && <p className="home-muted">“Cancelar tudo” encerra o Círcula inteiro, inclusive o plano básico. Para voltar, é preciso assinar de novo.</p>}
+      </div>
+    </div>
+  )
+}
+
+const PETALAS =Array.from({ length: 22 }, (_, i) => ({
   esq: (i * 37) % 100,
   atraso: ((i * 53) % 18) / 10,
   dur: 2.6 + ((i * 29) % 14) / 10,

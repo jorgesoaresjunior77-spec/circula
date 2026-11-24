@@ -6,7 +6,7 @@ import { useMyAddonSubscription } from '../hooks/useMyAddonSubscription'
 import { CYCLE_LABEL, formatBrl } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
 import type { DocumentType } from '../types/billing'
-import { RoboInsiste } from './RoboPlanos'
+import { RoboInsiste, RoboRetencao } from './RoboPlanos'
 
 // Assinar um conteúdo avulso (Respiração, Wellness): pede o CPF/CNPJ uma vez,
 // a membro escolhe o ciclo e o Asaas abre a fatura em outra aba. O acesso é
@@ -41,13 +41,15 @@ export function AddonCheckout({
   /** Chamado quando a fatura foi aberta (a página passa a esperar a confirmação do pagamento). */
   onCheckoutStarted?: (cycle: PlanCycle) => void
 }) {
-  const { hasBillingCustomerData, saveBillingCustomerData } = useSubscription({
+  const { hasBillingCustomerData, saveBillingCustomerData, subscription: baseSub, cancelSubscription } = useSubscription({
     subject: 'community',
     communityId: communityId ?? undefined,
   })
   const { subscribe, busy } = useAddonCheckout(communityId)
   const mine = useMyAddonSubscription(communityId, profileId, planKey)
   const [confirmingCancel, setConfirmingCancel] = useState(false)
+  const [cancelingAll, setCancelingAll] = useState(false)
+  const [cancelAllError, setCancelAllError] = useState<string | null>(null)
   const [cycle, setCycle] = useState<PlanCycle>('annual')
   const [documentType, setDocumentType] = useState<DocumentType>('CPF')
   const [documentNumber, setDocumentNumber] = useState('')
@@ -66,7 +68,7 @@ export function AddonCheckout({
           {canceled ? 'Assinatura cancelada. O acesso foi encerrado na hora.' : 'Você já tem este plano. Aproveite!'}
         </p>
         {mine.sub && mine.sub.plan_key === 'cesta' && !canceled && (
-          <p className="home-muted">Este conteúdo faz parte da sua cesta. Cancelar a assinatura cancela a cesta inteira, e todos os conteúdos dela saem na hora.</p>
+          <p className="home-muted">Este conteúdo faz parte da sua cesta. Cancelar tira só ele: os outros continuam e a próxima cobrança já vem com o valor menor.</p>
         )}
         {viaPremium && planKey !== 'premium' && mine.sub && !canceled && (
           <p className="home-muted">Este conteúdo já está incluído no seu Premium. Esta assinatura separada pode ser cancelada para não pagar em dobro.</p>
@@ -76,7 +78,25 @@ export function AddonCheckout({
             Cancelar assinatura
           </button>
         )}
-        {mine.sub && !canceled && confirmingCancel && (
+        {mine.sub && !canceled && confirmingCancel && planKey === 'premium' && (
+          <RoboRetencao
+            busy={mine.busy || cancelingAll}
+            podeCancelarTudo={!!baseSub && typeof cancelSubscription === 'function'}
+            onManter={() => setConfirmingCancel(false)}
+            onBasico={() => void mine.cancel().then(() => setConfirmingCancel(false))}
+            onTudo={() => {
+              setCancelingAll(true)
+              void cancelSubscription()
+                .then((r) => {
+                  if (r.error) setCancelAllError('Não foi possível cancelar agora. Tente novamente em instantes.')
+                  else setConfirmingCancel(false)
+                })
+                .finally(() => setCancelingAll(false))
+            }}
+          />
+        )}
+        {cancelAllError && <p className="auth-error">{cancelAllError}</p>}
+        {mine.sub && !canceled && confirmingCancel && planKey !== 'premium' && (
           <div className="question-item-actions">
             <p className="home-muted">
               Atenção: ao cancelar, a cobrança para e o seu acesso a este plano é cortado agora, na hora, mesmo que o período já esteja pago.

@@ -44,7 +44,8 @@ export function useMyAddonSubscription(communityId: string | null, profileId: st
     setBusy(true)
     setError(null)
     const { error: invokeError } = await supabase.functions.invoke('asaas-cancel-addon-subscription', {
-      body: { addon_id: sub.id },
+      // numa cesta, cancela só o conteúdo desta página (cada um é independente)
+      body: sub.plan_key === 'cesta' ? { addon_id: sub.id, package_key: planKey } : { addon_id: sub.id },
     })
     setBusy(false)
     if (invokeError) {
@@ -53,7 +54,7 @@ export function useMyAddonSubscription(communityId: string | null, profileId: st
     }
     setToken((n) => n + 1)
     return true
-  }, [sub])
+  }, [sub, planKey])
 
   return { sub, busy, error, cancel }
 }
