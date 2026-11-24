@@ -25,6 +25,9 @@ export type SocialNotificationType =
   | 'city_category_request'
   /** Problema ou sugestão enviado por uma participante (para a profissional). */
   | 'feedback'
+  /** Carro em Dia: pergunta nova (para quem responde) e resposta ou retorno (para quem perguntou). */
+  | 'carro_pergunta'
+  | 'carro_resposta'
 
 export interface NotificationActor {
   id: string

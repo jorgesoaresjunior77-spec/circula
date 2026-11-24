@@ -117,7 +117,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-wheel'],
     title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes (filtre por tipo, gênero, faixa etária e plataforma) ou Dicas de Viagem (destinos por estado, cidade e para quem viaja).',
+    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes (filtre por tipo, gênero, faixa etária e plataforma) ou Dicas de Viagem (destinos por estado, cidade e para quem viaja). O Carro em Dia reúne perguntas e respostas para cuidar do seu carro, por R$ 5,10 avulsos.',
     optional: true,
     gesture: 'tap',
   },

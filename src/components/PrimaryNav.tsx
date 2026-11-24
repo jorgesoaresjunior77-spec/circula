@@ -43,6 +43,7 @@ export type NavKey =
   | 'loja'
   | 'perfil'
   | 'feedback'
+  | 'carro'
 
 export interface NavItem {
   key: NavKey

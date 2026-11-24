@@ -773,6 +773,36 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         k: 'tempo hora hora previsão horário',
       },
       {
+        id: 'nv-carro-1',
+        q: 'O que é o Carro em Dia?',
+        a: 'É uma central de perguntas e respostas para ajudar mulheres a cuidarem dos seus carros: pane, luzes do painel, revisão, pneus e freios, oficina, documentos e seguro, segurança ao dirigir, limpeza e economia. As respostas são escritas e revisadas por profissionais do Círcula. São orientações gerais e não substituem a avaliação presencial de um mecânico.',
+        k: 'carro em dia carro automóvel mecânico oficina perguntas respostas',
+      },
+      {
+        id: 'nv-carro-2',
+        q: 'Como faço uma pergunta no Carro em Dia?',
+        a: 'Abra o card Carro em Dia no menu que rola da página inicial, toque em Perguntar, escreva a sua dúvida e, se quiser, escolha a categoria, informe modelo e ano e envie uma foto. Você pode perguntar sem mostrar o seu nome. Não coloque placa, CPF, telefone nem endereço. Quando a pergunta for respondida, o sino avisa você.',
+        k: 'carro perguntar pergunta enviar foto anônima',
+      },
+      {
+        id: 'nv-carro-3',
+        q: 'Quem responde e quanto tempo leva?',
+        a: 'Quem responde são profissionais habilitadas do Círcula, e o nome e a função delas aparecem na resposta. O tempo esperado aparece na tela de perguntar (por padrão, até 3 dias úteis). Se precisarmos de mais informações ou não pudermos publicar a pergunta, avisamos você pelo sino, com o motivo.',
+        k: 'carro quem responde prazo tempo demora resposta',
+      },
+      {
+        id: 'nv-carro-4',
+        q: 'Quanto custa o Carro em Dia? Isso muda o meu plano?',
+        a: 'O Carro em Dia é um conteúdo avulso de R$ 5,10 por mês (com desconto no semestral e no anual), que você libera na própria tela do card. Ele não muda o valor nem o que está incluído no seu plano, e o Círcula Premium não o inclui. Quem não liberou vê só alguns títulos de perguntas.',
+        k: 'carro preço valor 5,10 avulso premium plano',
+      },
+      {
+        id: 'nv-carro-5',
+        q: 'Como encontro uma oficina ou lavagem na minha cidade?',
+        a: 'Nas respostas, toque em Encontrar na minha cidade para abrir a categoria que combina (por exemplo, oficinas mecânicas) já na sua cidade. E, em Na minha cidade, nas categorias de carros, o atalho Dúvidas sobre carro? Veja as respostas leva de volta ao Carro em Dia. As respostas nunca indicam um lugar específico.',
+        k: 'carro oficina lavagem cidade encontrar na minha cidade categoria',
+      },
+      {
         id: 'nv-3',
         q: 'O que são as Dicas de Viagem?',
         a: 'São roteiros de destinos escolhidos pela nutricionista. Você escolhe o estado, a cidade e para quem é a viagem (crianças, família, casal, sozinha, evento esportivo, a trabalho e outros) e chega à página do destino, com a descrição do lugar, o que fazer, os pontos a visitar e três fotos. É um plano avulso (Dicas de Viagem) ou incluso no Círcula Premium.',

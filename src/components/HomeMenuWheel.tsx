@@ -3,6 +3,8 @@ import type { ReactNode } from 'react'
 import type { NavKey } from './PrimaryNav'
 import type { CommunityCardKey } from '../types/communityCards'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
+import { CarIcon } from './CarIcon'
+import type { CarroSettings } from '../lib/carro'
 
 // Menu vertical contínuo: Dicas de leitura, Respiração, Playlist, Wellness,
 // Dicas de Séries / Filmes e Dicas de Viagem. Cards finos, todos do mesmo tamanho, com a imagem encostada à
@@ -95,11 +97,22 @@ interface Props {
   imagePaths?: Partial<Record<CommunityCardKey, string>>
   /** A profissional não vê Assinaturas (a página de Planos é da membro). */
   showSubscriptions?: boolean
+  /** Card do Carro em Dia (título, ícone e posição vêm do Painel); sem isto ou desativado, não aparece. */
+  carro?: CarroSettings | null
 }
 
-export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true }: Props) {
+export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true, carro = null }: Props) {
   void showSubscriptions
-  const items = ALL_ITEMS
+  const items = [...ALL_ITEMS]
+  if (carro?.ativo) {
+    items.splice(Math.min(Math.max(carro.ordem, 0), items.length), 0, {
+      key: 'carro',
+      imageKey: 'menu_carro' as CommunityCardKey,
+      title: carro.titulo,
+      tint: 'linear-gradient(135deg,#ecd9c6,#d6b286)',
+      icon: <CarIcon name={carro.icone} size={26} />,
+    })
+  }
   // Segundos por volta: cerca de 3,4 s por card — suave e constante (um pouco mais ágil).
   const duration = items.length * 3.4
 

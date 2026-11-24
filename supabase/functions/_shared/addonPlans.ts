@@ -1,3 +1,4 @@
+// Obs.: o 'carro' (Carro em Dia) é avulso à parte: o Premium NÃO o inclui e ele não entra na cesta.
 // Catálogo das assinaturas avulsas (revista, receitas, e-books, Help Nutri,
 // respiração, playlist, wellness) e do Círcula Premium. Valores em centavos.
 // ESPELHA src/lib/plansCatalog.ts: o servidor só confia neste arquivo, nunca
@@ -18,6 +19,7 @@ export type AddonPlanKey =
   | 'exercicios'
   | 'series_filmes'
   | 'viagens'
+  | 'carro'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -37,6 +39,7 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'exercicios',
   'series_filmes',
   'viagens',
+  'carro',
   'premium',
 ]
 
@@ -55,6 +58,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   exercicios: 'Se exercite em casa',
   series_filmes: 'Dicas de Séries e Filmes',
   viagens: 'Dicas de Viagem',
+  carro: 'Carro em Dia',
   premium: 'Círcula Premium',
 }
 
@@ -73,6 +77,7 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   exercicios: 790,
   series_filmes: 590,
   viagens: 590,
+  carro: 510,
   premium: 5990,
 }
 
@@ -121,7 +126,7 @@ export function sanitizeBundle(keys: unknown): AddonPlanKey[] {
   if (!Array.isArray(keys)) return []
   const out: AddonPlanKey[] = []
   for (const k of keys) {
-    if (isAddonPlanKey(k) && k !== 'premium' && !out.includes(k)) out.push(k)
+    if (isAddonPlanKey(k) && k !== 'premium' && k !== 'carro' && !out.includes(k)) out.push(k)
   }
   return out
 }
@@ -164,6 +169,8 @@ export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bund
       return ['series_filmes']
     case 'viagens':
       return ['viagens']
+    case 'carro':
+      return ['carro']
     case 'premium':
       return ['premium']
     default:

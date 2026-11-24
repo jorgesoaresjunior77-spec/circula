@@ -37,6 +37,7 @@ import { HomeTrialBanner } from './HomeTrialBanner'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
 import { useMyPackages } from '../hooks/usePackageAccess'
 import { HomeMenuWheel } from './HomeMenuWheel'
+import { useCarroHome } from '../lib/carro'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -181,6 +182,7 @@ export function HomeToday({
   // destino Círculos não aparece mais aqui (tem sua própria seção
   // editorial, <HomeCirclesSection>, com a capa de cada Círculo real).
   const { images: cardImagePaths } = useCommunityCardImages(communityId)
+  const { home: carroHome } = useCarroHome()
   const { url: perfilCover } = useSignedImageUrl(cardImagePaths.hoje ?? null)
   const { url: helpNutriCover } = useSignedImageUrl(cardImagePaths.desafios ?? null)
   const { url: eventosCover } = useSignedImageUrl(cardImagePaths.eventos ?? null)
@@ -401,7 +403,7 @@ export function HomeToday({
       />
       <HomeFlowerGap seed={2} sizes={[40, 62]} height={62} />
 
-      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} />
+      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} carro={carroHome?.settings ?? null} />
       <HomeFlowerGap seed={3} height={28} />
 
       <HomeGroupTitle>Para você</HomeGroupTitle>

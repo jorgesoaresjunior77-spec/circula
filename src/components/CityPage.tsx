@@ -12,6 +12,7 @@ import { countByCategory, countByGroup, filterGuide, splitUpcoming } from '../li
 import type { GuideSort } from '../lib/cityFilter'
 import { BR_STATES } from '../lib/travel'
 import { supabase } from '../lib/supabase'
+import { takeCityRequest } from '../lib/carro'
 import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityGroups, useCityListings, useMyCity } from '../hooks/useCity'
 import type { ListingInput } from '../hooks/useCity'
 import { CityPicker } from './CityPicker'
@@ -34,7 +35,7 @@ interface FormState {
   editing: CityListing | null
 }
 
-export function CityPage({ profile }: { profile: Profile }) {
+export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCarro?: (carCategoryId: string) => void }) {
   const { city: myCity, loading: loadingCity, choose } = useMyCity()
   const [other, setOther] = useState<CityInfo | null>(null)
   const [picker, setPicker] = useState<null | 'mine' | 'other'>(null)
@@ -86,6 +87,36 @@ export function CityPage({ profile }: { profile: Profile }) {
   const [price, setPrice] = useState<string | null>(null)
   const [sort, setSort] = useState<GuideSort>('indicados')
   const [showPast, setShowPast] = useState(false)
+  // vindo do Carro em Dia ("Encontrar na minha cidade"): abre a categoria que combina
+  const [pedidoCarro] = useState(() => takeCityRequest())
+  const [carCat, setCarCat] = useState<string | null>(null)
+  const [pedidoAplicado, setPedidoAplicado] = useState(false)
+  if (pedidoCarro && !pedidoAplicado && categories.length > 0) {
+    // ajuste durante a renderização (as categorias chegam depois da tela abrir)
+    setPedidoAplicado(true)
+    const c = categories.find((x) => pedidoCarro.includes(x.id))
+    if (c) {
+      setGroup(c.grupo)
+      setCategoryId(c.id)
+    }
+  }
+  // atalho de volta: esta categoria combina com alguma categoria do Carro em Dia?
+  useEffect(() => {
+    if (!categoryId || !onOpenCarro) return
+    let cancelled = false
+    void supabase
+      .from('car_categories')
+      .select('id')
+      .eq('ativa', true)
+      .contains('cidade_categorias', [categoryId])
+      .limit(1)
+      .then(({ data }) => {
+        if (!cancelled) setCarCat((data as { id: string }[] | null)?.[0]?.id ?? null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [categoryId, onOpenCarro])
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const guideAll = useMemo(() => listings.filter((l) => l.tipo === 'lugar' || l.tipo === 'profissional'), [listings])
@@ -412,6 +443,12 @@ export function CityPage({ profile }: { profile: Profile }) {
                       </label>
                     </div>
                   </div>
+
+                  {categoryId && carCat && onOpenCarro && (
+                    <button type="button" className="car-city-link" onClick={() => onOpenCarro(carCat)}>
+                      Dúvidas sobre carro? Veja as respostas
+                    </button>
+                  )}
 
                   {guideShown.length === 0 ? (
                     <p className="home-muted">Nada encontrado com esses filtros.</p>

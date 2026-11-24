@@ -19,6 +19,7 @@ export type PackageKey =
   | 'exercicios'
   | 'series_filmes'
   | 'viagens'
+  | 'carro'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -35,6 +36,7 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'exercicios',
   'series_filmes',
   'viagens',
+  'carro',
   'premium',
   'total',
 ]
@@ -56,6 +58,7 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   exercicios: 'Se exercite em casa',
   series_filmes: 'Dicas de Séries e Filmes',
   viagens: 'Dicas de Viagem',
+  carro: 'Carro em Dia',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -75,6 +78,7 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   exercicios: 'Pode montar treinos com a biblioteca de exercícios para fazer em casa.',
   series_filmes: 'Pode ver as dicas de séries e filmes.',
   viagens: 'Pode ver as Dicas de Viagem.',
+  carro: 'Pode ler as respostas do Carro em Dia e fazer perguntas.',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]

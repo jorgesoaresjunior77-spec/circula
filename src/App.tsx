@@ -34,6 +34,7 @@ import './robo.css'
 import './ajustes.css'
 import './palette.css'
 import './soft.css'
+import './carro.css'
 
 function App() {
   const {

@@ -11,6 +11,7 @@ import { PostsModerationPanel } from './PostsModerationPanel'
 import { CityAdminPanel } from './CityAdminPanel'
 import { PanelImagesTab } from './PanelImagesTab'
 import { FeedbackInbox } from './FeedbackInbox'
+import { CarroAdmin } from './CarroAdmin'
 import { ContentSchedulePanel } from './ContentSchedulePanel'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
@@ -34,6 +35,7 @@ type PanelTab =
   | 'publicacoes'
   | 'cidade'
   | 'feedback'
+  | 'carro'
   | 'eventos'
   | 'jardim'
   | 'circulos'
@@ -50,6 +52,7 @@ const TABS: { key: PanelTab; label: string }[] = [
   { key: 'publicacoes', label: 'Publicações' },
   { key: 'cidade', label: 'Na minha cidade' },
   { key: 'feedback', label: 'Problemas e sugestões' },
+  { key: 'carro', label: 'Carro em Dia' },
   { key: 'imagens', label: 'Imagens da comunidade' },
   { key: 'metricas', label: 'Métricas' },
   { key: 'assinaturas', label: 'Assinaturas' },
@@ -220,6 +223,12 @@ export function ProfessionalPanel({
       {activeTab === 'cidade' && (
         <div className="panel-tab-content">
           <CityAdminPanel uid={profileId} />
+        </div>
+      )}
+
+      {activeTab === 'carro' && (
+        <div className="panel-tab-content">
+          <CarroAdmin />
         </div>
       )}
 

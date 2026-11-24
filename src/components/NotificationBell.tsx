@@ -57,6 +57,9 @@ const TYPE_TO_NAV: Record<SocialNotificationType, NavKey> = {
   city_category_request: 'painel',
   city_claim_result: 'cidade',
   feedback: 'painel',
+  // Carro em Dia: quem responde vai ao Painel; quem perguntou abre a central.
+  carro_pergunta: 'painel',
+  carro_resposta: 'carro',
 }
 
 /** Depois de navegar, rola até o ponto exato da ação (quando ele existe na tela). */

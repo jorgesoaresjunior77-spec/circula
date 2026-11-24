@@ -374,6 +374,7 @@ async function handleAddonSubscriptionEvent(
           .eq('profile_id', addon.profile_id)
           .eq('community_id', addon.community_id)
           .neq('plan_key', 'premium')
+          .neq('plan_key', 'carro') // o Carro em Dia é avulso à parte: o Premium não o inclui
           .in('status', ['active', 'past_due', 'pending'])
         for (const other of overlap ?? []) {
           const otherAsaas = other.asaas_subscription_id as string | null

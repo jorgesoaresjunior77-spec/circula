@@ -1,0 +1,173 @@
+/* Carro em Dia: central de perguntas e respostas. */
+.car-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+.car-head {
+  text-align: center;
+}
+.car-head h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 2px;
+  color: var(--graphite);
+}
+.car-icon {
+  color: #a8704c;
+  flex: none;
+}
+.car-hero {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: 22px;
+}
+.car-aviso {
+  margin: 4px 0 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--accent-sand-tint, rgba(156, 138, 112, 0.1));
+  color: var(--graphite-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.car-teaser {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.car-teaser li {
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--graphite);
+  position: relative;
+  padding-right: 40px;
+}
+.car-teaser li::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 12px;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 3px;
+  background: var(--accent-sand, #9c8a70);
+  opacity: 0.6;
+}
+.car-price {
+  text-align: center;
+  margin: 4px 0;
+  color: var(--graphite);
+}
+.car-locked,
+.car-respostas,
+.car-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.car-chips {
+  flex-wrap: wrap;
+}
+.car-chips .cty-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.car-card {
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.car-card-q {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  color: var(--graphite);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.car-card-a {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+.car-answer {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  color: var(--graphite-soft);
+}
+.car-by {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite-soft);
+}
+.car-status {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a8704c;
+}
+.car-status--recusada,
+.car-status--mais_info {
+  color: var(--danger);
+}
+.car-similar {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--accent-sand-tint, rgba(156, 138, 112, 0.1));
+  font-size: 13px;
+}
+.car-similar ul {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+.car-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.car-city-link {
+  align-self: flex-start;
+  min-height: 44px;
+  margin: 4px 0 8px;
+  padding: 8px 16px;
+  border: 1px dashed var(--ink-action-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-action);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.car-report {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .car-card * {
+    transition: none !important;
+  }
+}
