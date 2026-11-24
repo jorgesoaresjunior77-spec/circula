@@ -36,4 +36,15 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
     // Respiração, Playlist, Wellness, Séries e Viagem seguem com o degradê e o ícone.
     expect(container.querySelectorAll('.wheel-thumb:not(.wheel-thumb--photo) svg')).toHaveLength(10)
   })
+  it('o Carro em Dia aparece na posição do Painel e abre a central; desativado, some', () => {
+    const settings = { ativo: true, titulo: 'Carro em Dia', subtitulo: '', icone: 'carro', ordem: 1, teaser: '', tempo_resposta: '', lembrete_dias: 3, imagem: null, imagem_alt: null }
+    const onNavigate = vi.fn()
+    const { rerender } = render(<HomeMenuWheel onNavigate={onNavigate} carro={settings} />)
+    const nomes = screen.getAllByRole('button').map((b) => b.textContent)
+    expect(nomes[1]).toBe('Carro em Dia')
+    fireEvent.click(screen.getAllByRole('button')[1])
+    expect(onNavigate).toHaveBeenCalledWith('carro')
+    rerender(<HomeMenuWheel onNavigate={onNavigate} carro={{ ...settings, ativo: false }} />)
+    expect(screen.queryByText('Carro em Dia')).toBeNull()
+  })
 })
