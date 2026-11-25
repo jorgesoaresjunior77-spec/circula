@@ -1502,3 +1502,114 @@
   object-fit: contain;
   object-position: 50% 0%;
 }
+
+/* ==========================================================================
+   Rodada 25/11 (5): topo (logo +10%, "Sair", vidro, clima, tema), tom das imagens, espaços e Planos
+   ========================================================================== */
+/* logo, nome e frase +10% */
+.dashboard-header .brand {
+  zoom: 1.1;
+}
+
+/* "Sair" visível sobre a foto */
+.dashboard--hero .dashboard-header .dashboard-user > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.55);
+  color: #3d2a20;
+  -webkit-text-fill-color: #3d2a20;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 1;
+  visibility: visible;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* saudação +10% */
+.dashboard--hero .home-greeting .home-greeting-title {
+  font-size: clamp(17.6px, 4.84vw, 20.9px);
+}
+.dashboard--hero .home-greeting .home-greeting-sub {
+  font-size: 10.5px;
+}
+
+/* vidro líquido: banner da comunidade e clima com o mesmo acabamento, bem transparentes */
+.home-community-header--hero .home-community-glass,
+.dashboard--hero .weather-button {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.06) 48%, rgba(255, 255, 255, 0.16) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(1.7) brightness(1.06);
+  backdrop-filter: blur(14px) saturate(1.7) brightness(1.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 18px rgba(255, 255, 255, 0.12),
+    0 14px 26px -16px rgba(60, 40, 28, 0.42);
+}
+/* clima: mais baixo */
+.dashboard--hero .weather-button {
+  padding: 0 14px 0 6px;
+  min-height: 0;
+  height: 34px;
+  border-radius: 20px;
+}
+.dashboard--hero .weather-button svg {
+  width: 28px;
+  height: 28px;
+}
+.dashboard--hero .weather-temp-now {
+  font-size: 21px;
+  line-height: 1;
+}
+
+/* botão de trocar a cor: 10% menor, à direita do banner, em cima do coração */
+.dashboard--hero .dashboard-community-cover {
+  position: relative;
+}
+.dashboard--hero .home-greeting .theme-toggle {
+  position: absolute;
+  right: 6px;
+  bottom: 10px;
+  scale: 0.9;
+  transform-origin: right bottom;
+  z-index: 2;
+}
+
+/* todas as imagens com o mesmo tom quente dos 3 cards */
+.hero-bg img,
+.home-trio-photo,
+.home-editorial-card img,
+.menu-banner-photo img,
+.gratitude-photo img,
+.wheel-thumb img,
+.home-city-card img {
+  filter: saturate(0.94) sepia(0.08) contrast(1.02) brightness(1.02);
+}
+
+/* espaço dos 3 cards para os cards de texto */
+.home-trio {
+  padding-bottom: 66px;
+  margin-bottom: 0;
+}
+
+/* Planos e parceiros um pouco mais para cima; animação 10% menor */
+.home-plans-wrap {
+  margin: 14px 0 22px;
+}
+.home-plans-orb {
+  width: min(55.8%, 180px);
+}
+.home-partners {
+  margin-top: 4px;
+}
+
+/* a saudação não encosta no "conectando mulheres" depois do aumento do logo */
+.dashboard--hero .dashboard-community-cover .home-greeting {
+  margin-top: 6px;
+}
