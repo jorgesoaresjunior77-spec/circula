@@ -1103,3 +1103,149 @@
 .home-pair .menu-banner-wrap .menu-banner-text {
   background: none !important;
 }
+
+/* ==========================================================================
+   Rodada 25/11: topo igual à referência, 3 círculos com nome em arco e cards finos maiores
+   ========================================================================== */
+
+/* ===== Topo: a foto aparece inteira de cima; a névoa só no fim, para emendar com o resto do app ===== */
+.hero-bg {
+  height: min(128vw, 560px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
+}
+.hero-bg img {
+  object-position: 50% 0%;
+}
+.hero-bg::after {
+  display: none;
+}
+.dashboard--hero .brand-name,
+.dashboard--hero .brand-tagline,
+.dashboard--hero .home-greeting-title,
+.dashboard--hero .home-greeting-sub {
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.7);
+}
+.dashboard--hero .dashboard-community-cover {
+  min-height: 0;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* ===== Banner "Você está em": painel de vidro inteiro, à esquerda, abaixo do clima (nos dois temas) ===== */
+:root .home-community-header.home-community-header--hero,
+:root[data-theme='rose'] .home-community-header.home-community-header--hero {
+  width: 100%;
+  max-width: 68%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  animation: none;
+}
+.home-community-header--hero .home-community-glass {
+  max-width: none;
+  min-height: 0;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-sizing: border-box;
+}
+.home-community-header--hero .home-community-eyebrow,
+.home-community-header--hero .home-community-name,
+.home-community-header--hero .home-community-meta,
+.home-community-header--hero .home-community-owner,
+.home-community-header--hero .home-community-online {
+  color: #4a362b;
+  text-shadow: none;
+}
+.home-community-header--hero .home-community-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+}
+.home-community-header--hero .home-community-name {
+  font-size: clamp(24px, 7vw, 30px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  margin: 2px 0 6px;
+}
+.home-community-header--hero .home-community-meta {
+  font-size: 13px;
+  gap: 4px 10px;
+}
+
+/* ===== 3 círculos: nome em arco embaixo, sombra de profundidade ===== */
+.home-trio {
+  aspect-ratio: 1 / 0.95;
+  margin-top: 44px;
+  margin-bottom: -6px;
+}
+.home-trio .home-trio-circle {
+  overflow: visible;
+  box-shadow:
+    0 0 0 4px rgba(243, 232, 219, 0.75),
+    0 0 0 5px rgba(125, 100, 79, 0.4),
+    0 12px 14px -6px rgba(40, 26, 18, 0.45),
+    0 28px 34px -14px rgba(40, 26, 18, 0.5);
+}
+.home-trio .home-trio-media {
+  border-radius: 50%;
+  overflow: hidden;
+}
+.home-trio .home-trio-circle--a {
+  width: 57.6%;
+  left: 0;
+  top: 0;
+}
+.home-trio .home-trio-circle--b {
+  width: 34.1%;
+  right: 3%;
+  top: 1%;
+}
+.home-trio .home-trio-circle--c {
+  width: 29.7%;
+  right: 8%;
+  left: auto;
+  top: 47%;
+}
+.home-trio .home-trio-text,
+.home-trio .home-trio-circle--a .home-trio-text {
+  background: none;
+  border-radius: 50%;
+}
+.home-trio .home-trio-label {
+  position: absolute;
+  left: -25%;
+  top: -25%;
+  width: 150%;
+  height: 150%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+.home-trio .home-trio-label text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--graphite, #3c3029);
+}
+
+/* ===== Cards finos: um pouco mais perto dos círculos, letras mais altas e largas, fio 3% mais grosso ===== */
+.home-wheel {
+  --wheel-card-h: 68px;
+  --wheel-gap: 20px;
+}
+.home-wheel .wheel-card {
+  padding: 0 2px;
+  justify-content: center;
+}
+.home-wheel .wheel-title {
+  font-size: clamp(28px, 8.8vw, 38px);
+  letter-spacing: 0.18em;
+  -webkit-text-stroke-width: 0.927px;
+}
