@@ -1249,3 +1249,44 @@
   letter-spacing: 0.18em;
   -webkit-text-stroke-width: 0.927px;
 }
+
+/* ===== Ajuste 25/11 (2): cards só de texto começam à esquerda, linha mais grossa, mais juntos ===== */
+.home-wheel {
+  --wheel-card-h: 62px;
+  --wheel-gap: 6px;
+}
+.home-wheel .wheel-card {
+  justify-content: flex-start;
+  text-align: left;
+  padding: 0 4px;
+}
+.home-wheel .wheel-title {
+  flex: 0 1 auto;
+  text-align: left;
+  -webkit-text-stroke-width: 1.5px;
+}
+
+/* ===== Ajuste 25/11 (3): banner transparente como na referência (a foto aparece através dele) ===== */
+:root .home-community-header.home-community-header--hero,
+:root[data-theme='rose'] .home-community-header.home-community-header--hero {
+  max-width: 56%;
+}
+.home-community-header--hero .home-community-glass {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
+  box-shadow: 0 10px 22px -16px rgba(60, 40, 28, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.home-community-header--hero .home-community-eyebrow,
+.home-community-header--hero .home-community-name,
+.home-community-header--hero .home-community-meta,
+.home-community-header--hero .home-community-owner,
+.home-community-header--hero .home-community-online {
+  color: #3d2a20;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.55);
+}
+.home-community-header--hero .home-community-name {
+  font-size: clamp(22px, 6.4vw, 28px);
+}

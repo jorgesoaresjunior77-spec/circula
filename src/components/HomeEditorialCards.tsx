@@ -39,7 +39,7 @@ function pluralNote(count: number, singular: string, plural: string): string | n
 
 // Nome do círculo escrito em arco, embaixo e um pouco para a direita, acompanhando a borda da foto
 // com um pequeno espaço. A unidade do desenho é 1% da largura do círculo (a foto tem raio 50).
-const LABEL_SIZE = { a: 8.5, b: 12, c: 13 } as const
+const LABEL_SIZE = { a: 10.5, b: 14.5, c: 15.5 } as const
 
 function arcPoint(r: number, deg: number): string {
   const rad = (deg * Math.PI) / 180
@@ -47,7 +47,7 @@ function arcPoint(r: number, deg: number): string {
 }
 
 function TrioLabel({ id, text, size }: { id: string; text: string; size: number }) {
-  const r = 50 + 3 + size * 0.72
+  const r = 50 + 7 + size * 0.72
   // de baixo-esquerda, passando pelo fundo, até baixo-direita (letras em pé)
   const d = `M ${arcPoint(r, 175)} A ${r} ${r} 0 0 0 ${arcPoint(r, 15)}`
   return (
