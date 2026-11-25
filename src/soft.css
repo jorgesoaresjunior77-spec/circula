@@ -1429,3 +1429,76 @@
   grid-area: toggle;
   justify-self: start;
 }
+
+/* ==========================================================================
+   Rodada 25/11 (4): 3 cards retangulares em pé lado a lado; cards de texto mais altos e juntos; foto do topo sem zoom
+   ========================================================================== */
+.home-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  aspect-ratio: auto;
+  margin: 36px auto 0;
+  padding-bottom: 44px;
+}
+.home-trio .home-trio-circle,
+.home-trio .home-trio-circle--a,
+.home-trio .home-trio-circle--b,
+.home-trio .home-trio-circle--c {
+  position: relative;
+  inset: auto;
+  left: auto;
+  right: auto;
+  top: auto;
+  width: 100%;
+  aspect-ratio: 3 / 4.4;
+  border-radius: 22px;
+  z-index: 1;
+  box-shadow:
+    0 0 0 3px rgba(243, 232, 219, 0.75),
+    0 0 0 4px rgba(125, 100, 79, 0.4),
+    0 10px 12px -6px rgba(40, 26, 18, 0.45),
+    0 24px 28px -14px rgba(40, 26, 18, 0.5);
+}
+.home-trio .home-trio-media,
+.home-trio .home-trio-photo,
+.home-trio .home-trio-fallback,
+.home-trio .home-trio-text {
+  border-radius: 22px;
+}
+.home-trio .home-trio-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 14px);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--graphite, #3c3029);
+  pointer-events: none;
+}
+
+/* ===== Cards só de texto: mais altos e colados uns nos outros ===== */
+.home-wheel {
+  --wheel-card-h: 60px;
+  --wheel-gap: 0px;
+}
+.home-wheel .wheel-title {
+  transform: scaleY(1.38);
+}
+
+/* ===== Foto do topo: inteira, sem zoom nem corte; só esmaece no fim ===== */
+.hero-bg {
+  height: auto;
+}
+.hero-bg img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: 50% 0%;
+}

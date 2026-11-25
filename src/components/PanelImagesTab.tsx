@@ -31,17 +31,10 @@ interface Section {
 const SECTIONS: Section[] = [
   {
     id: 'topo',
-    title: 'Início · Topo do app (6 imagens)',
-    summary: 'A foto grande no alto do Início. Cada imagem fica 24 horas e troca sozinha para a próxima.',
-    note: 'Preencha de 1 a 6 imagens. O app mostra uma por dia, na ordem (1, 2, 3…), e troca sozinho à meia-noite. Depois da sexta, volta à primeira. Campos vazios são pulados.',
-    slots: [
-      { key: 'hero_1', label: 'Imagem 1', where: 'Topo do Início, no dia 1 do ciclo.' },
-      { key: 'hero_2', label: 'Imagem 2', where: 'Topo do Início, no dia 2 do ciclo.' },
-      { key: 'hero_3', label: 'Imagem 3', where: 'Topo do Início, no dia 3 do ciclo.' },
-      { key: 'hero_4', label: 'Imagem 4', where: 'Topo do Início, no dia 4 do ciclo.' },
-      { key: 'hero_5', label: 'Imagem 5', where: 'Topo do Início, no dia 5 do ciclo.' },
-      { key: 'hero_6', label: 'Imagem 6', where: 'Topo do Início, no dia 6 do ciclo.' },
-    ],
+    title: 'Início · Topo do app',
+    summary: 'A foto grande no alto do Início, atrás do logo, da saudação e do banner.',
+    note: 'Uma única imagem fixa. Prefira uma foto aberta e vertical (a pessoa inteira, com céu e fundo), no formato de celular.',
+    slots: [{ key: 'hero_1', label: 'Imagem do topo', where: 'Topo do Início.' }],
   },
   {
     id: 'hoje',

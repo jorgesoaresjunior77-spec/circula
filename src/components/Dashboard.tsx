@@ -65,7 +65,7 @@ import { HomeToday } from './HomeToday'
 import { sendToCarro } from '../lib/carro'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
-import { heroOfTheDay } from '../lib/heroRotation'
+import { heroImage } from '../lib/heroRotation'
 import { HomeGreeting } from './HomeGreeting'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
@@ -572,11 +572,11 @@ export function Dashboard({
     railActive ? (profile?.id ?? null) : null,
   )
 
-  // Topo do app: a imagem do dia entre as 6 cadastradas (troca à meia-noite).
+  // Topo do app: uma imagem fixa (Painel > Imagens da comunidade).
   const { images: heroImages } = useCommunityCardImages(
     profile && profile.role !== 'master' ? (railCommunity?.id ?? null) : null,
   )
-  const heroPath = heroOfTheDay(heroImages)
+  const heroPath = heroImage(heroImages)
   const { url: heroUrl } = useSignedImageUrl(heroPath)
 
   // A foto do topo começa no alto da página (atrás da barra de status e do logo), seja qual for o respiro acima do painel.
