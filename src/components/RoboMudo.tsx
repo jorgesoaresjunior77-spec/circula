@@ -9,8 +9,8 @@ export function RoboMudo({ className }: { className?: string }) {
       className={`robo-mudo${className ? ` ${className}` : ''}`}
       onClick={alternarMudo}
       aria-pressed={mudo}
-      aria-label={mudo ? 'Ligar o som do robô' : 'Desligar o som do robô'}
-      title={mudo ? 'Ligar o som do robô' : 'Desligar o som do robô'}
+      aria-label={mudo ? 'Ligar o som da Livi' : 'Desligar o som da Livi'}
+      title={mudo ? 'Ligar o som da Livi' : 'Desligar o som da Livi'}
     >
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5Z" />

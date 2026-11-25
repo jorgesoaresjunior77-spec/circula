@@ -805,7 +805,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'nv-fin-1',
         q: 'Como funciona o Finanças?',
-        a: 'No menu de baixo, toque em Finanças. Você anota receitas, gastos e investimentos (com o dia de cada um), vê o resumo do mês, gráficos e o histórico. O Círculo Robô reage ao que você lança, sem julgamento. É só um registro: o Círcula não recomenda onde investir nem calcula rendimento.',
+        a: 'No menu de baixo, toque em Finanças. Você anota receitas, gastos e investimentos (com o dia de cada um), vê o resumo do mês, gráficos e o histórico. A Livi reage ao que você lança, sem julgamento. É só um registro: o Círcula não recomenda onde investir nem calcula rendimento.',
         k: 'finanças dinheiro gastos receitas investir orçamento robô',
       },
       {

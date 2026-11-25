@@ -479,3 +479,22 @@
     margin: 0 auto;
   }
 }
+
+/* Saldo: positivo = sobrou, negativo = falta, zero = equilibrado */
+.fin-grande--faltando { color: #b3382c; }
+.fin-grande--sobrou { color: #2f7a4a; }
+.fin-saldo-frase { color: var(--fin-ink-2); font-size: 14px; }
+.fin-cartao--faltando { box-shadow: 0 14px 24px -16px rgba(179, 56, 44, 0.45), inset 0 1px 0 #fff; }
+
+/* Botão de som: discreto, só o ícone (o texto fica para leitores de tela) */
+.fin-robo-som { min-height: 32px; min-width: 32px; width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 0; border-color: rgba(133, 105, 93, 0.25); opacity: 0.8; }
+.fin-robo-som svg { width: 16px; height: 16px; }
+
+/* Lançamento por voz */
+.fin-voz-abrir { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid #a2753f; background: transparent; color: #6b4a2a; font: inherit; font-size: 15px; cursor: pointer; }
+.fin-voz { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: var(--fin-bg, #fff); box-shadow: 0 14px 24px -16px rgba(120, 98, 84, 0.5), inset 0 1px 0 #fff; }
+.fin-voz-fala { margin: 0; font-size: 15px; line-height: 1.4; }
+.fin-voz-acoes { display: flex; align-items: center; gap: 12px; }
+.fin-voz-mic { width: 56px; height: 56px; border-radius: 50%; border: 0; background: #4a2f22; color: #fbf3e8; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.fin-voz-mic--on { background: #b3382c; box-shadow: 0 0 0 6px rgba(179, 56, 44, 0.2); }
+.fin-voz-previa { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; border-top: 1px solid rgba(133, 105, 93, 0.25); }

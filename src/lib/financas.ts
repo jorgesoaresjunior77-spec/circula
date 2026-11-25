@@ -161,6 +161,22 @@ export function resumoDoMes(lancs: FinLancamento[], chave: string): ResumoMes {
   return { receitas, gastos, investido, sobrou: receitas - gastos - investido, devendo: receitas - gastos < 0 }
 }
 
+export interface DescricaoSaldo {
+  estado: 'sobrou' | 'faltando' | 'equilibrado'
+  rotulo: string
+  /** Frase pronta, sempre com o valor em positivo. */
+  frase: string
+  /** Valor absoluto, em centavos. */
+  valor: number
+}
+
+/** Saldo negativo NUNCA é dinheiro que sobrou: é dinheiro que falta. */
+export function descreverSaldo(centavos: number): DescricaoSaldo {
+  if (centavos > 0) return { estado: 'sobrou', rotulo: 'Sobrou este mês', frase: `Sobrou ${formatBrl(centavos)}.`, valor: centavos }
+  if (centavos < 0) return { estado: 'faltando', rotulo: 'Está faltando este mês', frase: `Está faltando ${formatBrl(-centavos)}.`, valor: -centavos }
+  return { estado: 'equilibrado', rotulo: 'Receitas e gastos equilibrados', frase: 'Receitas e gastos estão equilibrados.', valor: 0 }
+}
+
 /** Total do mês por categoria, para o tipo pedido. */
 export function totaisPorCategoria(lancs: FinLancamento[], chave: string, tipo: FinTipo): Map<string, number> {
   const map = new Map<string, number>()

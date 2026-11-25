@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { CarroLivi } from './CarroLivi'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { CARRO_PLAN_KEY, CARRO_PRICES, hasSensitiveData, sendToCity, takeCarroRequest, useCarroHome } from '../lib/carro'
@@ -365,7 +366,7 @@ function Minhas({ refreshKey }: { refreshKey: number }) {
 
 export function CarroPage({ communityId, profileId, onOpenCity }: { communityId: string | null; profileId: string; onOpenCity: () => void }) {
   const { home, error, reload } = useCarroHome()
-  const [tab, setTab] = useState<'respostas' | 'perguntar' | 'minhas'>('respostas')
+  const [tab, setTab] = useState<'livi' | 'respostas' | 'perguntar' | 'minhas'>('respostas')
   const [minhasKey, setMinhasKey] = useState(0)
   const [enviada, setEnviada] = useState(false)
   const [inicialCat] = useState<string | null>(() => takeCarroRequest())
@@ -413,6 +414,7 @@ export function CarroPage({ communityId, profileId, onOpenCity }: { communityId:
             {(
               [
                 ['respostas', 'Respostas'],
+                ['livi', 'Livi'],
                 ['perguntar', 'Perguntar'],
                 ['minhas', 'Minhas perguntas'],
               ] as const
@@ -422,6 +424,14 @@ export function CarroPage({ communityId, profileId, onOpenCity }: { communityId:
               </button>
             ))}
           </div>
+          {tab === 'livi' && (
+            <CarroLivi
+              onGoCity={(ids) => {
+                sendToCity(ids)
+                onOpenCity()
+              }}
+            />
+          )}
           {tab === 'respostas' && (
             <Respostas
               categorias={home.categorias}

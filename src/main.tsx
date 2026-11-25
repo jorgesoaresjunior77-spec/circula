@@ -21,6 +21,12 @@ document.addEventListener(
   { passive: false },
 )
 initTheme()
+// Trava em pe onde o navegador deixa (Android/PWA instalado). No iPhone, o aviso do index.html cobre a tela deitada.
+try {
+  void (screen.orientation as unknown as { lock?: (o: string) => Promise<void> }).lock?.('portrait').catch(() => {})
+} catch {
+  /* sem suporte: segue sem travar */
+}
 // Só no app publicado: confere se há versão nova e recarrega sozinho.
 if (import.meta.env.PROD) startUpdateWatcher()
 

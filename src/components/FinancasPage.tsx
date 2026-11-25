@@ -13,6 +13,7 @@ import {
   dataComDia,
   datasDasParcelas,
   diaPadrao,
+  descreverSaldo,
   dividirParcelas,
   formatBrl,
   historico,
@@ -26,6 +27,8 @@ import {
   totaisPorCategoria,
 } from '../lib/financas'
 import type { FinCategoria, FinLancamento, FinTipo, RoboFinEstado } from '../lib/financas'
+import { DividirPage } from './DividirPage'
+import { LancamentoPorVoz } from './LancamentoPorVoz'
 import { RoboGuia } from './RoboGuia'
 import type { RoboCena } from './RoboGuia'
 import { FIN_ICON_PICKER, FinIcon } from './FinIcon'
@@ -34,13 +37,14 @@ import { Barras, COR_GASTO, COR_INVEST, COR_RECEITA, Donut, Ondas } from './FinC
 // Finanças: registro pessoal de receitas, gastos e investimentos. Só registra e mostra números:
 // nada de recomendar onde investir nem de prometer rendimento. Tudo é privado (cada pessoa só vê o que é seu).
 
-type Aba = 'resumo' | 'receitas' | 'gastos' | 'investir' | 'historico'
+type Aba = 'resumo' | 'receitas' | 'gastos' | 'investir' | 'historico' | 'dividir'
 const ABAS: { key: Aba; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
   { key: 'receitas', label: 'Receitas' },
   { key: 'gastos', label: 'Gastos' },
   { key: 'investir', label: 'Investir' },
   { key: 'historico', label: 'Histórico' },
+  { key: 'dividir', label: 'Dividir' },
 ]
 const TIPO_DA_ABA: Record<'receitas' | 'gastos' | 'investir', FinTipo> = { receitas: 'receita', gastos: 'gasto', investir: 'investimento' }
 const ROTULO_DIA: Record<FinTipo, string> = { receita: 'Dia em que recebeu', gasto: 'Dia do pagamento ou vencimento', investimento: 'Dia' }
@@ -54,8 +58,8 @@ function FinRobo({ estado, fala, vazio, onToque }: { estado: RoboFinEstado; fala
   const { mudo, alternarMudo } = useRobo()
   const texto = estado === 'repouso' && vazio ? FALA_VAZIO : fala
   return (
-    <section className={`fin-robo fin-robo--${estado}`} aria-label="Círculo Robô">
-      <button type="button" className="fin-robo-corpo" onClick={onToque} aria-label="Círculo Robô. Toque para ouvir o robô">
+    <section className={`fin-robo fin-robo--${estado}`} aria-label="Livi">
+      <button type="button" className="fin-robo-corpo" onClick={onToque} aria-label="Livi. Toque para ouvir a Livi">
         <RoboGuia cena={CENA[estado]} tamanho={92} mudo />
         {estado === 'devendo' && (
           <span className="fin-robo-selo" aria-hidden="true">
@@ -67,8 +71,11 @@ function FinRobo({ estado, fala, vazio, onToque }: { estado: RoboFinEstado; fala
         <p className="fin-robo-balao" aria-live="polite">
           {texto}
         </p>
-        <button type="button" className="fin-robo-som" aria-pressed={!mudo} onClick={alternarMudo}>
-          {mudo ? 'Som desligado · ligar' : 'Som ligado · desligar'}
+        <button type="button" className="fin-robo-som" aria-pressed={!mudo} onClick={alternarMudo} aria-label={mudo ? 'Som desligado. Ligar' : 'Som ligado. Desligar'}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 10v4h4l5 4V6L8 10H4Z" />
+            {mudo ? <path d="m17 9 4 6m0-6-4 6" /> : <path d="M16.500 9.500a4 4 0 0 1 0 5M19 7a7.500 7.500 0 0 1 0 10" />}
+          </svg>
         </button>
       </div>
     </section>
@@ -274,6 +281,106 @@ function FolhaNovaCategoria({ tipo, onClose, onCreate }: { tipo: FinTipo; onClos
   )
 }
 
+function FolhaGerirCategoria({
+  categoria,
+  outras,
+  qtdLancamentos,
+  onClose,
+  onEditar,
+  onExcluir,
+}: {
+  categoria: FinCategoria
+  outras: FinCategoria[]
+  qtdLancamentos: number
+  onClose: () => void
+  onEditar: (nome: string, icone: string) => Promise<string | null>
+  onExcluir: (destino?: string) => Promise<string | null>
+}) {
+  const [nome, setNome] = useState(categoria.nome)
+  const [icone, setIcone] = useState(categoria.icone)
+  const [excluindo, setExcluindo] = useState(false)
+  const [destino, setDestino] = useState<string | null>(null)
+  const [erro, setErro] = useState<string | null>(null)
+  async function salvar(ev: FormEvent) {
+    ev.preventDefault()
+    const r = await onEditar(nome, icone)
+    if (r) setErro(r)
+    else onClose()
+  }
+  async function excluir() {
+    const r = await onExcluir(destino ?? undefined)
+    if (r) setErro(r)
+    else onClose()
+  }
+  const semDestino = qtdLancamentos > 0 && outras.length === 0
+  return (
+    <div className="fin-sheet-backdrop" role="presentation" onClick={onClose}>
+      <form className="fin-sheet" role="dialog" aria-modal="true" aria-label="Editar categoria" onClick={(x) => x.stopPropagation()} onSubmit={(x) => void salvar(x)}>
+        <h3 className="fin-sheet-titulo">{excluindo ? `Excluir "${categoria.nome}"` : 'Editar categoria'}</h3>
+        {!excluindo ? (
+          <>
+            <label className="fin-campo">
+              <span>Nome (até 20 letras)</span>
+              <input type="text" maxLength={20} value={nome} onChange={(x) => setNome(x.target.value)} autoFocus />
+            </label>
+            <div className="fin-chips" role="radiogroup" aria-label="Ícone">
+              {FIN_ICON_PICKER.map((i) => (
+                <button key={i} type="button" role="radio" aria-checked={icone === i} aria-label={`Ícone ${i}`} className={`fin-chip fin-chip--icone${icone === i ? ' fin-chip--on' : ''}`} onClick={() => setIcone(i)}>
+                  <FinIcon name={i} size={22} />
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            {qtdLancamentos > 0 ? (
+              <>
+                <p className="home-muted">
+                  Esta categoria tem {qtdLancamentos} {qtdLancamentos === 1 ? 'lançamento' : 'lançamentos'}. Nada será apagado: escolha para qual categoria eles vão.
+                </p>
+                <div className="fin-chips" role="radiogroup" aria-label="Mover lançamentos para">
+                  {outras.map((c) => (
+                    <button key={c.id} type="button" role="radio" aria-checked={destino === c.id} className={`fin-chip${destino === c.id ? ' fin-chip--on' : ''}`} onClick={() => setDestino(c.id)}>
+                      <FinIcon name={c.icone} size={18} /> {c.nome}
+                    </button>
+                  ))}
+                </div>
+                {semDestino && <p className="home-muted">Crie outra categoria antes, para receber estes lançamentos.</p>}
+              </>
+            ) : (
+              <p className="home-muted">Esta categoria não tem lançamentos. Excluir não afeta o seu histórico.</p>
+            )}
+          </>
+        )}
+        {erro && (
+          <p className="auth-error" role="alert">
+            {erro}
+          </p>
+        )}
+        <div className="fin-sheet-acoes fin-sheet-acoes--coluna">
+          {!excluindo ? (
+            <>
+              <button type="submit" className="water-primary">
+                Salvar
+              </button>
+              <button type="button" className="question-delete-button" onClick={() => setExcluindo(true)}>
+                Excluir categoria
+              </button>
+            </>
+          ) : (
+            <button type="button" className="question-delete-button" disabled={semDestino || (qtdLancamentos > 0 && !destino)} onClick={() => void excluir()}>
+              {qtdLancamentos > 0 ? 'Mover e excluir' : 'Excluir'}
+            </button>
+          )}
+          <button type="button" className="cty-btn" onClick={excluindo ? () => setExcluindo(false) : onClose}>
+            {excluindo ? 'Voltar' : 'Cancelar'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 function ConfirmarApagar({ item, onClose, onApagar }: { item: FinLancamento; onClose: () => void; onApagar: (escopo: 'esta' | 'proximas' | 'todas') => Promise<void> }) {
   const [busy, setBusy] = useState(false)
   async function go(escopo: 'esta' | 'proximas' | 'todas') {
@@ -324,7 +431,7 @@ function AbaLancamentos({
   onNovaCategoria,
   onEditar,
   onApagar,
-  onExcluirCategoria,
+  onGerirCategoria,
 }: {
   tipo: FinTipo
   mes: string
@@ -334,7 +441,7 @@ function AbaLancamentos({
   onNovaCategoria: () => void
   onEditar: (l: FinLancamento) => void
   onApagar: (l: FinLancamento) => void
-  onExcluirCategoria: (id: string) => void
+  onGerirCategoria: (c: FinCategoria) => void
 }) {
   const totais = useMemo(() => totaisPorCategoria(lancs, mes, tipo), [lancs, mes, tipo])
   const acumulado = useMemo(() => acumuladoInvestido(lancs), [lancs])
@@ -360,11 +467,9 @@ function AbaLancamentos({
                 <span className="fin-cat-nome">{c.nome}</span>
                 <span className="fin-cat-valor">{formatBrl(valor)}</span>
               </button>
-              {!c.padrao && (
-                <button type="button" className="fin-cat-x" aria-label={`Excluir a categoria ${c.nome}`} onClick={() => onExcluirCategoria(c.id)}>
-                  ×
-                </button>
-              )}
+              <button type="button" className="fin-cat-x" aria-label={`Editar ou excluir a categoria ${c.nome}`} onClick={() => onGerirCategoria(c)}>
+                ✎
+              </button>
             </div>
           )
         })}
@@ -420,6 +525,7 @@ export function FinancasPage() {
   const [aba, setAba] = useState<Aba>('resumo')
   const [sheet, setSheet] = useState<Sheet | null>(null)
   const [novaCat, setNovaCat] = useState<FinTipo | null>(null)
+  const [gerindo, setGerindo] = useState<FinCategoria | null>(null)
   const [apagando, setApagando] = useState<FinLancamento | null>(null)
   const [meses, setMeses] = useState<6 | 12>(6)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -428,6 +534,7 @@ export function FinancasPage() {
 
   const lancs = fin.lancs ?? SEM_LANCAMENTOS
   const resumo = useMemo(() => resumoDoMes(lancs, mes), [lancs, mes])
+  const saldoMes = useMemo(() => descreverSaldo(resumo.sobrou), [resumo.sobrou])
   const vazio = !lancs.some((l) => chaveMes(l.data) === mes)
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
@@ -505,6 +612,8 @@ export function FinancasPage() {
         </button>
       </div>
 
+      <LancamentoPorVoz categorias={fin.categorias} todas={fin.todasCategorias} onSalvar={(rows) => salvar(rows, null)} />
+
       <div className="fin-abas" role="tablist" aria-label="Finanças">
         {ABAS.map((a) => (
           <button key={a.key} type="button" role="tab" aria-selected={aba === a.key} className={`fin-aba-btn${aba === a.key ? ' fin-aba-btn--on' : ''}`} onClick={() => setAba(a.key)}>
@@ -521,9 +630,12 @@ export function FinancasPage() {
 
       {aba === 'resumo' && (
         <div className="fin-aba">
-          <div className="fin-cartao">
-            <span>Sobrou este mês</span>
-            <strong className="fin-grande">{formatBrl(resumo.sobrou)}</strong>
+          <div className={`fin-cartao fin-cartao--${saldoMes.estado}`}>
+            <span>{saldoMes.rotulo}</span>
+            <strong className={`fin-grande fin-grande--${saldoMes.estado}`}>{saldoMes.estado === 'equilibrado' ? formatBrl(0) : formatBrl(saldoMes.valor)}</strong>
+            <small className="fin-saldo-frase" role="status">
+              {saldoMes.frase}
+            </small>
             <div className="fin-tres">
               <div>
                 <small>Receitas</small>
@@ -572,7 +684,7 @@ export function FinancasPage() {
           onNovaCategoria={() => setNovaCat(tipoAba)}
           onEditar={(l) => setSheet({ tipo: l.tipo, categoria: l.categoria, editando: l })}
           onApagar={setApagando}
-          onExcluirCategoria={(id) => void fin.excluirCategoria(id).then(setAviso)}
+          onGerirCategoria={setGerindo}
         />
       )}
 
@@ -597,8 +709,8 @@ export function FinancasPage() {
                 <b style={{ color: COR_GASTO }}>{formatBrl(sel.gastos)}</b>
               </div>
               <div>
-                <small>Sobrou</small>
-                <b>{formatBrl(sel.saldo)}</b>
+                <small>{descreverSaldo(sel.saldo).estado === 'faltando' ? 'Faltou' : descreverSaldo(sel.saldo).estado === 'sobrou' ? 'Sobrou' : 'Equilíbrio'}</small>
+                <b style={{ color: sel.saldo < 0 ? COR_GASTO : undefined }}>{formatBrl(Math.abs(sel.saldo))}</b>
               </div>
             </div>
           )}
@@ -620,7 +732,9 @@ export function FinancasPage() {
                       Receitas {formatBrl(p.receitas)} · Gastos {formatBrl(p.gastos)}
                     </small>
                   </span>
-                  <span className="fin-item-valor">{formatBrl(p.saldo)}</span>
+                  <span className="fin-item-valor" style={{ color: p.saldo < 0 ? COR_GASTO : undefined }}>
+                    {p.saldo < 0 ? `Faltou ${formatBrl(-p.saldo)}` : p.saldo > 0 ? `Sobrou ${formatBrl(p.saldo)}` : 'Equilíbrio'}
+                  </span>
                 </button>
               </li>
             ))}
@@ -628,10 +742,22 @@ export function FinancasPage() {
         </div>
       )}
 
+      {aba === 'dividir' && <DividirPage />}
+
       {sheet && (
         <FolhaLancamento key={`${sheet.editando?.id ?? 'novo'}-${sheet.categoria}`} sheet={sheet} mes={mes} categorias={fin.categorias(sheet.tipo)} onClose={() => setSheet(null)} onSave={salvar} />
       )}
       {novaCat && <FolhaNovaCategoria tipo={novaCat} onClose={() => setNovaCat(null)} onCreate={(nome, icone) => fin.criarCategoria(novaCat, nome, icone)} />}
+      {gerindo && (
+        <FolhaGerirCategoria
+          categoria={gerindo}
+          outras={fin.categorias(gerindo.tipo).filter((c) => c.id !== gerindo.id)}
+          qtdLancamentos={lancs.filter((l) => l.categoria === gerindo.id).length}
+          onClose={() => setGerindo(null)}
+          onEditar={(nome, icone) => fin.editarCategoria(gerindo.id, nome, icone)}
+          onExcluir={(destino) => fin.excluirCategoria(gerindo.id, gerindo.tipo, destino)}
+        />
+      )}
       {apagando && <ConfirmarApagar item={apagando} onClose={() => setApagando(null)} onApagar={apagar} />}
     </section>
   )

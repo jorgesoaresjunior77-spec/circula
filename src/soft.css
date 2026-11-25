@@ -1613,3 +1613,56 @@
 .dashboard--hero .dashboard-community-cover .home-greeting {
   margin-top: 6px;
 }
+
+/* ==========================================================================
+   Rodada 26/11: cards finos alternados — 1º só borda, 2º cheio de chocolate, e assim por diante
+   ========================================================================== */
+.home-wheel {
+  --wheel-choc: #4a2f22;
+}
+.home-wheel .wheel-item--borda .wheel-card {
+  background: transparent;
+  border: 2.25px solid var(--wheel-gold);
+  color: var(--wheel-gold);
+}
+.home-wheel .wheel-item--cheio .wheel-card {
+  background: var(--wheel-choc);
+  border: 2.25px solid var(--wheel-choc);
+  color: #fbf3e8;
+}
+.home-wheel .wheel-item--cheio .wheel-card .wheel-title,
+.home-wheel .wheel-item--cheio .wheel-card .wheel-thumb {
+  color: #fbf3e8;
+  -webkit-text-fill-color: #fbf3e8;
+}
+.home-wheel .wheel-item--cheio .wheel-card:active {
+  background-color: #3a2419;
+}
+.home-wheel .wheel-item--cheio .wheel-card .wheel-title {
+  -webkit-text-stroke-color: #fbf3e8;
+}
+
+/* ---- Livi no cadastro ---- */
+.livi-cadastro { margin: 4px 0 14px; padding: 12px; border-radius: 18px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(162, 117, 63, 0.3); text-align: left; }
+.livi-cadastro-topo { display: flex; align-items: center; gap: 10px; }
+.livi-cadastro-fala { margin: 0; font-size: 15px; line-height: 1.4; }
+.livi-cadastro-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.livi-chip { min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #a2753f; background: transparent; color: #6b4a2a; font: inherit; font-size: 14px; cursor: pointer; }
+.livi-chip--on { background: #4a2f22; border-color: #4a2f22; color: #fbf3e8; }
+.livi-cadastro-resposta { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; background: #f3e8db; font-size: 15px; line-height: 1.45; }
+
+/* Ícones próprios das categorias (sem foto cadastrada) */
+.cat-icon { display: inline-flex; align-items: center; justify-content: center; color: #6b4a2a; }
+.cat-icon--tile { border-radius: 14px; background: linear-gradient(135deg, #f6ecdd, #ead7bd); color: #6b4a2a; box-shadow: inset 0 1px 0 #fff, 0 6px 12px -8px rgba(74, 47, 34, 0.5); }
+.cty-cat-card > .cat-icon { margin-right: 10px; flex: 0 0 auto; }
+.cty-group-icon .cat-icon { width: 100%; height: 100%; }
+
+/* Mesmo tom quente em categorias, serviços, comunidades e destaques.
+   EXCEÇÃO: a Revista Círcula (.mag*) fica de fora, com as capas originais de cada edição. */
+.cty-cat-photo,
+.cty-group-photo,
+.cty-card-photo,
+.home-community-cover img,
+.product-card-image {
+  filter: saturate(0.94) sepia(0.08) contrast(1.02) brightness(1.02);
+}

@@ -20,12 +20,12 @@ describe('HelpPage · robô e tour', () => {
 
   it('tocar no robô troca para a piscadinha', () => {
     const { container } = render(<HelpPage onStartTour={vi.fn()} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Cumprimentar o robô' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cumprimentar a Livi' }))
     expect(container.querySelector('.robo-guia')?.getAttribute('data-cena')).toBe('piscadinha')
   })
 
   it('tem o botão de mudo', () => {
     render(<HelpPage onStartTour={vi.fn()} />)
-    expect(screen.getByRole('button', { name: /som do robô/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /som da Livi/ })).toBeInTheDocument()
   })
 })

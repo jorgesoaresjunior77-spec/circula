@@ -106,17 +106,19 @@ export function HomeMenuWheel({ onNavigate, showSubscriptions = true, carro = nu
       icon: <CarIcon name={carro.icone} size={26} />,
     })
   }
+  // Alternância borda / chocolate: com número ímpar de cards a volta da roda quebraria o padrão; repetimos a lista para fechar em par.
+  const loop = items.length % 2 === 1 ? [...items, ...items] : items
   // Segundos por volta: cerca de 3,4 s por card — suave e constante (um pouco mais ágil).
-  const duration = items.length * 3.4
+  const duration = loop.length * 3.4
 
   const render = (copy: boolean) =>
-    items.map((item) => (
-      <li key={`${item.key}-${copy ? 'b' : 'a'}`} className="wheel-item" aria-hidden={copy || undefined}>
+    loop.map((item, i) => (
+      <li key={`${item.key}-${i}-${copy ? 'b' : 'a'}`} className={`wheel-item ${i % 2 === 0 ? 'wheel-item--borda' : 'wheel-item--cheio'}`} aria-hidden={copy || i >= items.length || undefined}>
         <button
           type="button"
           className="wheel-card"
           onClick={() => onNavigate(item.key)}
-          tabIndex={copy ? -1 : undefined}
+          tabIndex={copy || i >= items.length ? -1 : undefined}
         >
           <WheelThumb item={item} />
           <span className="wheel-title">{item.title}</span>

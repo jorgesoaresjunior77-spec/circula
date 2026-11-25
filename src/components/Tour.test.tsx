@@ -148,6 +148,6 @@ describe('Tour — passos opcionais e guia', () => {
   it('tem o botão de mudo do robô', () => {
     mountFakeHome()
     render(<Tour onNavigate={vi.fn()} onDone={vi.fn()} />)
-    expect(screen.getByRole('button', { name: /som do robô/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /som da Livi/ })).toBeInTheDocument()
   })
 })

@@ -81,21 +81,31 @@ describe('PlansPage', () => {
   it('o robô fica dentro da assinatura e insiste no anual: no mensal mostra a economia e o mensal segue assinável', () => {
     render(<PlansPage communityId="c1" profileId="p1" />)
     fireEvent.click(screen.getByRole('button', { name: /^Respiração, / }))
-    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Ótima escolha/)
+    expect(screen.getByRole('note', { name: 'Dica da Livi' })).toHaveTextContent(/Ótima escolha/)
     fireEvent.click(screen.getByRole('radio', { name: /Mensal/ }))
-    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Pagando mês a mês você gasta mais/)
+    expect(screen.getByRole('note', { name: 'Dica da Livi' })).toHaveTextContent(/semestral.*economiza/)
     expect(screen.getByRole('button', { name: /^Assinar mensal/ })).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Prefiro o semestral' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Quero o semestral' }))
     expect(screen.getByRole('radio', { name: /Semestral/ })).toHaveAttribute('aria-checked', 'true')
-    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Que tal o anual/)
+    expect(screen.getByRole('note', { name: 'Dica da Livi' })).toHaveTextContent(/anual.*maior economia/)
   })
 
-  it('"Quero o anual" volta ao anual', () => {
+  it('"Quero o anual" (oferecido no semestral) leva ao anual', () => {
     render(<PlansPage communityId="c1" profileId="p1" />)
     fireEvent.click(screen.getByRole('button', { name: /^Respiração, / }))
     fireEvent.click(screen.getByRole('radio', { name: /Mensal/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Quero o semestral' }))
     fireEvent.click(screen.getByRole('button', { name: 'Quero o anual' }))
     expect(screen.getByRole('radio', { name: /Anual/ })).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('se a pessoa recusa a oferta do plano acima, a Livi respeita e some', () => {
+    render(<PlansPage communityId="c1" profileId="p1" />)
+    fireEvent.click(screen.getByRole('button', { name: /^Respiração, / }))
+    fireEvent.click(screen.getByRole('radio', { name: /Mensal/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Continuar no mensal' }))
+    expect(screen.queryByRole('note', { name: 'Dica da Livi' })).toBeNull()
+    expect(screen.getByRole('button', { name: /^Assinar mensal/ })).toBeInTheDocument()
   })
 
   it('NÃO comemora ao clicar em assinar: só quando o servidor confirma a assinatura', () => {
@@ -141,7 +151,7 @@ describe('PlansPage · cesta de assinaturas', () => {
     fireEvent.click(screen.getByRole('button', { name: /Montar minha cesta/ }))
     fireEvent.click(screen.getByRole('checkbox', { name: /Respiração/ }))
     expect(screen.getByRole('radio', { name: /Anual/ })).toHaveAttribute('aria-checked', 'true')
-    expect(screen.getByRole('note', { name: 'Dica do robô' })).toHaveTextContent(/Ótima escolha/)
+    expect(screen.getByRole('note', { name: 'Dica da Livi' })).toHaveTextContent(/Ótima escolha/)
   })
 })
 

@@ -42,36 +42,43 @@ export function RoboConsultor({ economiaAnualCents, economiaSemestralCents, nome
     <aside className="robo-consultor" aria-label="Dica de plano">
       <div className="robo-consultor-balao">
         <p>
-          <strong>Minha dica:</strong> no plano {usaAnual ? 'anual' : 'semestral'} do {nome} você economiza <strong>{formatBrl(economia)}</strong> em relação a pagar mês a mês. Você escolhe o que for melhor para você.
+          <strong>Dica da Livi:</strong> no plano {usaAnual ? 'anual' : 'semestral'} do {nome} você economiza <strong>{formatBrl(economia)}</strong> em relação a pagar mês a mês. Você escolhe o que for melhor para você.
         </p>
       </div>
     </aside>
   )
 }
 
-/** O robô dentro da assinatura: insiste, com carinho e com a economia real em reais, nos planos maiores. Sem som. */
+/** A Livi dentro da assinatura: apresenta SEMPRE o plano imediatamente acima do escolhido, com a economia real em reais.
+ *  Argumentos diferentes a cada degrau, uma só vez por escolha: se a pessoa recusar, a Livi respeita e some. Sem som. */
 export function RoboInsiste({ cycle, prices, onPick }: { cycle: PlanCycle; prices: Record<PlanCycle, number>; onPick: (c: PlanCycle) => void }) {
+  const [recusou, setRecusou] = useState<PlanCycle[]>([])
   const anual = Math.max(0, prices.monthly * 12 - prices.annual)
   const semestral = Math.max(0, prices.monthly * 6 - prices.semiannual)
   if (anual <= 0 && semestral <= 0) return null
+  if (recusou.includes(cycle)) return null
   const cena: RoboCena = cycle === 'annual' ? 'feliz' : 'pedindo'
+  const recusar = () => setRecusou((r) => [...r, cycle])
   return (
-    <div className="robo-insiste" role="note" aria-label="Dica do robô">
+    <div className="robo-insiste" role="note" aria-label="Dica da Livi">
       <RoboGuia cena={cena} tamanho={64} mudo />
       <div className="robo-insiste-balao">
         {cycle === 'annual' && (
           <p>
-            <strong>Ótima escolha!</strong> No anual você economiza {formatBrl(anual)} em relação a pagar mês a mês.
+            <strong>Ótima escolha!</strong> Sou a Livi, e no anual você economiza {formatBrl(anual)} em relação a pagar mês a mês. É o melhor custo-benefício do Círcula.
           </p>
         )}
         {cycle === 'semiannual' && (
           <>
             <p>
-              O semestral já economiza {formatBrl(semestral)}. Mas no <strong>anual</strong> a economia é de <strong>{formatBrl(anual)}</strong>. Que tal o anual?
+              <strong>Boa escolha!</strong> Sou a Livi. O semestral já economiza {formatBrl(semestral)}. Se você pretende ficar mais tempo, o <strong>anual</strong> economiza <strong>{formatBrl(anual)}</strong>, a maior economia, e você não precisa se preocupar com renovação o ano todo.
             </p>
             <div className="robo-insiste-acoes">
               <button type="button" className="water-primary" onClick={() => onPick('annual')}>
                 Quero o anual
+              </button>
+              <button type="button" className="water-link" onClick={recusar}>
+                Continuar no semestral
               </button>
             </div>
           </>
@@ -79,14 +86,14 @@ export function RoboInsiste({ cycle, prices, onPick }: { cycle: PlanCycle; price
         {cycle === 'monthly' && (
           <>
             <p>
-              Pagando mês a mês você gasta mais. No <strong>semestral</strong> você economiza {formatBrl(semestral)} e no <strong>anual</strong>, {formatBrl(anual)}.
+              Oi, sou a Livi! Pagando mês a mês é mais flexível. Só que no <strong>semestral</strong> você economiza <strong>{formatBrl(semestral)}</strong> e ganha seis meses sem se preocupar com a cobrança.
             </p>
             <div className="robo-insiste-acoes">
-              <button type="button" className="water-primary" onClick={() => onPick('annual')}>
-                Quero o anual
+              <button type="button" className="water-primary" onClick={() => onPick('semiannual')}>
+                Quero o semestral
               </button>
-              <button type="button" className="water-link" onClick={() => onPick('semiannual')}>
-                Prefiro o semestral
+              <button type="button" className="water-link" onClick={recusar}>
+                Continuar no mensal
               </button>
             </div>
           </>
@@ -96,7 +103,7 @@ export function RoboInsiste({ cycle, prices, onPick }: { cycle: PlanCycle; price
   )
 }
 
-/** O robô na hora de cancelar o Premium: lembra do que ela perde e oferece ficar só no plano básico. Sem som. */
+/** A Livi na hora de cancelar o Premium: lembra do que ela perde e oferece ficar só no plano básico. Sem som. */
 export function RoboRetencao({
   busy,
   podeCancelarTudo,

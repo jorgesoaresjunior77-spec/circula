@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { CategoryIcon } from './CategoryIcon'
 import type { Profile } from '../types/profile'
 import {
   HEALTH_NOTE,
@@ -361,7 +362,7 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
                     {groups.filter((g) => showAllGroups || (groupCounts.get(g.slug) ?? 0) > 0).map((g) => (
                       <button key={g.slug} type="button" className={`cty-group${g.imagem ? ' cty-group--photo' : ''}`} onClick={() => { setGroup(g.slug); setCategoryId(null) }}>
                         {g.imagem && <img className="cty-group-photo" src={g.imagem} alt="" loading="lazy" decoding="async" />}
-                        <span className="cty-group-icon" aria-hidden="true">{g.icone}</span>
+                        <span className="cty-group-icon" aria-hidden="true"><CategoryIcon grupo={g.slug} nome={g.nome} size={26} /></span>
                         <span className="cty-group-name">{g.nome}</span>
                         <span className="cty-group-count">{groupCounts.get(g.slug) ?? 0}</span>
                       </button>
@@ -398,7 +399,7 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
                           .filter((c) => c.grupo === group && c.status !== 'unida' && (showAllCategories || (categoryCounts.get(c.id) ?? 0) > 0))
                           .map((c) => (
                             <button key={c.id} type="button" className={`cty-cat-card${c.imagem ? ' cty-cat-card--photo' : ''}${categoryId === c.id ? ' cty-cat-card--on' : ''}`} onClick={() => setCategoryId(categoryId === c.id ? null : c.id)}>
-                              {c.imagem && <img className="cty-cat-photo" src={c.imagem} alt="" loading="lazy" decoding="async" />}
+                              {c.imagem ? <img className="cty-cat-photo" src={c.imagem} alt="" loading="lazy" decoding="async" /> : <CategoryIcon grupo={c.grupo} nome={c.nome} size={22} />}
                               <span className="cty-cat-name">{c.nome}</span>
                               {c.descricao && <span className="cty-cat-desc">{c.descricao}</span>}
                               <span className="cty-cat-count">{categoryCounts.get(c.id) ?? 0}</span>

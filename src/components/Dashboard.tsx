@@ -419,6 +419,12 @@ export function Dashboard({
       inBottomNav: false,
     })
     navItems.push({
+      key: 'carro',
+      label: 'Carro em Dia',
+      Icon: HeartIcon,
+      inBottomNav: false,
+    })
+    navItems.push({
       key: 'cidade',
       label: 'Na minha cidade',
       Icon: HeartIcon,

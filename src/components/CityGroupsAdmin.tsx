@@ -31,7 +31,7 @@ export function ImageField({ value, spec, onChange }: { value: string | null; sp
   }
   return (
     <div className="cty-field">
-      <span className="cty-label">Imagem</span>
+      <span className="cty-label">Imagem (opcional: sem ela, o app mostra um ícone próprio)</span>
       {value ? <img className="cty-group-admin-img" src={value} alt="" loading="lazy" /> : <p className="home-muted">Sem imagem ainda.</p>}
       <p className="cty-note">Tamanho: {spec}</p>
       <div className="cty-actions">

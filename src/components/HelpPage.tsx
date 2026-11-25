@@ -82,7 +82,7 @@ export function HelpPage({ onTalkToNutri, onStartTour }: HelpPageProps) {
           <button
             type="button"
             className="help-robo-tocar"
-            aria-label="Cumprimentar o robô"
+            aria-label="Cumprimentar a Livi"
             onClick={() => {
               setCena('piscadinha')
               falar('piscadinha', 'piscadinha')
@@ -92,7 +92,7 @@ export function HelpPage({ onTalkToNutri, onStartTour }: HelpPageProps) {
             <RoboGuia cena={cena} tamanho={92} />
           </button>
           <div className="help-robo-balao">
-            <p>Oi! Eu sou o robô do Círcula. Posso te mostrar o app por dentro, passo a passo.</p>
+            <p>Oi! Eu sou a Livi, a assistente do Círcula. Posso te mostrar o app por dentro, passo a passo.</p>
             {onStartTour && (
               <button type="button" className="onboarding-next" onClick={onStartTour}>
                 Explicar tour

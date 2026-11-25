@@ -59,7 +59,7 @@ describe('FinancasPage', () => {
   it('lança um gasto parcelado: 3x, última parcela absorve a diferença, e o robô reage', async () => {
     render(<FinancasPage />)
     fireEvent.click(screen.getByRole('tab', { name: 'Gastos' }))
-    fireEvent.click(screen.getByRole('button', { name: /Mercado/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^Mercado, / }))
     fireEvent.change(screen.getByLabelText('Valor'), { target: { value: '1.000,00' } })
     fireEvent.click(screen.getByLabelText('Compra parcelada'))
     fireEvent.change(screen.getByLabelText('Número de parcelas (2 a 48)'), { target: { value: '3' } })
@@ -75,7 +75,7 @@ describe('FinancasPage', () => {
   it('receita deixa o robô feliz', async () => {
     render(<FinancasPage />)
     fireEvent.click(screen.getByRole('tab', { name: 'Receitas' }))
-    fireEvent.click(screen.getByRole('button', { name: /Salário/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^Salário, / }))
     fireEvent.change(screen.getByLabelText('Valor'), { target: { value: '2500' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     await waitFor(() => expect(screen.getByText('Entrou dinheiro! Que alegria!')).toBeInTheDocument())
@@ -85,7 +85,7 @@ describe('FinancasPage', () => {
   it('rejeita valor zero e dia fora de 1 a 31', async () => {
     render(<FinancasPage />)
     fireEvent.click(screen.getByRole('tab', { name: 'Gastos' }))
-    fireEvent.click(screen.getByRole('button', { name: /Mercado/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^Mercado, / }))
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(await screen.findByText('Informe um valor maior que zero.')).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Valor'), { target: { value: '10' } })

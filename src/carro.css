@@ -171,3 +171,13 @@
     transition: none !important;
   }
 }
+
+/* Livi no Carro em Dia */
+.car-livi { display: flex; flex-direction: column; gap: 12px; }
+.car-livi-card { padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(162, 117, 63, 0.3); font-size: 15px; line-height: 1.45; }
+.car-livi-card h4 { margin: 0 0 6px; font-size: 17px; }
+.car-livi-card p { margin: 0 0 8px; }
+.car-livi-card ul, .car-livi-card ol { margin: 4px 0 10px; padding-left: 20px; }
+.car-livi-aviso { padding: 8px 10px; border-radius: 10px; font-size: 14px; background: #f3e8db; }
+.car-livi-aviso--sim { background: #f8e1dc; color: #7a2a20; }
+.car-livi-servicos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }

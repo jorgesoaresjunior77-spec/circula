@@ -5,13 +5,23 @@
     <link rel="icon" type="image/png" href="/favicon.png?v=2" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#f7f2ea" />
+    <meta name="theme-color" content="#f1ebe0" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-title" content="Círcula" />
     <title>circula</title>
+    <style>
+      /* Mesma cor do topo do app atras da barra de status: sem faixa de outra cor. */
+      html, body { background-color: #f1ebe0; }
+      /* Celular deitado: o app so funciona em pe. Cobre a tela com um aviso (iOS nao deixa travar a rotacao). */
+      #orient-guard { display: none; }
+      @media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) and (pointer: coarse) {
+        #orient-guard { position: fixed; inset: 0; z-index: 2147483647; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; background: #f1ebe0; color: #4a3426; font: 500 18px/1.4 Lato, system-ui, sans-serif; text-align: center; padding: 24px; }
+        #orient-guard svg { width: 44px; height: 44px; }
+      }
+    </style>
     <link rel="preconnect" href="https://kdqtanqywjpwbnjedafn.supabase.co" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,6 +41,7 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="orient-guard" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg><span>Vire o celular para ficar em pé.<br/>O Círcula funciona na vertical.</span></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

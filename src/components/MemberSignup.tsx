@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LiviCadastro } from './LiviCadastro'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { evaluatePassword, isPasswordValid } from '../lib/passwordPolicy'
@@ -135,6 +136,7 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
           <p className="auth-subtitle">Você foi convidada para</p>
           <h2 className="member-signup-community">{preview.communityName}</h2>
           <p>Crie seu acesso para entrar na comunidade.</p>
+          <LiviCadastro />
 
           <label htmlFor="member-signup-name">Como podemos te chamar?</label>
           <input
