@@ -405,7 +405,7 @@ export function HomeToday({
       <div className="home-pair">
         <HomeMenuBanner image={cardapioCover} onOpen={() => onNavigate('cardapio')} />
         <span className="home-pair-dot" aria-hidden="true" />
-        <HomeGratitudeCard image={listaCover} onOpen={() => onNavigate('lista')} title="Lista de Compras" eyebrow="Tudo à mão no mercado" />
+        <HomeGratitudeCard image={listaCover} onOpen={() => onNavigate('lista')} title="Lista de Compras" eyebrow="Tudo à mão no mercado" wrapClassName="gratitude-card-wrap--lista" />
       </div>
 
       <div className="home-pair home-pair--feature">

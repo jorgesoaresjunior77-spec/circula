@@ -10,14 +10,17 @@ export function HomeGratitudeCard({
   onOpen,
   title = 'Diário da Gratidão',
   eyebrow = 'Um minuto de gratidão',
+  wrapClassName = '',
 }: {
   image: string | null
   onOpen: () => void
   title?: string
   eyebrow?: string
+  /** Classe extra no envoltório (ex.: espaçamento próprio do card Lista de Compras). */
+  wrapClassName?: string
 }) {
   return (
-    <m.section className="menu-banner-wrap gratitude-card-wrap" {...inViewOnce} variants={riseVariants} aria-label={title}>
+    <m.section className={`menu-banner-wrap gratitude-card-wrap${wrapClassName ? ` ${wrapClassName}` : ''}`} {...inViewOnce} variants={riseVariants} aria-label={title}>
       <button type="button" className="menu-banner gratitude-card" onClick={onOpen}>
         <span className={`menu-banner-photo gratitude-photo${image ? '' : ' menu-banner-photo--empty'}`} aria-hidden="true">
           {image && <img src={image} alt="" loading="lazy" decoding="async" />}

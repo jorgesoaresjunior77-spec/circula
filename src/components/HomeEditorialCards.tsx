@@ -47,7 +47,7 @@ function arcPoint(r: number, deg: number): string {
 }
 
 function TrioLabel({ id, text, size }: { id: string; text: string; size: number }) {
-  const r = 50 + 7 + size * 0.72
+  const r = 50 + 11 + size * 0.72
   // de baixo-esquerda, passando pelo fundo, até baixo-direita (letras em pé)
   const d = `M ${arcPoint(r, 175)} A ${r} ${r} 0 0 0 ${arcPoint(r, 15)}`
   return (

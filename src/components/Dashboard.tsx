@@ -579,6 +579,20 @@ export function Dashboard({
   const heroPath = heroOfTheDay(heroImages)
   const { url: heroUrl } = useSignedImageUrl(heroPath)
 
+  // A foto do topo começa no alto da página (atrás da barra de status e do logo), seja qual for o respiro acima do painel.
+  const heroBgRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = heroBgRef.current
+    const host = el?.parentElement
+    if (!el || !host) return
+    const place = () => {
+      el.style.top = `${-(host.getBoundingClientRect().top + window.scrollY)}px`
+    }
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
+  }, [heroUrl])
+
   // Círculos da comunidade resolvida — só busca quando o destino
   // "Círculos", "Eventos" ou "Receitas" está ativo (useCircles(null) não
   // faz fetch). Eventos/Receitas reaproveitam a mesma resolução de
@@ -1539,7 +1553,7 @@ export function Dashboard({
   return (
     <section className={`dashboard${coverHero && heroUrl ? ' dashboard--hero' : ''}`}>
       {coverHero && heroUrl && (
-        <div className="hero-bg" aria-hidden="true">
+        <div className="hero-bg" ref={heroBgRef} aria-hidden="true">
           <img src={heroUrl} alt="" decoding="async" />
         </div>
       )}
