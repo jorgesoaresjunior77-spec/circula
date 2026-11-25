@@ -4,19 +4,22 @@ import { ChangePassword } from './ChangePassword'
 
 // Card "Administração" no fim do Meu perfil: senha, cancelamento das
 // assinaturas e exclusão da conta. A exclusão pede que a pessoa digite a
-// palavra EXCLUIR e não tem volta.
+// palavra EXCLUIR, confirma de novo com "Tem certeza?" e não tem volta.
 
 const CONFIRM_WORD = 'EXCLUIR'
 
 export function AccountAdmin({ onOpenPlans }: { onOpenPlans?: () => void }) {
   const [deleting, setDeleting] = useState(false)
   const [typed, setTyped] = useState('')
+  // Última pergunta antes de apagar: "Tem certeza?" (depois de digitar a palavra).
+  const [asking, setAsking] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleDelete() {
     if (typed.trim().toUpperCase() !== CONFIRM_WORD) return
     setBusy(true)
+    setAsking(false)
     setError(null)
     const { error: invokeError } = await supabase.functions.invoke('delete-my-account', { body: { confirm: CONFIRM_WORD } })
     if (invokeError) {
@@ -76,19 +79,35 @@ export function AccountAdmin({ onOpenPlans }: { onOpenPlans?: () => void }) {
                 {error}
               </p>
             )}
-            <div className="question-item-actions">
-              <button
-                type="button"
-                className="question-delete-button"
-                disabled={busy || typed.trim().toUpperCase() !== CONFIRM_WORD}
-                onClick={() => void handleDelete()}
-              >
-                {busy ? 'Excluindo…' : 'Excluir definitivamente'}
-              </button>
-              <button type="button" onClick={() => { setDeleting(false); setTyped(''); setError(null) }} disabled={busy}>
-                Voltar
-              </button>
-            </div>
+            {asking ? (
+              <div className="account-admin-sure" role="alertdialog" aria-label="Confirmar exclusão da conta">
+                <p>
+                  <strong>Tem certeza que quer excluir a sua conta?</strong> Seu acesso termina agora e não dá para voltar atrás.
+                </p>
+                <div className="question-item-actions">
+                  <button type="button" className="question-delete-button" disabled={busy} onClick={() => void handleDelete()}>
+                    {busy ? 'Excluindo…' : 'Sim, excluir minha conta'}
+                  </button>
+                  <button type="button" onClick={() => setAsking(false)} disabled={busy}>
+                    Não, manter minha conta
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="question-item-actions">
+                <button
+                  type="button"
+                  className="question-delete-button"
+                  disabled={busy || typed.trim().toUpperCase() !== CONFIRM_WORD}
+                  onClick={() => setAsking(true)}
+                >
+                  Excluir definitivamente
+                </button>
+                <button type="button" onClick={() => { setDeleting(false); setTyped(''); setAsking(false); setError(null) }} disabled={busy}>
+                  Voltar
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

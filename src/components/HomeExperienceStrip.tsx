@@ -101,10 +101,10 @@ export function HomeExperienceStrip({
     () => [
       {
         key: 'perfil',
-        title: 'Meu Perfil',
+        title: 'Perfil',
         image: perfilCover ?? null,
         onActivate: () => onNavigate('perfil'),
-        ariaLabel: 'Meu Perfil',
+        ariaLabel: 'Perfil',
       },
       {
         key: 'help-nutri',

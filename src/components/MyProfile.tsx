@@ -227,10 +227,19 @@ export function MyProfile({
         actions={
           <>
             <label className="profile-pick-btn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 8h3l1.5-2h7L17 8h3v11H4V8Z" />
+                <circle cx="12" cy="13" r="3.4" />
+              </svg>
               {uploading ? 'Enviando...' : 'Trocar foto'}
               <input type="file" accept="image/*" onChange={handlePick('avatar')} disabled={uploading} hidden />
             </label>
             <label className="profile-pick-btn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="14" rx="2.5" />
+                <path d="m4 16 4.5-4.5 4 4 2.5-2.5 5 5" />
+                <circle cx="15.5" cy="9.5" r="1.3" />
+              </svg>
               Trocar banner
               <input type="file" accept="image/*" onChange={handlePick('banner')} disabled={uploading} hidden />
             </label>
@@ -385,7 +394,7 @@ export function MyProfile({
       )}
 
       <div className="profile-gallery-section">
-        <p className="profile-section-label">Minhas fotos</p>
+        <p className="profile-section-label">Galeria da vida</p>
         <ProfileGallery
           photos={profile.gallery_photos}
           editable

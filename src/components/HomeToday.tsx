@@ -438,9 +438,11 @@ export function HomeToday({
       <p className="home-institutional-note">
         O Círcula é um espaço de cuidado e amizade entre mulheres.
       </p>
+      <hr className="home-section-divider" />
       <HomeFooter />
       <button type="button" className="home-feedback-btn" onClick={() => onNavigate('feedback')}>
-        Encontrou algum problema? Me notifique.
+        <span>Encontrou algum problema?</span>
+        <span>Me notifique!</span>
       </button>
       </div>
     </div>

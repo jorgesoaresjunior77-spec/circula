@@ -45,7 +45,7 @@ describe('HomeExperienceStrip — Item 2: acesso ao Meu Jardim pela Home', () =>
   it('não duplica o card "Meu Jardim" nem nenhum dos outros 3 destinos fixos', () => {
     render(<HomeExperienceStrip nextEvent={null} onNavigate={vi.fn()} />)
 
-    for (const name of ['Meu Perfil', 'Help Nutri — fale com a nutricionista', 'Meu Jardim', 'Assine o Círcula — planos e assinaturas', 'Convite — chame uma amiga para o Círcula']) {
+    for (const name of ['Perfil', 'Help Nutri — fale com a nutricionista', 'Meu Jardim', 'Assine o Círcula — planos e assinaturas', 'Convite — chame uma amiga para o Círcula']) {
       expect(screen.getAllByRole('button', { name })).toHaveLength(1)
     }
   })
@@ -62,7 +62,7 @@ describe('HomeExperienceStrip — Item 2: acesso ao Meu Jardim pela Home', () =>
     const jardimCard = screen.getByRole('button', { name: 'Meu Jardim' })
     expect(jardimCard.querySelector('img')).not.toBeInTheDocument()
 
-    const perfilCard = screen.getByRole('button', { name: 'Meu Perfil' })
+    const perfilCard = screen.getByRole('button', { name: 'Perfil' })
     expect(perfilCard.querySelector('img')).toBeInTheDocument()
   })
 })

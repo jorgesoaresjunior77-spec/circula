@@ -49,12 +49,15 @@ export function ProfileBanner({
           {places.length > 0 && <p className="profile-hero-places">{places.join(' · ')}</p>}
           {bio && <p className="profile-hero-bio">{bio}</p>}
           {chips.length > 0 && (
-            <ul className="profile-hero-chips" aria-label="Interesses">
-              {chips.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-              {extra > 0 && <li>+{extra}</li>}
-            </ul>
+            <div className="profile-hero-likes">
+              <p className="profile-hero-likes-title">Gosto de</p>
+              <ul className="profile-hero-chips" aria-label="Interesses">
+                {chips.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+                {extra > 0 && <li>+{extra}</li>}
+              </ul>
+            </div>
           )}
         </div>
       </div>

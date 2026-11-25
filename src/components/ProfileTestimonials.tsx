@@ -91,7 +91,7 @@ export function ProfileTestimonials({ profileId, communityId, viewerId, between 
         {between}
         {isOwnProfile && (
           <div className="testimonials">
-            <p className="profile-section-label">Depoimentos</p>
+            <p className="profile-section-label profile-testimonials-label">Depoimentos</p>
             <p className="home-muted">
               Quando outra participante escrever um depoimento para você, ele aparece aqui, na sua capa.
             </p>

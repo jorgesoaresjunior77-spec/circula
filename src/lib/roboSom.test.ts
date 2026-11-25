@@ -7,8 +7,8 @@ const SR = 44100
 describe('roboSom: síntese', () => {
   const nomes = Object.keys(RECEITAS) as RoboSom[]
 
-  it('tem as 11 receitas pedidas', () => {
-    expect(nomes.sort()).toEqual(['apontando', 'assinatura', 'boasvindas', 'comemoracao', 'feliz', 'obrigado', 'oops', 'pedindo', 'pensando', 'piscadinha', 'surpresa'])
+  it('tem as 14 receitas (11 do robô + 3 das Finanças)', () => {
+    expect(nomes.sort()).toEqual(['alarme', 'apontando', 'assinatura', 'boasvindas', 'comemoracao', 'conta', 'feliz', 'moedas', 'obrigado', 'oops', 'pedindo', 'pensando', 'piscadinha', 'surpresa'])
   })
 
   it.each(nomes)('%s gera amostras e normaliza o pico em 0,85', (nome) => {

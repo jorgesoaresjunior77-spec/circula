@@ -30,6 +30,20 @@ interface Section {
 
 const SECTIONS: Section[] = [
   {
+    id: 'topo',
+    title: 'Início · Topo do app (6 imagens)',
+    summary: 'A foto grande no alto do Início. Cada imagem fica 24 horas e troca sozinha para a próxima.',
+    note: 'Preencha de 1 a 6 imagens. O app mostra uma por dia, na ordem (1, 2, 3…), e troca sozinho à meia-noite. Depois da sexta, volta à primeira. Campos vazios são pulados.',
+    slots: [
+      { key: 'hero_1', label: 'Imagem 1', where: 'Topo do Início, no dia 1 do ciclo.' },
+      { key: 'hero_2', label: 'Imagem 2', where: 'Topo do Início, no dia 2 do ciclo.' },
+      { key: 'hero_3', label: 'Imagem 3', where: 'Topo do Início, no dia 3 do ciclo.' },
+      { key: 'hero_4', label: 'Imagem 4', where: 'Topo do Início, no dia 4 do ciclo.' },
+      { key: 'hero_5', label: 'Imagem 5', where: 'Topo do Início, no dia 5 do ciclo.' },
+      { key: 'hero_6', label: 'Imagem 6', where: 'Topo do Início, no dia 6 do ciclo.' },
+    ],
+  },
+  {
     id: 'hoje',
     title: 'Início · Menu “Hoje” (cards pequenos que deslizam)',
     summary: 'Meu Perfil, Help Nutri, Meu Jardim, Assine o Círcula e Convite.',
@@ -60,19 +74,6 @@ const SECTIONS: Section[] = [
     note: 'A foto do escritório da revista se cadastra na própria revista, no Início.',
   },
   {
-    id: 'menu',
-    title: 'Início · Menu que rola (cards finos)',
-    summary: 'Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes, Viagem.',
-    slots: [
-      { key: 'menu_leitura', label: 'Dicas de leitura', where: 'Faixa fina que rola, abaixo dos 3 círculos.' },
-      { key: 'menu_respiracao', label: 'Respiração', where: 'Faixa fina que rola, abaixo dos 3 círculos.' },
-      { key: 'menu_playlist', label: 'Playlist', where: 'Faixa fina que rola, abaixo dos 3 círculos.' },
-      { key: 'menu_wellness', label: 'Wellness', where: 'Faixa fina que rola, abaixo dos 3 círculos.' },
-      { key: 'menu_series', label: 'Dicas de Séries / Filmes', where: 'Faixa fina que rola, abaixo dos 3 círculos.' },
-      { key: 'menu_viagens', label: 'Dicas de Viagem', where: 'Faixa fina que rola, abaixo dos 3 círculos.' },
-    ],
-  },
-  {
     id: 'voce',
     title: 'Início · Para você',
     summary: 'Meu Chef, Lista de Compras, Se exercite em casa e Diário da Gratidão.',
@@ -82,12 +83,6 @@ const SECTIONS: Section[] = [
       { key: 'banner_exercicios', label: 'Se exercite em casa', where: 'Card à esquerda, segunda linha de “Para você”.' },
       { key: 'banner_diario', label: 'Diário da Gratidão', where: 'Card à direita, segunda linha de “Para você”.' },
     ],
-  },
-  {
-    id: 'planos',
-    title: 'Início · Planos e assinaturas',
-    summary: 'O card baixo e largo perto do fim do Início.',
-    slots: [{ key: 'banner_planos', label: 'Planos e assinaturas', where: 'Card baixo e largo, só a escrita fica por cima.' }],
   },
   {
     id: 'parceiros',
@@ -160,7 +155,7 @@ function SlotRow({
 export function PanelImagesTab({ communityId, profileId }: { communityId: string; profileId: string; onOpenCity?: () => void }) {
   const { images, loading, setImage, clearImage } = useCommunityCardImages(communityId)
   const [errorKey, setErrorKey] = useState<CommunityCardKey | null>(null)
-  const [openId, setOpenId] = useState<string | null>('hoje')
+  const [openId, setOpenId] = useState<string | null>('topo')
 
   async function handleChange(key: CommunityCardKey, path: string) {
     setErrorKey(null)

@@ -69,6 +69,12 @@ export type CommunityCardKey =
   | 'menu_viagens'
   | 'banner_lista'
   | 'banner_cidade'
+  | 'hero_1'
+  | 'hero_2'
+  | 'hero_3'
+  | 'hero_4'
+  | 'hero_5'
+  | 'hero_6'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -208,6 +214,7 @@ const SPEC_BACKGROUND: CardImageSpec = { aspect: '9 / 16', size: '1080 × 1920 p
 //  - Diário da Gratidão: 16:10,8;
 //  - Planos e assinaturas: card de 76px de altura por toda a largura, cerca de 4,7:1.
 const SPEC_CIRCLE: CardImageSpec = { aspect: '1 / 1', size: '1080 × 1080 px', format: 'quadrada 1:1 (o app recorta em círculo)' }
+const SPEC_HERO: CardImageSpec = { aspect: '9 / 11', size: '1080 × 1320 px', format: 'retrato 9:11' }
 const SPEC_CITY: CardImageSpec = { aspect: '2 / 1', size: '1600 × 800 px', format: 'paisagem 2:1' }
 const SPEC_LIST: CardImageSpec = { aspect: '4 / 3', size: '1200 × 900 px', format: 'paisagem 4:3' }
 const SPEC_DIARY: CardImageSpec = { aspect: '16 / 10.8', size: '1200 × 810 px', format: 'paisagem 16:10,8' }
@@ -219,6 +226,13 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'jornada_grande':
     case 'comunidade_grande':
       return SPEC_CIRCLE
+    case 'hero_1':
+    case 'hero_2':
+    case 'hero_3':
+    case 'hero_4':
+    case 'hero_5':
+    case 'hero_6':
+      return SPEC_HERO
     case 'banner_cidade':
       return SPEC_CITY
     case 'banner_lista':

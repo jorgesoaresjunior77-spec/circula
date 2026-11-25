@@ -21,6 +21,8 @@ interface HomeCommunityHeaderProps {
    * layout de sempre (card + texto abaixo) continua intacto.
    */
   overlay?: boolean
+  /** A foto grande do topo já está atrás de tudo: aqui fica só o painel de vidro (sem moldura nem capa). */
+  heroBg?: boolean
 }
 
 /**
@@ -46,6 +48,7 @@ export function HomeCommunityHeader({
   community,
   profileId,
   overlay = false,
+  heroBg = false,
 }: HomeCommunityHeaderProps) {
   const embeddedOwner =
     community.community_members.find((member) => member.profile?.id === community.owner_id)
@@ -104,6 +107,18 @@ export function HomeCommunityHeader({
       )}
     </div>
   )
+
+  if (overlay && heroBg) {
+    return (
+      <section className="home-community-header home-community-header--hero" aria-label="Sua comunidade">
+        <div className="home-community-glass">
+          <p className="home-community-eyebrow">Você está em</p>
+          <h2 className="home-community-name">{community.name}</h2>
+          {metaRow}
+        </div>
+      </section>
+    )
+  }
 
   if (overlay) {
     return (

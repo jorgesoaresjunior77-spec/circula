@@ -34,12 +34,15 @@ const P: Record<string, React.ReactNode> = {
   ferramenta: (<><path d="M30 6a10 10 0 0 0-9 13L6 34l8 8 15-15a10 10 0 0 0 13-9l-7 4-5-5 4-7Z" /></>),
   cartao: (<><rect x="4" y="11" width="40" height="26" rx="4" /><path d="M4 19h40M10 30h10" /></>),
   coracao: (<><path d="M24 41S6 30 6 17a10 10 0 0 1 18-5 10 10 0 0 1 18 5c0 13-18 24-18 24Z" /></>),
+  tesoura: (<><circle cx="12" cy="34" r="5" /><circle cx="12" cy="14" r="5" /><path d="M16 17 42 38M16 31 42 10" /></>),
+  camera: (<><path d="M6 16h9l3-5h12l3 5h9v24H6V16Z" /><circle cx="24" cy="28" r="7" /></>),
+  balao: (<><path d="M24 5c8 0 13 6 13 13 0 8-7 14-13 18-6-4-13-10-13-18 0-7 5-13 13-13Z" /><path d="M24 36l-3 5h6l-3-5ZM24 41c0 3 3 3 3 6" /></>),
   flor: (<><circle cx="24" cy="20" r="4" /><path d="M24 8c3 3 3 6 0 8-3-2-3-5 0-8ZM34 15c0 4-2 6-6 6 0-4 2-6 6-6ZM14 15c4 0 6 2 6 6-4 0-6-2-6-6ZM24 24v18M24 34c-6 0-9-3-10-7M24 36c5 0 8-2 10-6" /></>),
 }
 
 export const FIN_ICON_IDS = Object.keys(P)
 /** Ícones que a pessoa pode escolher ao criar uma categoria nova. */
-export const FIN_ICON_PICKER = ['estrela', 'presente', 'cafe', 'viagem', 'celular', 'filhos', 'fitness', 'musica', 'ferramenta', 'cartao', 'coracao', 'flor', 'casa', 'mercado', 'saude', 'edu', 'pets', 'dolar']
+export const FIN_ICON_PICKER = ['estrela', 'presente', 'cafe', 'viagem', 'celular', 'filhos', 'fitness', 'musica', 'ferramenta', 'cartao', 'coracao', 'flor', 'casa', 'mercado', 'saude', 'edu', 'pets', 'dolar', 'transporte', 'lazer', 'fora', 'roupas', 'cuidados', 'contas', 'salario', 'consultorio', 'vendas', 'freelance', 'aluguel', 'poupanca', 'cripto', 'cdi', 'cdb', 'tesoura', 'camera', 'balao']
 
 export function FinIcon({ name, size = 30 }: { name: string; size?: number }) {
   return (

@@ -145,7 +145,7 @@ export function ProfileCard({
                       mesma RLS de `profiles` de sempre — nada novo de permissão. */}
                   {profile.gallery_photos.length > 0 && (
                     <div className="profile-gallery-section">
-                      <p className="profile-section-label">Fotos</p>
+                      <p className="profile-section-label">Galeria da vida</p>
                       <ProfileGallery
                         photos={profile.gallery_photos}
                         social={viewerId ? { ownerId: profileId, viewerId } : undefined}

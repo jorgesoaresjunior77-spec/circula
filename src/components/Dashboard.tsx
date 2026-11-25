@@ -64,6 +64,8 @@ import { MemberCommunityCard } from './MemberCommunityCard'
 import { HomeToday } from './HomeToday'
 import { sendToCarro } from '../lib/carro'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
+import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
+import { heroOfTheDay } from '../lib/heroRotation'
 import { HomeGreeting } from './HomeGreeting'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
@@ -543,7 +545,7 @@ export function Dashboard({
     navItems.push({ key: 'nutri', label: 'Nutri', Icon: ClipboardIcon, inBottomNav: true })
   }
   if (profile) {
-    navItems.push({ key: 'perfil', label: 'Meu perfil', Icon: UserIcon, inBottomNav: true })
+    navItems.push({ key: 'perfil', label: 'Perfil', Icon: UserIcon, inBottomNav: true })
   }
 
   const effectiveNav: NavKey = navItems.some((item) => item.key === activeNav)
@@ -569,6 +571,13 @@ export function Dashboard({
     railActive ? railCommunity.id : null,
     railActive ? (profile?.id ?? null) : null,
   )
+
+  // Topo do app: a imagem do dia entre as 6 cadastradas (troca à meia-noite).
+  const { images: heroImages } = useCommunityCardImages(
+    profile && profile.role !== 'master' ? (railCommunity?.id ?? null) : null,
+  )
+  const heroPath = heroOfTheDay(heroImages)
+  const { url: heroUrl } = useSignedImageUrl(heroPath)
 
   // Círculos da comunidade resolvida — só busca quando o destino
   // "Círculos", "Eventos" ou "Receitas" está ativo (useCircles(null) não
@@ -1525,10 +1534,15 @@ export function Dashboard({
   // Capa da comunidade em foco: card contido (não mais hero full-bleed),
   // mostrado só quando há capa real; sem capa, HomeToday segue mostrando
   // o HomeCommunityHeader no formato sem foto, como antes.
-  const coverHero = isHomeFocus && !!railCommunity?.cover_image_url
+  const coverHero = isHomeFocus && (!!heroPath || !!railCommunity?.cover_image_url)
 
   return (
-    <section className="dashboard">
+    <section className={`dashboard${coverHero && heroUrl ? ' dashboard--hero' : ''}`}>
+      {coverHero && heroUrl && (
+        <div className="hero-bg" aria-hidden="true">
+          <img src={heroUrl} alt="" decoding="async" />
+        </div>
+      )}
       <header className="dashboard-header">
         {/* Correção do logo (item 6) — ícone + "Círcula" formam a 1ª
             linha visual; "conectando mulheres" é a 2ª linha, alinhada
@@ -1606,7 +1620,7 @@ export function Dashboard({
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
-          <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay />
+          <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay heroBg={!!heroUrl} />
         </m.div>
       )}
 

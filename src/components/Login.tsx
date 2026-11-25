@@ -9,13 +9,19 @@ import { PasswordInput } from './PasswordInput'
 import { ConsentCheckbox, consentMetadata } from './ConsentCheckbox'
 import circulaIcon from '../assets/circula-icon.png'
 import loginFundo from '../assets/login-fundo.webp'
+import loginLogo from '../assets/login-logo.png'
 
-// Foto da entrada: a mesma da referência (a moça tocando o círculo brilhante, com o logo). Fica fixa no app:
-// não há onde trocar. Os campos e botões são desenhados por cima, nas mesmas posições da referência.
+// Foto da entrada: a mesma da referência (a moça tocando o círculo brilhante). Fica fixa no app: não há onde trocar.
+// O logo é um arquivo nítido (alta resolução) posto por cima do círculo, no lugar do que vinha pintado na foto,
+// e os campos e botões são desenhados por cima, nas mesmas posições da referência.
 function AuthStage({ children, form = false }: { children: React.ReactNode; form?: boolean }) {
   // No <body>: nenhum ancestral com transform prende o fundo fixo.
   return createPortal(
-    <div className={`auth-stage${form ? ' auth-stage--form' : ''}`} style={{ backgroundImage: `url(${loginFundo})` }}>
+    <div className={`auth-stage${form ? ' auth-stage--form' : ''}`}>
+      <div className="login-photo" aria-hidden="true">
+        <img className="login-photo-img" src={loginFundo} alt="" decoding="async" draggable={false} />
+        {!form && <img className="login-logo" src={loginLogo} alt="" width={1056} height={354} decoding="async" draggable={false} />}
+      </div>
       {children}
     </div>,
     document.body,

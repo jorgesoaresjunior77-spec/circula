@@ -213,15 +213,38 @@
   justify-items: center;
   padding: 0;
   background-color: #cdb19c;
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+  background-image: none;
+  overflow: hidden;
 }
-/* telas mais largas que a foto (computador, tablet): a foto inteira, centralizada */
-@media (min-aspect-ratio: 3 / 5) {
-  .auth-stage {
-    background-size: auto 100%;
-  }
+/* A foto tem a proporção 9:16 da referência e ocupa a altura toda. Em celular mais alto os lados são cortados;
+   em tela mais larga (computador, tablet) fica inteira, centralizada. */
+.login-photo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 0;
+  height: 100dvh;
+  aspect-ratio: 9 / 16;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.login-photo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Logo nítido, por cima do círculo brilhante (mesma posição do logo da referência). */
+.login-logo {
+  position: absolute;
+  left: 34.6%;
+  top: 32.3%;
+  width: 31.25%;
+  height: auto;
+  filter: drop-shadow(0 1px 10px rgba(120, 50, 10, 0.35));
+}
+.auth-stage--form .login-photo {
+  filter: blur(3px);
 }
 .auth-stage > .auth-card {
   z-index: 1;
@@ -623,4 +646,460 @@
 }
 :root[data-theme='rose'] .home-feedback-btn {
   -webkit-text-stroke-color: #8f5446;
+}
+
+/* ==========================================================================
+   Rodada 24/11 (parte 2): topo com foto do dia, 3 círculos legíveis, cards finos vazados,
+   espaços da Home, Perfil, Jardim, Convidar, Assinatura e Administração.
+   ========================================================================== */
+
+/* ===== Topo do app: a foto do dia (de 6) atrás do logo, da saudação e do painel de vidro ===== */
+.dashboard--hero {
+  position: relative;
+  isolation: isolate;
+}
+.hero-bg {
+  position: absolute;
+  z-index: -1;
+  top: calc(-1 * (env(safe-area-inset-top, 0px) + 28px));
+  left: 50%;
+  width: 100vw;
+  max-width: 560px;
+  height: 560px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%);
+}
+.hero-bg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+/* véu claro em cima: logo, sino e saudação leem bem em qualquer foto */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.78) 0%, rgba(255, 250, 244, 0.5) 24%, rgba(255, 250, 244, 0) 52%);
+}
+.dashboard--hero .dashboard-header {
+  border-bottom: 0;
+}
+.dashboard--hero .dashboard-community-cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 400px;
+  margin-bottom: 4px;
+}
+.home-community-header--hero {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.home-community-header--hero .home-community-glass {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  display: block;
+  max-width: 78%;
+  padding: 14px 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: 0 14px 26px -16px rgba(60, 40, 28, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.home-community-header--hero .home-community-eyebrow,
+.home-community-header--hero .home-community-name,
+.home-community-header--hero .home-community-meta,
+.home-community-header--hero .home-community-owner,
+.home-community-header--hero .home-community-online {
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(40, 26, 18, 0.55);
+}
+
+/* ===== Menu: "Perfil" numa linha só, sem ficar torto ===== */
+.bottom-nav a span,
+.bottom-nav button span {
+  white-space: nowrap;
+}
+
+/* ===== 3 círculos: o maior com o escrito à esquerda; os dois da direita menores e afastados ===== */
+.home-trio {
+  aspect-ratio: 1 / 1.08;
+}
+.home-trio .home-trio-circle--a {
+  width: 64%;
+  left: 0;
+  top: 0;
+}
+.home-trio .home-trio-circle--b {
+  width: 31%;
+  right: 3%;
+  top: 2%;
+  box-shadow: 0 0 0 5px rgba(243, 232, 219, 0.75), 0 0 0 6px rgba(125, 100, 79, 0.4), 0 16px 28px -16px rgba(70, 52, 42, 0.5);
+}
+.home-trio .home-trio-circle--c {
+  width: 27%;
+  right: 8%;
+  left: auto;
+  top: 62%;
+  box-shadow: 0 0 0 5px rgba(243, 232, 219, 0.75), 0 0 0 6px rgba(125, 100, 79, 0.4), 0 16px 28px -16px rgba(70, 52, 42, 0.5);
+}
+.home-trio .home-trio-title,
+.home-trio .home-trio-subtitle,
+.home-trio .home-trio-tag {
+  display: none;
+}
+/* só o nome: Eventos, Loja, Receitas */
+.home-trio .home-trio-circle .home-trio-eyebrow {
+  font-size: max(11px, 12.5cqw);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+.home-trio .home-trio-circle--a .home-trio-text {
+  align-items: flex-start;
+  text-align: left;
+  padding: 12%;
+  background: radial-gradient(circle at 30% 50%, rgba(40, 26, 18, 0.55) 0%, rgba(40, 26, 18, 0.28) 90%);
+}
+.home-trio .home-trio-circle--a .home-trio-eyebrow {
+  font-size: max(18px, 15cqw);
+}
+.home-trio .home-trio-circle--b .home-trio-text,
+.home-trio .home-trio-circle--c .home-trio-text {
+  padding: 6%;
+}
+
+/* ===== Cards finos: sem bordas, letras vazadas (só o fio), bem espaçadas e mais afastados ===== */
+.home-wheel {
+  --wheel-card-h: 50px;
+  --wheel-gap: 30px;
+}
+.home-wheel .wheel-card {
+  border: 0;
+  border-radius: 0;
+  padding: 0 8px;
+  gap: 18px;
+}
+.home-wheel .wheel-card:active {
+  background-color: transparent;
+  opacity: 0.7;
+}
+.home-wheel .wheel-title {
+  font-size: 26px;
+  letter-spacing: 0.22em;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.9px var(--wheel-gold);
+}
+.home-wheel {
+  margin-bottom: 14px;
+}
+/* espaço entre os cards finos e a frase "Para você" */
+.home-wheel + .home-group-title {
+  margin-top: 34px;
+}
+
+/* ===== 4 cards (Meu Chef, Lista, Exercícios, Diário): fotos de cantos arredondados, embaixo só o escrito ===== */
+.home-pair .menu-banner {
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.home-pair .menu-banner-photo {
+  overflow: hidden;
+  border-radius: 24px;
+}
+.home-pair .menu-banner-photo img {
+  border-radius: 24px;
+}
+.home-pair .menu-banner-text {
+  background: none;
+  border-radius: 0;
+  padding-inline: 4px;
+}
+.home-pair .gratitude-card,
+.home-pair .gratitude-photo {
+  border-radius: 24px;
+  overflow: hidden;
+}
+.home-pair .gratitude-text {
+  background: none;
+  border-radius: 0;
+}
+/* Diário da Gratidão: letra menor e a palavra "Gratidão" inteira numa linha */
+.home-pair .hfb--series .menu-banner-title,
+.home-pair .menu-banner-title--small {
+  font-size: clamp(14px, 4.1vw, 17px) !important;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: none;
+  letter-spacing: 0;
+}
+/* respiro dos 4 cards até a animação de Planos, e dela até os parceiros */
+.home-pair--feature {
+  margin-bottom: 34px;
+}
+.home-plans-wrap {
+  margin: 34px 0 36px;
+}
+
+/* ===== Frase final, linha fina e Termos ===== */
+.home-institutional-note {
+  margin-bottom: 4px;
+}
+
+/* ===== "Encontrou algum problema? Me notifique!": banner com fio fino arredondado, letras como em Planos ===== */
+.home-feedback-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  margin: 10px 0 0;
+  padding: 16px 18px;
+  border: 1px solid #b89a7e;
+  border-radius: 20px;
+  background: none;
+  box-shadow: none;
+  color: var(--circula-mocha, #5a463a);
+  -webkit-text-fill-color: currentColor;
+  -webkit-text-stroke: 0;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-align: center;
+}
+:root[data-theme='rose'] .home-feedback-btn {
+  border-color: #b9816f;
+  -webkit-text-stroke-color: transparent;
+}
+
+/* ===== Perfil: banner com fio fino bege; "Gosto de" num card de vidro organizado ===== */
+.profile-hero {
+  box-shadow: 0 0 0 1.5px #dcc9ae, 0 22px 30px -20px rgba(70, 52, 42, 0.5);
+}
+.profile-hero-wrap {
+  padding: 0;
+}
+.profile-hero-likes {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 14px 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 10px 22px -14px rgba(20, 12, 8, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
+}
+.profile-hero-likes-title {
+  margin: 0 0 8px;
+  font-family: var(--font-label, inherit);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+.profile-hero-likes .profile-hero-chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+.profile-hero-likes .profile-hero-chips li {
+  padding: 6px 10px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Trocar foto / Trocar banner: botões em relevo, com ícone */
+.profile-banner-actions {
+  gap: 12px;
+  margin-top: 18px;
+}
+.profile-pick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(160deg, #fbf8f4, #e9dfd2);
+  color: #5a463a;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 14px -8px rgba(110, 90, 76, 0.6), inset 0 1px 1px #fff, inset 0 -2px 4px rgba(150, 128, 112, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.profile-pick-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 6px -4px rgba(110, 90, 76, 0.6), inset 0 1px 1px #fff;
+}
+.profile-pick-btn svg {
+  color: #a8704c;
+}
+
+/* Visitas e seguidoras: um card só, com divisórias */
+.profile-visit-stats {
+  gap: 0;
+  padding: 14px 4px;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #fcf9f5, #efe7dc);
+  box-shadow: 0 14px 24px -16px rgba(110, 90, 76, 0.55), inset 0 1px 0 #fff;
+}
+.profile-visit-stat {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 4px 2px;
+}
+.profile-visit-stat + .profile-visit-stat {
+  border-left: 1px solid rgba(160, 128, 100, 0.32);
+}
+.profile-visit-stat strong {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  color: #5a463a;
+}
+.profile-visit-stat span {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #85695d;
+}
+
+/* Depoimentos: etiqueta pequena e bonita */
+.profile-testimonials-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  width: auto;
+  margin: 0 0 10px;
+  padding: 7px 18px 7px 14px;
+  border-radius: 999px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.7), rgba(236, 224, 208, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6px 12px -8px rgba(110, 90, 76, 0.55), inset 0 1px 0 #fff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: #5a463a;
+}
+.profile-testimonials-label::before {
+  content: '\201C';
+  font-size: 24px;
+  line-height: 0.8;
+  color: #a8704c;
+}
+
+/* "Na minha cidade" e "Meus salvos": mais espaço entre eles */
+.profile-city-section .cty-section {
+  margin-top: 26px;
+}
+
+/* ===== Meu Jardim no perfil: sem a faixa bege e com as duas flores mais perto ===== */
+.profile-page .garden-profile-summary,
+.garden-profile-summary {
+  background: none;
+  gap: 14px;
+}
+.garden-profile-summary .garden-divider {
+  display: none;
+}
+
+/* ===== Convidar amigas: card maior ===== */
+.profile-invite-section {
+  padding: 20px 18px;
+  border-radius: 26px;
+  background: linear-gradient(160deg, #fcf9f5, #efe7dc);
+  box-shadow: 0 16px 26px -18px rgba(110, 90, 76, 0.55), inset 0 1px 0 #fff;
+}
+.invite-friends {
+  align-items: stretch;
+}
+.invite-friends > .water-primary {
+  width: 100%;
+  max-width: none;
+  min-height: 64px;
+  padding: 0 24px;
+  font-size: 17px;
+}
+
+/* ===== Minha assinatura: a assinatura atual ===== */
+.sub-level-facts {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 10px;
+}
+.sub-level-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-soft, rgba(160, 128, 100, 0.25));
+}
+.sub-level-facts dt {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #85695d;
+}
+.sub-level-facts dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  color: #5a463a;
+}
+
+/* ===== Administração: botões maiores ===== */
+.account-admin .profile-secondary-action,
+.account-admin .question-delete-button,
+.account-admin .account-admin-confirm button {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.account-admin .question-item-actions {
+  display: grid;
+  gap: 10px;
+}
+.account-admin .account-admin-sure {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(190, 80, 60, 0.08);
+  border: 1px solid rgba(190, 80, 60, 0.35);
+}
+
+/* o escrito dos 4 cards fica solto, sem caixa nem fundo */
+.home-pair--feature .menu-banner-wrap .menu-banner-text,
+.home-pair .menu-banner-wrap .menu-banner-text {
+  background: none !important;
 }

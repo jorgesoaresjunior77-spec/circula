@@ -1,0 +1,127 @@
+diff --git a/supabase/functions/_shared/asaas.ts b/supabase/functions/_shared/asaas.ts
+index f733f19..25f3d5d 100644
+--- a/supabase/functions/_shared/asaas.ts
++++ b/supabase/functions/_shared/asaas.ts
+@@ -1,26 +1,21 @@
++import { resolveAsaasConfig } from './asaasEnv.ts'
++
+ const ASAAS_API_KEY = Deno.env.get('ASAAS_API_KEY') ?? ''
+-const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.asaas.com/v3'
+-const SANDBOX_KEY_PREFIX = '$aact_hmlg_'
+-
+-export function assertSandboxKey() {
+-  if (!ASAAS_API_KEY.startsWith(SANDBOX_KEY_PREFIX)) {
+-    throw new Error(
+-      'ASAAS_API_KEY nao e uma chave de Sandbox valida (esperado prefixo ' +
+-        SANDBOX_KEY_PREFIX +
+-        '). Chamada bloqueada para evitar cobranca real.',
+-    )
+-  }
++
++// Padrão: SANDBOX. Só ASAAS_ENV=production libera a API real.
++export function getAsaasConfig() {
++  return resolveAsaasConfig(Deno.env.get('ASAAS_ENV'), ASAAS_API_KEY, Deno.env.get('ASAAS_BASE_URL'))
+ }
+ 
+ export async function asaasFetch(path: string, init: RequestInit = {}) {
+-  assertSandboxKey()
++  const { env, baseUrl } = getAsaasConfig()
+ 
+-  const response = await fetch(`${ASAAS_BASE_URL}${path}`, {
++  const response = await fetch(`${baseUrl}${path}`, {
+     ...init,
+     headers: {
+       'Content-Type': 'application/json',
+       access_token: ASAAS_API_KEY,
+-      'User-Agent': 'Circula/1.0 (sandbox)',
++      'User-Agent': `Circula/1.0 (${env})`,
+       ...init.headers,
+     },
+   })
+diff --git a/supabase/functions/_shared/asaasEnv.test.ts b/supabase/functions/_shared/asaasEnv.test.ts
+new file mode 100644
+index 0000000..3f64b37
+--- /dev/null
++++ b/supabase/functions/_shared/asaasEnv.test.ts
+@@ -0,0 +1,37 @@
++import { describe, expect, it } from 'vitest'
++import { PRODUCTION_BASE_URL, SANDBOX_BASE_URL, resolveAsaasConfig } from './asaasEnv.ts'
++
++const SB_KEY = '$aact_hmlg_exemplo'
++const PROD_KEY = '$aact_prod_exemplo'
++
++describe('resolveAsaasConfig', () => {
++  it('sem ASAAS_ENV segue em sandbox com chave de sandbox', () => {
++    expect(resolveAsaasConfig(undefined, SB_KEY, undefined)).toEqual({
++      env: 'sandbox',
++      baseUrl: SANDBOX_BASE_URL,
++    })
++  })
++
++  it('sandbox recusa chave de producao', () => {
++    expect(() => resolveAsaasConfig(undefined, PROD_KEY, undefined)).toThrow(/Sandbox/)
++    expect(() => resolveAsaasConfig('sandbox', '', undefined)).toThrow()
++  })
++
++  it('valor desconhecido de ASAAS_ENV cai em sandbox (nunca em producao)', () => {
++    expect(resolveAsaasConfig('prod', SB_KEY, undefined).env).toBe('sandbox')
++    expect(() => resolveAsaasConfig('prod', PROD_KEY, undefined)).toThrow()
++  })
++
++  it('production com chave de producao usa a URL real', () => {
++    expect(resolveAsaasConfig('production', PROD_KEY, undefined)).toEqual({
++      env: 'production',
++      baseUrl: PRODUCTION_BASE_URL,
++    })
++  })
++
++  it('production recusa chave de sandbox, chave vazia e URL de sandbox', () => {
++    expect(() => resolveAsaasConfig('production', SB_KEY, undefined)).toThrow()
++    expect(() => resolveAsaasConfig('production', '', undefined)).toThrow()
++    expect(() => resolveAsaasConfig('production', PROD_KEY, SANDBOX_BASE_URL)).toThrow()
++  })
++})
+diff --git a/supabase/functions/_shared/asaasEnv.ts b/supabase/functions/_shared/asaasEnv.ts
+new file mode 100644
+index 0000000..3c348ec
+--- /dev/null
++++ b/supabase/functions/_shared/asaasEnv.ts
+@@ -0,0 +1,38 @@
++// Escolha explícita do ambiente do Asaas. O padrão continua sendo SANDBOX:
++// só `ASAAS_ENV=production` libera a API real, e mesmo assim a chave e a URL
++// precisam combinar com o ambiente (evita chave de teste apontando para
++// produção, ou o contrário).
++export const SANDBOX_BASE_URL = 'https://api-sandbox.asaas.com/v3'
++export const PRODUCTION_BASE_URL = 'https://api.asaas.com/v3'
++const SANDBOX_KEY_PREFIX = '$aact_hmlg_'
++const ANY_KEY_PREFIX = '$aact_'
++
++export type AsaasConfig = { env: 'sandbox' | 'production'; baseUrl: string }
++
++export function resolveAsaasConfig(
++  rawEnv: string | undefined | null,
++  apiKey: string,
++  rawBaseUrl: string | undefined | null,
++): AsaasConfig {
++  const env = (rawEnv ?? '').trim().toLowerCase() === 'production' ? 'production' : 'sandbox'
++
++  if (env === 'sandbox') {
++    if (!apiKey.startsWith(SANDBOX_KEY_PREFIX)) {
++      throw new Error(
++        'ASAAS_API_KEY nao e uma chave de Sandbox valida (esperado prefixo ' +
++          SANDBOX_KEY_PREFIX +
++          '). Chamada bloqueada para evitar cobranca real.',
++      )
++    }
++    return { env, baseUrl: rawBaseUrl || SANDBOX_BASE_URL }
++  }
++
++  if (!apiKey.startsWith(ANY_KEY_PREFIX) || apiKey.startsWith(SANDBOX_KEY_PREFIX)) {
++    throw new Error('ASAAS_ENV=production exige uma chave de producao (nao a de Sandbox).')
++  }
++  const baseUrl = rawBaseUrl || PRODUCTION_BASE_URL
++  if (baseUrl !== PRODUCTION_BASE_URL) {
++    throw new Error('ASAAS_ENV=production exige ASAAS_BASE_URL de producao (ou ausente).')
++  }
++  return { env, baseUrl }
++}
