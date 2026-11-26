@@ -1592,3 +1592,99 @@ html:not(:has(.auth-stage)):has(.dashboard--hero) {
   border-radius: 18px;
   box-shadow: 0 14px 26px -16px rgba(60, 42, 30, 0.55);
 }
+
+/* ---- Planos e Assinaturas: a Marluce e cinco cartões 3D que dão a volta completa ---- */
+.home-plans-wrap .home-plans-card.home-plans-card--3d {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1000 / 920;
+  padding: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border: 0 !important;
+  border-radius: 24px;
+  background:
+    radial-gradient(70% 55% at 50% 38%, rgba(246, 220, 164, 0.3), rgba(246, 220, 164, 0) 70%),
+    linear-gradient(160deg, #6a4632 0%, #3d261b 100%) !important;
+  box-shadow:
+    0 0 0 3px rgba(243, 232, 219, 0.75),
+    0 0 0 4px rgba(125, 100, 79, 0.4),
+    0 14px 22px -12px rgba(40, 26, 18, 0.55) !important;
+  cursor: pointer;
+}
+.plans3d-woman {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 58%, transparent 100%);
+}
+.plans3d-host {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.plans3d-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* sem WebGL: três cartões simples no lugar do anel */
+.plans3d-flat {
+  position: absolute;
+  inset: auto 0 6% 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3%;
+  pointer-events: none;
+}
+.plans3d-flat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 27%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fffaf1, #efe0cc);
+  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.6);
+  color: #4a2c14;
+}
+.plans3d-flat-card img,
+.plans3d-flat-card i {
+  width: 100%;
+  height: 70%;
+  object-fit: cover;
+  font-style: normal;
+  font-size: 40px;
+  text-align: center;
+  line-height: 3;
+  background: #4a2c14;
+  color: #f6dca4;
+}
+.plans3d-flat-card b {
+  padding: 6px 4px;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  line-height: 1.1;
+  text-align: center;
+}
+.plans3d-flat--front {
+  width: 32%;
+}
+.plans3d-flat--left {
+  transform: perspective(500px) rotateY(18deg);
+}
+.plans3d-flat--right {
+  transform: perspective(500px) rotateY(-18deg);
+}

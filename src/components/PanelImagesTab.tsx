@@ -53,6 +53,18 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    id: 'planos-cards',
+    title: 'Início · Planos e Assinaturas (cartões que giram)',
+    summary: 'A foto da Marluce e as fotos dos três cartões do carrossel de Planos.',
+    note: 'Os cartões dão a volta em 3D. Cada foto aparece no alto do cartão, com o nome embaixo. Os dois cartões dos cantos (Semestre e Anual) levam só texto. A foto da Marluce deve ter fundo transparente (PNG ou WebP).',
+    slots: [
+      { key: 'plano_frente', label: 'Cartão da frente: Planos e Assinaturas', where: 'Carrossel de Planos, no Início.' },
+      { key: 'plano_premium', label: 'Cartão da direita: Plano Premium', where: 'Carrossel de Planos, no Início.' },
+      { key: 'plano_mensal', label: 'Cartão da esquerda: Plano Mensal', where: 'Carrossel de Planos, no Início.' },
+      { key: 'banner_planos', label: 'Foto da Marluce (fundo transparente)', where: 'Atrás dos cartões, no Início. Sem imagem, usa a foto padrão.' },
+    ],
+  },
+  {
     id: 'hoje',
     title: 'Início · Menu “Hoje” (cards pequenos que deslizam)',
     summary: 'Meu Perfil, Help Nutri, Meu Jardim, Assine o Círcula e Convite.',

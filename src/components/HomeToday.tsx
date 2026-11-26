@@ -182,6 +182,10 @@ export function HomeToday({
   const { url: lojaCover } = useSignedImageUrl(cardImagePaths.comunidade ?? null)
   const { url: cardapioCover } = useSignedImageUrl(cardImagePaths.banner_cardapio ?? null)
   const { url: planosCover } = useSignedImageUrl(cardImagePaths.banner_planos ?? null)
+  const { url: planoFrente } = useSignedImageUrl(cardImagePaths.plano_frente ?? null)
+  const { url: planoPremium } = useSignedImageUrl(cardImagePaths.plano_premium ?? null)
+  const { url: planoMensal } = useSignedImageUrl(cardImagePaths.plano_mensal ?? null)
+  const planCardImages = useMemo(() => ({ frente: planoFrente, premium: planoPremium, mensal: planoMensal }), [planoFrente, planoPremium, planoMensal])
   const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
   const { url: listaCover } = useSignedImageUrl(cardImagePaths.banner_lista ?? null)
@@ -426,7 +430,7 @@ export function HomeToday({
 
       <hr className="home-section-divider" />
 
-      <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
+      <HomePlansCard image={planosCover} cardImages={planCardImages} onOpen={() => onNavigate('planos')} />
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 

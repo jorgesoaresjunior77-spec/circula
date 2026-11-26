@@ -68,6 +68,9 @@ export type CommunityCardKey =
   | 'menu_series'
   | 'menu_viagens'
   | 'menu_rachei'
+  | 'plano_frente'
+  | 'plano_premium'
+  | 'plano_mensal'
   | 'banner_lista'
   | 'banner_cidade'
   | 'hero_1'
@@ -115,6 +118,9 @@ export const MENU_CARD_META: CommunityCardMeta[] = [
   { key: 'menu_series', label: 'Dicas de Séries / Filmes', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_viagens', label: 'Dicas de Viagem', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_rachei', label: 'Rachei $', hint: 'Card da roda de menu da Home.' },
+  { key: 'plano_frente', label: 'Planos e Assinaturas (cartão da frente)', hint: 'Foto do cartão da frente do carrossel de Planos, na Home.' },
+  { key: 'plano_premium', label: 'Plano Premium (cartão da direita)', hint: 'Foto do cartão Plano Premium no carrossel de Planos, na Home.' },
+  { key: 'plano_mensal', label: 'Plano Mensal (cartão da esquerda)', hint: 'Foto do cartão Plano Mensal no carrossel de Planos, na Home.' },
 ]
 
 export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)
@@ -166,7 +172,7 @@ export const EDITORIAL_CARD_META: CommunityCardMeta[] = [
   {
     key: 'banner_planos',
     label: 'Planos e assinaturas',
-    hint: 'Imagem do card fino "Planos e assinaturas" na Home (só a escrita fica por cima dela). Aparece em formato bem largo e baixo.',
+    hint: 'Foto da Marluce no card "Planos e assinaturas" da Home, atrás dos cartões que giram. Use PNG ou WebP com fundo transparente, da cabeça aos ombros. Sem imagem, o app usa a foto padrão.',
   },
   {
     key: 'banner_cidade',
@@ -220,7 +226,8 @@ const SPEC_HERO: CardImageSpec = { aspect: '9 / 11', size: '1080 × 1320 px', fo
 const SPEC_CITY: CardImageSpec = { aspect: '2 / 1', size: '1600 × 800 px', format: 'paisagem 2:1' }
 const SPEC_LIST: CardImageSpec = { aspect: '4 / 3', size: '1200 × 900 px', format: 'paisagem 4:3' }
 const SPEC_DIARY: CardImageSpec = { aspect: '16 / 10.8', size: '1200 × 810 px', format: 'paisagem 16:10,8' }
-const SPEC_PLANS: CardImageSpec = { aspect: '47 / 10', size: '1410 × 300 px', format: 'faixa larga 4,7:1' }
+const SPEC_PLANS: CardImageSpec = { aspect: '1000 / 548', size: '1000 × 548 px', format: 'cabeça e ombros, fundo transparente (PNG/WebP)' }
+const SPEC_PLAN_CARD: CardImageSpec = { aspect: '8 / 9', size: '1168 × 1314 px', format: 'foto de plano, quase quadrada (8:9)' }
 
 export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
   switch (key) {
@@ -259,6 +266,10 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'menu_viagens':
     case 'menu_rachei':
       return SPEC_WHEEL_CARD
+    case 'plano_frente':
+    case 'plano_premium':
+    case 'plano_mensal':
+      return SPEC_PLAN_CARD
     default:
       return SPEC_PORTRAIT
   }
