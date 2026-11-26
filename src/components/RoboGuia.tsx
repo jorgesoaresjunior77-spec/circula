@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useRobo } from '../hooks/useRobo'
+import { webglDisponivel } from '../lib/scene3d'
+
+const Robo3D = lazy(() => import('./Robo3D'))
 
 // Robô mascote do Círcula (arte gerada com IA, por decisão do projeto). As imagens já têm
 // rosto e expressão: aqui só se troca a cena. O texto do balão é o conteúdo; o robô é
@@ -121,11 +124,18 @@ export function RoboGuia({ cena, tamanho = 120, mudo = false, precarregar = [], 
   }, [cena])
 
   const falou = !mudo && falas !== falasInicial.current
+  // 3D: a Livi modelada assume o lugar das imagens quando o aparelho tem WebGL; sem ele, ficam as imagens.
+  const [gl3d, setGl3d] = useState<'tentando' | 'pronto' | 'falhou'>(() => (webglDisponivel() ? 'tentando' : 'falhou'))
 
   return (
-    <span className={`robo-guia${className ? ` ${className}` : ''}`} style={{ width: tamanho }} aria-hidden="true" data-cena={cena}>
+    <span className={`robo-guia${className ? ` ${className}` : ''}`} style={{ width: tamanho }} aria-hidden="true" data-cena={cena} data-gl={gl3d}>
       {falou && <span key={`h${falas}`} className="robo-guia-halo" />}
       <span className="robo-guia-flutua">
+        {gl3d !== 'falhou' && (
+          <Suspense fallback={null}>
+            <Robo3D cena={cena} onReady={() => setGl3d('pronto')} onFail={() => setGl3d('falhou')} />
+          </Suspense>
+        )}
         {[0, 1].map((i) =>
           camadas.url[i] ? (
             <img

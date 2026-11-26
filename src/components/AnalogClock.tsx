@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { GARDEN_DEFAULT_TIMEZONE } from '../lib/timezone'
+import { webglDisponivel } from '../lib/scene3d'
 import { m as motion, useAnimationFrame, useMotionValue } from '../lib/motionKit'
 
 // Relógio analógico da Home, em 3D: sem moldura nem fundo, mas com profundidade.
@@ -8,6 +9,8 @@ import { m as motion, useAnimationFrame, useMotionValue } from '../lib/motionKit
 // e acompanha o dedo ou o mouse (parallax). Mostra a hora no fuso oficial do app
 // (mesma regra do calendário). Com "reduzir movimento" ligado, o balanço e o
 // ponteiro dos segundos somem e a hora é atualizada só a cada minuto.
+
+const Clock3D = lazy(() => import('./Clock3D'))
 
 export function clockAngles(h: number, m: number, s: number) {
   return {
@@ -40,6 +43,7 @@ function prefersReducedMotion(): boolean {
 export function AnalogClock() {
   const [now, setNow] = useState(() => new Date())
   const [reduced] = useState(prefersReducedMotion)
+  const [failed, setFailed] = useState(() => !webglDisponivel())
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), reduced ? 30_000 : 1000)
@@ -96,27 +100,10 @@ export function AnalogClock() {
 
   const layer = { viewBox: '0 0 100 100', 'aria-hidden': true, focusable: false } as const
 
-  return (
-    <div
-      className="home-clock"
-      role="img"
-      aria-label={label}
-      onPointerMove={onTilt}
-      onPointerLeave={onTiltEnd}
-      onPointerCancel={onTiltEnd}
-    >
-      <div className="home-clock-glass">
-        {/* Sombra no "chão": desliza e respira junto com o balanço do relógio. */}
-        {!reduced && (
-          <motion.span
-            className="home-clock-shadow"
-            aria-hidden="true"
-            animate={{ x: [-7, 7], scaleX: [0.9, 1.08], opacity: [0.7, 1] }}
-            transition={{ duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-          />
-        )}
-        <div className="home-clock-3d" ref={tiltRef}>
-          {/* Camada 1 — marcações */}
+  // Reserva em camadas de SVG: aparece enquanto o 3D carrega e se o aparelho não tiver WebGL.
+  const flat = (
+    <>
+      {/* Camada 1 — marcações */}
           <svg {...layer} className="clock-layer clock-layer--face">
             {ticks}
           </svg>
@@ -162,6 +149,36 @@ export function AnalogClock() {
             <circle cx="50" cy="50" r="3.4" fill="url(#home-clock-pin-grad)" />
             <circle cx="48.9" cy="48.8" r="0.9" fill="rgba(255,255,255,0.75)" />
           </svg>
+    </>
+  )
+
+  return (
+    <div
+      className="home-clock"
+      role="img"
+      aria-label={label}
+      onPointerMove={failed ? onTilt : undefined}
+      onPointerLeave={failed ? onTiltEnd : undefined}
+      onPointerCancel={failed ? onTiltEnd : undefined}
+    >
+      <div className="home-clock-glass">
+        {/* Sombra no "chão": desliza e respira junto com o balanço do relógio. */}
+        {!reduced && (
+          <motion.span
+            className="home-clock-shadow"
+            aria-hidden="true"
+            animate={{ x: [-7, 7], scaleX: [0.9, 1.08], opacity: [0.7, 1] }}
+            transition={{ duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+          />
+        )}
+        <div className={`home-clock-3d${failed ? '' : ' home-clock-3d--gl'}`} ref={tiltRef}>
+          {failed ? (
+            flat
+          ) : (
+            <Suspense fallback={flat}>
+              <Clock3D onFail={() => setFailed(true)} />
+            </Suspense>
+          )}
         </div>
       </div>
     </div>

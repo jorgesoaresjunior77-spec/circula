@@ -1,5 +1,5 @@
 import { m } from '../lib/motionKit'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useSocialNotifications } from '../hooks/useSocialNotifications'
 import { useContentReminders } from '../hooks/useContentReminders'
 import { useTodayAppointments } from '../hooks/useTodayAppointments'
@@ -8,7 +8,10 @@ import type { NavKey } from './PrimaryNav'
 import { NotificationList } from './NotificationList'
 import { NotificationBillingStatus } from './NotificationBillingStatus'
 import { BellIcon } from './icons'
+import { webglDisponivel } from '../lib/scene3d'
 import { trialWarningTitle, type TrialWarning } from './HomeTrialBanner'
+
+const Bell3D = lazy(() => import('./Bell3D'))
 
 interface NotificationBellProps {
   profileId: string
@@ -133,6 +136,7 @@ export function NotificationBell({
   const trialUnread = trialWarning && !trialRead ? 1 : 0
   const unreadCount = socialUnread + content.unreadCount + agenda.unreadCount + trialUnread
   const [open, setOpen] = useState(false)
+  const [bell3dFailed, setBell3dFailed] = useState(() => !webglDisponivel())
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -196,18 +200,26 @@ export function NotificationBell({
       >
         {/* Com notificação, o sino balança (pendurado pelo topo) e descansa um
             pouco entre um toque e outro; sem notificação, fica parado, em relevo. */}
-        <m.span
-          className="notification-bell-icon"
-          style={{ transformOrigin: '50% 12%' }}
-          animate={unreadCount > 0 ? { rotate: [0, -18, 15, -11, 8, -4, 0] } : { rotate: 0 }}
-          transition={
-            unreadCount > 0
-              ? { duration: 1.1, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1.8 }
-              : { duration: 0.3 }
-          }
-        >
-          <BellIcon size={20} />
-        </m.span>
+        {bell3dFailed ? (
+          <m.span
+            className="notification-bell-icon"
+            style={{ transformOrigin: '50% 12%' }}
+            animate={unreadCount > 0 ? { rotate: [0, -18, 15, -11, 8, -4, 0] } : { rotate: 0 }}
+            transition={
+              unreadCount > 0
+                ? { duration: 1.1, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1.8 }
+                : { duration: 0.3 }
+            }
+          >
+            <BellIcon size={20} />
+          </m.span>
+        ) : (
+          <span className="notification-bell-icon notification-bell-icon--3d">
+            <Suspense fallback={<BellIcon size={20} />}>
+              <Bell3D ringing={unreadCount > 0} onFail={() => setBell3dFailed(true)} />
+            </Suspense>
+          </span>
+        )}
         {unreadCount > 0 && (
           <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
         )}
