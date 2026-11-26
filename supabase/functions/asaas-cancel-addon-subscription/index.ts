@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
 
     const { data: addon } = await admin
       .from('addon_subscriptions')
-      .select('id, profile_id, community_id, plan_key, bundle_keys, billing_cycle, status, asaas_subscription_id, current_period_end')
+      .select('id, profile_id, community_id, plan_key, bundle_keys, billing_cycle, status, asaas_subscription_id, asaas_installment_id, current_period_end')
       .eq('id', addonId)
       .maybeSingle()
     if (!addon) return json({ error: 'Assinatura não encontrada.' }, 404)
@@ -114,7 +114,22 @@ Deno.serve(async (req) => {
       // era o último item: segue para o cancelamento completo abaixo
     }
 
-    if (asaasSubId && !asaasSubId.startsWith('__provisioning__')) {
+    // Contrato parcelado no cartão (6 ou 12 meses): não renova sozinho, então não há cobrança futura a parar.
+    // Já pago, o acesso vale até o fim da vigência (estorno só pelo suporte). Ainda não pago: remove o parcelamento.
+    const installmentId = (addon as { asaas_installment_id?: string | null }).asaas_installment_id ?? null
+    if (installmentId) {
+      if (addon.status === 'active') {
+        return json(
+          {
+            error: 'Este plano foi pago à parte, parcelado no cartão, e não renova sozinho: o acesso vale até o fim da vigência. Para estorno, fale com o suporte.',
+            code: 'INSTALLMENT_PAID',
+            accessUntil: addon.current_period_end,
+          },
+          409,
+        )
+      }
+      await asaasFetch(`/installments/${installmentId}`, { method: 'DELETE' })
+    } else if (asaasSubId && !asaasSubId.startsWith('__provisioning__')) {
       await asaasFetch(`/subscriptions/${asaasSubId}`, { method: 'DELETE' })
     }
 

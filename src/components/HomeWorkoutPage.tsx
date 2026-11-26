@@ -15,11 +15,59 @@ const MAIN_CATEGORIES = ['Corpo inteiro', 'Pernas', 'Glúteos', 'Abdômen', 'Bra
 
 type View = 'form' | 'plan' | 'detail' | 'play'
 
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+// Ícones das opções (todas as opções que já existiam continuam; aqui só ganham um desenho).
+const CATEGORY_ICON: Record<string, string> = {
+  'Corpo inteiro': '🤸‍♀️',
+  Pernas: '🦵',
+  Glúteos: '🍑',
+  Abdômen: '🎯',
+  Braços: '💪',
+  Peito: '🫁',
+  Costas: '🧗‍♀️',
+  Equilíbrio: '🦩',
+  'Condicionamento físico': '⚡',
+}
+const GOAL_ICON: Record<string, string> = {
+  Fortalecer: '🏋️‍♀️',
+  Mobilidade: '🔄',
+  Equilíbrio: '🦩',
+  Alongar: '🧘‍♀️',
+  Condicionamento: '❤️‍🔥',
+  Postura: '🧍‍♀️',
+}
+const MATERIAL_ICON: Record<string, string> = {
+  parede: '🧱',
+  cadeira: '🪑',
+  degrau: '🪜',
+  garrafas: '💧',
+  bola: '⚽',
+  elastico: '🎗️',
+  toalha: '🛁',
+  cabo: '🧹',
+}
+
+/** Card de opção: o mesmo desenho em todas as etapas (tempo, região, objetivo, nível e o que tem em casa). */
+function OptionCard({ on, onClick, icon, title, hint, multi = false }: { on: boolean; onClick: () => void; icon: React.ReactNode; title: string; hint?: string; multi?: boolean }) {
   return (
-    <button type="button" className={`hw-chip${on ? ' is-on' : ''}`} aria-pressed={on} onClick={onClick}>
-      {children}
+    <button type="button" className={`hw-opt${on ? ' is-on' : ''}`} aria-pressed={on} onClick={onClick} data-multi={multi ? 'true' : undefined}>
+      <span className="hw-opt-icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="hw-opt-title">{title}</span>
+      {hint && <span className="hw-opt-hint">{hint}</span>}
+      <span className="hw-opt-check" aria-hidden="true">
+        ✓
+      </span>
     </button>
+  )
+}
+
+function ClockGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </svg>
   )
 }
 
@@ -256,53 +304,40 @@ export function HomeWorkoutPage({ profileId, canUse, onOpenPlans }: { profileId:
 
       <article className="hw-panel card-lift">
         <h3>Quanto tempo você tem?</h3>
-        <div className="hw-chips">
+        <div className="hw-opts hw-opts--time" role="group" aria-label="Duração do treino">
           {WORKOUT_MINUTES.map((m) => (
-            <Chip key={m} on={minutes === m} onClick={() => setMinutes(m)}>
-              {m} min
-            </Chip>
+            <OptionCard key={m} on={minutes === m} onClick={() => setMinutes(m)} icon={<ClockGlyph />} title={`${m} min`} />
           ))}
         </div>
 
         <h3>O que quer trabalhar?</h3>
         <p className="home-muted">Marque uma ou mais regiões (ou nenhuma, para um treino variado).</p>
-        <div className="hw-chips">
+        <div className="hw-opts" role="group" aria-label="Partes do corpo">
           {MAIN_CATEGORIES.map((c) => (
-            <Chip key={c} on={categories.includes(c)} onClick={() => setCategories((l) => toggle(l, c))}>
-              {c}
-            </Chip>
+            <OptionCard key={c} multi on={categories.includes(c)} onClick={() => setCategories((l) => toggle(l, c))} icon={CATEGORY_ICON[c] ?? '•'} title={c} />
           ))}
         </div>
 
         <h3>Objetivo</h3>
-        <div className="hw-chips">
+        <div className="hw-opts" role="group" aria-label="Objetivo">
           {GOALS.map((g) => (
-            <Chip key={g} on={goals.includes(g)} onClick={() => setGoals((l) => toggle(l, g))}>
-              {g}
-            </Chip>
+            <OptionCard key={g} multi on={goals.includes(g)} onClick={() => setGoals((l) => toggle(l, g))} icon={GOAL_ICON[g] ?? '•'} title={g} />
           ))}
         </div>
 
         <h3>Nível</h3>
-        <div className="hw-chips">
-          <Chip on={level === 'Iniciante'} onClick={() => setLevel('Iniciante')}>
-            Iniciante
-          </Chip>
-          <Chip on={level === 'Intermediário'} onClick={() => setLevel('Intermediário')}>
-            Intermediário
-          </Chip>
-          <Chip on={lowImpact} onClick={() => setLowImpact((v) => !v)}>
-            Só baixo impacto
-          </Chip>
+        <div className="hw-opts" role="group" aria-label="Nível">
+          <OptionCard on={level === 'Iniciante'} onClick={() => setLevel('Iniciante')} icon="🌱" title="Iniciante" />
+          <OptionCard on={level === 'Intermediário'} onClick={() => setLevel('Intermediário')} icon="🌿" title="Intermediário" />
+          <OptionCard multi on={lowImpact} onClick={() => setLowImpact((v) => !v)} icon="🪶" title="Só baixo impacto" />
         </div>
 
         <h3>O que você tem em casa?</h3>
-        <p className="home-muted">Sem marcar nada, o treino usa só o peso do corpo.</p>
-        <div className="hw-chips">
+        <p className="home-muted">Marque tudo o que tiver. Sem equipamentos, o treino usa só o peso do corpo.</p>
+        <div className="hw-opts" role="group" aria-label="Equipamentos disponíveis">
+          <OptionCard on={materials.length === 0} onClick={() => setMaterials([])} icon="🙌" title="Sem equipamentos" />
           {MATERIALS.map((m) => (
-            <Chip key={m.key} on={materials.includes(m.key)} onClick={() => setMaterials((l) => toggle(l, m.key))}>
-              {m.label}
-            </Chip>
+            <OptionCard key={m.key} multi on={materials.includes(m.key)} onClick={() => setMaterials((l) => toggle(l, m.key))} icon={MATERIAL_ICON[m.key] ?? '•'} title={m.label} />
           ))}
         </div>
 

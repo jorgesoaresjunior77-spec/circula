@@ -7,6 +7,8 @@ import {
   applyReferralDiscount,
   isAddonPlanKey,
   isAsaasCycle,
+  isValidInstallments,
+  maxInstallments,
 } from '../_shared/addonPlans.ts'
 
 // =====================================================================
@@ -47,7 +49,7 @@ Deno.serve(async (req) => {
     if (!user) return json(401, { error: 'Sem sessão ativa.' })
 
     const body = await req.json().catch(() => ({}))
-    const { plan_key: planKey, billing_cycle: cycle, community_id: communityId } = body as Record<string, unknown>
+    const { plan_key: planKey, billing_cycle: cycle, community_id: communityId, installments: rawInstallments } = body as Record<string, unknown>
     if (!isAddonPlanKey(planKey)) return json(400, { error: 'Plano inválido.', code: 'INVALID_PLAN' })
     if (!isAsaasCycle(cycle)) return json(400, { error: 'Ciclo inválido.', code: 'INVALID_CYCLE' })
     if (typeof communityId !== 'string' || !UUID_RE.test(communityId)) {
@@ -73,27 +75,62 @@ Deno.serve(async (req) => {
       .maybeSingle()
     if (!billing) return json(400, { error: 'Cadastre CPF/CNPJ antes de assinar.', code: 'MISSING_BILLING_DATA' })
 
-    // Já existe uma assinatura viva deste plano? Devolve a fatura em vez de duplicar.
+    // preço editado pelo Master (se houver) vale no lugar do catálogo; nunca vem do navegador
+    const { data: override } = await admin.from('product_price_overrides').select('monthly_cents').eq('plan_key', planKey).maybeSingle()
+    let priceCents = addonPriceCents(planKey, cycle, (override?.monthly_cents as number | undefined) ?? null)
+
+    // Parcelas: só semestral (até 6x) e anual (até 12x), no cartão; o padrão é pagar de uma vez.
+    const installments = rawInstallments === undefined || rawInstallments === null ? 1 : rawInstallments
+    if (!isValidInstallments(cycle, priceCents, installments)) {
+      return json(400, { error: `Parcelamento inválido para este plano (até ${maxInstallments(cycle)}x).`, code: 'INVALID_INSTALLMENTS' })
+    }
+
+    // Já existe uma contratação viva deste plano?
+    //  • ativa: não cobra de novo;
+    //  • pendente/atrasada com o MESMO ciclo, valor e parcelas: devolve a mesma fatura (não duplica);
+    //  • pendente/atrasada com outro ciclo ou outro valor (ex.: assinatura antiga de R$ 59,90 mensal e
+    //    agora a pessoa escolheu o anual): cancela a antiga no Asaas e cria a nova com o valor certo.
+    //    Antes, a fatura antiga era devolvida e a pessoa pagava o valor errado.
     const { data: existing } = await admin
       .from('addon_subscriptions')
-      .select('id, asaas_subscription_id, status')
+      .select('id, asaas_subscription_id, asaas_installment_id, status, billing_cycle, price_cents, installment_count')
       .eq('profile_id', user.id)
       .eq('community_id', communityId)
       .eq('plan_key', planKey)
       .neq('status', 'canceled')
       .maybeSingle()
-    if (existing?.asaas_subscription_id) {
-      const pay = await asaasFetch(`/payments?subscription=${existing.asaas_subscription_id}&limit=1`).catch(() => null)
-      return json(200, {
-        asaasSubscriptionId: existing.asaas_subscription_id,
-        invoiceUrl: pay?.data?.[0]?.invoiceUrl ?? null,
-        reused: true,
-      })
+    if (existing) {
+      if (existing.status === 'active') {
+        return json(409, { error: 'Você já tem este plano ativo.', code: 'ALREADY_ACTIVE' })
+      }
+      const same =
+        existing.billing_cycle === cycle &&
+        // (o valor pode já ter o desconto da indicação, aplicado uma vez só)
+        (existing.price_cents === priceCents || (planKey === 'premium' && existing.price_cents === applyReferralDiscount(priceCents))) &&
+        (existing.installment_count ?? 1) === installments
+      if (same && (existing.asaas_subscription_id || existing.asaas_installment_id)) {
+        const query = existing.asaas_installment_id
+          ? `/payments?installment=${existing.asaas_installment_id}&limit=1`
+          : `/payments?subscription=${existing.asaas_subscription_id}&limit=1`
+        const pay = await asaasFetch(query).catch(() => null)
+        return json(200, {
+          asaasSubscriptionId: existing.asaas_subscription_id ?? null,
+          invoiceUrl: pay?.data?.[0]?.invoiceUrl ?? null,
+          reused: true,
+        })
+      }
+      try {
+        if (existing.asaas_installment_id) await asaasFetch(`/installments/${existing.asaas_installment_id}`, { method: 'DELETE' })
+        else if (existing.asaas_subscription_id) await asaasFetch(`/subscriptions/${existing.asaas_subscription_id}`, { method: 'DELETE' })
+      } catch (err) {
+        console.error('asaas-create-addon-subscription: não cancelou a cobrança antiga', existing.id, (err as Error).message)
+        return json(502, { error: 'Não foi possível trocar o plano agora. Tente novamente em instantes.', code: 'ASAAS_FAILED' })
+      }
+      await admin
+        .from('addon_subscriptions')
+        .update({ status: 'canceled', updated_at: new Date().toISOString() })
+        .eq('id', existing.id)
     }
-
-    // preço editado pelo Master (se houver) vale no lugar do catálogo; nunca vem do navegador
-    const { data: override } = await admin.from('product_price_overrides').select('monthly_cents').eq('plan_key', planKey).maybeSingle()
-    let priceCents = addonPriceCents(planKey, cycle, (override?.monthly_cents as number | undefined) ?? null)
 
     // Indicação Premium: quem chegou por convite de quem TEM o Premium paga 10% a menos
     // no Premium dela (uma vez). Confere no servidor: indicação existe, não foi usada
@@ -157,6 +194,7 @@ Deno.serve(async (req) => {
         plan_key: planKey,
         billing_cycle: cycle,
         price_cents: priceCents,
+        installment_count: installments,
         asaas_customer_id: customerId,
       })
       .select('id')
@@ -164,6 +202,37 @@ Deno.serve(async (req) => {
     if (rowError || !row) {
       console.error('asaas-create-addon-subscription: falha ao gravar', rowError)
       return json(500, { error: 'Não foi possível iniciar a assinatura agora.' })
+    }
+
+    // Parcelado no cartão: UMA cobrança com o valor total (6 ou 12 meses), dividida em parcelas.
+    // Não renova sozinha: ao fim da vigência a pessoa contrata de novo.
+    if (installments > 1) {
+      try {
+        const first = await asaasFetch('/payments', {
+          method: 'POST',
+          body: JSON.stringify({
+            customer: customerId,
+            billingType: 'CREDIT_CARD',
+            installmentCount: installments,
+            totalValue: priceCents / 100,
+            dueDate: new Date().toISOString().slice(0, 10),
+            description: `Círcula — ${ADDON_NAMES[planKey]} (${cycle === 'YEARLY' ? '12 meses' : '6 meses'}, ${installments}x no cartão)`,
+            externalReference: `${ADDON_REF_PREFIX}${row.id}`,
+          }),
+        })
+        await admin
+          .from('addon_subscriptions')
+          .update({ asaas_installment_id: (first.installment as string | undefined) ?? null, updated_at: new Date().toISOString() })
+          .eq('id', row.id)
+        if (referralInvitee) {
+          await admin.from('referrals').update({ discount_used_at: new Date().toISOString() }).eq('invitee_id', referralInvitee)
+        }
+        return json(200, { asaasSubscriptionId: null, invoiceUrl: (first.invoiceUrl as string | undefined) ?? null, reused: false })
+      } catch (err) {
+        await admin.from('addon_subscriptions').delete().eq('id', row.id).is('asaas_installment_id', null)
+        console.error('asaas-create-addon-subscription: parcelamento falhou', (err as Error).message)
+        return json(502, { error: 'Não foi possível criar a cobrança parcelada agora. Tente novamente em instantes.', code: 'ASAAS_FAILED' })
+      }
     }
 
     try {

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from './icons'
 import { useTodayAppointments } from '../hooks/useTodayAppointments'
 import { WEEKDAY_LABELS, todayParts, weekDays, weekTitle } from '../lib/weekCalendar'
+import { HOLIDAY_KIND_LABEL, holidaysBetween } from '../lib/feriados'
 
 // Calendário compacto da Home — sem card, sem fundo próprio: só a
 // informação sobre a tela. Mostra mês e ano, os dias da semana de segunda
@@ -22,6 +23,8 @@ export function HomeWeekCalendar({ onOpen, profileId = null }: HomeWeekCalendarP
   const today = useMemo(() => todayParts(), [])
   const days = useMemo(() => weekDays(today, weekOffset), [today, weekOffset])
   const title = weekTitle(days)
+  // Feriados e pontos facultativos da semana: marcados no número (separados dos compromissos).
+  const holidays = useMemo(() => holidaysBetween(days[0].iso, days[days.length - 1].iso), [days])
 
   return (
     <section className="home-week" aria-label="Calendário da semana">
@@ -47,8 +50,9 @@ export function HomeWeekCalendar({ onOpen, profileId = null }: HomeWeekCalendarP
           {days.map((d, i) => (
             <span
               key={`n-${d.iso}`}
-              className={`home-week-day${d.isToday ? ' home-week-day--today' : ''}`}
+              className={`home-week-day${d.isToday ? ' home-week-day--today' : ''}${holidays.get(d.iso) ? ` home-week-day--feriado home-week-day--${holidays.get(d.iso)![0].kind}` : ''}`}
               style={{ gridColumn: i + 1, gridRow: 2 }}
+              title={holidays.get(d.iso)?.map((h) => `${h.name} (${HOLIDAY_KIND_LABEL[h.kind]})`).join(', ')}
             >
               {d.day}
             </span>

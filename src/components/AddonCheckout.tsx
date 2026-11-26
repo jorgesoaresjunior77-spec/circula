@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { useAddonCheckout } from '../hooks/useAddonCheckout'
 import { useSubscription } from '../hooks/useSubscription'
 import { useMyAddonSubscription } from '../hooks/useMyAddonSubscription'
-import { CYCLE_LABEL, formatBrl } from '../lib/plansCatalog'
+import { CYCLE_LABEL, CYCLE_MONTHS, formatBrl, installmentOptions, installmentSplit } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
 import type { DocumentType } from '../types/billing'
 import { RoboInsiste, RoboRetencao } from './RoboPlanos'
@@ -18,6 +18,8 @@ const CYCLES: PlanCycle[] = ['annual', 'semiannual', 'monthly']
 const CODE_MESSAGES: Record<string, string> = {
   MISSING_BILLING_DATA: 'Cadastre seu CPF/CNPJ antes de assinar.',
   NOT_ACTIVE_MEMBER: 'Você precisa ter a entrada aprovada na comunidade para assinar.',
+  ALREADY_ACTIVE: 'Você já tem este plano ativo.',
+  INVALID_INSTALLMENTS: 'Esse número de parcelas não está disponível para este plano.',
 }
 
 export function AddonCheckout({
@@ -51,6 +53,9 @@ export function AddonCheckout({
   const [cancelingAll, setCancelingAll] = useState(false)
   const [cancelAllError, setCancelAllError] = useState<string | null>(null)
   const [cycle, setCycle] = useState<PlanCycle>('annual')
+  /** 1 = à vista (Pix, boleto ou cartão, renova sozinho); 2+ = parcelado no cartão (não renova). */
+  const [installments, setInstallments] = useState(1)
+  const effInstallments = installmentOptions(cycle, prices[cycle]).includes(installments) ? installments : 1
   const [documentType, setDocumentType] = useState<DocumentType>('CPF')
   const [documentNumber, setDocumentNumber] = useState('')
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
@@ -131,7 +136,7 @@ export function AddonCheckout({
 
   async function handleSubscribe() {
     setMessage(null)
-    const { error, code, invoiceUrl } = await subscribe(planKey, cycle)
+    const { error, code, invoiceUrl } = await subscribe(planKey, cycle, effInstallments)
     if (error) {
       setMessage({ ok: false, text: (code && CODE_MESSAGES[code]) || error })
       return
@@ -188,6 +193,35 @@ export function AddonCheckout({
             ))}
           </div>
           <RoboInsiste cycle={cycle} prices={prices} onPick={setCycle} />
+          {cycle !== 'monthly' && (
+            <div className="addon-installments">
+              <p className="addon-total">
+                Total de {CYCLE_MONTHS[cycle]} meses: <strong>{formatBrl(prices[cycle])}</strong>
+              </p>
+              <label htmlFor="addon-installments">Forma de pagamento</label>
+              <select
+                id="addon-installments"
+                value={effInstallments}
+                onChange={(e) => setInstallments(Number(e.target.value))}
+              >
+                {installmentOptions(cycle, prices[cycle]).map((n) => {
+                  const { each, last } = installmentSplit(prices[cycle], n)
+                  return (
+                    <option key={n} value={n}>
+                      {n === 1
+                        ? `À vista: ${formatBrl(prices[cycle])} (Pix, boleto ou cartão)`
+                        : `${n}x de ${formatBrl(each)}${last !== each ? ` (última ${formatBrl(last)})` : ''} no cartão`}
+                    </option>
+                  )
+                })}
+              </select>
+              <small className="home-muted">
+                {effInstallments > 1
+                  ? `Uma contratação de ${CYCLE_MONTHS[cycle]} meses dividida em ${effInstallments} parcelas no cartão. Não renova sozinha.`
+                  : `Pago de uma vez; renova a cada ${CYCLE_MONTHS[cycle]} meses até você cancelar.`}
+              </small>
+            </div>
+          )}
           <button type="button" className="water-primary" onClick={() => void handleSubscribe()} disabled={busy}>
             {busy ? 'Abrindo…' : `Assinar ${CYCLE_LABEL[cycle].toLowerCase()}`}
           </button>

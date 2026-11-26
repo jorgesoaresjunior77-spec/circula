@@ -1,4 +1,5 @@
 import { useProfessionalRevenue } from '../hooks/useProfessionalRevenue'
+import { AddonRevenueBlock } from './AddonRevenueBlock'
 import type { BillingCycle, PayoutKind, PayoutStatus, RevenuePeriod, RevenueRow } from '../types/billing'
 
 // FASE P1-A — aba "Recebimentos" do painel da Professional.
@@ -168,6 +169,7 @@ export function RevenuePanel({ communityId, communityName }: RevenuePanelProps) 
           )}
         </>
       )}
+      <AddonRevenueBlock communityId={communityId} />
     </section>
   )
 }

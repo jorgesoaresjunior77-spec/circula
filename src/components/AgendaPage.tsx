@@ -14,6 +14,7 @@ import {
   weekTitle,
 } from '../lib/weekCalendar'
 import { utcToZoned, zonedToUtcIso } from '../lib/zonedTime'
+import { HOLIDAY_KIND_LABEL, holidaysBetween } from '../lib/feriados'
 
 // Agenda do membro: visão semanal e mensal, compromissos com observações.
 // Tudo no fuso de São Paulo; só a própria pessoa vê e altera (RLS).
@@ -90,6 +91,8 @@ export function AgendaPage({ profileId }: AgendaPageProps) {
   const toIso = zonedToUtcIso(addDaysIso(rangeLast, 1), '00:00')
 
   const { items, loading, error, add, update, remove } = useAppointments(profileId, fromIso, toIso)
+  // Feriados nacionais e pontos facultativos: calculados por ano, nunca misturados aos compromissos.
+  const holidays = useMemo(() => holidaysBetween(rangeFirst, rangeLast), [rangeFirst, rangeLast])
 
   const byDay = useMemo(() => {
     const map = new Map<string, Appointment[]>()
@@ -179,6 +182,21 @@ export function AgendaPage({ profileId }: AgendaPageProps) {
       return
     }
     closeForm()
+  }
+
+  function renderHolidays(day: string) {
+    const list = holidays.get(day)
+    if (!list) return null
+    return (
+      <ul className="agenda-holidays" aria-label="Feriados">
+        {list.map((h) => (
+          <li key={h.name} className={`agenda-holiday agenda-holiday--${h.kind}`}>
+            <span className="agenda-holiday-name">{h.name}</span>
+            <span className="agenda-holiday-kind">{HOLIDAY_KIND_LABEL[h.kind]}</span>
+          </li>
+        ))}
+      </ul>
+    )
   }
 
   function renderItems(day: string) {
@@ -311,6 +329,7 @@ export function AgendaPage({ profileId }: AgendaPageProps) {
           {week.map((day) => (
             <section key={day.iso} className={`agenda-day${day.isToday ? ' agenda-day--today' : ''}`} aria-label={formatDayHeading(day.iso)}>
               <h4 className="agenda-day-heading">{formatDayHeading(day.iso)}</h4>
+              {renderHolidays(day.iso)}
               {renderItems(day.iso)}
             </section>
           ))}
@@ -326,6 +345,7 @@ export function AgendaPage({ profileId }: AgendaPageProps) {
             <div key={row[0].iso} className="agenda-month-row">
               {row.map((day) => {
                 const has = (byDay.get(day.iso)?.length ?? 0) > 0
+                const feriado = holidays.get(day.iso)?.[0]
                 const selected = day.iso === anchor
                 return (
                   <button
@@ -335,10 +355,11 @@ export function AgendaPage({ profileId }: AgendaPageProps) {
                       'agenda-month-day' +
                       (day.inMonth ? '' : ' agenda-month-day--out') +
                       (day.isToday ? ' agenda-month-day--today' : '') +
-                      (selected ? ' agenda-month-day--selected' : '')
+                      (selected ? ' agenda-month-day--selected' : '') +
+                      (feriado ? ` agenda-month-day--feriado agenda-month-day--${feriado.kind}` : '')
                     }
                     aria-pressed={selected}
-                    aria-label={`${formatDayHeading(day.iso)}${has ? ', com compromissos' : ''}`}
+                    aria-label={`${formatDayHeading(day.iso)}${feriado ? `, ${feriado.name} (${HOLIDAY_KIND_LABEL[feriado.kind].toLowerCase()})` : ''}${has ? ', com compromissos' : ''}`}
                     onClick={() => setAnchor(day.iso)}
                   >
                     <span>{day.day}</span>
@@ -350,6 +371,7 @@ export function AgendaPage({ profileId }: AgendaPageProps) {
           ))}
           <section className="agenda-day" aria-label={formatDayHeading(anchor)}>
             <h4 className="agenda-day-heading">{formatDayHeading(anchor)}</h4>
+            {renderHolidays(anchor)}
             {renderItems(anchor)}
           </section>
         </div>

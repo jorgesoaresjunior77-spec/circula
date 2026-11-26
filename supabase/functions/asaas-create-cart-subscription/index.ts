@@ -86,25 +86,40 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Uma cesta viva por vez (para o cancelamento ficar claro).
-    const { data: existing } = await admin
-      .from('addon_subscriptions')
-      .select('id, asaas_subscription_id')
-      .eq('profile_id', user.id)
-      .eq('community_id', communityId)
-      .eq('plan_key', BUNDLE_PLAN_KEY)
-      .neq('status', 'canceled')
-      .maybeSingle()
-    if (existing?.asaas_subscription_id) {
-      const pay = await asaasFetch(`/payments?subscription=${existing.asaas_subscription_id}&limit=1`).catch(() => null)
-      return json(200, { asaasSubscriptionId: existing.asaas_subscription_id, invoiceUrl: pay?.data?.[0]?.invoiceUrl ?? null, reused: true })
-    }
-
     // preços editados pelo Master (se houver) valem no lugar do catálogo
     const { data: overrides } = await admin.from('product_price_overrides').select('plan_key, monthly_cents').in('plan_key', keys)
     const overrideMap: Partial<Record<AddonPlanKey, number>> = {}
     for (const o of (overrides ?? []) as { plan_key: AddonPlanKey; monthly_cents: number }[]) overrideMap[o.plan_key] = o.monthly_cents
     const priceCents = bundlePriceCents(keys, cycle, overrideMap)
+
+    // Uma cesta viva por vez. Mesma cesta, mesmo ciclo e valor ainda não paga: devolve a mesma fatura.
+    // Cesta diferente (outro ciclo, outros conteúdos ou outro valor) ainda não paga: cancela a antiga e cria a nova,
+    // para nunca cobrar o valor velho. Cesta já ativa: não cobra de novo.
+    const { data: existing } = await admin
+      .from('addon_subscriptions')
+      .select('id, asaas_subscription_id, status, billing_cycle, price_cents, bundle_keys')
+      .eq('profile_id', user.id)
+      .eq('community_id', communityId)
+      .eq('plan_key', BUNDLE_PLAN_KEY)
+      .neq('status', 'canceled')
+      .maybeSingle()
+    if (existing) {
+      if (existing.status === 'active') {
+        return json(409, { error: 'Você já tem uma cesta ativa. Cancele um conteúdo dela ou fale com o suporte para trocar.', code: 'BUNDLE_ACTIVE' })
+      }
+      const sameKeys = [...((existing.bundle_keys as string[] | null) ?? [])].sort().join(',') === [...keys].sort().join(',')
+      if (sameKeys && existing.billing_cycle === cycle && existing.price_cents === priceCents && existing.asaas_subscription_id) {
+        const pay = await asaasFetch(`/payments?subscription=${existing.asaas_subscription_id}&limit=1`).catch(() => null)
+        return json(200, { asaasSubscriptionId: existing.asaas_subscription_id, invoiceUrl: pay?.data?.[0]?.invoiceUrl ?? null, reused: true })
+      }
+      try {
+        if (existing.asaas_subscription_id) await asaasFetch(`/subscriptions/${existing.asaas_subscription_id}`, { method: 'DELETE' })
+      } catch (err) {
+        console.error('asaas-create-cart-subscription: não cancelou a cesta antiga', existing.id, (err as Error).message)
+        return json(502, { error: 'Não foi possível trocar a cesta agora. Tente novamente em instantes.', code: 'ASAAS_FAILED' })
+      }
+      await admin.from('addon_subscriptions').update({ status: 'canceled', updated_at: new Date().toISOString() }).eq('id', existing.id)
+    }
     // a cesta nunca custa mais que o Premium no mesmo ciclo: nesse caso, o Premium é a melhor escolha
     const premiumCents = addonPriceCents('premium', cycle, null)
     if (priceCents >= premiumCents) {

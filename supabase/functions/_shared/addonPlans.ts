@@ -195,6 +195,41 @@ export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bund
   }
 }
 
+// ---- Parcelamento (semestral e anual no cartão) -------------------------------
+// O cliente contrata 6 ou 12 meses: é UMA cobrança com o valor total, dividida em parcelas no cartão
+// (nunca 6 ou 12 assinaturas mensais). O Asaas divide o total e joga a diferença do arredondamento na
+// última parcela. Espelha src/lib/plansCatalog.ts.
+
+/** Máximo de parcelas no cartão: até 6 no semestral e até 12 no anual; o mensal não parcela. */
+export function maxInstallments(cycle: AsaasCycle): number {
+  return cycle === 'YEARLY' ? 12 : cycle === 'SEMIANNUALLY' ? 6 : 1
+}
+
+/** Valor mínimo de cada parcela (R$ 5,00), por segurança com o gateway. */
+export const MIN_INSTALLMENT_CENTS = 500
+
+/** Parcelas válidas para este total e ciclo. */
+export function isValidInstallments(cycle: AsaasCycle, totalCents: number, n: unknown): n is number {
+  return (
+    typeof n === 'number' &&
+    Number.isInteger(n) &&
+    n >= 1 &&
+    n <= maxInstallments(cycle) &&
+    (n === 1 || Math.floor(totalCents / n) >= MIN_INSTALLMENT_CENTS)
+  )
+}
+
+/** Valor de cada parcela em centavos: todas iguais e a última com a sobra do arredondamento. */
+export function installmentSplit(totalCents: number, n: number): { each: number; last: number } {
+  const each = Math.floor(totalCents / n)
+  return { each, last: totalCents - each * (n - 1) }
+}
+
+/** Fim da vigência de um contrato pago de uma vez (parcelado): início + 6 ou 12 meses. */
+export function fixedPeriodEnd(start: Date, cycle: AsaasCycle): Date {
+  return plusCycle(start, cycle)
+}
+
 /** Dias de tolerância depois do fim do período pago antes de retirar o acesso. */
 export const ADDON_GRACE_DAYS = 3
 

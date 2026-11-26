@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { fixedPeriodEnd, installmentSplit, isValidInstallments, maxInstallments } from './addonPlans.ts'
 import { ADDON_PLAN_KEYS, applyReferralDiscount, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan, bundlePriceCents, premiumPricesAt, sanitizeBundle } from './addonPlans.ts'
 import { PREMIUM_PRICES_CENTS, PRODUCTS, pricesOf } from '../../../src/lib/plansCatalog.ts'
 
@@ -106,5 +107,29 @@ describe('cesta de assinaturas', () => {
     expect(bundlePriceCents(['respiracao', 'playlist'], 'MONTHLY')).toBe(590 + 590)
     expect(packagesForPlan('cesta', ['respiracao', 'playlist'])).toEqual(['respiracao', 'playlist'])
     expect(packagesForPlan('cesta', null)).toEqual([])
+  })
+})
+
+describe('auditoria 26/11: total do ciclo e parcelamento no servidor', () => {
+  const lancamento = new Date('2026-11-26T12:00:00-03:00')
+  it('anual e semestral cobram o TOTAL do ciclo (nunca só o mensal)', () => {
+    expect(addonPriceCents('premium', 'YEARLY', null, lancamento)).toBe(38922)
+    expect(addonPriceCents('premium', 'SEMIANNUALLY', null, lancamento)).toBe(23952)
+    expect(addonPriceCents('premium', 'MONTHLY', null, lancamento)).toBe(4990)
+  })
+  it('parcelas válidas por ciclo, com mínimo de R$ 5,00', () => {
+    expect(maxInstallments('YEARLY')).toBe(12)
+    expect(maxInstallments('SEMIANNUALLY')).toBe(6)
+    expect(maxInstallments('MONTHLY')).toBe(1)
+    expect(isValidInstallments('YEARLY', 38922, 12)).toBe(true)
+    expect(isValidInstallments('YEARLY', 38922, 13)).toBe(false)
+    expect(isValidInstallments('MONTHLY', 4990, 2)).toBe(false)
+    expect(isValidInstallments('SEMIANNUALLY', 23952, 7)).toBe(false)
+    expect(isValidInstallments('YEARLY', 38922, 1.5)).toBe(false)
+    expect(installmentSplit(38922, 12)).toEqual({ each: 3243, last: 3249 })
+  })
+  it('contrato parcelado vale 6 ou 12 meses', () => {
+    expect(fixedPeriodEnd(new Date('2026-11-26T00:00:00Z'), 'YEARLY').toISOString().slice(0, 10)).toBe('2027-11-26')
+    expect(fixedPeriodEnd(new Date('2026-11-26T00:00:00Z'), 'SEMIANNUALLY').toISOString().slice(0, 10)).toBe('2027-05-26')
   })
 })

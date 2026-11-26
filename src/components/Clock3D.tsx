@@ -1,17 +1,37 @@
 import { useEffect, useRef } from 'react'
-import { BoxGeometry, CapsuleGeometry, Group, Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
+import { CapsuleGeometry, CylinderGeometry, ExtrudeGeometry, Group, Mesh, MeshPhysicalMaterial, Path, Shape, SphereGeometry } from 'three'
 import { mountScene } from '../lib/scene3d'
 import { clockAngles, timeParts } from './AnalogClock'
 
-// Relógio da Home em 3D de verdade: marcações, ponteiros (horas, minutos e segundos), contrapeso e eixo são
-// objetos em alturas diferentes, com luz e reflexo. O conjunto balança de leve e acompanha o dedo ou o mouse.
-// Mostra a hora no fuso oficial do app. Com "reduzir movimento": sem balanço nem ponteiro dos segundos.
+// Relógio da Home em 3D, no formato de um Apple Watch: caixa quadrada de cantos arredondados, com bisel
+// e coroa lateral, e por dentro só os ponteiros (sem números nem marcações). O conjunto balança de leve e
+// acompanha o dedo ou o mouse. Hora no fuso oficial do app. Com "reduzir movimento": parado e sem segundos.
 
 interface Props {
   onFail?: () => void
 }
 
 const DEG = Math.PI / 180
+/** Caixa: largura e altura externas e raio dos cantos (unidades da cena). */
+const W = 1.9
+const H = 2.08
+const R = 0.52
+const BEZEL = 0.13
+
+function roundedRect(w: number, h: number, r: number, path: Shape | Path = new Shape()): Shape | Path {
+  const x = -w / 2
+  const y = -h / 2
+  path.moveTo(x + r, y)
+  path.lineTo(x + w - r, y)
+  path.quadraticCurveTo(x + w, y, x + w, y + r)
+  path.lineTo(x + w, y + h - r)
+  path.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  path.lineTo(x + r, y + h)
+  path.quadraticCurveTo(x, y + h, x, y + h - r)
+  path.lineTo(x, y + r)
+  path.quadraticCurveTo(x, y, x + r, y)
+  return path
+}
 
 export default function Clock3D({ onFail }: Props) {
   const hostRef = useRef<HTMLSpanElement>(null)
@@ -23,72 +43,71 @@ export default function Clock3D({ onFail }: Props) {
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
-    // o relógio inteiro responde ao toque, mesmo fora do quadrado da cena
     const area = (host.closest('.home-clock') as HTMLElement | null) ?? host
     const tilt = { x: 0, y: 0, tx: 0, ty: 0 }
 
     return mountScene(
       host,
-      { fov: 24, position: [0, 0, 5.2], look: [0, 0, 0], className: 'clock3d-canvas', exposure: 1.1 },
+      { fov: 24, position: [0, 0, 6.1], look: [0, 0, 0], className: 'clock3d-canvas', exposure: 1.05 },
       ({ scene, track, reduced }) => {
-        const mat = (color: number, extra: { metalness?: number; roughness?: number } = {}) =>
-          track(new MeshPhysicalMaterial({ color, roughness: extra.roughness ?? 0.4, metalness: extra.metalness ?? 0.08, clearcoat: 0.5, clearcoatRoughness: 0.3 }))
-        const dark = mat(0x33261f)
-        const tickMajor = mat(0x5a463a)
-        const tickMinor = mat(0xb3a497, { roughness: 0.6 })
-        const red = mat(0xb8574d)
-        const bronze = mat(0x7a5642, { metalness: 0.55, roughness: 0.28 })
-        const white = mat(0xffffff)
+        const metal = track(new MeshPhysicalMaterial({ color: 0xc9a58c, metalness: 0.75, roughness: 0.26, clearcoat: 0.6, clearcoatRoughness: 0.2 }))
+        const screen = track(new MeshPhysicalMaterial({ color: 0x241914, metalness: 0.1, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05 }))
+        const cream = track(new MeshPhysicalMaterial({ color: 0xf7efe6, roughness: 0.35, metalness: 0.05, clearcoat: 0.5 }))
+        const red = track(new MeshPhysicalMaterial({ color: 0xd06c5c, roughness: 0.35, metalness: 0.05, clearcoat: 0.5 }))
+        const pinMat = track(new MeshPhysicalMaterial({ color: 0xd9b89f, metalness: 0.7, roughness: 0.25 }))
 
-        const clock = new Group()
-        scene.add(clock)
+        const watch = new Group()
+        scene.add(watch)
 
-        // marcações: as das horas maiores e mais escuras
-        const majorGeo = track(new BoxGeometry(0.03, 0.14, 0.05))
-        const minorGeo = track(new BoxGeometry(0.011, 0.05, 0.02))
-        for (let i = 0; i < 60; i += 1) {
-          const major = i % 5 === 0
-          const tick = new Mesh(major ? majorGeo : minorGeo, major ? tickMajor : tickMinor)
-          const a = i * 6 * DEG
-          const r = major ? 0.81 : 0.81
-          tick.position.set(Math.sin(a) * r, Math.cos(a) * r, major ? 0.025 : 0.01)
-          tick.rotation.z = -a
-          clock.add(tick)
-        }
+        // caixa (moldura com bisel) e tela escura por dentro
+        const frame = roundedRect(W, H, R) as Shape
+        frame.holes.push(roundedRect(W - BEZEL * 2, H - BEZEL * 2, R - BEZEL, new Path()) as Path)
+        const caseGeo = track(new ExtrudeGeometry(frame, { depth: 0.16, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.04, bevelSegments: 6, curveSegments: 24 }))
+        caseGeo.translate(0, 0, -0.1)
+        watch.add(new Mesh(caseGeo, metal))
+        const back = new Mesh(track(new ExtrudeGeometry(roundedRect(W, H, R) as Shape, { depth: 0.12, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 5, curveSegments: 24 })), metal)
+        back.position.z = -0.26
+        watch.add(back)
+        const tela = new Mesh(track(new ExtrudeGeometry(roundedRect(W - BEZEL * 2, H - BEZEL * 2, R - BEZEL) as Shape, { depth: 0.02, bevelEnabled: false, curveSegments: 24 })), screen)
+        tela.position.z = -0.02
+        watch.add(tela)
 
-        // ponteiro: cápsula achatada com a base no centro, em um grupo que gira
+        // coroa e botão lateral, como no Apple Watch
+        const coroa = new Mesh(track(new CylinderGeometry(0.11, 0.11, 0.13, 28)), metal)
+        coroa.rotation.z = Math.PI / 2
+        coroa.position.set(W / 2 + 0.08, 0.36, -0.05)
+        watch.add(coroa)
+        const botao = new Mesh(track(new CapsuleGeometry(0.045, 0.28, 4, 12)), metal)
+        botao.position.set(W / 2 + 0.03, -0.2, -0.05)
+        watch.add(botao)
+
+        // ponteiros (os mesmos de antes, finos e simples), com a base no centro
         function hand(length: number, width: number, back: number, material: MeshPhysicalMaterial, z: number) {
           const g = new Group()
           const body = new Mesh(track(new CapsuleGeometry(width / 2, length + back - width, 6, 16)), material)
-          body.scale.z = 0.9
+          body.scale.z = 0.7
           body.position.y = (length - back) / 2
           g.add(body)
           g.position.z = z
-          clock.add(g)
+          watch.add(g)
           return g
         }
-        const hourHand = hand(0.46, 0.075, 0.06, dark, 0.07)
-        const minuteHand = hand(0.7, 0.055, 0.09, dark, 0.11)
-        const secondHand = hand(0.78, 0.018, 0.2, red, 0.16)
-        const weight = new Mesh(track(new SphereGeometry(0.05, 20, 14)), red)
-        weight.position.set(0, -0.2, 0)
-        secondHand.add(weight)
-        const tip = new Mesh(track(new SphereGeometry(0.036, 18, 12)), white)
-        tip.position.set(0, 0.62, 0.01)
-        secondHand.add(tip)
+        const hourHand = hand(0.42, 0.07, 0.05, cream, 0.03)
+        const minuteHand = hand(0.66, 0.05, 0.08, cream, 0.06)
+        const secondHand = hand(0.72, 0.016, 0.16, red, 0.09)
         secondHand.visible = !reduced
-
-        const pin = new Mesh(track(new SphereGeometry(0.075, 28, 20)), bronze)
-        pin.position.z = 0.2
-        clock.add(pin)
+        const pin = new Mesh(track(new SphereGeometry(0.06, 24, 16)), pinMat)
+        pin.scale.z = 0.6
+        pin.position.z = 0.11
+        watch.add(pin)
 
         function onMove(e: PointerEvent) {
           if (reduced) return
           const box = area.getBoundingClientRect()
           const dx = (e.clientX - (box.left + box.width / 2)) / (box.width / 2)
           const dy = (e.clientY - (box.top + box.height / 2)) / (box.height / 2)
-          tilt.tx = Math.max(-1, Math.min(1, dx)) * 0.36
-          tilt.ty = Math.max(-1, Math.min(1, dy)) * 0.36
+          tilt.tx = Math.max(-1, Math.min(1, dx)) * 0.26
+          tilt.ty = Math.max(-1, Math.min(1, dy)) * 0.26
         }
         function onLeave() {
           tilt.tx = 0
@@ -108,18 +127,17 @@ export default function Clock3D({ onFail }: Props) {
               cachedSecond = wholeSecond
               parts = timeParts(new Date(nowMs))
             }
-            const sweepSeconds = ((nowMs % 60_000) / 1000) % 60
+            const sweepSeconds = (nowMs % 60_000) / 1000
             const a = clockAngles(parts.h, parts.m, reduced ? 0 : sweepSeconds)
             hourHand.rotation.z = -a.hour * DEG
             minuteHand.rotation.z = -a.minute * DEG
             secondHand.rotation.z = -sweepSeconds * 6 * DEG
 
-            // balanço lento + inclinação para onde o dedo está (suavizada)
             const k = 1 - Math.exp(-dt * 6)
             tilt.x += (tilt.tx - tilt.x) * k
             tilt.y += (tilt.ty - tilt.y) * k
-            clock.rotation.x = tilt.y + Math.sin(t * 0.45) * 0.07
-            clock.rotation.y = tilt.x + Math.sin(t * 0.6) * 0.14
+            watch.rotation.x = tilt.y + Math.sin(t * 0.45) * 0.05 + 0.06
+            watch.rotation.y = tilt.x + Math.sin(t * 0.6) * 0.12 - 0.1
           },
           dispose: () => {
             area.removeEventListener('pointermove', onMove)

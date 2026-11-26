@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { GARDEN_DEFAULT_TIMEZONE } from '../lib/timezone'
 import { webglDisponivel } from '../lib/scene3d'
+import { formatClockDate } from '../lib/clockDate'
 import { m as motion, useAnimationFrame, useMotionValue } from '../lib/motionKit'
 
 // Relógio analógico da Home, em 3D: sem moldura nem fundo, mas com profundidade.
@@ -60,7 +61,7 @@ export function AnalogClock() {
     sweep.set(((Date.now() % 60_000) / 1000) * 6)
   })
 
-  const label = `Agora são ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+  const label = `Agora são ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}, ${now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}`
 
   // Inclina o relógio conforme o dedo/mouse sobre ele (parallax das camadas).
   const tiltRef = useRef<HTMLDivElement>(null)
@@ -83,41 +84,35 @@ export function AnalogClock() {
     el.style.removeProperty('--ry')
   }
 
-  const ticks = Array.from({ length: 60 }, (_, i) => {
-    const major = i % 5 === 0
-    return (
-      <line
-        key={i}
-        x1="50"
-        y1={major ? 6 : 8}
-        x2="50"
-        y2={major ? 13 : 11}
-        className={major ? 'home-clock-tick home-clock-tick--major' : 'home-clock-tick'}
-        transform={`rotate(${i * 6} 50 50)`}
-      />
-    )
-  })
-
   const layer = { viewBox: '0 0 100 100', 'aria-hidden': true, focusable: false } as const
 
   // Reserva em camadas de SVG: aparece enquanto o 3D carrega e se o aparelho não tiver WebGL.
   const flat = (
     <>
-      {/* Camada 1 — marcações */}
+      {/* Camada 1 — caixa quadrada de cantos arredondados (formato Apple Watch) e tela escura, sem marcações */}
           <svg {...layer} className="clock-layer clock-layer--face">
-            {ticks}
+            <defs>
+              <linearGradient id="home-clock-case-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#e7cdb8" />
+                <stop offset="0.5" stopColor="#b98f74" />
+                <stop offset="1" stopColor="#8a6450" />
+              </linearGradient>
+            </defs>
+            <rect x="96" y="30" width="5" height="12" rx="2.5" fill="url(#home-clock-case-grad)" />
+            <rect x="5" y="2" width="91" height="96" rx="25" fill="url(#home-clock-case-grad)" />
+            <rect x="11" y="8" width="79" height="84" rx="19" fill="#241914" />
           </svg>
 
           {/* Camada 2 — ponteiros das horas e dos minutos (cada um com bisel:
               corpo escuro por baixo e filete claro por cima) */}
           <svg {...layer} className="clock-layer clock-layer--hands">
             <g transform={`rotate(${angles.hour} 50 50)`}>
-              <line x1="50" y1="50" x2="50" y2="28" className="home-clock-hand home-clock-hand--hour" />
-              <line x1="49.4" y1="49" x2="49.4" y2="29" className="home-clock-hand home-clock-hand--hour home-clock-hand--lit" />
+              <line x1="50" y1="50" x2="50" y2="28" className="home-clock-hand home-clock-hand--hour" style={{ stroke: "#f7efe6" }} />
+              <line x1="49.4" y1="49" x2="49.4" y2="29" className="home-clock-hand home-clock-hand--hour home-clock-hand--lit" style={{ stroke: "#ffffff" }} />
             </g>
             <g transform={`rotate(${angles.minute} 50 50)`}>
-              <line x1="50" y1="54" x2="50" y2="17" className="home-clock-hand home-clock-hand--minute" />
-              <line x1="49.6" y1="52" x2="49.6" y2="19" className="home-clock-hand home-clock-hand--minute home-clock-hand--lit" />
+              <line x1="50" y1="54" x2="50" y2="17" className="home-clock-hand home-clock-hand--minute" style={{ stroke: "#f7efe6" }} />
+              <line x1="49.6" y1="52" x2="49.6" y2="19" className="home-clock-hand home-clock-hand--minute home-clock-hand--lit" style={{ stroke: "#ffffff" }} />
             </g>
           </svg>
 
@@ -181,6 +176,10 @@ export function AnalogClock() {
           )}
         </div>
       </div>
+      {/* Data curta logo abaixo do relógio: "SEX 26 NOV", no fuso do aparelho */}
+      <p className="home-clock-date" aria-hidden="true">
+        {formatClockDate(now)}
+      </p>
     </div>
   )
 }

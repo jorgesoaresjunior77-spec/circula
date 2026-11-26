@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
     const addonCutoff = new Date(Date.now() - ADDON_GRACE_DAYS * 86_400_000).toISOString()
     const { data: lapsedAddons } = await admin
       .from('addon_subscriptions')
-      .select('id, profile_id, community_id, plan_key, bundle_keys, status')
+      .select('id, profile_id, community_id, plan_key, bundle_keys, status, installment_count')
       .in('status', ['active', 'past_due'])
       .lte('current_period_end', addonCutoff)
     let addonsRevoked = 0
@@ -144,7 +144,10 @@ Deno.serve(async (req) => {
           .eq('profile_id', addon.profile_id as string)
           .eq('package', pkg)
       }
-      if (addon.status === 'active') {
+      if (((addon.installment_count as number | null) ?? 1) > 1) {
+        // Contrato parcelado (6 ou 12 meses) não renova: terminou a vigência, fica encerrado.
+        await admin.from('addon_subscriptions').update({ status: 'canceled', updated_at: nowIso }).eq('id', addon.id as string)
+      } else if (addon.status === 'active') {
         await admin.from('addon_subscriptions').update({ status: 'past_due', updated_at: nowIso }).eq('id', addon.id as string)
       }
       addonsRevoked += 1

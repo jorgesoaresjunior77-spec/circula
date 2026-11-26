@@ -22,11 +22,12 @@ export function useAddonCheckout(communityId: string | null) {
   const [busy, setBusy] = useState(false)
 
   const subscribe = useCallback(
-    async (planKey: string, cycle: PlanCycle): Promise<AddonCheckoutResult> => {
+    async (planKey: string, cycle: PlanCycle, installments = 1): Promise<AddonCheckoutResult> => {
       if (!communityId) return { error: 'Entre em uma comunidade para assinar.', invoiceUrl: null }
       setBusy(true)
+      // Só o número de parcelas vai junto: o valor total é calculado e conferido no servidor.
       const { data, error } = await supabase.functions.invoke('asaas-create-addon-subscription', {
-        body: { plan_key: planKey, billing_cycle: API_CYCLE[cycle], community_id: communityId },
+        body: { plan_key: planKey, billing_cycle: API_CYCLE[cycle], community_id: communityId, installments },
       })
       setBusy(false)
       if (error) {

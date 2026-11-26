@@ -1726,3 +1726,271 @@ html:not(:has(.auth-stage)):has(.dashboard--hero) {
 .robo-guia[data-gl='pronto'] .robo-guia-img {
   display: none;
 }
+
+/* ---- Relógio no formato Apple Watch (quadrado, cantos arredondados) + data curta ---- */
+.home-clock .home-clock-glass::before {
+  display: none !important;
+}
+.home-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.home-clock .home-clock-glass {
+  width: 100%;
+}
+.home-clock-date {
+  margin: 6px 0 0;
+  font-family: var(--font-sans, inherit);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #4a2f22;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* ---- Feriados no calendário (separados dos compromissos) ---- */
+.home-week-day--feriado {
+  position: relative;
+}
+.home-week-day--feriado::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: #b8574d;
+}
+.home-week-day--ponto_facultativo::after {
+  background: transparent;
+  border: 1px solid #b8574d;
+}
+.agenda-holidays {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.agenda-holiday {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(184, 87, 77, 0.12);
+  color: #7d3a32;
+  font-size: 12.5px;
+}
+.agenda-holiday-name {
+  font-weight: 600;
+}
+.agenda-holiday-kind {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.agenda-holiday--ponto_facultativo {
+  background: transparent;
+  border: 1px dashed rgba(184, 87, 77, 0.55);
+}
+.agenda-month-day--feriado > span:first-child {
+  color: #b8574d;
+  font-weight: 700;
+}
+.agenda-month-day--ponto_facultativo > span:first-child {
+  text-decoration: underline dotted;
+  font-weight: 600;
+}
+
+/* ---- Se exercite em casa: um só sistema de cards de opção (tempo, região, objetivo, nível, equipamentos) ---- */
+.hw-opts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
+  gap: 10px;
+  margin: 8px 0 18px;
+}
+.hw-opts--time {
+  grid-template-columns: repeat(3, 1fr);
+}
+.hw-opt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 88px;
+  padding: 12px 8px 10px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(74, 47, 34, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  color: #4a2f22;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px -3px rgba(74, 47, 34, 0.25);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.hw-opt:active {
+  transform: scale(0.97);
+}
+.hw-opt:focus-visible {
+  outline: 2px solid #8a4f43;
+  outline-offset: 2px;
+}
+.hw-opt.is-on {
+  border-color: #6b4433;
+  background: linear-gradient(160deg, #fff7ef 0%, #f3e2d3 100%);
+  box-shadow: 0 6px 14px -8px rgba(74, 47, 34, 0.55);
+}
+.hw-opt-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(107, 68, 51, 0.08);
+  font-size: 22px;
+  line-height: 1;
+  color: #6b4433;
+}
+.hw-opt.is-on .hw-opt-icon {
+  background: rgba(107, 68, 51, 0.16);
+}
+.hw-opt-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.hw-opts--time .hw-opt-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.hw-opt-hint {
+  font-size: 11px;
+  opacity: 0.75;
+}
+.hw-opt-check {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: #fff;
+  background: #6b4433;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.hw-opt.is-on .hw-opt-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* tela do treino: dois botões principais bem diferentes */
+.ex-main-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+.ex-action {
+  min-height: 54px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ex-action:active {
+  transform: scale(0.97);
+}
+.ex-action:focus-visible {
+  outline: 2px solid #8a4f43;
+  outline-offset: 2px;
+}
+.ex-action--skip {
+  background: #fff;
+  color: #4a2f22;
+  border: 1.5px solid rgba(74, 47, 34, 0.28);
+}
+.ex-action--end {
+  background: linear-gradient(160deg, #7a4a3a 0%, #4a2f22 100%);
+  color: #fff;
+  border: 0;
+  box-shadow: 0 8px 18px -10px rgba(74, 47, 34, 0.8);
+}
+.ex-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ex-ctl--sound {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
+}
+.ex-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(40, 28, 22, 0.42);
+  animation: ex-fade 0.18s ease;
+}
+.ex-confirm-card {
+  width: min(360px, 100%);
+  padding: 20px;
+  border-radius: 20px;
+  background: #fbf6ef;
+  box-shadow: 0 20px 40px -18px rgba(40, 28, 22, 0.6);
+}
+.ex-confirm-card h4 {
+  margin: 0 0 6px;
+}
+.ex-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+@keyframes ex-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hw-opt,
+  .ex-action,
+  .hw-opt-check {
+    transition: none;
+  }
+  .ex-confirm {
+    animation: none;
+  }
+}

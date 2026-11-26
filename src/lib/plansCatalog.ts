@@ -3,7 +3,8 @@
 // Descontos confirmados pelo usuário em 2026-11-07 (avulsos 16%/33%,
 // pacote completo 20%/35%). Em 2026-11-17 entraram os avulsos de Respiração,
 // Playlist (R$ 5,80) e Wellness (R$ 4,50) e o "Círcula Premium", que junta
-// tudo com desconto (R$ 59,90 por mês, valor confirmado pelo usuário). O mesmo catálogo existe no servidor
+// tudo com desconto (lançamento: R$ 49,90 por mês até 31/12/2026; R$ 59,90 a partir de 01/01/2027 —
+// ver PREMIUM_PROMO_ENDS_AT). O mesmo catálogo existe no servidor
 // (supabase/functions/_shared/addonPlans.ts): o servidor nunca confia no
 // preço que vem do navegador.
 
@@ -172,6 +173,26 @@ export const PREMIUM_MONTHLY_CENTS = PREMIUM_PRICES_CENTS.monthly
 export const REFERRAL_DISCOUNT_PERCENT = 10
 export function applyReferralDiscount(cents: number): number {
   return roundDime(cents * (1 - REFERRAL_DISCOUNT_PERCENT / 100))
+}
+
+/** Parcelamento no cartão (espelha o servidor): até 6x no semestral e 12x no anual; o mensal não parcela.
+ *  É uma contratação só, com o valor total dividido; nunca várias assinaturas mensais. */
+export function maxInstallments(cycle: PlanCycle): number {
+  return cycle === 'annual' ? 12 : cycle === 'semiannual' ? 6 : 1
+}
+export const MIN_INSTALLMENT_CENTS = 500
+/** Opções de parcelas que cabem no total (cada parcela de pelo menos R$ 5,00). */
+export function installmentOptions(cycle: PlanCycle, totalCents: number): number[] {
+  const out: number[] = []
+  for (let n = 1; n <= maxInstallments(cycle); n += 1) {
+    if (n === 1 || Math.floor(totalCents / n) >= MIN_INSTALLMENT_CENTS) out.push(n)
+  }
+  return out
+}
+/** Valor de cada parcela: iguais, com a sobra do arredondamento na última (como o Asaas faz). */
+export function installmentSplit(totalCents: number, n: number): { each: number; last: number } {
+  const each = Math.floor(totalCents / n)
+  return { each, last: totalCents - each * (n - 1) }
 }
 
 export function formatBrl(cents: number): string {

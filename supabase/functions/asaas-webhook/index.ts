@@ -4,7 +4,7 @@ import { addCycleMonths, asaasFetch } from '../_shared/asaas.ts'
 import { timingSafeEqualStrings } from '../_shared/security.ts'
 import { classifyWebhookPayload } from '../_shared/webhookPayload.ts'
 import { isNoSplitSubscription } from '../_shared/communitySplitMode.ts'
-import { addonPeriodEnd, packagesForPlan } from '../_shared/addonPlans.ts'
+import { addonPeriodEnd, fixedPeriodEnd, packagesForPlan } from '../_shared/addonPlans.ts'
 import type { AddonPlanKey } from '../_shared/addonPlans.ts'
 
 const WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? ''
@@ -30,7 +30,14 @@ type AsaasPayment = {
   billingType?: string
   invoiceUrl?: string
   externalReference?: string
+  /** Id do parcelamento (cobrança única dividida em parcelas no cartão). */
+  installment?: string
+  installmentNumber?: number
+  paymentDate?: string
+  clientPaymentDate?: string
 }
+
+const ADDON_REF_PREFIX = 'addon:'
 
 type Admin = ReturnType<typeof createClient>
 
@@ -324,12 +331,53 @@ async function handleAddonSubscriptionEvent(
   event: string,
   payment: AsaasPayment,
 ) {
-  const { data: addon } = await admin
-    .from('addon_subscriptions')
-    .select('*')
-    .eq('asaas_subscription_id', payment.subscription as string)
-    .maybeSingle()
+  // Assinatura recorrente: pelo id da assinatura. Contrato parcelado: pelo id do parcelamento
+  // ou pela externalReference addon:<id>.
+  // deno-lint-ignore no-explicit-any
+  let addon: any = null
+  if (payment.subscription) {
+    const { data } = await admin.from('addon_subscriptions').select('*').eq('asaas_subscription_id', payment.subscription).maybeSingle()
+    addon = data
+  }
+  if (!addon && payment.installment) {
+    const { data } = await admin.from('addon_subscriptions').select('*').eq('asaas_installment_id', payment.installment).maybeSingle()
+    addon = data
+  }
+  const ref = payment.externalReference ?? ''
+  if (!addon && ref.startsWith(ADDON_REF_PREFIX)) {
+    const id = ref.slice(ADDON_REF_PREFIX.length)
+    if (/^[0-9a-f-]{36}$/i.test(id)) {
+      const { data } = await admin.from('addon_subscriptions').select('*').eq('id', id).maybeSingle()
+      addon = data
+    }
+  }
   if (!addon) return
+  const isInstallment = !!addon.asaas_installment_id || ((addon.installment_count as number | null) ?? 1) > 1
+
+  // Registro financeiro de cada pagamento (idempotente por asaas_payment_id).
+  try {
+    const paid = CONFIRMED_EVENTS.has(event)
+    await admin.from('addon_payments').upsert(
+      {
+        addon_subscription_id: addon.id,
+        profile_id: addon.profile_id,
+        community_id: addon.community_id,
+        asaas_payment_id: payment.id,
+        status: payment.status,
+        amount_cents: Math.round(payment.value * 100),
+        net_value_cents: typeof payment.netValue === 'number' ? Math.round(payment.netValue * 100) : null,
+        due_date: payment.dueDate ?? null,
+        ...(paid ? { paid_at: new Date(payment.clientPaymentDate ?? payment.paymentDate ?? Date.now()).toISOString() } : {}),
+        billing_type: payment.billingType ?? null,
+        invoice_url: payment.invoiceUrl ?? null,
+        installment_number: payment.installmentNumber ?? null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'asaas_payment_id' },
+    )
+  } catch (recordError) {
+    console.error('asaas-webhook: falha ao registrar pagamento avulso', addon.id, payment.id, recordError)
+  }
 
   const packages = packagesForPlan(addon.plan_key as AddonPlanKey, addon.bundle_keys as string[] | null)
   const now = new Date()
@@ -342,9 +390,16 @@ async function handleAddonSubscriptionEvent(
       return
     }
     const cycle = addon.billing_cycle as 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
-    // O fim do período parte do VENCIMENTO da cobrança: PAYMENT_CONFIRMED e
-    // PAYMENT_RECEIVED do mesmo pagamento não somam dois ciclos.
-    const newEnd = addonPeriodEnd(payment.dueDate, cycle, (addon.current_period_end as string | null) ?? null, now)
+    // Recorrente: o fim do período parte do VENCIMENTO da cobrança (PAYMENT_CONFIRMED e
+    // PAYMENT_RECEIVED do mesmo pagamento não somam dois ciclos).
+    // Parcelado: a vigência é fixa (6 ou 12 meses a partir da primeira confirmação) e as
+    // parcelas seguintes NÃO estendem o período.
+    const currentEnd = (addon.current_period_end as string | null) ?? null
+    const newEnd = isInstallment
+      ? currentEnd
+        ? null
+        : fixedPeriodEnd(now, cycle)
+      : addonPeriodEnd(payment.dueDate, cycle, currentEnd, now)
     await admin
       .from('addon_subscriptions')
       .update({
@@ -907,6 +962,11 @@ Deno.serve(async (req) => {
 
     // --- Etapa 4.3: ramo de produto (pagamento avulso). Nao afeta assinaturas. ---
     const externalReference = payment.externalReference ?? ''
+
+    // Semestral/anual parcelado no cartão: cobrança única (sem assinatura) ligada a addon_subscriptions.
+    if (!payment.subscription && (externalReference.startsWith(ADDON_REF_PREFIX) || payment.installment)) {
+      await handleAddonSubscriptionEvent(admin, event, payment)
+    }
     if (!payment.subscription && externalReference.startsWith(PRODUCT_ORDER_PREFIX)) {
       await handleProductOrderEvent(
         admin,
