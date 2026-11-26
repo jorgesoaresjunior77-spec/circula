@@ -67,6 +67,7 @@ export type CommunityCardKey =
   | 'banner_planos'
   | 'menu_series'
   | 'menu_viagens'
+  | 'menu_rachei'
   | 'banner_lista'
   | 'banner_cidade'
   | 'hero_1'
@@ -113,6 +114,7 @@ export const MENU_CARD_META: CommunityCardMeta[] = [
   { key: 'menu_wellness', label: 'Wellness', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_series', label: 'Dicas de Séries / Filmes', hint: 'Card da roda de menu da Home.' },
   { key: 'menu_viagens', label: 'Dicas de Viagem', hint: 'Card da roda de menu da Home.' },
+  { key: 'menu_rachei', label: 'Rachei $', hint: 'Card da roda de menu da Home.' },
 ]
 
 export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)
@@ -255,6 +257,7 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'menu_lista':
     case 'menu_series':
     case 'menu_viagens':
+    case 'menu_rachei':
       return SPEC_WHEEL_CARD
     default:
       return SPEC_PORTRAIT

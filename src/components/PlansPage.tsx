@@ -41,7 +41,7 @@ const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
 
 /** Produtos avulsos organizados por assunto. A ordem aqui é a ordem na página e na lista do Premium. */
 const GROUPS = [
-  { title: 'Serviços', keys: ['carro', 'financas', 'help_nutri'] },
+  { title: 'Serviços', keys: ['carro', 'financas', 'rachei', 'help_nutri'] },
   { title: 'Conteúdos', keys: ['magazine', 'ebooks', 'receitas', 'leitura', 'series_filmes', 'viagens'] },
   { title: 'Bem-estar', keys: ['respiracao', 'playlist', 'wellness', 'exercicios'] },
   { title: 'Cozinha e compras', keys: ['meu_chef', 'minha_lista', 'lista_inteligente'] },
@@ -179,12 +179,15 @@ export function PlansPage({
   profileId = null,
   onOpenCarro,
   onOpenFinancas,
+  onOpenRachei,
 }: {
   communityId: string | null
   /** Abre o Carro em Dia (avulso de R$ 4,50, também no Premium). */
   onOpenCarro?: () => void
   /** Abre as Finanças (avulso de R$ 9,90, também no Premium). */
   onOpenFinancas?: () => void
+  /** Abre o Rachei $ (avulso de R$ 4,90, também no Premium). */
+  onOpenRachei?: () => void
   /** A profissional vê a página como a membro vê, mas não assina (ela é a
    *  responsável pela comunidade e hoje é isenta de pagamento). */
   viewOnly?: boolean
@@ -401,7 +404,7 @@ export function PlansPage({
             {open === 'circula' && (
               <>
                 <h3>Círcula</h3>
-                <p className="plans-text">A comunidade, os círculos e os eventos, e as ferramentas do dia a dia: Finanças com divisão de despesas, Água, IMC, Calculadora, Agenda e Minha cidade.</p>
+                <p className="plans-text">A comunidade, os círculos e os eventos, e as ferramentas do dia a dia: Finanças, Água, IMC, Calculadora, Agenda e Minha cidade.</p>
                 {!viewOnly && <TrialNotice />}
                 <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
                 {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
@@ -491,13 +494,14 @@ export function PlansPage({
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
                 ) : null}
-                {(product.key === 'carro' || product.key === 'financas') && !viewOnly && (packages.has(product.key as never) || packages.has('premium')) && (
+                {(product.key === 'carro' || product.key === 'financas' || product.key === 'rachei') && !viewOnly && (packages.has(product.key as never) || packages.has('premium')) && (
                   <button
                     type="button"
                     className="water-primary"
                     onClick={() => {
                       setOpen(null)
                       if (product.key === 'carro') onOpenCarro?.()
+                      else if (product.key === 'rachei') onOpenRachei?.()
                       else onOpenFinancas?.()
                     }}
                   >

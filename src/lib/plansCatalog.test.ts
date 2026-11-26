@@ -27,9 +27,10 @@ describe('plansCatalog', () => {
     expect(by.viagens).toBe(590)
     expect(by.carro).toBe(450)
     expect(by.financas).toBe(990)
+    expect(by.rachei).toBe(490)
   })
   it('o Premium sai mais barato que a soma de tudo separado', () => {
-    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(13090)
+    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(13580)
     expect(PREMIUM_MONTHLY_CENTS).toBeLessThan(PREMIUM_SEPARATE_MONTHLY_CENTS)
   })
   it('Premium: R$ 49,90 até 31/12/2026 e R$ 59,90 depois, com 20% e 35% no semestral e no anual', () => {

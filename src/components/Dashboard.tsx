@@ -3,7 +3,7 @@ import { useMyPackages } from '../hooks/usePackageAccess'
 import { useTrialStatus } from '../hooks/useTrialStatus'
 import { TrialReminder } from './TrialReminder'
 import { trialBannerState } from './HomeTrialBanner'
-import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes, canUseFinancas } from '../lib/packages'
+import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes, canUseFinancas, canUseRachei } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
@@ -125,6 +125,7 @@ const ReadingTipsPage = lazy(() => import('./ReadingTipsPage').then((m) => ({ de
 const BreathingPage = lazy(() => import('./BreathingPage').then((m) => ({ default: m.BreathingPage })))
 const WellnessPage = lazy(() => import('./WellnessPage').then((m) => ({ default: m.WellnessPage })))
 const WeatherPage = lazy(() => import('./WeatherPage').then((m) => ({ default: m.WeatherPage })))
+const RacheiPage = lazy(() => import('./RacheiPage').then((m) => ({ default: m.RacheiPage })))
 const FinancasPage = lazy(() => import('./FinancasPage').then((m) => ({ default: m.FinancasPage })))
 const CarroPage = lazy(() => import('./CarroPage').then((m) => ({ default: m.CarroPage })))
 const FeedbackPage = lazy(() => import('./FeedbackPage').then((m) => ({ default: m.FeedbackPage })))
@@ -191,7 +192,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas', 'rachei']
 
 export function Dashboard({
   profile,
@@ -1288,6 +1289,17 @@ export function Dashboard({
       return <FinancasPage />
     }
 
+    // RACHEI $ — calculadora de racha e grupos, com cartão para o WhatsApp. Avulso de R$ 4,90 (também no Premium).
+    if (effectiveNav === 'rachei') {
+      if (profile.role === 'member') {
+        if (packagesLoading) return <p className="home-muted">Carregando…</p>
+        if (!canUseRachei(myPackages)) {
+          return <PackagePaywall title="Rachei $" planName="Rachei $ (R$ 4,90 por mês)" onOpenPlans={() => handleNavigate('planos')} />
+        }
+      }
+      return <RacheiPage />
+    }
+
     // CARRO EM DIA — perguntas e respostas para cuidar do carro (avulso de R$ 4,50, também no Premium; o teaser é aberto a todas).
     if (effectiveNav === 'carro') {
       return <CarroPage communityId={resolvedCirclesCommunityId ?? myCommunities[0]?.id ?? null} profileId={profile.id} onOpenCity={() => handleNavigate('cidade')} />
@@ -1327,7 +1339,7 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'planos') {
-      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} onOpenCarro={() => handleNavigate('carro')} onOpenFinancas={() => handleNavigate('financas')} />
+      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} onOpenCarro={() => handleNavigate('carro')} onOpenFinancas={() => handleNavigate('financas')} onOpenRachei={() => handleNavigate('rachei')} />
     }
 
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela

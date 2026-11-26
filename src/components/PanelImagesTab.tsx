@@ -39,7 +39,7 @@ const SECTIONS: Section[] = [
   {
     id: 'cards-menu',
     title: 'Início · Cards finos do menu',
-    summary: 'Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes, Dicas de Viagem e Carro em Dia.',
+    summary: 'Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes, Dicas de Viagem, Rachei $ e Carro em Dia.',
     note: 'Cada card leva o título dentro e a sua foto num canto, alternando esquerda e direita. Use uma foto da pessoa do joelho para cima, bem à esquerda ou à direita do quadro, com o resto do fundo liso.',
     slots: [
       { key: 'menu_leitura', label: 'Dicas de leitura', where: 'Card fino do menu, no Início.' },
@@ -48,6 +48,7 @@ const SECTIONS: Section[] = [
       { key: 'menu_wellness', label: 'Wellness', where: 'Card fino do menu, no Início.' },
       { key: 'menu_series', label: 'Séries e Filmes', where: 'Card fino do menu, no Início.' },
       { key: 'menu_viagens', label: 'Dicas de Viagem', where: 'Card fino do menu, no Início.' },
+      { key: 'menu_rachei', label: 'Rachei $', where: 'Card fino do menu, no Início.' },
       { key: 'menu_lista', label: 'Carro em Dia', where: 'Card fino do menu, no Início (aparece se o Carro em Dia estiver ativo).' },
     ],
   },

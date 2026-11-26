@@ -4,6 +4,7 @@ import { useDividirGrupo, useDividirGrupos } from '../hooks/useDividir'
 import { calcularSaldos, sugerirTransferencias, totalDoGrupo } from '../lib/dividir'
 import type { DivDespesa } from '../lib/dividir'
 import { formatBrl, parseBrl } from '../lib/financas'
+import { enviarCartao } from '../lib/racheiCard'
 
 // Dividir: quem pagou o quê, quem participou, e quem deve pagar quem (o mínimo de transferências).
 // Só registro e conta: o app não move dinheiro. "Pago" é uma marcação feita pela dona do grupo.
@@ -119,29 +120,18 @@ function Grupo({ id, nome, onVoltar }: { id: string; nome: string; onVoltar: () 
     if (!r) setNovo('')
   }
 
-  function resumoTexto(): string {
-    const linhas = [`${nome} · total ${formatBrl(totalDoGrupo(g.despesas))}`, '']
-    for (const s of saldos) {
-      const n = nomeDe.get(s.id) ?? '?'
-      linhas.push(s.saldo > 0 ? `${n} deve receber ${formatBrl(s.saldo)}` : s.saldo < 0 ? `${n} deve pagar ${formatBrl(-s.saldo)}` : `${n} está quite`)
-    }
-    if (transferencias.length) {
-      linhas.push('', 'Para acertar:')
-      for (const t of transferencias) linhas.push(`${nomeDe.get(t.de)} paga ${formatBrl(t.valor)} para ${nomeDe.get(t.para)}`)
-    }
-    return linhas.join('\n')
-  }
   async function compartilhar() {
-    const texto = resumoTexto()
-    try {
-      if (navigator.share) await navigator.share({ title: nome, text: texto })
-      else {
-        await navigator.clipboard.writeText(texto)
-        setMsg('Resumo copiado. É só colar na conversa.')
-      }
-    } catch {
-      /* cancelado pela pessoa */
-    }
+    const linhas =
+      transferencias.length > 0
+        ? transferencias.map((t) => ({ nome: nomeDe.get(t.de) ?? '?', valor: formatBrl(t.valor), detalhe: `paga para ${nomeDe.get(t.para) ?? '?'}` }))
+        : saldos.map((s) => ({ nome: nomeDe.get(s.id) ?? '?', valor: formatBrl(s.pagou), detalhe: 'está quite' }))
+    const res = await enviarCartao({
+      titulo: nome,
+      subtitulo: transferencias.length > 0 ? 'Como acertar' : 'Tudo certo, ninguém deve nada',
+      totalTexto: `Total gasto ${formatBrl(totalDoGrupo(g.despesas))}`,
+      linhas,
+    })
+    setMsg(res === 'baixado' ? 'Imagem salva no aparelho. Anexe na conversa do WhatsApp.' : null)
   }
 
   return (
@@ -259,7 +249,7 @@ function Grupo({ id, nome, onVoltar }: { id: string; nome: string; onVoltar: () 
             </ul>
           )}
           <button type="button" className="cty-btn" onClick={() => void compartilhar()}>
-            Compartilhar resumo
+            Enviar cartão no WhatsApp
           </button>
         </>
       )}

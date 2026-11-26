@@ -36,6 +36,7 @@ export const TRACKED_SCREENS: { key: string; label: string }[] = [
   { key: 'cidade', label: 'Na minha cidade' },
   { key: 'carro', label: 'Carro em Dia' },
   { key: 'financas', label: 'Finanças' },
+  { key: 'rachei', label: 'Rachei $' },
 ]
 
 function uuidFor(index: number): string {

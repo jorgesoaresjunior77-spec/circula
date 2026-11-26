@@ -16,16 +16,17 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
       'Wellness',
       'Séries e Filmes',
       'Dicas de Viagem',
+      'Rachei $',
     ])
     buttons.forEach((b) => fireEvent.click(b))
-    expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'playlist', 'wellness', 'series', 'viagens'])
+    expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'playlist', 'wellness', 'series', 'viagens', 'rachei'])
   })
 
   it('cada card tem um ícone (sem foto cadastrada) e o título dentro', () => {
     const { container } = render(<HomeMenuWheel onNavigate={vi.fn()} />)
     expect(container.querySelectorAll('.wheel-card img')).toHaveLength(0)
-    expect(container.querySelectorAll('.wheel-photo-icon svg')).toHaveLength(6)
-    expect(container.querySelectorAll('.wheel-card .wheel-title')).toHaveLength(6)
+    expect(container.querySelectorAll('.wheel-photo-icon svg')).toHaveLength(7)
+    expect(container.querySelectorAll('.wheel-card .wheel-title')).toHaveLength(7)
   })
   it('o Carro em Dia aparece na posição do Painel e abre a central; desativado, some', () => {
     const settings = { ativo: true, titulo: 'Carro em Dia', subtitulo: '', icone: 'carro', ordem: 1, teaser: '', tempo_resposta: '', lembrete_dias: 3, imagem: null, imagem_alt: null }

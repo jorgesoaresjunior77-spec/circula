@@ -27,7 +27,6 @@ import {
   totaisPorCategoria,
 } from '../lib/financas'
 import type { FinCategoria, FinLancamento, FinTipo, RoboFinEstado } from '../lib/financas'
-import { DividirPage } from './DividirPage'
 import { LancamentoPorVoz } from './LancamentoPorVoz'
 import { RoboGuia } from './RoboGuia'
 import type { RoboCena } from './RoboGuia'
@@ -37,14 +36,13 @@ import { Barras, COR_GASTO, COR_INVEST, COR_RECEITA, Donut, Ondas } from './FinC
 // Finanças: registro pessoal de receitas, gastos e investimentos. Só registra e mostra números:
 // nada de recomendar onde investir nem de prometer rendimento. Tudo é privado (cada pessoa só vê o que é seu).
 
-type Aba = 'resumo' | 'receitas' | 'gastos' | 'investir' | 'historico' | 'dividir'
+type Aba = 'resumo' | 'receitas' | 'gastos' | 'investir' | 'historico'
 const ABAS: { key: Aba; label: string }[] = [
   { key: 'resumo', label: 'Resumo' },
   { key: 'receitas', label: 'Receitas' },
   { key: 'gastos', label: 'Gastos' },
   { key: 'investir', label: 'Investir' },
   { key: 'historico', label: 'Histórico' },
-  { key: 'dividir', label: 'Dividir' },
 ]
 const TIPO_DA_ABA: Record<'receitas' | 'gastos' | 'investir', FinTipo> = { receitas: 'receita', gastos: 'gasto', investir: 'investimento' }
 const ROTULO_DIA: Record<FinTipo, string> = { receita: 'Dia em que recebeu', gasto: 'Dia do pagamento ou vencimento', investimento: 'Dia' }
@@ -741,8 +739,6 @@ export function FinancasPage() {
           </ul>
         </div>
       )}
-
-      {aba === 'dividir' && <DividirPage />}
 
       {sheet && (
         <FolhaLancamento key={`${sheet.editando?.id ?? 'novo'}-${sheet.categoria}`} sheet={sheet} mes={mes} categorias={fin.categorias(sheet.tipo)} onClose={() => setSheet(null)} onSave={salvar} />

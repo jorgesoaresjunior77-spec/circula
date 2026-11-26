@@ -1444,3 +1444,151 @@ html:has(.dashboard--hero) {
   font-weight: 500;
   color: #4a2f22;
 }
+
+/* ==========================================================================
+   Rodada 27/11: fundo bege em todo o app, topo da foto sem degrau de cor, ajustes do alto e do fim, Rachei $
+   ========================================================================== */
+:root {
+  --app-bege: #f7f0e5;
+  --app-bege-fim: #eee1cd;
+}
+
+/* fundo do app inteiro: bege bem claro e, quase no fim, um bege um pouco mais escuro em degradê leve */
+html:not(:has(.auth-stage)),
+html:not(:has(.auth-stage)):has(.dashboard--hero) {
+  background-color: var(--app-bege-fim) !important;
+  background-image: linear-gradient(180deg, var(--app-bege) 0%, var(--app-bege) 80%, var(--app-bege-fim) 100%) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+/* topo: o alto da foto começa EXATAMENTE na cor do fundo (opaco) e clareia para bege aos poucos, sem degrau.
+   Sem faixa separada na barra de status: a cor é a mesma do app, de cima a baixo. */
+.dashboard--hero::before {
+  display: none !important;
+}
+.hero-bg::after {
+  background: linear-gradient(
+    180deg,
+    rgb(247, 240, 229) 0,
+    rgba(247, 240, 229, 0.96) 30px,
+    rgba(247, 240, 229, 0.6) 96px,
+    rgba(247, 240, 229, 0.36) 22%,
+    rgba(247, 240, 229, 0.26) 100%
+  ) !important;
+}
+
+/* sino: +10%, só branco (sem círculo), com sombrinha para não sumir no bege */
+.dashboard-header .notification-bell-button {
+  width: 50px !important;
+  height: 50px !important;
+  color: #fff !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.dashboard-header .notification-bell-icon {
+  width: 40px !important;
+  height: 40px !important;
+  color: #fff !important;
+  filter: drop-shadow(0 1px 3px rgba(74, 47, 34, 0.55));
+}
+.dashboard-header .notification-bell-icon svg {
+  stroke: #fff;
+}
+
+/* saudação e clima um pouco mais para baixo; clima 20% menor e transparente */
+.dashboard--hero .dashboard-community-cover {
+  padding-bottom: 12px;
+}
+.dashboard--hero .dashboard-community-cover .home-greeting {
+  position: relative;
+  top: 14px;
+}
+.dashboard--hero .home-greeting .weather-button {
+  position: relative;
+  top: 8px;
+  scale: 0.8;
+  transform-origin: left center;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  -webkit-backdrop-filter: blur(3px) saturate(1.3) !important;
+  backdrop-filter: blur(3px) saturate(1.3) !important;
+}
+/* card da comunidade: transparente e só um pouquinho mais baixo */
+.dashboard--hero .dashboard-community-cover > .home-community-header {
+  position: relative;
+  top: 6px;
+}
+.home-community-header--hero .home-community-glass::before {
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 60%, rgba(255, 255, 255, 0) 100%) !important;
+  -webkit-backdrop-filter: blur(3px) saturate(1.3) !important;
+  backdrop-filter: blur(3px) saturate(1.3) !important;
+}
+
+/* cards finos claros: metade da altura (os de chocolate ficam como estão); a distância entre eles não muda */
+.home-wheel--stack .wheel-item--borda .wheel-card {
+  height: 62px;
+}
+.home-wheel--stack .wheel-item--borda .wheel-card .wheel-title {
+  font-size: 24px;
+}
+.home-wheel--stack .wheel-item--borda .wheel-photo-icon {
+  transform: scale(1.05);
+}
+
+/* fim da página: parceiros e termos mais juntos; a frase final a ~1 cm do menu de baixo */
+.home-partners .partner-logo,
+.home-partners .partner-logo.partner-logo--boost {
+  height: 96px;
+}
+.home-partners .partner-logo img,
+.home-partners .partner-logo--boost img {
+  max-height: 96px;
+}
+.home-end {
+  margin-top: 6px;
+  --end-extra: calc(38px + var(--bottom-nav-h, 84px) + env(safe-area-inset-bottom, 0px));
+}
+.home-end-content .home-section-divider {
+  margin: 4px 0;
+}
+.home-footer {
+  margin: 2px 0 0;
+  padding: 6px 16px;
+}
+.home-feedback-btn {
+  margin-top: 14px;
+}
+.home-institutional-note {
+  margin: 14px 0 0;
+}
+.dashboard.dashboard--hero {
+  padding-bottom: calc(38px + var(--bottom-nav-h, 84px) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* ---- Rachei $ ---- */
+.rachei-head {
+  padding: 4px 2px 2px;
+  text-align: center;
+}
+.rachei-titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 10vw, 44px);
+  font-weight: 600;
+  color: #4a2f22;
+}
+.rachei-head p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: #6b5446;
+}
+.rachei-previa {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: 6px auto 4px;
+  border-radius: 18px;
+  box-shadow: 0 14px 26px -16px rgba(60, 42, 30, 0.55);
+}

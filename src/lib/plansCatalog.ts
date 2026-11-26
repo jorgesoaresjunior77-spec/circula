@@ -36,6 +36,7 @@ export type ProductKey =
   | 'viagens'
   | 'carro'
   | 'financas'
+  | 'rachei'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -98,8 +99,14 @@ export const PRODUCTS: CatalogProduct[] = [
   {
     key: 'financas',
     name: 'Finanças',
-    description: 'Receitas, gastos e investimentos num só lugar, com divisão de despesas entre amigas e lançamento por voz.',
+    description: 'Receitas, gastos e investimentos num só lugar, com lançamento por voz e muito mais.',
     monthlyCents: 990,
+  },
+  {
+    key: 'rachei',
+    name: 'Rachei $',
+    description: 'A conta do restaurante, do churrasco ou da viagem dividida sem confusão, com cartão bonito para mandar no WhatsApp.',
+    monthlyCents: 490,
   },
 ]
 

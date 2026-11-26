@@ -62,6 +62,14 @@ const PinSvg = (
   </svg>
 )
 
+const SplitSvg = (
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 6v12" />
+    <path d="M14.500 9.200c-.6-.8-1.500-1.200-2.500-1.200-1.400 0-2.500.8-2.500 2s1 1.700 2.500 2 2.500.8 2.500 2-1.100 2-2.500 2c-1 0-1.900-.4-2.500-1.200" />
+  </svg>
+)
+
 const ALL_ITEMS: Item[] = [
   { key: 'leitura', imageKey: 'menu_leitura', title: 'Dicas de leitura', tint: 'linear-gradient(135deg,#f3dccf,#e8c3b3)', icon: BookSvg },
   { key: 'respiracao', imageKey: 'menu_respiracao', title: 'Respiração', tint: 'linear-gradient(135deg,#d8e6dc,#bcd3c4)', icon: BreathSvg },
@@ -69,6 +77,7 @@ const ALL_ITEMS: Item[] = [
   { key: 'wellness', imageKey: 'menu_wellness', title: 'Wellness', tint: 'linear-gradient(135deg,#d3e4d6,#b4d0bb)', icon: LeafSvg },
   { key: 'series', imageKey: 'menu_series', title: 'Séries e Filmes', tint: 'linear-gradient(135deg,#e3d6e8,#cdbad6)', icon: FilmSvg },
   { key: 'viagens', imageKey: 'menu_viagens', title: 'Dicas de Viagem', tint: 'linear-gradient(135deg,#d6e4ea,#b9d0da)', icon: PinSvg },
+  { key: 'rachei', imageKey: 'menu_rachei', title: 'Rachei $', tint: 'linear-gradient(135deg,#efe3c9,#dcc590)', icon: SplitSvg },
 ]
 
 /** Foto do card (quando a profissional cadastrou); sem foto, o ícone grande aparece no lugar. */

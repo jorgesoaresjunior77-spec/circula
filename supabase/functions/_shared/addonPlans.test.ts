@@ -96,6 +96,8 @@ describe('cesta de assinaturas', () => {
     expect(sanitizeBundle(['carro', 'financas'])).toEqual(['carro', 'financas'])
     expect(addonPriceCents('carro', 'MONTHLY')).toBe(450)
     expect(addonPriceCents('financas', 'MONTHLY')).toBe(990)
+    expect(addonPriceCents('rachei', 'MONTHLY')).toBe(490)
+    expect(packagesForPlan('rachei')).toEqual(['rachei'])
     expect(packagesForPlan('financas')).toEqual(['financas'])
     expect(sanitizeBundle('nada')).toEqual([])
   })

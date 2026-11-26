@@ -1,4 +1,4 @@
-// Obs.: 'carro' (Carro em Dia, R$ 4,50) e 'financas' (Finanças, R$ 9,90) são avulsos e também fazem parte do Premium.
+// Obs.: 'carro' (Carro em Dia, R$ 4,50), 'financas' (Finanças, R$ 9,90) e 'rachei' (Rachei $, R$ 4,90) são avulsos e também fazem parte do Premium.
 // Catálogo das assinaturas avulsas (revista, receitas, e-books, Help Nutri,
 // respiração, playlist, wellness) e do Círcula Premium. Valores em centavos.
 // ESPELHA src/lib/plansCatalog.ts: o servidor só confia neste arquivo, nunca
@@ -21,6 +21,7 @@ export type AddonPlanKey =
   | 'viagens'
   | 'carro'
   | 'financas'
+  | 'rachei'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -42,6 +43,7 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'viagens',
   'carro',
   'financas',
+  'rachei',
   'premium',
 ]
 
@@ -62,6 +64,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   viagens: 'Dicas de Viagem',
   carro: 'Carro em Dia',
   financas: 'Finanças',
+  rachei: 'Rachei $',
   premium: 'Círcula Premium',
 }
 
@@ -82,6 +85,7 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   viagens: 590,
   carro: 450,
   financas: 990,
+  rachei: 490,
   premium: 5990,
 }
 
@@ -182,6 +186,8 @@ export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bund
       return ['carro']
     case 'financas':
       return ['financas']
+    case 'rachei':
+      return ['rachei']
     case 'premium':
       return ['premium']
     default:

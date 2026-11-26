@@ -209,4 +209,5 @@ export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) =
   viagens: TravelPlanIcon,
   carro: CarPlanIcon,
   financas: MoneyPlanIcon,
+  rachei: MoneyPlanIcon,
 }

@@ -21,6 +21,7 @@ export type PackageKey =
   | 'viagens'
   | 'carro'
   | 'financas'
+  | 'rachei'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -39,6 +40,7 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'viagens',
   'carro',
   'financas',
+  'rachei',
   'premium',
   'total',
 ]
@@ -62,6 +64,7 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   viagens: 'Dicas de Viagem',
   carro: 'Carro em Dia',
   financas: 'Finanças',
+  rachei: 'Rachei $',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -82,7 +85,8 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   series_filmes: 'Pode ver as dicas de séries e filmes.',
   viagens: 'Pode ver as Dicas de Viagem.',
   carro: 'Pode ler as respostas do Carro em Dia e fazer perguntas.',
-  financas: 'Pode usar as Finanças: receitas, gastos, investimentos e divisão de despesas.',
+  financas: 'Pode usar as Finanças: receitas, gastos e investimentos.',
+  rachei: 'Pode usar o Rachei $: calculadora de racha, grupos e cartão para o WhatsApp.',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -159,4 +163,9 @@ export function canUseViagens(owned: Owned): boolean {
 /** Pode usar as Finanças: pacote próprio ou Círcula Premium. */
 export function canUseFinancas(owned: Owned): boolean {
   return has(owned, 'financas') || has(owned, 'premium')
+}
+
+/** Pode usar o Rachei $: pacote próprio ou Círcula Premium. */
+export function canUseRachei(owned: Owned): boolean {
+  return has(owned, 'rachei') || has(owned, 'premium')
 }

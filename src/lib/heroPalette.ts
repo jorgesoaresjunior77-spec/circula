@@ -66,10 +66,8 @@ export function applyHeroPalette(p: HeroPalette) {
   set('grade-r', p.dark[0], p.mid[0], p.light[0])
   set('grade-g', p.dark[1], p.mid[1], p.light[1])
   set('grade-b', p.dark[2], p.mid[2], p.light[2])
-  // O alto da foto recebe um véu claro (mesmos 50% do CSS): a cor de fundo acompanha o que se vê.
-  const veil = [255, 250, 244]
-  const t = p.top.map((c, i) => Math.round(c * 0.5 + veil[i] * 0.5))
-  const rgb = `rgb(${t[0]}, ${t[1]}, ${t[2]})`
+  // O alto da foto começa opaco na cor do fundo do app (o véu do CSS), então o alto da página é essa mesma cor, sem degrau.
+  const rgb = 'rgb(247, 240, 229)'
   document.documentElement.style.setProperty('--hero-top', rgb)
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) {
