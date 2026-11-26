@@ -1,9 +1,12 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
+import { useTrialStatus } from '../hooks/useTrialStatus'
+import { TrialReminder } from './TrialReminder'
+import { trialBannerState } from './HomeTrialBanner'
 import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes, canUseFinancas } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import type { CommunityWithMembers } from '../types/community'
@@ -219,7 +222,18 @@ export function Dashboard({
   // comunidade dela. Sem pacote liberado, o Help Nutri fica bloqueado.
   const packageCommunityId =
     communities.find((c) => c.community_members.some((mb) => mb.profile?.id === profile?.id))?.id ?? null
-  const { packages: myPackages, loading: packagesLoading } = useMyPackages(packageCommunityId, profile?.id ?? null, profile?.role === 'member')
+  const { packages: ownedPackages, loading: ownedLoading } = useMyPackages(packageCommunityId, profile?.id ?? null, profile?.role === 'member')
+  // Regra do cadastro: 21 dias para usar todas as ferramentas. Dentro do teste, vale como Premium.
+  const trial = useTrialStatus(packageCommunityId, profile?.id ?? null, profile?.role === 'member')
+  const myPackages = useMemo(() => {
+    if (!trial.active) return ownedPackages
+    const all = new Set(ownedPackages)
+    all.add('premium')
+    return all
+  }, [trial.active, ownedPackages])
+  const packagesLoading = ownedLoading || trial.loading
+  // Faltando 3 dias (ou menos), o sino avisa e o banner aparece a cada entrada.
+  const trialWarning = trialBannerState(trial.status, trial.trialEndsAt)
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null)
   const [feedRefreshToken, setFeedRefreshToken] = useState(0)
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
@@ -1655,6 +1669,7 @@ export function Dashboard({
               onOpenConversation={openConversationById}
               showBillingStatus={profile.role === 'professional'}
               showContentReminders={profile.role === 'professional'}
+              trialWarning={profile.role === 'member' ? trialWarning : null}
             />
           )}
           <span className="dashboard-user-name">
@@ -1800,6 +1815,21 @@ export function Dashboard({
             effectiveNav !== 'agenda'
           }
           onOpenAgenda={() => handleNavigate('agenda')}
+        />
+      )}
+
+      {/* Fim do período grátis: a cada entrada, depois da frase do dia, quando faltam 3 dias ou menos. */}
+      {profile && profile.role === 'member' && (
+        <TrialReminder
+          warning={trialWarning}
+          ready={
+            inspirationSettled &&
+            !showTour &&
+            !showInstallGuide &&
+            profile.onboarding_completed_at !== null &&
+            effectiveNav !== 'planos'
+          }
+          onGo={() => handleNavigate('planos')}
         />
       )}
 

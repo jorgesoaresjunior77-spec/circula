@@ -832,6 +832,89 @@
   }
 }
 
+/* ---- Aviso do fim do período grátis (banner depois da frase do dia) ---------------- */
+.trial-reminder {
+  position: fixed;
+  right: 12px;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  z-index: 301;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 12px 34px 12px 14px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, #fffaf0, #f6e6c4);
+  box-shadow:
+    0 2px 0 #e6cf9c,
+    0 4px 0 #cfae6a,
+    0 18px 22px -10px rgba(90, 58, 24, 0.5);
+  animation: garden-reminder-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+/* Com o lembrete do Jardim também na tela, o do Jardim sobe e um não cobre o outro. */
+.trial-reminder ~ .garden-reminder {
+  bottom: calc(168px + env(safe-area-inset-bottom, 0px));
+}
+
+.trial-reminder-mark {
+  font-size: 24px;
+  color: #b8893a;
+}
+
+.trial-reminder-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #5a3a18;
+}
+
+.trial-reminder-text strong {
+  font-size: 14px;
+  color: #3d2410;
+}
+
+.trial-reminder-go {
+  flex: 0 0 auto;
+  padding: 9px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: #4a2c14;
+  box-shadow: 0 2px 0 #2b190b;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.trial-reminder-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  color: #5a3a18;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trial-reminder {
+    animation: none;
+  }
+}
+
 .garden-raffle-note {
   margin: -4px 0 14px;
   padding: 9px 14px;

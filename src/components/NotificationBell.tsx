@@ -8,6 +8,7 @@ import type { NavKey } from './PrimaryNav'
 import { NotificationList } from './NotificationList'
 import { NotificationBillingStatus } from './NotificationBillingStatus'
 import { BellIcon } from './icons'
+import { trialWarningTitle, type TrialWarning } from './HomeTrialBanner'
 
 interface NotificationBellProps {
   profileId: string
@@ -18,6 +19,8 @@ interface NotificationBellProps {
   showBillingStatus?: boolean
   /** Só a Professional: avisos de "amanhã é dia de publicar" da agenda de conteúdos. */
   showContentReminders?: boolean
+  /** Só a membro em teste: faltando 3 dias (ou menos) do período grátis, aparece aqui. */
+  trialWarning?: TrialWarning | null
 }
 
 // Destino de navegação por tipo — mapeado só para chaves de navegação
@@ -93,12 +96,26 @@ function scrollToWhenReady(id: string) {
   }, 150)
 }
 
+function trialReadKey(): string {
+  const d = new Date()
+  return `circula:trial-bell-read:${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+}
+
+function trialReadToday(): boolean {
+  try {
+    return localStorage.getItem(trialReadKey()) === '1'
+  } catch {
+    return false
+  }
+}
+
 export function NotificationBell({
   profileId,
   onNavigate,
   onOpenConversation,
   showBillingStatus = false,
   showContentReminders = false,
+  trialWarning = null,
 }: NotificationBellProps) {
   const {
     notifications,
@@ -111,7 +128,10 @@ export function NotificationBell({
   } = useSocialNotifications(profileId)
   const content = useContentReminders(showContentReminders)
   const agenda = useTodayAppointments(profileId)
-  const unreadCount = socialUnread + content.unreadCount + agenda.unreadCount
+  // O aviso do fim do período grátis volta todo dia como não lido enquanto durar.
+  const [trialRead, setTrialRead] = useState(trialReadToday)
+  const trialUnread = trialWarning && !trialRead ? 1 : 0
+  const unreadCount = socialUnread + content.unreadCount + agenda.unreadCount + trialUnread
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -134,6 +154,15 @@ export function NotificationBell({
       document.removeEventListener('keydown', handleKey)
     }
   }, [open, refresh])
+
+  function markTrialRead() {
+    try {
+      localStorage.setItem(trialReadKey(), '1')
+    } catch {
+      /* sem storage: só nesta sessão */
+    }
+    setTrialRead(true)
+  }
 
   async function handleItemClick(notification: SocialNotification) {
     await markRead(notification.id)
@@ -196,12 +225,30 @@ export function NotificationBell({
                   markAllRead()
                   content.reminders.forEach((r) => content.markRead(r.key))
                   agenda.markRead(agenda.appointments.map((a) => a.id))
+                  markTrialRead()
                 }}
               >
                 Marcar todas como lidas
               </button>
             )}
           </div>
+          {trialWarning && (
+            <button
+              type="button"
+              className={`notification-item notification-item--reminder${trialRead ? '' : ' notification-item--unread'}`}
+              onClick={() => {
+                markTrialRead()
+                setOpen(false)
+                onNavigate('planos')
+              }}
+            >
+              <span className="notification-body">
+                <span className="notification-title">{trialWarningTitle(trialWarning)}</span>
+                <span className="notification-text">Toque para ver como continuar no Círcula.</span>
+              </span>
+              {!trialRead && <span className="notification-dot" aria-label="Não lida" />}
+            </button>
+          )}
           {agenda.appointments.map((a) => (
             <button
               key={`agenda-${a.id}`}

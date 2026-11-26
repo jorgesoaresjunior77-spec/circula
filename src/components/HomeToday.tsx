@@ -31,7 +31,6 @@ import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
 import { HomeFooter } from './HomeFooter'
 import { HomeGroupTitle } from './HomeGroupTitle'
-import { HomeTrialBanner } from './HomeTrialBanner'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
 import { HomeMenuWheel } from './HomeMenuWheel'
 import { useCarroHome } from '../lib/carro'
@@ -301,8 +300,6 @@ export function HomeToday({
       )}
 
       {!coverHero && weekCalendar}
-
-      {profile.role === 'member' && <HomeTrialBanner communityId={focusCommunity.id} onOpen={() => onNavigate('planos')} />}
 
       <HomeGroupTitle>Hoje</HomeGroupTitle>
 
