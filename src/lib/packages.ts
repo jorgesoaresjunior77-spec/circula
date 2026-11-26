@@ -20,6 +20,7 @@ export type PackageKey =
   | 'series_filmes'
   | 'viagens'
   | 'carro'
+  | 'financas'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -37,6 +38,7 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'series_filmes',
   'viagens',
   'carro',
+  'financas',
   'premium',
   'total',
 ]
@@ -59,6 +61,7 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   series_filmes: 'Dicas de Séries e Filmes',
   viagens: 'Dicas de Viagem',
   carro: 'Carro em Dia',
+  financas: 'Finanças',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -79,6 +82,7 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   series_filmes: 'Pode ver as dicas de séries e filmes.',
   viagens: 'Pode ver as Dicas de Viagem.',
   carro: 'Pode ler as respostas do Carro em Dia e fazer perguntas.',
+  financas: 'Pode usar as Finanças: receitas, gastos, investimentos e divisão de despesas.',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -150,4 +154,9 @@ export function canUseSeriesFilmes(owned: Owned): boolean {
 /** Pode ver as Dicas de Viagem: pacote próprio ou Círcula Premium. */
 export function canUseViagens(owned: Owned): boolean {
   return has(owned, 'viagens') || has(owned, 'premium')
+}
+
+/** Pode usar as Finanças: pacote próprio ou Círcula Premium. */
+export function canUseFinancas(owned: Owned): boolean {
+  return has(owned, 'financas') || has(owned, 'premium')
 }

@@ -400,7 +400,7 @@ export function CarroPage({ communityId, profileId, onOpenCity }: { communityId:
             ))}
           </ul>
           <p className="car-price">
-            Carro em Dia · <strong>R$ 5,10</strong> por mês
+            Carro em Dia · <strong>R$ 4,50</strong> por mês · também no Círcula Premium
           </p>
           <AddonCheckout planKey={CARRO_PLAN_KEY} communityId={communityId} prices={CARRO_PRICES} owned={false} profileId={profileId} onCheckoutStarted={() => undefined} />
           <button type="button" className="water-link" onClick={() => void reload()}>

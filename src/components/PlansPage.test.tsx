@@ -51,7 +51,8 @@ describe('PlansPage', () => {
     expect(screen.queryByTestId('subscription-panel')).not.toBeInTheDocument()
     expect(screen.getByText(/você não precisa assinar/i)).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Planos e assinaturas' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Círcula Premium', level: 3 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Círcula Premium, / })).toBeInTheDocument()
+    expect(screen.getByText(/Visão da profissional/)).toBeInTheDocument()
   })
 
   it('mostra todos os planos em cartões, incluindo os avulsos novos e o Premium', () => {

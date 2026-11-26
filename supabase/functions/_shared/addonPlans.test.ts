@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ADDON_PLAN_KEYS, applyReferralDiscount, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan, bundlePriceCents, sanitizeBundle } from './addonPlans.ts'
+import { ADDON_PLAN_KEYS, applyReferralDiscount, addonPeriodEnd, addonPriceCents, isAddonPlanKey, isAsaasCycle, packagesForPlan, bundlePriceCents, premiumPricesAt, sanitizeBundle } from './addonPlans.ts'
 import { PREMIUM_PRICES_CENTS, PRODUCTS, pricesOf } from '../../../src/lib/plansCatalog.ts'
 
 // O servidor e o app têm cada um o seu catálogo; este teste garante que os
@@ -13,6 +13,15 @@ describe('addonPlans', () => {
       expect(addonPriceCents(p.key, 'YEARLY')).toBe(app.annual)
     }
     expect(addonPriceCents('premium', 'MONTHLY')).toBe(PREMIUM_PRICES_CENTS.monthly)
+    // Em 2026: R$ 49,90. A partir de 01/01/2027 (Brasília): R$ 59,90.
+    const dentro = new Date('2026-12-31T23:59:00-03:00')
+    const depois = new Date('2027-01-01T00:00:00-03:00')
+    expect(addonPriceCents('premium', 'MONTHLY', null, dentro)).toBe(4990)
+    expect(addonPriceCents('premium', 'SEMIANNUALLY', null, dentro)).toBe(23952)
+    expect(addonPriceCents('premium', 'YEARLY', null, dentro)).toBe(38922)
+    expect(addonPriceCents('premium', 'MONTHLY', null, depois)).toBe(5990)
+    expect(addonPriceCents('premium', 'YEARLY', null, depois)).toBe(46722)
+    expect(premiumPricesAt(dentro).MONTHLY).toBe(4990)
     expect(addonPriceCents('premium', 'SEMIANNUALLY')).toBe(PREMIUM_PRICES_CENTS.semiannual)
     expect(addonPriceCents('premium', 'YEARLY')).toBe(PREMIUM_PRICES_CENTS.annual)
   })
@@ -84,6 +93,10 @@ describe('novos planos', () => {
 describe('cesta de assinaturas', () => {
   it('só conteúdos avulsos válidos, sem repetir e sem o Premium', () => {
     expect(sanitizeBundle(['respiracao', 'respiracao', 'premium', 'xyz', 'playlist'])).toEqual(['respiracao', 'playlist'])
+    expect(sanitizeBundle(['carro', 'financas'])).toEqual(['carro', 'financas'])
+    expect(addonPriceCents('carro', 'MONTHLY')).toBe(450)
+    expect(addonPriceCents('financas', 'MONTHLY')).toBe(990)
+    expect(packagesForPlan('financas')).toEqual(['financas'])
     expect(sanitizeBundle('nada')).toEqual([])
   })
 

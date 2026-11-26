@@ -34,6 +34,8 @@ export type ProductKey =
   | 'exercicios'
   | 'series_filmes'
   | 'viagens'
+  | 'carro'
+  | 'financas'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -87,6 +89,18 @@ export const PRODUCTS: CatalogProduct[] = [
     description: 'Roteiros e dicas de destinos, por estado, cidade e para quem viaja: com o que fazer e o que visitar.',
     monthlyCents: 590,
   },
+  {
+    key: 'carro',
+    name: 'Carro em Dia',
+    description: 'Perguntas e respostas para cuidar do seu carro, com a Livi e profissionais de confiança da sua cidade.',
+    monthlyCents: 450,
+  },
+  {
+    key: 'financas',
+    name: 'Finanças',
+    description: 'Receitas, gastos e investimentos num só lugar, com divisão de despesas entre amigas e lançamento por voz.',
+    monthlyCents: 990,
+  },
 ]
 
 /** Preços editados pelo Master (tabela product_price_overrides): troca o valor mensal em memória. */
@@ -130,15 +144,22 @@ export const PREMIUM_SEPARATE_MONTHLY_CENTS =
   CIRCULA_MONTHLY_CENTS + PRODUCTS.reduce((sum, p) => sum + p.monthlyCents, 0)
 
 /** Círcula Premium: o Círcula e todos os conteúdos juntos, com desconto.
- *  Mensal R$ 59,80 (valor oficial definido pelo usuário em 2026-11-18, já com a
- *  Minha Lista; separado seria R$ 92,70 com Meu Chef e Lista inteligente); semestral 20% e anual 35% de economia
- *  sobre o mensal (regra que já existia, recalculada sobre o novo valor). */
-export const PREMIUM_MONTHLY_CENTS = 5990
-export const PREMIUM_PRICES_CENTS: Record<PlanCycle, number> = {
-  monthly: PREMIUM_MONTHLY_CENTS,
-  semiannual: 28752, // 5990 × 6 × 0,80
-  annual: 46722, // 5990 × 12 × 0,65
+ *  Preço de lançamento: R$ 49,90 por mês para quem assina até 31/12/2026 (horário de Brasília);
+ *  a partir de 01/01/2027, R$ 59,90. Semestral 20% e anual 35% de economia sobre o mensal de cada fase.
+ *  Espelha supabase/functions/_shared/addonPlans.ts (o servidor é quem cobra). */
+export const PREMIUM_PROMO_ENDS_AT = '2027-01-01T00:00:00-03:00'
+export const PREMIUM_PROMO_PRICES_CENTS: Record<PlanCycle, number> = { monthly: 4990, semiannual: 23952, annual: 38922 }
+export const PREMIUM_REGULAR_PRICES_CENTS: Record<PlanCycle, number> = { monthly: 5990, semiannual: 28752, annual: 46722 }
+
+export function isPremiumPromo(now: Date = new Date()): boolean {
+  return now.getTime() < Date.parse(PREMIUM_PROMO_ENDS_AT)
 }
+export function premiumPricesAt(now: Date = new Date()): Record<PlanCycle, number> {
+  return isPremiumPromo(now) ? PREMIUM_PROMO_PRICES_CENTS : PREMIUM_REGULAR_PRICES_CENTS
+}
+/** Preços vigentes hoje. */
+export const PREMIUM_PRICES_CENTS: Record<PlanCycle, number> = premiumPricesAt()
+export const PREMIUM_MONTHLY_CENTS = PREMIUM_PRICES_CENTS.monthly
 
 /** Desconto extra de quem chega por convite de quem tem o Premium (só no plano Premium). Espelha o servidor. */
 export const REFERRAL_DISCOUNT_PERCENT = 10

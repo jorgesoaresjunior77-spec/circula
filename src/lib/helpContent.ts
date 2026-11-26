@@ -793,8 +793,8 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'nv-carro-4',
         q: 'Quanto custa o Carro em Dia? Isso muda o meu plano?',
-        a: 'O Carro em Dia é um conteúdo avulso de R$ 5,10 por mês (com desconto no semestral e no anual), que você libera na própria tela do card. Ele não muda o valor nem o que está incluído no seu plano, e o Círcula Premium não o inclui. Quem não liberou vê só alguns títulos de perguntas.',
-        k: 'carro preço valor 5,10 avulso premium plano',
+        a: 'O Carro em Dia é um serviço avulso de R$ 4,50 por mês, também incluído no Círcula Premium (com desconto no semestral e no anual), que você libera na própria tela do card. Ele não muda o valor do seu plano base. Quem não liberou vê só alguns títulos de perguntas.',
+        k: 'carro preço valor 4,50 avulso premium plano',
       },
       {
         id: 'nv-carro-5',

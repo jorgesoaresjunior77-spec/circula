@@ -168,6 +168,28 @@ export function PremiumPlanIcon(p: Props) {
 
 import type { ProductKey } from '../lib/plansCatalog'
 
+export function CarPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M5 19v-4.5l2.3-5.2A2 2 0 0 1 9.100 8h13.800a2 2 0 0 1 1.800 1.300L27 14.500V19" />
+      <path d="M4 19h24v3.500a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V21H9v1.500a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z" />
+      <path d="M8 14.500h16" />
+      <circle cx="9.500" cy="17.500" r=".8" fill="currentColor" />
+      <circle cx="22.500" cy="17.500" r=".8" fill="currentColor" />
+    </Svg>
+  )
+}
+
+export function MoneyPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <rect x="4" y="8" width="24" height="16" rx="3" />
+      <circle cx="16" cy="16" r="3.800" />
+      <path d="M8 12v.1M24 20v.1" />
+    </Svg>
+  )
+}
+
 export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) => React.ReactElement> = {
   circula: CirculaPlanIcon,
   premium: PremiumPlanIcon,
@@ -185,4 +207,6 @@ export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) =
   exercicios: ExercisePlanIcon,
   series_filmes: SeriesPlanIcon,
   viagens: TravelPlanIcon,
+  carro: CarPlanIcon,
+  financas: MoneyPlanIcon,
 }

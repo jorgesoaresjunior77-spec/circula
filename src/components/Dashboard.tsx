@@ -1,6 +1,6 @@
 import { HelpNutriChat } from './HelpNutriChat'
 import { useMyPackages } from '../hooks/usePackageAccess'
-import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes } from '../lib/packages'
+import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes, canUseFinancas } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
@@ -602,10 +602,15 @@ export function Dashboard({
       const hoje = document.querySelector('.home .home-group-title')
       if (hoje) {
         const h = hoje.getBoundingClientRect().top + window.scrollY - 6
-        if (h > 200) {
-          el.style.height = `${h}px`
-          document.documentElement.style.setProperty('--hero-h', `${h}px`)
-        }
+        if (h > 200) document.documentElement.style.setProperty('--hero-h', `${h}px`)
+      }
+      // A saudação, o clima e o banner descem para baixo do queixo e do símbolo da foto (que tem 1,222 de altura por largura).
+      const cover = host.querySelector<HTMLElement>('.dashboard-community-cover')
+      if (cover) {
+        const W = Math.min(window.innerWidth, 560)
+        cover.style.minHeight = '0px'
+        const coverTop = cover.getBoundingClientRect().top + window.scrollY
+        cover.style.minHeight = `${Math.max(0, W * 0.66 + 140 - coverTop)}px`
       }
     }
     place()
@@ -1258,11 +1263,18 @@ export function Dashboard({
     // Central de Ajuda — perguntas e respostas; a membro pode falar com a
     // nutricionista a partir dela.
     // FINANÇAS — receitas, gastos e investimentos da própria pessoa (RLS: só ela vê).
+    // Avulso de R$ 9,90 (também no Premium). Equipe (profissional e master) usa sem assinar.
     if (effectiveNav === 'financas') {
+      if (profile.role === 'member') {
+        if (packagesLoading) return <p className="home-muted">Carregando…</p>
+        if (!canUseFinancas(myPackages)) {
+          return <PackagePaywall title="Finanças" planName="Finanças (R$ 9,90 por mês)" onOpenPlans={() => handleNavigate('planos')} />
+        }
+      }
       return <FinancasPage />
     }
 
-    // CARRO EM DIA — perguntas e respostas para cuidar do carro (avulso de R$ 5,10; o teaser é aberto a todas).
+    // CARRO EM DIA — perguntas e respostas para cuidar do carro (avulso de R$ 4,50, também no Premium; o teaser é aberto a todas).
     if (effectiveNav === 'carro') {
       return <CarroPage communityId={resolvedCirclesCommunityId ?? myCommunities[0]?.id ?? null} profileId={profile.id} onOpenCity={() => handleNavigate('cidade')} />
     }
@@ -1301,7 +1313,7 @@ export function Dashboard({
     }
 
     if (effectiveNav === 'planos') {
-      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} onOpenCarro={() => handleNavigate('carro')} />
+      return <PlansPage communityId={myCommunities[0]?.id ?? null} viewOnly={profile.role === 'professional'} profileId={profile.id} onOpenCarro={() => handleNavigate('carro')} onOpenFinancas={() => handleNavigate('financas')} />
     }
 
     // Dicas de Leitura / Respiração e Meditação — conteúdo cadastrado pela

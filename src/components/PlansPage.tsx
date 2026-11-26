@@ -6,12 +6,14 @@ import {
   CYCLE_LABEL,
   PREMIUM_MONTHLY_CENTS,
   PREMIUM_PRICES_CENTS,
+  PREMIUM_REGULAR_PRICES_CENTS,
   PREMIUM_SEPARATE_MONTHLY_CENTS,
   PRODUCTS,
   REFERRAL_DISCOUNT_PERCENT,
   applyReferralDiscount,
   cycleBreakdown,
   formatBrl,
+  isPremiumPromo,
   pricesOf,
 } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
@@ -37,8 +39,14 @@ const BUYABLE: PlanKey[] = [...PRODUCTS.map((p) => p.key), 'premium']
 
 const CYCLES: PlanCycle[] = ['monthly', 'semiannual', 'annual']
 
-/** Ordem dos conteúdos avulsos na página. */
-const ORDER = ['magazine', 'ebooks', 'receitas', 'meu_chef', 'minha_lista', 'help_nutri', 'respiracao', 'playlist', 'wellness', 'leitura', 'lista_inteligente', 'exercicios', 'series_filmes', 'viagens'] as const
+/** Produtos avulsos organizados por assunto. A ordem aqui é a ordem na página e na lista do Premium. */
+const GROUPS = [
+  { title: 'Serviços', keys: ['carro', 'financas', 'help_nutri'] },
+  { title: 'Conteúdos', keys: ['magazine', 'ebooks', 'receitas', 'leitura', 'series_filmes', 'viagens'] },
+  { title: 'Bem-estar', keys: ['respiracao', 'playlist', 'wellness', 'exercicios'] },
+  { title: 'Cozinha e compras', keys: ['meu_chef', 'minha_lista', 'lista_inteligente'] },
+] as const
+const ORDER = GROUPS.flatMap((g) => g.keys)
 const API_CYCLE: Record<string, PlanCycle> = {
   MONTHLY: 'monthly',
   SEMIANNUALLY: 'semiannual',
@@ -170,10 +178,13 @@ export function PlansPage({
   viewOnly = false,
   profileId = null,
   onOpenCarro,
+  onOpenFinancas,
 }: {
   communityId: string | null
-  /** Abre o Carro em Dia (avulso à parte, de R$ 5,10; o Premium não o inclui). */
+  /** Abre o Carro em Dia (avulso de R$ 4,50, também no Premium). */
   onOpenCarro?: () => void
+  /** Abre as Finanças (avulso de R$ 9,90, também no Premium). */
+  onOpenFinancas?: () => void
   /** A profissional vê a página como a membro vê, mas não assina (ela é a
    *  responsável pela comunidade e hoje é isenta de pagamento). */
   viewOnly?: boolean
@@ -266,24 +277,67 @@ export function PlansPage({
 
       {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
 
-      <button type="button" className="plans-wide plans-wide--circula" onClick={() => setOpen('circula')} aria-label={`Círcula, ${formatBrl(circulaPrices.monthly)} por mês`}>
-        <span className="plans-wide-icon">
-          <PLAN_ICONS.circula />
-        </span>
-        <span className="plans-wide-body">
-          <strong>Círcula</strong>
-          <span>Comunidade, círculos e eventos, mais Finanças, Água, IMC, Calculadora, Agenda e Minha cidade.</span>
-        </span>
-        <span className="plans-wide-price">
-          {formatBrl(circulaPrices.monthly)}
-          <small>por mês</small>
-        </span>
-      </button>
+      <section className="plans-checkout" aria-label="Como assinar">
+        <h3 className="plans-heading">Escolha como assinar</h3>
+        <div className="plans-options">
+          <button type="button" className="plans-option" onClick={() => setOpen('circula')} aria-label={`Círcula, ${formatBrl(circulaPrices.monthly)} por mês`}>
+            <span className="plans-option-step">1 · A base</span>
+            <span className="plans-option-icon">
+              <PLAN_ICONS.circula />
+            </span>
+            <strong>Círcula</strong>
+            <span className="plans-option-price">
+              {formatBrl(circulaPrices.monthly)}
+              <small>por mês</small>
+            </span>
+            <span className="plans-option-text">Comunidade, círculos, eventos e as ferramentas do dia a dia.</span>
+          </button>
+
+          <button
+            type="button"
+            className={`plans-option plans-option--premium${!viewOnly && packages.has('premium') ? ' plans-option--owned' : ''}`}
+            onClick={() => setOpen('premium')}
+            aria-label={`Círcula Premium, ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês`}
+          >
+            <span className="plans-option-step">2 · Tudo liberado</span>
+            <span className="plans-option-icon">
+              <PLAN_ICONS.premium />
+            </span>
+            <strong>Círcula Premium</strong>
+            <span className="plans-option-price">
+              {formatBrl(PREMIUM_MONTHLY_CENTS)}
+              <small>por mês · {premiumOff}% off</small>
+            </span>
+            <span className="plans-option-text">O Círcula e todos os conteúdos e serviços, juntos e com desconto.</span>
+            {!viewOnly && packages.has('premium') && <span className="plans-wide-owned">Assinado</span>}
+          </button>
+
+          {!viewOnly && !packages.has('premium') && (
+            <button type="button" className="plans-option" onClick={() => setOpen('cesta')}>
+              <span className="plans-option-step">3 · Do seu jeito</span>
+              <span className="plans-option-icon">
+                <PLAN_ICONS.ebooks />
+              </span>
+              <strong>Montar minha cesta</strong>
+              <span className="plans-option-price">
+                {formatBrl(circulaPrices.monthly)} +<small>os avulsos que quiser</small>
+              </span>
+              <span className="plans-option-text">Assine o Círcula e escolha quantos produtos avulsos quiser. Coloque no carrinho e é só pagar.</span>
+            </button>
+          )}
+        </div>
+        {isPremiumPromo() && (
+          <p className="plans-promo" role="note">
+            <strong>Preço de lançamento:</strong> o Premium custa {formatBrl(PREMIUM_PRICES_CENTS.monthly)} por mês para quem assinar até 31/12/2026. A partir de 01/01/2027, passa a {formatBrl(PREMIUM_REGULAR_PRICES_CENTS.monthly)}.
+          </p>
+        )}
+      </section>
+
+      {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
 
       <article className="plans-base" aria-label="Já incluído no Círcula">
         <h4>Já está no seu Círcula</h4>
         <ul>
-          <li>Finanças e Dividir</li>
           <li>Água e IMC</li>
           <li>Calculadora</li>
           <li>Agenda</li>
@@ -293,61 +347,25 @@ export function PlansPage({
         <p>Tudo isso vem com a assinatura do Círcula, sem custo extra.</p>
       </article>
 
-      <h3 className="plans-heading">Conteúdos avulsos</h3>
-      <p className="plans-note">Escolha só o que você quer. Pagando por 6 ou 12 meses, o valor total é menor, e o plano anual é a melhor escolha.</p>
-      <div className="plans-grid">
-        {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
-          <PlanTile
-            key={p.key}
-            planKey={p.key}
-            name={p.name}
-            monthly={p.monthlyCents}
-            state={!viewOnly && packages.has(p.key as never) ? 'own' : !viewOnly && packages.has('premium') ? 'premium' : null}
-            onOpen={() => setOpen(p.key)}
-          />
-        ))}
-      </div>
-
-      {!viewOnly && onOpenCarro && (
-        <button type="button" className="plans-wide plans-wide--cart" onClick={onOpenCarro} aria-label="Carro em Dia, R$ 5,10 por mês">
-          <span className="plans-wide-body">
-            <strong>Carro em Dia</strong>
-            <span>Perguntas e respostas para cuidar do seu carro. Avulso à parte, não faz parte do Premium.</span>
-          </span>
-          <span className="plans-wide-price">
-            R$ 5,10
-            <small>por mês</small>
-          </span>
-        </button>
-      )}
-
-      {!viewOnly && !packages.has('premium') && (
-        <button type="button" className="plans-wide plans-wide--cart" onClick={() => setOpen('cesta')}>
-          <span className="plans-wide-body">
-            <strong>Montar minha cesta</strong>
-            <span>Escolha vários conteúdos e assine todos juntos, numa cobrança só.</span>
-          </span>
-          <span className="plans-wide-price">
-            <small>assinar junto</small>
-          </span>
-        </button>
-      )}
-
-      <h3 className="plans-heading">Círcula Premium</h3>
-      <button type="button" className={`plans-wide plans-wide--premium${!viewOnly && packages.has('premium') ? ' plans-wide--owned' : ''}`} onClick={() => setOpen('premium')} aria-label={`Círcula Premium, ${formatBrl(PREMIUM_MONTHLY_CENTS)} por mês`}>
-        <span className="plans-wide-icon">
-          <PLAN_ICONS.premium />
-        </span>
-        <span className="plans-wide-body">
-          <strong>Círcula Premium</strong>
-          <span>Tudo do Círcula e de todos os conteúdos, juntos e com desconto.</span>
-        </span>
-        <span className="plans-wide-price">
-          {formatBrl(PREMIUM_MONTHLY_CENTS)}
-          <small>por mês · {premiumOff}% off</small>
-        </span>
-        {!viewOnly && packages.has('premium') && <span className="plans-wide-owned">Assinado</span>}
-      </button>
+      <h3 className="plans-heading">Produtos avulsos</h3>
+      <p className="plans-note">Escolha só o que você quer. Pagando por 6 ou 12 meses, o valor total é menor, e o plano anual é a melhor escolha. Todos fazem parte do Premium.</p>
+      {GROUPS.map((g) => (
+        <div key={g.title} className="plans-group">
+          <h4 className="plans-group-title">{g.title}</h4>
+          <div className="plans-grid">
+            {g.keys.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
+              <PlanTile
+                key={p.key}
+                planKey={p.key}
+                name={p.name}
+                monthly={p.monthlyCents}
+                state={!viewOnly && packages.has(p.key as never) ? 'own' : !viewOnly && packages.has('premium') ? 'premium' : null}
+                onOpen={() => setOpen(p.key)}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
 
       <article className="plans-included">
         <h4>O que você leva no Premium</h4>
@@ -420,6 +438,11 @@ export function PlansPage({
                   O Círcula mais todos os conteúdos, tudo junto e com desconto: {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)?.name).filter(Boolean).join(', ')}. Separado, o mensal sairia{' '}
                   {formatBrl(PREMIUM_SEPARATE_MONTHLY_CENTS)}.
                 </p>
+                {isPremiumPromo() && (
+                  <p className="plans-text">
+                    <strong>Preço de lançamento:</strong> {formatBrl(PREMIUM_PRICES_CENTS.monthly)} por mês para quem assinar até 31/12/2026. A partir de 01/01/2027, o Premium passa a {formatBrl(PREMIUM_REGULAR_PRICES_CENTS.monthly)} por mês.
+                  </p>
+                )}
                 {referralDiscount && (
                   <p className="plans-text">
                     <strong>Você chegou por convite de quem tem o Premium:</strong> ganhou mais {REFERRAL_DISCOUNT_PERCENT}% de desconto no Premium, já aplicado nos valores abaixo.
@@ -468,6 +491,19 @@ export function PlansPage({
                 ) : BUYABLE.includes(product.key) ? (
                   <p className="home-muted">Esta é a página que a membro vê. Você não precisa assinar.</p>
                 ) : null}
+                {(product.key === 'carro' || product.key === 'financas') && !viewOnly && (packages.has(product.key as never) || packages.has('premium')) && (
+                  <button
+                    type="button"
+                    className="water-primary"
+                    onClick={() => {
+                      setOpen(null)
+                      if (product.key === 'carro') onOpenCarro?.()
+                      else onOpenFinancas?.()
+                    }}
+                  >
+                    Abrir {product.name}
+                  </button>
+                )}
                 {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
               </>
             )}

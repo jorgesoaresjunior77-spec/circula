@@ -31,10 +31,8 @@ import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
 import { HomeFooter } from './HomeFooter'
 import { HomeGroupTitle } from './HomeGroupTitle'
-import { HomePlansNotice } from './HomePlansNotice'
 import { HomeTrialBanner } from './HomeTrialBanner'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
-import { useMyPackages } from '../hooks/usePackageAccess'
 import { HomeMenuWheel } from './HomeMenuWheel'
 import { useCarroHome } from '../lib/carro'
 
@@ -141,9 +139,6 @@ export function HomeToday({
   const { blocked: accessBlocked } = useCommunityAccessBlocked(profile, communityId)
 
   const { circles } = useCircles(communityId)
-  // Aviso de Planos perto do topo: só para participante que ainda não tem o Premium.
-  const { packages: ownedPackages, loading: packagesLoading } = useMyPackages(communityId, profile.id, profile.role === 'member')
-  const showPlansNotice = profile.role === 'member' && !packagesLoading && !ownedPackages.has('premium')
 
   const { items: contentItems } = useContent(communityId)
   const { issues: magazineIssues } = useMagazines(communityId)
@@ -308,7 +303,6 @@ export function HomeToday({
       {!coverHero && weekCalendar}
 
       {profile.role === 'member' && <HomeTrialBanner communityId={focusCommunity.id} onOpen={() => onNavigate('planos')} />}
-      {showPlansNotice && <HomePlansNotice onOpen={() => onNavigate('planos')} />}
 
       <HomeGroupTitle>Hoje</HomeGroupTitle>
 
@@ -432,6 +426,8 @@ export function HomeToday({
           onOpen={() => onNavigate('diario')}
         />
       </div>
+
+      <hr className="home-section-divider" />
 
       <HomePlansCard image={planosCover} onOpen={() => onNavigate('planos')} />
 

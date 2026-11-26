@@ -1,4 +1,4 @@
-// Obs.: o 'carro' (Carro em Dia) é avulso à parte: o Premium NÃO o inclui e ele não entra na cesta.
+// Obs.: 'carro' (Carro em Dia, R$ 4,50) e 'financas' (Finanças, R$ 9,90) são avulsos e também fazem parte do Premium.
 // Catálogo das assinaturas avulsas (revista, receitas, e-books, Help Nutri,
 // respiração, playlist, wellness) e do Círcula Premium. Valores em centavos.
 // ESPELHA src/lib/plansCatalog.ts: o servidor só confia neste arquivo, nunca
@@ -20,6 +20,7 @@ export type AddonPlanKey =
   | 'series_filmes'
   | 'viagens'
   | 'carro'
+  | 'financas'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -40,6 +41,7 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'series_filmes',
   'viagens',
   'carro',
+  'financas',
   'premium',
 ]
 
@@ -59,6 +61,7 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   series_filmes: 'Dicas de Séries e Filmes',
   viagens: 'Dicas de Viagem',
   carro: 'Carro em Dia',
+  financas: 'Finanças',
   premium: 'Círcula Premium',
 }
 
@@ -77,13 +80,20 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   exercicios: 790,
   series_filmes: 590,
   viagens: 590,
-  carro: 510,
+  carro: 450,
+  financas: 990,
   premium: 5990,
 }
 
-// Preços fechados que já existiam no catálogo do app.
-const CLOSED: Partial<Record<AddonPlanKey, Record<AsaasCycle, number>>> = {
-  premium: { MONTHLY: 5990, SEMIANNUALLY: 28752, YEARLY: 46722 },
+// Círcula Premium: R$ 49,90 por mês para quem assina até 31/12/2026 (horário de Brasília); a partir de 01/01/2027, R$ 59,90.
+// Semestral e anual mantêm 20% e 35% de desconto sobre o mensal de cada fase.
+export const PREMIUM_PROMO_ENDS_AT = '2027-01-01T00:00:00-03:00'
+const PREMIUM_PROMO: Record<AsaasCycle, number> = { MONTHLY: 4990, SEMIANNUALLY: 23952, YEARLY: 38922 } // 4990 × 6 × 0,80 e × 12 × 0,65
+const PREMIUM_REGULAR: Record<AsaasCycle, number> = { MONTHLY: 5990, SEMIANNUALLY: 28752, YEARLY: 46722 }
+
+/** Preços do Premium vigentes na data da assinatura. */
+export function premiumPricesAt(now: Date = new Date()): Record<AsaasCycle, number> {
+  return now.getTime() < Date.parse(PREMIUM_PROMO_ENDS_AT) ? PREMIUM_PROMO : PREMIUM_REGULAR
 }
 const NINETY_NINETY: Record<AsaasCycle, number> = { MONTHLY: 990, SEMIANNUALLY: 4980, YEARLY: 7970 }
 
@@ -108,9 +118,8 @@ export function isAsaasCycle(v: unknown): v is AsaasCycle {
 
 /** Preço em centavos do plano no ciclo pedido. */
 /** `overrideMonthly`: valor mensal editado pelo Master (tabela product_price_overrides), se houver. */
-export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle, overrideMonthly?: number | null): number {
-  const closed = CLOSED[key]
-  if (closed) return closed[cycle]
+export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle, overrideMonthly?: number | null, now: Date = new Date()): number {
+  if (key === 'premium') return premiumPricesAt(now)[cycle]
   const monthly = overrideMonthly && overrideMonthly >= 100 ? overrideMonthly : MONTHLY[key]
   if (monthly === 990) return NINETY_NINETY[cycle]
   if (cycle === 'MONTHLY') return monthly
@@ -121,12 +130,12 @@ export function addonPriceCents(key: AddonPlanKey, cycle: AsaasCycle, overrideMo
  *  Os conteúdos da cesta ficam em addon_subscriptions.bundle_keys. */
 export const BUNDLE_PLAN_KEY = 'cesta'
 
-/** Limpa a lista de conteúdos da cesta: só avulsos válidos (nunca o Premium), sem repetir. */
+/** Limpa a lista de conteúdos da cesta: só avulsos válidos (nunca o Premium, que é um plano à parte), sem repetir. */
 export function sanitizeBundle(keys: unknown): AddonPlanKey[] {
   if (!Array.isArray(keys)) return []
   const out: AddonPlanKey[] = []
   for (const k of keys) {
-    if (isAddonPlanKey(k) && k !== 'premium' && k !== 'carro' && !out.includes(k)) out.push(k)
+    if (isAddonPlanKey(k) && k !== 'premium' && !out.includes(k)) out.push(k)
   }
   return out
 }
@@ -171,6 +180,8 @@ export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bund
       return ['viagens']
     case 'carro':
       return ['carro']
+    case 'financas':
+      return ['financas']
     case 'premium':
       return ['premium']
     default:

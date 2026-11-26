@@ -3,10 +3,10 @@ import { supabase } from './supabase'
 import { productPrices } from './plansCatalog'
 
 // Carro em Dia: perguntas e respostas para ajudar mulheres a cuidar dos seus carros.
-// É um avulso à parte (R$ 5,10): o plano e o Premium não mudam e o Premium não o inclui.
+// Avulso de R$ 4,50 por mês, também incluído no Círcula Premium.
 
 export const CARRO_PLAN_KEY = 'carro'
-export const CARRO_MONTHLY_CENTS = 510
+export const CARRO_MONTHLY_CENTS = 450
 export const CARRO_PRICES = productPrices(CARRO_MONTHLY_CENTS)
 
 export interface CarroSettings {

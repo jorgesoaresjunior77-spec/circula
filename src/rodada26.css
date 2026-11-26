@@ -1244,3 +1244,203 @@ html:has(.dashboard--hero) {
   font-size: 13px;
   color: #6b5446;
 }
+
+/* ==========================================================================
+   Rodada 26/11 (4): topo refeito a partir da foto real (941 x 1150: rosto à direita, símbolo à esquerda)
+   ========================================================================== */
+/* sino mais 10% */
+.dashboard-header .notification-bell-button {
+  width: 45px !important;
+  height: 45px !important;
+}
+.dashboard-header .notification-bell-icon {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+/* fundo da página: o alto segue a cor do alto da foto e o resto é bege claro (nunca escuro).
+   Antes só a cor de fundo era trocada e, passando de 1600 px de rolagem, aparecia um marrom abrupto. */
+html:has(.dashboard--hero) {
+  background-color: #f6efe4;
+  background-image: linear-gradient(180deg, var(--hero-top, rgb(204, 185, 175)) 0, var(--hero-top, rgb(204, 185, 175)) 90px, #f6efe4 720px);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+/* barra de status do celular: a mesma cor do alto da foto */
+.dashboard--hero {
+  position: relative;
+}
+.dashboard--hero::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--hero-top, rgb(204, 185, 175));
+  pointer-events: none;
+}
+
+/* a foto no tamanho natural, sem zoom e sem cortar o símbolo; some em degradê embaixo; fundo do alto mais claro */
+.hero-bg {
+  height: auto !important;
+}
+.hero-bg img {
+  width: 100%;
+  height: auto;
+  object-fit: initial;
+}
+.hero-bg::after {
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.5) 0%, rgba(255, 250, 244, 0.28) 24%, rgba(255, 250, 244, 0) 48%);
+}
+
+/* saudação e clima à esquerda e banner à direita, embaixo do queixo e do símbolo */
+.dashboard--hero .dashboard-community-cover {
+  align-items: end;
+  padding-bottom: 6px;
+}
+
+/* banner: sem foto, escrita no canto direito, vidro transparente */
+.home-community-header--hero .home-community-owner-avatar {
+  display: none !important;
+}
+.home-community-header--hero .home-community-glass {
+  padding: 8px 14px 8px 22px;
+  text-align: right;
+}
+.home-community-header--hero .home-community-meta,
+.home-community-header--hero .home-community-owner {
+  justify-content: flex-end;
+  text-align: right;
+}
+.home-community-header--hero .home-community-glass::before {
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.09) 60%, rgba(255, 255, 255, 0) 100%);
+  -webkit-backdrop-filter: blur(9px) saturate(1.7);
+  backdrop-filter: blur(9px) saturate(1.7);
+}
+/* clima: vidro transparente */
+.dashboard--hero .home-greeting .weather-button {
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.05) 52%, rgba(255, 255, 255, 0.15) 100%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.8) !important;
+  backdrop-filter: blur(10px) saturate(1.8) !important;
+}
+
+/* calendário: sem sombra, 5% maior, mais alto; a linha de baixo e tudo que vem depois sobem junto */
+.home-time .home-week .home-week-open::after,
+.home-time .home-week .home-week-open::before {
+  display: none !important;
+}
+.home-time .home-week,
+.home-time .home-week * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+.home-time {
+  padding-block: 4px 0;
+  margin-top: -10px !important;
+  margin-bottom: -22px !important;
+}
+.home-time > .home-week {
+  scale: 1.1;
+}
+
+/* ---- Assinaturas: três jeitos de assinar, avulsos por assunto ---- */
+.plans-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.plans-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'step step step' 'icon name price' 'text text text';
+  align-items: center;
+  gap: 4px 12px;
+  padding: 14px 16px 16px;
+  text-align: left;
+  border: 1.5px solid rgba(162, 117, 63, 0.45);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffaf2 0%, #f4e6d2 100%);
+  color: #4a2f22;
+  box-shadow: 0 0 0 3px rgba(243, 232, 219, 0.7), 0 12px 20px -14px rgba(74, 47, 34, 0.55);
+  cursor: pointer;
+}
+.plans-option-step {
+  grid-area: step;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a2753f;
+}
+.plans-option-icon {
+  grid-area: icon;
+  display: inline-flex;
+  color: #8a5f2f;
+}
+.plans-option strong {
+  grid-area: name;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+}
+.plans-option-price {
+  grid-area: price;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.plans-option-price small {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.plans-option-text {
+  grid-area: text;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #6b5446;
+}
+.plans-option--premium {
+  border-color: #a2753f;
+  background: linear-gradient(135deg, #5a3a2b 0%, #3d261b 100%);
+  color: #fbf3e8;
+}
+.plans-option--premium .plans-option-step,
+.plans-option--premium .plans-option-icon,
+.plans-option--premium .plans-option-price {
+  color: #f6dca4;
+}
+.plans-option--premium .plans-option-text {
+  color: rgba(251, 243, 232, 0.85);
+}
+.plans-promo {
+  margin: 4px 0 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(162, 117, 63, 0.5);
+  background: rgba(246, 220, 164, 0.3);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #5a3a1c;
+}
+.plans-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.plans-group-title {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: #4a2f22;
+}

@@ -6,6 +6,8 @@ import {
   PRODUCTS,
   PRODUCT_PRICES_CENTS,
   formatBrl,
+  isPremiumPromo,
+  premiumPricesAt,
   pricesOf,
   savingsPercent,
 } from './plansCatalog'
@@ -23,15 +25,21 @@ describe('plansCatalog', () => {
     expect(by.exercicios).toBe(790)
     expect(by.series_filmes).toBe(590)
     expect(by.viagens).toBe(590)
+    expect(by.carro).toBe(450)
+    expect(by.financas).toBe(990)
   })
   it('o Premium sai mais barato que a soma de tudo separado', () => {
-    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(11650)
+    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(13090)
     expect(PREMIUM_MONTHLY_CENTS).toBeLessThan(PREMIUM_SEPARATE_MONTHLY_CENTS)
   })
-  it('Premium: R$ 59,90, e semestral/anual mantêm 20% e 35% sobre o novo valor', () => {
-    expect(PREMIUM_MONTHLY_CENTS).toBe(5990)
-    expect(PREMIUM_PRICES_CENTS.semiannual).toBe(Math.round(5990 * 6 * 0.8))
-    expect(PREMIUM_PRICES_CENTS.annual).toBe(Math.round(5990 * 12 * 0.65))
+  it('Premium: R$ 49,90 até 31/12/2026 e R$ 59,90 depois, com 20% e 35% no semestral e no anual', () => {
+    const dentro = new Date('2026-12-31T23:59:00-03:00')
+    const depois = new Date('2027-01-01T00:00:00-03:00')
+    expect(isPremiumPromo(dentro)).toBe(true)
+    expect(isPremiumPromo(depois)).toBe(false)
+    expect(premiumPricesAt(dentro)).toEqual({ monthly: 4990, semiannual: Math.round(4990 * 6 * 0.8), annual: Math.round(4990 * 12 * 0.65) })
+    expect(premiumPricesAt(depois)).toEqual({ monthly: 5990, semiannual: Math.round(5990 * 6 * 0.8), annual: Math.round(5990 * 12 * 0.65) })
+    expect(PREMIUM_MONTHLY_CENTS).toBe(premiumPricesAt().monthly)
   })
   it('calcula a economia frente ao mensal', () => {
     expect(savingsPercent('semiannual', PRODUCT_PRICES_CENTS.semiannual, 990)).toBe(16)

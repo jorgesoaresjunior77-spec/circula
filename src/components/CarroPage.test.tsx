@@ -28,7 +28,7 @@ describe('CarroPage', () => {
     acesso = false
     render(<CarroPage communityId="com1" profileId="p1" onOpenCity={() => undefined} />)
     expect(await screen.findByText('Como saber se o pneu está careca?')).toBeInTheDocument()
-    expect(screen.getByText('R$ 5,10')).toBeInTheDocument()
+    expect(screen.getByText('R$ 4,50')).toBeInTheDocument()
     expect(screen.getByText('checkout do avulso')).toBeInTheDocument()
     expect(rpc).not.toHaveBeenCalledWith('car_list')
   })
