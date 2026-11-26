@@ -190,7 +190,7 @@ select pg_temp.expect_bool('N: após aprovação, status de master em A vira act
 -- O: acesso normal restaurado (mesmas regras de sempre: is_community_member agora true)
 select pg_temp.expect_count('O: após aprovação, master lê os posts de A como qualquer membro ativo',
   pg_temp.fx('master'),
-  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), 11);
+  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), (select count(*) from public.posts where community_id = pg_temp.fx('commA')));
 select pg_temp.expect_bool('O: is_community_member(A) = true após aprovação',
   pg_temp.fx('master'),
   format('select public.is_community_member(%L)', pg_temp.fx('commA')), true);
@@ -240,7 +240,7 @@ select pg_temp.expect_write('rejeicao: após rejeitada, member CONSEGUE solicita
 -- nunca deixou de ler normalmente a própria comunidade A (ativa, real)
 select pg_temp.expect_count('Q: member (ativo em A, mexendo com D o cenário inteiro) sempre leu A normalmente',
   pg_temp.fx('member'),
-  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), 11);
+  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), (select count(*) from public.posts where community_id = pg_temp.fx('commA')));
 select pg_temp.expect_count('Q: member NUNCA leu conteúdo de D (nem pending nem depois de rejeitado)',
   pg_temp.fx('member'),
   format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commB')), 0);

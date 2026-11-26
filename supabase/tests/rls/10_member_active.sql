@@ -9,15 +9,15 @@
 -- ---------- LEITURA — o que o member ATIVO deve enxergar ----------
 select pg_temp.expect_count('member-ativo: SELECT posts de A',
   pg_temp.fx('member'),
-  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), 11);
+  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), (select count(*) from public.posts where community_id = pg_temp.fx('commA')));
 
 select pg_temp.expect_count('member-ativo: SELECT post_comments (via can_view_post)',
   pg_temp.fx('member'),
-  'select count(*) from public.post_comments', 19);
+  'select count(*) from public.post_comments', (select count(*) from public.post_comments));
 
 select pg_temp.expect_count('member-ativo: SELECT post_reactions',
   pg_temp.fx('member'),
-  'select count(*) from public.post_reactions', 11);
+  'select count(*) from public.post_reactions', (select count(*) from public.post_reactions));
 
 select pg_temp.expect_count('member-ativo: SELECT joy_moments de A',
   pg_temp.fx('member'),

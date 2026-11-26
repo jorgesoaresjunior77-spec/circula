@@ -18,6 +18,10 @@ insert into public.recipe_pages (content_id, community_id, position, image_path)
   ('dddddddd-0000-4000-8000-0000000000d1', pg_temp.fx('commA'), 1, 'rls-suite/pub-1.png'),
   ('dddddddd-0000-4000-8000-0000000000d2', pg_temp.fx('commA'), 0, 'rls-suite/rasc-0.png');
 
+-- A política agora exige o pacote 'receitas' (ou 'premium') para a membro ler as páginas: concede só dentro desta transação.
+insert into public.member_package_access (community_id, profile_id, package) values (pg_temp.fx('commA'), pg_temp.fx('member'), 'receitas')
+  on conflict do nothing;
+
 -- Comunidade B sintética (dono = master) com uma receita publicada, para
 -- provar que a dona de A não escreve nem lê nada de B.
 insert into public.communities (id, owner_id, name, slug, is_discoverable)
@@ -31,11 +35,11 @@ values ('dddddddd-0000-4000-8000-0000000000d3', pg_temp.fx('commB'), 0, 'rls-sui
 select pg_temp.expect_locked('recipe_pages: anon NÃO lê', null,
   'select count(*) from public.recipe_pages');
 select pg_temp.expect_count('recipe_pages: member ativo lê só as da receita PUBLICADA (2)', pg_temp.fx('member'),
-  format('select count(*) from public.recipe_pages where community_id = %L', pg_temp.fx('commA')), 2);
+  format($q$select count(*) from public.recipe_pages where community_id = %L and image_path like 'rls-suite/%%'$q$, pg_temp.fx('commA')), 2);
 select pg_temp.expect_count('recipe_pages: dona lê publicada e rascunho (3)', pg_temp.fx('prof'),
-  format('select count(*) from public.recipe_pages where community_id = %L', pg_temp.fx('commA')), 3);
+  format($q$select count(*) from public.recipe_pages where community_id = %L and image_path like 'rls-suite/%%'$q$, pg_temp.fx('commA')), 3);
 select pg_temp.expect_count('recipe_pages: master lê publicada e rascunho (3)', pg_temp.fx('master'),
-  format('select count(*) from public.recipe_pages where community_id = %L', pg_temp.fx('commA')), 3);
+  format($q$select count(*) from public.recipe_pages where community_id = %L and image_path like 'rls-suite/%%'$q$, pg_temp.fx('commA')), 3);
 
 -- ---------- ISOLAMENTO ENTRE COMUNIDADES -------------------------------
 select pg_temp.expect_count('recipe_pages: member de A NÃO lê páginas de B (0)', pg_temp.fx('member'),

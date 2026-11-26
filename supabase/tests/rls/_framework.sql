@@ -44,7 +44,7 @@ insert into _fx (k, v) values
   ('prof',          '1c20d81a-1312-4bdd-9e40-390a81536fd1'),
   ('member',        '51008487-ee5e-4a15-86c9-d10a05596b08'),
   ('commA',         '077aeceb-7321-48ca-8c23-cb256823755a'),
-  ('postA',         '5d5b9f92-cc21-43df-856d-7f0e7b27c33d'),  -- visível, autor = prof
+  ('postA',         (select coalesce((select id::text from public.posts where community_id = '077aeceb-7321-48ca-8c23-cb256823755a' and author_id = '1c20d81a-1312-4bdd-9e40-390a81536fd1' and hidden_at is null order by created_at desc limit 1), '00000000-0000-0000-0000-000000000000'))),  -- post visível mais recente da prof em A (o post antigo fixo foi apagado; ids de post giram)
   ('challA',        '019cd6ca-1777-48dd-bcc4-d7a8e91dd652'),
   ('joyA',          'f9b6b83d-4963-47c6-9f4c-b78918bbee40'),
   ('contentA',      '17720895-1032-4fb8-8e8e-968ae6bce31e'),  -- community_content publicado

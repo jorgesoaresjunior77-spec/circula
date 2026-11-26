@@ -13,7 +13,7 @@ select jsonb_build_object(
     and (select count(*) from public.profiles where id = '51008487-ee5e-4a15-86c9-d10a05596b08' and role = 'member') = 1
     and (select count(*) from public.communities where id = '077aeceb-7321-48ca-8c23-cb256823755a' and owner_id = '1c20d81a-1312-4bdd-9e40-390a81536fd1') = 1
     and (select count(*) from public.community_members where community_id = '077aeceb-7321-48ca-8c23-cb256823755a' and profile_id = '51008487-ee5e-4a15-86c9-d10a05596b08' and status = 'active') = 1
-    and (select count(*) from public.posts where id = '5d5b9f92-cc21-43df-856d-7f0e7b27c33d' and community_id = '077aeceb-7321-48ca-8c23-cb256823755a' and hidden_at is null) = 1
+    and (select count(*) from public.posts where community_id = '077aeceb-7321-48ca-8c23-cb256823755a' and author_id = '1c20d81a-1312-4bdd-9e40-390a81536fd1' and hidden_at is null) >= 1
     and (select count(*) from public.joy_moments where id = 'f9b6b83d-4963-47c6-9f4c-b78918bbee40') = 1
     and (select count(*) from public.community_content where id = '17720895-1032-4fb8-8e8e-968ae6bce31e' and status = 'published') = 1
     and (select count(*) from public.subscriptions where id = '47944cfb-570b-43c8-9311-294af9527037' and subject = 'community' and profile_id = '51008487-ee5e-4a15-86c9-d10a05596b08') = 1

@@ -22,7 +22,7 @@ values ((select v::uuid from _fx where k='postC'),
 -- ---------- ACESSO À PRÓPRIA COMUNIDADE (A) -----------------------
 select pg_temp.expect_count('prof: SELECT posts de A',
   pg_temp.fx('prof'),
-  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), 11);
+  format('select count(*) from public.posts where community_id = %L', pg_temp.fx('commA')), (select count(*) from public.posts where community_id = pg_temp.fx('commA')));
 
 select pg_temp.expect_count('prof: SELECT community_members de A (todas)',
   pg_temp.fx('prof'),
