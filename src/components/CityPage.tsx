@@ -49,22 +49,6 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
 
   const { categories, tags, createCategory } = useCityCatalog()
   const { groups } = useCityGroups()
-  const [bannerImg, setBannerImg] = useState<string | null>(null)
-
-  // Imagem do topo: a da cidade; se não tiver, a do estado.
-  useEffect(() => {
-    const id = (other ?? myCity)?.id
-    const uf = (other ?? myCity)?.estado
-    if (!id || !uf) return
-    let cancelled = false
-    void Promise.all([supabase.from('cidades').select('imagem').eq('id', id).maybeSingle(), supabase.from('city_state_images').select('imagem').eq('uf', uf).maybeSingle()]).then(([c, st]) => {
-      if (cancelled) return
-      setBannerImg(((c.data as { imagem?: string | null } | null)?.imagem ?? (st.data as { imagem?: string | null } | null)?.imagem) ?? null)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [other, myCity])
 
   // Abrir a página limpa a bolinha de "cadastros novos" do card da Home.
   useEffect(() => {
@@ -82,6 +66,8 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
   const [group, setGroup] = useState<string | null>(null)
   const [showAllGroups, setShowAllGroups] = useState(false)
   const [showAllCategories, setShowAllCategories] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [showAllList, setShowAllList] = useState(false)
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [tagIds, setTagIds] = useState<string[]>([])
@@ -170,6 +156,8 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
     setPrice(null)
     setShowAllGroups(false)
     setShowAllCategories(false)
+    setShowFilters(false)
+    setShowAllList(false)
   }
 
   async function saveListing(input: ListingInput) {
@@ -254,26 +242,27 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
   return (
     <section className="cty-page">
       <header className="cty-head">
-        {bannerImg && <img className="cty-banner" src={bannerImg} alt="" loading="lazy" decoding="async" />}
-        <p className="cty-eyebrow">Conexão · Proximidade</p>
-        <h2 className="cty-title">
-          Na minha cidade · {city.nome}
-          <span className="cty-title-uf">/{city.estado}</span>
-        </h2>
+        <div className="cty-head-row">
+          <h2 className="cty-title">
+            Minha cidade
+            <span className="cty-title-uf">{city.nome}/{city.estado}</span>
+          </h2>
+        </div>
         <p className="cty-stats">
           {city.mulheres} {city.mulheres === 1 ? 'mulher' : 'mulheres'} · {totalListings} {totalListings === 1 ? 'cadastro' : 'cadastros'} · {stateName}
         </p>
-        <div className="cty-actions">
+        <div className="cty-head-links">
           {readOnly ? (
-            <button type="button" className="cty-btn" onClick={() => { setOther(null); resetFilters() }}>
+            <button type="button" className="cty-link" onClick={() => { setOther(null); resetFilters() }}>
               Voltar para a minha cidade
             </button>
           ) : (
-            <button type="button" className="cty-btn" onClick={() => { setPickerError(null); setPicker('mine') }}>
+            <button type="button" className="cty-link" onClick={() => { setPickerError(null); setPicker('mine') }}>
               Mudar cidade
             </button>
           )}
-          <button type="button" className="cty-btn" onClick={() => { setPickerError(null); setPicker('other') }}>
+          <span aria-hidden="true">·</span>
+          <button type="button" className="cty-link" onClick={() => { setPickerError(null); setPicker('other') }}>
             Ver outra cidade
           </button>
         </div>
@@ -315,7 +304,6 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
 
       {!loading && !form && tab === 'guia' && (
         <div className="cty-section">
-          <p className="cty-note">{RECOMMENDATION_NOTE}</p>
           {totalListings === 0 && guideAll.length === 0 && events.length === 0 && meetups.length === 0 ? (
             emptyHero([
               { tipo: 'lugar', label: 'Indicar um lugar' },
@@ -323,63 +311,54 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
             ])
           ) : (
             <>
-              {addButtons([
-                { tipo: 'lugar', label: 'Indicar um lugar' },
-                { tipo: 'profissional', label: 'Indicar ou divulgar uma profissional' },
-              ])}
-
-              {featured.length > 0 && (
-                <div className="cty-featured" aria-label="Em destaque">
-                  <p className="cty-eyebrow">★ Em destaque</p>
-                  <div className="cty-featured-row">
-                    {featured.map((l) => (
-                      <button
-                        key={l.id}
-                        type="button"
-                        className="cty-featured-tile"
-                        onClick={() => { setGroup(null); setCategoryId(null); setQuery(l.titulo) }}
-                      >
-                        {l.foto ? <img src={l.foto} alt="" loading="lazy" decoding="async" /> : <span className="cty-featured-ph" aria-hidden="true" />}
-                        <span className="cty-featured-name">{l.titulo}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <input
                 type="search"
                 className="cty-search"
-                placeholder="Buscar por nome ou categoria"
+                placeholder="Buscar lugares e profissionais"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Buscar no guia"
               />
 
-              {!group && !query.trim() && (
+              {!group && !query.trim() ? (
                 <>
+                  {featured.length > 0 && (
+                    <div className="cty-featured" aria-label="Em destaque">
+                      <p className="cty-block-title">★ Em destaque</p>
+                      <div className="cty-featured-row">
+                        {featured.map((l) => (
+                          <button
+                            key={l.id}
+                            type="button"
+                            className="cty-featured-tile"
+                            onClick={() => { setGroup(null); setCategoryId(null); setQuery(l.titulo) }}
+                          >
+                            {l.foto ? <img src={l.foto} alt="" loading="lazy" decoding="async" /> : <span className="cty-featured-ph" aria-hidden="true" />}
+                            <span className="cty-featured-name">{l.titulo}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <p className="cty-block-title">Explorar por grupo</p>
                   <div className="cty-group-grid">
                     {groups.filter((g) => showAllGroups || (groupCounts.get(g.slug) ?? 0) > 0).map((g) => (
-                      <button key={g.slug} type="button" className={`cty-group${g.imagem ? ' cty-group--photo' : ''}`} onClick={() => { setGroup(g.slug); setCategoryId(null) }}>
-                        {g.imagem && <img className="cty-group-photo" src={g.imagem} alt="" loading="lazy" decoding="async" />}
-                        <span className="cty-group-icon" aria-hidden="true"><CategoryIcon grupo={g.slug} nome={g.nome} size={26} /></span>
+                      <button key={g.slug} type="button" className="cty-group" onClick={() => { setGroup(g.slug); setCategoryId(null) }}>
+                        <span className="cty-group-icon" aria-hidden="true"><CategoryIcon grupo={g.slug} nome={g.nome} size={30} /></span>
                         <span className="cty-group-name">{g.nome}</span>
                         <span className="cty-group-count">{groupCounts.get(g.slug) ?? 0}</span>
                       </button>
                     ))}
                   </div>
-                  {guideAll.length === 0 && emptyHero([{ tipo: 'lugar', label: 'Indicar um lugar' }, { tipo: 'profissional', label: 'Divulgar uma profissional' }])}
-                  <button type="button" className="cty-link" onClick={() => setShowAllGroups((v) => !v)}>
+                  <button type="button" className="cty-link cty-link--center" onClick={() => setShowAllGroups((v) => !v)}>
                     {showAllGroups ? 'Mostrar só os grupos com cadastros' : 'Ver todos os grupos'}
                   </button>
                 </>
-              )}
-
-              {(group || query.trim()) && (
+              ) : (
                 <>
                   {group && (
                     <div className="cty-crumb">
-                      <button type="button" className="cty-link" onClick={() => { setGroup(null); setCategoryId(null); setTagIds([]); setPrice(null) }}>
+                      <button type="button" className="cty-link" onClick={() => { setGroup(null); setCategoryId(null); setTagIds([]); setPrice(null); setShowFilters(false) }}>
                         ← Todos os grupos
                       </button>
                       <strong>{groupLabel(group, groups)}</strong>
@@ -390,19 +369,17 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
 
                   {group && (
                     <div className="cty-cats" role="group" aria-label="Categorias">
-                      <div className="cty-cat-grid">
-                        <button type="button" className={`cty-cat-card cty-cat-card--all${!categoryId ? ' cty-cat-card--on' : ''}`} onClick={() => setCategoryId(null)}>
-                          <span className="cty-cat-name">Todas</span>
-                          <span className="cty-cat-count">{guideScope.length}</span>
+                      <div className="cty-chip-scroll">
+                        <button type="button" className={`cty-pill${!categoryId ? ' cty-pill--on' : ''}`} onClick={() => setCategoryId(null)}>
+                          Todas <span className="cty-pill-count">{guideScope.length}</span>
                         </button>
                         {categories
                           .filter((c) => c.grupo === group && c.status !== 'unida' && (showAllCategories || (categoryCounts.get(c.id) ?? 0) > 0))
                           .map((c) => (
-                            <button key={c.id} type="button" className={`cty-cat-card${c.imagem ? ' cty-cat-card--photo' : ''}${categoryId === c.id ? ' cty-cat-card--on' : ''}`} onClick={() => setCategoryId(categoryId === c.id ? null : c.id)}>
-                              {c.imagem ? <img className="cty-cat-photo" src={c.imagem} alt="" loading="lazy" decoding="async" /> : <CategoryIcon grupo={c.grupo} nome={c.nome} size={22} />}
-                              <span className="cty-cat-name">{c.nome}</span>
-                              {c.descricao && <span className="cty-cat-desc">{c.descricao}</span>}
-                              <span className="cty-cat-count">{categoryCounts.get(c.id) ?? 0}</span>
+                            <button key={c.id} type="button" className={`cty-pill${categoryId === c.id ? ' cty-pill--on' : ''}`} onClick={() => setCategoryId(categoryId === c.id ? null : c.id)}>
+                              <CategoryIcon grupo={c.grupo} nome={c.nome} size={18} />
+                              {c.nome}
+                              <span className="cty-pill-count">{categoryCounts.get(c.id) ?? 0}</span>
                             </button>
                           ))}
                       </div>
@@ -412,56 +389,78 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
                     </div>
                   )}
 
-                  <div className="cty-filters">
-                    <div className="cty-chip-bar" role="group" aria-label="Filtros">
-                      {tags
-                        .filter((t) => t.tipo !== 'alimentacao' || group === 'comer')
-                        .map((t) => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            className={`cty-chip cty-chip--soft${tagIds.includes(t.id) ? ' cty-chip--on' : ''}`}
-                            onClick={() => setTagIds((l) => (l.includes(t.id) ? l.filter((x) => x !== t.id) : [...l, t.id]))}
-                          >
-                            {t.nome}
-                          </button>
-                        ))}
-                    </div>
-                    <div className="cty-row">
-                      <div className="cty-chip-bar" role="group" aria-label="Faixa de preço">
-                        {PRICE_RANGES.map((p) => (
-                          <button key={p} type="button" className={`cty-chip${price === p ? ' cty-chip--on' : ''}`} onClick={() => setPrice(price === p ? null : p)}>
-                            {p}
-                          </button>
-                        ))}
+                  <button type="button" className="cty-filter-toggle" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
+                    Filtros e ordem{tagIds.length + (price ? 1 : 0) > 0 ? ` (${tagIds.length + (price ? 1 : 0)})` : ''}
+                    <span aria-hidden="true">{showFilters ? '−' : '+'}</span>
+                  </button>
+                  {showFilters && (
+                    <div className="cty-filters">
+                      <div className="cty-chip-bar" role="group" aria-label="Filtros">
+                        {tags
+                          .filter((t) => t.tipo !== 'alimentacao' || group === 'comer')
+                          .map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              className={`cty-chip cty-chip--soft${tagIds.includes(t.id) ? ' cty-chip--on' : ''}`}
+                              onClick={() => setTagIds((l) => (l.includes(t.id) ? l.filter((x) => x !== t.id) : [...l, t.id]))}
+                            >
+                              {t.nome}
+                            </button>
+                          ))}
                       </div>
-                      <label className="cty-field cty-field--inline">
-                        <span className="cty-label">Ordenar por</span>
-                        <select value={sort} onChange={(e) => setSort(e.target.value as GuideSort)}>
-                          <option value="indicados">Mais indicados</option>
-                          <option value="recentes">Mais recentes</option>
-                        </select>
-                      </label>
-                    </div>
-                  </div>
-
-                  {categoryId && carCat && onOpenCarro && (
-                    <button type="button" className="car-city-link" onClick={() => onOpenCarro(carCat)}>
-                      Dúvidas sobre carro? Veja as respostas
-                    </button>
-                  )}
-
-                  {guideShown.length === 0 ? (
-                    <p className="home-muted">Nada encontrado com esses filtros.</p>
-                  ) : (
-                    <div className="cty-list">
-                      {guideShown.map((l) => (
-                        <CityListingCard key={l.id} listing={l} category={l.categoria_id ? (catById.get(l.categoria_id) ?? null) : null} {...cardProps} />
-                      ))}
+                      <div className="cty-row">
+                        <div className="cty-chip-bar" role="group" aria-label="Faixa de preço">
+                          {PRICE_RANGES.map((p) => (
+                            <button key={p} type="button" className={`cty-chip${price === p ? ' cty-chip--on' : ''}`} onClick={() => setPrice(price === p ? null : p)}>
+                              {p}
+                            </button>
+                          ))}
+                        </div>
+                        <label className="cty-field cty-field--inline">
+                          <span className="cty-label">Ordenar por</span>
+                          <select value={sort} onChange={(e) => setSort(e.target.value as GuideSort)}>
+                            <option value="indicados">Mais indicados</option>
+                            <option value="recentes">Mais recentes</option>
+                          </select>
+                        </label>
+                      </div>
                     </div>
                   )}
                 </>
               )}
+
+              {categoryId && carCat && onOpenCarro && (
+                <button type="button" className="car-city-link" onClick={() => onOpenCarro(carCat)}>
+                  Dúvidas sobre carro? Veja as respostas
+                </button>
+              )}
+
+              <div className="cty-results-head">
+                <p className="cty-block-title">
+                  {!group && !query.trim() ? 'Mais indicados' : `${guideShown.length} ${guideShown.length === 1 ? 'resultado' : 'resultados'}`}
+                </p>
+              </div>
+              {guideShown.length === 0 ? (
+                <p className="home-muted">Nada encontrado com esses filtros.</p>
+              ) : (
+                <div className="cty-list">
+                  {(!group && !query.trim() && !showAllList ? guideShown.slice(0, 10) : guideShown).map((l) => (
+                    <CityListingCard key={l.id} listing={l} category={l.categoria_id ? (catById.get(l.categoria_id) ?? null) : null} {...cardProps} />
+                  ))}
+                </div>
+              )}
+              {!group && !query.trim() && guideShown.length > 10 && (
+                <button type="button" className="cty-link cty-link--center" onClick={() => setShowAllList((v) => !v)}>
+                  {showAllList ? 'Ver só os mais indicados' : `Ver todos (${guideShown.length})`}
+                </button>
+              )}
+
+              {addButtons([
+                { tipo: 'lugar', label: '+ Indicar um lugar' },
+                { tipo: 'profissional', label: '+ Indicar uma profissional' },
+              ])}
+              <p className="cty-note">{RECOMMENDATION_NOTE}</p>
             </>
           )}
         </div>

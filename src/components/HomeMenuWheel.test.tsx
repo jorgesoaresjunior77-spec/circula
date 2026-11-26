@@ -8,8 +8,7 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
   it('mostra os 6 cards na ordem e cada um abre o seu destino', () => {
     const onNavigate = vi.fn()
     render(<HomeMenuWheel onNavigate={onNavigate} />)
-    // A segunda volta da roda é cópia (aria-hidden): só as 6 reais são acessíveis.
-    const buttons = screen.getAllByRole('button')
+        const buttons = screen.getAllByRole('button')
     expect(buttons.map((b) => b.textContent)).toEqual([
       'Dicas de leitura',
       'Respiração',
@@ -22,23 +21,11 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
     expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'playlist', 'wellness', 'series', 'viagens'])
   })
 
-  it('só frases: cada card tem um ícone e nenhuma foto', () => {
+  it('cada card tem um ícone (sem foto cadastrada) e o título dentro', () => {
     const { container } = render(<HomeMenuWheel onNavigate={vi.fn()} />)
-    expect(container.querySelectorAll('.wheel-thumb--photo, .wheel-card img')).toHaveLength(0)
-    // 6 reais + 6 cópias da segunda volta, cada uma com o seu ícone.
-    expect(container.querySelectorAll('.wheel-thumb svg')).toHaveLength(12)
-  })
-
-  it('para enquanto há um dedo em cima e volta ao soltar', () => {
-    const { container } = render(<HomeMenuWheel onNavigate={vi.fn()} />)
-    const viewport = container.querySelector('.wheel-viewport') as HTMLElement
-    fireEvent.pointerDown(viewport)
-    expect(viewport.className).toContain('wheel-viewport--paused')
-    fireEvent.pointerUp(viewport)
-    expect(viewport.className).not.toContain('wheel-viewport--paused')
-    fireEvent.pointerDown(viewport)
-    fireEvent.pointerCancel(viewport)
-    expect(viewport.className).not.toContain('wheel-viewport--paused')
+    expect(container.querySelectorAll('.wheel-card img')).toHaveLength(0)
+    expect(container.querySelectorAll('.wheel-photo-icon svg')).toHaveLength(6)
+    expect(container.querySelectorAll('.wheel-card .wheel-title')).toHaveLength(6)
   })
   it('o Carro em Dia aparece na posição do Painel e abre a central; desativado, some', () => {
     const settings = { ativo: true, titulo: 'Carro em Dia', subtitulo: '', icone: 'carro', ordem: 1, teaser: '', tempo_resposta: '', lembrete_dias: 3, imagem: null, imagem_alt: null }

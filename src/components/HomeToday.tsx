@@ -399,7 +399,7 @@ export function HomeToday({
         onNavigate={onNavigate}
       />
 
-      <HomeMenuWheel onNavigate={onNavigate} carro={carroHome?.settings ?? null} />
+      <HomeMenuWheel onNavigate={onNavigate} imagePaths={cardImagePaths} carro={carroHome?.settings ?? null} />
 
       <HomeGroupTitle>Para você</HomeGroupTitle>
       <div className="home-pair">
@@ -435,15 +435,15 @@ export function HomeToday({
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 
-      <p className="home-institutional-note">
-        O Círcula é um espaço de cuidado e amizade entre mulheres.
-      </p>
       <hr className="home-section-divider" />
       <HomeFooter />
       <button type="button" className="home-feedback-btn" onClick={() => onNavigate('feedback')}>
         <span>Encontrou algum problema?</span>
         <span>Me notifique!</span>
       </button>
+      <p className="home-institutional-note">
+        O Círcula é um espaço de cuidado e amizade entre mulheres.
+      </p>
       </div>
     </div>
   )

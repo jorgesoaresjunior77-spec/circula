@@ -204,7 +204,7 @@ export interface CardImageSpec {
 
 const SPEC_PORTRAIT: CardImageSpec = { aspect: '4 / 5', size: '1080 × 1350 px', format: 'retrato 4:5' }
 const SPEC_BANNER: CardImageSpec = { aspect: '16 / 9', size: '1600 × 900 px', format: 'paisagem 16:9' }
-const SPEC_WHEEL: CardImageSpec = { aspect: '10 / 3', size: '1200 × 360 px', format: 'faixa 10:3' }
+const SPEC_WHEEL_CARD: CardImageSpec = { aspect: '6 / 5', size: '1200 × 1000 px', format: 'do joelho para cima, a pessoa num canto' }
 const SPEC_BACKGROUND: CardImageSpec = { aspect: '9 / 16', size: '1080 × 1920 px', format: 'vertical 9:16' }
 
 // Proporções reais de cada espaço no app (conferidas no CSS):
@@ -255,7 +255,7 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'menu_lista':
     case 'menu_series':
     case 'menu_viagens':
-      return SPEC_WHEEL
+      return SPEC_WHEEL_CARD
     default:
       return SPEC_PORTRAIT
   }

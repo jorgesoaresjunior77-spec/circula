@@ -1,16 +1,14 @@
-import { useState } from 'react'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import type { ReactNode } from 'react'
 import type { NavKey } from './PrimaryNav'
 import type { CommunityCardKey } from '../types/communityCards'
 import { CarIcon } from './CarIcon'
 import type { CarroSettings } from '../lib/carro'
+import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 
-// Menu vertical contínuo: Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes e
-// Dicas de Viagem. Só frases: um ícone único à esquerda e a frase em letras altas e robustas, dentro
-// de uma borda fina cor de ouro chocolate (sem pintura). A lista sobe sem parar, como uma roda,
-// entrando e saindo com um esmaecer suave, e para enquanto há um dedo (ou o mouse) em cima.
-// Com "reduzir movimento", vira uma lista parada.
+// Cards do menu: um por conteúdo (Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes, Viagens e
+// Carro em Dia), empilhados. Cada um leva o título dentro e a foto da profissional (do joelho para cima) num canto,
+// alternando esquerda e direita; sem foto, entra o ícone.
 
 interface Item {
   key: NavKey
@@ -24,20 +22,20 @@ interface Item {
 const stroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
 
 const BookSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
     <path d="M4 5.500A2.500 2.500 0 0 1 6.500 3H20v16H6.500A2.500 2.500 0 0 0 4 21.500Z" />
     <path d="M4 18.500A2.500 2.500 0 0 1 6.500 16H20" />
   </svg>
 )
 const BreathSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
     <circle cx="12" cy="12" r="3" />
     <circle cx="12" cy="12" r="6.500" opacity="0.7" />
     <circle cx="12" cy="12" r="10" opacity="0.4" />
   </svg>
 )
 const MusicSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
     <path d="M9 18V6l11-2v12" />
     <circle cx="6.500" cy="18" r="2.500" />
     <circle cx="17.500" cy="16" r="2.500" />
@@ -45,20 +43,20 @@ const MusicSvg = (
 )
 
 const LeafSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
     <path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14Z" />
     <path d="M5 19c3-4 6-7 10-9" />
   </svg>
 )
 
 const FilmSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
     <rect x="3" y="5" width="18" height="14" rx="2.500" />
     <path d="M10 9.500l5 2.500-5 2.500z" />
   </svg>
 )
 const PinSvg = (
-  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" {...stroke}>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" {...stroke}>
     <path d="M12 21s7-6.200 7-11.500a7 7 0 0 0-14 0C5 14.800 12 21 12 21Z" />
     <circle cx="12" cy="9.500" r="2.500" />
   </svg>
@@ -73,11 +71,12 @@ const ALL_ITEMS: Item[] = [
   { key: 'viagens', imageKey: 'menu_viagens', title: 'Dicas de Viagem', tint: 'linear-gradient(135deg,#d6e4ea,#b9d0da)', icon: PinSvg },
 ]
 
-/** Ícone único do card (a cor vem da borda, via currentColor). */
-function WheelThumb({ item }: { item: Item }) {
+/** Foto do card (quando a profissional cadastrou); sem foto, o ícone grande aparece no lugar. */
+function WheelPhoto({ item, path }: { item: Item; path?: string }) {
+  const { url } = useSignedImageUrl(path ?? null)
   return (
-    <span className="wheel-thumb" aria-hidden="true">
-      {item.icon}
+    <span className={`wheel-photo${url ? '' : ' wheel-photo--empty'}`} aria-hidden="true">
+      {url ? <img src={url} alt="" loading="lazy" decoding="async" /> : <span className="wheel-photo-icon">{item.icon}</span>}
     </span>
   )
 }
@@ -92,54 +91,35 @@ interface Props {
   carro?: CarroSettings | null
 }
 
-export function HomeMenuWheel({ onNavigate, showSubscriptions = true, carro = null }: Props) {
+export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true, carro = null }: Props) {
   void showSubscriptions
-  // Dedo em cima: a roda para (e volta ao soltar ou se o gesto virar rolagem da página).
-  const [paused, setPaused] = useState(false)
   const items = [...ALL_ITEMS]
   if (carro?.ativo) {
     items.splice(Math.min(Math.max(carro.ordem, 0), items.length), 0, {
       key: 'carro',
-      imageKey: 'menu_carro' as CommunityCardKey,
+      // Chave já existente no banco, reaproveitada (sem migração): 'menu_lista' guarda a foto do Carro em Dia.
+      imageKey: 'menu_lista',
       title: carro.titulo,
       tint: 'linear-gradient(135deg,#ecd9c6,#d6b286)',
-      icon: <CarIcon name={carro.icone} size={26} />,
+      icon: <CarIcon name={carro.icone} size={34} />,
     })
   }
-  // Alternância borda / chocolate: com número ímpar de cards a volta da roda quebraria o padrão; repetimos a lista para fechar em par.
-  const loop = items.length % 2 === 1 ? [...items, ...items] : items
-  // Segundos por volta: cerca de 3,4 s por card — suave e constante (um pouco mais ágil).
-  const duration = loop.length * 3.4
 
-  const render = (copy: boolean) =>
-    loop.map((item, i) => (
-      <li key={`${item.key}-${i}-${copy ? 'b' : 'a'}`} className={`wheel-item ${i % 2 === 0 ? 'wheel-item--borda' : 'wheel-item--cheio'}`} aria-hidden={copy || i >= items.length || undefined}>
-        <button
-          type="button"
-          className="wheel-card"
-          onClick={() => onNavigate(item.key)}
-          tabIndex={copy || i >= items.length ? -1 : undefined}
-        >
-          <WheelThumb item={item} />
-          <span className="wheel-title">{item.title}</span>
-        </button>
-      </li>
-    ))
-
+  // Um card por item, empilhados, com a foto num canto (do joelho para cima) alternando esquerda e direita.
   return (
-    <m.section className="home-wheel" aria-label="Menu de conteúdos" {...inViewOnce} variants={riseVariants}>
-      <div
-        className={`wheel-viewport${paused ? ' wheel-viewport--paused' : ''}`}
-        onPointerDown={() => setPaused(true)}
-        onPointerUp={() => setPaused(false)}
-        onPointerCancel={() => setPaused(false)}
-        onPointerLeave={() => setPaused(false)}
-      >
-        <ul className="wheel-track" style={{ animationDuration: `${duration}s` }}>
-          {render(false)}
-          {render(true)}
-        </ul>
-      </div>
+    <m.section className="home-wheel home-wheel--stack" aria-label="Menu de conteúdos" {...inViewOnce} variants={riseVariants}>
+      <ul className="wheel-list">
+        {items.map((item, i) => (
+          <li key={item.key} className={`wheel-item ${i % 2 === 0 ? 'wheel-item--borda wheel-item--foto-esq' : 'wheel-item--cheio wheel-item--foto-dir'}`}>
+            <button type="button" className="wheel-card" onClick={() => onNavigate(item.key)}>
+              <WheelPhoto item={item} path={imagePaths?.[item.imageKey]} />
+              <span className="wheel-text">
+                <span className="wheel-title">{item.title}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </m.section>
   )
 }

@@ -28,6 +28,8 @@ import { isPastOnboarding, shouldAutoShowInstallGuide } from '../lib/installGuid
 import { useEvents } from '../hooks/useEvents'
 import { useSavedItems } from '../hooks/useSavedItems'
 import { NotificationBell } from './NotificationBell'
+import { PaletteGrade } from './PaletteGrade'
+import { applyHeroPalette, clearHeroTop, readHeroPalette } from '../lib/heroPalette'
 import { useConversations } from '../hooks/useConversations'
 import { ProductManager } from './ProductManager'
 import { HelpNutri } from './HelpNutri'
@@ -596,7 +598,33 @@ export function Dashboard({
     }
     place()
     window.addEventListener('resize', place)
-    return () => window.removeEventListener('resize', place)
+    window.addEventListener('orientationchange', place)
+    const img = el.querySelector('img')
+    img?.addEventListener('load', place)
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(place) : null
+    ro?.observe(host)
+    return () => {
+      window.removeEventListener('resize', place)
+      window.removeEventListener('orientationchange', place)
+      img?.removeEventListener('load', place)
+      ro?.disconnect()
+    }
+  }, [heroUrl])
+
+  // Paleta da foto do topo: pinta o alto da página (sem faixa branca) e dá o tom de cor às imagens do app.
+  useEffect(() => {
+    if (!heroUrl) {
+      clearHeroTop()
+      return
+    }
+    let active = true
+    void readHeroPalette(heroUrl).then((p) => {
+      if (active && p) applyHeroPalette(p)
+    })
+    return () => {
+      active = false
+      clearHeroTop()
+    }
   }, [heroUrl])
 
   // Círculos da comunidade resolvida — só busca quando o destino
@@ -1558,6 +1586,7 @@ export function Dashboard({
 
   return (
     <section className={`dashboard${coverHero && heroUrl ? ' dashboard--hero' : ''}`}>
+      <PaletteGrade />
       {coverHero && heroUrl && (
         <div className="hero-bg" ref={heroBgRef} aria-hidden="true">
           <img src={heroUrl} alt="" decoding="async" />
@@ -1604,13 +1633,6 @@ export function Dashboard({
               showContentReminders={profile.role === 'professional'}
             />
           )}
-          <span className="dashboard-user-avatar" aria-hidden="true">
-            {profile?.avatar_url ? (
-              <img loading="lazy" decoding="async" src={profile.avatar_url} alt="" />
-            ) : (
-              <span>{(profile?.full_name ?? 'U').charAt(0).toUpperCase()}</span>
-            )}
-          </span>
           <span className="dashboard-user-name">
             Olá, <strong>{profile?.full_name ?? 'usuária'}</strong>
           </span>
@@ -1639,8 +1661,8 @@ export function Dashboard({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
           <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay heroBg={!!heroUrl} />
+          <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
         </m.div>
       )}
 
