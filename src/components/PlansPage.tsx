@@ -241,7 +241,18 @@ export function PlansPage({
 
   return (
     <section className="plans-page">
-      <h2>Planos e assinaturas</h2>
+      <header className="plans-hero">
+        <p className="plans-eyebrow">Cuidar de você, do seu jeito</p>
+        <h2>Planos e assinaturas</h2>
+        <p className="plans-lead">
+          Comece pelo Círcula e some só o que faz sentido para a sua rotina. Quem quer tudo junto encontra no Premium o melhor valor.
+        </p>
+        {viewOnly && (
+          <p className="plans-viewonly" role="note">
+            Visão da profissional: é assim que a membro vê esta página. Como responsável pela comunidade, não há assinatura para você aqui.
+          </p>
+        )}
+      </header>
 
       {!viewOnly && !packages.has('premium') && (
         <RoboConsultor
@@ -261,13 +272,26 @@ export function PlansPage({
         </span>
         <span className="plans-wide-body">
           <strong>Círcula</strong>
-          <span>A comunidade, os círculos, os eventos e o acompanhamento do dia a dia.</span>
+          <span>Comunidade, círculos e eventos, mais Finanças, Água, IMC, Calculadora, Agenda e Minha cidade.</span>
         </span>
         <span className="plans-wide-price">
           {formatBrl(circulaPrices.monthly)}
           <small>por mês</small>
         </span>
       </button>
+
+      <article className="plans-base" aria-label="Já incluído no Círcula">
+        <h4>Já está no seu Círcula</h4>
+        <ul>
+          <li>Finanças e Dividir</li>
+          <li>Água e IMC</li>
+          <li>Calculadora</li>
+          <li>Agenda</li>
+          <li>Minha cidade</li>
+          <li>Livi, a sua guia</li>
+        </ul>
+        <p>Tudo isso vem com a assinatura do Círcula, sem custo extra.</p>
+      </article>
 
       <h3 className="plans-heading">Conteúdos avulsos</h3>
       <p className="plans-note">Escolha só o que você quer. Pagando por 6 ou 12 meses, o valor total é menor, e o plano anual é a melhor escolha.</p>
@@ -329,7 +353,7 @@ export function PlansPage({
         <h4>O que você leva no Premium</h4>
         <ul>
           <li>
-            <strong>Círcula</strong> <span>comunidade, círculos, eventos e acompanhamento do dia a dia</span> <em>{formatBrl(CIRCULA_MONTHLY_CENTS)}</em>
+            <strong>Círcula</strong> <span>comunidade, círculos, eventos, Finanças, Água, IMC, Calculadora, Agenda e Minha cidade</span> <em>{formatBrl(CIRCULA_MONTHLY_CENTS)}</em>
           </li>
           {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
             <li key={p.key}>
@@ -346,7 +370,7 @@ export function PlansPage({
       </article>
 
       <p className="plans-note">
-        Valores em reais, cobrados pelo ciclo escolhido. O acesso libera quando o pagamento é confirmado.
+        Valores em reais, cobrados pelo ciclo escolhido. O acesso libera assim que o pagamento é confirmado. Quanto mais longo o ciclo, menor o valor por mês.
       </p>
 
       {open && createPortal(
@@ -359,7 +383,7 @@ export function PlansPage({
             {open === 'circula' && (
               <>
                 <h3>Círcula</h3>
-                <p className="plans-text">A comunidade, os círculos, eventos e o acompanhamento do dia a dia.</p>
+                <p className="plans-text">A comunidade, os círculos e os eventos, e as ferramentas do dia a dia: Finanças com divisão de despesas, Água, IMC, Calculadora, Agenda e Minha cidade.</p>
                 {!viewOnly && <TrialNotice />}
                 <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
                 {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}

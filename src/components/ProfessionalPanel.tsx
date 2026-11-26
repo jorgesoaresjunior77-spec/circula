@@ -256,6 +256,13 @@ export function ProfessionalPanel({
               no Painel, com sub-abas internas. Mesmos componentes,
               mesmos dados/cálculos/regras financeiras de sempre — só a
               navegação (uma aba a menos) mudou. */}
+          <header className="plans-hero">
+            <p className="plans-eyebrow">Sua comunidade</p>
+            <h2>Planos e assinaturas</h2>
+            <p className="plans-lead">
+              Acompanhe as assinaturas, libere conteúdos para cada membro, defina o preço da comunidade e veja o que você recebe. A página que a membro vê fica em Planos, no Início.
+            </p>
+          </header>
           <div className="panel-subtabs">
             {ASSINATURAS_SUBTABS.map((tab) => (
               <button
