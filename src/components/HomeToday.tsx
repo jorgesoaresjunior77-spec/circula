@@ -201,6 +201,8 @@ export function HomeToday({
   const { url: conviteCover } = useSignedImageUrl(cardImagePaths.ferramenta_calendario ?? null)
   const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
   const { url: cidadeCover } = useSignedImageUrl(cardImagePaths.banner_cidade ?? null)
+  // Imagem do fim da página (guardada sob a chave 'banner_series', que não tinha mais uso).
+  const { url: fimCover } = useSignedImageUrl(cardImagePaths.banner_series ?? null)
   const { city: myCity } = useMyCity()
   const cityBadge = useCityBadge(profile.id, profile.role === 'master' || profile.role === 'professional', !!myCity)
   const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
@@ -435,15 +437,20 @@ export function HomeToday({
 
       <HomePartnersStrip communityId={focusCommunity.id} />
 
-      <hr className="home-section-divider" />
-      <HomeFooter />
-      <button type="button" className="home-feedback-btn" onClick={() => onNavigate('feedback')}>
-        <span>Encontrou algum problema?</span>
-        <span>Me notifique!</span>
-      </button>
-      <p className="home-institutional-note">
-        O Círcula é um espaço de cuidado e amizade entre mulheres.
-      </p>
+      <div className={`home-end${fimCover ? ' home-end--photo' : ''}`}>
+        {fimCover && <img className="home-end-photo" src={fimCover} alt="" loading="lazy" decoding="async" />}
+        <div className="home-end-content">
+          <hr className="home-section-divider" />
+          <HomeFooter />
+          <button type="button" className="home-feedback-btn" onClick={() => onNavigate('feedback')}>
+            <span>Encontrou algum problema?</span>
+            <span>Me notifique!</span>
+          </button>
+          <p className="home-institutional-note">
+            O Círcula é um espaço de cuidado e amizade entre mulheres.
+          </p>
+        </div>
+      </div>
       </div>
     </div>
   )

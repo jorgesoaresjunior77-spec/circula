@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { m, inViewOnce, riseVariants, staggerVariants } from '../lib/motionKit'
+import { CalculatorPopup } from './CalculatorPopup'
 import type { NavKey } from './PrimaryNav'
 
 // Três atalhos de ponta a ponta, logo abaixo do banner: Antes de Tudo, Água e
@@ -67,10 +69,32 @@ function HeartIcon() {
   )
 }
 
-const TOOLS: { key: NavKey; title: string; Icon: () => React.ReactElement }[] = [
+function CalcIcon() {
+  return (
+    <svg className="tool-icon tool-icon--calc" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <rect x="9" y="5" width="30" height="38" rx="6" fill="currentColor" fillOpacity="0.14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <rect x="14" y="10" width="20" height="8" rx="2.500" stroke="currentColor" strokeWidth="2" />
+      <g fill="currentColor">
+        <circle cx="16.500" cy="25" r="1.900" />
+        <circle cx="24" cy="25" r="1.900" />
+        <circle cx="31.500" cy="25" r="1.900" />
+        <circle cx="16.500" cy="32" r="1.900" />
+        <circle cx="24" cy="32" r="1.900" />
+        <circle cx="31.500" cy="32" r="1.900" />
+        <circle cx="16.500" cy="39" r="1.900" />
+        <circle cx="24" cy="39" r="1.900" />
+        <circle cx="31.500" cy="39" r="1.900" />
+      </g>
+      <path className="tool-gloss" d="M12.500 22c0-5 .5-8 .5-11" />
+    </svg>
+  )
+}
+
+const TOOLS: { key: NavKey | 'calculadora'; title: string; Icon: () => React.ReactElement }[] = [
   { key: 'antes-de-tudo', title: 'Antes de Tudo', Icon: CoffeeIcon },
   { key: 'agua', title: 'Água', Icon: WaterIcon },
   { key: 'imc', title: 'IMC', Icon: HeartIcon },
+  { key: 'calculadora', title: 'Calculadora', Icon: CalcIcon },
 ]
 
 interface Props {
@@ -80,7 +104,9 @@ interface Props {
 const toolsStagger = staggerVariants(0.09, 0.05)
 
 export function HomeToolCards({ onNavigate }: Props) {
+  const [calcOpen, setCalcOpen] = useState(false)
   return (
+    <>
     <m.section className="home-tools home-tools--icons" aria-label="Ferramentas" {...inViewOnce} variants={toolsStagger}>
       {TOOLS.map(({ key, title, Icon }, i) => (
         <m.button
@@ -91,7 +117,7 @@ export function HomeToolCards({ onNavigate }: Props) {
           whileTap={{ scale: 0.9 }}
           aria-label={title}
           title={title}
-          onClick={() => onNavigate(key)}
+          onClick={() => (key === 'calculadora' ? setCalcOpen(true) : onNavigate(key))}
         >
           <span className="home-tool-title" aria-hidden="true">
             {title}
@@ -108,5 +134,7 @@ export function HomeToolCards({ onNavigate }: Props) {
         </m.button>
       ))}
     </m.section>
+    {calcOpen && <CalculatorPopup onClose={() => setCalcOpen(false)} />}
+    </>
   )
 }

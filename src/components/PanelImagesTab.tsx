@@ -93,6 +93,13 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    id: 'fim',
+    title: 'Início · Fim da página',
+    summary: 'A imagem que ocupa o resto da tela depois dos parceiros, atrás dos termos de uso.',
+    note: 'Uma imagem vertical (formato de celular). Ela preenche o espaço até o menu de baixo e esmaece no alto. Prefira um fundo suave, para os textos continuarem fáceis de ler.',
+    slots: [{ key: 'banner_series', label: 'Imagem do fim da página', where: 'Depois dos parceiros, no fim do Início.' }],
+  },
+  {
     id: 'parceiros',
     title: 'Início · Parceiros',
     summary: 'Os logos da faixa de parceiros.',

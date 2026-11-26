@@ -594,7 +594,14 @@ export function Dashboard({
     const host = el?.parentElement
     if (!el || !host) return
     const place = () => {
-      el.style.top = `${-(host.getBoundingClientRect().top + window.scrollY)}px`
+      const top = host.getBoundingClientRect().top + window.scrollY
+      el.style.top = `${-top}px`
+      // A foto vai até um pouco antes da palavra "Hoje".
+      const hoje = document.querySelector('.home .home-group-title')
+      if (hoje) {
+        const h = hoje.getBoundingClientRect().top + window.scrollY - 6
+        if (h > 200) el.style.height = `${h}px`
+      }
     }
     place()
     window.addEventListener('resize', place)

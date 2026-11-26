@@ -243,9 +243,9 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
       return SPEC_PLANS
     case 'banner_cardapio':
     case 'banner_exercicios':
-    case 'banner_series':
       return SPEC_BANNER
     case 'loja_fundo':
+    case 'banner_series':
     case 'revista_escritorio':
       return SPEC_BACKGROUND
     case 'menu_leitura':
