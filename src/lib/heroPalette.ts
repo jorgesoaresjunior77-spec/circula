@@ -66,9 +66,21 @@ export function applyHeroPalette(p: HeroPalette) {
   set('grade-r', p.dark[0], p.mid[0], p.light[0])
   set('grade-g', p.dark[1], p.mid[1], p.light[1])
   set('grade-b', p.dark[2], p.mid[2], p.light[2])
-  document.documentElement.style.setProperty('--hero-top', `rgb(${p.top[0]}, ${p.top[1]}, ${p.top[2]})`)
+  // O alto da foto recebe um véu claro (mesmos 40% do CSS): a cor de fundo acompanha o que se vê.
+  const veil = [255, 250, 244]
+  const t = p.top.map((c, i) => Math.round(c * 0.6 + veil[i] * 0.4))
+  const rgb = `rgb(${t[0]}, ${t[1]}, ${t[2]})`
+  document.documentElement.style.setProperty('--hero-top', rgb)
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (meta) {
+    if (!meta.getAttribute('data-original')) meta.setAttribute('data-original', meta.getAttribute('content') ?? '')
+    meta.setAttribute('content', rgb)
+  }
 }
 
 export function clearHeroTop() {
   document.documentElement.style.removeProperty('--hero-top')
+  const meta = document.querySelector('meta[name="theme-color"]')
+  const original = meta?.getAttribute('data-original')
+  if (meta && original) meta.setAttribute('content', original)
 }

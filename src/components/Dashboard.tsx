@@ -594,13 +594,18 @@ export function Dashboard({
     const host = el?.parentElement
     if (!el || !host) return
     const place = () => {
-      const top = host.getBoundingClientRect().top + window.scrollY
-      el.style.top = `${-top}px`
+      // Mede de verdade onde a foto cai e a leva para o alto do documento (qualquer que seja o bloco de referência).
+      el.style.top = '0px'
+      const off = el.getBoundingClientRect().top + window.scrollY
+      el.style.top = `${-off}px`
       // A foto vai até um pouco antes da palavra "Hoje".
       const hoje = document.querySelector('.home .home-group-title')
       if (hoje) {
         const h = hoje.getBoundingClientRect().top + window.scrollY - 6
-        if (h > 200) el.style.height = `${h}px`
+        if (h > 200) {
+          el.style.height = `${h}px`
+          document.documentElement.style.setProperty('--hero-h', `${h}px`)
+        }
       }
     }
     place()

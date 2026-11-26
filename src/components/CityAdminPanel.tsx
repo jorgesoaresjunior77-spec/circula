@@ -397,27 +397,28 @@ function CategoriesList() {
   )
 }
 
-function TabDot({ n }: { n: number }) {
-  return n > 0 ? <span className="notif-dot notif-dot--mini cty-tab-dot" aria-label={`${n} novo(s)`} /> : null
-}
-
 export function CityAdminPanel({ uid = null }: { uid?: string | null }) {
   const [tab, setTab] = useState<'denuncias' | 'reivindicacoes' | 'categorias' | 'grupos'>('reivindicacoes')
   const { admin } = useCityBadge(uid ?? 'admin', true, true)
-  const tabs: { key: typeof tab; label: string; n: number }[] = [
-    { key: 'reivindicacoes', label: 'Reivindicações', n: admin.claims },
-    { key: 'categorias', label: 'Pedidos de categoria', n: admin.categorias },
-    { key: 'grupos', label: 'Grupos e categorias', n: 0 },
-    { key: 'denuncias', label: 'Denúncias', n: admin.denuncias },
+  const tabs: { key: typeof tab; label: string; hint: string; n: number }[] = [
+    { key: 'reivindicacoes', label: 'Reivindicações', hint: 'Donos de negócios pedindo a página', n: admin.claims },
+    { key: 'categorias', label: 'Pedidos de categoria', hint: 'Categorias novas sugeridas', n: admin.categorias },
+    { key: 'denuncias', label: 'Denúncias', hint: 'Cadastros denunciados', n: admin.denuncias },
+    { key: 'grupos', label: 'Grupos e categorias', hint: 'Criar, renomear e organizar', n: 0 },
   ]
+  const pending = admin.claims + admin.categorias + admin.denuncias
   return (
     <section className="cty-admin" aria-label="Moderação de Na minha cidade">
       <h3 className="cty-form-title">Na minha cidade</h3>
-      <div className="cty-tabs" role="tablist">
-        {tabs.map((t) => (
-          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={`cty-tab${tab === t.key ? ' cty-tab--on' : ''}`} onClick={() => setTab(t.key)}>
-            {t.label}
-            <TabDot n={t.n} />
+      <p className="home-muted cty-admin-lead">
+        {pending > 0 ? `${pending} ${pending === 1 ? 'pendência' : 'pendências'} para resolver.` : 'Nada pendente por aqui.'} As imagens de lugares e autônomos ficam em Imagens da comunidade.
+      </p>
+      <div className="cty-admin-tiles" role="tablist" aria-label="Áreas da moderação">
+        {tabs.map((t, i) => (
+          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={`cty-admin-tile${tab === t.key ? ' cty-admin-tile--on' : ''}${i === 3 ? ' cty-admin-tile--organizar' : ''}`} onClick={() => setTab(t.key)}>
+            <span className={`cty-admin-tile-n${t.n > 0 ? ' cty-admin-tile-n--alert' : ''}`}>{i === 3 ? '＋' : t.n}</span>
+            <strong>{t.label}</strong>
+            <small>{t.hint}</small>
           </button>
         ))}
       </div>

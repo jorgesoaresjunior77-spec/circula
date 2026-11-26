@@ -37,18 +37,6 @@ const SECTIONS: Section[] = [
     slots: [{ key: 'hero_1', label: 'Imagem do topo', where: 'Topo do Início.' }],
   },
   {
-    id: 'hoje',
-    title: 'Início · Menu “Hoje” (cards pequenos que deslizam)',
-    summary: 'Meu Perfil, Help Nutri, Meu Jardim, Assine o Círcula e Convite.',
-    slots: [
-      { key: 'hoje', label: 'Meu Perfil', where: 'Menu “Hoje”, no topo do Início.' },
-      { key: 'desafios', label: 'Help Nutri', where: 'Menu “Hoje”, no topo do Início.' },
-      { key: 'jardim', label: 'Meu Jardim', where: 'Menu “Hoje”, no topo do Início.' },
-      { key: 'menu_planos', label: 'Assine o Círcula', where: 'Menu “Hoje”, no topo do Início.' },
-      { key: 'ferramenta_calendario', label: 'Convite', where: 'Menu “Hoje”, no topo do Início.' },
-    ],
-  },
-  {
     id: 'cards-menu',
     title: 'Início · Cards finos do menu',
     summary: 'Dicas de leitura, Respiração, Playlist, Wellness, Séries e Filmes, Dicas de Viagem e Carro em Dia.',
@@ -61,6 +49,18 @@ const SECTIONS: Section[] = [
       { key: 'menu_series', label: 'Séries e Filmes', where: 'Card fino do menu, no Início.' },
       { key: 'menu_viagens', label: 'Dicas de Viagem', where: 'Card fino do menu, no Início.' },
       { key: 'menu_lista', label: 'Carro em Dia', where: 'Card fino do menu, no Início (aparece se o Carro em Dia estiver ativo).' },
+    ],
+  },
+  {
+    id: 'hoje',
+    title: 'Início · Menu “Hoje” (cards pequenos que deslizam)',
+    summary: 'Meu Perfil, Help Nutri, Meu Jardim, Assine o Círcula e Convite.',
+    slots: [
+      { key: 'hoje', label: 'Meu Perfil', where: 'Menu “Hoje”, no topo do Início.' },
+      { key: 'desafios', label: 'Help Nutri', where: 'Menu “Hoje”, no topo do Início.' },
+      { key: 'jardim', label: 'Meu Jardim', where: 'Menu “Hoje”, no topo do Início.' },
+      { key: 'menu_planos', label: 'Assine o Círcula', where: 'Menu “Hoje”, no topo do Início.' },
+      { key: 'ferramenta_calendario', label: 'Convite', where: 'Menu “Hoje”, no topo do Início.' },
     ],
   },
   {
@@ -170,7 +170,7 @@ function SlotRow({
 export function PanelImagesTab({ communityId, profileId }: { communityId: string; profileId: string; onOpenCity?: () => void }) {
   const { images, loading, setImage, clearImage } = useCommunityCardImages(communityId)
   const [errorKey, setErrorKey] = useState<CommunityCardKey | null>(null)
-  const [openId, setOpenId] = useState<string | null>('topo')
+  const [openId, setOpenId] = useState<string | null>('cards-menu')
 
   async function handleChange(key: CommunityCardKey, path: string) {
     setErrorKey(null)

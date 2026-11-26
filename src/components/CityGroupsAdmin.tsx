@@ -57,7 +57,7 @@ export function ImageField({ value, spec, onChange }: { value: string | null; sp
 function CategoryEditor({ cat, grupo, onDone, onCancel }: { cat: CityCategory | null; grupo: string; onDone: () => void; onCancel: () => void }) {
   const [nome, setNome] = useState(cat?.nome ?? '')
   const [descricao, setDescricao] = useState(cat?.descricao ?? '')
-  const [imagem, setImagem] = useState<string | null>(cat?.imagem ?? null)
+  const [imagem] = useState<string | null>(cat?.imagem ?? null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -80,7 +80,6 @@ function CategoryEditor({ cat, grupo, onDone, onCancel }: { cat: CityCategory | 
         <span className="cty-label">Descrição curta (aparece no card)</span>
         <textarea rows={2} maxLength={200} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
       </label>
-      <ImageField value={imagem} spec={CATEGORY_IMAGE_SPEC} onChange={setImagem} />
       {error && (
         <p className="auth-error" role="alert">
           {error}
@@ -102,7 +101,7 @@ function GroupEditor({ group, onDone, onCancel }: { group: CityGroup | null; onD
   const [nome, setNome] = useState(group?.nome ?? '')
   const [icone, setIcone] = useState(group?.icone ?? '')
   const [descricao, setDescricao] = useState(group?.descricao ?? '')
-  const [imagem, setImagem] = useState<string | null>(group?.imagem ?? null)
+  const [imagem] = useState<string | null>(group?.imagem ?? null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -129,7 +128,6 @@ function GroupEditor({ group, onDone, onCancel }: { group: CityGroup | null; onD
         <span className="cty-label">Descrição curta (aparece no card)</span>
         <textarea rows={2} maxLength={200} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
       </label>
-      <ImageField value={imagem} spec={GROUP_IMAGE_SPEC} onChange={setImagem} />
       {error && (
         <p className="auth-error" role="alert">
           {error}
@@ -181,7 +179,7 @@ export function CityGroupsAdmin() {
 
   return (
     <div className="cty-admin">
-      <p className="home-muted">Crie os grupos e, dentro de cada um, as categorias. Cada grupo e cada categoria tem um card com imagem e descrição na tela “Na minha cidade”.</p>
+      <p className="home-muted">Crie os grupos e, dentro de cada um, as categorias. Cada grupo e cada categoria aparece na tela “Na minha cidade” com um ícone próprio do Círcula e uma descrição.</p>
       {error && (
         <p className="auth-error" role="alert">
           {error}
@@ -219,7 +217,7 @@ export function CityGroupsAdmin() {
                 ) : (
                   <div className="cty-actions">
                     <button type="button" className="cty-btn cty-btn--small" onClick={() => setEditingGroup(g.slug)}>
-                      Editar grupo (nome, descrição, imagem)
+                      Editar grupo (nome e descrição)
                     </button>
                     {g.slug !== 'outros' && cats.length === 0 && (
                       <button type="button" className="cty-btn cty-btn--small" onClick={() => void removeGroup(g.slug)}>

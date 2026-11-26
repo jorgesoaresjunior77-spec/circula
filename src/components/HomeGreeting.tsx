@@ -28,6 +28,7 @@ export function HomeGreeting({
   return (
     <header className="home-greeting">
       <div className="home-greeting-row">
+        {onOpenWeather ? <WeatherButton onOpen={onOpenWeather} /> : <span />}
         <div className="home-greeting-text">
           <h2 className="home-greeting-title">
             {timeGreeting()}
@@ -35,7 +36,6 @@ export function HomeGreeting({
           </h2>
           <p className="home-greeting-sub">Seu Círcula de hoje</p>
         </div>
-        {onOpenWeather ? <WeatherButton onOpen={onOpenWeather} /> : <span />}
       </div>
     </header>
   )

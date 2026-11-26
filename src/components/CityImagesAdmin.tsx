@@ -7,12 +7,15 @@ import { CityGroupsAdmin, ImageField } from './CityGroupsAdmin'
 // grupos e categorias, estados, cidades, lugares e autônomos.
 
 type Sub = 'grupos' | 'estados' | 'cidades' | 'lugares'
-const SUBS: { key: Sub; label: string; hint: string }[] = [
+const ALL_SUBS: { key: Sub; label: string; hint: string }[] = [
   { key: 'grupos', label: 'Grupos e categorias', hint: 'Cards de cada grupo e de cada categoria (imagem e descrição).' },
   { key: 'estados', label: 'Estados', hint: 'Uma imagem para cada estado.' },
   { key: 'cidades', label: 'Cidades', hint: 'Uma imagem para cada cidade já escolhida por alguma participante.' },
   { key: 'lugares', label: 'Lugares e autônomos', hint: 'Logo e fachada de qualquer lugar ou profissional cadastrado.' },
 ]
+
+// O app usa ícones próprios do Círcula em grupos, categorias, estados e cidades: só lugares e autônomos têm foto.
+const SUBS = ALL_SUBS.filter((s) => s.key === 'lugares')
 
 export const STATE_IMAGE_SPEC = '1600 × 800 px (2:1, horizontal). Aparece no topo da página da cidade.'
 export const CITY_IMAGE_SPEC = '1600 × 800 px (2:1, horizontal). Aparece no topo da página da cidade.'
@@ -201,11 +204,11 @@ function ListingsAdmin() {
 }
 
 export function CityImagesAdmin() {
-  const [sub, setSub] = useState<Sub>('grupos')
+  const [sub, setSub] = useState<Sub>('lugares')
   const current = SUBS.find((s) => s.key === sub)
   return (
     <div className="cty-admin">
-      <div className="cty-tabs" role="tablist" aria-label="Imagens de Na minha cidade">
+      <div className="cty-tabs" role="tablist" aria-label="Imagens de Na minha cidade" hidden={SUBS.length < 2}>
         {SUBS.map((s) => (
           <button key={s.key} type="button" role="tab" aria-selected={sub === s.key} className={`cty-tab${sub === s.key ? ' cty-tab--on' : ''}`} onClick={() => setSub(s.key)}>
             {s.label}

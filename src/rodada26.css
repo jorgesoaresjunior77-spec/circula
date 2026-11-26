@@ -873,3 +873,263 @@ body {
   border: 0;
   background: linear-gradient(90deg, transparent, rgba(162, 117, 63, 0.55), transparent);
 }
+
+/* ==========================================================================
+   Rodada 26/11 (3)
+   ========================================================================== */
+/* sino mais 10% */
+.dashboard-header .notification-bell-button {
+  width: 41px !important;
+  height: 41px !important;
+}
+.dashboard-header .notification-bell-icon {
+  width: 33px !important;
+  height: 33px !important;
+}
+
+/* o alto da página tem a mesma cor do alto da foto (a cor vem da própria foto) */
+html:has(.dashboard--hero) {
+  background-color: var(--hero-top, #efe4d6);
+}
+
+/* fundo do alto da foto mais claro */
+.hero-bg::after {
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.4) 0%, rgba(255, 250, 244, 0.22) 26%, rgba(255, 250, 244, 0) 48%);
+}
+
+/* capa: saudação e clima à esquerda (perto de "Antes de Tudo"), banner à direita (acima da Calculadora) */
+.dashboard--hero .dashboard-community-cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 46%);
+  grid-template-areas: 'saudacao banner';
+  align-items: end;
+  column-gap: 8px;
+  min-height: 52vw;
+  margin-bottom: 0;
+}
+.dashboard--hero .dashboard-community-cover > .home-community-header {
+  grid-area: banner;
+  max-width: none !important;
+  width: 100%;
+}
+.dashboard--hero .dashboard-community-cover > .home-greeting {
+  grid-area: saudacao;
+  max-width: none;
+  margin: 0;
+}
+.dashboard--hero .home-greeting .home-greeting-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.dashboard--hero .home-greeting .home-greeting-text {
+  flex: 0 0 auto !important;
+  width: auto;
+}
+
+/* clima: cartão de vidro líquido 3D, ícone e números maiores */
+.dashboard--hero .home-greeting .weather-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: auto;
+  padding: 4px 16px 4px 8px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.24) 100%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.9) !important;
+  backdrop-filter: blur(16px) saturate(1.9) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.32),
+    inset 0 0 20px rgba(255, 255, 255, 0.14),
+    0 14px 22px -12px rgba(40, 26, 18, 0.5) !important;
+  transform: perspective(600px) rotateX(3deg);
+}
+.dashboard--hero .home-greeting .weather-button svg {
+  width: 46px;
+  height: 46px;
+}
+.dashboard--hero .home-greeting .weather-temp-now {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  color: #4a2f22;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* faixas que se movem: transição de canto bem mais curta */
+.exp-viewport,
+.circ-viewport,
+.partner-viewport {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 3.5%, #000 96.5%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 3.5%, #000 96.5%, transparent 100%);
+}
+
+/* ícones (Antes de Tudo, Água, IMC, Calculadora): a foto grande some em degradê para ler melhor */
+.home-tools--icons {
+  position: relative;
+  isolation: isolate;
+}
+.home-tools--icons::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -46px;
+  bottom: -18px;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(250, 244, 236, 0) 0%, rgba(250, 244, 236, 0.7) 34%, rgba(250, 244, 236, 0.88) 100%);
+}
+
+/* calendário e relógio: sem sombra, no centro entre a linha de cima e a de baixo */
+.home-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-block: 0 !important;
+  padding-block: 16px;
+}
+.home-time + .home-section-divider,
+.home-section-divider:has(+ .home-time) {
+  margin-block: 0 !important;
+}
+.home-time .home-clock-shadow {
+  display: none !important;
+}
+.home-time .home-week,
+.home-time .home-week .home-week-open,
+.home-time .home-week .home-week-grid,
+.home-time .home-clock {
+  filter: none !important;
+  box-shadow: none !important;
+}
+.home-time .home-week * {
+  filter: none !important;
+}
+.home-time > .home-week {
+  scale: 1.05;
+}
+.home-time > .home-clock-open {
+  scale: 0.95;
+  translate: 8px 0;
+}
+
+/* Eventos, Loja e Receitas: borda mais grossa e letras do nome mais abertas */
+.home-trio .home-trio-circle,
+.home-trio .home-trio-circle--a,
+.home-trio .home-trio-circle--b,
+.home-trio .home-trio-circle--c {
+  box-shadow:
+    0 0 0 4.5px rgba(243, 232, 219, 0.8),
+    0 0 0 6px rgba(125, 100, 79, 0.45),
+    0 10px 12px -6px rgba(40, 26, 18, 0.45),
+    0 24px 28px -14px rgba(40, 26, 18, 0.5);
+}
+.home-trio .home-trio-name {
+  letter-spacing: 0.2em;
+}
+
+/* Se exercite 10% mais estreito; Diário da Gratidão 10% maior para a esquerda e para baixo */
+.home-pair--feature .hfb--diary {
+  width: 90%;
+}
+.home-pair--feature .hfb--series {
+  scale: 1.1;
+  transform-origin: right top;
+  margin-bottom: 4%;
+}
+
+/* fim da página: de ponta a ponta e até a borda de baixo, com 30% da altura da foto do topo */
+.home-end {
+  --end-extra: calc(var(--space-6, 24px) + var(--bottom-nav-h, 84px) + env(safe-area-inset-bottom, 0px));
+}
+.home-end--photo {
+  min-height: calc(var(--hero-h, 520px) * 0.3);
+}
+.home-end-photo {
+  top: 0;
+  bottom: auto;
+  left: 50%;
+  width: 100vw;
+  max-width: none;
+  height: calc(100% + var(--end-extra));
+  transform: translateX(-50%);
+}
+.home-end--photo::after {
+  top: 0;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  width: 100vw;
+  height: calc(100% + var(--end-extra));
+  transform: translateX(-50%);
+}
+
+/* Painel · Na minha cidade: quatro áreas claras, com contador */
+.cty-admin-lead {
+  margin: 0 0 12px;
+}
+.cty-admin-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.cty-admin-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'n t' 'n h';
+  align-items: center;
+  column-gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1.5px solid rgba(162, 117, 63, 0.45);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fbf3e8, #f3e6d3);
+  color: #4a2f22;
+  cursor: pointer;
+}
+.cty-admin-tile strong {
+  grid-area: t;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.cty-admin-tile small {
+  grid-area: h;
+  font-size: 11.5px;
+  line-height: 1.3;
+  opacity: 0.7;
+}
+.cty-admin-tile-n {
+  grid-area: n;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(162, 117, 63, 0.16);
+  font-size: 18px;
+  font-weight: 800;
+}
+.cty-admin-tile-n--alert {
+  background: #b5503c;
+  color: #fff;
+}
+.cty-admin-tile--on {
+  border-color: #4a2f22;
+  background: linear-gradient(135deg, #5a3a2b, #3d261b);
+  color: #fbf3e8;
+}
+.cty-admin-tile--on .cty-admin-tile-n {
+  background: rgba(255, 255, 255, 0.16);
+}
+.cty-admin-tile--organizar {
+  grid-column: 1 / -1;
+}
