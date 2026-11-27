@@ -488,6 +488,7 @@ async function handleAddonSubscriptionEvent(
         .eq('community_id', addon.community_id)
         .eq('profile_id', addon.profile_id)
         .eq('package', pkg)
+        .is('granted_by', null) // liberado à mão pela equipe (cortesia): nunca sai sozinho
     }
   }
 }

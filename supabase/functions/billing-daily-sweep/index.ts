@@ -143,6 +143,7 @@ Deno.serve(async (req) => {
           .eq('community_id', addon.community_id as string)
           .eq('profile_id', addon.profile_id as string)
           .eq('package', pkg)
+          .is('granted_by', null) // liberado à mão pela equipe (cortesia): nunca sai sozinho
       }
       if (((addon.installment_count as number | null) ?? 1) > 1) {
         // Contrato parcelado (6 ou 12 meses) não renova: terminou a vigência, fica encerrado.
@@ -178,6 +179,7 @@ Deno.serve(async (req) => {
           .eq('community_id', addon.community_id as string)
           .eq('profile_id', addon.profile_id as string)
           .eq('package', pkg)
+          .is('granted_by', null) // liberado à mão pela equipe (cortesia): nunca sai sozinho
       }
     }
 

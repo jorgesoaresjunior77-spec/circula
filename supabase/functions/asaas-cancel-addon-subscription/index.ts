@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
             .eq('community_id', addon.community_id as string)
             .eq('profile_id', addon.profile_id as string)
             .eq('package', itemKey)
+            .is('granted_by', null) // liberado à mão pela equipe (cortesia): nunca sai sozinho
         }
         try {
           await admin.from('notifications').insert({
@@ -163,6 +164,7 @@ Deno.serve(async (req) => {
             .eq('community_id', addon.community_id as string)
             .eq('profile_id', addon.profile_id as string)
             .eq('package', pkg)
+            .is('granted_by', null) // liberado à mão pela equipe (cortesia): nunca sai sozinho
         }
       }
     }

@@ -133,6 +133,7 @@ Deno.serve(async (req) => {
               .eq('community_id', addon.community_id as string)
               .eq('profile_id', subscription.profile_id)
               .eq('package', pkg)
+              .is('granted_by', null) // liberado à mão pela equipe (cortesia): nunca sai sozinho
           }
           cancelledAddons += 1
         } catch (addonError) {
