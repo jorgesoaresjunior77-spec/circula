@@ -8,6 +8,58 @@ export interface Partner {
   link_url: string | null
   position: number
   status: 'draft' | 'published'
+  /** Página do parceiro (todos opcionais). */
+  cover_path?: string | null
+  description?: string | null
+  category?: string | null
+  city?: string | null
+  /** Só o @ (sem o @), ex.: benleve.oficial */
+  instagram?: string | null
+  city_listing_id?: string | null
+}
+
+/** Aceita "@perfil", "perfil" ou o link do Instagram; devolve só o usuário (ou null se não serve). */
+export function normalizeInstagram(raw: string | null | undefined): string | null {
+  const t = (raw ?? '').trim()
+  if (!t) return null
+  const m = t.match(/instagram\.com\/([A-Za-z0-9._]{1,30})/i)
+  const user = (m ? m[1] : t.replace(/^@/, '')).replace(/\/+$/, '')
+  return /^[A-Za-z0-9._]{1,30}$/.test(user) ? user : null
+}
+
+export function instagramUrl(user: string | null | undefined): string | null {
+  const u = normalizeInstagram(user)
+  return u ? `https://www.instagram.com/${encodeURIComponent(u)}/` : null
+}
+
+export interface PartnerCoupon {
+  id: string
+  title: string
+  code: string
+  benefit: string
+  discount_type: 'percentual' | 'valor' | 'frete_gratis' | 'brinde' | 'outro'
+  discount_value: number | null
+  instructions: string | null
+  valid_from: string | null
+  valid_until: string | null
+  max_per_person: number | null
+  after_redeem: 'hide' | 'mark'
+  used: number
+  available: boolean
+  status: 'disponivel' | 'esgotado' | 'expirado' | 'em_breve'
+}
+
+/** Código de cupom: maiúsculas, números, - e _ (3 a 30). */
+export function normalizeCouponCode(raw: string): string {
+  return raw.toUpperCase().replace(/\s+/g, '').replace(/[^A-Z0-9_-]/g, '').slice(0, 30)
+}
+
+export function couponValueLabel(c: Pick<PartnerCoupon, 'discount_type' | 'discount_value'>): string | null {
+  if (c.discount_type === 'percentual' && c.discount_value) return `${String(c.discount_value).replace('.', ',')}% OFF`
+  if (c.discount_type === 'valor' && c.discount_value) return `R$ ${Number(c.discount_value).toFixed(2).replace('.', ',')} OFF`
+  if (c.discount_type === 'frete_gratis') return 'Frete grátis'
+  if (c.discount_type === 'brinde') return 'Brinde'
+  return null
 }
 
 /**

@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase'
 
 export interface ProductCheckoutResult {
   error: string | null
+  /** Código do servidor (ex.: MISSING_BILLING_DATA = falta o CPF). */
+  code?: string | null
   invoiceUrl: string | null
   orderId: string | null
   status: string | null
@@ -25,16 +27,18 @@ export function useProductCheckout() {
 
       if (error) {
         let message = 'Não foi possível iniciar a compra agora. Tente novamente.'
+        let code: string | null = null
         const context = (error as unknown as { context?: Response }).context
         if (context && typeof context.json === 'function') {
           try {
             const body = await context.json()
             if (body && typeof body.error === 'string') message = body.error
+            if (body && typeof body.code === 'string') code = body.code
           } catch {
             // mantém a mensagem genérica
           }
         }
-        return { error: message, invoiceUrl: null, orderId: null, status: null }
+        return { error: message, code, invoiceUrl: null, orderId: null, status: null }
       }
 
       return {

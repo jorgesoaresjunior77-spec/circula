@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { CreateCommentResult } from '../types/post'
 import { EmojiPicker } from './EmojiPicker'
-import { CheckIcon, PhotoIcon } from './icons'
-import { FeedPhotoCropper } from './FeedPhotoCropper'
 import { MODERATION_MESSAGE } from '../lib/moderation'
 
 interface CommentFormProps {
@@ -30,10 +28,7 @@ export function CommentForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
-  const [file, setFile] = useState<File | null>(null)
-  // Foto escolhida, esperando o recorte 4:5 (estilo Instagram).
-  const [cropping, setCropping] = useState<File | null>(null)
+  // Comentários e respostas são só texto (fotos só nas publicações).
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus()
@@ -44,7 +39,7 @@ export function CommentForm({
     setLoading(true)
     setError(null)
 
-    const { error: submitError } = await onSubmit(content.trim() || (file ? '📷' : ''), file)
+    const { error: submitError } = await onSubmit(content.trim(), null)
 
     setLoading(false)
 
@@ -60,7 +55,6 @@ export function CommentForm({
     }
 
     setContent('')
-    setFile(null)
     onCancel?.()
   }
 
@@ -79,32 +73,8 @@ export function CommentForm({
       />
 
       <EmojiPicker onPick={(e) => setContent((c) => c + e)} />
-      <button type="button" className="comment-attach" onClick={() => fileRef.current?.click()} aria-label={file ? 'Foto anexada' : 'Anexar foto'}>
-        <PhotoIcon size={20} />
-        {file && <CheckIcon size={14} />}
-      </button>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => {
-          setCropping(e.target.files?.[0] ?? null)
-          e.target.value = ''
-        }}
-      />
-      {cropping && (
-        <FeedPhotoCropper
-          file={cropping}
-          onCancel={() => setCropping(null)}
-          onDone={(cropped) => {
-            setCropping(null)
-            setFile(cropped)
-          }}
-        />
-      )}
 
-      <button type="submit" disabled={loading || (!content.trim() && !file)}>
+      <button type="submit" disabled={loading || !content.trim()}>
         {loading ? pendingLabel : submitLabel}
       </button>
 

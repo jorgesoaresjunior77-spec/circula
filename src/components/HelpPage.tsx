@@ -46,8 +46,11 @@ function Accordion({ items, openIds, onToggle }: { items: HelpItem[]; openIds: S
                 +
               </span>
             </button>
-            <div id={`help-a-${item.id}`} className="help-a" role="region" hidden={!open}>
-              <p>{item.a}</p>
+            {/* abre e fecha deslizando (a altura anima de 0 até o conteúdo) */}
+            <div id={`help-a-${item.id}`} className={`help-a${open ? " help-a--open" : ""}`} role="region" aria-hidden={!open} inert={!open}>
+              <div className="help-a-inner">
+                <p>{item.a}</p>
+              </div>
             </div>
           </li>
         )

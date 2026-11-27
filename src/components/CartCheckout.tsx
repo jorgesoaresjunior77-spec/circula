@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { maskDocument } from '../lib/billingDocument'
 import type { FormEvent } from 'react'
 import { useAddonCheckout } from '../hooks/useAddonCheckout'
 import { useSubscription } from '../hooks/useSubscription'
@@ -134,7 +135,7 @@ export function CartCheckout({
             <option value="CNPJ">CNPJ</option>
           </select>
           <label htmlFor="cart-doc-number">{documentType}</label>
-          <input id="cart-doc-number" type="text" value={documentNumber} onChange={(e) => setDocumentNumber(e.target.value)} placeholder={documentType === 'CPF' ? '000.000.000-00' : '00.000.000/0000-00'} required />
+          <input id="cart-doc-number" type="text" value={documentNumber} inputMode="numeric" onChange={(e) => setDocumentNumber(maskDocument(documentType, e.target.value))} placeholder={documentType === 'CPF' ? '000.000.000-00' : '00.000.000/0000-00'} required />
           <button type="submit" disabled={saving || !documentNumber.trim()}>
             {saving ? 'Salvando...' : 'Salvar dados de cobrança'}
           </button>

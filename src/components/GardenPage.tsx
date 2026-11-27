@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { missedDays, readSeenFalls, saveSeenFalls, splitFalls } from '../lib/gardenFall'
 import { Confetti } from './Confetti'
 import { daysInMonth, useGardenMonth } from '../hooks/useGardenMonth'
 import { MonthFlower, YearTree } from './GardenArt'
@@ -39,6 +40,20 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
   const doneToday = checkedNow.has(g.today.day)
   const todayText = current?.texts[g.today.day]
 
+  // Dias sem check: a pétala cai uma vez (registrado) e depois fica caída.
+  const [fallTick, setFallTick] = useState(0)
+  const checkedKey = [...checkedNow].sort((a, b) => a - b).join(',')
+  const fall = useMemo(() => {
+    if (!current || g.loading) return { falling: new Set<number>(), gone: new Set<number>() }
+    return splitFalls(missedDays(g.today.day, current.days, checkedNow), readSeenFalls(profileId, current.id))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id, current?.days, g.loading, g.today.day, checkedKey, profileId, fallTick])
+  const handleFallDone = useCallback(() => {
+    if (!current || fall.falling.size === 0) return
+    saveSeenFalls(profileId, current.id, fall.falling)
+    setFallTick((n) => n + 1)
+  }, [current, fall.falling, profileId])
+
   const monthsDone: boolean[] = Array.from({ length: 12 }, (_, i) => {
     const m = g.months.find((x) => x.month === i + 1)
     return !!m && g.monthDone(m)
@@ -73,7 +88,12 @@ export function GardenPage({ communityId, profileId, isOwner, onChecked, onOpenA
         ) : current ? (
           <>
             <Confetti fire={doneToday} ready={!g.loading} />
-            <MonthFlower days={current.days} checked={checkedNow} />
+            <MonthFlower days={current.days} checked={checkedNow} gone={fall.gone} falling={fall.falling} today={g.today.day} onFallDone={handleFallDone} />
+            {fall.falling.size > 0 && (
+              <p className="garden-fall-note" role="status">
+                {fall.falling.size === 1 ? `O dia ${[...fall.falling][0]} ficou sem check e a pétala caiu.` : `Os dias ${[...fall.falling].join(', ')} ficaram sem check e as pétalas caíram.`} Hoje é um novo dia para florescer.
+              </p>
+            )}
             <div className="garden-today">
               <p className="garden-today-label">Desafio de hoje · dia {g.today.day}</p>
               <p className="garden-today-text">{todayText || 'Sem desafio escrito para hoje.'}</p>

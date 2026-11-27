@@ -755,6 +755,24 @@ export const HELP_CATEGORIES: HelpCategory[] = [
         k: 'cotações dólar euro bitcoin ethereum moedas bolsa câmbio',
       },
       {
+        id: 'mr-calculadora-cotacoes',
+        q: 'Como simular quanto de Bitcoin (ou Dólar) eu compro com um valor?',
+        a: 'Na página Cotações, use a calculadora no alto: digite o valor em reais, escolha a moeda e, se quiser, a taxa da sua corretora. Ela mostra quanto daria para comprar pela cotação de agora (preço de venda) e a hora da atualização. É só uma simulação: não compra nada, e o valor real muda a cada minuto.',
+        k: 'calculadora simular comprar bitcoin dólar euro ethereum quanto compro reais',
+      },
+      {
+        id: 'mr-cupons',
+        q: 'Onde vejo os cupons de desconto dos parceiros?',
+        a: 'Na página inicial, toque no logo de um parceiro: abre a página dele, com a foto do lugar, o Instagram, o site e os cupons. Toque em Copiar para levar o código, ou em Usar este cupom para registrar o uso. Cada cupom mostra a validade e quantas vezes você ainda pode usar.',
+        k: 'cupom cupons desconto parceiro parceiros código instagram',
+      },
+      {
+        id: 'mr-historico-precos',
+        q: 'Como acompanhar os preços do mercado na Minha Lista?',
+        a: 'No modo supermercado, marque o que comprou, preencha a marca e o valor pago e toque em Finalizar compra: informe o supermercado e a data. A compra vai para Histórico e preços, onde os gráficos mostram qual mercado sai mais em conta, onde cada produto está mais barato e como o preço mudou com o tempo. Tudo com os preços que você mesma registrou.',
+        k: 'lista de compras histórico preços gráfico supermercado mercado mais barato marca valor pago',
+      },
+      {
         id: 'mr-carro',
         q: 'O que tem no Carro em Dia?',
         a: 'Mais de 80 dúvidas comuns sobre carro, por assunto (emergências, pneus, freios, bateria, óleo, documentação, multas, segurança, compra e venda e mais), cada uma com a resposta, os próximos passos e quando procurar um profissional. Dá para procurar pela palavra ou perguntar à Livi, e chegar aos serviços cadastrados em Na minha cidade. São orientações gerais: o manual do carro e o Detran do seu estado são a referência final.',

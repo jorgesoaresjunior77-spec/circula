@@ -6,6 +6,7 @@ import { EXERCISES, EXERCISE_BY_SLUG, useHomeWorkouts } from '../hooks/useHomeWo
 import type { WorkoutExercise } from '../hooks/useHomeWorkouts'
 import { GENERAL_SAFETY, GOALS, MATERIALS, MATERIAL_LABEL, WORKOUT_MINUTES, buildWorkout, exerciseSeconds, formatClock, formatMinutes } from '../lib/exerciseCatalog'
 import { PRODUCTS, formatBrl } from '../lib/plansCatalog'
+import { CheckGlyph, WORKOUT_ICONS, WORKOUT_ICON_FALLBACK } from './WorkoutIcons'
 
 // Se exercite em casa: você escolhe o tempo, as regiões do corpo, o objetivo, o
 // nível e o que tem em casa; o app monta o treino do momento (e dá para salvar).
@@ -15,36 +16,8 @@ const MAIN_CATEGORIES = ['Corpo inteiro', 'Pernas', 'Glúteos', 'Abdômen', 'Bra
 
 type View = 'form' | 'plan' | 'detail' | 'play'
 
-// Ícones das opções (todas as opções que já existiam continuam; aqui só ganham um desenho).
-const CATEGORY_ICON: Record<string, string> = {
-  'Corpo inteiro': '🤸‍♀️',
-  Pernas: '🦵',
-  Glúteos: '🍑',
-  Abdômen: '🎯',
-  Braços: '💪',
-  Peito: '🫁',
-  Costas: '🧗‍♀️',
-  Equilíbrio: '🦩',
-  'Condicionamento físico': '⚡',
-}
-const GOAL_ICON: Record<string, string> = {
-  Fortalecer: '🏋️‍♀️',
-  Mobilidade: '🔄',
-  Equilíbrio: '🦩',
-  Alongar: '🧘‍♀️',
-  Condicionamento: '❤️‍🔥',
-  Postura: '🧍‍♀️',
-}
-const MATERIAL_ICON: Record<string, string> = {
-  parede: '🧱',
-  cadeira: '🪑',
-  degrau: '🪜',
-  garrafas: '💧',
-  bola: '⚽',
-  elastico: '🎗️',
-  toalha: '🛁',
-  cabo: '🧹',
-}
+// Ícones das opções no traço do Círcula (antes eram emojis).
+const icon = (key: string) => WORKOUT_ICONS[key] ?? WORKOUT_ICON_FALLBACK
 
 /** Card de opção: o mesmo desenho em todas as etapas (tempo, região, objetivo, nível e o que tem em casa). */
 function OptionCard({ on, onClick, icon, title, hint, multi = false }: { on: boolean; onClick: () => void; icon: React.ReactNode; title: string; hint?: string; multi?: boolean }) {
@@ -56,7 +29,7 @@ function OptionCard({ on, onClick, icon, title, hint, multi = false }: { on: boo
       <span className="hw-opt-title">{title}</span>
       {hint && <span className="hw-opt-hint">{hint}</span>}
       <span className="hw-opt-check" aria-hidden="true">
-        ✓
+        <CheckGlyph />
       </span>
     </button>
   )
@@ -314,30 +287,30 @@ export function HomeWorkoutPage({ profileId, canUse, onOpenPlans }: { profileId:
         <p className="home-muted">Marque uma ou mais regiões (ou nenhuma, para um treino variado).</p>
         <div className="hw-opts" role="group" aria-label="Partes do corpo">
           {MAIN_CATEGORIES.map((c) => (
-            <OptionCard key={c} multi on={categories.includes(c)} onClick={() => setCategories((l) => toggle(l, c))} icon={CATEGORY_ICON[c] ?? '•'} title={c} />
+            <OptionCard key={c} multi on={categories.includes(c)} onClick={() => setCategories((l) => toggle(l, c))} icon={icon(c)} title={c} />
           ))}
         </div>
 
         <h3>Objetivo</h3>
         <div className="hw-opts" role="group" aria-label="Objetivo">
           {GOALS.map((g) => (
-            <OptionCard key={g} multi on={goals.includes(g)} onClick={() => setGoals((l) => toggle(l, g))} icon={GOAL_ICON[g] ?? '•'} title={g} />
+            <OptionCard key={g} multi on={goals.includes(g)} onClick={() => setGoals((l) => toggle(l, g))} icon={icon(g)} title={g} />
           ))}
         </div>
 
         <h3>Nível</h3>
         <div className="hw-opts" role="group" aria-label="Nível">
-          <OptionCard on={level === 'Iniciante'} onClick={() => setLevel('Iniciante')} icon="🌱" title="Iniciante" />
-          <OptionCard on={level === 'Intermediário'} onClick={() => setLevel('Intermediário')} icon="🌿" title="Intermediário" />
-          <OptionCard multi on={lowImpact} onClick={() => setLowImpact((v) => !v)} icon="🪶" title="Só baixo impacto" />
+          <OptionCard on={level === 'Iniciante'} onClick={() => setLevel('Iniciante')} icon={icon('Iniciante')} title="Iniciante" />
+          <OptionCard on={level === 'Intermediário'} onClick={() => setLevel('Intermediário')} icon={icon('Intermediário')} title="Intermediário" />
+          <OptionCard multi on={lowImpact} onClick={() => setLowImpact((v) => !v)} icon={icon('Só baixo impacto')} title="Só baixo impacto" />
         </div>
 
         <h3>O que você tem em casa?</h3>
         <p className="home-muted">Marque tudo o que tiver. Sem equipamentos, o treino usa só o peso do corpo.</p>
         <div className="hw-opts" role="group" aria-label="Equipamentos disponíveis">
-          <OptionCard on={materials.length === 0} onClick={() => setMaterials([])} icon="🙌" title="Sem equipamentos" />
+          <OptionCard on={materials.length === 0} onClick={() => setMaterials([])} icon={icon('Sem equipamentos')} title="Sem equipamentos" />
           {MATERIALS.map((m) => (
-            <OptionCard key={m.key} multi on={materials.includes(m.key)} onClick={() => setMaterials((l) => toggle(l, m.key))} icon={MATERIAL_ICON[m.key] ?? '•'} title={m.label} />
+            <OptionCard key={m.key} multi on={materials.includes(m.key)} onClick={() => setMaterials((l) => toggle(l, m.key))} icon={icon(m.key)} title={m.label} />
           ))}
         </div>
 

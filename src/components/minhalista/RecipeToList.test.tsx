@@ -53,6 +53,29 @@ describe('Montar lista com minhas receitas', () => {
     expect(r1.ingredients).toBe('2 ovos\n1 tomate\n200 g de frango')
   })
 
+  it('o campo de porções pode ser apagado e aceita qualquer inteiro (ex.: 10)', () => {
+    const { api } = fakeApi()
+    render(<RecipeToList recipes={[r1]} fixed={r1} api={api} onClose={() => {}} onDone={() => {}} />)
+    const input = screen.getByLabelText(/Porções/) as HTMLInputElement
+    fireEvent.change(input, { target: { value: '' } })
+    expect(input.value).toBe('') // apagou o 1 de verdade
+    expect(screen.getByText(/2 un/)).toBeInTheDocument() // enquanto vazio, mantém o último cálculo
+    fireEvent.change(input, { target: { value: '10' } })
+    expect(input.value).toBe('10')
+    expect(screen.getByText(/20 un/)).toBeInTheDocument()
+    fireEvent.change(input, { target: { value: '2,5' } })
+    expect(input.value).toBe('25') // só dígitos
+    fireEvent.change(input, { target: { value: '' } })
+    fireEvent.blur(input)
+    expect(input.value).toBe('25') // vazio ao sair volta ao último valor válido
+  })
+
+  it('avisa que a revisão dos itens vem na próxima etapa', () => {
+    const { api } = fakeApi()
+    render(<RecipeToList recipes={[r1]} fixed={r1} api={api} onClose={() => {}} onDone={() => {}} />)
+    expect(screen.getByText('Na próxima etapa, você poderá revisar, adicionar ou remover itens da sua lista de compras.')).toBeInTheDocument()
+  })
+
   it('receita sem ingredientes escritos avisa e não deixa criar lista vazia', () => {
     const { api } = fakeApi()
     render(<RecipeToList recipes={[recipe('r3', 'Vazia', '')]} api={api} onClose={() => {}} onDone={() => {}} />)

@@ -37,6 +37,7 @@ import './soft.css'
 import './carro.css'
 import './financas.css'
 import './rodada26.css'
+import './rodada28.css'
 
 function App() {
   const {

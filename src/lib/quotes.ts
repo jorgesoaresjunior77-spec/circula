@@ -15,8 +15,10 @@ export const QUOTE_NAMES: Record<QuoteCode, string> = {
 
 export interface Quote {
   code: QuoteCode
-  /** Valor de compra em reais. */
+  /** Valor de compra em reais (o que o mercado paga). */
   bid: number
+  /** Valor de venda em reais (o que se paga para comprar o ativo). */
+  ask?: number
   /** Variação do dia, em %. */
   pctChange: number
   /** Quando a cotação foi registrada (ms). */
@@ -43,10 +45,11 @@ export function parseLast(json: unknown): Quote[] {
     const row = (json as Record<string, Record<string, unknown> | undefined>)[`${code}BRL`]
     if (!row) continue
     const bid = num(row.bid)
+    const ask = num(row.ask)
     const pct = num(row.pctChange)
     const ts = num(row.timestamp)
     if (!Number.isFinite(bid)) continue
-    out.push({ code, bid, pctChange: Number.isFinite(pct) ? pct : 0, at: Number.isFinite(ts) ? ts * 1000 : Date.now() })
+    out.push({ code, bid, ...(Number.isFinite(ask) && ask > 0 ? { ask } : {}), pctChange: Number.isFinite(pct) ? pct : 0, at: Number.isFinite(ts) ? ts * 1000 : Date.now() })
   }
   return out
 }
@@ -94,4 +97,21 @@ export function formatQuote(code: QuoteCode, bid: number): string {
 export function formatPct(pct: number): string {
   const s = Math.abs(pct).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   return `${pct > 0 ? '+' : pct < 0 ? '−' : ''}${s}%`
+}
+
+
+/** Casas decimais para mostrar a quantidade de cada ativo. */
+export const QUOTE_DECIMALS: Record<QuoteCode, number> = { USD: 2, EUR: 2, BTC: 8, ETH: 6 }
+
+/**
+ * Simulação: quanto do ativo dá para comprar com um valor em reais.
+ * Usa o preço de venda (ask) quando existe; a taxa (%) é opcional e sai do valor antes da conversão.
+ * Devolve null se o valor ou a cotação não servem.
+ */
+export function simulatePurchase(amountBrl: number, quote: Pick<Quote, 'bid' | 'ask'>, feePct = 0): { quantity: number; price: number; feeBrl: number; netBrl: number } | null {
+  const price = quote.ask && quote.ask > 0 ? quote.ask : quote.bid
+  if (!(amountBrl > 0) || !(price > 0) || feePct < 0 || feePct >= 100) return null
+  const feeBrl = Math.round(amountBrl * feePct) / 100
+  const netBrl = amountBrl - feeBrl
+  return { quantity: netBrl / price, price, feeBrl, netBrl }
 }

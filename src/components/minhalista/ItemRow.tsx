@@ -3,19 +3,21 @@ import { CATEGORIES, UNITS, centsToInput, parsePriceToCents } from '../../lib/sh
 import type { ListItem } from '../../lib/shopping'
 
 // Uma linha da lista. Cada campo salva sozinho ao sair dele (ou ao marcar).
+// Na criação da lista vai só o valor ESTIMADO; o valor pago se registra no
+// modo supermercado, na hora da compra.
 
-type Patch = Partial<Pick<ListItem, 'name' | 'category' | 'quantity' | 'unit' | 'est_price_cents' | 'paid_price_cents' | 'notes' | 'bought'>>
+type Patch = Partial<Pick<ListItem, 'name' | 'category' | 'quantity' | 'unit' | 'est_price_cents' | 'paid_price_cents' | 'brand' | 'notes' | 'bought'>>
 
 export function ItemRow({ item, canEdit, onChange, onRemove }: { item: ListItem; canEdit: boolean; onChange: (patch: Patch) => void; onRemove: () => void }) {
   const [qty, setQty] = useState(String(item.quantity).replace('.', ','))
   const [est, setEst] = useState(centsToInput(item.est_price_cents))
-  const [paid, setPaid] = useState(centsToInput(item.paid_price_cents))
+  const [brand, setBrand] = useState(item.brand ?? '')
   const [name, setName] = useState(item.name)
 
   // quando o item muda por fora (importação, outra pessoa), a linha acompanha
   useEffect(() => setQty(String(item.quantity).replace('.', ',')), [item.quantity])
   useEffect(() => setEst(centsToInput(item.est_price_cents)), [item.est_price_cents])
-  useEffect(() => setPaid(centsToInput(item.paid_price_cents)), [item.paid_price_cents])
+  useEffect(() => setBrand(item.brand ?? ''), [item.brand])
   useEffect(() => setName(item.name), [item.name])
 
   const commitQty = () => {
@@ -72,16 +74,17 @@ export function ItemRow({ item, canEdit, onChange, onRemove }: { item: ListItem;
               }}
             />
           </label>
-          <label className="ml-price-field">
-            Pago R$
+          <label className="ml-price-field ml-brand-field">
+            Marca
             <input
-              inputMode="decimal"
-              value={paid}
+              value={brand}
+              maxLength={80}
               disabled={!canEdit}
-              onChange={(e) => setPaid(e.target.value)}
+              placeholder="opcional"
+              onChange={(e) => setBrand(e.target.value)}
               onBlur={() => {
-                const c = parsePriceToCents(paid)
-                if (c !== item.paid_price_cents) onChange({ paid_price_cents: c })
+                const b = brand.trim() || null
+                if (b !== (item.brand ?? null)) onChange({ brand: b })
               }}
             />
           </label>

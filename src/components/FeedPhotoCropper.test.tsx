@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import { FeedPhotoCropper, FEED_PHOTO_ASPECT } from './FeedPhotoCropper'
 import { CommentForm } from './CommentForm'
+import { PostComposer } from './PostComposer'
 
 vi.mock('./ImageCropper', () => ({
   ImageCropper: ({
@@ -49,31 +50,38 @@ describe('FeedPhotoCropper — foto 4:5 estilo Instagram', () => {
   })
 })
 
-describe('CommentForm — a foto passa pelo recorte 4:5', () => {
+describe('CommentForm — comentários só em texto', () => {
   afterEach(() => cleanup())
 
-  it('escolher uma foto abre o recorte; usar o recorte anexa a foto', () => {
+  it('não tem ícone nem campo de imagem', () => {
     const { container } = render(<CommentForm onSubmit={vi.fn()} />)
-
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement
-    fireEvent.change(input, { target: { files: [new File(['x'], 'foto.jpg', { type: 'image/jpeg' })] } })
-
-    expect(screen.getByRole('dialog', { name: 'Ajustar a foto (4:5)' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Anexar foto' })).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'usar recorte' }))
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Foto anexada' })).toBeInTheDocument()
+    expect(container.querySelector('input[type="file"]')).toBeNull()
+    expect(screen.queryByRole('button', { name: /Anexar foto|Foto anexada/ })).not.toBeInTheDocument()
   })
 
-  it('cancelar o recorte não anexa nada', () => {
-    const { container } = render(<CommentForm onSubmit={vi.fn()} />)
+  it('envia só o texto (nunca uma imagem)', () => {
+    const onSubmit = vi.fn().mockResolvedValue({ error: null })
+    render(<CommentForm onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Que lindo!' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Comentar' }))
+    expect(onSubmit).toHaveBeenCalledWith('Que lindo!', null)
+  })
+})
 
+describe('PostComposer — a publicação própria continua com foto', () => {
+  URL.createObjectURL = vi.fn(() => 'blob:previa')
+  URL.revokeObjectURL = vi.fn()
+  afterEach(() => cleanup())
+
+  it('escolher a foto abre o recorte; depois mostra a prévia com Trocar e Remover', () => {
+    const { container } = render(<PostComposer onPublish={vi.fn()} onUploadImage={vi.fn()} />)
     const input = container.querySelector('input[type="file"]') as HTMLInputElement
+    expect(input).toHaveAttribute('accept', 'image/*')
     fireEvent.change(input, { target: { files: [new File(['x'], 'foto.jpg', { type: 'image/jpeg' })] } })
-    fireEvent.click(screen.getByRole('button', { name: 'cancelar recorte' }))
-
-    expect(screen.getByRole('button', { name: 'Anexar foto' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'usar recorte' }))
+    expect(screen.getByAltText('Pré-visualização da imagem do post')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Trocar imagem' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Remover imagem' }))
+    expect(screen.queryByAltText('Pré-visualização da imagem do post')).not.toBeInTheDocument()
   })
 })

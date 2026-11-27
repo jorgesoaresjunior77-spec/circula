@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { canvasToImageFile } from '../lib/imageUpload'
 
 // Recortador simples: a pessoa arrasta para alinhar e usa o zoom; o
 // resultado sai do tamanho exato do espaço (sem cortar errado depois).
@@ -108,10 +109,10 @@ export function ImageCropper({
     const sx = (m.w / 2 - m.bw / 2 - pos.x) / scale
     const sy = (m.h / 2 - m.bh / 2 - pos.y) / scale
     ctx.drawImage(img, sx, sy, m.bw / scale, m.bh / scale, 0, 0, outW, outH)
-    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.86))
+    const out = await canvasToImageFile(canvas, 'recorte')
     setBusy(false)
-    if (!blob) return
-    onDone(new File([blob], 'recorte.webp', { type: 'image/webp' }))
+    if (!out) return
+    onDone(out)
   }
 
   return (

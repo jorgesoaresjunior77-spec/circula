@@ -8,7 +8,7 @@ import type { ToolKey } from '../lib/packages'
 import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes, canUseFinancas, canUseRachei } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import circulaIcon from '../assets/circula-icon.png'
 import type { Profile, ProfileUpdateInput } from '../types/profile'
 import type { CommunityWithMembers } from '../types/community'
@@ -758,6 +758,19 @@ export function Dashboard({
   useEffect(() => {
     if (effectiveNav === 'eventos') homeBadges.markEventsSeen()
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveNav])
+
+  // Trocar de tela (e principalmente voltar ao Início) sempre abre no topo.
+  // Só reage à troca de tela: rolar e mexer dentro de uma tela não mexe aqui.
+  const lastNavRef = useRef(effectiveNav)
+  useLayoutEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+  }, [])
+  useLayoutEffect(() => {
+    if (lastNavRef.current === effectiveNav) return
+    lastNavRef.current = effectiveNav
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    document.scrollingElement?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' })
   }, [effectiveNav])
 
   const selectedCircle =

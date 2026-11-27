@@ -346,3 +346,15 @@ export function cityErrorMessage(message: string | undefined): string {
   if (m.includes('convite_proprio')) return 'Este convite é seu: as confirmadas aparecem na sua lista.'
   return 'Não foi possível concluir agora. Tente de novo.'
 }
+
+
+/** Parceiros → "Ver estabelecimento na Minha cidade": qual cadastro abrir em destaque. */
+let pendingListing: string | null = null
+export function requestCityListing(listingId: string | null) {
+  pendingListing = listingId
+}
+export function takeCityListingRequest(): string | null {
+  const v = pendingListing
+  pendingListing = null
+  return v
+}

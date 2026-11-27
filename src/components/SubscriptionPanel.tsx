@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { maskDocument } from '../lib/billingDocument'
 import { COMMUNITY_PLAN_CODE, CYCLE_LABEL, communityCyclePrices } from '../lib/plansCatalog'
 import type { FormEvent } from 'react'
 import { useBillingNotices } from '../hooks/useBillingNotices'
@@ -211,7 +212,8 @@ export function SubscriptionPanel({ subject = 'platform', communityId, onCheckou
             id={`document-number-${subject}`}
             type="text"
             value={documentNumber}
-            onChange={(event) => setDocumentNumber(event.target.value)}
+            inputMode="numeric"
+            onChange={(event) => setDocumentNumber(maskDocument(documentType, event.target.value))}
             placeholder={documentType === 'CPF' ? '000.000.000-00' : '00.000.000/0000-00'}
             required
           />

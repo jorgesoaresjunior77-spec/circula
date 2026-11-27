@@ -51,6 +51,8 @@ export interface ListItem {
   unit: UnitKey
   est_price_cents: number | null
   paid_price_cents: number | null
+  /** Marca (opcional): deixa a comparação de preços mais precisa. */
+  brand?: string | null
   notes: string | null
   bought: boolean
   position: number
@@ -70,6 +72,9 @@ export interface ShoppingList {
   source: 'manual' | 'receitas' | 'nutricionista' | 'duplicada'
   created_at: string
   completed_at: string | null
+  /** Onde e quando a compra foi feita (preenchido ao salvar no histórico). */
+  store_name?: string | null
+  purchased_on?: string | null
 }
 
 export interface DraftItem {

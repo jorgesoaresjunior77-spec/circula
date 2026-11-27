@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { QUOTE_CODES, QUOTE_NAMES, fetchHistory, formatPct, formatQuote, growthPct } from '../lib/quotes'
 import type { QuoteCode, QuotePoint } from '../lib/quotes'
+import { QuoteCalculator } from './QuoteCalculator'
 
 // Cotações (avulso de R$ 4,90, também no Premium): o crescimento do Dólar, Euro, Bitcoin e Ethereum
 // no período escolhido. Um gráfico por moeda (escalas muito diferentes: nunca dois eixos no mesmo gráfico),
@@ -118,6 +119,7 @@ export function CotacoesPage() {
     <section className="cot-page" aria-labelledby="cot-title">
       <h2 id="cot-title">Cotações</h2>
       <p className="home-muted">Quanto o Dólar, o Euro, o Bitcoin e o Ethereum cresceram (ou caíram) em reais no período.</p>
+      <QuoteCalculator />
       <div className="metrics-period" role="group" aria-label="Período">
         {PERIODS.map((p) => (
           <button

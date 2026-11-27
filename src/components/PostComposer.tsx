@@ -7,6 +7,17 @@ import { FeedPhotoCropper } from './FeedPhotoCropper'
 import { cleanPollOptions } from '../lib/pollStore'
 import type { PollDraft } from '../lib/pollStore'
 
+// Mensagem clara para cada falha de envio da foto (antes era sempre a mesma).
+export function uploadErrorMessage(raw: string | null): string {
+  const e = (raw ?? '').toLowerCase()
+  if (/5 mb|15 mb|too large|exceeded|payload/.test(e)) return 'A foto ficou grande demais. Tente outra foto ou um recorte menor.'
+  if (/jpg|png|webp|mime|preparar/.test(e)) return 'Não foi possível ler essa foto. Use uma foto JPG, PNG ou WebP.'
+  if (/sess[aã]o|jwt|auth/.test(e)) return 'Sua sessão expirou. Entre de novo para publicar a foto.'
+  if (/row-level|policy|permission|unauthorized|403/.test(e)) return 'Você ainda não pode publicar fotos nesta comunidade (a entrada pode estar aguardando aprovação).'
+  if (/network|fetch|failed/.test(e)) return 'Sem conexão no momento. Confira a internet e tente de novo.'
+  return 'Não foi possível enviar a foto agora. Tente novamente.'
+}
+
 interface PostComposerProps {
   onPublish: (content: string, imageUrl: string | null, poll?: PollDraft | null) => Promise<CreatePostResult>
   /** Mostra o botão de criar enquete (Feed e Círculos). */
@@ -98,7 +109,7 @@ export function PostComposer({
       const upload = await onUploadImage(imageFile)
       if (upload.error || !upload.url) {
         setLoading(false)
-        setError('Não foi possível enviar a imagem agora. Tente novamente.')
+        setError(uploadErrorMessage(upload.error))
         return
       }
       imageUrl = upload.url
@@ -156,16 +167,22 @@ export function PostComposer({
           value={content}
           onChange={(event) => setContent(event.target.value)}
           rows={3}
-          required
+          required={!imageFile}
+          placeholder={imageFile ? 'Escreva uma legenda (opcional)' : undefined}
         />
         <EmojiPicker onPick={(e) => setContent((c) => c + e)} />
 
         {imagePreview && (
           <div className="post-composer-image">
             <img loading="lazy" decoding="async" src={imagePreview} alt="Pré-visualização da imagem do post" />
-            <button type="button" className="auth-link" onClick={removeImage} disabled={loading}>
-              Remover imagem
-            </button>
+            <div className="post-composer-image-actions">
+              <button type="button" className="auth-link" onClick={() => fileInputRef.current?.click()} disabled={loading}>
+                Trocar imagem
+              </button>
+              <button type="button" className="auth-link" onClick={removeImage} disabled={loading}>
+                Remover imagem
+              </button>
+            </div>
           </div>
         )}
         <div className="post-composer-actions">
@@ -247,8 +264,8 @@ export function PostComposer({
           />
         )}
 
-        <button type="submit" className="post-composer-submit" disabled={loading || !content.trim()}>
-          {loading ? 'Publicando...' : 'Publicar'}
+        <button type="submit" className="post-composer-submit" disabled={loading || (!content.trim() && !imageFile)}>
+          {loading ? (imageFile ? 'Enviando a foto...' : 'Publicando...') : 'Publicar'}
         </button>
       </form>
     </section>

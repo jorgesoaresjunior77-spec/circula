@@ -24,6 +24,19 @@ export function fitWithin(width: number, height: number, maxSide = MAX_SIDE) {
   return { width: Math.round(width * scale), height: Math.round(height * scale) }
 }
 
+// Canvas → arquivo. O Safari do iPhone não gera WebP: ele devolve PNG (pesado e,
+// antes, rotulado como WebP), o que fazia a foto da publicação falhar no envio.
+// Então: tenta WebP, e se o navegador não entregar WebP de verdade, usa JPEG.
+export async function canvasToImageFile(canvas: HTMLCanvasElement, baseName: string, quality = 0.86): Promise<File | null> {
+  const toBlob = (type: string) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality))
+  let blob = await toBlob('image/webp')
+  if (!blob || blob.type !== 'image/webp') blob = await toBlob('image/jpeg')
+  if (!blob) return null
+  const type = blob.type === 'image/webp' ? 'image/webp' : blob.type === 'image/png' ? 'image/png' : 'image/jpeg'
+  const ext = type === 'image/webp' ? 'webp' : type === 'image/png' ? 'png' : 'jpg'
+  return new File([blob], `${baseName}.${ext}`, { type })
+}
+
 // Devolve um WebP reduzido; se o navegador não conseguir (sem canvas, HEIC
 // ilegível, etc.) ou se o resultado não ficar menor, devolve o arquivo original.
 export async function compressImage(file: File): Promise<File> {
@@ -38,12 +51,11 @@ export async function compressImage(file: File): Promise<File> {
     if (!ctx) return file
     ctx.drawImage(bitmap, 0, 0, width, height)
     bitmap.close?.()
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, 'image/webp', WEBP_QUALITY),
-    )
-    if (!blob || blob.size >= file.size) return file
     const base = file.name.replace(/\.[^.]+$/, '') || 'imagem'
-    return new File([blob], `${base}.webp`, { type: 'image/webp' })
+    const out = await canvasToImageFile(canvas, base, WEBP_QUALITY)
+    // se não ficou menor e o original já sobe (JPG/PNG/WebP), fica o original
+    if (!out || (out.size >= file.size && UPLOADABLE_TYPES.includes(file.type))) return file
+    return out
   } catch {
     return file
   }

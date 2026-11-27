@@ -12,6 +12,40 @@ import type { DraftItem } from '../../lib/shopping'
 
 type Api = ReturnType<typeof useShopping>
 
+/** Só números inteiros positivos. Pode apagar tudo enquanto digita; vazio volta ao último valor ao sair. */
+export function parsePortions(raw: string): number | null {
+  const t = raw.trim()
+  if (!/^\d{1,3}$/.test(t)) return null
+  const n = Number(t)
+  return n >= 1 && n <= 200 ? n : null
+}
+
+function PortionsInput({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
+  const [text, setText] = useState(String(value))
+  return (
+    <label className="ml-portions">
+      {label}
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        aria-label={label}
+        value={text}
+        onFocus={(e) => e.currentTarget.select()}
+        onChange={(e) => {
+          const digits = e.target.value.replace(/\D/g, '').slice(0, 3)
+          setText(digits)
+          const n = parsePortions(digits)
+          if (n != null) onChange(n)
+        }}
+        onBlur={() => {
+          if (parsePortions(text) == null) setText(String(value))
+        }}
+      />
+    </label>
+  )
+}
+
 interface Props {
   recipes: Recipe[]
   /** Receita fixa (botão dentro da receita). Sem isso, a usuária escolhe várias. */
@@ -126,7 +160,7 @@ export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defa
 
         {!fixed && (
           <>
-            <p className="home-muted">Escolha as receitas e ajuste as porções (1 = a receita como está escrita).</p>
+            <p className="home-muted">Escolha as receitas e ajuste as porções (1 = a receita como está escrita; 2 = o dobro, e assim por diante).</p>
             <ul className="ml-recipes">
               {candidates.length === 0 && <li className="home-muted">Ainda não há receitas publicadas.</li>}
               {candidates.map((r) => (
@@ -140,14 +174,7 @@ export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defa
                     <span>{r.title}</span>
                   </label>
                   {picked[r.id] ? (
-                    <label className="ml-portions">
-                      Porções ×
-                      <input
-                        inputMode="decimal"
-                        value={picked[r.id]}
-                        onChange={(e) => setPicked((p) => ({ ...p, [r.id]: Math.min(50, Math.max(0.25, Number(e.target.value.replace(',', '.')) || 1)) }))}
-                      />
-                    </label>
+                    <PortionsInput label="Porções" value={picked[r.id]} onChange={(n) => setPicked((p) => ({ ...p, [r.id]: n }))} />
                   ) : null}
                 </li>
               ))}
@@ -155,16 +182,11 @@ export function RecipeToList({ recipes, fixed = null, api, onClose, onDone, defa
           </>
         )}
 
-        {fixed && (
-          <label className="ml-portions">
-            Porções ×
-            <input
-              inputMode="decimal"
-              value={picked[fixed.id] ?? 1}
-              onChange={(e) => setPicked({ [fixed.id]: Math.min(50, Math.max(0.25, Number(e.target.value.replace(',', '.')) || 1)) })}
-            />
-          </label>
-        )}
+        {fixed && <PortionsInput label="Porções" value={picked[fixed.id] ?? 1} onChange={(n) => setPicked({ [fixed.id]: n })} />}
+
+        <p className="ml-next-step" role="note">
+          Na próxima etapa, você poderá revisar, adicionar ou remover itens da sua lista de compras.
+        </p>
 
         {withoutIngredients.length > 0 && (
           <p className="home-muted">

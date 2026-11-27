@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { recordView } from '../lib/itemViews'
 import { ViewCount } from './ViewCount'
-import type { FormEvent } from 'react'
+import type { CSSProperties, FormEvent } from 'react'
 import { CoverImageInput } from './CoverImageInput'
 import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { useManagedContent } from '../hooks/useManagedContent'
@@ -49,7 +49,10 @@ function ReadingTile({ tip, onOpen }: { tip: ReadingTip; onOpen: () => void }) {
   return (
     <button type="button" className="reading-tile" onClick={onOpen} aria-label={`${tip.title}, de ${tip.author}`}>
       {url ? (
-        <img loading="lazy" decoding="async" className="reading-tile-cover" src={url} alt="" />
+        // capa inteira, sem cortar, centralizada; o espaço que sobrar é preenchido pela própria capa desfocada
+        <span className="reading-cover-box" style={{ '--cover': `url("${url}")` } as CSSProperties}>
+          <img loading="lazy" decoding="async" className="reading-tile-cover" src={url} alt="" />
+        </span>
       ) : (
         <span className="reading-tile-cover reading-tile-cover--blank" aria-hidden="true" />
       )}

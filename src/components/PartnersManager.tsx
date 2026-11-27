@@ -2,7 +2,9 @@ import { ViewCount } from './ViewCount'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useManagedContent } from '../hooks/useManagedContent'
-import { safePartnerLink } from '../lib/partners'
+import { normalizeInstagram, safePartnerLink } from '../lib/partners'
+import { PartnerCouponsManager } from './PartnerCouponsManager'
+import { PartnerListingPicker } from './PartnerListingPicker'
 import type { Partner } from '../lib/partners'
 import { CoverImageInput } from './CoverImageInput'
 
@@ -22,9 +24,15 @@ interface FormState {
   link: string
   position: string
   status: 'draft' | 'published'
+  cover: string
+  description: string
+  category: string
+  city: string
+  instagram: string
+  listingId: string | null
 }
 
-const EMPTY: FormState = { id: null, name: '', logo: '', link: '', position: '0', status: 'draft' }
+const EMPTY: FormState = { id: null, name: '', logo: '', link: '', position: '0', status: 'draft', cover: '', description: '', category: '', city: '', instagram: '', listingId: null }
 
 export function PartnersManager({ communityId, profileId }: Props) {
   const { items, loading, error, save, remove } = useManagedContent<Partner>(
@@ -45,6 +53,12 @@ export function PartnersManager({ communityId, profileId }: Props) {
       link: p.link_url ?? '',
       position: String(p.position),
       status: p.status,
+      cover: p.cover_path ?? '',
+      description: p.description ?? '',
+      category: p.category ?? '',
+      city: p.city ?? '',
+      instagram: p.instagram ?? '',
+      listingId: p.city_listing_id ?? null,
     })
     setFormError(null)
     setConfirmDelete(false)
@@ -72,8 +86,19 @@ export function PartnersManager({ communityId, profileId }: Props) {
       setFormError('O link precisa começar com https://')
       return
     }
+    const insta = normalizeInstagram(form.instagram)
+    if (form.instagram.trim() && !insta) {
+      setFormError('Instagram: use só o @ do perfil (ex.: @lojadaana) ou o link do perfil.')
+      return
+    }
     setSaving(true)
     const result = await save(form.id, {
+      cover_path: form.cover || null,
+      description: form.description.trim() || null,
+      category: form.category.trim() || null,
+      city: form.city.trim() || null,
+      instagram: insta,
+      city_listing_id: form.listingId,
       name: form.name.trim(),
       logo_path: form.logo,
       link_url: link,
@@ -105,9 +130,10 @@ export function PartnersManager({ communityId, profileId }: Props) {
       <header className="card-images-head">
         <h4 className="card-images-title">Parceiros</h4>
         <p className="card-images-desc">
-          Logos que aparecem um de cada vez na Home, nas cores originais. Ao tocar no logo, a pessoa vai
-          para o site do parceiro (o link). Publique só parceiros que autorizaram o uso da marca. Use PNG
-          ou WebP com fundo transparente.
+          Logos que passam na faixa da Home, nas cores originais. Ao tocar no logo, abre a página do parceiro:
+          foto grande do lugar, descrição, Instagram, botão para o site, o estabelecimento em “Na minha cidade” e
+          os cupons de desconto. Publique só parceiros que autorizaram o uso da marca. Logo em PNG ou WebP com
+          fundo transparente.
         </p>
       </header>
 
@@ -161,8 +187,34 @@ export function PartnersManager({ communityId, profileId }: Props) {
             recommendedSize="600 × 400 px, fundo transparente"
             onChange={(path) => setForm({ ...form, logo: path })}
           />
+          <CoverImageInput
+            communityId={communityId}
+            uid={profileId}
+            value={form.cover}
+            label="Foto grande da página do parceiro (loja, clínica, ambiente)"
+            aspectRatio="16 / 10"
+            recommendedSize="1600 × 1000 px"
+            onChange={(path) => setForm({ ...form, cover: path })}
+          />
           <label>
-            Link do parceiro (opcional): ao tocar no logo, abre este site — comece com https://
+            Descrição
+            <textarea value={form.description} maxLength={1500} rows={4} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </label>
+          <label>
+            Categoria (opcional)
+            <input value={form.category} maxLength={60} placeholder="Ex.: Moda, Clínica, Alimentação" onChange={(e) => setForm({ ...form, category: e.target.value })} />
+          </label>
+          <label>
+            Cidade (opcional)
+            <input value={form.city} maxLength={80} placeholder="Ex.: Lajeado/RS" onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          </label>
+          <label>
+            Instagram do parceiro (opcional)
+            <input value={form.instagram} maxLength={120} placeholder="@perfil ou link do perfil" onChange={(e) => setForm({ ...form, instagram: e.target.value })} />
+          </label>
+          <PartnerListingPicker value={form.listingId} onChange={(id) => setForm({ ...form, listingId: id })} />
+          <label>
+            Site do parceiro (opcional): o botão “Visitar parceiro” abre este endereço — comece com https://
             <input
               inputMode="url"
               value={form.link}
@@ -207,6 +259,8 @@ export function PartnersManager({ communityId, profileId }: Props) {
           </div>
         </form>
       )}
+      {form?.id && <PartnerCouponsManager communityId={communityId} partnerId={form.id} />}
+      {form && !form.id && <p className="home-muted">Depois de salvar o parceiro, abra “Editar” para cadastrar os cupons dele.</p>}
     </div>
   )
 }

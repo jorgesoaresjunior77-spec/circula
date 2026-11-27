@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { useAddonCheckout } from '../hooks/useAddonCheckout'
 import { useSubscription } from '../hooks/useSubscription'
 import { useMyAddonSubscription } from '../hooks/useMyAddonSubscription'
 import { CYCLE_LABEL, CYCLE_MONTHS, formatBrl, installmentOptions, installmentSplit } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
-import type { DocumentType } from '../types/billing'
+import { BillingDocumentForm } from './BillingDocumentForm'
 import { RoboInsiste, RoboRetencao } from './RoboPlanos'
 
 // Assinar um conteúdo avulso (Respiração, Wellness): pede o CPF/CNPJ uma vez,
@@ -43,7 +42,7 @@ export function AddonCheckout({
   /** Chamado quando a fatura foi aberta (a página passa a esperar a confirmação do pagamento). */
   onCheckoutStarted?: (cycle: PlanCycle) => void
 }) {
-  const { hasBillingCustomerData, saveBillingCustomerData, subscription: baseSub, cancelSubscription } = useSubscription({
+  const { hasBillingCustomerData, refresh: refreshBilling, subscription: baseSub, cancelSubscription } = useSubscription({
     subject: 'community',
     communityId: communityId ?? undefined,
   })
@@ -56,10 +55,9 @@ export function AddonCheckout({
   /** 1 = à vista (Pix, boleto ou cartão, renova sozinho); 2+ = parcelado no cartão (não renova). */
   const [installments, setInstallments] = useState(1)
   const effInstallments = installmentOptions(cycle, prices[cycle]).includes(installments) ? installments : 1
-  const [documentType, setDocumentType] = useState<DocumentType>('CPF')
-  const [documentNumber, setDocumentNumber] = useState('')
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
-  const [saving, setSaving] = useState(false)
+  /** O servidor disse que falta o CPF (mesmo com a tela achando que tinha). */
+  const [needDoc, setNeedDoc] = useState(false)
 
   if (owned) {
     const canceled = mine.sub?.status === 'canceled'
@@ -125,19 +123,14 @@ export function AddonCheckout({
   }
   if (!communityId) return <p className="home-muted">Entre em uma comunidade para assinar.</p>
 
-  async function handleSaveDocument(e: FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    setMessage(null)
-    const { error } = await saveBillingCustomerData(documentType, documentNumber)
-    setSaving(false)
-    setMessage(error ? { ok: false, text: error } : { ok: true, text: 'Dados de cobrança salvos.' })
-  }
-
   async function handleSubscribe() {
     setMessage(null)
     const { error, code, invoiceUrl } = await subscribe(planKey, cycle, effInstallments)
     if (error) {
+      if (code === 'MISSING_BILLING_DATA') {
+        setNeedDoc(true)
+        return
+      }
       setMessage({ ok: false, text: (code && CODE_MESSAGES[code]) || error })
       return
     }
@@ -153,29 +146,19 @@ export function AddonCheckout({
 
   return (
     <div className="addon-checkout">
-      {hasBillingCustomerData === false && (
-        <form onSubmit={(e) => void handleSaveDocument(e)} className="question-form">
-          <label htmlFor="addon-doc-type">Tipo de documento</label>
-          <select id="addon-doc-type" value={documentType} onChange={(e) => setDocumentType(e.target.value as DocumentType)}>
-            <option value="CPF">CPF</option>
-            <option value="CNPJ">CNPJ</option>
-          </select>
-          <label htmlFor="addon-doc-number">{documentType}</label>
-          <input
-            id="addon-doc-number"
-            type="text"
-            value={documentNumber}
-            onChange={(e) => setDocumentNumber(e.target.value)}
-            placeholder={documentType === 'CPF' ? '000.000.000-00' : '00.000.000/0000-00'}
-            required
-          />
-          <button type="submit" disabled={saving || !documentNumber.trim()}>
-            {saving ? 'Salvando...' : 'Salvar dados de cobrança'}
-          </button>
-        </form>
+      {(hasBillingCustomerData === false || needDoc) && (
+        <BillingDocumentForm
+          idPrefix={`addon-doc-${planKey}`}
+          intro="Para emitir a cobrança, o Asaas precisa do seu CPF (ou CNPJ). Você informa uma vez."
+          onSaved={() => {
+            setNeedDoc(false)
+            setMessage({ ok: true, text: 'CPF salvo. Agora escolha o plano e toque em Assinar.' })
+            void refreshBilling()
+          }}
+        />
       )}
 
-      {hasBillingCustomerData && (
+      {hasBillingCustomerData && !needDoc && (
         <>
           <div className="addon-cycles" role="radiogroup" aria-label="Ciclo de cobrança">
             {CYCLES.map((c) => (

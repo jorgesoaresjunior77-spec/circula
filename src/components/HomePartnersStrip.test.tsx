@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import { HomePartnersStrip } from './HomePartnersStrip'
 
 const partners = [
@@ -11,6 +11,8 @@ const partners = [
 vi.mock('../hooks/useManagedContent', () => ({
   useManagedContent: () => ({ items: partners }),
 }))
+vi.mock('../lib/supabase', () => ({ supabase: { rpc: () => Promise.resolve({ data: [], error: null }) } }))
+vi.mock('../lib/itemViews', () => ({ recordView: () => {} }))
 vi.mock('../hooks/useSignedImageUrl', () => ({
   useSignedImageUrl: (path: string | null) => ({ url: path }),
 }))
@@ -32,19 +34,22 @@ describe('HomePartnersStrip — logos lado a lado, andando para a esquerda', () 
     expect(halves).toHaveLength(2)
     expect(halves[1]).toHaveAttribute('aria-hidden', 'true')
     expect(halves[0].querySelectorAll('img').length).toBe(halves[1].querySelectorAll('img').length)
-    halves[1].querySelectorAll('a').forEach((a) => expect(a).toHaveAttribute('tabindex', '-1'))
+    halves[1].querySelectorAll('button').forEach((b) => expect(b).toHaveAttribute('tabindex', '-1'))
   })
 
-  it('o logo com link abre o site do parceiro em outra aba, com rel seguro', () => {
+  it('tocar no logo abre a página do parceiro; o site sai pelo botão Visitar parceiro, em outra aba e com rel seguro', () => {
     render(<HomePartnersStrip communityId="c" />)
-    const link = screen.getAllByRole('link', { name: /Alfa \(abre o site do parceiro\)/ })[0]
+    fireEvent.click(screen.getAllByRole('button', { name: /Alfa: ver a página do parceiro/ })[0])
+    expect(screen.getByRole('dialog', { name: 'Parceiro Alfa' })).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: 'Visitar parceiro' })
     expect(link).toHaveAttribute('href', 'https://alfa.test/')
     expect(link).toHaveAttribute('target', '_blank')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('parceiro sem link não vira link', () => {
+  it('parceiro sem site não mostra o botão Visitar parceiro', () => {
     render(<HomePartnersStrip communityId="c" />)
-    expect(screen.queryByRole('link', { name: /Beta/ })).not.toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: /Beta: ver a página do parceiro/ })[0])
+    expect(screen.queryByRole('link', { name: 'Visitar parceiro' })).not.toBeInTheDocument()
   })
 })

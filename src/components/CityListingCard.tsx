@@ -116,10 +116,21 @@ export function CityListingCard({
           <button type="button" className="cty-rating" aria-expanded={showReviews} onClick={() => setShowReviews((v) => !v)}>
             {summary.media !== null && summary.total > 0 ? (
               <>
-                <strong>{summary.media.toFixed(1).replace('.', ',')}</strong> <Stars value={summary.media} size={17} /> <span>({summary.total} {summary.total === 1 ? 'avaliação' : 'avaliações'})</span>
+                <span className="cty-rating-score" aria-hidden="true">
+                  <strong>{summary.media.toFixed(1).replace('.', ',')}</strong>
+                  <small>de 5</small>
+                </span>
+                <span className="cty-rating-stack">
+                  <Stars value={summary.media} size={26} />
+                  <span className="cty-rating-count">
+                    {summary.total} {summary.total === 1 ? 'avaliação' : 'avaliações'}
+                  </span>
+                </span>
               </>
             ) : (
-              <span>☆☆☆☆☆ Seja a primeira a avaliar</span>
+              <span className="cty-rating-empty">
+                <Stars value={0} size={22} /> Seja a primeira a avaliar
+              </span>
             )}
             <span className="cty-rating-more">{showReviews ? 'Fechar' : 'Avaliar e ver comentários'}</span>
           </button>

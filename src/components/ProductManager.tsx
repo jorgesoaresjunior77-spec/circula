@@ -18,6 +18,7 @@ import { ProductPagesEditor } from './ProductPagesEditor'
 import { ProductReader } from './ProductReader'
 import { CoverImageInput } from './CoverImageInput'
 import { ViewCount } from './ViewCount'
+import { BillingDocumentDialog } from './BillingDocumentForm'
 import { AnimatePresence, m, inViewOnce, riseVariants, staggerVariants, SPRING_SOFT, SPRING_TAP } from '../lib/motionKit'
 
 // Loja por CATEGORIAS (rodada 2026-11-14):
@@ -339,6 +340,17 @@ export function ProductManager({
 
   const showBuy = canBuy && !canManage
   const { buyProduct, pendingProductId } = useProductCheckout()
+  // Compra sem CPF cadastrado: abre o campo de CPF e, salvo, tenta a compra de novo.
+  const [docPrompt, setDocPrompt] = useState<{ product: Product; resolve: (ok: boolean) => void } | null>(null)
+  async function buyWithDocument(p: Product): Promise<{ error: string | null; invoiceUrl: string | null }> {
+    const first = await buyProduct(p.id)
+    if (first.code !== 'MISSING_BILLING_DATA') return { error: first.error, invoiceUrl: first.invoiceUrl }
+    const saved = await new Promise<boolean>((resolve) => setDocPrompt({ product: p, resolve }))
+    setDocPrompt(null)
+    if (!saved) return { error: 'Para comprar, informe o seu CPF (é exigido pelo Asaas para emitir a cobrança).', invoiceUrl: null }
+    const again = await buyProduct(p.id)
+    return { error: again.error, invoiceUrl: again.invoiceUrl }
+  }
   const { ownedProductIds, error: entitlementsError } = useProductEntitlements(communityId, showBuy)
 
   const [draft, setDraft] = useState<ProductFormValues>(EMPTY_FORM)
@@ -410,7 +422,7 @@ export function ProductManager({
       owned: ownedProductIds.has(product.id),
       buying: pendingProductId === product.id,
       onBuy: showBuy
-        ? (p: Product) => buyProduct(p.id).then((r) => ({ error: r.error, invoiceUrl: r.invoiceUrl }))
+        ? (p: Product) => buyWithDocument(p)
         : undefined,
       onOpenPlans,
       canRead,
@@ -532,6 +544,13 @@ export function ProductManager({
         showBuy ? ' product-manager--storefront' : ''
       }`}
     >
+      {docPrompt && (
+        <BillingDocumentDialog
+          productTitle={docPrompt.product.title}
+          onSaved={() => docPrompt.resolve(true)}
+          onCancel={() => docPrompt.resolve(false)}
+        />
+      )}
       {showBuy ? (
         <div className="store-masthead">
           <h2 className="store-masthead-title">Loja</h2>

@@ -45,11 +45,9 @@ describe('EmojiPicker', () => {
 describe('CommentForm — anexar foto', () => {
   afterEach(() => cleanup())
 
-  it('o botão de foto é um ícone (sem emoji) e tem nome acessível', () => {
+  it('comentário é só texto: sem botão de foto', () => {
     render(<CommentForm onSubmit={vi.fn()} />)
 
-    const button = screen.getByRole('button', { name: 'Anexar foto' })
-    expect(button.querySelector('svg')).not.toBeNull()
-    expect(button.textContent).toBe('')
+    expect(screen.queryByRole('button', { name: 'Anexar foto' })).not.toBeInTheDocument()
   })
 })

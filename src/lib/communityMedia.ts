@@ -56,8 +56,10 @@ export async function uploadCommunityMedia(
     return { path: null, error: 'Selecione um arquivo de imagem (JPG, PNG, WebP...).' }
   }
 
-  if (file.size > MAX_BYTES) {
-    return { path: null, error: 'A imagem precisa ter no máximo 5 MB.' }
+  // o limite de 5 MB vale para o arquivo JÁ reduzido (checkPreparedImage);
+  // aqui só barra o que nem dá para abrir no celular
+  if (file.size > MAX_BYTES * 3) {
+    return { path: null, error: 'A imagem precisa ter no máximo 15 MB.' }
   }
 
   const prepared = await compressImage(file)

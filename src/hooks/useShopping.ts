@@ -10,9 +10,9 @@ import type { DraftItem, ListItem, ShoppingList } from '../lib/shopping'
 type Result = { error: string | null }
 const FAIL = 'Não foi possível salvar agora. Tente novamente.'
 
-const LIST_COLS = 'id,community_id,owner_id,name,description,planned_for,notes,status,source,created_at,completed_at'
+const LIST_COLS = 'id,community_id,owner_id,name,description,planned_for,notes,status,source,created_at,completed_at,store_name,purchased_on'
 const ITEM_COLS =
-  'id,list_id,name,category,quantity,unit,est_price_cents,paid_price_cents,notes,bought,position,source_recipe_id,source_recipe_title'
+  'id,list_id,name,category,quantity,unit,est_price_cents,paid_price_cents,brand,notes,bought,position,source_recipe_id,source_recipe_title'
 
 export interface ListShare {
   id: string
@@ -180,7 +180,7 @@ export function useShopping(communityId: string | null, profileId: string | null
 
   /** Atualiza um item na hora na tela e salva em seguida (salvamento automático). */
   const updateItem = useCallback(
-    async (item: ListItem, patch: Partial<Pick<ListItem, 'name' | 'category' | 'quantity' | 'unit' | 'est_price_cents' | 'paid_price_cents' | 'notes' | 'bought'>>): Promise<Result> => {
+    async (item: ListItem, patch: Partial<Pick<ListItem, 'name' | 'category' | 'quantity' | 'unit' | 'est_price_cents' | 'paid_price_cents' | 'brand' | 'notes' | 'bought'>>): Promise<Result> => {
       const full: Record<string, unknown> = { ...patch }
       if ('bought' in patch) full.bought_at = patch.bought ? new Date().toISOString() : null
       setItems((cur) => ({ ...cur, [item.list_id]: (cur[item.list_id] ?? []).map((i) => (i.id === item.id ? { ...i, ...patch } : i)) }))
@@ -284,7 +284,30 @@ export function useShopping(communityId: string | null, profileId: string | null
       .sort((a, b) => (a.full_name ?? '').localeCompare(b.full_name ?? '', 'pt-BR'))
   }, [communityId, profileId])
 
+  /** Finaliza a compra: guarda mercado, data, marcas e preços pagos no histórico e conclui a lista. */
+  const savePurchase = useCallback(
+    async (listId: string, store: string, date: string): Promise<Result> => {
+      const { error: e } = await supabase.rpc('save_shopping_purchase', { p_list_id: listId, p_store: store.trim(), p_date: date })
+      if (e) {
+        const m = e.message ?? ''
+        return {
+          error: /store_required/.test(m)
+            ? 'Informe o nome do supermercado.'
+            : /no_items/.test(m)
+              ? 'Marque pelo menos um produto como comprado antes de finalizar.'
+              : /invalid_date/.test(m)
+                ? 'Confira a data da compra.'
+                : FAIL,
+        }
+      }
+      setToken((n) => n + 1)
+      return { error: null }
+    },
+    [],
+  )
+
   return {
+    savePurchase,
     lists,
     items,
     loading,

@@ -1,4 +1,8 @@
-import { useEffect, useId, useState } from 'react'
+import { Suspense, lazy, useEffect, useId, useState } from 'react'
+import { webglDisponivel } from '../lib/scene3d'
+import type { PetalSpec } from './Flower3D'
+
+const Flower3D = lazy(() => import('./Flower3D'))
 import { m } from '../lib/motionKit'
 import { sunHeight, sunProgress, sunflowerTilt } from '../lib/sunPosition'
 
@@ -70,8 +74,57 @@ function Layer({ z, children }: { z: number; children: React.ReactNode }) {
 // ---------------------------------------------------------------------------
 export const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
-export function MonthFlower({ days, checked }: { days: number; checked: Set<number>; month?: number }) {
+interface MonthFlowerProps {
+  days: number
+  checked: Set<number>
+  month?: number
+  /** Dias que passaram sem check e cuja pétala já caiu (não aparecem mais). */
+  gone?: Set<number>
+  /** Dias sem check cuja pétala cai agora (uma vez só). */
+  falling?: Set<number>
+  /** Dia de hoje (etiqueta em destaque). */
+  today?: number
+  onFallDone?: () => void
+}
+
+/** Flor do mês: 3D (Three.js) quando o aparelho tem WebGL; senão, a versão em camadas SVG. */
+export function MonthFlower(props: MonthFlowerProps) {
+  const [failed, setFailed] = useState(() => !webglDisponivel())
+  const { days, checked, gone, falling, today, onFallDone } = props
+  if (failed) return <MonthFlower2D {...props} />
+  const done = checked.size
+  const petals: PetalSpec[] = Array.from({ length: days }, (_, i) => {
+    const d = i + 1
+    return {
+      state: checked.has(d) ? 'lit' : falling?.has(d) ? 'falling' : gone?.has(d) ? 'gone' : 'pale',
+      color: PETAL_COLORS[i % PETAL_COLORS.length],
+      label: String(d),
+      strong: d === today,
+    }
+  })
+  return (
+    <div className="garden-art garden-art--3d">
+      <Suspense fallback={<MonthFlower2D {...props} />}>
+        <Flower3D
+          petals={petals}
+          center="core"
+          complete={done >= days && days > 0}
+          ariaLabel={`Flor do mês: ${done} de ${days} dias com check${gone?.size ? `, ${gone.size + (falling?.size ?? 0)} sem check` : ''}`}
+          onFallDone={onFallDone}
+          onFail={() => setFailed(true)}
+        />
+      </Suspense>
+    </div>
+  )
+}
+
+function MonthFlower2D({ days, checked, gone, falling, today, onFallDone }: MonthFlowerProps) {
   const ids = useIds()
+  useEffect(() => {
+    if (!falling?.size) return
+    const t = window.setTimeout(() => onFallDone?.(), 2600)
+    return () => window.clearTimeout(t)
+  }, [falling, onFallDone])
   const done = checked.size
   const complete = done >= days && days > 0
   const step = 360 / Math.max(days, 1)
@@ -91,13 +144,24 @@ export function MonthFlower({ days, checked }: { days: number; checked: Set<numb
           <defs>
             <Gloss id={ids.gloss} />
           </defs>
-          <g transform="translate(150 150)">
-            {Array.from({ length: days }, (_, i) => (
-              <g key={i} transform={`rotate(${i * step})`}>
-                <ellipse cx="0" cy="-90" rx={rx} ry="46" fill={GLASS} stroke={GLASS_STROKE} strokeWidth="1.2" />
-                <ellipse cx="0" cy="-90" rx={rx} ry="46" fill={`url(#${ids.gloss})`} opacity="0.5" />
-              </g>
-            ))}
+          <g transform="translate(150 150) scale(0.8)">
+            {Array.from({ length: days }, (_, i) =>
+              gone?.has(i + 1) ? null : falling?.has(i + 1) ? (
+                <m.g
+                  key={i}
+                  initial={{ opacity: 1, y: 0, rotate: i * step }}
+                  animate={{ opacity: 0, y: 220, rotate: i * step + 140 }}
+                  transition={{ duration: 2.4, delay: 0.6, ease: 'easeIn' }}
+                >
+                  <ellipse cx="0" cy="-90" rx={rx} ry="46" fill="#d8c8b4" stroke={GLASS_STROKE} strokeWidth="1.2" />
+                </m.g>
+              ) : (
+                <g key={i} transform={`rotate(${i * step})`}>
+                  <ellipse cx="0" cy="-90" rx={rx} ry="46" fill={GLASS} stroke={GLASS_STROKE} strokeWidth="1.2" />
+                  <ellipse cx="0" cy="-90" rx={rx} ry="46" fill={`url(#${ids.gloss})`} opacity="0.5" />
+                </g>
+              ),
+            )}
           </g>
         </Layer>
 
@@ -106,7 +170,7 @@ export function MonthFlower({ days, checked }: { days: number; checked: Set<numb
           <defs>
             <Gloss id={`${ids.gloss}-b`} />
           </defs>
-          <g transform="translate(150 150)">
+          <g transform="translate(150 150) scale(0.8)">
             {Array.from({ length: days }, (_, i) => {
               if (!checked.has(i + 1)) return null
               const color = PETAL_COLORS[i % PETAL_COLORS.length]
@@ -141,7 +205,7 @@ export function MonthFlower({ days, checked }: { days: number; checked: Set<numb
               <stop offset="1" stopColor="#c9b89c" />
             </radialGradient>
           </defs>
-          <g transform="translate(150 150)">
+          <g transform="translate(150 150) scale(0.85)">
             <circle r="42" fill={`url(#${complete ? ids.core : ids.coreOff})`} stroke={OUTLINE} strokeWidth="2" />
             <ellipse cx="-13" cy="-17" rx="14" ry="8" fill="#fff" opacity="0.7" transform="rotate(-24 -13 -17)" />
             {complete && (
@@ -152,11 +216,18 @@ export function MonthFlower({ days, checked }: { days: number; checked: Set<numb
               </g>
             )}
           </g>
-          {/* o dia, pequeno, na ponta de cada pétala */}
+          {/* o dia flutua FORA da flor, nunca dentro da pétala */}
           <g transform="translate(150 150)" className="ga3d-days">
             {Array.from({ length: days }, (_, i) => (
-              <g key={i} transform={`rotate(${i * step}) translate(0 -122)`}>
-                <text transform={`rotate(${-i * step})`} textAnchor="middle" dominantBaseline="central" fontSize="8.5" fontWeight="600" fill="#4a3428">
+              <g key={i} transform={`rotate(${i * step}) translate(0 -138)`}>
+                <text
+                  transform={`rotate(${-i * step})`}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={i + 1 === today ? 10 : 8}
+                  fontWeight={i + 1 === today ? 800 : 600}
+                  fill={gone?.has(i + 1) || falling?.has(i + 1) ? '#b4a392' : '#4a3428'}
+                >
                   {i + 1}
                 </text>
               </g>
@@ -191,6 +262,53 @@ function useSunProgress(): number | null {
 }
 
 export function YearSunflower({ monthsDone }: { monthsDone: boolean[] }) {
+  const [failed, setFailed] = useState(() => !webglDisponivel())
+  const progress = useSunProgress()
+  if (failed) return <YearSunflower2D monthsDone={monthsDone} />
+  const count = monthsDone.filter(Boolean).length
+  const tilt = sunflowerTilt(progress)
+  const thisMonth = new Date().getMonth()
+  const petals: PetalSpec[] = monthsDone.map((lit, i) => ({ state: lit ? 'lit' : 'pale', color: '#f5b52e', label: MONTH_NAMES[i].slice(0, 3), strong: i === thisMonth }))
+  return (
+    <div className="garden-art garden-art--3d garden-art--sunflower3d">
+      <SunMarker progress={progress} />
+      <Suspense fallback={<YearSunflower2D monthsDone={monthsDone} />}>
+        <Flower3D
+          petals={petals}
+          center="seeds"
+          shape="long"
+          facing={{ rotateX: tilt.rotateX * 0.6, rotateY: tilt.rotateY * 0.8 }}
+          ariaLabel={`Girassol do ano: ${count} de 12 meses. ${progress === null ? 'É noite, ele descansa.' : 'Ele está virado para o sol.'}`}
+          onFail={() => setFailed(true)}
+        />
+      </Suspense>
+    </div>
+  )
+}
+
+function SunMarker({ progress }: { progress: number | null }) {
+  if (progress === null) return null
+  return (
+    <m.span
+      className="ga3d-sun"
+      aria-hidden="true"
+      style={{ left: `${8 + 84 * progress}%`, top: `${20 - 18 * sunHeight(progress)}%` }}
+      animate={{ rotate: 360 }}
+      transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+    >
+      <svg viewBox="0 0 48 48" focusable="false">
+        <g stroke="#f2b632" strokeWidth="3" strokeLinecap="round">
+          {Array.from({ length: 8 }, (_, i) => (
+            <line key={i} x1="24" y1="3" x2="24" y2="9" transform={`rotate(${i * 45} 24 24)`} />
+          ))}
+        </g>
+        <circle cx="24" cy="24" r="11" fill="#ffd95a" stroke="#e0a21c" strokeWidth="1.5" />
+      </svg>
+    </m.span>
+  )
+}
+
+function YearSunflower2D({ monthsDone }: { monthsDone: boolean[] }) {
   const ids = useIds()
   const count = monthsDone.filter(Boolean).length
   const progress = useSunProgress()
@@ -238,7 +356,7 @@ export function YearSunflower({ monthsDone }: { monthsDone: boolean[] }) {
       >
         {/* fundo: segunda fileira de pétalas, sempre clarinha */}
         <Layer z={0}>
-          <g transform="translate(150 150) rotate(15) scale(0.94)">
+          <g transform="translate(150 150) rotate(15) scale(0.78)">
             {Array.from({ length: 12 }, (_, i) => (
               <path key={i} d={PETAL_PATH} transform={`rotate(${i * 30})`} fill="#f6e3a1" stroke="rgba(190, 150, 60, 0.45)" strokeWidth="1.2" opacity="0.85" />
             ))}
@@ -255,7 +373,7 @@ export function YearSunflower({ monthsDone }: { monthsDone: boolean[] }) {
             </linearGradient>
             <Gloss id={ids.gloss} />
           </defs>
-          <g transform="translate(150 150)">
+          <g transform="translate(150 150) scale(0.82)">
             {monthsDone.map((lit, i) => (
               <g key={i} transform={`rotate(${i * 30})`}>
                 {lit ? (
@@ -283,17 +401,17 @@ export function YearSunflower({ monthsDone }: { monthsDone: boolean[] }) {
               <stop offset="1" stopColor="#452710" />
             </radialGradient>
           </defs>
-          <g transform="translate(150 150)">
+          <g transform="translate(150 150) scale(0.82)">
             <circle r="52" fill={`url(#${ids.seed})`} stroke="rgba(52, 28, 10, 0.6)" strokeWidth="2" />
             {SEEDS.map((seed, k) => (
               <circle key={k} cx={seed.x} cy={seed.y} r={seed.s} fill={k % 2 ? '#e0b46a' : '#3a2010'} opacity="0.7" />
             ))}
             <ellipse cx="-17" cy="-22" rx="17" ry="9" fill="#fff" opacity="0.32" transform="rotate(-24 -17 -22)" />
           </g>
-          {/* o nome do mês em cada pétala */}
+          {/* o nome do mês flutua FORA da pétala */}
           <g transform="translate(150 150)" className="ga3d-months">
             {monthsDone.map((_, i) => (
-              <g key={i} transform={`rotate(${i * 30}) translate(0 -98)`}>
+              <g key={i} transform={`rotate(${i * 30}) translate(0 -136)`}>
                 <text transform={`rotate(${-i * 30})`} textAnchor="middle" dominantBaseline="central" fontSize="9" fontWeight="700" fill="#4a3428">
                   {MONTH_NAMES[i].slice(0, 3)}
                 </text>

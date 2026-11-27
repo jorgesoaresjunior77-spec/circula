@@ -29,6 +29,7 @@ import { AnalogClock } from './AnalogClock'
 import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
+import { requestCityListing } from '../lib/city'
 import { HomeFooter } from './HomeFooter'
 import { HomeQuotesTicker } from './HomeQuotesTicker'
 import { HomeGroupTitle } from './HomeGroupTitle'
@@ -441,7 +442,13 @@ export function HomeToday({
 
       <HomePlansCard image={planosCover} cardImages={planCardImages} onOpen={() => onNavigate('planos')} />
 
-      <HomePartnersStrip communityId={focusCommunity.id} />
+      <HomePartnersStrip
+        communityId={focusCommunity.id}
+        onOpenListing={(id) => {
+          requestCityListing(id)
+          onNavigate('cidade')
+        }}
+      />
 
       <div className={`home-end${fimCover ? ' home-end--photo' : ''}`}>
         {fimCover && <img className="home-end-photo" src={fimCover} alt="" loading="lazy" decoding="async" />}

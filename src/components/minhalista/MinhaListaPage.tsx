@@ -9,6 +9,7 @@ import { ListView } from './ListView'
 import { MinhaListaCommercial } from './MinhaListaCommercial'
 import { RecipeToList } from './RecipeToList'
 import { NewListDialog } from './NewListDialog'
+import { PurchaseHistory } from './PurchaseHistory'
 
 // Minha Lista: painel com as listas, criar lista, montar com receitas e
 // histórico. Quem não tem o serviço vê a página comercial. Quem já criou
@@ -177,7 +178,9 @@ export function MinhaListaPage({
         <button type="button" className="auth-link" onClick={() => setView({ name: 'home' })}>
           ‹ Minha Lista
         </button>
-        <h2>Histórico de compras</h2>
+        <h2>Histórico e preços</h2>
+        <PurchaseHistory />
+        <h3 className="ml-history-sub">Listas concluídas e arquivadas</h3>
         {history.length === 0 && <p className="home-muted">Quando você concluir ou arquivar uma lista, ela aparece aqui.</p>}
         <ul className="ml-history">
           {history.map((l) => {
@@ -256,7 +259,7 @@ export function MinhaListaPage({
           Montar lista com receitas
         </button>
         <button type="button" className="auth-link" onClick={() => setView({ name: 'history' })}>
-          Ver histórico
+          Histórico e preços
         </button>
       </div>
 

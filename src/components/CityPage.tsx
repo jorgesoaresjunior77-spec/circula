@@ -14,6 +14,7 @@ import type { GuideSort } from '../lib/cityFilter'
 import { BR_STATES } from '../lib/travel'
 import { supabase } from '../lib/supabase'
 import { takeCityRequest } from '../lib/carro'
+import { takeCityListingRequest } from '../lib/city'
 import { fetchCityInfo, findCityByIbge, useCityCatalog, useCityGroups, useCityListings, useMyCity } from '../hooks/useCity'
 import type { ListingInput } from '../hooks/useCity'
 import { CityPicker } from './CityPicker'
@@ -60,6 +61,28 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
   }, [profile.id])
   const listingsApi = useCityListings(city?.id ?? null)
   const { listings, loading, error } = listingsApi
+
+  // Vindo de um parceiro: abre o cadastro dele em destaque (mesmo se for de outra cidade).
+  const [focusId, setFocusId] = useState<string | null>(() => takeCityListingRequest())
+  useEffect(() => {
+    if (!focusId || loadingCity) return
+    let cancelled = false
+    void supabase
+      .from('city_listings')
+      .select('city_id')
+      .eq('id', focusId)
+      .maybeSingle()
+      .then(async ({ data }) => {
+        const cid = (data as { city_id: string } | null)?.city_id
+        if (cancelled || !cid || cid === myCity?.id) return
+        const info = await fetchCityInfo(cid)
+        if (!cancelled && info) setOther(info)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [focusId, loadingCity, myCity?.id])
+  const focused = focusId ? (listings.find((l) => l.id === focusId) ?? null) : null
 
   const [tab, setTab] = useState<Tab>('guia')
   const [form, setForm] = useState<FormState | null>(null)
@@ -268,6 +291,16 @@ export function CityPage({ profile, onOpenCarro }: { profile: Profile; onOpenCar
         </div>
         {readOnly && <p className="cty-note">Você está vendo {city.nome} em modo leitura. Para cadastrar, use a sua cidade.</p>}
       </header>
+
+      {focused && (
+        <div className="cty-focus" role="region" aria-label="Estabelecimento do parceiro">
+          <p className="cty-focus-title">Estabelecimento do parceiro</p>
+          <CityListingCard listing={focused} category={focused.categoria_id ? (catById.get(focused.categoria_id) ?? null) : null} {...cardProps} />
+          <button type="button" className="cty-link" onClick={() => setFocusId(null)}>
+            Ver o resto da cidade
+          </button>
+        </div>
+      )}
 
       <div className="cty-tabs" role="tablist" aria-label="Seções da cidade">
         {TABS.map((t) => (

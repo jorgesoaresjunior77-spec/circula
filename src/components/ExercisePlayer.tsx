@@ -1,7 +1,52 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { ExerciseIllustration } from './ExerciseIllustration'
+import { webglDisponivel } from '../lib/scene3d'
+
+const ExerciseWoman3D = lazy(() => import('./ExerciseWoman3D'))
+
+// Ícones do treino no traço do Círcula (no lugar dos emojis).
+const IconBase = ({ children, size = 22 }: { children: React.ReactNode; size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {children}
+  </svg>
+)
+const PauseGlyph = () => (
+  <IconBase>
+    <rect x="6.5" y="5" width="3.6" height="14" rx="1.4" />
+    <rect x="13.9" y="5" width="3.6" height="14" rx="1.4" />
+  </IconBase>
+)
+const PlayGlyph = () => (
+  <IconBase>
+    <path d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10-6.4a.8.8 0 0 0 0-1.4l-10-6.4A.8.8 0 0 0 8 5.6Z" />
+  </IconBase>
+)
+const BellGlyph = ({ off }: { off: boolean }) => (
+  <IconBase>
+    <path d="M6.5 10a5.5 5.5 0 0 1 11 0c0 4 1.2 5.5 1.9 6.2a.6.6 0 0 1-.4 1H5a.6.6 0 0 1-.4-1c.7-.7 1.9-2.2 1.9-6.2Z" />
+    <path d="M10 20a2 2 0 0 0 4 0" />
+    {off && <path d="M4 3.5 20 20.5" />}
+  </IconBase>
+)
+const SkipGlyph = () => (
+  <IconBase size={20}>
+    <path d="M5 6.2v11.6a.7.7 0 0 0 1.1.6l8.2-5.8a.7.7 0 0 0 0-1.2L6.1 5.6a.7.7 0 0 0-1.1.6Z" />
+    <path d="M18.5 5.5v13" />
+  </IconBase>
+)
+const StopGlyph = () => (
+  <IconBase size={20}>
+    <rect x="6" y="6" width="12" height="12" rx="2.6" />
+  </IconBase>
+)
+const LeafGlyph = () => (
+  <IconBase size={26}>
+    <path d="M5 19c8 0 14-5 14-14-8 0-14 5-14 14Z" />
+    <path d="M5 19 13 11" />
+  </IconBase>
+)
 import { formatClock } from '../lib/exerciseCatalog'
-import { beep, closeBeep, unlockBeep } from '../lib/beep'
+import { beep, closeBeep, tick, unlockBeep } from '../lib/beep'
 import type { WorkoutExercise } from '../hooks/useHomeWorkouts'
 
 // Treino guiado: exercício por exercício, série por série, com descanso entre
@@ -51,6 +96,10 @@ export function ExercisePlayer({
   const finished = useRef(false)
   /** Último fim de tempo que já bipou (exercício-série-fase): nunca bipa duas vezes o mesmo. */
   const lastBeep = useRef('')
+  /** Último tique da contagem regressiva (exercício-série-fase-segundo). */
+  const lastTick = useRef('')
+  const [use3d, setUse3d] = useState(() => webglDisponivel())
+  const [showImage, setShowImage] = useState(false)
 
   const ex = exercises[idx]
   const running = phase === 'work' || phase === 'rest'
@@ -143,6 +192,18 @@ export function ExercisePlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining, phase, paused, confirmEnd])
 
+  // 3, 2, 1: tique curto nos últimos segundos da série por tempo e do descanso
+  useEffect(() => {
+    if (!running || paused || confirmEnd || !soundOn || !ex) return
+    const timed = (phase === 'work' && ex.mode === 'time') || phase === 'rest'
+    if (!timed || remaining < 1 || remaining > 3) return
+    const key = `${idx}-${setNo}-${phase}-${remaining}`
+    if (lastTick.current === key) return
+    lastTick.current = key
+    tick()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remaining, phase, paused, confirmEnd, soundOn])
+
   const summary = useMemo<RunSummary>(() => ({ seconds: elapsed, total: exercises.length, done: doneIds.length, doneIds }), [elapsed, exercises.length, doneIds])
 
   useEffect(() => {
@@ -158,7 +219,10 @@ export function ExercisePlayer({
   if (phase === 'end') {
     return (
       <section className="ex-player ex-summary" aria-live="polite">
-        <h3>{endedEarly ? 'Treino finalizado' : 'Treino concluído! 🎉'}</h3>
+        <span className="ex-summary-mark" aria-hidden="true">
+          <LeafGlyph />
+        </span>
+        <h3>{endedEarly ? 'Treino finalizado' : 'Treino concluído!'}</h3>
         <p>
           <strong>{title}</strong>
         </p>
@@ -191,7 +255,18 @@ export function ExercisePlayer({
       </div>
 
       <h3>{ex.name}</h3>
-      <ExerciseIllustration slug={ex.slug} name={ex.name} />
+      {use3d && !showImage ? (
+        <Suspense fallback={<ExerciseIllustration slug={ex.slug} name={ex.name} />}>
+          <ExerciseWoman3D key={ex.slug} slug={ex.slug} playing={!paused && !confirmEnd && phase !== 'rest'} onFail={() => setUse3d(false)} />
+        </Suspense>
+      ) : (
+        <ExerciseIllustration slug={ex.slug} name={ex.name} />
+      )}
+      {use3d && (
+        <button type="button" className="ex-view-toggle" onClick={() => setShowImage((v) => !v)}>
+          {showImage ? 'Ver a demonstração animada' : 'Ver a ilustração'}
+        </button>
+      )}
 
       {phase === 'ready' && (
         <>
@@ -216,7 +291,18 @@ export function ExercisePlayer({
           </p>
           {ex.mode === 'time' ? <p className="ex-clock">{formatClock(remaining)}</p> : <p className="ex-clock">{ex.target} repetições</p>}
           {ex.mode === 'reps' && (
-            <button type="button" className="ex-big" onClick={finishSet} disabled={paused}>
+            <button
+              type="button"
+              className="ex-big"
+              onClick={() => {
+                if (soundOn) {
+                  unlockBeep()
+                  beep(1, 880)
+                }
+                finishSet()
+              }}
+              disabled={paused}
+            >
               Fiz a série
             </button>
           )}
@@ -235,19 +321,21 @@ export function ExercisePlayer({
 
       <div className="ex-controls">
         {running && (
-          <button type="button" className="ex-ctl ex-ctl--pause" onClick={() => setPaused((p) => !p)}>
-            {paused ? 'Continuar' : 'Pausar'}
+          <button type="button" className={`ex-ctl ex-ctl--pause${paused ? ' ex-ctl--on' : ''}`} onClick={() => setPaused((p) => !p)} aria-pressed={paused}>
+            {paused ? <PlayGlyph /> : <PauseGlyph />}
+            <span>{paused ? 'Continuar' : 'Pausar'}</span>
           </button>
         )}
         <button
           type="button"
-          className="ex-ctl ex-ctl--sound"
+          className={`ex-ctl ex-ctl--sound${soundOn ? ' ex-ctl--on' : ''}`}
           onClick={toggleSound}
           aria-pressed={soundOn}
           aria-label={soundOn ? 'Desligar os bipes' : 'Ligar os bipes'}
           title={soundOn ? 'Bipes ligados' : 'Bipes desligados'}
         >
-          {soundOn ? '🔔' : '🔕'}
+          <BellGlyph off={!soundOn} />
+          <span>{soundOn ? 'Som ligado' : 'Som desligado'}</span>
         </button>
       </div>
 
@@ -261,10 +349,10 @@ export function ExercisePlayer({
             advanceExercise(false)
           }}
         >
-          <span aria-hidden="true">⏭</span> PULAR EXERCÍCIO
+          <SkipGlyph /> Pular exercício
         </button>
         <button type="button" className="ex-action ex-action--end" onClick={() => setConfirmEnd(true)}>
-          <span aria-hidden="true">■</span> FINALIZAR TREINO
+          <StopGlyph /> Finalizar treino
         </button>
       </div>
 
