@@ -25,7 +25,7 @@ import { SubscriptionPanel } from './SubscriptionPanel'
 import { SubscriptionLevelCard } from './SubscriptionLevelCard'
 import { TrialNotice } from './TrialNotice'
 import { CartCheckout } from './CartCheckout'
-import { RoboCelebracao, RoboConsultor, jaCelebrou, marcarCelebrou } from './RoboPlanos'
+import { LiviPorQue, RoboCelebracao, RoboConsultor, jaCelebrou, marcarCelebrou } from './RoboPlanos'
 import { useConfirmacaoAssinatura } from '../hooks/useConfirmacaoAssinatura'
 import type { Confirmacao } from '../hooks/useConfirmacaoAssinatura'
 
@@ -45,6 +45,10 @@ const GROUPS = [
   { title: 'Conteúdos', keys: ['magazine', 'ebooks', 'receitas', 'leitura', 'series_filmes', 'viagens'] },
   { title: 'Bem-estar', keys: ['respiracao', 'playlist', 'wellness', 'exercicios'] },
   { title: 'Cozinha e compras', keys: ['meu_chef', 'minha_lista', 'lista_inteligente'] },
+  {
+    title: 'Ferramentas do dia a dia',
+    keys: ['antes_de_tudo', 'agua', 'imc', 'calculadora', 'agenda', 'relogio', 'previsao', 'diario', 'jardim', 'cidade', 'cotacoes'],
+  },
 ] as const
 const ORDER = GROUPS.flatMap((g) => g.keys)
 const API_CYCLE: Record<string, PlanCycle> = {
@@ -276,6 +280,8 @@ export function PlansPage({
         />
       )}
 
+      <LiviPorQue premium={PREMIUM_PRICES_CENTS} separadoMensalCents={PREMIUM_SEPARATE_MONTHLY_CENTS} totalItens={PRODUCTS.length} promo={isPremiumPromo()} />
+
       {!viewOnly && communityId && profileId && <SubscriptionLevelCard communityId={communityId} profileId={profileId} />}
 
       {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
@@ -293,7 +299,7 @@ export function PlansPage({
               {formatBrl(circulaPrices.monthly)}
               <small>por mês</small>
             </span>
-            <span className="plans-option-text">Comunidade, círculos, eventos e as ferramentas do dia a dia.</span>
+            <span className="plans-option-text">Para ficar no Círcula: comunidade, círculos, eventos, perfil e convite. Ferramentas e conteúdos são avulsos ou vêm no Premium.</span>
           </button>
 
           <button
@@ -341,13 +347,13 @@ export function PlansPage({
       <article className="plans-base" aria-label="Já incluído no Círcula">
         <h4>Já está no seu Círcula</h4>
         <ul>
-          <li>Água e IMC</li>
-          <li>Calculadora</li>
-          <li>Agenda</li>
-          <li>Minha cidade</li>
+          <li>Comunidade (feed)</li>
+          <li>Círculos</li>
+          <li>Eventos</li>
+          <li>Perfil e convite</li>
           <li>Livi, a sua guia</li>
         </ul>
-        <p>Tudo isso vem com a assinatura do Círcula, sem custo extra.</p>
+        <p>Isso vem com a assinatura do Círcula. As ferramentas (Água, IMC, Calculadora, Agenda, Relógio, Previsão, Diário, Jardim, Minha cidade, Cotações e Antes de Tudo) são avulsas de R$ 4,90 cada, ou vêm todas no Premium.</p>
       </article>
 
       <h3 className="plans-heading">Produtos avulsos</h3>
@@ -374,7 +380,7 @@ export function PlansPage({
         <h4>O que você leva no Premium</h4>
         <ul>
           <li>
-            <strong>Círcula</strong> <span>comunidade, círculos, eventos, Finanças, Água, IMC, Calculadora, Agenda e Minha cidade</span> <em>{formatBrl(CIRCULA_MONTHLY_CENTS)}</em>
+            <strong>Círcula</strong> <span>comunidade, círculos, eventos, perfil e convite</span> <em>{formatBrl(CIRCULA_MONTHLY_CENTS)}</em>
           </li>
           {ORDER.map((k) => PRODUCTS.find((p) => p.key === k)).filter((p): p is (typeof PRODUCTS)[number] => !!p).map((p) => (
             <li key={p.key}>
@@ -404,7 +410,7 @@ export function PlansPage({
             {open === 'circula' && (
               <>
                 <h3>Círcula</h3>
-                <p className="plans-text">A comunidade, os círculos e os eventos, e as ferramentas do dia a dia: Finanças, Água, IMC, Calculadora, Agenda e Minha cidade.</p>
+                <p className="plans-text">O plano para ficar no Círcula: a comunidade, os círculos, os eventos, o seu perfil e o convite. As ferramentas e os conteúdos são avulsos ou vêm todos juntos no Premium.</p>
                 {!viewOnly && <TrialNotice />}
                 <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
                 {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}

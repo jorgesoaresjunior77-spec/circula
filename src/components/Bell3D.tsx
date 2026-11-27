@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { CatmullRomCurve3, Group, LatheGeometry, Mesh, MeshPhysicalMaterial, SphereGeometry, TorusGeometry, Vector2, Vector3 } from 'three'
 import { mountScene } from '../lib/scene3d'
 
-// Sino da Home em 3D: corpo de revolução suavizado, argola no topo e badalo. Pendurado pelo topo, balança
+// Sino da Home em 3D: sino clássico de metal dourado (boca larga, cintura e cúpula), argola no topo e badalo. Pendurado pelo topo, balança
 // de verdade (com pausa entre um toque e outro) quando há notificação; sem notificação, fica parado,
 // de leve virado, só em relevo. Carregado sob demanda; libera a GPU ao sair da tela.
 
@@ -37,43 +37,48 @@ export default function Bell3D({ ringing, onFail }: Props) {
     if (!host) return
     return mountScene(
       host,
-      { fov: 26, position: [0, 0.1, 8.2], look: [0, 0.05, 0], className: 'bell3d-canvas', exposure: 1.1 },
+      { fov: 26, position: [0, 0.1, 8.2], look: [0, 0.05, 0], className: 'bell3d-canvas', exposure: 1.05, envIntensity: 1.2 },
       ({ scene, track }) => {
-        const white = track(new MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.32, metalness: 0.05, clearcoat: 0.6, clearcoatRoughness: 0.3 }))
-        const shade = track(new MeshPhysicalMaterial({ color: 0xf1e6da, roughness: 0.4, metalness: 0.05 }))
+        // sino de verdade, de metal dourado: o reflexo do ambiente é que dá o volume
+        const gold = track(new MeshPhysicalMaterial({ color: 0xd8a650, roughness: 0.26, metalness: 1, clearcoat: 0.4, clearcoatRoughness: 0.25 }))
+        const darkGold = track(new MeshPhysicalMaterial({ color: 0x9a6a2a, roughness: 0.35, metalness: 1 }))
 
-        // perfil do sino (raio, altura), da borda até o topo
+        // perfil clássico (raio, altura), da boca até o topo: boca aberta com borda grossa,
+        // cintura fina, ombro arredondado e cúpula
         const pts = [
-          [1.12, -0.82],
-          [1.06, -0.7],
-          [0.9, -0.32],
-          [0.62, 0.34],
-          [0.4, 0.78],
-          [0.2, 1.05],
-          [0.001, 1.16],
+          [1.18, -0.86],
+          [1.13, -0.74],
+          [0.96, -0.58],
+          [0.76, -0.3],
+          [0.66, 0.02],
+          [0.64, 0.36],
+          [0.6, 0.62],
+          [0.5, 0.84],
+          [0.3, 0.99],
+          [0.001, 1.04],
         ].map(([r, y]) => new Vector3(r, y, 0))
-        const profile = new CatmullRomCurve3(pts, false, 'catmullrom', 0.5).getPoints(40).map((p) => new Vector2(Math.max(0.001, p.x), p.y))
-        const body = new Mesh(track(new LatheGeometry(profile, 56)), white)
+        const profile = new CatmullRomCurve3(pts, false, 'catmullrom', 0.5).getPoints(48).map((p) => new Vector2(Math.max(0.001, p.x), p.y))
+        const body = new Mesh(track(new LatheGeometry(profile, 64)), gold)
 
-        const rim = new Mesh(track(new TorusGeometry(1.1, 0.075, 16, 56)), white)
+        const rim = new Mesh(track(new TorusGeometry(1.16, 0.085, 16, 64)), gold)
         rim.rotation.x = Math.PI / 2
-        rim.position.y = -0.8
-        const loop = new Mesh(track(new TorusGeometry(0.16, 0.045, 12, 28)), shade)
-        loop.position.y = 1.36
-        const clapper = new Mesh(track(new SphereGeometry(0.26, 24, 18)), shade)
-        clapper.position.y = -1.0
+        rim.position.y = -0.84
+        const loop = new Mesh(track(new TorusGeometry(0.2, 0.06, 14, 32)), darkGold)
+        loop.position.y = 1.22
+        const clapper = new Mesh(track(new SphereGeometry(0.24, 24, 18)), darkGold)
+        clapper.position.y = -0.98
 
         const bell = new Group()
         bell.add(body, rim, loop, clapper)
         // o eixo de giro fica na argola, no topo
         const pivot = new Group()
-        pivot.position.y = 1.36
-        bell.position.y = -1.36
+        pivot.position.y = 1.22
+        bell.position.y = -1.22
         pivot.add(bell)
-        pivot.position.y += -0.2
+        pivot.position.y += -0.12
         scene.add(pivot)
 
-        pivot.rotation.set(0.12, -0.42, 0)
+        pivot.rotation.set(0.16, -0.42, 0)
         return {
           update: (t) => {
             const swing = ringingRef.current ? bellSwing(t) : 0

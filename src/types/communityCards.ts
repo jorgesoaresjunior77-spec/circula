@@ -71,6 +71,8 @@ export type CommunityCardKey =
   | 'plano_frente'
   | 'plano_premium'
   | 'plano_mensal'
+  | 'plano_semestre'
+  | 'plano_anual'
   | 'banner_lista'
   | 'banner_cidade'
   | 'hero_1'
@@ -121,6 +123,8 @@ export const MENU_CARD_META: CommunityCardMeta[] = [
   { key: 'plano_frente', label: 'Planos e Assinaturas (cartão da frente)', hint: 'Foto do cartão da frente do carrossel de Planos, na Home.' },
   { key: 'plano_premium', label: 'Plano Premium (cartão da direita)', hint: 'Foto do cartão Plano Premium no carrossel de Planos, na Home.' },
   { key: 'plano_mensal', label: 'Plano Mensal (cartão da esquerda)', hint: 'Foto do cartão Plano Mensal no carrossel de Planos, na Home.' },
+  { key: 'plano_semestre', label: 'Semestre (cartão do canto esquerdo)', hint: 'Foto do cartão do Semestre no carrossel de Planos, na Home.' },
+  { key: 'plano_anual', label: 'Anual (cartão do canto direito)', hint: 'Foto do cartão do Anual no carrossel de Planos, na Home.' },
 ]
 
 export const COMMUNITY_CARD_KEYS =COMMUNITY_CARD_META.map((c) => c.key)
@@ -269,6 +273,8 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
     case 'plano_frente':
     case 'plano_premium':
     case 'plano_mensal':
+    case 'plano_semestre':
+    case 'plano_anual':
       return SPEC_PLAN_CARD
     default:
       return SPEC_PORTRAIT

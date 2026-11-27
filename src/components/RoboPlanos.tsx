@@ -186,3 +186,61 @@ export function RoboCelebracao({ ciclo, onFechar }: { ciclo?: PlanCycle | null; 
     document.body,
   )
 }
+
+/** "Por que assinar?": a Livi responde as três perguntas que mais aparecem, com os valores reais do catálogo
+ *  (Premium, semestral e anual). Sem som; cada resposta abre ao tocar. */
+export function LiviPorQue({
+  premium,
+  separadoMensalCents,
+  totalItens,
+  promo,
+}: {
+  /** Preços vigentes do Premium por ciclo. */
+  premium: Record<PlanCycle, number>
+  /** Quanto custaria por mês assinar tudo separado (Círcula + todos os avulsos). */
+  separadoMensalCents: number
+  /** Quantos conteúdos e ferramentas o Premium junta. */
+  totalItens: number
+  /** Ainda no preço de lançamento (até 31/12/2026). */
+  promo: boolean
+}) {
+  const offMensal = Math.round((1 - premium.monthly / separadoMensalCents) * 100)
+  const semestreCheio = premium.monthly * 6
+  const anoCheio = premium.monthly * 12
+  const pct = (cheio: number, pago: number) => Math.round((1 - pago / cheio) * 100)
+  return (
+    <aside className="livi-porque" aria-label="Por que assinar? Respostas da Livi">
+      <div className="livi-porque-head">
+        <RoboGuia cena="feliz" tamanho={64} mudo />
+        <p>
+          <strong>Sou a Livi.</strong> Separei as dúvidas que mais recebo sobre os planos:
+        </p>
+      </div>
+      <details>
+        <summary>Por que assinar o Premium?</summary>
+        <p>
+          Porque ele junta o Círcula e os {totalItens} conteúdos e ferramentas numa assinatura só. Separado, tudo custaria{' '}
+          <strong>{formatBrl(separadoMensalCents)}</strong> por mês; no Premium sai por <strong>{formatBrl(premium.monthly)}</strong>, {offMensal}% a
+          menos. Você não precisa escolher o que assinar nem pagar cada um: está tudo liberado.
+          {promo && <> Assinando até 31/12/2026, você garante o preço de lançamento.</>}
+        </p>
+      </details>
+      <details>
+        <summary>Por que assinar o plano semestral?</summary>
+        <p>
+          Porque você paga 6 meses de uma vez e paga menos: o Premium semestral sai por <strong>{formatBrl(premium.semiannual)}</strong> em vez de{' '}
+          {formatBrl(semestreCheio)} (6 vezes o mensal), {pct(semestreCheio, premium.semiannual)}% a menos. Nos avulsos, o semestral tem 16% de
+          desconto. E dá para parcelar em até 6x no cartão, numa contratação só.
+        </p>
+      </details>
+      <details>
+        <summary>Por que assinar o plano anual?</summary>
+        <p>
+          Porque é a maior economia do Círcula: o Premium anual sai por <strong>{formatBrl(premium.annual)}</strong> em vez de {formatBrl(anoCheio)}{' '}
+          (12 vezes o mensal), {pct(anoCheio, premium.annual)}% a menos, ou seja, <strong>{formatBrl(anoCheio - premium.annual)}</strong> no bolso. Nos
+          avulsos, o anual tem 33% de desconto. Dá para parcelar em até 12x no cartão, e você passa o ano inteiro sem pensar em renovação.
+        </p>
+      </details>
+    </aside>
+  )
+}

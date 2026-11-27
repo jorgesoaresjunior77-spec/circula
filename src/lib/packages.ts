@@ -22,6 +22,17 @@ export type PackageKey =
   | 'carro'
   | 'financas'
   | 'rachei'
+  | 'antes_de_tudo'
+  | 'agua'
+  | 'imc'
+  | 'calculadora'
+  | 'agenda'
+  | 'relogio'
+  | 'previsao'
+  | 'diario'
+  | 'jardim'
+  | 'cidade'
+  | 'cotacoes'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -41,6 +52,17 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'carro',
   'financas',
   'rachei',
+  'antes_de_tudo',
+  'agua',
+  'imc',
+  'calculadora',
+  'agenda',
+  'relogio',
+  'previsao',
+  'diario',
+  'jardim',
+  'cidade',
+  'cotacoes',
   'premium',
   'total',
 ]
@@ -65,6 +87,17 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   carro: 'Carro em Dia',
   financas: 'Finanças',
   rachei: 'Rachei $',
+  antes_de_tudo: 'Antes de Tudo',
+  agua: 'Água',
+  imc: 'IMC',
+  calculadora: 'Calculadora',
+  agenda: 'Agenda',
+  relogio: 'Relógio do mundo',
+  previsao: 'Previsão do tempo',
+  diario: 'Diário da Gratidão',
+  jardim: 'Meu Jardim',
+  cidade: 'Na minha cidade',
+  cotacoes: 'Cotações',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -87,6 +120,17 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   carro: 'Pode ler as respostas do Carro em Dia e fazer perguntas.',
   financas: 'Pode usar as Finanças: receitas, gastos e investimentos.',
   rachei: 'Pode usar o Rachei $: calculadora de racha, grupos e cartão para o WhatsApp.',
+  antes_de_tudo: 'Pode usar o Antes de Tudo.',
+  agua: 'Pode usar a calculadora e o registro de Água.',
+  imc: 'Pode usar o IMC.',
+  calculadora: 'Pode usar a Calculadora.',
+  agenda: 'Pode usar a Agenda.',
+  relogio: 'Pode usar o Relógio do mundo.',
+  previsao: 'Pode ver a Previsão do tempo completa.',
+  diario: 'Pode usar o Diário da Gratidão.',
+  jardim: 'Pode usar o Meu Jardim.',
+  cidade: 'Pode usar o Na minha cidade.',
+  cotacoes: 'Pode ver o crescimento das moedas (Cotações).',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -168,4 +212,12 @@ export function canUseFinancas(owned: Owned): boolean {
 /** Pode usar o Rachei $: pacote próprio ou Círcula Premium. */
 export function canUseRachei(owned: Owned): boolean {
   return has(owned, 'rachei') || has(owned, 'premium')
+}
+
+/** Ferramentas que eram do plano básico e viraram avulso de R$ 4,90 (2026-11-27). */
+export type ToolKey = 'antes_de_tudo' | 'agua' | 'imc' | 'calculadora' | 'agenda' | 'relogio' | 'previsao' | 'diario' | 'jardim' | 'cidade' | 'cotacoes'
+
+/** Pode usar a ferramenta: o avulso dela ou o Círcula Premium (que inclui todas). */
+export function canUseTool(owned: Owned, key: ToolKey): boolean {
+  return has(owned, key) || has(owned, 'premium')
 }

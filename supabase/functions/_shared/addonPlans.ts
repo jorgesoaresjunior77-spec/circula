@@ -1,4 +1,6 @@
 // Obs.: 'carro' (Carro em Dia, R$ 4,50), 'financas' (Finanças, R$ 9,90) e 'rachei' (Rachei $, R$ 4,90) são avulsos e também fazem parte do Premium.
+// Desde 2026-11-27 também são avulsos de R$ 4,90 (e incluídos no Premium): Antes de Tudo, Água, IMC, Calculadora, Agenda,
+// Relógio do mundo, Previsão do tempo, Diário da Gratidão, Meu Jardim, Na minha cidade e Cotações.
 // Catálogo das assinaturas avulsas (revista, receitas, e-books, Help Nutri,
 // respiração, playlist, wellness) e do Círcula Premium. Valores em centavos.
 // ESPELHA src/lib/plansCatalog.ts: o servidor só confia neste arquivo, nunca
@@ -22,6 +24,17 @@ export type AddonPlanKey =
   | 'carro'
   | 'financas'
   | 'rachei'
+  | 'antes_de_tudo'
+  | 'agua'
+  | 'imc'
+  | 'calculadora'
+  | 'agenda'
+  | 'relogio'
+  | 'previsao'
+  | 'diario'
+  | 'jardim'
+  | 'cidade'
+  | 'cotacoes'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -44,6 +57,17 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'carro',
   'financas',
   'rachei',
+  'antes_de_tudo',
+  'agua',
+  'imc',
+  'calculadora',
+  'agenda',
+  'relogio',
+  'previsao',
+  'diario',
+  'jardim',
+  'cidade',
+  'cotacoes',
   'premium',
 ]
 
@@ -65,6 +89,17 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   carro: 'Carro em Dia',
   financas: 'Finanças',
   rachei: 'Rachei $',
+  antes_de_tudo: 'Antes de Tudo',
+  agua: 'Água',
+  imc: 'IMC',
+  calculadora: 'Calculadora',
+  agenda: 'Agenda',
+  relogio: 'Relógio do mundo',
+  previsao: 'Previsão do tempo',
+  diario: 'Diário da Gratidão',
+  jardim: 'Meu Jardim',
+  cidade: 'Na minha cidade',
+  cotacoes: 'Cotações',
   premium: 'Círcula Premium',
 }
 
@@ -86,6 +121,18 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   carro: 450,
   financas: 990,
   rachei: 490,
+  // ferramentas que eram do plano básico: R$ 4,90 cada (pedido de 2026-11-27)
+  antes_de_tudo: 490,
+  agua: 490,
+  imc: 490,
+  calculadora: 490,
+  agenda: 490,
+  relogio: 490,
+  previsao: 490,
+  diario: 490,
+  jardim: 490,
+  cidade: 490,
+  cotacoes: 490,
   premium: 5990,
 }
 
@@ -188,6 +235,28 @@ export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bund
       return ['financas']
     case 'rachei':
       return ['rachei']
+    case 'antes_de_tudo':
+      return ['antes_de_tudo']
+    case 'agua':
+      return ['agua']
+    case 'imc':
+      return ['imc']
+    case 'calculadora':
+      return ['calculadora']
+    case 'agenda':
+      return ['agenda']
+    case 'relogio':
+      return ['relogio']
+    case 'previsao':
+      return ['previsao']
+    case 'diario':
+      return ['diario']
+    case 'jardim':
+      return ['jardim']
+    case 'cidade':
+      return ['cidade']
+    case 'cotacoes':
+      return ['cotacoes']
     case 'premium':
       return ['premium']
     default:

@@ -77,7 +77,7 @@ const ALL_ITEMS: Item[] = [
   { key: 'wellness', imageKey: 'menu_wellness', title: 'Wellness', tint: 'linear-gradient(135deg,#d3e4d6,#b4d0bb)', icon: LeafSvg },
   { key: 'series', imageKey: 'menu_series', title: 'Séries e Filmes', tint: 'linear-gradient(135deg,#e3d6e8,#cdbad6)', icon: FilmSvg },
   { key: 'viagens', imageKey: 'menu_viagens', title: 'Dicas de Viagem', tint: 'linear-gradient(135deg,#d6e4ea,#b9d0da)', icon: PinSvg },
-  { key: 'rachei', imageKey: 'menu_rachei', title: 'Rachei $', tint: 'linear-gradient(135deg,#efe3c9,#dcc590)', icon: SplitSvg },
+  { key: 'rachei', imageKey: 'menu_rachei', title: 'Rachei', tint: 'linear-gradient(135deg,#efe3c9,#dcc590)', icon: SplitSvg },
 ]
 
 /** Foto do card (quando a profissional cadastrou); sem foto, o ícone grande aparece no lugar. */
@@ -119,7 +119,7 @@ export function HomeMenuWheel({ onNavigate, imagePaths, showSubscriptions = true
     <m.section className="home-wheel home-wheel--stack" aria-label="Menu de conteúdos" {...inViewOnce} variants={riseVariants}>
       <ul className="wheel-list">
         {items.map((item, i) => (
-          <li key={item.key} className={`wheel-item ${i % 2 === 0 ? 'wheel-item--borda wheel-item--foto-esq' : 'wheel-item--cheio wheel-item--foto-dir'}`}>
+          <li key={item.key} className={`wheel-item wheel-item--${item.key} ${i % 2 === 0 ? 'wheel-item--borda wheel-item--foto-esq' : 'wheel-item--cheio wheel-item--foto-dir'}`}>
             <button type="button" className="wheel-card" onClick={() => onNavigate(item.key)}>
               <WheelPhoto item={item} path={imagePaths?.[item.imageKey]} />
               <span className="wheel-text">

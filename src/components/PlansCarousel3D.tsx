@@ -19,14 +19,16 @@ import { maxPixelRatio } from '../lib/deviceTier'
 import { STEP, ringAngle, slotPose } from '../lib/planCarousel'
 
 // Carrossel 3D (Three.js) do card "Planos e Assinaturas": cinco cartões num anel que dá a volta completa.
-// Na frente: Planos e Assinaturas; ao lado: Plano Mensal e Plano Premium (com a foto cadastrada no Painel);
-// nos cantos: Assine o Semestre com desconto e Assine o Anual com mais desconto. Um cartão vem para a frente
+// Cada cartão é vazio e mostra só a imagem cadastrada no Painel (frente, Premium, Mensal, Semestre e Anual).
+// Um cartão vem para a frente
 // enquanto outro vai para trás, num círculo perfeito. Este arquivo é pesado e só é carregado sob demanda.
 
 export interface PlanCardImages {
   frente?: string | null
   premium?: string | null
   mensal?: string | null
+  semestre?: string | null
+  anual?: string | null
 }
 
 interface Props {
@@ -50,11 +52,9 @@ const CW = 640
 const CH = 960
 const CARD_W = 1.65
 const CARD_H = (CARD_W * CH) / CW
-const DEPTH = 0.07
+// espessura dobrada (como a lateral do relógio)
+const DEPTH = 0.14
 const RADIUS = 2.1
-
-const DOURADO = '#b8893a'
-const MARROM = '#4a2c14'
 
 function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
@@ -78,71 +78,23 @@ function base(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.stroke()
 }
 
-function titulo(ctx: CanvasRenderingContext2D, linhas: string[], y: number, tamanho: number, cor = MARROM) {
-  ctx.textAlign = 'center'
-  ctx.fillStyle = cor
-  ctx.font = `600 ${tamanho}px Georgia, 'Times New Roman', serif`
-  linhas.forEach((l, i) => ctx.fillText(l, CW / 2, y + i * (tamanho * 1.12)))
-}
-
-/** Cartão com foto no alto (cadastrada no Painel) e o nome embaixo. Sem foto, um fundo suave com a flor. */
-function cartaoComFoto(nome: string[], legenda: string) {
-  return (ctx: CanvasRenderingContext2D, w: number, h: number, foto: Foto) => {
-    base(ctx, w, h)
-    const px = 34
-    const py = 34
-    const pw = w - 68
-    const ph = 640
-    ctx.save()
-    rr(ctx, px, py, pw, ph, 30)
-    ctx.clip()
-    if (foto && foto.naturalWidth > 0) {
-      const s = Math.max(pw / foto.naturalWidth, ph / foto.naturalHeight)
-      const dw = foto.naturalWidth * s
-      const dh = foto.naturalHeight * s
-      ctx.drawImage(foto, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh)
-    } else {
-      const g = ctx.createLinearGradient(px, py, px + pw, py + ph)
-      g.addColorStop(0, '#6a4632')
-      g.addColorStop(1, '#3d261b')
-      ctx.fillStyle = g
-      ctx.fillRect(px, py, pw, ph)
-      ctx.fillStyle = 'rgba(246,220,164,0.9)'
-      ctx.font = '240px Georgia, serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('✿', w / 2, py + ph / 2 + 80)
-    }
-    ctx.restore()
-    titulo(ctx, nome, 770, 60)
-    ctx.textAlign = 'center'
-    ctx.fillStyle = DOURADO
-    ctx.font = `italic 34px Georgia, serif`
-    ctx.fillText(legenda, w / 2, 770 + nome.length * 60 * 1.12 + 22)
-  }
-}
-
-/** Cartão só de texto (os dois dos cantos). */
-function cartaoTexto(antes: string, destaque: string, depois: string) {
-  return (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-    base(ctx, w, h)
-    ctx.textAlign = 'center'
-    ctx.fillStyle = DOURADO
-    ctx.font = '120px Georgia, serif'
-    ctx.fillText('✿', w / 2, 250)
-    ctx.fillStyle = '#7a5a3a'
-    ctx.font = `italic 56px Georgia, serif`
-    ctx.fillText(antes, w / 2, 400)
-    titulo(ctx, [destaque], 520, 118)
-    ctx.fillStyle = DOURADO
-    ctx.font = `italic 50px Georgia, serif`
-    const partes = depois.split('\n')
-    partes.forEach((p, i) => ctx.fillText(p, w / 2, 640 + i * 62))
-    ctx.fillStyle = 'rgba(184,137,58,0.7)'
-    ctx.fillRect(w / 2 - 90, 780, 180, 3)
-    ctx.fillStyle = '#7a5a3a'
-    ctx.font = '36px Georgia, serif'
-    ctx.fillText('Círcula', w / 2, 850)
-  }
+/** Cartão vazio: só a imagem cadastrada no Painel, do jeito que ela é (o texto, se houver, já vem na imagem).
+ *  Sem imagem, fica em branco (creme), à espera da foto. */
+function cartaoImagem(ctx: CanvasRenderingContext2D, w: number, h: number, foto: Foto) {
+  base(ctx, w, h)
+  if (!foto || foto.naturalWidth <= 0) return
+  const px = 22
+  const py = 22
+  const pw = w - 44
+  const ph = h - 44
+  ctx.save()
+  rr(ctx, px, py, pw, ph, 34)
+  ctx.clip()
+  const s = Math.max(pw / foto.naturalWidth, ph / foto.naturalHeight)
+  const dw = foto.naturalWidth * s
+  const dh = foto.naturalHeight * s
+  ctx.drawImage(foto, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh)
+  ctx.restore()
 }
 
 function verso(ctx: CanvasRenderingContext2D, w: number, h: number) {
@@ -164,11 +116,11 @@ function verso(ctx: CanvasRenderingContext2D, w: number, h: number) {
 }
 
 const SPECS: CardSpec[] = [
-  { id: 'frente', angle: 0, imageKey: 'frente', draw: cartaoComFoto(['Planos e', 'Assinaturas'], 'Círcula') },
-  { id: 'premium', angle: STEP, imageKey: 'premium', draw: cartaoComFoto(['Plano', 'Premium'], 'tudo liberado') },
-  { id: 'anual', angle: STEP * 2, draw: cartaoTexto('Assine o', 'Anual', 'com mais\ndesconto') },
-  { id: 'semestre', angle: -STEP * 2, draw: cartaoTexto('Assine o', 'Semestre', 'com\ndesconto') },
-  { id: 'mensal', angle: -STEP, imageKey: 'mensal', draw: cartaoComFoto(['Plano', 'Mensal'], 'mês a mês') },
+  { id: 'frente', angle: 0, imageKey: 'frente', draw: cartaoImagem },
+  { id: 'premium', angle: STEP, imageKey: 'premium', draw: cartaoImagem },
+  { id: 'anual', angle: STEP * 2, imageKey: 'anual', draw: cartaoImagem },
+  { id: 'semestre', angle: -STEP * 2, imageKey: 'semestre', draw: cartaoImagem },
+  { id: 'mensal', angle: -STEP, imageKey: 'mensal', draw: cartaoImagem },
 ]
 
 function roundedShape(w: number, h: number, r: number): Shape {

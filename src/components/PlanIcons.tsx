@@ -190,6 +190,112 @@ export function MoneyPlanIcon(p: Props) {
   )
 }
 
+export function CupPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M7 13h15v6a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6v-6Z" />
+      <path d="M22 15h2a3 3 0 0 1 0 6h-2.300" />
+      <path d="M12 6c0 2 2 2 2 4M17 6c0 2 2 2 2 4" />
+    </Svg>
+  )
+}
+
+export function DropPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M16 4.500c4.500 6 8 10.200 8 14.500a8 8 0 0 1-16 0c0-4.300 3.500-8.500 8-14.500Z" />
+      <path d="M12.500 19.500a3.500 3.500 0 0 0 3.500 3.500" />
+    </Svg>
+  )
+}
+
+export function ScalePlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <rect x="5" y="5" width="22" height="22" rx="5" />
+      <path d="M10.500 13a7.500 7.500 0 0 1 11 0" />
+      <path d="M16 16l2.500-3.500" />
+    </Svg>
+  )
+}
+
+export function CalcPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <rect x="7" y="4" width="18" height="24" rx="3" />
+      <rect x="10.500" y="7.500" width="11" height="5" rx="1" />
+      <path d="M11 17h.1M16 17h.1M21 17h.1M11 21h.1M16 21h.1M21 21h.1M11 25h.1M16 25h.1M21 25h.1" />
+    </Svg>
+  )
+}
+
+export function CalendarPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <rect x="5" y="7" width="22" height="20" rx="3" />
+      <path d="M5 13h22M11 4.500v5M21 4.500v5" />
+      <path d="M11 18h.1M16 18h.1M21 18h.1M11 22h.1M16 22h.1" />
+    </Svg>
+  )
+}
+
+export function GlobeClockPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <circle cx="16" cy="16" r="11" />
+      <path d="M16 9.500V16l4.500 3" />
+    </Svg>
+  )
+}
+
+export function CloudPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <circle cx="11" cy="11" r="4" />
+      <path d="M11 3.500v1.500M3.500 11H5M5.700 5.700l1 1" />
+      <path d="M10 25h13a5 5 0 0 0 0-10 7 7 0 0 0-13 2.500A3.800 3.800 0 0 0 10 25Z" />
+    </Svg>
+  )
+}
+
+export function HeartBookPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M6 6.500h14a4 4 0 0 1 4 4V27H10a4 4 0 0 1-4-4V6.500Z" />
+      <path d="M15 20.500s-4-2.400-4-5a2.200 2.200 0 0 1 4-1.300 2.200 2.200 0 0 1 4 1.300c0 2.600-4 5-4 5Z" />
+    </Svg>
+  )
+}
+
+export function FlowerPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <circle cx="16" cy="12" r="3" />
+      <path d="M16 9c-1.500-4 3-6 3-1.500M19 12c4-1.500 6 3 1.500 3M16 15c1.500 4-3 6-3 1.500M13 12c-4 1.500-6-3-1.500-3" />
+      <path d="M16 15v13M16 23c-3-3-6-2-7-1M16 25c3-3 6-2 7-1" />
+    </Svg>
+  )
+}
+
+export function PinCityPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M16 28s8-7.500 8-14a8 8 0 0 0-16 0c0 6.500 8 14 8 14Z" />
+      <path d="M12.500 16v-3.500l3.500-2.500 3.500 2.500V16h-7Z" />
+    </Svg>
+  )
+}
+
+export function ChartPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <path d="M5 26h22" />
+      <path d="M6 21l6-6 4 4 9-10" />
+      <path d="M20 9h5v5" />
+    </Svg>
+  )
+}
+
 export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) => React.ReactElement> = {
   circula: CirculaPlanIcon,
   premium: PremiumPlanIcon,
@@ -210,4 +316,15 @@ export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) =
   carro: CarPlanIcon,
   financas: MoneyPlanIcon,
   rachei: MoneyPlanIcon,
+  antes_de_tudo: CupPlanIcon,
+  agua: DropPlanIcon,
+  imc: ScalePlanIcon,
+  calculadora: CalcPlanIcon,
+  agenda: CalendarPlanIcon,
+  relogio: GlobeClockPlanIcon,
+  previsao: CloudPlanIcon,
+  diario: HeartBookPlanIcon,
+  jardim: FlowerPlanIcon,
+  cidade: PinCityPlanIcon,
+  cotacoes: ChartPlanIcon,
 }

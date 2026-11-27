@@ -38,6 +38,17 @@ export type ProductKey =
   | 'carro'
   | 'financas'
   | 'rachei'
+  | 'antes_de_tudo'
+  | 'agua'
+  | 'imc'
+  | 'calculadora'
+  | 'agenda'
+  | 'relogio'
+  | 'previsao'
+  | 'diario'
+  | 'jardim'
+  | 'cidade'
+  | 'cotacoes'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -109,6 +120,18 @@ export const PRODUCTS: CatalogProduct[] = [
     description: 'A conta do restaurante, do churrasco ou da viagem dividida sem confusão, com cartão bonito para mandar no WhatsApp.',
     monthlyCents: 490,
   },
+  // Ferramentas que vinham só com o plano básico: R$ 4,90 cada desde 2026-11-27 (também no Premium).
+  { key: 'antes_de_tudo', name: 'Antes de Tudo', description: 'O ritual da manhã: um minuto para começar o dia com calma e intenção.', monthlyCents: 490 },
+  { key: 'agua', name: 'Água', description: 'A meta de água do seu dia, com lembretes e o registro de cada copo.', monthlyCents: 490 },
+  { key: 'imc', name: 'IMC', description: 'Calcule o seu IMC e acompanhe a evolução, com a explicação de cada faixa.', monthlyCents: 490 },
+  { key: 'calculadora', name: 'Calculadora', description: 'A calculadora do Círcula, sempre à mão no Início.', monthlyCents: 490 },
+  { key: 'agenda', name: 'Agenda', description: 'Seus compromissos, lembretes e feriados num calendário só seu.', monthlyCents: 490 },
+  { key: 'relogio', name: 'Relógio do mundo', description: 'A hora certa nas cidades que você escolher, pelo mundo.', monthlyCents: 490 },
+  { key: 'previsao', name: 'Previsão do tempo', description: 'A previsão completa da sua cidade: hoje, as próximas horas e os próximos dias.', monthlyCents: 490 },
+  { key: 'diario', name: 'Diário da Gratidão', description: 'As orações da nutricionista e os seus registros de gratidão do dia.', monthlyCents: 490 },
+  { key: 'jardim', name: 'Meu Jardim', description: 'Sua evolução e os desafios da comunidade, num jardim que cresce com você.', monthlyCents: 490 },
+  { key: 'cidade', name: 'Na minha cidade', description: 'Lugares, eventos e profissionais de confiança da sua cidade.', monthlyCents: 490 },
+  { key: 'cotacoes', name: 'Cotações', description: 'O crescimento do Dólar, do Euro, do Bitcoin e do Ethereum, com gráfico de cada um.', monthlyCents: 490 },
 ]
 
 /** Preços editados pelo Master (tabela product_price_overrides): troca o valor mensal em memória. */

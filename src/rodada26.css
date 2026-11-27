@@ -1994,3 +1994,431 @@ html:not(:has(.auth-stage)):has(.dashboard--hero) {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Rodada 27/11: capa, cards e planos
+   ========================================================================== */
+
+/* ---- Foto do topo: sem a "nuvem" bege por cima; cor viva. Só o alto se funde com o fundo ---- */
+.hero-bg::after {
+  background: linear-gradient(
+    180deg,
+    rgb(247, 240, 229) 0,
+    rgba(247, 240, 229, 0.85) 24px,
+    rgba(247, 240, 229, 0.3) 70px,
+    rgba(247, 240, 229, 0) 120px
+  ) !important;
+}
+.hero-bg img {
+  filter: saturate(1.14) contrast(1.06) brightness(0.98) !important;
+}
+
+/* ---- Previsão: abaixo do "Sair", ao lado da cabeça; sem cartão, só ícone e temperatura, 10% menor ---- */
+.dashboard-header .dashboard-user {
+  position: relative;
+}
+.weather-header-slot {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 0;
+  z-index: 3;
+  scale: 0.9;
+  transform-origin: right top;
+}
+.weather-header-slot .weather-button {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 2px;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.weather-header-slot .weather-button svg {
+  width: 42px;
+  height: 42px;
+  filter: drop-shadow(0 1px 2px rgba(40, 26, 18, 0.35)) !important;
+}
+.weather-header-slot .weather-temp-now {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: #3d2a20;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.9), 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+/* cores fortes: o ícone aparece sobre a foto */
+.weather-header-slot .wx-icon .wx-cloud {
+  color: #4f6178;
+  fill: #ffffff !important;
+  fill-opacity: 0.96 !important;
+  stroke-width: 2.6 !important;
+}
+.weather-header-slot .wx-icon .wx-sun,
+.weather-header-slot .wx-icon .wx-sun-rays {
+  color: #e48a00;
+  stroke-width: 2.8 !important;
+}
+.weather-header-slot .wx-icon .wx-sun-core {
+  fill: #f8bf2a !important;
+  fill-opacity: 1 !important;
+  stroke-width: 2.4 !important;
+}
+.weather-header-slot .wx-icon .wx-moon {
+  stroke: #4b43a8 !important;
+  fill: #cfcaff !important;
+  fill-opacity: 1 !important;
+  stroke-width: 2.6 !important;
+}
+.weather-header-slot .wx-icon .wx-drops {
+  color: #1f6fb8;
+  stroke-width: 2.8 !important;
+}
+.weather-header-slot .wx-icon .wx-bolt {
+  color: #d49000;
+  fill-opacity: 0.9 !important;
+}
+
+/* ---- Banner "Fluir & Florescer" (nome da comunidade) 1 cm mais para baixo ---- */
+.dashboard--hero .dashboard-community-cover > .home-community-header {
+  top: calc(6px + 1cm) !important;
+}
+
+/* ---- Cards de Hoje: sem o título por cima (a própria foto já tem o nome) ---- */
+.exp-strip--hoje .exp-card--photo .exp-card-title {
+  display: none !important;
+}
+
+/* ---- Relógio e data mais para cima (estavam quase na linha de baixo) ---- */
+.home-time > .home-clock-open {
+  translate: 8px -14px;
+}
+
+/* ---- Um respiro entre os Círculos e Minha cidade ---- */
+.home-city-wrap {
+  margin-top: 14px !important;
+}
+
+/* ---- Títulos do menu de conteúdos ---- */
+.wheel-item--carro .wheel-title {
+  translate: 1cm 0;
+}
+.wheel-item--leitura .wheel-title,
+.wheel-item--wellness .wheel-title {
+  translate: 2cm 0;
+}
+.wheel-item--playlist .wheel-title {
+  translate: -2cm 0;
+}
+.wheel-item--rachei .wheel-title {
+  translate: -2cm 0;
+  font-size: 110%;
+}
+
+/* ---- "Para você": a mesma borda de Eventos, Loja e Receitas ---- */
+.menu-banner-wrap .menu-banner-photo {
+  box-shadow:
+    0 0 0 4.5px rgba(243, 232, 219, 0.8),
+    0 0 0 6px rgba(125, 100, 79, 0.45),
+    0 10px 12px -8px rgba(40, 26, 18, 0.4) !important;
+}
+
+/* ---- Planos e Assinaturas: contorno mais grosso, na cor de Eventos, Loja e Receitas ---- */
+.home-plans-wrap .home-plans-card.home-plans-card--3d {
+  box-shadow:
+    0 0 0 6px rgba(243, 232, 219, 0.8),
+    0 0 0 8px rgba(125, 100, 79, 0.45),
+    0 14px 22px -12px rgba(40, 26, 18, 0.55) !important;
+}
+
+/* ---- Cotações no fim da página: painel de bolsa ---- */
+.home-quotes {
+  margin-top: 14px;
+}
+.quotes-board {
+  display: block;
+  width: 100%;
+  padding: 10px 0 12px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1d1612 0%, #120d0a 100%);
+  box-shadow:
+    0 0 0 4.5px rgba(243, 232, 219, 0.8),
+    0 0 0 6px rgba(125, 100, 79, 0.45),
+    0 12px 18px -10px rgba(40, 26, 18, 0.55);
+  color: #f3e8db;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+.quotes-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e9c98f;
+}
+.quotes-head-hint {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(243, 232, 219, 0.7);
+}
+.quotes-live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3ecf72;
+  box-shadow: 0 0 0 3px rgba(62, 207, 114, 0.25);
+  animation: quotes-blink 1.6s ease-in-out infinite;
+}
+.quotes-viewport {
+  display: block;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+.quotes-track {
+  display: inline-flex;
+  gap: 26px;
+  padding-left: 14px;
+  white-space: nowrap;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  animation: quotes-run 26s linear infinite;
+}
+.quotes-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 14px;
+}
+.quotes-code {
+  font-weight: 800;
+  color: #fff;
+}
+.quotes-name {
+  font-family: var(--font-sans, inherit);
+  font-size: 11px;
+  color: rgba(243, 232, 219, 0.65);
+}
+.quotes-value {
+  font-weight: 600;
+  color: #f3e8db;
+}
+.quotes-item--up .quotes-change {
+  color: #4ade80;
+  font-weight: 700;
+}
+.quotes-item--down .quotes-change {
+  color: #ff7a6e;
+  font-weight: 700;
+}
+.quotes-item--flat .quotes-change {
+  color: rgba(243, 232, 219, 0.7);
+}
+.quotes-empty {
+  display: block;
+  padding: 2px 14px;
+  font-size: 13px;
+  color: rgba(243, 232, 219, 0.75);
+}
+@keyframes quotes-run {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes quotes-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quotes-track,
+  .quotes-live {
+    animation: none;
+  }
+  .quotes-viewport {
+    overflow-x: auto;
+  }
+}
+
+/* ---- Página Cotações ---- */
+.cot-page .metrics-period {
+  margin: 10px 0 14px;
+}
+.cot-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 720px) {
+  .cot-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.cot-card {
+  padding: 14px 14px 10px;
+  border-radius: 18px;
+  background: #fffaf3;
+  box-shadow:
+    0 0 0 4.5px rgba(243, 232, 219, 0.8),
+    0 0 0 6px rgba(125, 100, 79, 0.45);
+}
+.cot-card-head h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #3d2a20;
+}
+.cot-card-head h3 small {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8a6f5c;
+}
+.cot-now {
+  margin: 2px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2b1d16;
+  font-variant-numeric: tabular-nums;
+}
+.cot-growth {
+  margin: 2px 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3d2a20;
+}
+.cot-growth--up span[aria-hidden] {
+  color: #1f8a4c;
+}
+.cot-growth--down span[aria-hidden] {
+  color: #c2413a;
+}
+.cot-growth-label {
+  font-weight: 500;
+  color: #6b5446;
+}
+.cot-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+}
+.cot-base {
+  stroke: rgba(74, 47, 34, 0.18);
+  stroke-width: 1;
+}
+.cot-area {
+  fill: rgba(138, 90, 60, 0.1);
+}
+.cot-line {
+  fill: none;
+  stroke: #8a5a3c;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.cot-end {
+  fill: #8a5a3c;
+  stroke: #fffaf3;
+  stroke-width: 2;
+}
+.cot-cross {
+  stroke: rgba(74, 47, 34, 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.cot-dot {
+  fill: #8a5a3c;
+  stroke: #fffaf3;
+  stroke-width: 2;
+}
+.cot-axis {
+  font-size: 10px;
+  fill: #8a6f5c;
+}
+.cot-tip {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #3d2a20;
+}
+.cot-source {
+  margin-top: 14px;
+  font-size: 11px;
+}
+
+/* ---- Aviso de conteúdo bloqueado ---- */
+.package-paywall {
+  text-align: center;
+}
+.package-paywall-lock {
+  margin: 0;
+  font-size: 34px;
+}
+.package-paywall-status {
+  margin: 4px 0 8px;
+  color: #8a2f25;
+}
+
+/* ---- Planos: "Por que assinar?" com a Livi ---- */
+.livi-porque {
+  margin: 14px 0;
+  padding: 14px;
+  border-radius: 18px;
+  background: #fffaf3;
+  box-shadow:
+    0 0 0 4.5px rgba(243, 232, 219, 0.8),
+    0 0 0 6px rgba(125, 100, 79, 0.45);
+}
+.livi-porque-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.livi-porque-head p {
+  margin: 0;
+  font-size: 14px;
+  color: #3d2a20;
+}
+.livi-porque details {
+  border-top: 1px solid rgba(125, 100, 79, 0.22);
+  padding: 10px 2px;
+}
+.livi-porque summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #4a2f22;
+  list-style-position: outside;
+}
+.livi-porque details p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #3d2a20;
+}
+
+/* ---- Solicitação com nome que pode ser masculino ---- */
+.panel-members-review {
+  margin: 4px 0 0;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #fff1d6;
+  color: #7a4b00;
+  font-size: 12px;
+  font-weight: 600;
+}

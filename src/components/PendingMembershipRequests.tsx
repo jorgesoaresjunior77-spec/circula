@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { CommunityMember } from '../types/community'
+import { genderHint } from '../lib/genderCheck'
 
 interface PendingMembershipRequestsProps {
   communityId: string
@@ -113,6 +114,11 @@ export function PendingMembershipRequests({
                 <p className="panel-members-meta">
                   {communityName} · Solicitado em {requestedLabel(member.joined_at)}
                 </p>
+                {genderHint(name) !== null && (
+                  <p className="panel-members-review" role="note">
+                    Confira antes de aprovar: este nome também é usado por homens. O Círcula é só para mulheres.
+                  </p>
+                )}
                 {error && <p className="auth-error">{error}</p>}
               </div>
 

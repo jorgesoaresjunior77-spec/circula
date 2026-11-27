@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { memberTrialDays } from '../lib/trialRule'
 import type { NavKey } from './PrimaryNav'
 import { RoboGuia, precarregarRobo } from './RoboGuia'
 import type { RoboCena } from './RoboGuia'
@@ -145,7 +146,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-plans-wrap'],
     title: 'Planos e assinaturas',
-    text: 'Veja os conteúdos que você pode assinar (você pode assinar só o Círcula, só alguns conteúdos ou o Círcula Premium com tudo junto, inclusive Dicas de Viagem, Séries e Meu Chef). Nos planos de 6 e 12 meses o valor total é menor. Os planos que você já tem ficam acesos, com selo de Assinado. Atenção: cancelar corta o acesso na hora, mesmo que o período já esteja pago. Seu período grátis dura 21 dias e, perto do fim, avisamos aqui na página inicial.',
+    text: 'Veja os conteúdos que você pode assinar (você pode assinar só o Círcula, só alguns conteúdos ou o Círcula Premium com tudo junto, inclusive Dicas de Viagem, Séries e Meu Chef). Nos planos de 6 e 12 meses o valor total é menor. Os planos que você já tem ficam acesos, com selo de Assinado. Atenção: cancelar corta o acesso na hora, mesmo que o período já esteja pago. Seu período grátis dura ' + memberTrialDays() + ' dias e, perto do fim, avisamos aqui na página inicial.',
     optional: true,
     gesture: 'tap',
   },

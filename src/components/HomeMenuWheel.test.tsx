@@ -16,7 +16,7 @@ describe('HomeMenuWheel — menu vertical contínuo', () => {
       'Wellness',
       'Séries e Filmes',
       'Dicas de Viagem',
-      'Rachei $',
+      'Rachei',
     ])
     buttons.forEach((b) => fireEvent.click(b))
     expect(onNavigate.mock.calls.map((c) => c[0])).toEqual(['leitura', 'respiracao', 'playlist', 'wellness', 'series', 'viagens', 'rachei'])

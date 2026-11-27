@@ -3,6 +3,8 @@ import { useMyPackages } from '../hooks/usePackageAccess'
 import { useTrialStatus } from '../hooks/useTrialStatus'
 import { TrialReminder } from './TrialReminder'
 import { trialBannerState } from './HomeTrialBanner'
+import { canUseTool } from '../lib/packages'
+import type { ToolKey } from '../lib/packages'
 import { canUseViagens, canUseSeriesFilmes, canUseExercises, canUseChef, canUseMinhaLista, canListenPlaylist, canReadReadingTips, canReadWellness, canUseBreathing, canUseHelpNutri, canReadRecipes, canUseFinancas, canUseRachei } from '../lib/packages'
 import { PackagePaywall } from './PackagePaywall'
 import { m } from '../lib/motionKit'
@@ -72,6 +74,7 @@ import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { heroImage } from '../lib/heroRotation'
 import { HomeGreeting } from './HomeGreeting'
+import { WeatherButton } from './WeatherButton'
 import { PrimaryNav } from './PrimaryNav'
 import { useRailSummary } from '../hooks/useRailSummary'
 import { useHomeBadges } from '../hooks/useHomeBadges'
@@ -117,6 +120,7 @@ const AgendaPage = lazy(() => import('./AgendaPage').then((m) => ({ default: m.A
 const WaterPage = lazy(() => import('./WaterPage').then((m) => ({ default: m.WaterPage })))
 const ImcPage = lazy(() => import('./ImcPage').then((m) => ({ default: m.ImcPage })))
 import { InvitePage } from './InvitePage'
+import { CotacoesPage } from './CotacoesPage'
 const PlansPage = lazy(() => import('./PlansPage').then((m) => ({ default: m.PlansPage })))
 const PlaylistPage = lazy(() => import('./PlaylistPage').then((m) => ({ default: m.PlaylistPage })))
 const WorldClockPage = lazy(() => import('./WorldClockPage').then((m) => ({ default: m.WorldClockPage })))
@@ -192,7 +196,21 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas', 'rachei']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas', 'rachei', 'cotacoes']
+
+/** Destinos que são ferramentas pagas à parte (R$ 4,90 cada, ou no Premium): chave do plano e nome. */
+const TOOL_BY_NAV: Partial<Record<NavKey, [ToolKey, string]>> = {
+  'antes-de-tudo': ['antes_de_tudo', 'Antes de Tudo'],
+  agua: ['agua', 'Água'],
+  imc: ['imc', 'IMC'],
+  agenda: ['agenda', 'Agenda'],
+  relogio: ['relogio', 'Relógio do mundo'],
+  tempo: ['previsao', 'Previsão do tempo'],
+  diario: ['diario', 'Diário da Gratidão'],
+  jardim: ['jardim', 'Meu Jardim'],
+  cidade: ['cidade', 'Na minha cidade'],
+  cotacoes: ['cotacoes', 'Cotações'],
+}
 
 export function Dashboard({
   profile,
@@ -800,6 +818,16 @@ export function Dashboard({
   function renderDestination() {
     if (!profile) return null
 
+    // Ferramentas pagas à parte (R$ 4,90 cada, ou no Premium): sem o plano, a membro vê o aviso
+    // explícito e o botão para Planos. Equipe (profissional e master) usa sem assinar.
+    const toolGate = TOOL_BY_NAV[effectiveNav]
+    if (toolGate && profile.role === 'member') {
+      if (packagesLoading) return <p className="home-muted">Carregando…</p>
+      if (!canUseTool(myPackages, toolGate[0])) {
+        return <PackagePaywall title={toolGate[1]} planName={toolGate[1]} productKey={toolGate[0]} onOpenPlans={() => handleNavigate('planos')} />
+      }
+    }
+
     // FASE 2 · ITEM 2 — "Seu Círcula de hoje": dashboard pessoal no
     // destino "Início" para member e professional. master mantém a
     // visão atual (grade de comunidades) — não é membro de comunidade.
@@ -824,6 +852,7 @@ export function Dashboard({
             jardim: homeBadges.gardenPending ? 1 : 0,
           }}
           coverHero={coverHero}
+          calcLocked={profile.role === 'member' && !packagesLoading && !canUseTool(myPackages, 'calculadora')}
           railSummary={
             railActive
               ? {
@@ -1275,6 +1304,11 @@ export function Dashboard({
       return <WorldClockPage />
     }
 
+    // Cotações: o crescimento do Dólar, Euro, Bitcoin e Ethereum (avulso de R$ 4,90, também no Premium).
+    if (effectiveNav === 'cotacoes') {
+      return <CotacoesPage />
+    }
+
     // Central de Ajuda — perguntas e respostas; a membro pode falar com a
     // nutricionista a partir dela.
     // FINANÇAS — receitas, gastos e investimentos da própria pessoa (RLS: só ela vê).
@@ -1690,6 +1724,12 @@ export function Dashboard({
           <button type="button" onClick={onSignOut}>
             Sair
           </button>
+          {/* Na capa com foto, a previsão fica logo abaixo do "Sair", ao lado da cabeça: só ícone e temperatura. */}
+          {coverHero && effectiveNav === 'inicio' && profile && profile.role !== 'master' && (
+            <span className="weather-header-slot">
+              <WeatherButton onOpen={() => handleNavigate('tempo')} />
+            </span>
+          )}
         </div>
       </header>
 
@@ -1713,7 +1753,7 @@ export function Dashboard({
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <HomeCommunityHeader community={railCommunity} profileId={profile?.id} overlay heroBg={!!heroUrl} />
-          <HomeGreeting fullName={profile?.full_name} onOpenWeather={() => handleNavigate('tempo')} />
+          <HomeGreeting fullName={profile?.full_name} />
         </m.div>
       )}
 
@@ -1824,7 +1864,8 @@ export function Dashboard({
             !showTour &&
             !showInstallGuide &&
             !(profile.role === 'member' && profile.onboarding_completed_at === null) &&
-            effectiveNav !== 'agenda'
+            effectiveNav !== 'agenda' &&
+            (profile.role !== 'member' || (!packagesLoading && canUseTool(myPackages, 'agenda')))
           }
           onOpenAgenda={() => handleNavigate('agenda')}
         />
@@ -1854,7 +1895,9 @@ export function Dashboard({
             !showTour &&
             !showInstallGuide &&
             profile.onboarding_completed_at !== null &&
-            effectiveNav !== 'jardim'
+            effectiveNav !== 'jardim' &&
+            !packagesLoading &&
+            canUseTool(myPackages, 'jardim')
           }
           onGo={() => handleNavigate('jardim')}
         />

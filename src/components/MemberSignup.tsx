@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SO_MULHERES_MESSAGE, genderHint } from '../lib/genderCheck'
 import { LiviCadastro } from './LiviCadastro'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
@@ -48,6 +49,11 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
       setError('Informe como você gostaria de ser chamada.')
       return
     }
+    // Círcula é só para mulheres: o servidor também barra; aqui a mensagem já sai clara.
+    if (genderHint(name, email) === 'male') {
+      setError(SO_MULHERES_MESSAGE)
+      return
+    }
     // O celular é o login; o e-mail fica só no cadastro (confirmação e recuperação).
     const phoneDigits = normalizeLoginPhone(phone)
     if (!phoneDigits) {
@@ -80,7 +86,9 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
 
     if (signUpError) {
       setError(
-        signUpError.code === 'weak_password'
+        /so_mulheres/.test(signUpError.message ?? '')
+          ? SO_MULHERES_MESSAGE
+          : signUpError.code === 'weak_password'
           ? 'Essa senha não foi aceita. Tente uma senha mais longa.'
           : 'Não foi possível criar a conta agora. Confira o celular e o e-mail (o celular pode já estar em uso) e tente novamente.',
       )

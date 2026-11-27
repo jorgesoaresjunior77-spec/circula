@@ -12,7 +12,7 @@ const PlansCarousel3D = lazy(() => import('./PlansCarousel3D'))
 interface Props {
   /** Foto da Marluce cadastrada no Painel (PNG/WebP com fundo transparente); sem ela, usa a foto padrão. */
   image?: string | null
-  /** Fotos dos três cartões (Painel → Imagens → Planos e assinaturas). */
+  /** Fotos dos cinco cartões (Painel → Imagens → Planos e assinaturas). */
   cardImages?: PlanCardImages
   onOpen: () => void
 }
@@ -26,9 +26,9 @@ function FallbackCards({ images }: { images: PlanCardImages }) {
   return (
     <div className="plans3d-flat" aria-hidden="true">
       {cards.map((c) => (
-        <span key={c.key} className={`plans3d-flat-card ${c.cls}`}>
-          {images[c.key] ? <img src={images[c.key] as string} alt="" /> : <i>✿</i>}
-          <b>{c.nome}</b>
+        // cartão vazio: só a imagem cadastrada no Painel (sem imagem, fica em branco)
+        <span key={c.key} className={`plans3d-flat-card ${c.cls}`} title={c.nome}>
+          {images[c.key] && <img src={images[c.key] as string} alt="" />}
         </span>
       ))}
     </div>

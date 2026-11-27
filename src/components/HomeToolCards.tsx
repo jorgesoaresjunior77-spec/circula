@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PackagePaywall } from './PackagePaywall'
 import { m, inViewOnce, riseVariants, staggerVariants } from '../lib/motionKit'
 import { CalculatorPopup } from './CalculatorPopup'
 import type { NavKey } from './PrimaryNav'
@@ -99,12 +100,15 @@ const TOOLS: { key: NavKey | 'calculadora'; title: string; Icon: () => React.Rea
 
 interface Props {
   onNavigate: (key: NavKey) => void
+  /** A Calculadora é um avulso (R$ 4,90, ou no Premium): sem ele, tocar mostra o aviso e o caminho para Planos. */
+  calcLocked?: boolean
 }
 
 const toolsStagger = staggerVariants(0.09, 0.05)
 
-export function HomeToolCards({ onNavigate }: Props) {
+export function HomeToolCards({ onNavigate, calcLocked = false }: Props) {
   const [calcOpen, setCalcOpen] = useState(false)
+  const [calcPaywall, setCalcPaywall] = useState(false)
   return (
     <>
     <m.section className="home-tools home-tools--icons" aria-label="Ferramentas" {...inViewOnce} variants={toolsStagger}>
@@ -117,7 +121,7 @@ export function HomeToolCards({ onNavigate }: Props) {
           whileTap={{ scale: 0.9 }}
           aria-label={title}
           title={title}
-          onClick={() => (key === 'calculadora' ? setCalcOpen(true) : onNavigate(key))}
+          onClick={() => (key === 'calculadora' ? (calcLocked ? setCalcPaywall(true) : setCalcOpen(true)) : onNavigate(key))}
         >
           <span className="home-tool-title" aria-hidden="true">
             {title}
@@ -135,6 +139,24 @@ export function HomeToolCards({ onNavigate }: Props) {
       ))}
     </m.section>
     {calcOpen && <CalculatorPopup onClose={() => setCalcOpen(false)} />}
+    {calcPaywall && (
+      <div className="ex-confirm" role="dialog" aria-modal="true" aria-label="Calculadora bloqueada" onClick={() => setCalcPaywall(false)}>
+        <div className="ex-confirm-card" onClick={(e) => e.stopPropagation()}>
+          <PackagePaywall
+            title="Calculadora"
+            planName="Calculadora"
+            productKey="calculadora"
+            onOpenPlans={() => {
+              setCalcPaywall(false)
+              onNavigate('planos')
+            }}
+          />
+          <button type="button" className="water-link" onClick={() => setCalcPaywall(false)}>
+            Agora não
+          </button>
+        </div>
+      </div>
+    )}
     </>
   )
 }

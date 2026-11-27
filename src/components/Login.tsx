@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SO_MULHERES_MESSAGE, genderHint } from '../lib/genderCheck'
 import { createPortal } from 'react-dom'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
@@ -146,6 +147,11 @@ export function Login() {
       setSignupError('Informe seu nome.')
       return
     }
+    // Círcula é só para mulheres (o servidor também barra).
+    if (genderHint(signupName, signupEmail) === 'male') {
+      setSignupError(SO_MULHERES_MESSAGE)
+      return
+    }
     const signupPhoneDigits = normalizeLoginPhone(signupPhone)
     if (!signupPhoneDigits) {
       setSignupError(SIGNUP_PHONE_MESSAGE)
@@ -177,7 +183,7 @@ export function Login() {
     setSignupLoading(false)
 
     if (signUpError) {
-      setSignupError('Não foi possível criar a conta agora. Tente novamente.')
+      setSignupError(/so_mulheres/.test(signUpError.message ?? '') ? SO_MULHERES_MESSAGE : 'Não foi possível criar a conta agora. Tente novamente.')
       return
     }
 

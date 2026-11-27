@@ -46,6 +46,7 @@ export type NavKey =
   | 'carro'
   | 'financas'
   | 'rachei'
+  | 'cotacoes'
 
 export interface NavItem {
   key: NavKey

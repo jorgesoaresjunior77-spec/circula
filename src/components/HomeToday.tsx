@@ -30,6 +30,7 @@ import { HomeGreeting } from './HomeGreeting'
 import { HomeToolCards } from './HomeToolCards'
 import { HomePartnersStrip } from './HomePartnersStrip'
 import { HomeFooter } from './HomeFooter'
+import { HomeQuotesTicker } from './HomeQuotesTicker'
 import { HomeGroupTitle } from './HomeGroupTitle'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
 import { HomeMenuWheel } from './HomeMenuWheel'
@@ -102,6 +103,8 @@ interface HomeTodayProps {
       is_online: boolean | null
     } | null
   } | null
+  /** Calculadora bloqueada (a membro não tem o avulso nem o Premium). */
+  calcLocked?: boolean
 }
 
 export function HomeToday({
@@ -117,6 +120,7 @@ export function HomeToday({
   coverHero = false,
   badges = {},
   railSummary = null,
+  calcLocked = false,
 }: HomeTodayProps) {
   const myCommunities = useMemo(
     () =>
@@ -185,7 +189,12 @@ export function HomeToday({
   const { url: planoFrente } = useSignedImageUrl(cardImagePaths.plano_frente ?? null)
   const { url: planoPremium } = useSignedImageUrl(cardImagePaths.plano_premium ?? null)
   const { url: planoMensal } = useSignedImageUrl(cardImagePaths.plano_mensal ?? null)
-  const planCardImages = useMemo(() => ({ frente: planoFrente, premium: planoPremium, mensal: planoMensal }), [planoFrente, planoPremium, planoMensal])
+  const { url: planoSemestre } = useSignedImageUrl(cardImagePaths.plano_semestre ?? null)
+  const { url: planoAnual } = useSignedImageUrl(cardImagePaths.plano_anual ?? null)
+  const planCardImages = useMemo(
+    () => ({ frente: planoFrente, premium: planoPremium, mensal: planoMensal, semestre: planoSemestre, anual: planoAnual }),
+    [planoFrente, planoPremium, planoMensal, planoSemestre, planoAnual],
+  )
   const { url: exerciciosCover } = useSignedImageUrl(cardImagePaths.banner_exercicios ?? null)
   const { url: diarioCover } = useSignedImageUrl(cardImagePaths.banner_diario ?? null)
   const { url: listaCover } = useSignedImageUrl(cardImagePaths.banner_lista ?? null)
@@ -280,7 +289,7 @@ export function HomeToday({
   const weekCalendar = (
     <>
       {/* Antes de Tudo, Água e IMC: só ícones, de ponta a ponta, logo abaixo do banner. */}
-      <HomeToolCards onNavigate={onNavigate} />
+      <HomeToolCards onNavigate={onNavigate} calcLocked={calcLocked} />
     </>
   )
 
@@ -446,6 +455,8 @@ export function HomeToday({
           <p className="home-institutional-note">
             O Círcula é um espaço de cuidado e amizade entre mulheres.
           </p>
+          {/* Depois de tudo: Dólar, Euro, Bitcoin e Ethereum no estilo painel da bolsa. */}
+          <HomeQuotesTicker onOpen={() => onNavigate('cotacoes')} />
         </div>
       </div>
       </div>
