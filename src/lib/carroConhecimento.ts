@@ -1,6 +1,8 @@
 // Carro em Dia: base de orientação automotiva (escrita uma vez, fixa e revisável). A Livi procura aqui pelas palavras da
 // pergunta. Isto é orientação GERAL: não substitui a avaliação de um profissional, e cada resposta diz quando ela é necessária.
 
+import { CARRO_EXTRA } from './carroConhecimentoExtra'
+
 export type PrecisaProfissional = 'sim' | 'depende' | 'nao'
 
 export interface CarroTopico {
@@ -18,6 +20,7 @@ export interface CarroTopico {
 }
 
 export const TEMAS = [
+  'Emergências na estrada',
   'Manutenção preventiva',
   'Óleo e filtros',
   'Pneus',
@@ -29,9 +32,11 @@ export const TEMAS = [
   'Documentação e multas',
   'Segurança',
   'Compra e venda',
+  'Lavagem e conservação',
+  'Elétricos e híbridos',
 ] as const
 
-export const CARRO_BASE: CarroTopico[] = [
+const CARRO_BASE_ORIGINAL: CarroTopico[] = [
   // ---- manutenção preventiva ----
   {
     id: 'revisao-quando',
@@ -358,6 +363,9 @@ export const CARRO_BASE: CarroTopico[] = [
     servicos: ['Mecânica', 'Centro automotivo'],
   },
 ]
+
+/** A base completa: os tópicos originais e as dúvidas frequentes ampliadas (2026-11-27). */
+export const CARRO_BASE: CarroTopico[] = [...CARRO_BASE_ORIGINAL, ...CARRO_EXTRA]
 
 /** Todos os serviços possíveis do Carro em Dia (nomes iguais aos de "Na minha cidade"). */
 export const SERVICOS_AUTOMOTIVOS = [

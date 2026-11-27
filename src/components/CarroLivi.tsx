@@ -29,11 +29,11 @@ function useCategoriasDaCidade() {
   return cats
 }
 
-function Topico({ t, cats, onGoCity }: { t: CarroTopico; cats: CidadeCat[]; onGoCity: (ids: string[]) => void }) {
+function Topico({ t, cats, onGoCity, semTitulo = false }: { t: CarroTopico; cats: CidadeCat[]; onGoCity: (ids: string[]) => void; semTitulo?: boolean }) {
   const ids = (t.servicos ?? []).map((n) => cats.find((c) => c.nome === n)).filter((c): c is CidadeCat => !!c)
   return (
     <article className="car-livi-card">
-      <h4>{t.pergunta}</h4>
+      {!semTitulo && <h4>{t.pergunta}</h4>}
       <p>{t.resposta}</p>
       {t.causas && (
         <>
@@ -98,7 +98,7 @@ export function CarroLivi({ onGoCity }: { onGoCity: (ids: string[]) => void }) {
 
       {achados && achados.length === 0 && (
         <p className="home-muted" role="status">
-          Não encontrei isso na minha base. Tente com outras palavras, escolha um assunto abaixo, ou use "Perguntar" para enviar à nossa equipe.
+          Não encontrei isso na minha base. Tente com outras palavras, escolha um assunto abaixo ou veja a lista completa em "Dúvidas e respostas".
         </p>
       )}
       {achados && achados.map((t) => <Topico key={t.id} t={t} cats={cats} onGoCity={onGoCity} />)}
@@ -141,3 +141,49 @@ export function CarroLivi({ onGoCity }: { onGoCity: (ids: string[]) => void }) {
   )
 }
 
+
+/** Todas as dúvidas, por assunto: toque na pergunta para ver a resposta, os próximos passos e quando chamar um profissional. */
+export function CarroDuvidas({ onGoCity }: { onGoCity: (ids: string[]) => void }) {
+  const cats = useCategoriasDaCidade()
+  const [busca, setBusca] = useState('')
+  const termo = busca.trim()
+  const achados = termo.length >= 3 ? buscarNaBase(termo, 12) : null
+  return (
+    <div className="car-duvidas">
+      <p className="home-muted">
+        {CARRO_BASE.length} dúvidas comuns de quem dirige, com resposta simples, o que fazer e quando procurar um profissional.
+      </p>
+      <label className="fin-campo">
+        <span>Procurar uma dúvida</span>
+        <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Ex.: pneu, bateria, IPVA, barulho" />
+      </label>
+      {achados ? (
+        achados.length === 0 ? (
+          <p className="home-muted" role="status">
+            Nada encontrado com essas palavras. Tente outras ou navegue pelos assuntos.
+          </p>
+        ) : (
+          achados.map((t) => <Topico key={t.id} t={t} cats={cats} onGoCity={onGoCity} />)
+        )
+      ) : (
+        TEMAS.map((tema) => {
+          const itens = CARRO_BASE.filter((t) => t.tema === tema)
+          if (itens.length === 0) return null
+          return (
+            <section key={tema} className="car-duvidas-tema" aria-label={tema}>
+              <h3 className="fin-subtitulo">
+                {tema} <small>({itens.length})</small>
+              </h3>
+              {itens.map((t) => (
+                <details key={t.id} className="car-duvida">
+                  <summary>{t.pergunta}</summary>
+                  <Topico t={t} cats={cats} onGoCity={onGoCity} semTitulo />
+                </details>
+              ))}
+            </section>
+          )
+        })
+      )}
+    </div>
+  )
+}

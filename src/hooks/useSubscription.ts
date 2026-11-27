@@ -76,7 +76,8 @@ export function useSubscription({ subject, communityId }: UseSubscriptionOptions
     // FASE 16.2.4-B — o checkout de comunidade NÃO envia plan_code: o
     // preço é resolvido no servidor a partir de community_billing_settings.
     const body: Record<string, unknown> = { subject, community_id: communityId }
-    if (subject === 'platform' && planCode) body.plan_code = planCode
+    // Comunidade: o plan_code só diz o ciclo (mensal/semestral/anual); o preço continua vindo do servidor.
+    if (planCode) body.plan_code = planCode
 
     const { data, error: invokeError } = await supabase.functions.invoke('asaas-create-subscription', {
       body,

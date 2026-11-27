@@ -256,3 +256,15 @@ export function cycleBreakdown(cycle: PlanCycle, totalCents: number, referenceMo
     perMonthCents: Math.round(totalCents / months),
   }
 }
+
+/** Plano básico do Círcula por ciclo (espelha o servidor): no preço de base, R$ 74,90 (6 meses) e R$ 119,90
+ *  (12 meses); em outro preço da comunidade, 16% e 33% de desconto. */
+export function communityCyclePrices(monthlyCents: number): Record<PlanCycle, number> {
+  if (monthlyCents === 1490) return { monthly: 1490, semiannual: 7490, annual: 11990 }
+  return { monthly: monthlyCents, semiannual: roundDime(monthlyCents * 6 * 0.84), annual: roundDime(monthlyCents * 12 * 0.67) }
+}
+export const COMMUNITY_PLAN_CODE: Record<PlanCycle, string> = {
+  monthly: 'member_monthly',
+  semiannual: 'member_semiannual',
+  annual: 'member_annual',
+}

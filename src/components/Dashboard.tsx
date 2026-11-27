@@ -552,6 +552,9 @@ export function Dashboard({
     navItems.push({ key: 'tempo', label: 'Previsão do tempo', Icon: HeartIcon, inBottomNav: false })
     // Relógio do mundo — aberto ao tocar no relógio da Home.
     navItems.push({ key: 'relogio', label: 'Relógio do mundo', Icon: HeartIcon, inBottomNav: false })
+    // Rachei $ (menu de conteúdos) e Cotações (faixa do fim da página): sem estar aqui, o toque voltava ao Início.
+    navItems.push({ key: 'rachei', label: 'Rachei', Icon: WalletIcon, inBottomNav: false })
+    navItems.push({ key: 'cotacoes', label: 'Cotações', Icon: WalletIcon, inBottomNav: false })
     // Fase 13 — Loja acessível também à Member (antes só existia como
     // destino da anfitriã, dentro de canHostDestinations). Backend/RLS
     // e o componente já suportavam a Member comprar (ProductManager

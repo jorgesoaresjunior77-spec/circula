@@ -1,4 +1,5 @@
 import { PackageAccessManager } from './PackageAccessManager'
+import { AccessCodesPanel } from './AccessCodesPanel'
 import { useState } from 'react'
 import { useCityBadge } from '../hooks/useCity'
 import { CommunityMetricsPanel } from './CommunityMetricsPanel'
@@ -279,6 +280,7 @@ export function ProfessionalPanel({
           {assinaturasSubTab === 'assinaturas' && (
             <>
               <PackageAccessManager community={community} profileId={profileId} />
+              <AccessCodesPanel communityId={communityId} />
               <SubscriptionPanel subject="platform" />
               {/* Sem repasse: todo o valor é da plataforma (2026-12), então não há
                   conta Asaas da profissional para conectar. */}

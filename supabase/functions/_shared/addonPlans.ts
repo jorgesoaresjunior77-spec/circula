@@ -328,3 +328,19 @@ export function addonPeriodEnd(
   if (currentEnd && new Date(currentEnd).getTime() >= target.getTime()) return null
   return target
 }
+
+// ---- Plano básico do Círcula (assinatura da comunidade) por ciclo ------------------------------------
+// Mensal = o preço da comunidade (piso R$ 14,90). Semestral e anual: no preço de base (R$ 14,90) valem os
+// valores cadastrados em billing_plans (R$ 74,90 e R$ 119,90); em outro preço, 16% e 33% de desconto, como
+// os avulsos. Espelha src/lib/plansCatalog.ts (communityCyclePrices).
+export const COMMUNITY_PLAN_CYCLE: Record<string, AsaasCycle> = {
+  member_monthly: 'MONTHLY',
+  member_semiannual: 'SEMIANNUALLY',
+  member_annual: 'YEARLY',
+}
+
+export function communityCyclePriceCents(monthlyCents: number, cycle: AsaasCycle): number {
+  if (cycle === 'MONTHLY') return monthlyCents
+  if (monthlyCents === 1490) return cycle === 'SEMIANNUALLY' ? 7490 : 11990
+  return cycle === 'SEMIANNUALLY' ? roundDime(monthlyCents * 6 * 0.84) : roundDime(monthlyCents * 12 * 0.67)
+}

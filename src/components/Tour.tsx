@@ -66,14 +66,14 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-greeting', '#tour-nav-desktop-inicio', '#tour-nav-mobile-inicio'],
     title: 'Página inicial',
-    text: 'Tudo começa aqui. Esta é a sua página inicial: ela reúne os atalhos do dia, os Círculos, a revista, as receitas e tudo o que há de novo na comunidade. Toque no sol para ver a previsão do tempo da sua cidade e role a página para baixo para conhecer cada parte.',
+    text: 'Tudo começa aqui. Esta é a sua página inicial: ela reúne os atalhos do dia, os Círculos, a revista, as receitas e tudo o que há de novo na comunidade. No alto, abaixo do Sair, fica a previsão do tempo da sua cidade: toque nela para ver os próximos dias. Role a página para baixo para conhecer cada parte.',
     cena: 'boas-vindas',
     som: 'boasvindas',
   },
   {
     targets: ['.home-tools'],
     title: 'Atalhos do dia',
-    text: 'Três atalhos para o seu dia. Antes de Tudo guarda os seus hábitos da manhã e marca o que você já fez. Água mostra a meta do dia, deixa você registrar cada copo e tem o gráfico da semana e do mês. IMC calcula o seu índice a partir do peso e da altura. Toque em um deles para abrir.',
+    text: 'Quatro atalhos: Antes de Tudo (hábitos da manhã), Água (meta do dia e cada copo), IMC (a partir do peso e da altura) e Calculadora. Cada ferramenta é um avulso de R$ 4,90 ou vem no Premium; sem ele, aparece um cadeado com o caminho para assinar.',
   },
   {
     targets: ['.exp-strip', '.exp-viewport'],
@@ -84,7 +84,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-time'],
     title: 'Agenda e relógio',
-    text: 'Toque na agenda para anotar compromissos, consultas e lembretes, e ver o desafio do mês. Toque no relógio para ver a hora e o clima em qualquer lugar do mundo, ótimo para falar com quem mora longe.',
+    text: 'Toque na agenda para anotar compromissos e lembretes e ver os feriados (Carnaval e Corpus Christi aparecem como ponto facultativo). Toque no relógio, com a data embaixo, para ver a hora e o clima em qualquer lugar do mundo.',
   },
   {
     targets: ['.circ-strip'],
@@ -118,7 +118,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-wheel'],
     title: 'Mais conteúdos',
-    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes (filtre por tipo, gênero, faixa etária e plataforma) ou Dicas de Viagem (destinos por estado, cidade e para quem viaja). O Carro em Dia reúne perguntas e respostas para cuidar do seu carro, por R$ 4,50 avulsos.',
+    text: 'No menu que rola, toque em Dicas de leitura, Respiração, Playlist, Wellness, Dicas de Séries / Filmes (filtre por tipo, gênero, faixa etária e plataforma) ou Dicas de Viagem (destinos por estado, cidade e para quem viaja). O Carro em Dia reúne mais de 80 dúvidas e respostas sobre carro (pneu, bateria, freio, documentação, multas, segurança e mais), com o que fazer e quando procurar um profissional. E o Rachei divide a conta do restaurante ou da viagem sem confusão.',
     optional: true,
     gesture: 'tap',
   },
@@ -146,7 +146,14 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-plans-wrap'],
     title: 'Planos e assinaturas',
-    text: 'Veja os conteúdos que você pode assinar (você pode assinar só o Círcula, só alguns conteúdos ou o Círcula Premium com tudo junto, inclusive Dicas de Viagem, Séries e Meu Chef). Nos planos de 6 e 12 meses o valor total é menor. Os planos que você já tem ficam acesos, com selo de Assinado. Atenção: cancelar corta o acesso na hora, mesmo que o período já esteja pago. Seu período grátis dura ' + memberTrialDays() + ' dias e, perto do fim, avisamos aqui na página inicial.',
+    text: 'Veja os conteúdos que você pode assinar (você pode assinar só o Círcula, só alguns conteúdos ou o Círcula Premium com tudo junto, inclusive Dicas de Viagem, Séries e Meu Chef). Nos planos de 6 e 12 meses o valor total é menor. Os planos que você já tem ficam acesos, com selo de Assinado. Atenção: cancelar corta o acesso na hora, mesmo que o período já esteja pago. Seu período grátis dura ' + memberTrialDays() + ' dias e, perto do fim, avisamos aqui na página inicial. O semestral e o anual podem ser parcelados no cartão (até 6x e 12x), e a Livi explica, na página de Planos, por que vale assinar o Premium, o semestral ou o anual. Recebeu um código de acesso da nutricionista? Digite em Planos, em Tenho um código de acesso.',
+    optional: true,
+    gesture: 'tap',
+  },
+  {
+    targets: ['.home-quotes'],
+    title: 'Cotações',
+    text: 'No fim da página corre a faixa das cotações, como no painel da bolsa: Dólar, Euro, Bitcoin e Ethereum em reais, com a variação do dia em verde (subiu) ou vermelho (caiu). Toque nela para ver quanto cada moeda cresceu em 7, 30 ou 90 dias, com gráfico.',
     optional: true,
     gesture: 'tap',
   },

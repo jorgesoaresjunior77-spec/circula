@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { COMMUNITY_PLAN_CODE, CYCLE_LABEL, communityCyclePrices } from '../lib/plansCatalog'
 import type { FormEvent } from 'react'
 import { useBillingNotices } from '../hooks/useBillingNotices'
 import { useBillingPlans } from '../hooks/useBillingPlans'
@@ -243,11 +244,25 @@ export function SubscriptionPanel({ subject = 'platform', communityId, onCheckou
       {hasBillingCustomerData && subject === 'community' && communitySettings && (
         <div className="question-item-actions">
           {!subscription?.asaas_subscription_id ? (
-            <button type="button" onClick={() => handleSubscribe()} disabled={submitting}>
-              {submitting
-                ? 'Assinando...'
-                : `Assinar — ${BRL_FORMATTER.format(communitySettings.price_cents / 100)}/mês`}
-            </button>
+            <div className="community-cycle-buttons">
+              {(['annual', 'semiannual', 'monthly'] as const).map((c) => {
+                const prices = communityCyclePrices(communitySettings.price_cents)
+                const label = c === 'monthly' ? 'por mês' : c === 'semiannual' ? 'por 6 meses' : 'por 12 meses'
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    className={c === 'annual' ? 'water-primary' : undefined}
+                    onClick={() => handleSubscribe(COMMUNITY_PLAN_CODE[c])}
+                    disabled={submitting}
+                  >
+                    {submitting && selectedPlan === COMMUNITY_PLAN_CODE[c]
+                      ? 'Assinando...'
+                      : `${CYCLE_LABEL[c]} — ${BRL_FORMATTER.format(prices[c] / 100)} ${label}`}
+                  </button>
+                )
+              })}
+            </div>
           ) : subscription.status === 'blocked' || calculatedState === 'blocked' ? (
             <button type="button" onClick={() => handleSubscribe()} disabled={submitting}>
               {submitting ? 'Abrindo fatura...' : 'Regularizar pagamento'}

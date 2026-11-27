@@ -1,5 +1,5 @@
 import { m } from '../lib/motionKit'
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSocialNotifications } from '../hooks/useSocialNotifications'
 import { useContentReminders } from '../hooks/useContentReminders'
 import { useTodayAppointments } from '../hooks/useTodayAppointments'
@@ -8,10 +8,8 @@ import type { NavKey } from './PrimaryNav'
 import { NotificationList } from './NotificationList'
 import { NotificationBillingStatus } from './NotificationBillingStatus'
 import { BellIcon } from './icons'
-import { webglDisponivel } from '../lib/scene3d'
 import { trialWarningTitle, type TrialWarning } from './HomeTrialBanner'
 
-const Bell3D = lazy(() => import('./Bell3D'))
 
 interface NotificationBellProps {
   profileId: string
@@ -136,7 +134,6 @@ export function NotificationBell({
   const trialUnread = trialWarning && !trialRead ? 1 : 0
   const unreadCount = socialUnread + content.unreadCount + agenda.unreadCount + trialUnread
   const [open, setOpen] = useState(false)
-  const [bell3dFailed, setBell3dFailed] = useState(() => !webglDisponivel())
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -198,9 +195,9 @@ export function NotificationBell({
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        {/* Com notificação, o sino balança (pendurado pelo topo) e descansa um
-            pouco entre um toque e outro; sem notificação, fica parado, em relevo. */}
-        {bell3dFailed ? (
+        {/* Sino só em traço (pedido de 2026-11-27: sem 3D). Com notificação, balança
+            (pendurado pelo topo) e descansa um pouco entre um toque e outro. */}
+        {(
           <m.span
             className="notification-bell-icon"
             style={{ transformOrigin: '50% 12%' }}
@@ -213,12 +210,6 @@ export function NotificationBell({
           >
             <BellIcon size={20} />
           </m.span>
-        ) : (
-          <span className="notification-bell-icon notification-bell-icon--3d">
-            <Suspense fallback={<BellIcon size={20} />}>
-              <Bell3D ringing={unreadCount > 0} onFail={() => setBell3dFailed(true)} />
-            </Suspense>
-          </span>
         )}
         {unreadCount > 0 && (
           <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>

@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { asaasFetch } from '../_shared/asaas.ts'
 import { offSplitSnapshot, resolveCommunitySplitMode } from '../_shared/communitySplitMode.ts'
+import { COMMUNITY_PLAN_CYCLE, communityCyclePriceCents } from '../_shared/addonPlans.ts'
 
 // 'off' = sem split nativo (todo o valor fica na plataforma, sem repasse).
 // Ausente = native. O código de split/repasse (aqui, no webhook e no banco)
@@ -96,6 +97,8 @@ async function handleCommunitySubscription(
   communityId: string,
   profileFullName: string | null,
   buyerDocumentNumber: string,
+  /** Ciclo escolhido pela membro (member_monthly | member_semiannual | member_annual); o preço é sempre do servidor. */
+  requestedPlanCode: string | null = null,
 ): Promise<Response> {
   if (!UUID_RE.test(communityId)) {
     return jsonResponse(400, { error: 'community_id inválido.', code: 'INVALID_COMMUNITY_ID' })
@@ -216,11 +219,14 @@ async function handleCommunitySubscription(
     if (!priceRow) {
       throw new HttpError(500, 'O preço desta comunidade não está configurado.', 'PRICE_NOT_SET')
     }
-    const priceCents = Number(priceRow.price_cents)
-    if (!Number.isInteger(priceCents) || priceCents < 1490) {
+    const monthlyCents = Number(priceRow.price_cents)
+    if (!Number.isInteger(monthlyCents) || monthlyCents < 1490) {
       throw new HttpError(422, 'O preço configurado para esta comunidade é inválido.', 'PRICE_BELOW_MIN')
     }
-    const billingCycle = (priceRow.billing_cycle as string | null) ?? 'MONTHLY'
+    // Mensal, semestral ou anual (2026-11-27): o ciclo vem da escolha da membro; o valor, só daqui.
+    const requestedCycle = requestedPlanCode ? COMMUNITY_PLAN_CYCLE[requestedPlanCode] : undefined
+    const billingCycle = requestedCycle ?? ((priceRow.billing_cycle as string | null) ?? 'MONTHLY')
+    const priceCents = communityCyclePriceCents(monthlyCents, billingCycle as 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY')
     const currency = (priceRow.currency as string | null) ?? 'BRL'
 
     // 7) SPLIT — resolvido no servidor. resolve_split lê a conta da dona.
@@ -516,6 +522,7 @@ Deno.serve(async (req) => {
         typeof communityId === 'string' ? communityId : '',
         profile?.full_name ?? null,
         billingData.document_number,
+        typeof planCode === 'string' ? planCode : null,
       )
     }
 

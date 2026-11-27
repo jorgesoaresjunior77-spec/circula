@@ -489,7 +489,9 @@ function Denuncias({ perguntas }: { perguntas: Q[] }) {
 }
 
 export function CarroAdmin() {
-  const [sub, setSub] = useState<Sub>('fila')
+  // Desde 2026-11-27 as dúvidas e respostas são uma base fixa (lib/carroConhecimento*): a profissional não
+  // escreve perguntas nem respostas. Aqui fica só a configuração do card do Início.
+  const [sub, setSub] = useState<Sub>('card')
   const [perguntas, setPerguntas] = useState<Q[]>([])
   const [erro, setErro] = useState(false)
   const { cats } = useCategorias()
@@ -515,13 +517,17 @@ export function CarroAdmin() {
   return (
     <div className="cty-admin">
       <div className="cty-tabs" role="tablist" aria-label="Carro em Dia">
-        {SUBS.map((s) => (
+        {SUBS.filter((s) => s.key === 'card').map((s) => (
           <button key={s.key} type="button" role="tab" aria-selected={sub === s.key} className={`cty-tab${sub === s.key ? ' cty-tab--on' : ''}`} onClick={() => setSub(s.key)}>
             {s.label}
           </button>
         ))}
       </div>
-      {erro && (
+      <p className="challenge-field-hint">
+        As dúvidas e respostas do Carro em Dia já vêm prontas no app (mais de 80, por assunto), com o que fazer e quando procurar um profissional.
+        Aqui você só ajusta o card do Início.
+      </p>
+      {erro && sub !== 'card' && (
         <p className="auth-error" role="alert">
           Você não tem permissão para responder, ou não foi possível carregar. Peça para entrar na aba Equipe.
         </p>

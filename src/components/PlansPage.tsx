@@ -18,6 +18,7 @@ import {
 } from '../lib/plansCatalog'
 import type { PlanCycle } from '../lib/plansCatalog'
 import { AddonCheckout } from './AddonCheckout'
+import { AccessCodeRedeem } from './AccessCodeRedeem'
 import { useReferralDiscount } from '../hooks/useReferralDiscount'
 import { PLAN_ICONS } from './PlanIcons'
 import { useMyPackages } from '../hooks/usePackageAccess'
@@ -396,6 +397,8 @@ export function PlansPage({
         </p>
       </article>
 
+      {!viewOnly && !packages.has('premium') && <AccessCodeRedeem onRedeemed={refreshPackages} />}
+
       <p className="plans-note">
         Valores em reais, cobrados pelo ciclo escolhido. O acesso libera assim que o pagamento é confirmado. Quanto mais longo o ciclo, menor o valor por mês.
       </p>
@@ -414,7 +417,7 @@ export function PlansPage({
                 {!viewOnly && <TrialNotice />}
                 <PriceRow prices={circulaPrices} reference={circulaPrices.monthly} />
                 {showPitch && <PremiumPitch ownedKeys={ownedKeys} onOpenPremium={() => setOpen('premium')} />}
-                <p className="plans-note">Hoje a assinatura é mensal. Semestral e anual chegam em breve.</p>
+                <p className="plans-note">Mensal, semestral ou anual: quanto mais longo o ciclo, menor o valor por mês.</p>
                 {viewOnly ? (
                   <p className="home-muted">
                     Esta é a página que a membro vê. Como responsável pela comunidade, você não precisa

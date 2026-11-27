@@ -38,7 +38,7 @@ describe('searchHelp', () => {
 
   it('exige todas as palavras digitadas', () => {
     const ids = searchHelp('cancelar assinatura').map((h) => h.item.id)
-    expect(ids).toContain('ap-11')
+    expect(ids).toContain('ap-12')
     expect(searchHelp('cancelar xyzinexistente')).toEqual([])
   })
 

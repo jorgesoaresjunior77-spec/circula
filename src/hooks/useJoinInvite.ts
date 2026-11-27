@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { clearPendingAccessCode, readPendingAccessCode, redeemAccessCode } from '../lib/accessCode'
 import { supabase } from '../lib/supabase'
 import { clearInviteToken, readInviteRef } from '../lib/inviteToken'
 
@@ -35,6 +36,19 @@ export function useJoinInvite(userId: string | null, token: string | null, onFin
       if (cancelled) return
       if (!error) {
         clearInviteToken()
+        // Código de acesso ilimitado digitado no cadastro: usa agora que ela já está na comunidade.
+        const code = readPendingAccessCode()
+        if (code) {
+          void redeemAccessCode(code).then(({ error: codeError }) => {
+            if (codeError) console.warn('[codigo-acesso]', codeError)
+            clearPendingAccessCode()
+            if (!cancelled) {
+              setState({ status: 'idle' })
+              onFinished()
+            }
+          })
+          return
+        }
         setState({ status: 'idle' })
         onFinished()
         return

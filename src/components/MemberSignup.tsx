@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { savePendingAccessCode } from '../lib/accessCode'
 import { SO_MULHERES_MESSAGE, genderHint } from '../lib/genderCheck'
 import { LiviCadastro } from './LiviCadastro'
 import type { FormEvent } from 'react'
@@ -38,6 +39,8 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
   const [accepted, setAccepted] = useState(false)
   const [nutriPatient, setNutriPatient] = useState(false)
+  /** Código de acesso ilimitado que a nutricionista mandou (opcional). */
+  const [accessCode, setAccessCode] = useState('')
 
   const rules = evaluatePassword(password)
 
@@ -69,6 +72,8 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
       return
     }
 
+    // o código é usado assim que ela entra na comunidade (useJoinInvite)
+    savePendingAccessCode(accessCode)
     try {
       if (nutriPatient) localStorage.setItem(NUTRI_REQUEST_KEY, '1')
     } catch {
@@ -199,6 +204,18 @@ export function MemberSignup({ token, onHaveAccount }: MemberSignupProps) {
               </li>
             ))}
           </ul>
+
+          <label htmlFor="member-signup-code">Código de acesso (se você recebeu um)</label>
+          <input
+            id="member-signup-code"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="characters"
+            maxLength={12}
+            value={accessCode}
+            onChange={(event) => setAccessCode(event.target.value.toUpperCase())}
+            placeholder="Ex.: ABCD2345"
+          />
 
           <label className="auth-check">
             <input type="checkbox" checked={nutriPatient} onChange={(e) => setNutriPatient(e.target.checked)} />

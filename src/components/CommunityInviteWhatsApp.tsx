@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import { ACCESS_CODE_INVITE_LINE } from '../lib/accessCode'
 import { buildInviteMessageSuggestions } from '../lib/communityInviteMessages'
 import { useInviteLink } from '../hooks/useInviteLink'
 import { buildWhatsAppUrl, normalizeWhatsAppNumber } from '../lib/phone'
@@ -28,6 +30,22 @@ const COPY_RESET_MS = 2000
 export function CommunityInviteWhatsApp({ communityId, communityName, autoCreate = false, showTitle = true }: CommunityInviteWhatsAppProps) {
   const link = useInviteLink(communityId)
   const { loading, url, busy, error, create } = link
+  // Acesso ilimitado para esta pessoa: gera um código (uso único) que vai junto na mensagem.
+  const [accessCode, setAccessCode] = useState<string | null>(null)
+  const [codeBusy, setCodeBusy] = useState(false)
+  const [codeError, setCodeError] = useState<string | null>(null)
+  async function toggleAccessCode() {
+    if (accessCode) {
+      setAccessCode(null)
+      return
+    }
+    setCodeBusy(true)
+    setCodeError(null)
+    const { data, error: e } = await supabase.rpc('create_access_code', { p_community_id: communityId, p_note: 'Convite pelo WhatsApp' })
+    setCodeBusy(false)
+    if (e || typeof data !== 'string') setCodeError('Não foi possível gerar o código agora.')
+    else setAccessCode(data)
+  }
 
   useEffect(() => {
     if (autoCreate && !loading && !url && !busy && !error) void create()
@@ -43,7 +61,19 @@ export function CommunityInviteWhatsApp({ communityId, communityName, autoCreate
         <p className="challenge-field-hint">Carregando o link de convite…</p>
       ) : link.url ? (
         <>
-          <InviteMessageComposer key={link.url} communityName={communityName} inviteUrl={link.url} />
+          <div className="invite-access-code">
+            <label className="invite-access-code-toggle">
+              <input type="checkbox" checked={!!accessCode} onChange={() => void toggleAccessCode()} disabled={codeBusy} />
+              Dar acesso ilimitado a esta pessoa (vai um código na mensagem)
+            </label>
+            {accessCode && (
+              <p className="challenge-field-hint">
+                Código <strong>{accessCode}</strong>: ela digita no primeiro acesso e fica com o Círcula inteiro, sem cobrança. Vale para uma pessoa só.
+              </p>
+            )}
+            {codeError && <p className="auth-error">{codeError}</p>}
+          </div>
+          <InviteMessageComposer key={link.url} communityName={communityName} inviteUrl={link.url} accessCode={accessCode} />
 
           <p className="challenge-field-hint">
             Quem abre o link cria o próprio acesso (e-mail e senha) e já entra na comunidade.
@@ -98,9 +128,11 @@ interface InviteMessageComposerProps {
   circleName?: string
   /** Quem convida tem o Premium: o convite cita o desconto extra. */
   premiumBonus?: boolean
+  /** Código de acesso ilimitado que vai no fim da mensagem (Painel da nutricionista). */
+  accessCode?: string | null
 }
 
-export function InviteMessageComposer({ communityName, inviteUrl, circleName, premiumBonus }: InviteMessageComposerProps) {
+export function InviteMessageComposer({ communityName, inviteUrl, circleName, premiumBonus, accessCode = null }: InviteMessageComposerProps) {
   // Na tela o link aparece como a frase @circulaapp; o endereço de verdade entra na
   // mensagem só na hora de enviar, copiar ou compartilhar.
   const suggestions = useMemo(
@@ -108,7 +140,11 @@ export function InviteMessageComposer({ communityName, inviteUrl, circleName, pr
     [communityName, circleName, premiumBonus],
   )
   const [message, setMessage] = useState(suggestions[0])
-  const finalMessage = withRealLink(message, inviteUrl)
+  const finalMessage = accessCode
+    ? `${withRealLink(message, inviteUrl).trimEnd()}
+
+${ACCESS_CODE_INVITE_LINE(accessCode)}`
+    : withRealLink(message, inviteUrl)
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [phone, setPhone] = useState('')
   const number = normalizeWhatsAppNumber(phone)
