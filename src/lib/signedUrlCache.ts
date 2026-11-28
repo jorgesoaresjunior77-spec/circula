@@ -55,6 +55,12 @@ export function clearPersistedSignedUrls() {
   cache.clear()
   try {
     localStorage.removeItem(STORAGE_KEY)
+    // Imagens da Home guardadas da última visita (useCommunityCardImages).
+    localStorage.removeItem('circula:last-hero-path')
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('circula:card-images:')) localStorage.removeItem(key)
+    }
   } catch {
     /* ignore */
   }

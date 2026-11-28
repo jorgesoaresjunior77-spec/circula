@@ -48,13 +48,18 @@ interface CardSpec {
   imageKey?: keyof PlanCardImages
 }
 
-const CW = 640
-const CH = 960
+// Textura em alta resolução (o cartão da frente chega a ~1/3 da largura da tela, em telas 3x).
+const CW = 1024
+const CH = 1536
 const CARD_W = 1.65
 const CARD_H = (CARD_W * CH) / CW
 // espessura dobrada (como a lateral do relógio)
 const DEPTH = 0.14
 const RADIUS = 2.1
+/** Quanto o cartão da frente cresce (14%). */
+const FRONT_ZOOM = 0.14
+/** A área de desenho é 16% mais alta que o card (passa da borda de baixo). Igual ao bottom de .plans3d-host. */
+const HOST_EXTRA = 0.16
 
 function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
@@ -66,53 +71,118 @@ function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: n
   ctx.closePath()
 }
 
+function gold(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const g = ctx.createLinearGradient(0, 0, w, h)
+  g.addColorStop(0, '#f8e6b0')
+  g.addColorStop(0.3, '#d6ad5c')
+  g.addColorStop(0.55, '#f3dc9c')
+  g.addColorStop(0.8, '#b88a3a')
+  g.addColorStop(1, '#e9cf8a')
+  return g
+}
+
+/** Fundo do cartão: creme com moldura dupla em ouro (filete largo e filete fino). */
 function base(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const g = ctx.createLinearGradient(0, 0, w, h)
   g.addColorStop(0, '#fffaf1')
   g.addColorStop(1, '#efe0cc')
   ctx.fillStyle = g
   ctx.fillRect(0, 0, w, h)
-  ctx.lineWidth = 3
-  ctx.strokeStyle = 'rgba(184,137,58,0.65)'
-  rr(ctx, 14, 14, w - 28, h - 28, 40)
+  ctx.strokeStyle = gold(ctx, w, h)
+  ctx.lineWidth = 10
+  rr(ctx, 16, 16, w - 32, h - 32, 58)
   ctx.stroke()
+  ctx.lineWidth = 2.5
+  rr(ctx, 34, 34, w - 68, h - 68, 46)
+  ctx.stroke()
+}
+
+/** Brilho de vidro na diagonal: acabamento de cartão premium. */
+function sheen(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.save()
+  rr(ctx, 16, 16, w - 32, h - 32, 58)
+  ctx.clip()
+  const s = ctx.createLinearGradient(0, 0, w, h * 0.7)
+  s.addColorStop(0, 'rgba(255,255,255,0.32)')
+  s.addColorStop(0.28, 'rgba(255,255,255,0.08)')
+  s.addColorStop(0.42, 'rgba(255,255,255,0)')
+  ctx.fillStyle = s
+  ctx.fillRect(0, 0, w, h)
+  ctx.restore()
+}
+
+/** Reduz em etapas (metade por vez) quando a foto é muito maior que o cartão: evita serrilhado. */
+function drawSmooth(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, dw: number, dh: number) {
+  let src: CanvasImageSource = img
+  let sw = img.naturalWidth
+  let sh = img.naturalHeight
+  while (sw / 2 > dw && sh / 2 > dh) {
+    const c = document.createElement('canvas')
+    c.width = Math.round(sw / 2)
+    c.height = Math.round(sh / 2)
+    const cx = c.getContext('2d')
+    if (!cx) break
+    cx.imageSmoothingQuality = 'high'
+    cx.drawImage(src, 0, 0, c.width, c.height)
+    src = c
+    sw = c.width
+    sh = c.height
+  }
+  ctx.drawImage(src, 0, 0, sw, sh, x, y, dw, dh)
 }
 
 /** Cartão vazio: só a imagem cadastrada no Painel, do jeito que ela é (o texto, se houver, já vem na imagem).
  *  Sem imagem, fica em branco (creme), à espera da foto. */
 function cartaoImagem(ctx: CanvasRenderingContext2D, w: number, h: number, foto: Foto) {
   base(ctx, w, h)
-  if (!foto || foto.naturalWidth <= 0) return
-  const px = 22
-  const py = 22
-  const pw = w - 44
-  const ph = h - 44
+  if (!foto || foto.naturalWidth <= 0) {
+    sheen(ctx, w, h)
+    return
+  }
+  const px = 44
+  const py = 44
+  const pw = w - 88
+  const ph = h - 88
   ctx.save()
-  rr(ctx, px, py, pw, ph, 34)
+  rr(ctx, px, py, pw, ph, 40)
   ctx.clip()
   const s = Math.max(pw / foto.naturalWidth, ph / foto.naturalHeight)
   const dw = foto.naturalWidth * s
   const dh = foto.naturalHeight * s
-  ctx.drawImage(foto, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh)
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+  drawSmooth(ctx, foto, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh)
   ctx.restore()
+  // filete de ouro por cima da borda da foto
+  ctx.strokeStyle = gold(ctx, w, h)
+  ctx.lineWidth = 3
+  rr(ctx, px, py, pw, ph, 40)
+  ctx.stroke()
+  sheen(ctx, w, h)
 }
 
 function verso(ctx: CanvasRenderingContext2D, w: number, h: number) {
   base(ctx, w, h)
   const g = ctx.createLinearGradient(0, 0, w, h)
-  g.addColorStop(0, '#5a3a2b')
-  g.addColorStop(1, '#3d261b')
+  g.addColorStop(0, '#6a4632')
+  g.addColorStop(1, '#3a2419')
   ctx.fillStyle = g
-  rr(ctx, 40, 40, w - 80, h - 80, 30)
+  rr(ctx, 44, 44, w - 88, h - 88, 40)
   ctx.fill()
+  const foil = gold(ctx, w, h)
+  // símbolo do Círcula (o anel) e o nome em ouro
+  ctx.strokeStyle = foil
+  ctx.lineWidth = 34
+  ctx.beginPath()
+  ctx.arc(w / 2, h / 2 - 90, 120, 0, Math.PI * 2)
+  ctx.stroke()
   ctx.textAlign = 'center'
-  ctx.fillStyle = '#f6dca4'
-  ctx.font = '170px Georgia, serif'
-  ctx.fillText('✿', w / 2, h / 2 + 30)
-  ctx.font = `italic 52px Georgia, serif`
-  ctx.fillText('Círcula', w / 2, h / 2 + 130)
-  ctx.font = '30px Georgia, serif'
-  ctx.fillText('conectando mulheres', w / 2, h / 2 + 190)
+  ctx.fillStyle = foil
+  ctx.font = 'italic 96px Georgia, serif'
+  ctx.fillText('Círcula', w / 2, h / 2 + 150)
+  ctx.font = '44px Georgia, serif'
+  ctx.fillText('conectando mulheres', w / 2, h / 2 + 222)
+  sheen(ctx, w, h)
 }
 
 const SPECS: CardSpec[] = [
@@ -178,7 +248,8 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       return
     }
     renderer.outputColorSpace = SRGBColorSpace
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxPixelRatio()))
+    // Canvas pequeno: vale desenhar na resolução real da tela (até 2,5x) para os cartões ficarem nítidos.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Math.max(maxPixelRatio(), 2.5)))
     renderer.setClearColor(0x000000, 0)
     const canvas = renderer.domElement
     canvas.className = 'plans3d-canvas'
@@ -198,7 +269,8 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     bodyGeo.translate(0, 0, -DEPTH / 2)
     const faceGeo = new ShapeGeometry(faceShape, 10)
     normalizeUv(faceGeo, CARD_W, CARD_H)
-    const bodyMat = new MeshBasicMaterial({ color: new Color('#e7d3b4') })
+    // lateral dourada, como o fio de um cartão premium
+    const bodyMat = new MeshBasicMaterial({ color: new Color('#d9b56c') })
 
     const aniso = renderer.capabilities.getMaxAnisotropy()
     const cards = SPECS.map((spec) => {
@@ -212,7 +284,7 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       const btex = new CanvasTexture(back)
       for (const t of [ftex, btex]) {
         t.colorSpace = SRGBColorSpace
-        t.anisotropy = Math.min(8, aniso)
+        t.anisotropy = aniso
       }
       const fmat = new MeshBasicMaterial({ map: ftex, toneMapped: false })
       const bmat = new MeshBasicMaterial({ map: btex, toneMapped: false, side: DoubleSide })
@@ -265,13 +337,17 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     }
     refreshRef.current = carregarFotos
 
+    // A área de desenho passa um pouco da borda de baixo do card grande (ver .plans3d-host no CSS), para o
+    // cartão da frente, ao crescer, cobrir parte da borda. O enquadramento continua o do card (altura h0).
     function resize() {
       const w = host!.clientWidth || 320
       const h = host!.clientHeight || 320
+      const h0 = h / (1 + HOST_EXTRA)
       renderer.setSize(w, h, false)
       canvas.style.width = '100%'
       canvas.style.height = '100%'
-      camera.aspect = w / h
+      camera.aspect = w / h0
+      camera.setViewOffset(w, h0, 0, 0, w, h)
       camera.updateProjectionMatrix()
     }
 
@@ -283,7 +359,12 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       const rot = ringAngle(t)
       for (const c of cards) {
         const p = slotPose(c.spec.angle, rot, RADIUS)
-        c.group.position.set(p.x, 0, p.z)
+        // O da frente cresce (zoom para a frente): a borda de cima fica no lugar (não sobe na Marluce)
+        // e ele desce, cobrindo parte da borda de baixo do card grande.
+        const z = Math.pow(p.front, 6)
+        const s = 1 + FRONT_ZOOM * z
+        c.group.scale.setScalar(s)
+        c.group.position.set(p.x, -((s - 1) * CARD_H) / 2, p.z + 0.25 * z)
         c.group.rotation.y = p.face
         // Os que vão para trás escurecem um pouco: dá profundidade.
         const k = 0.62 + 0.38 * Math.pow(p.front, 0.7)

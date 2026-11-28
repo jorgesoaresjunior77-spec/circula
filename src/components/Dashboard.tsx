@@ -71,7 +71,7 @@ import { MemberCommunityCard } from './MemberCommunityCard'
 import { HomeToday } from './HomeToday'
 import { sendToCarro } from '../lib/carro'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
-import { useCommunityCardImages } from '../hooks/useCommunityCardImages'
+import { cachedHeroPath, useCommunityCardImages } from '../hooks/useCommunityCardImages'
 import { heroImage } from '../lib/heroRotation'
 import { HomeGreeting } from './HomeGreeting'
 import { WeatherButton } from './WeatherButton'
@@ -620,7 +620,9 @@ export function Dashboard({
   const { images: heroImages } = useCommunityCardImages(
     profile && profile.role !== 'master' ? (railCommunity?.id ?? null) : null,
   )
-  const heroPath = heroImage(heroImages)
+  // Enquanto a comunidade ainda carrega, usa a foto do topo da última visita:
+  // a Home já abre no layout com capa, sem piscar o layout antigo (sem foto).
+  const heroPath = heroImage(heroImages) ?? (loading ? cachedHeroPath() : null)
   const { url: heroUrl } = useSignedImageUrl(heroPath)
 
   // A foto do topo começa no alto da página (atrás da barra de status e do logo), seja qual for o respiro acima do painel.

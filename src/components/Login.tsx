@@ -15,13 +15,41 @@ import loginLogo from '../assets/login-logo.png'
 // Foto da entrada: a mesma da referência (a moça tocando o círculo brilhante). Fica fixa no app: não há onde trocar.
 // O logo é um arquivo nítido (alta resolução) posto por cima do círculo, no lugar do que vinha pintado na foto,
 // e os campos e botões são desenhados por cima, nas mesmas posições da referência.
+// Anel brilhante que a moça toca, desenhado em vetor por cima do anel da foto (que é de baixa resolução):
+// nítido em qualquer tela. Coordenadas na grade da foto (720 x 1280).
+function LoginRing() {
+  return (
+    <svg className="login-ring" viewBox="0 0 720 1280" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="lr-g1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14" /></filter>
+        <filter id="lr-g2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" /></filter>
+        <filter id="lr-g3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.6" /></filter>
+        <radialGradient id="lr-tip" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#fffaf0" stopOpacity="1" />
+          <stop offset="0.25" stopColor="#ffe2b8" stopOpacity="0.95" />
+          <stop offset="0.6" stopColor="#ffb066" stopOpacity="0.35" />
+          <stop offset="1" stopColor="#ff9a40" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <g fill="none">
+        <circle cx="359" cy="476" r="132.5" stroke="#ff9d4d" strokeOpacity="0.55" strokeWidth="26" filter="url(#lr-g1)" />
+        <circle cx="359" cy="476" r="132.5" stroke="#ffb878" strokeOpacity="0.9" strokeWidth="13" filter="url(#lr-g2)" />
+        <circle cx="359" cy="476" r="132.5" stroke="#fff3df" strokeWidth="5" filter="url(#lr-g3)" />
+        <circle cx="359" cy="476" r="132.5" stroke="#ffffff" strokeWidth="1.6" />
+      </g>
+      <circle cx="359" cy="506" r="44" fill="url(#lr-tip)" />
+    </svg>
+  )
+}
+
 function AuthStage({ children, form = false }: { children: React.ReactNode; form?: boolean }) {
   // No <body>: nenhum ancestral com transform prende o fundo fixo.
   return createPortal(
     <div className={`auth-stage${form ? ' auth-stage--form' : ''}`}>
       <div className="login-photo" aria-hidden="true">
         <img className="login-photo-img" src={loginFundo} alt="" decoding="async" draggable={false} />
-        {!form && <img className="login-logo" src={loginLogo} alt="" width={1056} height={354} decoding="async" draggable={false} />}
+        <LoginRing />
+        {!form && <img className="login-logo" src={loginLogo} alt="" width={2112} height={708} decoding="async" draggable={false} />}
       </div>
       {children}
     </div>,

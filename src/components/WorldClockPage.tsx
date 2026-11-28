@@ -14,6 +14,8 @@ import {
 import type { WorldPlace } from '../lib/worldClock'
 import { WeatherIcon } from './WeatherIcon'
 import { fetchPlacePhoto } from '../lib/placePhoto'
+import { CLOCK_STYLES, useClockStyle } from '../lib/clockStyle'
+import { ClassicFace, RoseDigitalFace, SwissFace } from './ClockFaces'
 import type { PlacePhoto } from '../lib/placePhoto'
 
 // Relógio do mundo: a pessoa digita o nome de um lugar e vê que horas são lá,
@@ -162,6 +164,8 @@ export function WorldClockPage() {
     setRecent(rememberPlace(place))
   }
 
+  const [clockStyle, setClockStyle] = useClockStyle()
+
   const otherRecent = recent.filter((p) => !selected || placeKey(p) !== placeKey(selected))
 
   return (
@@ -171,6 +175,30 @@ export function WorldClockPage() {
         Digite o nome de um lugar para ver que horas são lá e como está o tempo. Bom para combinar um horário ou
         arrumar a mala.
       </p>
+
+      <div className="wclock-styles" role="radiogroup" aria-label="Modelo do relógio da página inicial">
+        <p className="wclock-styles-title">Seu relógio na página inicial</p>
+        <div className="wclock-styles-row">
+          {CLOCK_STYLES.map((opt) => {
+            const Face = opt.key === 'rose' ? RoseDigitalFace : opt.key === 'suico' ? SwissFace : ClassicFace
+            const active = clockStyle === opt.key
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                className={`wclock-style wclock-style--${opt.key}${active ? ' is-active' : ''}`}
+                onClick={() => setClockStyle(opt.key)}
+              >
+                <Face h={10} m={10} className="wclock-style-face cface" />
+                <strong>{opt.label}</strong>
+                <span>{opt.hint}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
       <form className="weather-picker" onSubmit={(e) => void handleSearch(e)}>
         <label className="weather-picker-label" htmlFor="wclock-input">

@@ -1,0 +1,223 @@
+/* ==========================================================================
+   Rodada 27/11 (noite): ajustes finos da página inicial, relógio em 3 modelos
+   Importado por último (depois do rodada28.css).
+   ========================================================================== */
+
+/* ---- Foto do topo: mais clara (principalmente o fundo) e o rosto menos avermelhado ---- */
+.hero-bg img {
+  filter: brightness(1.1) contrast(0.95) saturate(0.88) hue-rotate(3deg) !important;
+}
+/* véu claro e leve nas bordas da foto (o fundo), quase nada no meio */
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(120% 85% at 50% 42%, rgba(255, 249, 241, 0) 45%, rgba(255, 249, 241, 0.22) 100%);
+}
+
+/* ---- Card "Fluir & Florescer": a borda de cima começa mais baixo (longe do pescoço e do cabelo)
+        e a de baixo termina um pouquinho antes ---- */
+.home-community-header--hero .home-community-glass::before {
+  inset: 6px 0 3px 0 !important;
+}
+
+/* ---- Antes de Tudo, Calculadora, Água e IMC: um pouquinho mais para baixo ---- */
+.home-tools--icons .home-tool {
+  translate: 0 5px;
+}
+
+/* ---- Cards de Hoje: pouca sombra embaixo, onde fica a borda maior ---- */
+.exp-strip--hoje .exp-card {
+  filter: drop-shadow(0 3px 2.5px rgba(40, 26, 18, 0.22));
+}
+
+/* ---- Relógio: a data acompanha o modelo escolhido ---- */
+.home-clock--rose .home-clock-date {
+  font-family: 'Jost', var(--font-sans, sans-serif);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  color: #b06f78;
+}
+.home-clock--suico .home-clock-date {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #9a7530;
+}
+/* os mostradores em vetor não balançam no 3D: ficam firmes, com sombra suave */
+.home-clock--rose .home-clock-3d,
+.home-clock--suico .home-clock-3d {
+  animation: none !important;
+  transform: none !important;
+}
+.home-clock .cface,
+.wclock-style .cface {
+  filter: drop-shadow(0 4px 5px rgba(53, 40, 34, 0.3));
+}
+.cface-digit {
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 31px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.cface-digit--h {
+  fill: #f4c6c0;
+}
+.cface-digit--m {
+  fill: #ffffff;
+}
+.cface-swiss-brand {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 4.6px;
+  font-style: italic;
+  letter-spacing: 0.4px;
+  fill: #8a6a2c;
+}
+
+/* ---- Relógio do mundo: escolha do modelo ---- */
+.wclock-styles {
+  margin: 4px 0 18px;
+}
+.wclock-styles-title {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: #4a2f22;
+}
+.wclock-styles-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.wclock-style {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px 10px;
+  border: 1px solid rgba(125, 100, 79, 0.3);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffaf3 0%, #f3e8da 100%);
+  color: #4a2f22;
+  cursor: pointer;
+  text-align: center;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.wclock-style.is-active {
+  border-color: #8a5a3c;
+  box-shadow: 0 0 0 2px rgba(138, 90, 60, 0.35), 0 8px 14px -10px rgba(40, 26, 18, 0.5);
+}
+.wclock-style-face {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 4px;
+}
+.wclock-style strong {
+  font-size: 13px;
+}
+.wclock-style span {
+  font-size: 11px;
+  line-height: 1.2;
+  opacity: 0.75;
+}
+.wclock-style--rose strong {
+  font-family: 'Jost', sans-serif;
+  color: #b06f78;
+}
+.wclock-style--suico strong {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #9a7530;
+}
+
+/* ---- Minha cidade: um pouco mais para baixo, mais longe dos Círculos ---- */
+.home-city-wrap {
+  margin-top: 44px !important;
+}
+
+/* ---- Títulos do menu de conteúdos ---- */
+/* Carro em Dia: 1 cm para a esquerda (volta ao lugar) e letras mais afastadas */
+.wheel-item--carro .wheel-title {
+  translate: 0 0 !important;
+  letter-spacing: 0.14em !important;
+}
+/* Dicas de leitura: o nome bem no meio da parte marrom (a área sem foto, até onde a foto some) */
+.home-wheel--stack .wheel-item--leitura .wheel-text {
+  width: 64%;
+  padding: 0 10px;
+  justify-content: center;
+  text-align: center;
+}
+.home-wheel--stack .wheel-item--leitura.wheel-item--foto-esq .wheel-text {
+  margin-left: 36%;
+}
+.home-wheel--stack .wheel-item--leitura.wheel-item--foto-dir .wheel-text {
+  margin-right: 36%;
+}
+/* Respiração: 2 cm para a direita e letras mais afastadas */
+.home-wheel--stack .wheel-item--respiracao .wheel-title {
+  translate: 2cm 0;
+  letter-spacing: 0.16em;
+}
+/* Rachei: 5% maior e letras mais afastadas */
+.home-wheel--stack .wheel-item--rachei .wheel-card .wheel-title {
+  font-size: 35.7px !important;
+  letter-spacing: 0.14em;
+}
+
+/* ---- Para você: "Se exercite" 10% mais estreito; "Diário" cresce para a esquerda e para baixo ---- */
+.home-pair--feature .hfb--diary {
+  width: 81%;
+}
+.home-pair--feature .hfb--series {
+  scale: 1.2;
+  transform-origin: right top;
+  margin-bottom: 8%;
+}
+
+/* ---- Planos: o cartão da frente cresce e cobre parte da borda de baixo do card grande ---- */
+.home-plans-wrap .home-plans-card.home-plans-card--3d {
+  overflow: visible;
+}
+.home-plans-wrap .home-plans-card--3d .plans3d-woman {
+  border-radius: 24px 24px 0 0;
+}
+.home-plans-wrap .home-plans-card--3d .plans3d-host {
+  inset: 0 0 -16% 0;
+  z-index: 2;
+}
+.home-plans-wrap {
+  margin-bottom: 60px !important;
+}
+
+/* ---- Cotações: mais para baixo ---- */
+.home-quotes {
+  margin-top: 56px !important;
+}
+
+/* ---- Sino 10% maior ---- */
+.dashboard-header .notification-bell-icon {
+  scale: 1.1;
+}
+
+/* ---- Previsão: número 10% menor e ícone 15% maior ---- */
+.weather-header-slot .weather-temp-now {
+  font-size: 23.4px !important;
+}
+.weather-header-slot .weather-button svg {
+  width: 48.3px !important;
+  height: 48.3px !important;
+}
+
+/* ---- Planos: a Marluce com o rosto menos avermelhado e o fundo do card um pouco mais claro ---- */
+.home-plans-wrap .home-plans-card--3d .plans3d-woman {
+  filter: brightness(1.06) saturate(0.86) hue-rotate(4deg);
+}
+.home-plans-wrap .home-plans-card.home-plans-card--3d {
+  background:
+    radial-gradient(70% 55% at 50% 38%, rgba(250, 230, 190, 0.38), rgba(250, 230, 190, 0) 70%),
+    linear-gradient(160deg, #84604a 0%, #59402f 100%) !important;
+}

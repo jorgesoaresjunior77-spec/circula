@@ -234,6 +234,12 @@
   height: 100%;
   object-fit: cover;
 }
+.login-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
 /* Logo nítido, por cima do círculo brilhante (mesma posição do logo da referência). */
 .login-logo {
   position: absolute;

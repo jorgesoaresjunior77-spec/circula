@@ -3,6 +3,8 @@ import { GARDEN_DEFAULT_TIMEZONE } from '../lib/timezone'
 import { webglDisponivel } from '../lib/scene3d'
 import { formatClockDate } from '../lib/clockDate'
 import { m as motion, useAnimationFrame, useMotionValue } from '../lib/motionKit'
+import { useClockStyle } from '../lib/clockStyle'
+import { RoseDigitalFace, SwissFace } from './ClockFaces'
 
 // Relógio analógico da Home, em 3D: sem moldura nem fundo, mas com profundidade.
 // As marcações, os ponteiros, o ponteiro dos segundos e o eixo ficam em camadas
@@ -45,6 +47,8 @@ export function AnalogClock() {
   const [now, setNow] = useState(() => new Date())
   const [reduced] = useState(prefersReducedMotion)
   const [failed, setFailed] = useState(() => !webglDisponivel())
+  // Modelo escolhido em "Relógio do mundo": clássico (3D), rosé digital ou suíço.
+  const [clockStyle] = useClockStyle()
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), reduced ? 30_000 : 1000)
@@ -149,7 +153,7 @@ export function AnalogClock() {
 
   return (
     <div
-      className="home-clock"
+      className={`home-clock home-clock--${clockStyle}`}
       role="img"
       aria-label={label}
       onPointerMove={failed ? onTilt : undefined}
@@ -166,8 +170,12 @@ export function AnalogClock() {
             transition={{ duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
           />
         )}
-        <div className={`home-clock-3d${failed ? '' : ' home-clock-3d--gl'}`} ref={tiltRef}>
-          {failed ? (
+        <div className={`home-clock-3d${failed || clockStyle !== 'classico' ? '' : ' home-clock-3d--gl'}`} ref={tiltRef}>
+          {clockStyle === 'rose' ? (
+            <RoseDigitalFace h={h} m={m} className="clock-layer clock-layer--face cface" />
+          ) : clockStyle === 'suico' ? (
+            <SwissFace h={h} m={m} className="clock-layer clock-layer--face cface" />
+          ) : failed ? (
             flat
           ) : (
             <Suspense fallback={flat}>
