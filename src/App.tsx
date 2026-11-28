@@ -39,8 +39,19 @@ import './financas.css'
 import './rodada26.css'
 import './rodada28.css'
 import './rodada29.css'
+import './rodada30.css'
+import { PublicWeddingPage } from './components/PublicWeddingPage'
+import { readPublicWeddingParam } from './lib/wedding'
+
+// Páginas abertas do Casamento (?rsvp= / ?presentes=): lidas uma vez, antes de qualquer login.
+const PUBLIC_WEDDING = readPublicWeddingParam()
 
 function App() {
+  if (PUBLIC_WEDDING) return <PublicWeddingPage kind={PUBLIC_WEDDING.kind} token={PUBLIC_WEDDING.token} />
+  return <AppMain />
+}
+
+function AppMain() {
   const {
     session,
     profile,

@@ -296,6 +296,40 @@ export function ChartPlanIcon(p: Props) {
   )
 }
 
+/** Mom: mãe com o bebê no colo. */
+export function MomPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <circle cx="13" cy="8" r="3.2" />
+      <path d="M8 27c0-6 1.5-11 5-13 2.5 1.6 4 3.2 5 5" />
+      <circle cx="21" cy="18.5" r="3" />
+      <path d="M15 22c2 2.6 6 3.4 9 1.6" />
+    </Svg>
+  )
+}
+
+/** Baby: bebê na barriga (semana a semana). */
+export function BabyPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <circle cx="16" cy="16" r="11" />
+      <circle cx="13" cy="13" r="3.4" />
+      <path d="M15.5 15.5c4 .6 5.5 3 4.8 6.5-1.6 1.2-4 1.2-5.6-.4" />
+    </Svg>
+  )
+}
+
+/** Casamento: duas alianças. */
+export function RingsPlanIcon(p: Props) {
+  return (
+    <Svg {...p}>
+      <circle cx="12.5" cy="18" r="6.5" />
+      <circle cx="19.5" cy="18" r="6.5" />
+      <path d="M10.5 9.5l2-3 2 3" />
+    </Svg>
+  )
+}
+
 export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) => React.ReactElement> = {
   circula: CirculaPlanIcon,
   premium: PremiumPlanIcon,
@@ -327,4 +361,7 @@ export const PLAN_ICONS: Record<ProductKey | 'circula' | 'premium', (p: Props) =
   jardim: FlowerPlanIcon,
   cidade: PinCityPlanIcon,
   cotacoes: ChartPlanIcon,
+  mom: MomPlanIcon,
+  baby: BabyPlanIcon,
+  casamento: RingsPlanIcon,
 }

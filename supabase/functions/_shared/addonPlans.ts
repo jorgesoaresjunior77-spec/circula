@@ -35,6 +35,9 @@ export type AddonPlanKey =
   | 'jardim'
   | 'cidade'
   | 'cotacoes'
+  | 'mom'
+  | 'baby'
+  | 'casamento'
   | 'premium'
 
 export type AsaasCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY'
@@ -68,6 +71,9 @@ export const ADDON_PLAN_KEYS: AddonPlanKey[] = [
   'jardim',
   'cidade',
   'cotacoes',
+  'mom',
+  'baby',
+  'casamento',
   'premium',
 ]
 
@@ -100,6 +106,9 @@ export const ADDON_NAMES: Record<AddonPlanKey, string> = {
   jardim: 'Meu Jardim',
   cidade: 'Na minha cidade',
   cotacoes: 'Cotações',
+  mom: 'Mom',
+  baby: 'Baby',
+  casamento: 'Casamento',
   premium: 'Círcula Premium',
 }
 
@@ -133,12 +142,16 @@ const MONTHLY: Record<AddonPlanKey, number> = {
   jardim: 490,
   cidade: 490,
   cotacoes: 490,
+  // Maternidade e Casamento (pedido de 2026-11-27)
+  mom: 980,
+  baby: 980,
+  casamento: 1190,
   premium: 5990,
 }
 
-// Círcula Premium: R$ 49,90 por mês para quem assina até 31/12/2026 (horário de Brasília); a partir de 01/01/2027, R$ 59,90.
+// Círcula Premium: R$ 49,90 por mês para quem assina até 30/11/2026 (horário de Brasília); a partir de 01/12/2026, R$ 59,90.
 // Semestral e anual mantêm 20% e 35% de desconto sobre o mensal de cada fase.
-export const PREMIUM_PROMO_ENDS_AT = '2027-01-01T00:00:00-03:00'
+export const PREMIUM_PROMO_ENDS_AT = '2026-12-01T00:00:00-03:00'
 const PREMIUM_PROMO: Record<AsaasCycle, number> = { MONTHLY: 4990, SEMIANNUALLY: 23952, YEARLY: 38922 } // 4990 × 6 × 0,80 e × 12 × 0,65
 const PREMIUM_REGULAR: Record<AsaasCycle, number> = { MONTHLY: 5990, SEMIANNUALLY: 28752, YEARLY: 46722 }
 
@@ -257,6 +270,12 @@ export function packagesForPlan(key: AddonPlanKey | typeof BUNDLE_PLAN_KEY, bund
       return ['cidade']
     case 'cotacoes':
       return ['cotacoes']
+    case 'mom':
+      return ['mom']
+    case 'baby':
+      return ['baby']
+    case 'casamento':
+      return ['casamento']
     case 'premium':
       return ['premium']
     default:

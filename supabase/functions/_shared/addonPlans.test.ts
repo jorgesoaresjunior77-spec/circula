@@ -14,9 +14,9 @@ describe('addonPlans', () => {
       expect(addonPriceCents(p.key, 'YEARLY')).toBe(app.annual)
     }
     expect(addonPriceCents('premium', 'MONTHLY')).toBe(PREMIUM_PRICES_CENTS.monthly)
-    // Em 2026: R$ 49,90. A partir de 01/01/2027 (Brasília): R$ 59,90.
-    const dentro = new Date('2026-12-31T23:59:00-03:00')
-    const depois = new Date('2027-01-01T00:00:00-03:00')
+    // Até 30/11/2026: R$ 49,90. A partir de 01/12/2026 (Brasília): R$ 59,90.
+    const dentro = new Date('2026-11-30T23:59:00-03:00')
+    const depois = new Date('2026-12-01T00:00:00-03:00')
     expect(addonPriceCents('premium', 'MONTHLY', null, dentro)).toBe(4990)
     expect(addonPriceCents('premium', 'SEMIANNUALLY', null, dentro)).toBe(23952)
     expect(addonPriceCents('premium', 'YEARLY', null, dentro)).toBe(38922)

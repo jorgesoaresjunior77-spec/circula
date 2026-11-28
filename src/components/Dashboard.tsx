@@ -72,6 +72,10 @@ import { HomeToday } from './HomeToday'
 import { sendToCarro } from '../lib/carro'
 import { HomeCommunityHeader } from './HomeCommunityHeader'
 import { cachedHeroPath, useCommunityCardImages } from '../hooks/useCommunityCardImages'
+import { MaternidadeContentPage, MaternidadePage } from './Maternidade'
+import { CasamentoPage } from './CasamentoPage'
+import { FluirPage } from './Fluir'
+import { HeroSantaHat, SnowGlobe, useHomeDecor } from './HomeDecor'
 import { heroImage } from '../lib/heroRotation'
 import { HomeGreeting } from './HomeGreeting'
 import { WeatherButton } from './WeatherButton'
@@ -196,7 +200,7 @@ interface DashboardProps {
 }
 
 // Telas internas abertas a partir de cards da Home: ganham botão "Voltar".
-const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas', 'rachei', 'cotacoes']
+const INNER_SCREENS: NavKey[] = ['agenda', 'agua', 'imc', 'planos', 'convite', 'playlist', 'tempo', 'relogio', 'antes-de-tudo', 'leitura', 'respiracao', 'wellness', 'lista', 'inspiracoes', 'jardim', 'eventos', 'loja', 'receitas', 'cardapio', 'exercicios', 'series', 'viagens', 'diario', 'circulos', 'cidade', 'feedback', 'carro', 'financas', 'rachei', 'cotacoes', 'maternidade', 'mom', 'baby', 'casamento', 'fluir']
 
 /** Destinos que são ferramentas pagas à parte (R$ 4,90 cada, ou no Premium): chave do plano e nome. */
 const TOOL_BY_NAV: Partial<Record<NavKey, [ToolKey, string]>> = {
@@ -210,6 +214,9 @@ const TOOL_BY_NAV: Partial<Record<NavKey, [ToolKey, string]>> = {
   jardim: ['jardim', 'Meu Jardim'],
   cidade: ['cidade', 'Na minha cidade'],
   cotacoes: ['cotacoes', 'Cotações'],
+  mom: ['mom', 'Mom'],
+  baby: ['baby', 'Baby'],
+  casamento: ['casamento', 'Casamento'],
 }
 
 export function Dashboard({
@@ -555,6 +562,12 @@ export function Dashboard({
     // Rachei $ (menu de conteúdos) e Cotações (faixa do fim da página): sem estar aqui, o toque voltava ao Início.
     navItems.push({ key: 'rachei', label: 'Rachei', Icon: WalletIcon, inBottomNav: false })
     navItems.push({ key: 'cotacoes', label: 'Cotações', Icon: WalletIcon, inBottomNav: false })
+    // Maternidade (Mom e Baby), Casamento e Fluir & Florescer: abertos pelos cards do Início.
+    navItems.push({ key: 'maternidade', label: 'Maternidade', Icon: HeartIcon, inBottomNav: false })
+    navItems.push({ key: 'mom', label: 'Mom', Icon: HeartIcon, inBottomNav: false })
+    navItems.push({ key: 'baby', label: 'Baby', Icon: HeartIcon, inBottomNav: false })
+    navItems.push({ key: 'casamento', label: 'Casamento', Icon: HeartIcon, inBottomNav: false })
+    navItems.push({ key: 'fluir', label: 'Fluir & Florescer', Icon: HeartIcon, inBottomNav: false })
     // Fase 13 — Loja acessível também à Member (antes só existia como
     // destino da anfitriã, dentro de canHostDestinations). Backend/RLS
     // e o componente já suportavam a Member comprar (ProductManager
@@ -623,6 +636,8 @@ export function Dashboard({
   // Enquanto a comunidade ainda carrega, usa a foto do topo da última visita:
   // a Home já abre no layout com capa, sem piscar o layout antigo (sem foto).
   const heroPath = heroImage(heroImages) ?? (loading ? cachedHeroPath() : null)
+  // Natal: gorro sobre a foto do topo e neve ao sacudir o celular (ajustes no Painel).
+  const { decor: homeDecor } = useHomeDecor(profile && profile.role !== 'master' ? (railCommunity?.id ?? null) : null)
   const { url: heroUrl } = useSignedImageUrl(heroPath)
 
   // A foto do topo começa no alto da página (atrás da barra de status e do logo), seja qual for o respiro acima do painel.
@@ -1327,6 +1342,22 @@ export function Dashboard({
       return <CotacoesPage />
     }
 
+    // Maternidade: a página com os cards Mom e Baby (a cobrança é de cada um, ao abrir).
+    if (effectiveNav === 'maternidade') {
+      return <MaternidadePage onNavigate={handleNavigate} momImage={heroImages.card_mom ?? null} babyImage={heroImages.card_baby ?? null} />
+    }
+    if (effectiveNav === 'mom' || effectiveNav === 'baby') {
+      return <MaternidadeContentPage kind={effectiveNav} />
+    }
+    // Casamento: avulso de R$ 11,90 (também no Premium); a trava fica em TOOL_BY_NAV.
+    if (effectiveNav === 'casamento') {
+      return <CasamentoPage />
+    }
+    // Fluir & Florescer: pacotes de emagrecimento, contratados pelo WhatsApp da nutricionista.
+    if (effectiveNav === 'fluir') {
+      return <FluirPage communityId={railCommunity?.id ?? null} />
+    }
+
     // Central de Ajuda — perguntas e respostas; a membro pode falar com a
     // nutricionista a partir dela.
     // FINANÇAS — receitas, gastos e investimentos da própria pessoa (RLS: só ela vê).
@@ -1689,9 +1720,11 @@ export function Dashboard({
   return (
     <section className={`dashboard${coverHero && heroUrl ? ' dashboard--hero' : ''}`}>
       <PaletteGrade />
+      <SnowGlobe enabled={homeDecor.snow_enabled && !!profile && profile.role !== 'master'} />
       {coverHero && heroUrl && (
         <div className="hero-bg" ref={heroBgRef} aria-hidden="true">
           <img src={heroUrl} alt="" decoding="async" />
+          <HeroSantaHat decor={homeDecor} />
         </div>
       )}
       <header className="dashboard-header">

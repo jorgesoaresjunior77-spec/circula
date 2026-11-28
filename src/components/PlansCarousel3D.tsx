@@ -12,11 +12,17 @@ import {
   Shape,
   ShapeGeometry,
   SRGBColorSpace,
+  TextureLoader,
+  PlaneGeometry,
   WebGLRenderer,
 } from 'three'
+import circulaIcone from '../assets/circula-icone-3d.webp'
 import type { BufferGeometry } from 'three'
 import { maxPixelRatio } from '../lib/deviceTier'
-import { STEP, ringAngle, slotPose } from '../lib/planCarousel'
+import { STEP, slotPose } from '../lib/planCarousel'
+
+/** Uma volta completa a cada 22 s, sem parar: movimento contínuo e natural. */
+const RING_SPEED = (Math.PI * 2) / 22
 
 // Carrossel 3D (Three.js) do card "Planos e Assinaturas": cinco cartões num anel que dá a volta completa.
 // Cada cartão é vazio e mostra só a imagem cadastrada no Painel (frente, Premium, Mensal, Semestre e Anual).
@@ -264,6 +270,19 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     const ring = new Group()
     scene.add(ring)
 
+    // Ícone do Círcula (só o símbolo) no meio do anel, atrás dos cartões da frente.
+    const iconGeo = new PlaneGeometry(1.7, 1.7)
+    const iconMat = new MeshBasicMaterial({ transparent: true, toneMapped: false, depthWrite: false })
+    const icon = new Mesh(iconGeo, iconMat)
+    icon.position.set(0, 0.15, -0.4)
+    scene.add(icon)
+    const iconTex = new TextureLoader().load(circulaIcone, () => {
+      if (reduced || !visible) draw(lastNow)
+    })
+    iconTex.colorSpace = SRGBColorSpace
+    iconTex.anisotropy = renderer.capabilities.getMaxAnisotropy()
+    iconMat.map = iconTex
+
     const faceShape = roundedShape(CARD_W, CARD_H, 0.13)
     const bodyGeo = new ExtrudeGeometry(faceShape, { depth: DEPTH, bevelEnabled: false, curveSegments: 10 })
     bodyGeo.translate(0, 0, -DEPTH / 2)
@@ -356,7 +375,9 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     function draw(now: number) {
       lastNow = now
       const t = reduced ? 0 : (now - t0) / 1000
-      const rot = ringAngle(t)
+      const rot = t * RING_SPEED
+      // o ícone acompanha a câmera de leve (respira), sem girar com o anel
+      icon.position.y = 0.15 + Math.sin(t * 0.9) * 0.04
       for (const c of cards) {
         const p = slotPose(c.spec.angle, rot, RADIUS)
         // O da frente cresce (zoom para a frente): a borda de cima fica no lugar (não sobe na Marluce)
@@ -437,6 +458,9 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       }
       bodyGeo.dispose()
       faceGeo.dispose()
+      iconGeo.dispose()
+      iconMat.dispose()
+      iconTex.dispose()
       bodyMat.dispose()
       renderer.dispose()
       renderer.forceContextLoss()

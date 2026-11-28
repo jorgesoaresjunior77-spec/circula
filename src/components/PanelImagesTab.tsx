@@ -7,6 +7,8 @@ import { CoverImageInput } from './CoverImageInput'
 import { CircleImagesManager } from './CircleImagesManager'
 import { PartnersManager } from './PartnersManager'
 import { CityImagesAdmin } from './CityImagesAdmin'
+import { FluirPackagesEditor } from './Fluir'
+import { HomeDecorManager } from './HomeDecor'
 
 // Painel → Imagens, organizado por SETOR e por LUGAR no app: o que a profissional procura é
 // "onde isso aparece", então cada bloco diz a tela e a parte (ex.: Início · Para você).
@@ -106,6 +108,30 @@ const SECTIONS: Section[] = [
       { key: 'banner_exercicios', label: 'Se exercite em casa', where: 'Card à esquerda, segunda linha de “Para você”.' },
       { key: 'banner_diario', label: 'Diário da Gratidão', where: 'Card à direita, segunda linha de “Para você”.' },
     ],
+  },
+  {
+    id: 'maternidade-casamento',
+    title: 'Início · Maternidade e Casamento',
+    summary: 'Os cards de Mom e Baby (dentro da página de Maternidade) e a capa do Casamento.',
+    note: 'A capa do Casamento aparece no Início dividida em 4 partes (com espaço entre elas). Prefira uma foto 16:9 com o assunto espalhado pela imagem.',
+    slots: [
+      { key: 'card_mom', label: 'Card Mom', where: 'Página Maternidade, card da esquerda.' },
+      { key: 'card_baby', label: 'Card Baby', where: 'Página Maternidade, card da direita.' },
+      { key: 'casamento_capa', label: 'Capa do Casamento (16:9)', where: 'Início, logo abaixo da Maternidade.' },
+    ],
+  },
+  {
+    id: 'fluir',
+    title: 'Início · Fluir & Florescer (pacotes de emagrecimento)',
+    summary: 'Os 3 cards que giram: frente, verso e o texto de cada pacote.',
+    note: 'Não é vendido no app: o botão “Saiba mais” leva ao WhatsApp da nutricionista.',
+    extra: ({ communityId, profileId }) => <FluirPackagesEditor communityId={communityId} profileId={profileId} />,
+  },
+  {
+    id: 'natal',
+    title: 'Início · Natal (gorro e neve)',
+    summary: 'O gorro de Papai Noel sobre o ícone na mão da Marluce, na foto do topo, e a neve ao sacudir o celular.',
+    extra: ({ communityId }) => <HomeDecorManager communityId={communityId} />,
   },
   {
     id: 'fim',

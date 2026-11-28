@@ -84,7 +84,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['.home-time'],
     title: 'Agenda e relógio',
-    text: 'Toque na agenda para anotar compromissos e lembretes e ver os feriados (Carnaval e Corpus Christi aparecem como ponto facultativo). Toque no relógio, com a data embaixo, para ver a hora e o clima em qualquer lugar do mundo.',
+    text: 'Toque na agenda para anotar compromissos e lembretes e ver os feriados (Carnaval e Corpus Christi aparecem como ponto facultativo). Toque no relógio, com a data embaixo, para ver a hora e o clima em qualquer lugar do mundo. Lá em cima, escolha o seu relógio: o clássico, o rosé digital (estilo Apple Watch) ou o suíço em prata e ouro. A data muda junto.',
   },
   {
     targets: ['.circ-strip'],
@@ -143,6 +143,27 @@ export const TOUR_STEPS: TourStep[] = [
     optional: true,
     gesture: 'tap',
   },
+  {
+    targets: ['.home-mat'],
+    title: 'Mom & Baby',
+    text: 'Toque no desenho para abrir a Maternidade. Mom é o tira-dúvidas do bebê de 0 a 2 anos (crescimento, alimentação, sono, vacinas e cuidados com a mamãe). Baby acompanha a gestação semana a semana, com o tamanho do bebê, os exames e um diário. Cada um é um avulso de R$ 9,80 ou vem no Premium.',
+    optional: true,
+    gesture: 'tap',
+    },
+  {
+    targets: ['.home-cas'],
+    title: 'Casamento',
+    text: 'Organize o seu casamento: convidados (com confirmação de presença por link no WhatsApp), lista de presentes que os convidados reservam sem login, orçamento, fornecedores e um checklist com prazos. Tudo fica na sua conta, sem precisar cadastrar o seu par. Avulso de R$ 11,90 ou no Premium.',
+    optional: true,
+    gesture: 'tap',
+    },
+  {
+    targets: ['.home-fluir'],
+    title: 'Fluir & Florescer',
+    text: 'Os pacotes de emagrecimento da nutricionista. Toque em um card para ver a descrição, o valor e as formas de pagamento, e em Saiba mais para falar com ela no WhatsApp. Quem contrata um plano de emagrecimento tem o Círcula 100% grátis.',
+    optional: true,
+    gesture: 'tap',
+    },
   {
     targets: ['.home-plans-wrap'],
     title: 'Planos e assinaturas',

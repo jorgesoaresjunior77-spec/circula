@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { CapsuleGeometry, CylinderGeometry, ExtrudeGeometry, Group, Mesh, MeshPhysicalMaterial, Path, Shape, SphereGeometry } from 'three'
 import { mountScene } from '../lib/scene3d'
 import { clockAngles, timeParts } from './AnalogClock'
+import { buildRoseDigital, buildSwiss } from './clock3dVariants'
+import type { ClockStyle } from '../lib/clockStyle'
 
 // Relógio da Home em 3D, no formato de um Apple Watch: caixa quadrada de cantos arredondados, com bisel
 // e coroa lateral, e por dentro só os ponteiros (sem números nem marcações). O conjunto balança de leve e
@@ -9,6 +11,8 @@ import { clockAngles, timeParts } from './AnalogClock'
 
 interface Props {
   onFail?: () => void
+  /** Modelo: clássico (padrão), rosé digital ou suíço. */
+  variant?: ClockStyle
 }
 
 const DEG = Math.PI / 180
@@ -33,7 +37,7 @@ function roundedRect(w: number, h: number, r: number, path: Shape | Path = new S
   return path
 }
 
-export default function Clock3D({ onFail }: Props) {
+export default function Clock3D({ onFail, variant = 'classico' }: Props) {
   const hostRef = useRef<HTMLSpanElement>(null)
   const failRef = useRef(onFail)
   useEffect(() => {
@@ -58,6 +62,41 @@ export default function Clock3D({ onFail }: Props) {
 
         const watch = new Group()
         scene.add(watch)
+
+        // Rosé digital e suíço: outro corpo, o mesmo balanço e a mesma inclinação pelo dedo.
+        if (variant !== 'classico') {
+          const tick = variant === 'rose' ? buildRoseDigital(watch, track) : buildSwiss(watch, track)
+          const move = (e: PointerEvent) => {
+            if (reduced) return
+            const box = area.getBoundingClientRect()
+            tilt.tx = Math.max(-1, Math.min(1, (e.clientX - (box.left + box.width / 2)) / (box.width / 2))) * 0.26
+            tilt.ty = Math.max(-1, Math.min(1, (e.clientY - (box.top + box.height / 2)) / (box.height / 2))) * 0.26
+          }
+          const leave = () => {
+            tilt.tx = 0
+            tilt.ty = 0
+          }
+          area.addEventListener('pointermove', move)
+          area.addEventListener('pointerleave', leave)
+          area.addEventListener('pointercancel', leave)
+          return {
+            update: (t, dt) => {
+              const nowMs = Date.now()
+              const p = timeParts(new Date(nowMs))
+              tick(p.h, variant === 'suico' ? p.m + p.s / 60 : p.m)
+              const k = 1 - Math.exp(-dt * 6)
+              tilt.x += (tilt.tx - tilt.x) * k
+              tilt.y += (tilt.ty - tilt.y) * k
+              watch.rotation.x = tilt.y + Math.sin(t * 0.45) * 0.05 + 0.06
+              watch.rotation.y = tilt.x + Math.sin(t * 0.6) * 0.12 - 0.1
+            },
+            dispose: () => {
+              area.removeEventListener('pointermove', move)
+              area.removeEventListener('pointerleave', leave)
+              area.removeEventListener('pointercancel', leave)
+            },
+          }
+        }
 
         // caixa (moldura com bisel) e tela escura por dentro
         const frame = roundedRect(W, H, R) as Shape
@@ -148,7 +187,7 @@ export default function Clock3D({ onFail }: Props) {
       },
       () => failRef.current?.(),
     )
-  }, [])
+  }, [variant])
 
   return <span ref={hostRef} className="clock3d" aria-hidden="true" />
 }

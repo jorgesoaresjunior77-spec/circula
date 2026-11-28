@@ -81,6 +81,9 @@ export type CommunityCardKey =
   | 'hero_4'
   | 'hero_5'
   | 'hero_6'
+  | 'casamento_capa'
+  | 'card_mom'
+  | 'card_baby'
 
 export interface CommunityCardMeta {
   key: CommunityCardKey
@@ -256,6 +259,7 @@ export function cardImageSpec(key: CommunityCardKey): CardImageSpec {
       return SPEC_PLANS
     case 'banner_cardapio':
     case 'banner_exercicios':
+    case 'casamento_capa':
       return SPEC_BANNER
     case 'loja_fundo':
     case 'banner_series':

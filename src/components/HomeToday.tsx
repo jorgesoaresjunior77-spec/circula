@@ -36,6 +36,9 @@ import { HomeGroupTitle } from './HomeGroupTitle'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
 import { HomeMenuWheel } from './HomeMenuWheel'
 import { useCarroHome } from '../lib/carro'
+import { HomeMaternidadeBanner } from './Maternidade'
+import { HomeCasamentoBanner } from './HomeCasamentoBanner'
+import { HomeFluirCards, requestFluirPackage } from './Fluir'
 
 // FASE 2 · ITEM 2 — "Seu Círcula de hoje"
 //
@@ -211,6 +214,8 @@ export function HomeToday({
   const { url: cidadeCover } = useSignedImageUrl(cardImagePaths.banner_cidade ?? null)
   // Imagem do fim da página (guardada sob a chave 'banner_series', que não tinha mais uso).
   const { url: fimCover } = useSignedImageUrl(cardImagePaths.banner_series ?? null)
+  // Capa do Casamento (16:9), mostrada em 4 pedaços no Início.
+  const { url: casamentoCover } = useSignedImageUrl(cardImagePaths.casamento_capa ?? null)
   const { city: myCity } = useMyCity()
   const cityBadge = useCityBadge(profile.id, profile.role === 'master' || profile.role === 'professional', !!myCity)
   const { url: magazineOffice } = useSignedImageUrl(cardImagePaths.revista_escritorio ?? null)
@@ -437,6 +442,23 @@ export function HomeToday({
           onOpen={() => onNavigate('diario')}
         />
       </div>
+
+      {/* Maternidade: linha, um respiro e a faixa desenhada de ponta a ponta (abre Mom e Baby). */}
+      <hr className="home-section-divider home-section-divider--mat" />
+      <HomeMaternidadeBanner onOpen={() => onNavigate('maternidade')} />
+
+      {/* Casamento: a capa cadastrada no Painel, dividida em 4 pedaços. */}
+      <HomeGroupTitle>Casamento</HomeGroupTitle>
+      <HomeCasamentoBanner image={casamentoCover} onOpen={() => onNavigate('casamento')} />
+
+      {/* Fluir & Florescer: os 3 pacotes de emagrecimento (Saiba mais pelo WhatsApp). */}
+      <HomeFluirCards
+        communityId={focusCommunity.id}
+        onOpen={(position) => {
+          requestFluirPackage(position)
+          onNavigate('fluir')
+        }}
+      />
 
       <hr className="home-section-divider" />
 

@@ -47,6 +47,11 @@ export type NavKey =
   | 'financas'
   | 'rachei'
   | 'cotacoes'
+  | 'maternidade'
+  | 'mom'
+  | 'baby'
+  | 'casamento'
+  | 'fluir'
 
 export interface NavItem {
   key: NavKey

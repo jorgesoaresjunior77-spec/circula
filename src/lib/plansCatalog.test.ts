@@ -30,13 +30,13 @@ describe('plansCatalog', () => {
     expect(by.rachei).toBe(490)
   })
   it('o Premium sai mais barato que a soma de tudo separado', () => {
-    // 13580 até 26/11; + 11 ferramentas de R$ 4,90 (27/11) = 18970
-    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(18970)
+    // 13580 até 26/11; + 11 ferramentas de R$ 4,90 (27/11) = 18970; + Mom e Baby (R$ 9,80) e Casamento (R$ 11,90) = 22120
+    expect(PREMIUM_SEPARATE_MONTHLY_CENTS).toBe(22120)
     expect(PREMIUM_MONTHLY_CENTS).toBeLessThan(PREMIUM_SEPARATE_MONTHLY_CENTS)
   })
-  it('Premium: R$ 49,90 até 31/12/2026 e R$ 59,90 depois, com 20% e 35% no semestral e no anual', () => {
-    const dentro = new Date('2026-12-31T23:59:00-03:00')
-    const depois = new Date('2027-01-01T00:00:00-03:00')
+  it('Premium: R$ 49,90 até 30/11/2026 e R$ 59,90 depois, com 20% e 35% no semestral e no anual', () => {
+    const dentro = new Date('2026-11-30T23:59:00-03:00')
+    const depois = new Date('2026-12-01T00:00:00-03:00')
     expect(isPremiumPromo(dentro)).toBe(true)
     expect(isPremiumPromo(depois)).toBe(false)
     expect(premiumPricesAt(dentro)).toEqual({ monthly: 4990, semiannual: Math.round(4990 * 6 * 0.8), annual: Math.round(4990 * 12 * 0.65) })

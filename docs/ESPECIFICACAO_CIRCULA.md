@@ -2316,3 +2316,12 @@ A validação visual manual em navegador da aba "Publicar incentivo" (seleção 
 ### Sem alteração de Supabase, banco, migrations, RLS ou autenticação nesta etapa. Sem commit, sem push, sem deploy.
 
 ### Sem alteração de policy, sem migration, sem commit, sem push.
+
+## Rodada 2026-11-27 (madrugada) — Maternidade, Casamento, Fluir & Florescer, relógios 3D e Natal
+
+- **Maternidade (Mom & Baby):** faixa desenhada no Início (de ponta a ponta, abaixo de "Se exercite"/"Diário") abre a página com os cards Mom e Baby. Conteúdo pronto em `public/maternidade/mom.html` (tira-dúvidas do bebê de 0 a 2 anos, respostas fixas escritas à mão, sem IA) e `public/maternidade/baby.html` (gestação semana a semana). Avulsos de R$ 9,80 cada, também no Premium.
+- **Casamento:** capa 16:9 do Painel (`casamento_capa`) mostrada em 4 pedaços. Módulo `CasamentoPage` com Resumo, Convidados (busca, filtros, CSV), Presentes, Orçamento, Fornecedores, Checklist (20 tarefas automáticas). Tudo fica na conta da noiva: o par não tem conta nem acesso (o cadastro continua só para mulheres; a RPC `join_wedding` segue no banco, sem uso no app). Páginas abertas sem login: `?rsvp=<token>` e `?presentes=<token>` (RPCs `public_*`, só com o token). Avulso de R$ 11,90, também no Premium. Migration `20261229120000_mom_baby_casamento_fluir.sql` (aplicada).
+- **Fluir & Florescer:** 3 cards que giram (frente e verso do Painel, tabela `fluir_packages`), página com logo, descrição, valor, pagamento, dúvidas e "Saiba mais" pelo WhatsApp da nutricionista (51 98032-7288). Não é vendido no app. Aviso: quem contrata um plano de emagrecimento tem o Círcula 100% grátis.
+- **Premium:** R$ 49,90 até 30/11/2026; R$ 59,90 a partir de 01/12/2026 (app e servidor).
+- **Relógio:** 3 modelos em 3D (clássico, rosé digital, suíço prata e ouro), escolhidos no Relógio do mundo.
+- **Natal (15/11 a 06/01):** gorro 3D sobre a foto do topo (posição no Painel, tabela `home_decor`) e neve ao sacudir o celular.

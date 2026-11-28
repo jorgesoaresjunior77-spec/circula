@@ -154,13 +154,13 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ap-2',
         q: 'Quanto custa o Círcula Premium?',
-        a: 'Preço de lançamento: R$ 49,90 por mês para quem assinar até 31/12/2026 às 23:59:59. A partir de 01/01/2027, R$ 59,90 por mês. No semestral e no anual sai ainda mais em conta: com o preço de lançamento, R$ 239,52 por 6 meses (20% a menos) e R$ 389,22 por 12 meses (35% a menos).',
+        a: 'Preço de lançamento: R$ 49,90 por mês para quem assinar até 30/11/2026 às 23:59:59. A partir de 01/12/2026, R$ 59,90 por mês. No semestral e no anual sai ainda mais em conta: com o preço de lançamento, R$ 239,52 por 6 meses (20% a menos) e R$ 389,22 por 12 meses (35% a menos).',
         k: 'premium preço 49,90 59,90 lançamento valor',
       },
       {
         id: 'ap-3',
         q: 'O que são os avulsos e quanto custam?',
-        a: 'São os conteúdos e as ferramentas que você assina um a um, além do Círcula. Conteúdos como Revista, Receitas, Loja, Help Nutri e Finanças têm o seu valor na página Planos. As ferramentas do dia a dia (Antes de Tudo, Água, IMC, Calculadora, Agenda, Relógio do mundo, Previsão do tempo, Diário da Gratidão, Meu Jardim, Na minha cidade e Cotações) custam R$ 4,90 por mês cada. Todos têm desconto no semestral (16%) e no anual (33%), e todos vêm juntos no Premium.',
+        a: 'São os conteúdos e as ferramentas que você assina um a um, além do Círcula. Conteúdos como Revista, Receitas, Loja, Help Nutri e Finanças têm o seu valor na página Planos. As ferramentas do dia a dia (Antes de Tudo, Água, IMC, Calculadora, Agenda, Relógio do mundo, Previsão do tempo, Diário da Gratidão, Meu Jardim, Na minha cidade e Cotações) custam R$ 4,90 por mês cada. Mom e Baby (Maternidade) custam R$ 9,80 por mês cada, e o Casamento R$ 11,90. Todos têm desconto no semestral (16%) e no anual (33%), e todos vêm juntos no Premium.',
         k: 'avulso ferramenta 4,90 calculadora agua imc agenda relógio previsão diário jardim cidade cotações',
       },
       {
@@ -748,6 +748,48 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     title: 'Mais recursos do Círcula',
     description: 'Listas, viagens, séries, diário, previsão e muito mais.',
     items: [
+      {
+        id: 'mr-mom',
+        q: 'O que é o Mom?',
+        a: 'O Mom é o tira-dúvidas do bebê de 0 a 2 anos, na Maternidade (toque no desenho da cegonha na página inicial). Escolha a idade do bebê e veja o que esperar nesta fase e a próxima vacina, ou pergunte com as suas palavras: são dezenas de respostas prontas sobre crescimento, alimentação, doenças, vacinas, cuidados, sono e choro, e cuidados com a mamãe. É informação educativa e não substitui o pediatra. Em emergência, ligue SAMU 192. Avulso de R$ 9,80 por mês (ou no Premium).',
+        k: 'mom bebê maternidade pediatra vacina papinha febre cólica sono amamentar mamãe',
+      },
+      {
+        id: 'mr-baby',
+        q: 'O que é o Baby?',
+        a: 'O Baby acompanha a gestação semana a semana, na Maternidade. Informe a data da última menstruação ou a data provável do parto e veja em que semana você está, o tamanho do bebê (comparado a uma fruta), o que muda no bebê e em você, a dica da semana, os exames de cada fase e um diário que fica só no seu aparelho. Não substitui o pré-natal. Avulso de R$ 9,80 por mês (ou no Premium).',
+        k: 'baby gestação gravidez semana a semana pré-natal grávida bebê barriga parto',
+      },
+      {
+        id: 'mr-casamento',
+        q: 'Como funciona o Casamento?',
+        a: 'Toque na capa do Casamento na página inicial e crie o seu casamento com os nomes, a data, o local e o orçamento. Você tem: Resumo (dias que faltam, confirmados, orçamento e checklist), Convidados (com busca, filtros e importação/exportação em CSV), Presentes, Orçamento, Fornecedores e Checklist (20 tarefas típicas já prontas, com prazo calculado pela data). Tudo fica na sua conta: o seu par não precisa de cadastro no Círcula. Avulso de R$ 11,90 por mês (ou no Premium).',
+        k: 'casamento noiva noivo convidados presentes orçamento fornecedores checklist',
+      },
+      {
+        id: 'mr-casamento-links',
+        q: 'Como os convidados confirmam presença e escolhem o presente?',
+        a: 'Em Convidados, toque em Convite: se o convidado tiver telefone, abre o WhatsApp com o link de confirmação dele; se não, o link é copiado. O convidado abre o link, sem precisar de conta, e responde se vai, com quantos acompanhantes e se tem restrição alimentar. Em Presentes, toque em Copiar link da lista: quem abrir vê os presentes disponíveis e reserva um, com o nome. Na sua lista, o presente aparece como reservado, com quem deu.',
+        k: 'rsvp confirmar presença convite link lista de presentes reservar whatsapp',
+      },
+      {
+        id: 'mr-fluir',
+        q: 'O que são os cards do Fluir & Florescer?',
+        a: 'São os pacotes de emagrecimento da nutricionista Marluce. Toque em um card para ver a descrição, o valor, as formas de pagamento e as dúvidas. Eles não são vendidos no app: o botão Saiba mais abre o WhatsApp da nutricionista. Quem contrata um plano de emagrecimento tem o Círcula app 100% grátis.',
+        k: 'fluir florescer emagrecimento pacote plano nutricionista whatsapp grátis',
+      },
+      {
+        id: 'mr-relogio-modelos',
+        q: 'Como trocar o modelo do relógio da página inicial?',
+        a: 'Toque no relógio da página inicial para abrir o Relógio do mundo. No alto, em Seu relógio na página inicial, escolha entre o clássico, o rosé digital (estilo Apple Watch, com a hora em cima e os minutos embaixo) e o suíço de ponteiros, em prata e ouro. A data embaixo do relógio muda de fonte e cor junto. A escolha fica guardada no aparelho.',
+        k: 'relógio modelo trocar rosé digital suíço apple watch',
+      },
+      {
+        id: 'mr-neve',
+        q: 'Por que caiu neve na tela?',
+        a: 'É o Natal no Círcula: de 15 de novembro a 6 de janeiro, quando você sacode ou movimenta o celular, cai uma neve leve pela tela, como num globo de neve. No iPhone, o app pede permissão para usar o movimento do aparelho no primeiro toque.',
+        k: 'neve natal sacudir celular movimento papai noel gorro',
+      },
       {
         id: 'mr-cotacoes',
         q: 'O que são as Cotações no fim da página inicial?',

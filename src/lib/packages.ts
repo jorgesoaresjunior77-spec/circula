@@ -33,6 +33,9 @@ export type PackageKey =
   | 'jardim'
   | 'cidade'
   | 'cotacoes'
+  | 'mom'
+  | 'baby'
+  | 'casamento'
 
 export const PACKAGE_KEYS: PackageKey[] = [
   'help_nutri',
@@ -63,6 +66,9 @@ export const PACKAGE_KEYS: PackageKey[] = [
   'jardim',
   'cidade',
   'cotacoes',
+  'mom',
+  'baby',
+  'casamento',
   'premium',
   'total',
 ]
@@ -98,6 +104,9 @@ export const PACKAGE_LABEL: Record<PackageKey, string> = {
   jardim: 'Meu Jardim',
   cidade: 'Na minha cidade',
   cotacoes: 'Cotações',
+  mom: 'Mom',
+  baby: 'Baby',
+  casamento: 'Casamento',
 }
 
 export const PACKAGE_HINT: Record<PackageKey, string> = {
@@ -131,6 +140,9 @@ export const PACKAGE_HINT: Record<PackageKey, string> = {
   jardim: 'Pode usar o Meu Jardim.',
   cidade: 'Pode usar o Na minha cidade.',
   cotacoes: 'Pode ver o crescimento das moedas (Cotações).',
+  mom: 'Pode usar o Mom (tira-dúvidas do bebê).',
+  baby: 'Pode usar o Baby (gestação semana a semana).',
+  casamento: 'Pode organizar o casamento (convidados, presentes, orçamento, fornecedores e checklist).',
 }
 
 type Owned = ReadonlySet<string> | readonly string[]
@@ -215,7 +227,7 @@ export function canUseRachei(owned: Owned): boolean {
 }
 
 /** Ferramentas que eram do plano básico e viraram avulso de R$ 4,90 (2026-11-27). */
-export type ToolKey = 'antes_de_tudo' | 'agua' | 'imc' | 'calculadora' | 'agenda' | 'relogio' | 'previsao' | 'diario' | 'jardim' | 'cidade' | 'cotacoes'
+export type ToolKey = 'antes_de_tudo' | 'agua' | 'imc' | 'calculadora' | 'agenda' | 'relogio' | 'previsao' | 'diario' | 'jardim' | 'cidade' | 'cotacoes' | 'mom' | 'baby' | 'casamento'
 
 /** Pode usar a ferramenta: o avulso dela ou o Círcula Premium (que inclui todas). */
 export function canUseTool(owned: Owned, key: ToolKey): boolean {

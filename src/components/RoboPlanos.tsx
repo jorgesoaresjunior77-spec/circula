@@ -201,7 +201,7 @@ export function LiviPorQue({
   separadoMensalCents: number
   /** Quantos conteúdos e ferramentas o Premium junta. */
   totalItens: number
-  /** Ainda no preço de lançamento (até 31/12/2026). */
+  /** Ainda no preço de lançamento (até 30/11/2026). */
   promo: boolean
 }) {
   const offMensal = Math.round((1 - premium.monthly / separadoMensalCents) * 100)
@@ -222,7 +222,7 @@ export function LiviPorQue({
           Porque ele junta o Círcula e os {totalItens} conteúdos e ferramentas numa assinatura só. Separado, tudo custaria{' '}
           <strong>{formatBrl(separadoMensalCents)}</strong> por mês; no Premium sai por <strong>{formatBrl(premium.monthly)}</strong>, {offMensal}% a
           menos. Você não precisa escolher o que assinar nem pagar cada um: está tudo liberado.
-          {promo && <> Assinando até 31/12/2026, você garante o preço de lançamento.</>}
+          {promo && <> Assinando até 30/11/2026, você garante o preço de lançamento.</>}
         </p>
       </details>
       <details>

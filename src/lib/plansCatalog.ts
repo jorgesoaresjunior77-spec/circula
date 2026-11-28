@@ -3,7 +3,7 @@
 // Descontos confirmados pelo usuário em 2026-11-07 (avulsos 16%/33%,
 // pacote completo 20%/35%). Em 2026-11-17 entraram os avulsos de Respiração,
 // Playlist (R$ 5,80) e Wellness (R$ 4,50) e o "Círcula Premium", que junta
-// tudo com desconto (lançamento: R$ 49,90 por mês até 31/12/2026; R$ 59,90 a partir de 01/01/2027 —
+// tudo com desconto (lançamento: R$ 49,90 por mês até 30/11/2026; R$ 59,90 a partir de 01/12/2026 —
 // ver PREMIUM_PROMO_ENDS_AT). O mesmo catálogo existe no servidor
 // (supabase/functions/_shared/addonPlans.ts): o servidor nunca confia no
 // preço que vem do navegador.
@@ -49,6 +49,9 @@ export type ProductKey =
   | 'jardim'
   | 'cidade'
   | 'cotacoes'
+  | 'mom'
+  | 'baby'
+  | 'casamento'
 
 export interface CatalogProduct {
   key: ProductKey
@@ -132,6 +135,10 @@ export const PRODUCTS: CatalogProduct[] = [
   { key: 'jardim', name: 'Meu Jardim', description: 'Sua evolução e os desafios da comunidade, num jardim que cresce com você.', monthlyCents: 490 },
   { key: 'cidade', name: 'Na minha cidade', description: 'Lugares, eventos e profissionais de confiança da sua cidade.', monthlyCents: 490 },
   { key: 'cotacoes', name: 'Cotações', description: 'O crescimento do Dólar, do Euro, do Bitcoin e do Ethereum, com gráfico de cada um.', monthlyCents: 490 },
+  // Maternidade e Casamento (pedido de 2026-11-27): avulsos próprios, também no Premium.
+  { key: 'mom', name: 'Mom', description: 'Tira-dúvidas do bebê de 0 a 2 anos: crescimento, alimentação, sono, vacinas e cuidados com a mamãe.', monthlyCents: 980 },
+  { key: 'baby', name: 'Baby', description: 'A gestação semana a semana: o tamanho do bebê, o que muda em você, exames e um diário.', monthlyCents: 980 },
+  { key: 'casamento', name: 'Casamento', description: 'Organize o casamento: convidados, confirmação de presença, presentes, orçamento, fornecedores e checklist.', monthlyCents: 1190 },
 ]
 
 /** Preços editados pelo Master (tabela product_price_overrides): troca o valor mensal em memória. */
@@ -175,10 +182,10 @@ export const PREMIUM_SEPARATE_MONTHLY_CENTS =
   CIRCULA_MONTHLY_CENTS + PRODUCTS.reduce((sum, p) => sum + p.monthlyCents, 0)
 
 /** Círcula Premium: o Círcula e todos os conteúdos juntos, com desconto.
- *  Preço de lançamento: R$ 49,90 por mês para quem assina até 31/12/2026 (horário de Brasília);
- *  a partir de 01/01/2027, R$ 59,90. Semestral 20% e anual 35% de economia sobre o mensal de cada fase.
+ *  Preço de lançamento: R$ 49,90 por mês para quem assina até 30/11/2026 (horário de Brasília);
+ *  a partir de 01/12/2026, R$ 59,90 (pedido de 2026-11-27). Semestral 20% e anual 35% de economia sobre o mensal de cada fase.
  *  Espelha supabase/functions/_shared/addonPlans.ts (o servidor é quem cobra). */
-export const PREMIUM_PROMO_ENDS_AT = '2027-01-01T00:00:00-03:00'
+export const PREMIUM_PROMO_ENDS_AT = '2026-12-01T00:00:00-03:00'
 export const PREMIUM_PROMO_PRICES_CENTS: Record<PlanCycle, number> = { monthly: 4990, semiannual: 23952, annual: 38922 }
 export const PREMIUM_REGULAR_PRICES_CENTS: Record<PlanCycle, number> = { monthly: 5990, semiannual: 28752, annual: 46722 }
 

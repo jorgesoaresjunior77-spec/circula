@@ -170,16 +170,26 @@ export function AnalogClock() {
             transition={{ duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
           />
         )}
-        <div className={`home-clock-3d${failed || clockStyle !== 'classico' ? '' : ' home-clock-3d--gl'}`} ref={tiltRef}>
-          {clockStyle === 'rose' ? (
+        <div className={`home-clock-3d${failed ? '' : ' home-clock-3d--gl'}`} ref={tiltRef}>
+          {failed && clockStyle === 'rose' ? (
             <RoseDigitalFace h={h} m={m} className="clock-layer clock-layer--face cface" />
-          ) : clockStyle === 'suico' ? (
+          ) : failed && clockStyle === 'suico' ? (
             <SwissFace h={h} m={m} className="clock-layer clock-layer--face cface" />
           ) : failed ? (
             flat
           ) : (
-            <Suspense fallback={flat}>
-              <Clock3D onFail={() => setFailed(true)} />
+            <Suspense
+              fallback={
+                clockStyle === 'rose' ? (
+                  <RoseDigitalFace h={h} m={m} className="clock-layer clock-layer--face cface" />
+                ) : clockStyle === 'suico' ? (
+                  <SwissFace h={h} m={m} className="clock-layer clock-layer--face cface" />
+                ) : (
+                  flat
+                )
+              }
+            >
+              <Clock3D key={clockStyle} variant={clockStyle} onFail={() => setFailed(true)} />
             </Suspense>
           )}
         </div>

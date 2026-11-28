@@ -45,6 +45,7 @@ const GROUPS = [
   { title: 'Serviços', keys: ['carro', 'financas', 'rachei', 'help_nutri'] },
   { title: 'Conteúdos', keys: ['magazine', 'ebooks', 'receitas', 'leitura', 'series_filmes', 'viagens'] },
   { title: 'Bem-estar', keys: ['respiracao', 'playlist', 'wellness', 'exercicios'] },
+  { title: 'Maternidade e Casamento', keys: ['mom', 'baby', 'casamento'] },
   { title: 'Cozinha e compras', keys: ['meu_chef', 'minha_lista', 'lista_inteligente'] },
   {
     title: 'Ferramentas do dia a dia',
@@ -338,7 +339,7 @@ export function PlansPage({
         </div>
         {isPremiumPromo() && (
           <p className="plans-promo" role="note">
-            <strong>Preço de lançamento:</strong> o Premium custa {formatBrl(PREMIUM_PRICES_CENTS.monthly)} por mês para quem assinar até 31/12/2026. A partir de 01/01/2027, passa a {formatBrl(PREMIUM_REGULAR_PRICES_CENTS.monthly)}.
+            <strong>Preço de lançamento:</strong> o Premium custa {formatBrl(PREMIUM_PRICES_CENTS.monthly)} por mês para quem assinar até 30/11/2026. A partir de 01/12/2026, passa a {formatBrl(PREMIUM_REGULAR_PRICES_CENTS.monthly)}.
           </p>
         )}
       </section>
@@ -452,7 +453,7 @@ export function PlansPage({
                 </p>
                 {isPremiumPromo() && (
                   <p className="plans-text">
-                    <strong>Preço de lançamento:</strong> {formatBrl(PREMIUM_PRICES_CENTS.monthly)} por mês para quem assinar até 31/12/2026. A partir de 01/01/2027, o Premium passa a {formatBrl(PREMIUM_REGULAR_PRICES_CENTS.monthly)} por mês.
+                    <strong>Preço de lançamento:</strong> {formatBrl(PREMIUM_PRICES_CENTS.monthly)} por mês para quem assinar até 30/11/2026. A partir de 01/12/2026, o Premium passa a {formatBrl(PREMIUM_REGULAR_PRICES_CENTS.monthly)} por mês.
                   </p>
                 )}
                 {referralDiscount && (

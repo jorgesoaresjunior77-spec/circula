@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mom · Círcula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF6F3;--rose:#E5677D;--rose-d:#B8405A;--rose-l:#FFE3E8;--sage:#6FAE92;--sage-l:#E3F2EA;--sun:#FFE9B8;--ink:#3A2E33;--mute:#8A7880;--card:#fff;--line:#F2DCE0;--red:#D93B3B;--red-l:#FFE8E6;--amb:#B9770E;--amb-l:#FFF3D6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Nunito',system-ui,sans-serif;background:#EBD9DD;color:var(--ink);display:flex;justify-content:center;align-items:center;-webkit-font-smoothing:antialiased}
+.phone{position:relative;width:min(100%,420px);height:min(100dvh,860px);background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:520px){.phone{border-radius:34px;box-shadow:0 20px 60px rgba(120,60,80,.25);border:8px solid #fff}}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+/* HOME */
+.home{flex:1;overflow-y:auto;padding:20px 18px 110px}
+.hi{font-size:22px;font-weight:800}.hi small{display:block;font-size:13px;font-weight:600;color:var(--mute);margin-bottom:2px}
+.baby{margin-top:16px;background:linear-gradient(135deg,#FFD6DE,#FFE9D6);border-radius:22px;padding:16px}
+.baby-top{display:flex;align-items:center;justify-content:space-between}
+.baby h3{font-size:15px;font-weight:800}
+.stepper{display:flex;align-items:center;gap:8px;background:#fff;border-radius:99px;padding:4px}
+.stepper button{width:30px;height:30px;border-radius:50%;background:var(--rose-l);font-weight:800;color:var(--rose-d);font-size:18px;line-height:1}
+.stepper span{min-width:96px;text-align:center;font-weight:800;font-size:14px}
+.mini{margin-top:12px;display:grid;gap:8px}
+.mini div{background:rgba(255,255,255,.75);border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.35}
+.mini b{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--rose-d);margin-bottom:2px}
+h4.sec{margin:22px 0 10px;font-size:15px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--card);border-radius:18px;padding:14px 6px;text-align:center;font-size:12.5px;font-weight:700;box-shadow:0 2px 8px rgba(180,90,110,.08);border:1px solid var(--line)}
+.tile i{display:block;font-style:normal;font-size:26px;margin-bottom:4px}
+.pop{display:grid;gap:8px}
+.pop button{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.pop button::after{content:'›';color:var(--rose)}
+.foot{margin-top:22px;font-size:12px;color:var(--mute);text-align:center;line-height:1.6}
+.foot button{color:var(--rose-d);text-decoration:underline;font-weight:700;font-size:12px}
+.fab{position:absolute;right:16px;bottom:18px;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--rose),#F08A6E);color:#fff;font-weight:800;font-size:16px;padding:10px 18px 10px 10px;border-radius:99px;box-shadow:0 8px 22px rgba(229,103,125,.5);animation:pulse 2.4s infinite;z-index:5}
+.fab .av{width:38px;height:38px;background:#fff;border-radius:50%;display:grid;place-items:center}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+/* CHAT */
+.chat{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;transform:translateY(102%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:10}
+.chat.open{transform:none}
+.ch{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--line)}
+.ch .av{width:42px;height:42px;border-radius:50%;background:var(--rose-l);display:grid;place-items:center;flex:none}
+.ch .t{flex:1;min-width:0}.ch .t b{font-size:16px;font-weight:800;display:block}.ch .t span{font-size:12px;color:var(--sage);font-weight:700}
+.ch select{font:inherit;font-size:12.5px;font-weight:800;border:1px solid var(--line);background:var(--rose-l);color:var(--rose-d);border-radius:99px;padding:6px 8px}
+.ch .x{width:34px;height:34px;border-radius:50%;background:#F6EEF0;font-size:16px}
+.sos{background:var(--red-l);color:var(--red);font-size:12px;font-weight:800;text-align:center;padding:5px}
+.msgs{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:8px;align-items:flex-end;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.row.me{justify-content:flex-end}
+.row .av{width:30px;height:30px;border-radius:50%;background:var(--rose-l);display:grid;place-items:center;flex:none}
+.bub{max-width:86%;padding:11px 14px;border-radius:18px;font-size:14.5px;line-height:1.45}
+.bot .bub{background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px}
+.me .bub{background:var(--rose);color:#fff;border-bottom-right-radius:5px;font-weight:600}
+.bub p+p{margin-top:8px}.bub ul{margin:6px 0 0 18px}.bub li{margin:3px 0}
+.tag{display:inline-block;font-size:11px;font-weight:800;color:var(--sage);background:var(--sage-l);border-radius:99px;padding:2px 9px;margin-bottom:6px}
+.ttl{font-weight:800;font-size:15px;margin-bottom:4px}
+.al{margin-top:10px;border-radius:12px;padding:9px 11px;font-size:13.5px;font-weight:700;line-height:1.4}
+.al.red{background:var(--red-l);color:var(--red)}.al.amb{background:var(--amb-l);color:var(--amb)}
+.fb{margin-top:10px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}
+.fb button{border:1px solid var(--line);border-radius:99px;padding:3px 10px;background:#fff;font-size:14px}
+.fb button.on{background:var(--sage-l);border-color:var(--sage)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chips button{background:var(--rose-l);color:var(--rose-d);font-weight:700;font-size:13px;padding:7px 12px;border-radius:99px;text-align:left}
+.chips.list{flex-direction:column;flex-wrap:nowrap}.chips.list button{border-radius:12px;width:100%}
+.lbl{font-size:12px;font-weight:800;color:var(--mute);margin-top:12px}
+.dots span{display:inline-block;width:7px;height:7px;margin:0 2px;background:var(--rose);border-radius:50%;animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.cats{display:flex;gap:7px;overflow-x:auto;padding:8px 12px;background:#fff;border-top:1px solid var(--line)}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:none;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.inp{display:flex;gap:8px;padding:8px 12px 10px;background:#fff}
+.inp input{flex:1;min-width:0;font:inherit;font-size:15px;border:1.5px solid var(--line);border-radius:99px;padding:11px 16px;outline:none;background:var(--bg)}
+.inp input:focus{border-color:var(--rose)}
+.inp button{width:46px;height:46px;border-radius:50%;background:var(--rose);color:#fff;font-size:18px;flex:none}
+.disc{font-size:10.5px;color:var(--mute);text-align:center;background:#fff;padding:0 12px 8px}
+/* modal */
+.modal{position:absolute;inset:0;background:rgba(58,46,51,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.show{display:flex}
+.modal .box{background:#fff;border-radius:20px;padding:18px;width:100%;max-height:80%;overflow:auto}
+.modal h3{font-size:16px;margin-bottom:6px}.modal p{font-size:13px;color:var(--mute);margin-bottom:10px}
+.modal li{font-size:14px;margin:6px 0 6px 18px}
+.modal .close{margin-top:12px;background:var(--rose);color:#fff;font-weight:800;border-radius:99px;padding:9px 18px}
+/* Dentro do Círcula: ocupa a tela toda, sem a moldura de celular do protótipo. */
+body{background:var(--bg);display:block}
+.phone{width:100%;height:100dvh;border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <!-- HOME (app da mamãe) -->
+  <div class="home">
+    <div class="hi"><small>Bom dia 💗</small>Olá, mamãe!</div>
+    <div class="baby">
+      <div class="baby-top">
+        <h3>👶 Meu bebê</h3>
+        <div class="stepper"><button onclick="setAge(age-1)" aria-label="menos">−</button><span id="ageLbl"></span><button onclick="setAge(age+1)" aria-label="mais">+</button></div>
+      </div>
+      <div class="mini">
+        <div><b>Nesta fase</b><span id="miles"></span></div>
+        <div><b>Próxima vacina</b><span id="nextVac"></span></div>
+      </div>
+    </div>
+
+    <h4 class="sec">Dúvidas por assunto</h4>
+    <div class="grid" id="tiles"></div>
+
+    <h4 class="sec">Mais perguntadas</h4>
+    <div class="pop" id="pop"></div>
+
+    <div class="foot">
+      <span id="count"></span><br>
+      Informação educativa. Não substitui a consulta com o pediatra.
+    </div>
+  </div>
+
+  <button class="fab" onclick="openChat()" aria-label="Abrir Help Mom"><span class="av" id="fabAv"></span>Help Mom</button>
+
+  <!-- CHAT -->
+  <div class="chat" id="chat" aria-hidden="true">
+    <div class="ch">
+      <div class="av" id="chAv"></div>
+      <div class="t"><b>Help Mom · Bibi</b><span>● online, pode perguntar</span></div>
+      <select id="ageSel" aria-label="Idade do bebê"></select>
+      <button class="x" onclick="closeChat()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="sos">🚨 Emergência? Ligue SAMU 192</div>
+    <div class="msgs" id="msgs"></div>
+    <div class="cats" id="cats"></div>
+    <form class="inp" id="form" autocomplete="off">
+      <input id="q" placeholder="Digite sua dúvida…" enterkeyhint="send">
+      <button type="submit" aria-label="Enviar">➤</button>
+    </form>
+    <div class="disc">Informação educativa. Não substitui a consulta com o pediatra.</div>
+  </div>
+
+  <div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+</div>
+
+<script>
+/* ---------- Robô (personagem original) ---------- */
+const ROBOT = s => `<svg width="${s}" height="${s}" viewBox="0 0 48 48" aria-hidden="true">
+<line x1="24" y1="5" x2="24" y2="11" stroke="#E5677D" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="4.5" r="3" fill="#F08A6E"/>
+<rect x="8" y="11" width="32" height="27" rx="13" fill="#fff" stroke="#E5677D" stroke-width="2.5"/>
+<circle cx="18" cy="23" r="3.2" fill="#3A2E33"/><circle cx="30" cy="23" r="3.2" fill="#3A2E33"/>
+<circle cx="17" cy="22" r="1" fill="#fff"/><circle cx="29" cy="22" r="1" fill="#fff"/>
+<path d="M18 30 q6 5 12 0" fill="none" stroke="#3A2E33" stroke-width="2.2" stroke-linecap="round"/>
+<circle cx="12.5" cy="29" r="2.4" fill="#FFB3C1"/><circle cx="35.5" cy="29" r="2.4" fill="#FFB3C1"/>
+<rect x="15" y="39" width="18" height="6" rx="3" fill="#FFE3E8" stroke="#E5677D" stroke-width="2"/></svg>`;
+
+/* ---------- Categorias ---------- */
+const CATS = {
+  cresc:{n:'Crescimento',e:'📏'}, alim:{n:'Alimentação',e:'🍼'}, doen:{n:'Doenças',e:'🤒'},
+  vac:{n:'Vacinas',e:'💉'}, cuid:{n:'Cuidados',e:'🛁'}, sono:{n:'Sono e choro',e:'😴'}, mae:{n:'Cuidar da mamãe',e:'💗'}
+};
+
+/* ---------- Calendário e marcos por idade ---------- */
+const VAC = [[0,'BCG e Hepatite B (na maternidade)'],[2,'Pentavalente, VIP (pólio), Pneumocócica e Rotavírus'],[3,'Meningocócica C'],[4,'Pentavalente, VIP, Pneumocócica e Rotavírus'],[5,'Meningocócica C'],[6,'Pentavalente e VIP (3ª dose)'],[9,'Febre amarela'],[12,'Tríplice viral, Pneumocócica e Meningocócica C (reforços)'],[15,'DTP, VOP, Hepatite A e Tetra viral']];
+const MILES = [[0,'Mamadas frequentes, sono em pedacinhos e muito colo. Tudo isso é normal!'],[1,'Começa a fixar o olhar no seu rosto. Converse bastante com ele.'],[2,'Primeiros sorrisos de verdade e sons de “aaah”.'],[3,'Sustenta melhor a cabeça e descobre as próprias mãozinhas.'],[4,'Gargalhadas, tenta pegar objetos e começa a rolar.'],[5,'Rola, leva tudo à boca. Hora de se preparar para a papinha!'],[6,'Introdução alimentar! Senta com apoio e pode surgir o 1º dentinho.'],[8,'Senta sem apoio e balbucia “mamama”.'],[10,'Engatinha, fica em pé com apoio e dá tchau.'],[12,'Primeiras palavras e, talvez, primeiros passos.'],[15,'Anda, aponta o que quer e imita gestos.'],[18,'Vocabulário crescendo; corre e rabisca.'],[24,'Junta duas palavras e brinca de faz de conta.']];
+const ageLabel = a => a===0?'recém-nascido':a===1?'1 mês':a+' meses';
+function nextVac(a){
+  const hit = VAC.find(v=>v[0]>=a);
+  if(!hit) return 'Seu bebê já passou do calendário do 1º ano e meio. Confira a caderneta para os reforços.';
+  const when = hit[0]===a ? 'Neste mês' : 'Aos '+hit[0]+' meses';
+  return `${when}: ${hit[1]}.`;
+}
+
+/* ---------- BASE DE CONHECIMENTO ---------- */
+const DB = [];
+const E = (c,q,k,a,o={}) => DB.push({c,q,k,a,...o});
+
+/* CRESCIMENTO */
+E('cresc','Quanto meu bebê deve ganhar de peso?','peso engordar ganho balanca gordinho magrinho perda de peso','Nos primeiros dias é normal perder até cerca de 10% do peso de nascimento; ele costuma recuperar em 10 a 14 dias.\nDepois, o ganho médio nos primeiros meses fica em torno de 150 a 200 g por semana, mas varia bastante de bebê para bebê.\nO que importa é a **curva na caderneta**: o pediatra compara o peso com as curvas da OMS e olha a tendência ao longo das consultas.');
+E('cresc','Meu bebê está abaixo do peso?','abaixo peso pequeno magro percentil curva oms caderneta nao ganha peso','Um número isolado não diz muito. O pediatra avalia a **curva de crescimento** (peso, comprimento e perímetro da cabeça) ao longo do tempo.\nBebês podem ser pequenos e saudáveis se seguem a própria curva de forma estável.\nProcure o pediatra se ele **parou de ganhar peso**, perdeu peso, mama pouco ou está muito sonolento.',{alert:['amb','Se o bebê perde peso ou para de ganhar, marque consulta logo.']});
+E('cresc','Quando o bebê sustenta a cabeça?','sustentar cabeca pescoco firmar cabecinha','A maioria sustenta a cabeça com firmeza entre **3 e 4 meses**.\nAjuda: tempo de barriguinha para baixo (acordado e sempre vigiado) várias vezes ao dia, começando com poucos minutos.\nSempre apoie a cabeça e o pescoço ao pegar no colo, principalmente nos primeiros meses.');
+E('cresc','Quando o bebê senta?','sentar sentado sentar sozinho apoio','Com apoio, por volta dos **6 meses**. Sem apoio e estável, entre **7 e 9 meses**.\nNão precisa colocar sentado antes da hora: deixe ele se desenvolver no chão, com liberdade para se mexer.');
+E('cresc','Quando o bebê engatinha e anda?','engatinhar andar primeiros passos caminhar pular engatinhar nao engatinha','Engatinhar costuma aparecer entre 8 e 10 meses, mas **nem todo bebê engatinha**, e tudo bem.\nOs primeiros passos vêm geralmente entre **9 e 15 meses**. Até os 18 meses ainda é variação normal.\nConverse com o pediatra se aos 18 meses ele ainda não anda sozinho.');
+E('cresc','Quando o bebê começa a falar?','falar fala palavras balbucio mama papa linguagem nao fala demora','O balbucio começa por volta de 4 a 6 meses, e sílabas como “mamama” e “papapa” entre 8 e 10 meses.\nAs primeiras palavras com sentido surgem perto de **12 meses**.\nFale, cante e leia para ele! Avise o pediatra se ele não reage a sons ou não balbucia até os 9 meses.');
+E('cresc','Quando nascem os dentes?','dente dentes dentinho nascer dentição irrupcao mordedor gengiva coceira','O primeiro dentinho costuma aparecer perto dos **6 meses** (pode ser de 4 a 12 meses).\nSintomas comuns: baba, gengiva inchada, vontade de morder e irritação.\nAlívio: mordedor limpo e gelado (não congelado), massagem suave na gengiva com dedo limpo.\nEvite géis anestésicos sem orientação. **Febre alta não é culpa do dente**: procure o pediatra.');
+E('cresc','O que é a moleira e quando fecha?','moleira fontanela cabeca mole afundada','A moleira (fontanela) fecha entre **9 e 18 meses**. Pode tocar e lavar com carinho, ela é protegida.\nProcure atendimento se estiver **bem afundada** (pode ser desidratação) ou **abaulada e tensa** com o bebê chorando pouco ou muito sonolento.',{alert:['amb','Moleira afundada ou estufada + bebê abatido: procure atendimento.']});
+E('cresc','Quando o bebê enxerga e sorri?','enxergar visao sorrir sorriso olhar ver seguir objetos olhos','Ao nascer ele enxerga melhor a cerca de 20–30 cm: a distância do seu rosto na amamentação.\nO **sorriso social** aparece entre 6 e 8 semanas, e aos 2–3 meses ele já acompanha objetos com os olhos.\nO teste do olhinho é feito ainda na maternidade e é muito importante.');
+E('cresc','Como fazer o tempo de barriguinha para baixo?','barriguinha de bruços tummy time barriga para baixo estimular desenvolvimento','Faça com o bebê **acordado e vigiado**, sobre uma superfície firme.\n- Comece com 2 a 3 minutos, várias vezes ao dia\n- Aumente aos poucos conforme ele tolerar\n- Chame a atenção com seu rosto, voz ou um brinquedo\nFortalece pescoço, costas e braços, e prepara para rolar e engatinhar.');
+E('cresc','Posso usar andador?','andador andadores andar cedo','**Não é recomendado.** O andador não ajuda a andar mais cedo e causa muitos acidentes (quedas de escada, queimaduras, alcance de objetos perigosos).\nO melhor é chão firme e seguro, com liberdade para ele se movimentar.');
+
+/* ALIMENTAÇÃO */
+E('alim','Com que frequência devo amamentar?','amamentar mamar mamada horario frequencia livre demanda quantas vezes intervalo','Em **livre demanda**: sempre que o bebê quiser. Nos primeiros meses são comuns de 8 a 12 mamadas por dia, inclusive à noite.\nSinais de fome: leva a mão à boca, procura o peito, estala os lábios. O choro é sinal tardio.\nNão precisa de relógio: confie nos sinais dele.');
+E('alim','Como sei se o bebê está mamando o suficiente?','mamando suficiente fraldas molhadas satisfeito leite chega fome saciado','Bons sinais:\n- Depois da 1ª semana, **6 ou mais fraldas bem molhadas** por dia\n- Ganho de peso adequado nas consultas\n- Você ouve ele engolir, e ele solta o peito relaxado\n- Fica alerta e satisfeito entre as mamadas\nSe tiver dúvida ou poucas fraldas molhadas, procure o pediatra.');
+E('alim','Até quando só leite materno?','leite materno exclusivo agua cha suco seis meses so peito complementar','Até os **6 meses** apenas leite materno: sem água, chás, sucos ou outros leites.\nDepois dos 6 meses, começam os alimentos e o aleitamento continua até **2 anos ou mais**.');
+E('alim','Meu leite é fraco ou tenho pouco leite?','leite fraco pouco leite secou produzir aumentar producao nao tenho leite insuficiente','**Não existe leite fraco.** O leite se adapta às necessidades do bebê.\nA produção depende de **mamadas frequentes** e de uma boa pega: quanto mais ele esvazia a mama, mais leite se produz.\n- Ofereça o peito com frequência, inclusive à noite\n- Descanse, se hidrate e se alimente bem\n- Peça ajuda a um banco de leite ou consultora de amamentação\nNão complete com fórmula sem orientação.');
+E('alim','O peito está empedrado ou com mastite. O que fazer?','empedrado mastite peito duro vermelho dor ingurgitamento caroco','Para o peito cheio e dolorido:\n- **Continue amamentando** e esvazie bem a mama\n- Massagem suave e ordenha antes da mamada para amolecer\n- Compressa fria depois para aliviar\nProcure atendimento se tiver **febre, calafrios, área vermelha e muito dolorida**, pode ser mastite e às vezes precisa de tratamento.',{alert:['amb','Febre + peito vermelho e dolorido: procure atendimento.']});
+E('alim','Dói amamentar e meu mamilo está machucado','dor amamentar mamilo rachado fissura machucado bico sangrando pega errada','Dor ao amamentar quase sempre é sinal de **pega inadequada**. Ela tem solução!\n- A boca deve abocanhar boa parte da aréola, com lábios virados para fora\n- Queixo encostado no peito, barriga com barriga\n- Para soltar, coloque o dedo mindinho no canto da boca\nPeça ajuda a um profissional ou banco de leite. Passar o próprio leite nas fissuras ajuda a cicatrizar.');
+E('alim','Quando começar a papinha e os alimentos?','papinha introducao alimentar comecar comer seis meses primeiro alimento papa quando comecar comida','A introdução alimentar começa aos **6 meses**, quando o bebê:\n- Senta com apoio e sustenta bem a cabeça\n- Mostra interesse pela comida\n- Já não empurra a comida para fora com a língua\nComece com 1 ou 2 refeições e aumente aos poucos. O leite continua sendo a base.');
+E('alim','O que oferecer nas primeiras refeições?','primeiros alimentos cardapio o que oferecer fruta legume carne feijao ovo ferro refeicao prato','Ofereça comida de verdade, amassada ou em pedaços macios:\n- Frutas, legumes e verduras variados\n- **Feijão, carne e ovo bem cozidos** (ricos em ferro)\n- Cereais e tubérculos (arroz, batata, mandioca)\nAlimentos separados no prato, com cores e texturas. **Sem sal ou açúcar** e sem ultraprocessados.\nNão liquidifique tudo: texturas ajudam a mastigar.');
+E('alim','O que o bebê não pode comer antes de 1 ano?','nao pode proibido mel acucar sal leite de vaca industrializado biscoito suco refrigerante evitar alimentos','Evite:\n- **Mel** (risco de botulismo antes de 1 ano)\n- **Açúcar** (evitar até 2 anos) e sal em excesso\n- Leite de vaca como bebida (em preparações pode)\n- Sucos, refrigerantes, biscoitos, embutidos e ultraprocessados\nAlimentos alergênicos como ovo e amendoim podem ser oferecidos em formas seguras a partir dos 6 meses. Converse com o pediatra se houver histórico de alergia.');
+E('alim','Papinha ou baby-led weaning (BLW)?','blw baby led weaning papinha pedacos sozinho metodo comer sozinho','Os dois caminhos funcionam. O importante é a **segurança** e a variedade:\n- Papa amassada com garfo, colher oferecida com paciência\n- Pedaços macios que ele segura (tiras de legumes cozidos, fruta madura)\nSempre sentado, com adulto olhando, e sem alimentos duros ou redondos inteiros (uva, amendoim, salsicha).');
+E('alim','Qual a diferença entre ânsia e engasgo?','ansia engasgo gag vomito engasgar comida diferenca','A **ânsia** (gag) é um reflexo de proteção: o bebê faz careta, tosse, às vezes vomita, mas respira. Nesse caso, mantenha a calma e deixe ele resolver.\nO **engasgo de verdade** é silencioso: ele não chora, não tosse, não respira, pode ficar roxo. Aí é emergência.\nVeja a pergunta “O que fazer se o bebê engasgar?”.');
+E('alim','Quando oferecer água?','agua dar agua beber copo sede quanto de agua','Antes dos 6 meses **não precisa de água**: o leite materno já hidrata.\nCom a introdução alimentar, ofereça água em pequenos goles, no copo aberto ou copo com canudo, nas refeições. Sem adoçar.');
+E('alim','Meu bebê recusa a comida. E agora?','recusa comida nao quer comer seletivo birra nao aceita papinha cospe','É muito comum! Podem ser necessárias **8 a 15 exposições** ao mesmo alimento até ele aceitar.\n- Ofereça sem forçar, sem pressão e sem distrações (TV, celular)\n- Coma junto com ele: ele imita você\n- Varie texturas e cores\nAvise o pediatra se perder peso ou recusar tudo por muitos dias.');
+E('alim','Posso usar fórmula infantil?','formula leite artificial mamadeira complemento nan aptamil substituto','Se o aleitamento materno não for possível, ou por orientação médica, a fórmula adequada para a idade é segura.\n- Prepare **exatamente como o rótulo** (nunca dilua para render)\n- Água fervida e resfriada, mamadeira bem higienizada\nNão troque ou comece fórmula por conta própria sem conversar com o pediatra.');
+E('alim','Preciso dar vitamina D e ferro?','vitamina d ferro suplemento sulfato ferroso gotinhas vitaminas suplementacao','Muitos bebês recebem suplemento de **vitamina D** e **ferro**, mas depende da idade, do tipo de alimentação e do risco.\nO pediatra receita no momento certo. **Não dê por conta própria**, pois a dose depende do produto e do peso.');
+E('alim','O que é cólica e como aliviar?','colica gases barriga dura fim de tarde dor de barriga','Cólica é um choro intenso e sem causa clara, que costuma começar nas primeiras semanas, ter pico por volta de **6 semanas** e melhorar por volta dos 3 a 4 meses.\nO que ajuda:\n- Colo, balanço e ruído suave (aspirador, “shhh”)\n- Massagem na barriguinha e bicicletinha com as perninhas\n- Arrotar após as mamadas, ambiente calmo\nRemédios só com orientação médica.',{alert:['amb','Cólica com febre, vômitos, sangue nas fezes ou bebê muito abatido: procure atendimento.']});
+E('alim','Meu bebê golfa muito. É refluxo?','refluxo golfar golfada regurgitar vomita leite vomitando mamar','Golfar é **muito comum** e não costuma ser problema se o bebê está feliz e ganha peso.\n- Faça ele arrotar nas mamadas\n- Mantenha-o no colo, na vertical, por 15 a 20 minutos depois de mamar\nProcure o pediatra se o vômito for **em jato**, tiver sangue ou cor esverdeada, houver perda de peso ou choro intenso nas mamadas.');
+E('alim','Meu bebê está sem fazer cocô. É prisão de ventre?','prisao de ventre constipacao intestino preso nao faz coco dias coco duro evacuar','Bebês só no peito podem ficar vários dias sem evacuar e ainda assim ter fezes **moles** quando fazem: isso costuma ser normal.\nPreocupe-se se as fezes forem **duras como bolinhas**, com sangue, ou se a barriga estiver dura e inchada.\nNunca use laxantes, supositórios ou chás sem orientação do pediatra.');
+E('alim','Qual deve ser a cor do cocô do bebê?','cor coco fezes verde amarelo mostarda preto branco vermelho sangue coco verde meconio','Normal: amarelo-mostarda, esverdeado ou amarronzado. Nos primeiros dias, o mecônio é preto-esverdeado.\n**Procure atendimento** se as fezes forem brancas ou acinzentadas, tiverem sangue vivo, ou pretas depois dos primeiros dias.',{alert:['amb','Fezes brancas/acinzentadas ou com sangue: consulte logo.']});
+
+/* DOENÇAS */
+E('doen','O que fazer se o bebê estiver com febre?','febre febril temperatura quente termometro 38 febrao calor corpo','Considera-se febre a partir de **38 °C** (termômetro axilar).\n- Tire o excesso de roupa e ofereça líquidos ou peito\n- Banho morno (não frio) pode ajudar\n- **Remédio só com orientação do pediatra**: a dose depende do peso\nProcure atendimento se durar mais de 3 dias, se o bebê ficar muito mole, não mamar, tiver manchas ou dificuldade para respirar.',{alert:['amb','Febre em bebê abatido, com manchas ou que não mama: procure atendimento.'],note:a=>a<3?['red','Seu bebê tem menos de 3 meses: febre nessa idade exige avaliação médica IMEDIATA, mesmo sem outros sintomas.']:null});
+E('doen','Meu bebê está com nariz entupido ou resfriado','resfriado gripe nariz entupido catarro coriza espirro nariz escorrendo congestao','Resfriados são comuns e passam em 7 a 10 dias.\n- **Soro fisiológico** no nariz antes das mamadas e do sono\n- Mantenha o ambiente arejado e a hidratação em dia\n- Cabeceira do berço levemente elevada só se o pediatra indicar\nNão use xaropes, mel ou remédios sem orientação.\nProcure atendimento se a respiração estiver difícil ou ele não mamar.');
+E('doen','Meu bebê está com tosse','tosse tossindo tosse seca tosse catarro chiado pigarro','A tosse é um mecanismo de defesa. Faça lavagem nasal, hidrate e mantenha o ambiente arejado.\nNão dê xaropes ou mel sem orientação.\nProcure atendimento se houver **respiração rápida, chiado, esforço**, febre alta, ou se a tosse durar mais de 1 semana.');
+E('doen','Como saber se o bebê está com dificuldade para respirar?','respirar respiracao dificuldade bronquiolite chiado falta de ar cansado tiragem asma gemido','Sinais de alerta:\n- Respiração **muito rápida**\n- Costelas ou pescoço “afundando” a cada respiração (tiragem)\n- Narinas abrindo e fechando, gemido\n- Lábios ou rosto **arroxeados**\n- Não consegue mamar',{alert:['red','Esses sinais são EMERGÊNCIA: vá ao pronto-socorro ou ligue SAMU 192.']});
+E('doen','Meu bebê está com diarreia ou vômitos','diarreia vomito vomitando desidratacao soro caseiro gastroenterite fezes liquidas soltas','O maior risco é a **desidratação**.\n- Continue amamentando, em mamadas pequenas e frequentes\n- Ofereça **soro de reidratação oral** (do posto ou farmácia)\n- Não dê remédio para parar a diarreia sem orientação\nSinais de desidratação: boca seca, sem lágrimas, moleira afundada, xixi escasso (6–8 h sem urinar), muito sonolento.',{alert:['amb','Sinais de desidratação ou sangue nas fezes: procure atendimento.']});
+E('doen','Como tratar assadura?','assadura fralda brotoeja bumbum vermelho dermatite pomada irritacao','- Troque a fralda com frequência e limpe com água morna e algodão ou pano macio\n- Deixe o bumbum **ao ar** alguns minutos a cada troca\n- Pomada com **óxido de zinco** em camada grossa protege\nSe houver feridas, bolinhas ou pontos vermelhos nas dobras, pode ser fungo (candidíase). Procure o pediatra.');
+E('doen','Meu bebê está amarelinho (icterícia)','ictericia amarelo amarelinho pele amarela olhos amarelos bilirrubina fototerapia','É comum no 2º e 3º dia de vida e costuma melhorar sozinha. Amamentar com frequência ajuda.\nSol direto **não** é tratamento seguro.\nProcure o pediatra se aparecer nas **primeiras 24 horas**, se descer para barriga e pernas, se durar mais de 2 semanas, ou se o bebê estiver muito sonolento ou mamando pouco.',{alert:['amb','Amarelo que aumenta ou chega às pernas: precisa de avaliação.']});
+E('doen','Tem manchas brancas na boca do bebê (sapinho)','sapinho candidiase boca placas brancas lingua branca mancha branca na boca','O sapinho é uma infecção por fungo, com placas brancas na língua e bochechas que **não saem** ao limpar (leite sai).\nPode incomodar na hora de mamar. Tem tratamento simples, mas **precisa do pediatra**. Mamadeiras e bicos devem ser bem higienizados.');
+E('doen','O olhinho do bebê está com remela','remela olho conjuntivite lacrimejando olho vermelho secrecao ducto lacrimal','Remela e lacrimejamento são comuns, muitas vezes por obstrução do ducto lacrimal. Limpe de dentro para fora com gaze ou algodão umedecido em soro fisiológico, e faça massagem suave no canto interno do olho.\nProcure o pediatra se o olho ficar **vermelho, inchado** ou com secreção amarelada/esverdeada abundante.');
+E('doen','Meu bebê está puxando a orelha. Pode ser dor de ouvido?','ouvido otite orelha puxando orelha dor de ouvido chorando irritado','Pode ser! Sinais de otite: irritabilidade, choro ao deitar ou mamar, febre e puxar a orelha (mas também pode ser só um hábito).\n**Não pingue nada** no ouvido sem orientação. Procure o pediatra para examinar.');
+E('doen','Será que meu bebê tem alergia ao leite de vaca?','alergia leite de vaca aplv proteina sangue nas fezes eczema urticaria alergia alimentar','Sinais possíveis: sangue ou muco nas fezes, vômitos, cólicas fortes, eczema, urticária e má evolução do peso.\nSe você amamenta, **não corte laticínios por conta própria**. Procure o pediatra para confirmar e orientar a dieta.',{alert:['amb','Inchaço nos lábios/rosto ou dificuldade para respirar após comer: emergência.']});
+E('doen','Quando devo levar o bebê ao pronto-socorro?','pronto socorro emergencia urgencia hospital quando levar sinais de alerta grave perigo','Vá **agora** se o bebê:\n- Tem febre abaixo de 3 meses\n- Respira com dificuldade ou fica arroxeado\n- Está muito mole, não acorda ou não mama\n- Tem convulsão\n- Vomita tudo, ou vômito verde/com sangue\n- Tem manchas roxas na pele que não somem ao apertar\n- Tem moleira estufada\n- Chora de forma inconsolável por horas',{alert:['red','Na dúvida, procure atendimento. Em caso grave, ligue SAMU 192.']});
+E('doen','Apareceram manchinhas na pele do bebê','manchas pele vermelhidao brotoeja erupcao exantema pintinhas roxas alergia pele manchinhas','A maioria das manchas é benigna (brotoeja, alergia, vírus).\nFaça o **teste do copo**: pressione um copo de vidro sobre as manchas. Se elas **não somem** (roxas ou arroxeadas), pode ser grave.',{alert:['red','Manchas roxas que não somem ao apertar, com febre ou abatimento: emergência.']});
+E('doen','O que fazer se o bebê tiver convulsão?','convulsao convulsionando ataque tremendo rigido olhos revirados febril','- Mantenha a calma, deite o bebê de lado em local seguro\n- **Não coloque nada na boca**, não sacuda\n- Afrouxe roupas e marque quanto tempo dura\n- Ligue **SAMU 192** ou vá ao pronto-socorro',{alert:['red','Convulsão é sempre motivo de avaliação médica urgente.']});
+
+/* VACINAS */
+E('vac','Qual o calendário de vacinas do primeiro ano?','calendario vacinas vacinacao primeiro ano pni quais vacinas caderneta','Resumo do calendário do SUS (pode mudar, confira o posto):\n- **Ao nascer:** BCG e Hepatite B\n- **2 e 4 meses:** Pentavalente, VIP (pólio), Pneumocócica e Rotavírus\n- **3 e 5 meses:** Meningocócica C\n- **6 meses:** Pentavalente e VIP\n- **9 meses:** Febre amarela\n- **12 meses:** Tríplice viral, Pneumocócica e Meningocócica C (reforços)\nA partir dos 6 meses também há vacinas da gripe e da Covid-19 conforme campanha.');
+E('vac','Qual a próxima vacina do meu bebê?','proxima vacina qual vacina agora vacina do mes vacinar proxima dose','Depende da idade! A idade do seu bebê está selecionada no topo da conversa. Veja abaixo.\nConfira sempre a **caderneta** e o calendário atual no posto de saúde.',{note:a=>'📅 Para '+ageLabel(a)+': '+nextVac(a)});
+E('vac','O bebê pode ter reação depois da vacina?','reacao vacina febre depois da vacina dor inchaco caroco irritado efeito colateral','Reações leves são esperadas: dor ou vermelhidão no local, febre baixa, irritação e sonolência por 1 ou 2 dias.\nO **caroço** da BCG e da aplicação em coxa é normal.\nPergunte ao pediatra ou ao posto sobre o que dar para dor/febre.',{alert:['red','Falta de ar, inchaço no rosto, urticária ou convulsão após a vacina: emergência.']});
+E('vac','Posso vacinar com o bebê resfriado?','vacinar resfriado gripado doente febre vacina doente pode vacinar','Resfriado leve, sem febre, geralmente **não impede** a vacinação. Febre alta ou doença moderada/grave podem fazer adiar.\nNa dúvida, leve a caderneta ao posto: o profissional avalia na hora.');
+E('vac','Atrasei uma vacina. Preciso recomeçar?','atrasou vacina atrasada perdi data esqueci vacina recomecar caderneta','**Não precisa recomeçar!** Leve a caderneta ao posto o quanto antes que o esquema é retomado de onde parou.');
+E('vac','Quais vacinas são de graça e quais são particulares?','gratuita sus particular clinica privada vacina paga meningo b rede publica','O calendário básico é **gratuito no SUS**. Clínicas privadas oferecem vacinas extras (por exemplo, algumas contra meningite e versões combinadas).\nO pediatra orienta o que vale para o seu bebê.');
+E('vac','Quais testes o bebê faz logo depois de nascer?','teste do pezinho orelhinha olhinho coracaozinho linguinha triagem neonatal nascer exame','- **Pezinho:** do 3º ao 5º dia de vida\n- **Orelhinha** (audição): primeiros dias ou até 1 mês\n- **Olhinho:** na maternidade\n- **Coraçãozinho:** com 24–48 h de vida\n- **Linguinha:** na maternidade, para checar o freio da língua\nSe algum não foi feito, converse com o pediatra.');
+
+/* CUIDADOS */
+E('cuid','Como dar banho no recém-nascido?','banho banhar lavar agua morna banheira temperatura','- Água **morna** (teste com o cotovelo), ambiente sem vento\n- Tenha tudo à mão antes de começar\n- Segure sempre com firmeza, **nunca deixe sozinho**, nem por um segundo\n- Seque bem as dobrinhas e o umbigo\nBanho diário é bom, rápido e sem esfregar.');
+E('cuid','Como cuidar do coto umbilical?','umbigo coto umbilical cordao cair limpar alcool umbigo sujo','O coto cai sozinho entre **5 e 15 dias**.\n- Mantenha limpo e seco\n- Limpe com álcool 70% ou conforme orientado na maternidade, após o banho e trocas\n- Deixe fora da fralda\nProcure o pediatra se houver pus, mau cheiro, vermelhidão ao redor ou febre.',{alert:['amb','Vermelhidão espalhando ao redor do umbigo, pus ou febre: consulte.']});
+E('cuid','Como cortar as unhas do bebê?','unhas cortar aparar arranhar lixa tesoura unha','Use **lixa de bebê** ou tesoura de ponta arredondada, de preferência com o bebê dormindo, na luz boa. Corte retinho e sem fundo, e vá devagar.');
+E('cuid','Meu bebê pode tomar sol?','sol banho de sol protetor solar vitamina d calor praia solzinho','Antes dos **6 meses** o ideal é evitar exposição direta: use sombra, roupas leves e chapéu. Protetor solar não é indicado para essa idade.\nSobre sol para vitamina D, siga a orientação do pediatra.');
+E('cuid','Quando posso sair de casa com o bebê?','passeio sair casa visitas rua shopping primeiro passeio aglomeracao visita','Assim que você se sentir bem e o pediatra liberar, passeios curtos em locais arejados são ótimos.\nNos primeiros meses, evite **aglomerações e ambientes fechados** e visitas com sintomas de gripe.\nPeça que lavem as mãos antes de pegar o bebê e **evitem beijar o rosto**.');
+E('cuid','O que fazer se o bebê engasgar?','engasgo engasgar engasgou asfixia socorro primeiros socorros sufocar manobra heimlich','Se ele **não consegue chorar, tossir ou respirar** (menor de 1 ano):\n- Peça para alguém ligar **SAMU 192**\n- Bebê de bruços no seu antebraço, cabeça mais baixa que o corpo: **5 tapas** firmes nas costas\n- Vire de barriga para cima: **5 compressões** com 2 dedos no centro do peito\n- Repita até sair ou o SAMU chegar\nSe ficar inalcançável, inicie a ressuscitação.',{alert:['red','Faça um curso de primeiros socorros para bebês: ele salva vidas.']});
+E('cuid','Meu bebê pode usar chupeta?','chupeta bico chupar dedo chucha','A recomendação é **evitar**, principalmente nas primeiras semanas, para não atrapalhar a amamentação. Ela também pode influenciar os dentes e a fala.\nSe usar, escolha modelo ortodôntico, mantenha limpa e nunca prenda em cordão no pescoço.');
+E('cuid','Como vestir o bebê? Está com frio ou calor?','roupa vestir frio calor agasalho temperatura quarto casaquinho suando maos frias','Regra prática: **uma camada a mais que você**, no máximo. Cheque a nuca ou a barriguinha: se estiver suada, tire; mãozinhas e pezinhos frios são normais.\nEvite gorros e cobertores dentro do berço.');
+E('cuid','Como deixar a casa segura para o bebê?','seguranca casa quedas acidentes tomada escada cadeirinha prevenir queda queimadura','- **Nunca** deixe o bebê sozinho em cama, sofá, trocador ou banheira\n- Cadeirinha adequada no carro em **todos** os trajetos, de costas para o movimento pelo maior tempo possível\n- Protetores de tomada, portões em escadas, produtos de limpeza e remédios fora do alcance\n- Evite objetos pequenos (risco de engasgo) e cordões\n- Cuidado com líquidos quentes perto dele');
+E('cuid','Como limpar a boquinha do bebê?','boca higiene bucal limpar gengiva escovar dente escovinha pasta de dente','Antes dos dentes: limpe a gengiva com gaze ou fralda limpa umedecida, 1 vez ao dia.\nQuando nascer o 1º dente, use **escova de bebê** com pouquíssima pasta com flúor (quantidade de um “grão de arroz”), conforme orientação do dentista.');
+
+/* SONO E CHORO */
+E('sono','Quantas horas o bebê deve dormir?','dormir horas sono quanto dorme soneca dormindo demais pouco sono quantas horas','Em média:\n- **Recém-nascido:** 14 a 17 horas por dia, em pedaços\n- **4 a 11 meses:** 12 a 15 horas\n- **1 a 2 anos:** 11 a 14 horas\nÉ normal acordar para mamar à noite. Cada bebê tem seu ritmo.');
+E('sono','Qual a posição mais segura para o bebê dormir?','posicao dormir seguro morte subita smsl barriga para cima berco colchao travesseiro ninho protetor lado','Para reduzir o risco de morte súbita:\n- **Sempre de barriga para cima**\n- Colchão firme e justo, **sem** travesseiro, cobertor solto, protetor de berço ou bichos\n- Berço no quarto dos pais nos primeiros meses\n- Ambiente sem fumaça de cigarro\n- Evite superaquecer',{alert:['amb','Mesmo após rolar sozinho, comece sempre a soneca de barriga para cima.']});
+E('sono','Posso dormir com o bebê na mesma cama?','mesma cama compartilhar cama dormir junto colecho sofa cama dos pais','O recomendado é **dormir no mesmo quarto, mas em berço ou moisés próprio**. Dormir na mesma cama, e principalmente no sofá, aumenta o risco de sufocamento, sobretudo se houver cansaço extremo, álcool, medicações que dão sono ou fumo.\nSe amamentar na cama, leve-o de volta ao berço antes de dormir.');
+E('sono','Meu bebê troca o dia pela noite','troca dia noite madrugada acordado de noite dorme de dia confunde noite ritmo','É comum no início. O relógio biológico amadurece em semanas.\n- Durante o dia: luz, barulho normal e conversa\n- À noite: pouca luz, voz baixa, mamadas calmas\n- Ritual curto antes de dormir (banho, mamada, canção)\nPaciência: vai melhorando.');
+E('sono','Quando o bebê dorme a noite toda?','dormir a noite toda passar a noite sem acordar acorda muito noite inteira madrugada acordando','Varia muito! Muitos bebês começam a dormir trechos mais longos entre **4 e 6 meses**, mas despertar para mamar é normal ao longo do 1º ano.\nUma rotina previsível ajuda, sem ser rígida.');
+E('sono','O bebê não para de chorar. Como acalmar?','chorar choro chorando acalmar inconsolavel nao para de chorar manha colo irritado','Verifique: **fome, fralda, sono, calor/frio, gases** ou necessidade de colo.\nFunciona: colo e contato pele a pele, balanço, ruído branco, canto, ambiente calmo.\nSe você estiver esgotada, coloque o bebê **em segurança no berço** e respire por alguns minutos. **Nunca sacuda** o bebê.\nChoro inconsolável com febre, vômitos, abatimento ou diferente do habitual: procure atendimento.',{alert:['amb','Nunca sacuda o bebê. Se o choro estiver insuportável, peça ajuda.']});
+
+/* CUIDAR DA MAMÃE */
+E('mae','O que é baby blues e depressão pós-parto?','baby blues depressao pos parto tristeza choro mamae triste ansiedade nao consigo cuidar sozinha puerperio saude mental','Muitas mães sentem tristeza, choro fácil e ansiedade nos primeiros dias: é o **baby blues**, que melhora em até 2 semanas.\nSe a tristeza, a culpa, o vazio ou a ansiedade **duram mais de 2 semanas**, atrapalham o cuidado ou o sono, ou surgem pensamentos de se machucar, pode ser **depressão pós-parto**: tem tratamento e **você não está sozinha**.\nFale com seu médico ou procure a UBS. O **CVV (188)** atende 24 h, de graça.',{alert:['amb','Pensamentos de se machucar: ligue CVV 188 ou SAMU 192 agora.']});
+E('mae','O que comer enquanto amamento?','alimentacao amamentando dieta o que comer amamentando cafe alcool agua comida mae','Coma de forma **variada e sem dietas restritivas**: frutas, verduras, cereais, feijão, carnes, ovos e laticínios, e beba água à vontade.\nNão há alimentos “proibidos”, exceto **álcool** (evite) e orientação para cafeína moderada.\nSe o bebê reagir a algum alimento, converse com o pediatra antes de cortar.');
+E('mae','Quais os sinais de alerta no pós-parto?','pos parto sinais de alerta sangramento febre ponto cicatriz cesarea dor loquios puerperio infeccao mae','Procure atendimento se tiver:\n- Sangramento **muito intenso** (encher um absorvente em 1 hora) ou com coágulos grandes\n- Febre\n- Dor, calor ou secreção na cicatriz\n- Dor ou inchaço em uma perna\n- Falta de ar ou dor no peito\n- Dor de cabeça forte com alterações na visão',{alert:['red','Falta de ar, dor no peito ou sangramento intenso: emergência.']});
+E('mae','Estou muito cansada. Como lidar?','cansaco cansada exausta sono sobrecarregada ajuda descansar dormir rotina sozinha','O cansaço é real. Algumas ideias:\n- Durma quando o bebê dormir, mesmo que pouco\n- **Aceite ajuda**: comida, roupas, visitas que ajudam de verdade\n- Divida as tarefas e as noites\n- Cuide da alimentação e da água\nPedir ajuda não é fraqueza, é cuidado.');
+E('mae','Como guardar o leite materno ordenhado?','guardar leite ordenhar ordenha armazenar congelar geladeira freezer bomba leite materno trabalho','Segundo orientação dos bancos de leite:\n- **Geladeira:** até 12 horas\n- **Freezer:** até 15 dias\n- Use frasco de vidro com tampa de plástico, higienizado e com data\n- Descongele na geladeira e aqueça em banho-maria; **não ferva nem use micro-ondas**\nDescarte o que sobrar da mamada.');
+E('mae','Quando posso voltar aos exercícios e à vida sexual?','exercicio atividade fisica academia sexo relacao pos parto voltar liberacao consulta puerperio','Depende do tipo de parto e da sua recuperação. Caminhadas leves são bem-vindas cedo.\nA liberação para **exercícios intensos e relações sexuais** é dada na **consulta de puerpério** com seu obstetra, em geral por volta de 6 semanas. Respeite seu corpo e o seu tempo.');
+
+/* ---------- Busca ---------- */
+const STOP = new Set('a o as os de da do das dos e em no na nos nas um uma uns umas para por com que se meu minha meus minhas seu sua bebe bebes nenem quando como qual quais posso pode devo esta estou tem ter ser muito mais vai fazer faz isso eu ele ela ja so tambem to ta pra pro me mim nao sem'.split(' '));
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+const stem = t => t.length>3 ? t.replace(/s$/,'') : t;
+const toks = s => norm(s).split(' ').filter(t=>t&&!STOP.has(t)).map(stem);
+DB.forEach((e,i)=>{ e.id=i; e.qs=new Set(toks(e.q)); e.ks=new Set(toks(e.k)); });
+function search(text){
+  const qt = [...new Set(toks(text))];
+  if(!qt.length) return [];
+  return DB.map(e=>{
+    let s=0;
+    for(const t of qt){
+      if(e.ks.has(t)) s+=3; else if(e.qs.has(t)) s+=2;
+      else if(t.length>=5){
+        const p=t.slice(0,5);
+        for(const x of e.ks){ if(x.length>=5 && x.slice(0,5)===p){ s+=1.5; break; } }
+      }
+    }
+    return {e,s};
+  }).filter(x=>x.s>=2).sort((a,b)=>b.s-a.s);
+}
+const EMERG = /convuls|nao respira|parou de respirar|roxo|roxa|azulad|desmai|nao acorda|inconsciente|engasgou/;
+
+/* ---------- Estado e UI ---------- */
+let age = 6, greeted = false; const unanswered = [];
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function md(t){
+  const lines = esc(t).split('\n'); let out='', list=false;
+  for(const l of lines){
+    const b = l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    if(b.startsWith('- ')){ if(!list){out+='<ul>';list=true;} out+='<li>'+b.slice(2)+'</li>'; }
+    else { if(list){out+='</ul>';list=false;} out+='<p>'+b+'</p>'; }
+  }
+  return out + (list?'</ul>':'');
+}
+function setAge(a){
+  age = Math.max(0,Math.min(24,a));
+  $('ageLbl').textContent = ageLabel(age);
+  $('ageSel').value = age;
+  const m = [...MILES].reverse().find(x=>x[0]<=age); $('miles').textContent = m[1];
+  $('nextVac').textContent = nextVac(age);
+}
+function init(){
+  $('fabAv').innerHTML = ROBOT(30); $('chAv').innerHTML = ROBOT(34);
+  $('ageSel').innerHTML = Array.from({length:25},(_,i)=>`<option value="${i}">${ageLabel(i)}</option>`).join('');
+  $('ageSel').onchange = e => setAge(+e.target.value);
+  $('tiles').innerHTML = Object.entries(CATS).map(([k,c])=>`<button class="tile" onclick="openChat('${k}')"><i>${c.e}</i>${c.n}</button>`).join('')
+    + `<button class="tile" onclick="openChat()"><i>🤖</i>Perguntar</button>`;
+  const pops=[10,17,29,40,44,57].filter(i=>DB[i]).map(i=>DB[i]);
+  const popIds=['Quando começar a papinha e os alimentos?','O que fazer se o bebê estiver com febre?','Qual a próxima vacina do meu bebê?','O que é cólica e como aliviar?','Qual a posição mais segura para o bebê dormir?','Quando devo levar o bebê ao pronto-socorro?'];
+  $('pop').innerHTML = popIds.map(q=>`<button onclick="openChat(null,'${q.replace(/'/g,"\\'")}')">${q}</button>`).join('');
+  $('count').textContent = `${DB.length} perguntas com respostas prontas`;
+  $('cats').innerHTML = Object.entries(CATS).map(([k,c])=>`<button onclick="showCat('${k}')">${c.e} ${c.n}</button>`).join('');
+  $('form').onsubmit = e => { e.preventDefault(); const v=$('q').value.trim(); if(v){ $('q').value=''; ask(v); } };
+  setAge(age);
+}
+function addMsg(html, who='bot'){
+  const r=document.createElement('div'); r.className='row '+who;
+  r.innerHTML = (who==='bot'?`<div class="av">${ROBOT(22)}</div>`:'') + `<div class="bub">${html}</div>`;
+  $('msgs').appendChild(r); $('msgs').scrollTop = $('msgs').scrollHeight; return r;
+}
+function chipsHtml(items, cls=''){ return `<div class="chips ${cls}">`+items.map(x=>`<button data-q="${esc(x).replace(/"/g,'&quot;')}">${esc(x)}</button>`).join('')+'</div>'; }
+$('msgs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.q) ask(b.dataset.q);
+  if(b.dataset.cat) showCat(b.dataset.cat);
+  if(b.dataset.fb){ const p=b.parentElement; p.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); p.querySelector('span').textContent = b.dataset.fb==='up' ? 'Que bom! 💗' : 'Obrigada! Vou avisar a equipe para melhorar.'; }
+});
+function openChat(cat,q){
+  $('chat').classList.add('open'); $('chat').setAttribute('aria-hidden','false');
+  if(!greeted){
+    greeted=true;
+    addMsg(`<p><b>Oi, mamãe! Eu sou a Bibi 💗</b></p><p>Posso ajudar com <b>crescimento, alimentação, doenças, vacinas e cuidados</b> do seu bebê. Escolha um assunto ou escreva sua dúvida.</p>`
+      + chipsHtml(['Quando começar a papinha e os alimentos?','O que fazer se o bebê estiver com febre?','Qual a próxima vacina do meu bebê?','O que é cólica e como aliviar?']));
+  }
+  if(cat) showCat(cat);
+  if(q) ask(q);
+}
+function closeChat(){ $('chat').classList.remove('open'); $('chat').setAttribute('aria-hidden','true'); }
+function showCat(k){
+  const c=CATS[k], qs=DB.filter(e=>e.c===k).map(e=>e.q);
+  addMsg(`<p>${c.e} <b>${c.n}</b>: posso responder sobre:</p>`+chipsHtml(qs,'list'));
+}
+function typing(){ return addMsg('<span class="dots"><span></span><span></span><span></span></span>'); }
+function ask(text){
+  addMsg(esc(text),'me');
+  const t=typing();
+  setTimeout(()=>{
+    t.remove();
+    const res = search(text);
+    const emerg = EMERG.test(norm(text));
+    let html='';
+    if(emerg) html += `<div class="al red" style="margin:0 0 10px">🚨 Isso pode ser uma emergência. Ligue <b>SAMU 192</b> agora ou vá ao pronto-socorro mais próximo.</div>`;
+    if(res.length){
+      const e=res[0].e;
+      html += `<span class="tag">${CATS[e.c].e} ${CATS[e.c].n}</span><div class="ttl">${esc(e.q)}</div>${md(e.a)}`;
+      if(e.note){ const n=e.note(age); if(n){ if(Array.isArray(n)) html+=`<div class="al ${n[0]}">${esc(n[1])}</div>`; else html+=`<div class="al amb" style="background:var(--sage-l);color:#2F6E52">${esc(n)}</div>`; } }
+      if(e.alert) html += `<div class="al ${e.alert[0]}">${esc(e.alert[1])}</div>`;
+      html += `<div class="fb"><span>Isso ajudou?</span><button data-fb="up">👍</button><button data-fb="down">👎</button></div>`;
+      const rel = res.slice(1,4).map(x=>x.e.q);
+      if(rel.length) html += `<div class="lbl">Perguntas parecidas</div>`+chipsHtml(rel);
+    } else {
+      html += `<p>Ainda não tenho uma resposta pronta para isso 🤍.</p><p>Enquanto isso, fale com o <b>pediatra</b> ou a UBS. Se for urgente, ligue <b>SAMU 192</b>.</p><div class="lbl">Ou escolha um assunto</div><div class="chips">`+Object.entries(CATS).map(([k,c])=>`<button data-cat="${k}">${c.e} ${c.n}</button>`).join('')+`</div>`;
+    }
+    addMsg(html);
+  }, 650);
+}
+function showAdmin(){
+  $('modalBox').innerHTML = `<h3>📋 Perguntas sem resposta</h3><p>No produto real, esta lista alimenta a equipe: cada pergunta que o robô não soube responder vira uma nova resposta na base.</p>`
+    + (unanswered.length ? '<ul>'+unanswered.map(u=>`<li>${esc(u)}</li>`).join('')+'</ul>' : '<p><i>Nenhuma ainda. Abra o Help Mom e tente perguntar algo fora da base!</i></p>')
+    + `<button class="close" onclick="document.getElementById('modal').classList.remove('show')">Fechar</button>`;
+  $('modal').classList.add('show');
+}
+init();
+</script>
+</body>
+</html>
