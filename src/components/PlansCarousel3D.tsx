@@ -64,6 +64,11 @@ const DEPTH = 0.14
 const RADIUS = 2.1
 /** Quanto o cartão da frente cresce (14%). */
 const FRONT_ZOOM = 0.14
+// Ícone do meio: 20% da altura dele mais para baixo do que antes (0,15).
+const ICON_Y = 0.15 - 0.2 * 1.7
+// Pulsada leve do cartão ao chegar na frente: duração (s) e quanto cresce.
+const PULSE_S = 0.7
+const PULSE_AMOUNT = 0.035
 /** A área de desenho é 16% mais alta que o card (passa da borda de baixo). Igual ao bottom de .plans3d-host. */
 const HOST_EXTRA = 0.16
 
@@ -271,10 +276,11 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     scene.add(ring)
 
     // Ícone do Círcula (só o símbolo) no meio do anel, atrás dos cartões da frente.
-    const iconGeo = new PlaneGeometry(1.7, 1.7)
+    // 10% maior e 20% mais baixo (pedido de 28/11/2026)
+    const iconGeo = new PlaneGeometry(1.87, 1.87)
     const iconMat = new MeshBasicMaterial({ transparent: true, toneMapped: false, depthWrite: false })
     const icon = new Mesh(iconGeo, iconMat)
-    icon.position.set(0, 0.15, -0.4)
+    icon.position.set(0, ICON_Y, -0.4)
     scene.add(icon)
     const iconTex = new TextureLoader().load(circulaIcone, () => {
       if (reduced || !visible) draw(lastNow)
@@ -290,6 +296,23 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     normalizeUv(faceGeo, CARD_W, CARD_H)
     // lateral dourada, como o fio de um cartão premium
     const bodyMat = new MeshBasicMaterial({ color: new Color('#d9b56c') })
+
+    // sombra leve embaixo de cada cartão (acompanha o giro e dá sensação de movimento)
+    const shadowCanvas = document.createElement('canvas')
+    shadowCanvas.width = 256
+    shadowCanvas.height = 64
+    const sc = shadowCanvas.getContext('2d')
+    if (sc) {
+      const g = sc.createRadialGradient(128, 32, 4, 128, 32, 128)
+      g.addColorStop(0, 'rgba(30, 18, 10, 0.42)')
+      g.addColorStop(1, 'rgba(30, 18, 10, 0)')
+      sc.fillStyle = g
+      sc.setTransform(1, 0, 0, 0.25, 0, 24)
+      sc.fillRect(0, 0, 256, 256)
+    }
+    const shadowTex = new CanvasTexture(shadowCanvas)
+    const shadowGeo = new PlaneGeometry(CARD_W * 1.05, 0.3)
+    const shadowMat = new MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false })
 
     const aniso = renderer.capabilities.getMaxAnisotropy()
     const cards = SPECS.map((spec) => {
@@ -314,7 +337,9 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       const b = new Mesh(faceGeo, bmat)
       b.rotation.y = Math.PI
       b.position.z = -DEPTH / 2 - 0.002
-      group.add(body, f, b)
+      const shadow = new Mesh(shadowGeo, shadowMat)
+      shadow.position.set(0, -CARD_H / 2 - 0.1, -0.05)
+      group.add(shadow, body, f, b)
       ring.add(group)
 
       const paint = (foto: Foto) => {
@@ -329,7 +354,7 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       if (bc) verso(bc, CW, CH)
       btex.needsUpdate = true
       paint(null)
-      return { spec, group, body, fmat, bmat, ftex, btex, paint, url: null as string | null }
+      return { spec, group, body, fmat, bmat, ftex, btex, paint, url: null as string | null, inFront: false, pulseAt: -1 }
     })
 
     function carregarFotos() {
@@ -377,13 +402,22 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       const t = reduced ? 0 : (now - t0) / 1000
       const rot = t * RING_SPEED
       // o ícone acompanha a câmera de leve (respira), sem girar com o anel
-      icon.position.y = 0.15 + Math.sin(t * 0.9) * 0.04
+      icon.position.y = ICON_Y + Math.sin(t * 0.9) * 0.04
       for (const c of cards) {
         const p = slotPose(c.spec.angle, rot, RADIUS)
         // O da frente cresce (zoom para a frente): a borda de cima fica no lugar (não sobe na Marluce)
         // e ele desce, cobrindo parte da borda de baixo do card grande.
         const z = Math.pow(p.front, 6)
-        const s = 1 + FRONT_ZOOM * z
+        // ao chegar na frente, uma pulsada bem leve (uma vez por chegada)
+        if (!c.inFront && z > 0.9) {
+          c.inFront = true
+          c.pulseAt = t
+        } else if (c.inFront && z < 0.6) {
+          c.inFront = false
+        }
+        const since = t - c.pulseAt
+        const pulse = !reduced && c.pulseAt >= 0 && since < PULSE_S ? Math.sin((Math.PI * since) / PULSE_S) * PULSE_AMOUNT : 0
+        const s = (1 + FRONT_ZOOM * z) * (1 + pulse)
         c.group.scale.setScalar(s)
         c.group.position.set(p.x, -((s - 1) * CARD_H) / 2, p.z + 0.25 * z)
         c.group.rotation.y = p.face
@@ -459,6 +493,9 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
       bodyGeo.dispose()
       faceGeo.dispose()
       iconGeo.dispose()
+      shadowGeo.dispose()
+      shadowMat.dispose()
+      shadowTex.dispose()
       iconMat.dispose()
       iconTex.dispose()
       bodyMat.dispose()

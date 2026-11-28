@@ -23,9 +23,11 @@ export interface HomeDecor {
   hat_size: number
   hat_rotate: number
   snow_enabled: boolean
+  /** Imagem do fim da página do Início: 1 (tom areia) ou 2 (cores originais). */
+  end_image: 1 | 2
 }
 
-export const DEFAULT_DECOR: HomeDecor = { hat_enabled: true, hat_x: 70, hat_y: 55, hat_size: 16, hat_rotate: -12, snow_enabled: true }
+export const DEFAULT_DECOR: HomeDecor = { hat_enabled: true, hat_x: 70, hat_y: 55, hat_size: 16, hat_rotate: -12, snow_enabled: true, end_image: 1 }
 
 const CACHE = 'circula:home-decor:'
 
@@ -42,11 +44,12 @@ export function useHomeDecor(communityId: string | null) {
     if (!communityId) return
     const { data } = await supabase
       .from('home_decor')
-      .select('hat_enabled, hat_x, hat_y, hat_size, hat_rotate, snow_enabled')
+      .select('hat_enabled, hat_x, hat_y, hat_size, hat_rotate, snow_enabled, end_image')
       .eq('community_id', communityId)
       .maybeSingle()
     const next = data ? ({ ...DEFAULT_DECOR, ...(data as Partial<HomeDecor>) } as HomeDecor) : DEFAULT_DECOR
     for (const k of ['hat_x', 'hat_y', 'hat_size', 'hat_rotate'] as const) next[k] = Number(next[k])
+    next.end_image = Number(next.end_image) === 2 ? 2 : 1
     setDecor(next)
     try {
       localStorage.setItem(CACHE + communityId, JSON.stringify(next))
@@ -283,31 +286,39 @@ export function SnowGlobe({ enabled }: { enabled: boolean }) {
 }
 
 // ---------------------------------------------------------------- Painel
+/** Painel → Fim da página: qual das duas imagens aparece no fim do Início. */
+export function EndImageChoice({ communityId }: { communityId: string }) {
+  const { decor, save } = useHomeDecor(communityId)
+  const [msg, setMsg] = useState('')
+  const pick = async (n: 1 | 2) => {
+    const err = await save({ ...decor, end_image: n })
+    setMsg(err ? `Não foi possível salvar: ${err}` : 'Salvo.')
+  }
+  return (
+    <div className="decor-admin" role="radiogroup" aria-label="Imagem do fim da página">
+      <p className="home-muted">Qual imagem aparece agora no fim do Início:</p>
+      <label className="decor-check">
+        <input type="radio" name="end-image" checked={decor.end_image === 1} onChange={() => void pick(1)} /> Imagem 1 (em tom areia bem clarinho)
+      </label>
+      <label className="decor-check">
+        <input type="radio" name="end-image" checked={decor.end_image === 2} onChange={() => void pick(2)} /> Imagem 2 (cores originais, para os temas do ano)
+      </label>
+      {msg && <p className="home-muted">{msg}</p>}
+    </div>
+  )
+}
+
 export function HomeDecorManager({ communityId }: { communityId: string }) {
   const { decor, save } = useHomeDecor(communityId)
   const [draft, setDraft] = useState<HomeDecor | null>(null)
   const [msg, setMsg] = useState('')
   const d = draft ?? decor
   const set = (patch: Partial<HomeDecor>) => setDraft({ ...d, ...patch })
-  const slider = (key: 'hat_x' | 'hat_y' | 'hat_size' | 'hat_rotate', label: string, min: number, max: number, step = 0.5) => (
-    <label className="decor-slider">
-      {label}: <strong>{d[key]}</strong>
-      <input type="range" min={min} max={max} step={step} value={d[key]} onChange={(e) => set({ [key]: Number(e.target.value) } as Partial<HomeDecor>)} />
-    </label>
-  )
   return (
     <div className="decor-admin">
       <label className="decor-check">
-        <input type="checkbox" checked={d.hat_enabled} onChange={(e) => set({ hat_enabled: e.target.checked })} /> Mostrar o gorro de Papai Noel (15/11 a 06/01)
-      </label>
-      {slider('hat_x', 'Posição na horizontal (%)', 0, 100)}
-      {slider('hat_y', 'Posição na vertical (%)', 0, 100)}
-      {slider('hat_size', 'Tamanho (% da largura da foto)', 4, 60)}
-      {slider('hat_rotate', 'Inclinação (graus)', -90, 90, 1)}
-      <label className="decor-check">
         <input type="checkbox" checked={d.snow_enabled} onChange={(e) => set({ snow_enabled: e.target.checked })} /> Neve ao sacudir o celular (15/11 a 06/01)
       </label>
-      <p className="home-muted">Ajuste olhando o Início: o gorro deve ficar no canto do ícone que a Marluce segura na foto do topo.</p>
       <button
         type="button"
         className="water-primary"

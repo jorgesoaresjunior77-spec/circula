@@ -8,7 +8,7 @@ import { CircleImagesManager } from './CircleImagesManager'
 import { PartnersManager } from './PartnersManager'
 import { CityImagesAdmin } from './CityImagesAdmin'
 import { FluirPackagesEditor } from './Fluir'
-import { HomeDecorManager } from './HomeDecor'
+import { EndImageChoice, HomeDecorManager } from './HomeDecor'
 
 // Painel → Imagens, organizado por SETOR e por LUGAR no app: o que a profissional procura é
 // "onde isso aparece", então cada bloco diz a tela e a parte (ex.: Início · Para você).
@@ -129,8 +129,8 @@ const SECTIONS: Section[] = [
   },
   {
     id: 'natal',
-    title: 'Início · Natal (gorro e neve)',
-    summary: 'O gorro de Papai Noel sobre o ícone na mão da Marluce, na foto do topo, e a neve ao sacudir o celular.',
+    title: 'Início · Natal (neve)',
+    summary: 'A neve que cai pela tela ao sacudir o celular.',
     extra: ({ communityId }) => <HomeDecorManager communityId={communityId} />,
   },
   {
@@ -138,7 +138,11 @@ const SECTIONS: Section[] = [
     title: 'Início · Fim da página',
     summary: 'A imagem que ocupa o resto da tela depois dos parceiros, atrás dos termos de uso.',
     note: 'Uma imagem vertical (formato de celular). Ela preenche o espaço até o menu de baixo e esmaece no alto. Prefira um fundo suave, para os textos continuarem fáceis de ler.',
-    slots: [{ key: 'banner_series', label: 'Imagem do fim da página', where: 'Depois dos parceiros, no fim do Início.' }],
+    slots: [
+      { key: 'banner_series', label: 'Imagem 1 do fim da página (tom areia)', where: 'Depois dos parceiros, no fim do Início.' },
+      { key: 'banner_fim_2', label: 'Imagem 2 do fim da página (cores originais)', where: 'Depois dos parceiros, no fim do Início, quando escolhida.' },
+    ],
+    extra: ({ communityId }) => <EndImageChoice communityId={communityId} />,
   },
   {
     id: 'parceiros',

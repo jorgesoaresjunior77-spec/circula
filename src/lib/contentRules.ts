@@ -13,6 +13,10 @@
 //   Séries e filmes  1 vez por semana, às sextas
 //   Dicas de Viagem  a cada 30 dias (contando de 01/12/2026)
 //   Desafio do mês   último dia de cada mês (interage com as flores do Meu Jardim)
+//   Incentivo no Feed todo dia às 5h, AUTOMÁTICO (cron bom-dia-marluce): vozes Nutri Marluce,
+//                    App Círcula e Fluir & Florescer em rodízio, só com mensagens cadastradas
+//                    no Painel (MorningMessagesManager). Não entra no calendário: ninguém publica à mão.
+//   Parceiros/cupons: regra a definir quando houver dados. Cards do Fluir: imagens do Painel.
 //
 // Aviso no sino: 1 dia antes de cada publicação.
 

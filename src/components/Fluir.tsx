@@ -4,6 +4,7 @@ import { useSignedImageUrl } from '../hooks/useSignedImageUrl'
 import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { CoverImageInput } from './CoverImageInput'
 import fluirLogo from '../assets/fluir-logo.webp'
+import { HomeGroupTitle } from './HomeGroupTitle'
 
 // Fluir & Florescer: os pacotes de emagrecimento da nutricionista. Não são vendidos no app:
 // três cards que giram no próprio eixo (frente e verso cadastrados no Painel) e, ao tocar, a página
@@ -108,7 +109,7 @@ export function HomeFluirCards({ communityId, onOpen }: { communityId: string; o
   const { items } = useFluirPackages(communityId)
   return (
     <m.section className="home-fluir" aria-label="Fluir & Florescer" {...inViewOnce} variants={riseVariants}>
-      <h3 className="home-fluir-title">Fluir &amp; Florescer</h3>
+      <HomeGroupTitle>Fluir &amp; Florescer</HomeGroupTitle>
       <div className="home-fluir-row">
         {items.map((pkg, i) => (
           <FlipCard key={pkg.position} pkg={pkg} delay={i * 1.3} onOpen={() => onOpen(pkg.position)} />

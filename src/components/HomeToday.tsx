@@ -35,6 +35,7 @@ import { HomeQuotesTicker } from './HomeQuotesTicker'
 import { HomeGroupTitle } from './HomeGroupTitle'
 import { HomeFeatureBanner } from './HomeFeatureBanner'
 import { HomeMenuWheel } from './HomeMenuWheel'
+import { useHomeDecor } from './HomeDecor'
 import { useCarroHome } from '../lib/carro'
 import { HomeMaternidadeBanner } from './Maternidade'
 import { HomeCasamentoBanner } from './HomeCasamentoBanner'
@@ -213,7 +214,10 @@ export function HomeToday({
   const { url: novoCirculoCover } = useSignedImageUrl(cardImagePaths.novo_circulo ?? null)
   const { url: cidadeCover } = useSignedImageUrl(cardImagePaths.banner_cidade ?? null)
   // Imagem do fim da página (guardada sob a chave 'banner_series', que não tinha mais uso).
-  const { url: fimCover } = useSignedImageUrl(cardImagePaths.banner_series ?? null)
+  // Duas imagens para o fim (temas do ano): o Painel escolhe qual aparece; a 1 vai em tom areia.
+  const { decor: homeDecor } = useHomeDecor(focusCommunity?.id ?? null)
+  const endImage = homeDecor.end_image === 2 && cardImagePaths.banner_fim_2 ? 2 : 1
+  const { url: fimCover } = useSignedImageUrl((endImage === 2 ? cardImagePaths.banner_fim_2 : cardImagePaths.banner_series) ?? null)
   // Capa do Casamento (16:9), mostrada em 4 pedaços no Início.
   const { url: casamentoCover } = useSignedImageUrl(cardImagePaths.casamento_capa ?? null)
   const { city: myCity } = useMyCity()
@@ -444,6 +448,7 @@ export function HomeToday({
       </div>
 
       {/* Maternidade: linha, um respiro e a faixa desenhada de ponta a ponta (abre Mom e Baby). */}
+      <h3 className="home-mat-title">Maternidade</h3>
       <hr className="home-section-divider home-section-divider--mat" />
       <HomeMaternidadeBanner onOpen={() => onNavigate('maternidade')} />
 
@@ -473,7 +478,7 @@ export function HomeToday({
       />
 
       <div className={`home-end${fimCover ? ' home-end--photo' : ''}`}>
-        {fimCover && <img className="home-end-photo" src={fimCover} alt="" loading="lazy" decoding="async" />}
+        {fimCover && <img className={`home-end-photo${endImage === 1 ? ' home-end-photo--areia' : ''}`} src={fimCover} alt="" loading="lazy" decoding="async" />}
         <div className="home-end-content">
           <hr className="home-section-divider" />
           <HomeFooter />

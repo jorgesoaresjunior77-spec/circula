@@ -222,14 +222,7 @@ export function buildSwiss(watch: Group, track: Track): (h: number, m: number) =
   crown.rotation.z = Math.PI / 2
   crown.position.set(1.06, 0, -0.14)
   watch.add(crown)
-  // alças (onde a pulseira prende)
-  for (const sy of [1, -1]) {
-    for (const sx of [1, -1]) {
-      const lug = new Mesh(track(new CapsuleGeometry(0.06, 0.22, 4, 12)), silver)
-      lug.position.set(sx * 0.5, sy * 1.02, -0.16)
-      watch.add(lug)
-    }
-  }
+  // Sem as alças da pulseira em cima e embaixo (pedido de 28/11/2026): só a caixa redonda.
 
   const extrude = { depth: 0.025, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.008, bevelSegments: 2 }
   const hourHand = new Group()

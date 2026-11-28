@@ -40,6 +40,7 @@ import './rodada26.css'
 import './rodada28.css'
 import './rodada29.css'
 import './rodada30.css'
+import './rodada31.css'
 import { PublicWeddingPage } from './components/PublicWeddingPage'
 import { readPublicWeddingParam } from './lib/wedding'
 

@@ -75,7 +75,7 @@ import { cachedHeroPath, useCommunityCardImages } from '../hooks/useCommunityCar
 import { MaternidadeContentPage, MaternidadePage } from './Maternidade'
 import { CasamentoPage } from './CasamentoPage'
 import { FluirPage } from './Fluir'
-import { HeroSantaHat, SnowGlobe, useHomeDecor } from './HomeDecor'
+import { SnowGlobe, useHomeDecor } from './HomeDecor'
 import { heroImage } from '../lib/heroRotation'
 import { HomeGreeting } from './HomeGreeting'
 import { WeatherButton } from './WeatherButton'
@@ -1724,7 +1724,6 @@ export function Dashboard({
       {coverHero && heroUrl && (
         <div className="hero-bg" ref={heroBgRef} aria-hidden="true">
           <img src={heroUrl} alt="" decoding="async" />
-          <HeroSantaHat decor={homeDecor} />
         </div>
       )}
       <header className="dashboard-header">

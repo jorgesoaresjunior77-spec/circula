@@ -1,0 +1,182 @@
+/* ==========================================================================
+   Rodada 28/11/2026: ajustes rápidos da página inicial.
+   Importado por último (depois do rodada30.css).
+   ========================================================================== */
+
+/* ---- Topo: perto do logo do Círcula, a foto fica uma coisa mínima mais clara ---- */
+.dashboard--hero .dashboard-header .brand {
+  position: relative;
+  isolation: isolate;
+}
+.dashboard--hero .dashboard-header .brand::before {
+  content: '';
+  position: absolute;
+  inset: -18px -28px -14px -22px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 250, 244, 0.2), rgba(255, 250, 244, 0));
+}
+
+/* ---- Sino 10% maior (era 1,1) e "Sair" 10% menor ---- */
+.dashboard-header .notification-bell-icon {
+  scale: 1.21;
+}
+.dashboard-header .dashboard-user > button {
+  scale: 0.9;
+  transform-origin: 100% 50%;
+}
+
+/* ---- Card "Fluir & Florescer" do topo: sem as bordas (o vidro e o texto ficam) ---- */
+.home-community-header--hero .home-community-glass,
+.home-community-header--hero .home-community-glass::before {
+  border: 0 !important;
+}
+.home-community-header--hero .home-community-glass {
+  box-shadow: none !important;
+}
+
+/* ---- Cards de Hoje: a sombra fica na própria bordinha bege de baixo, não fora do card ---- */
+.exp-strip--hoje .exp-card {
+  filter: none !important;
+}
+.exp-strip--hoje .exp-card--photo .exp-card-frame {
+  position: relative;
+  overflow: hidden;
+}
+.home .exp-strip--hoje .exp-card--photo .exp-card-frame::after {
+  display: block !important;
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 13%;
+  z-index: 2;
+  opacity: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  background: linear-gradient(0deg, rgba(70, 46, 30, 0.26) 0%, rgba(70, 46, 30, 0.1) 55%, rgba(70, 46, 30, 0) 100%);
+}
+
+/* ---- Agenda: sem borda nenhuma e com o mesmo balanço do relógio 3D ---- */
+.home-time > .home-week,
+.home-time .home-week .home-week-open,
+.home-time .home-week .home-week-grid {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@property --week-rx {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --week-ry {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+/* relógio: inclina ±2,9° em X (a cada ~14 s) e ±6,9° em Y (a cada ~10,5 s), um pouco virado */
+@keyframes week-clock-rx {
+  0% { --week-rx: 0.5deg; }
+  50% { --week-rx: 6.3deg; }
+  100% { --week-rx: 0.5deg; }
+}
+@keyframes week-clock-ry {
+  0% { --week-ry: -12.6deg; }
+  50% { --week-ry: 1.2deg; }
+  100% { --week-ry: -12.6deg; }
+}
+.home-time .home-week {
+  perspective: 700px;
+}
+.home-time .home-week .home-week-open {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--week-rx)) rotateY(var(--week-ry)) !important;
+  animation:
+    week-clock-rx 14s ease-in-out infinite,
+    week-clock-ry 10.5s ease-in-out infinite !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-time .home-week .home-week-open {
+    animation: none !important;
+    transform: rotateX(3.4deg) rotateY(-5.7deg) !important;
+  }
+}
+
+/* ---- Círculos: borda bege clarinho ---- */
+.circ-card-frame {
+  box-shadow:
+    0 0 0 3px rgba(246, 236, 222, 0.95),
+    0 0 0 4px rgba(226, 206, 180, 0.9),
+    0 10px 12px -8px rgba(40, 26, 18, 0.32) !important;
+}
+
+/* ---- Para você: uma sombrinha leve nos cards ---- */
+.home-pair > :not(.home-pair-dot) {
+  filter: drop-shadow(0 6px 9px rgba(60, 40, 28, 0.14));
+}
+
+/* ---- Maternidade: título em cima da linha, à esquerda ---- */
+.home-mat-title {
+  margin: 30px 0 4px;
+  font-family: var(--font-display, inherit);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--text);
+}
+.home-mat-title + .home-section-divider {
+  margin-top: 4px !important;
+}
+
+/* ---- Fluir & Florescer: respiro depois do Casamento, título com a fonte dos títulos e linhas finas
+        dos dois lados, e espaço embaixo para a imagem da Marluce (Planos) ---- */
+.home-fluir {
+  margin-top: 40px !important;
+  margin-bottom: 44px !important;
+}
+.home-fluir > .home-group-title {
+  margin-top: 0;
+}
+.home-fluir + .home-section-divider {
+  margin-top: 0 !important;
+}
+
+/* ---- Planos: sem a linha reta em cima da cabeça da Marluce; o marrom nasce num degradê leve ---- */
+.home-plans-wrap .home-plans-card.home-plans-card--3d {
+  border: 0 !important;
+  box-shadow: none !important;
+  background:
+    radial-gradient(70% 55% at 50% 42%, rgba(250, 230, 190, 0.3), rgba(250, 230, 190, 0) 70%),
+    linear-gradient(180deg, rgba(132, 96, 74, 0) 0%, rgba(132, 96, 74, 0.55) 12%, #84604a 26%, #59402f 100%) !important;
+}
+
+/* ---- Fim da página: a imagem 1 (a folha) em tom areia bem clarinho; a 2 fica com as cores dela ---- */
+.home-end-photo.home-end-photo--areia {
+  filter: grayscale(1) sepia(0.3) brightness(1.2) contrast(0.78) !important;
+}
+
+/* ---- Painel: Incentivo das 5h no Feed ---- */
+.morning-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+.morning-list li.is-off {
+  opacity: 0.5;
+}
+.morning-list p {
+  margin: 0 0 4px;
+  white-space: pre-wrap;
+}
+.morning-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}

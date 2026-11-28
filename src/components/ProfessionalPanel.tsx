@@ -14,6 +14,7 @@ import { PanelImagesTab } from './PanelImagesTab'
 import { FeedbackInbox } from './FeedbackInbox'
 import { CarroAdmin } from './CarroAdmin'
 import { ContentSchedulePanel } from './ContentSchedulePanel'
+import { MorningMessagesManager } from './MorningMessagesManager'
 import { PanelInviteCta } from './PanelInviteCta'
 import type {
   AddMemberResult,
@@ -212,6 +213,7 @@ export function ProfessionalPanel({
       {activeTab === 'agenda' && (
         <div className="panel-tab-content">
           <ContentSchedulePanel communityId={communityId} />
+          <MorningMessagesManager />
         </div>
       )}
 

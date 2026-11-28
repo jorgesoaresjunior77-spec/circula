@@ -125,7 +125,7 @@ body{background:var(--bg);display:block}
   <div class="chat" id="chat" aria-hidden="true">
     <div class="ch">
       <div class="av" id="chAv"></div>
-      <div class="t"><b>Help Mom · Bibi</b><span>● online, pode perguntar</span></div>
+      <div class="t"><b>Help Mom · Livi</b><span>● online, pode perguntar</span></div>
       <select id="ageSel" aria-label="Idade do bebê"></select>
       <button class="x" onclick="closeChat()" aria-label="Fechar">✕</button>
     </div>
@@ -334,7 +334,7 @@ function openChat(cat,q){
   $('chat').classList.add('open'); $('chat').setAttribute('aria-hidden','false');
   if(!greeted){
     greeted=true;
-    addMsg(`<p><b>Oi, mamãe! Eu sou a Bibi 💗</b></p><p>Posso ajudar com <b>crescimento, alimentação, doenças, vacinas e cuidados</b> do seu bebê. Escolha um assunto ou escreva sua dúvida.</p>`
+    addMsg(`<p><b>Oi, mamãe! Eu sou a Livi 💗</b></p><p>Posso ajudar com <b>crescimento, alimentação, doenças, vacinas e cuidados</b> do seu bebê. Escolha um assunto ou escreva sua dúvida.</p>`
       + chipsHtml(['Quando começar a papinha e os alimentos?','O que fazer se o bebê estiver com febre?','Qual a próxima vacina do meu bebê?','O que é cólica e como aliviar?']));
   }
   if(cat) showCat(cat);
