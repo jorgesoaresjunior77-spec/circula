@@ -2325,3 +2325,11 @@ A validação visual manual em navegador da aba "Publicar incentivo" (seleção 
 - **Premium:** R$ 49,90 até 30/11/2026; R$ 59,90 a partir de 01/12/2026 (app e servidor).
 - **Relógio:** 3 modelos em 3D (clássico, rosé digital, suíço prata e ouro), escolhidos no Relógio do mundo.
 - **Natal (15/11 a 06/01):** gorro 3D sobre a foto do topo (posição no Painel, tabela `home_decor`) e neve ao sacudir o celular.
+
+## Regra fechada 2026-11-28 — Indicação Premium (convide e ganhe 10%)
+
+- **Quem pode indicar:** quem tem o Círcula Premium. O link de convite do círculo leva a indicação (`?ref=`), gravada em `referrals` quando a amiga entra (`join_community_by_invite`).
+- **A convidada:** ganha 10% de desconto na **primeira** assinatura do Premium, desde que quem indicou ainda tenha o Premium na hora. O servidor (`asaas-create-addon-subscription`) aplica e marca `discount_used_at`.
+- **Quem convidou:** ganha 10% de desconto no **próximo ciclo de pagamento** dela, automaticamente, **só depois que a convidada paga o Premium** (entrar não basta). O `asaas-webhook` marca `referrals.invitee_premium_paid_at` no pagamento confirmado do Premium da convidada, avisa quem convidou no sino e, na próxima cobrança criada pelo Asaas (PAYMENT_CREATED), baixa o valor em 10% e marca `inviter_reward_applied_at` / `inviter_reward_payment`. Uma convidada = um ciclo com desconto; várias convidadas = vários ciclos, um por vez.
+- **Registro no app:** Perfil → bloco "Convide e ganhe 10%", com cada amiga (primeiro nome), a data em que entrou e o estado: entrou / assinou o Premium / desconto aplicado na cobrança de tal dia (RPC `my_invite_list`).
+- Migration `20261230120000_indicacao_premium_paga.sql`.

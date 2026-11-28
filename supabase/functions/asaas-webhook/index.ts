@@ -450,6 +450,7 @@ async function handleAddonSubscriptionEvent(
         console.error('asaas-webhook: falha ao tratar avulsos repetidos do Premium', overlapError)
       }
     }
+    if (addon.plan_key === 'premium') await markInviteePremiumPaid(admin, addon.profile_id as string)
     if (addon.plan_key === 'premium' && newEnd) {
       await admin
         .from('subscriptions')
@@ -496,12 +497,36 @@ async function handleAddonSubscriptionEvent(
 // Processa eventos Asaas cujo externalReference e product_order:<order_id>.
 // Nunca toca em subscriptions / payment_charges / billing_plans. Usa somente
 // os snapshots ja congelados em product_orders (item 11).
-// Desconto de quem convida amigas: cada amiga que entrou pelo convite vale 10% no
-// PRÓXIMO ciclo da assinatura de quem convidou (Círcula ou avulso/Premium). Quando
+// Desconto de quem convida amigas: cada amiga que entrou pelo convite E PAGOU o
+// Premium vale 10% no PRÓXIMO ciclo da assinatura de quem convidou (Círcula ou
+// avulso/Premium). Regra do usuário (28/11/2026): só entrar não basta. Quando
 // o Asaas cria a cobrança do ciclo (PAYMENT_CREATED, ainda pendente), baixa o valor
 // dela em 10% e marca a indicação como usada (uma amiga = um ciclo com desconto).
 // À prova de falha: qualquer erro aqui só é registrado e a cobrança segue normal.
 const INVITER_DISCOUNT_PERCENT = 10
+
+// A convidada pagou o Premium: registra (uma vez) e avisa quem convidou que o
+// próximo ciclo dela vem com 10%. À prova de falha: nunca derruba o pagamento.
+async function markInviteePremiumPaid(admin: ReturnType<typeof createClient>, inviteeId: string): Promise<void> {
+  try {
+    const { data: marked } = await admin
+      .from('referrals')
+      .update({ invitee_premium_paid_at: new Date().toISOString() })
+      .eq('invitee_id', inviteeId)
+      .is('invitee_premium_paid_at', null)
+      .select('inviter_id')
+    const inviterId = marked?.[0]?.inviter_id as string | undefined
+    if (!inviterId) return
+    await admin.from('notifications').insert({
+      profile_id: inviterId,
+      type: 'billing',
+      title: 'Sua amiga assinou o Premium',
+      body: 'Uma amiga que entrou pelo seu convite assinou o Premium. O seu próximo ciclo de pagamento vem com 10% de desconto, automaticamente.',
+    })
+  } catch (error) {
+    console.error('asaas-webhook: erro ao registrar Premium da convidada', (error as Error).message)
+  }
+}
 
 async function applyInviterReward(
   admin: ReturnType<typeof createClient>,
@@ -538,6 +563,7 @@ async function applyInviterReward(
       .select('invitee_id')
       .eq('inviter_id', profileId)
       .is('inviter_reward_applied_at', null)
+      .not('invitee_premium_paid_at', 'is', null)
       .order('created_at', { ascending: true })
       .limit(1)
     const inviteeId = pending?.[0]?.invitee_id as string | undefined

@@ -5,28 +5,47 @@ import { CityListingCard } from './CityListingCard'
 
 // Perfil: o desconto de quem convida amigas, a cidade escolhida e "Meus salvos".
 
-/** Quem convida amigas ganha 10% de desconto no próximo ciclo da assinatura. */
+/** Indicação: quem tem o Premium convida; quando a amiga entra pelo convite e PAGA o
+ *  Premium, quem convidou ganha 10% no próximo ciclo de pagamento, automaticamente
+ *  (o webhook do Asaas aplica). Aqui fica registrado cada convite e em que pé está. */
+type InviteRow = { nome: string; entrou_em: string; premium_pago_em: string | null; desconto_aplicado_em: string | null }
+
+function inviteStatus(r: InviteRow): string {
+  if (r.desconto_aplicado_em) {
+    return `desconto de 10% aplicado na cobrança de ${new Date(r.desconto_aplicado_em).toLocaleDateString('pt-BR')}`
+  }
+  if (r.premium_pago_em) return 'assinou o Premium: o seu próximo ciclo vem com 10%'
+  return 'entrou; o desconto vale quando ela assinar o Premium'
+}
+
 export function InviteDiscountNote() {
-  const [count, setCount] = useState<number | null>(null)
+  const [rows, setRows] = useState<InviteRow[] | null>(null)
   useEffect(() => {
     let cancelled = false
-    void supabase.rpc('my_invite_count').then(({ data, error }) => {
-      if (!cancelled && !error && typeof data === 'number') setCount(data)
+    void supabase.rpc('my_invite_list').then(({ data, error }) => {
+      if (!cancelled && !error && Array.isArray(data)) setRows(data as InviteRow[])
     })
     return () => {
       cancelled = true
     }
   }, [])
   return (
-    <p className="cty-profile-discount">
-      <strong>10% de desconto no seu próximo ciclo.</strong> A participante que convida amigas para o Círculo ganha 10% de desconto no próximo ciclo da assinatura.
-      {count !== null && count > 0 && (
-        <>
-          {' '}
-          Já entraram {count} {count === 1 ? 'amiga' : 'amigas'} pelo seu convite.
-        </>
+    <div className="cty-profile-discount">
+      <p>
+        <strong>Convide e ganhe 10%.</strong> Quem tem o Premium convida uma amiga pelo link do círculo. Ela ganha 10% de
+        desconto na primeira assinatura do Premium. Quando ela entra e paga o Premium, você ganha 10% de desconto no seu
+        próximo ciclo de pagamento, automaticamente (uma amiga, um ciclo).
+      </p>
+      {rows && rows.length > 0 && (
+        <ul className="cty-invite-list">
+          {rows.map((r, i) => (
+            <li key={i}>
+              <strong>{r.nome}</strong> ({new Date(r.entrou_em).toLocaleDateString('pt-BR')}): {inviteStatus(r)}
+            </li>
+          ))}
+        </ul>
       )}
-    </p>
+    </div>
   )
 }
 

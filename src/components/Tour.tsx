@@ -219,7 +219,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targets: ['#tour-nav-mobile-perfil', '#tour-nav-desktop-perfil'],
     title: 'Meu perfil',
-    text: 'Sua capa, suas fotos, os depoimentos que você recebe, a sua cidade e os lugares que você salvou (Meus salvos), o Meu Jardim, o convite para amigas (quem convida ganha 10% de desconto no próximo ciclo da assinatura), a sua assinatura e, no fim, a Administração (trocar a senha, cancelar assinaturas e excluir a conta). No Feed, toque na foto de outra participante para visitar o perfil dela.',
+    text: 'Sua capa, suas fotos, os depoimentos que você recebe, a sua cidade e os lugares que você salvou (Meus salvos), o Meu Jardim, o convite para amigas (quando a amiga entra pelo seu convite e assina o Premium, você ganha 10% de desconto no próximo ciclo, e cada convite fica registrado ali), a sua assinatura e, no fim, a Administração (trocar a senha, cancelar assinaturas e excluir a conta). No Feed, toque na foto de outra participante para visitar o perfil dela.',
   },
   {
     targets: ['#tour-notification-bell'],

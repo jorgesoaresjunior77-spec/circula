@@ -643,6 +643,17 @@
   line-height: 1.5;
   color: var(--n-800);
 }
+.cty-profile-discount > p {
+  margin: 0;
+}
+.cty-invite-list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 15px;
+}
+.cty-invite-list li + li {
+  margin-top: 4px;
+}
 
 @media (min-width: 720px) {
   .cty-group-grid {

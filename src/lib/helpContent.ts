@@ -220,7 +220,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         id: 'ap-13',
         q: 'Ganho desconto por convidar amigas?',
-        a: 'Sim. Quem convida amigas ganha 10% de desconto no próximo ciclo da assinatura para cada amiga que entra pelo seu convite. Quem chega pelo convite de quem tem o Premium ganha 10% de desconto na primeira assinatura do Premium.',
+        a: 'Sim. Quem tem o Premium convida pelo link do círculo. A amiga que chega por esse convite ganha 10% de desconto na primeira assinatura do Premium. Quando ela entra e paga o Premium, você ganha 10% de desconto no seu próximo ciclo de pagamento, automaticamente (uma amiga, um ciclo). No seu Perfil fica a lista das amigas que você convidou e em que pé está cada desconto.',
         k: 'desconto convite convidar amiga indicação 10%',
       },
       {
