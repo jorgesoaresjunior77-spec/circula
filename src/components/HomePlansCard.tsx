@@ -41,6 +41,8 @@ export function HomePlansCard({ image = null, cardImages = {}, onOpen }: Props) 
 
   return (
     <m.section className="home-plans-wrap" {...inViewOnce} variants={riseVariants} aria-label="Planos e assinaturas">
+      {/* Título acima da cabeça da Marluce, no mesmo estilo de "Círculos" e da revista. */}
+      <h2 className="circ-strip-title home-plans-heading">Pacotes de Emagrecimento</h2>
       <button type="button" className="home-plans-card home-plans-card--3d" onClick={onOpen} aria-label="Planos e assinaturas: ver os planos">
         <img className="plans3d-woman" src={image || marluce} alt="" draggable={false} />
         {failed ? (

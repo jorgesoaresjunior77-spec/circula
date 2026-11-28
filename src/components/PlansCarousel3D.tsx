@@ -63,14 +63,14 @@ const CARD_H = (CARD_W * CH) / CW
 const DEPTH = 0.14
 const RADIUS = 2.1
 /** Quanto o cartão da frente cresce (14%). */
-const FRONT_ZOOM = 0.14
+const FRONT_ZOOM = 0.22
 // Ícone do meio: 20% da altura dele mais para baixo do que antes (0,15).
 const ICON_Y = 0.15 - 0.2 * 1.7
 // Pulsada leve do cartão ao chegar na frente: duração (s) e quanto cresce.
 const PULSE_S = 0.7
 const PULSE_AMOUNT = 0.035
 /** A área de desenho é 16% mais alta que o card (passa da borda de baixo). Igual ao bottom de .plans3d-host. */
-const HOST_EXTRA = 0.16
+const HOST_EXTRA = 0.24
 
 function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
@@ -304,14 +304,14 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
     const sc = shadowCanvas.getContext('2d')
     if (sc) {
       const g = sc.createRadialGradient(128, 32, 4, 128, 32, 128)
-      g.addColorStop(0, 'rgba(30, 18, 10, 0.42)')
+      g.addColorStop(0, 'rgba(30, 18, 10, 0.52)')
       g.addColorStop(1, 'rgba(30, 18, 10, 0)')
       sc.fillStyle = g
       sc.setTransform(1, 0, 0, 0.25, 0, 24)
       sc.fillRect(0, 0, 256, 256)
     }
     const shadowTex = new CanvasTexture(shadowCanvas)
-    const shadowGeo = new PlaneGeometry(CARD_W * 1.05, 0.3)
+    const shadowGeo = new PlaneGeometry(CARD_W * 1.1, 0.36)
     const shadowMat = new MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false })
 
     const aniso = renderer.capabilities.getMaxAnisotropy()
@@ -419,7 +419,7 @@ export default function PlansCarousel3D({ images, reduced = false, onFail }: Pro
         const pulse = !reduced && c.pulseAt >= 0 && since < PULSE_S ? Math.sin((Math.PI * since) / PULSE_S) * PULSE_AMOUNT : 0
         const s = (1 + FRONT_ZOOM * z) * (1 + pulse)
         c.group.scale.setScalar(s)
-        c.group.position.set(p.x, -((s - 1) * CARD_H) / 2, p.z + 0.25 * z)
+        c.group.position.set(p.x, -((s - 1) * CARD_H) / 2, p.z + 0.45 * z)
         c.group.rotation.y = p.face
         // Os que vão para trás escurecem um pouco: dá profundidade.
         const k = 0.62 + 0.38 * Math.pow(p.front, 0.7)

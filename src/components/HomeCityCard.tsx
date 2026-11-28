@@ -15,7 +15,11 @@ interface HomeCityCardProps {
 
 export function HomeCityCard({ image, onOpen, badge = 0 }: HomeCityCardProps) {
   return (
-    <section className="home-city-wrap" aria-label="Minha cidade">
+    <section className="home-city-wrap" aria-labelledby="home-city-heading">
+      {/* "Minha cidade" fica fora do card, em cima e à esquerda, como a palavra "Círculos". */}
+      <h2 id="home-city-heading" className="circ-strip-title home-city-heading">
+        Minha cidade
+      </h2>
       <m.button
         type="button"
         className="home-editorial-card home-city-card"
@@ -34,7 +38,6 @@ export function HomeCityCard({ image, onOpen, badge = 0 }: HomeCityCardProps) {
         </span>
         <span className="home-editorial-card-body">
           <span className="home-editorial-card-eyebrow">Ache locais e profissionais</span>
-          <span className="home-editorial-card-title">Minha cidade</span>
         </span>
       </m.button>
     </section>

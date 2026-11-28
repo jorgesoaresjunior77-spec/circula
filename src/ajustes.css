@@ -145,8 +145,8 @@ html:has(.auth-stage) body {
   right: 0;
   bottom: 0;
   height: 100vh;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100svh;
+  min-height: 100svh;
   background-size: cover;
   background-position: center;
   background-attachment: scroll;

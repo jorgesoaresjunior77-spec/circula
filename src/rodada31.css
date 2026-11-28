@@ -180,3 +180,126 @@
   gap: 14px;
   flex-wrap: wrap;
 }
+
+/* ---- Login: medido em svh (não muda quando a barra do Safari ou o teclado aparecem), sem quicar ---- */
+.auth-stage {
+  overscroll-behavior: none;
+}
+
+/* ==========================================================================
+   Rodada 28/11/2026 (noite)
+   ========================================================================== */
+
+/* ---- Títulos Hoje, Descobrir, Para você, Maternidade, Casamento e Fluir & Florescer: 10% menores ---- */
+.home-group-title,
+.home-mat-title {
+  font-size: 1.035rem !important;
+}
+
+/* ---- Depois dos Círculos: um respiro; "Minha cidade" fora do card, em cima à esquerda (como "Círculos") ---- */
+.home-city-wrap {
+  margin-top: 56px !important;
+}
+.home-city-wrap > .home-city-heading {
+  margin: 0 0 14px;
+  text-align: left;
+}
+/* dentro do card fica só a frase, um pouco mais para baixo */
+.home-city-card .home-editorial-card-body {
+  justify-content: flex-end;
+  padding-bottom: 6px;
+}
+.home-city-card .home-editorial-card-eyebrow {
+  translate: 0 8px;
+}
+
+/* ---- "Revista Círcula Magazine" mais perto da revista; depois da revista, um respiro até os cards ---- */
+.mag-strip > .circ-strip-title {
+  margin-bottom: 16px !important;
+  translate: 0 6px;
+}
+.mag-strip + .home-section-divider {
+  margin-top: 22px !important;
+}
+
+/* ---- Maternidade sobe (e tudo o que vem depois sobe junto) ---- */
+.home-mat-title {
+  margin-top: 14px !important;
+}
+
+/* ---- Casamento: o mínimo de espaço até o card ---- */
+.home-group-title:has(+ .home-cas) {
+  margin-bottom: 4px !important;
+}
+.home-cas {
+  margin-top: 0 !important;
+}
+
+/* ---- Fluir & Florescer: o mesmo espaço até os 3 cards; a frase de baixo em uma linha só ---- */
+.home-fluir > .home-group-title {
+  margin-bottom: 4px !important;
+}
+.home-fluir-note {
+  white-space: nowrap;
+  font-size: clamp(9px, 2.75vw, 12.5px) !important;
+  letter-spacing: -0.01em;
+  text-align: center;
+  margin-inline: 0 !important;
+}
+
+/* ---- Planos: título acima da cabeça da Marluce; a foto dela esmaece em todas as bordas ---- */
+.home-plans-wrap > .home-plans-heading {
+  margin: 0 0 18px;
+  text-align: left;
+}
+.home-plans-wrap .home-plans-card--3d .plans3d-woman {
+  border-radius: 0 !important;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 16%, #000 58%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 16%, #000 58%, transparent 100%);
+  mask-composite: intersect;
+}
+/* o cartão da frente cresce mais: a área 3D passa mais da borda de baixo (HOST_EXTRA = 0,24) e
+   "Parceiros" desce junto para não ser invadido */
+.home-plans-wrap .home-plans-card--3d .plans3d-host {
+  inset: 0 0 -24% 0 !important;
+}
+.home-plans-wrap {
+  margin-bottom: 84px !important;
+}
+
+/* ---- Agenda: 3D (letras e números em relevo, com o balanço do relógio), sem bordas ---- */
+.home-time .home-week .home-week-grid {
+  transform-style: preserve-3d;
+}
+.home .home-time .home-week .home-week-title {
+  transform: translateZ(16px);
+  text-shadow: 0 1px 0 #fff, 0 2px 0 rgba(170, 140, 115, 0.45), 0 3px 0 rgba(150, 120, 95, 0.3), 0 5px 6px rgba(53, 48, 44, 0.25) !important;
+}
+.home .home-time .home-week .home-week-weekday {
+  transform: translateZ(8px);
+  text-shadow: 0 1px 0 #fff, 0 2px 3px rgba(53, 48, 44, 0.2) !important;
+}
+.home .home-time .home-week .home-week-day {
+  transform: translateZ(12px);
+  border: 0 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 0 rgba(150, 120, 95, 0.35), 0 4px 5px rgba(53, 48, 44, 0.22) !important;
+}
+.home .home-time .home-week .home-week-day--today {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 4px 8px -2px rgba(40, 28, 20, 0.45) !important;
+}
+
+/* ---- Dia e data embaixo do relógio: 10% menores ---- */
+.home-clock-date {
+  font-size: 11.7px !important;
+}
+
+/* ---- Casamento: sem moldura e sem sombra em volta (só a sombra desenhada embaixo dos pedaços de baixo) ---- */
+.home-cas-svg {
+  filter: none !important;
+}

@@ -3,16 +3,18 @@ import { m, inViewOnce, riseVariants } from '../lib/motionKit'
 import { RingsPlanIcon } from './PlanIcons'
 
 // Capa do Casamento no Início: uma foto 16:9 cadastrada pela profissional, mostrada em 4 pedaços
-// (retângulos de tamanhos diferentes, com espaço entre eles), cada um com a moldura dos outros cards.
+// (retângulos de tamanhos diferentes, com espaço entre eles), sem moldura, com uma sombra leve embaixo dos de baixo.
 // Desenhado em SVG: a foto continua inteira por trás e cada pedaço mostra a sua parte.
 
-// Grade 160 x 90 (16:9), espaço de 3 entre os pedaços.
+// Grade 160 x 90 (16:9), espaço de 3 entre os pedaços. O pedaço grande fica à direita (28/11/2026).
 const PIECES = [
-  { x: 0, y: 0, w: 62, h: 90 },
-  { x: 65, y: 0, w: 95, h: 43.5 },
-  { x: 65, y: 46.5, w: 55, h: 43.5 },
-  { x: 123, y: 46.5, w: 37, h: 43.5 },
+  { x: 98, y: 0, w: 62, h: 90 },
+  { x: 0, y: 0, w: 95, h: 43.5 },
+  { x: 40, y: 46.5, w: 55, h: 43.5 },
+  { x: 0, y: 46.5, w: 37, h: 43.5 },
 ]
+// Sem moldura: só uma sombra leve embaixo dos pedaços da fileira de baixo.
+const BOTTOM_ROW = PIECES.filter((p) => p.y > 0 && p.y + p.h === 90)
 const R = 6
 
 export function HomeCasamentoBanner({ image, onOpen }: { image: string | null; onOpen: () => void }) {
@@ -20,7 +22,7 @@ export function HomeCasamentoBanner({ image, onOpen }: { image: string | null; o
   return (
     <m.section className="home-cas" aria-label="Casamento" {...inViewOnce} variants={riseVariants}>
       <button type="button" className="home-cas-btn" onClick={onOpen} aria-label="Casamento: organize o seu casamento">
-        <svg className="home-cas-svg" viewBox="-2 -2 164 94" aria-hidden="true" focusable="false">
+        <svg className="home-cas-svg" viewBox="-2 -2 164 98" aria-hidden="true" focusable="false">
           <defs>
             <clipPath id={`cas-${id}`}>
               {PIECES.map((p, i) => (
@@ -31,18 +33,17 @@ export function HomeCasamentoBanner({ image, onOpen }: { image: string | null; o
               <stop offset="0" stopColor="#f6e9dc" />
               <stop offset="1" stopColor="#dcc0a6" />
             </linearGradient>
+            <filter id={`cass-${id}`} x="-20%" y="-100%" width="140%" height="300%">
+              <feGaussianBlur stdDeviation="1.6" />
+            </filter>
           </defs>
+          {BOTTOM_ROW.map((p, i) => (
+            <ellipse key={i} cx={p.x + p.w / 2} cy={p.y + p.h + 0.6} rx={p.w * 0.46} ry={2.2} fill="rgba(60,38,24,0.38)" filter={`url(#cass-${id})`} />
+          ))}
           <g clipPath={`url(#cas-${id})`}>
             <rect x="0" y="0" width="160" height="90" fill={`url(#casg-${id})`} />
             {image && <image href={image} x="0" y="0" width="160" height="90" preserveAspectRatio="xMidYMid slice" />}
           </g>
-          {/* moldura de cada pedaço: filete creme e contorno marrom, como os outros cards */}
-          {PIECES.map((p, i) => (
-            <g key={i}>
-              <rect x={p.x - 0.9} y={p.y - 0.9} width={p.w + 1.8} height={p.h + 1.8} rx={R + 0.9} fill="none" stroke="rgba(243,232,219,0.85)" strokeWidth="1.8" />
-              <rect x={p.x - 1.9} y={p.y - 1.9} width={p.w + 3.8} height={p.h + 3.8} rx={R + 1.9} fill="none" stroke="rgba(125,100,79,0.45)" strokeWidth="0.45" />
-            </g>
-          ))}
         </svg>
         {!image && (
           <span className="home-cas-empty" aria-hidden="true">
